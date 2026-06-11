@@ -30,15 +30,23 @@ param(
   [string]$Version = "",
   [string]$Note = "",
   [string]$Message = "",
+  [string]$Repo = "",
   [switch]$NoPush
 )
 
 $ErrorActionPreference = "Stop"
 $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $dir "iakaframe-common.ps1")
+if ([string]::IsNullOrWhiteSpace($Repo)) { $Repo = Split-Path -Leaf $Path }
 
-if (-not (Test-Path (Join-Path $Path ".git"))) {
-  Write-Host "ERREUR: $Path n'est pas un depot git. Lance d'abord 'init iakaframe' (iakaframe-onboard.ps1)." -ForegroundColor Red
-  exit 1
+# Routage : si le depot n'existe pas sur Forgejo, ou pas de git local -> c'est un init.
+$gitExists = Test-Path (Join-Path $Path ".git")
+$repoExists = Test-ForgejoRepo -Repo $Repo
+if ($repoExists -eq $false -or -not $gitExists) {
+  $why = if (-not $gitExists) { "pas de git local" } else { "absent de Forgejo" }
+  Write-Host "Le depot '$Repo' $why -> bascule en 'init' (iakaframe-onboard.ps1)." -ForegroundColor Yellow
+  & (Join-Path $dir "iakaframe-onboard.ps1") -Path $Path -Repo $Repo
+  return
 }
 
 Write-Host "==== update iakaframe : $Path ====" -ForegroundColor Cyan

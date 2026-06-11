@@ -86,6 +86,11 @@ pwsh C:\iakaframe\iakaframe-onboard.ps1 -Path C:\mon-projet -Description "ASCII 
 Options utiles : `-SkipForgejo` (structure + docs sans dépôt distant), `-NoPush`,
 `-Force` (réécrit la structure), `-Version vX.Y.Z`.
 
+> **Auto-détection (init ↔ update).** Les deux commandes vérifient l'existence du dépôt
+> sur Forgejo et basculent l'une vers l'autre : `init` sur un dépôt **déjà sur Forgejo**
+> → fait un `update` ; `update` sur un dépôt **absent de Forgejo** (ou sans git local)
+> → fait un `init`. On peut taper indifféremment l'une ou l'autre.
+
 ---
 
 ## Git par défaut : Forgejo (iakabox)

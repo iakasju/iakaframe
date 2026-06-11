@@ -240,6 +240,11 @@ Déclencheur : dire à Claude **« init iakaframe »** dans le répertoire.
 Orchestrateur : `iakaframe-onboard.ps1` (= `iakaframe-init` + `iakaframe-forgejo` +
 commit + `iakaframe-snapshot`). Un projet déjà doté d'un `CLAUDE.md` : celui-ci prime.
 
+**Auto-détection init ↔ update.** Les deux commandes interrogent l'API Forgejo : `init`
+sur un dépôt déjà présent sur Forgejo bascule en `update`, et `update` sur un dépôt
+absent (ou sans git local) bascule en `init`. Une seule chose à retenir, donc — le bon
+comportement est choisi tout seul.
+
 ## Git par défaut : Forgejo (iakabox)
 
 Tout projet est versionné sur le **Forgejo auto-hébergé du homelab iakabox** —

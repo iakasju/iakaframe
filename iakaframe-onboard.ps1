@@ -37,8 +37,18 @@ param(
 
 $ErrorActionPreference = "Stop"
 $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
+. (Join-Path $dir "iakaframe-common.ps1")
 if ([string]::IsNullOrWhiteSpace($Repo)) { $Repo = Split-Path -Leaf $Path }
 if (-not (Test-Path $Path)) { New-Item -ItemType Directory -Path $Path -Force | Out-Null }
+
+# Routage : si le depot existe deja sur Forgejo ET qu'on a un git local -> c'est un update.
+$gitExists = Test-Path (Join-Path $Path ".git")
+$repoExists = if ($SkipForgejo) { $null } else { Test-ForgejoRepo -Repo $Repo }
+if ($repoExists -eq $true -and $gitExists) {
+  Write-Host "Le depot '$Repo' existe deja sur Forgejo (et git local present) -> bascule en 'update'." -ForegroundColor Yellow
+  & (Join-Path $dir "iakaframe-update.ps1") -Path $Path
+  return
+}
 
 Write-Host "==== iakaframe : onboarding de $Path ====" -ForegroundColor Cyan
 
