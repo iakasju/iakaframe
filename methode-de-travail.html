@@ -951,6 +951,110 @@ main {
   </div>
 </section>
 
+<!-- ==================== OUTILLAGE iakaframe : styles ==================== -->
+<style>
+.box{background:var(--bg-card);border:1px solid #2a2a2a;border-radius:var(--radius-md);padding:1.5rem 1.75rem;margin:1.5rem 0;}
+.box h4{font-size:1rem;font-weight:700;margin-bottom:.5rem;color:var(--text-primary);}
+.box p{color:var(--text-secondary);font-size:.92rem;}
+.cmd{background:#111;border:1px solid #2a2a2a;border-radius:var(--radius-md);padding:1.1rem 1.4rem;margin:1.25rem 0;font-family:'SF Mono','Fira Code',monospace;font-size:.85rem;line-height:1.9;color:#d8d8d8;overflow-x:auto;}
+.cmd .c{color:#555;font-style:italic;}
+.cmd .g{color:var(--accent-gold);font-weight:600;}
+.pill{display:inline-block;font-family:'SF Mono','Fira Code',monospace;background:rgba(var(--accent-rgb),0.1);color:var(--accent-gold);padding:.1rem .55rem;border-radius:6px;font-size:.85rem;}
+</style>
+
+<!-- ==================== DÉMARRER / REPRENDRE ==================== -->
+<section class="section">
+  <div class="section-label">Démarrer & reprendre</div>
+  <h2>Deux commandes pour toute la vie du projet</h2>
+  <p>La méthode n'est pas qu'un principe : elle est outillée. Deux commandes suffisent — <span class="pill">init iakaframe</span> pour lancer ou reprendre un projet, <span class="pill">update iakaframe</span> comme point de sauvegarde. Elles s'amorcent sur un projet neuf comme sur un projet existant.</p>
+
+  <div class="pillars-grid">
+    <div class="pillar-card">
+      <div class="pillar-number" style="background:rgba(200,164,78,.12)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <h4>init iakaframe</h4>
+      <p><strong>Répertoire vide</strong> → nouveau projet (dépôt nommé d'après le dossier, structure, 1er commit, état des lieux, push). <strong>Déjà du code</strong> → reprise : structure déposée <em>autour</em> de l'existant, rien d'écrasé, état des lieux de reprise + synthèse.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number" style="background:rgba(46,204,113,.12)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0115-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 01-15 6.7L3 16"/></svg>
+      </div>
+      <h4>update iakaframe</h4>
+      <p>Le checkpoint en une fois : <strong>régénère l'état des lieux</strong>, fait un <strong>commit global</strong> (<code>git add -A</code>) et <strong>push</strong>. À déclencher à chaque changement de version et à chaque pause / reprise.</p>
+    </div>
+  </div>
+
+  <div class="rule" style="background:rgba(var(--accent-rgb),0.06);border-color:rgba(var(--accent-rgb),0.2);">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div>
+      <p style="color:var(--text-secondary)"><strong style="color:var(--accent-gold)">Auto-détection.</strong> Les deux commandes interrogent le serveur git : <code>init</code> sur un dépôt <em>déjà présent</em> bascule en <code>update</code>, et <code>update</code> sur un dépôt <em>absent</em> (ou sans git local) bascule en <code>init</code>. Une seule chose à retenir — le bon comportement est choisi tout seul, sans risque de boucle.</p>
+    </div>
+  </div>
+
+  <div class="cmd">
+    <span class="c"># projet neuf OU reprise — auto-détecté</span><br>
+    <span class="g">init iakaframe</span><br><br>
+    <span class="c"># checkpoint : etat des lieux + commit global + push</span><br>
+    <span class="g">update iakaframe</span>
+  </div>
+
+  <table class="tool-table">
+    <thead><tr><th>Script</th><th>Rôle</th></tr></thead>
+    <tbody>
+      <tr><td><code>iakaframe-init</code></td><td>Déploie la structure de la méthode (sans rien écraser)</td></tr>
+      <tr><td><code>iakaframe-forgejo</code></td><td>Crée le dépôt distant + branche le remote (token via variable d'env)</td></tr>
+      <tr><td><code>iakaframe-snapshot</code></td><td>Génère l'état des lieux (MD + HTML) à partir des faits git</td></tr>
+      <tr><td><code>iakaframe-onboard</code></td><td>Orchestrateur « init » : structure + dépôt + commit + docs</td></tr>
+      <tr><td><code>iakaframe-update</code></td><td>« update » : état des lieux + commit global + push</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ==================== GIT PAR DÉFAUT ==================== -->
+<section class="section">
+  <div class="section-label">Versionnement</div>
+  <h2>Git par défaut : un serveur auto-hébergé</h2>
+  <p>Cohérent avec la préférence self-hosted, tout projet est versionné sur un <strong>git auto-hébergé sur le réseau local</strong> (Forgejo). Le dépôt est privé par défaut, l'authentification se fait en <strong>HTTP + token</strong>, et le token n'est <strong>jamais écrit en dur ni commité</strong> — il vit dans une variable d'environnement ou le <code>.git/config</code> local.</p>
+
+  <div class="box">
+    <h4>Règles d'usage</h4>
+    <p>
+      • Remote : <code>http://&lt;serveur&gt;:3001/&lt;user&gt;/&lt;repo&gt;.git</code> &nbsp;•&nbsp; auth HTTP + token (SSH non utilisé)<br>
+      • Token : variable <code>FORGEJO_TOKEN</code> (scopes <code>write:repository</code> + <code>write:user</code>)<br>
+      • Création de dépôt via l'API &nbsp;•&nbsp; <strong>description en ASCII uniquement</strong> (sinon erreur d'encodage)<br>
+      • Filet de sécurité : <strong>commits atomiques fréquents</strong> ; jamais de <code>reset --hard</code> ni <code>push --force</code> côté IA
+    </p>
+  </div>
+</section>
+
+<!-- ==================== CYCLE DE DOCUMENTATION ==================== -->
+<section class="section">
+  <div class="section-label">Documentation vivante</div>
+  <h2>L'état des lieux, régénéré aux bons moments</h2>
+  <p>La doc d'état n'est pas écrite « quand on y pense ». Elle est régénérée automatiquement à deux moments précis, ce qui rend toute reprise triviale : on lit l'état des lieux, on ne fouille pas sa mémoire.</p>
+
+  <div class="pillars-grid">
+    <div class="pillar-card">
+      <div class="pillar-number">1</div>
+      <h4>À chaque changement de version</h4>
+      <p><code>update iakaframe -Reason version -Version vX.Y.Z</code> — on fige l'état livré et on l'étiquette.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number">2</div>
+      <h4>À chaque pause / reprise</h4>
+      <p><code>-Reason pause</code> avant d'arrêter, <code>-Reason reprise</code> en revenant. Le « où j'en étais » est capturé, pas perdu.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number">3</div>
+      <h4>Faits auto, récit par Cowork</h4>
+      <p>Le script capte les <strong>faits git</strong> (version, branche, commits, arbre propre/sale) et tient un journal append-only. <strong>Cowork complète le récit de reprise</strong> : ce qui vient d'être fait, ce qui reste, la prochaine étape.</p>
+    </div>
+  </div>
+
+  <p>Résultat : <code>specs/etat-des-lieux.md</code> + <code>.html</code> toujours à jour. La documentation existe parce que le workflow l'exige — et reprendre un projet après des semaines redevient une lecture de deux minutes.</p>
+</section>
+
 <!-- ==================== AGILITÉ ==================== -->
 <section class="section">
   <div class="section-label">Impact en agilité</div>

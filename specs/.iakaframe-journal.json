@@ -4,49 +4,43 @@
                       {
                           "value":  [
                                         {
-                                            "date":  "2026-06-11 23:28",
-                                            "reason":  "version",
-                                            "version":  "v0.1.0",
-                                            "branch":  "main",
-                                            "commit":  "3827dd6 chore: init iakaframe (methode, kit, scripts, doc iakabox)",
-                                            "dirty":  false,
-                                            "files":  14,
-                                            "note":  "init framework: methode, kit, scripts, doc iakabox"
+                                            "value":  " ",
+                                            "Count":  2
                                         },
                                         {
-                                            "date":  "2026-06-11 23:32",
-                                            "reason":  "version",
-                                            "version":  "v0.1.0",
+                                            "date":  "2026-06-11 23:34",
+                                            "reason":  "manual",
+                                            "version":  "-",
                                             "branch":  "main",
-                                            "commit":  "91a195f docs: etat des lieux initial (iakaframe-snapshot v0.1.0)",
+                                            "commit":  "5028d0c chore(iakaframe): update etat des lieux + commit global (version v0.1.0)",
                                             "dirty":  true,
-                                            "files":  18,
-                                            "note":  "definition de la commande update iakaframe"
+                                            "files":  19,
+                                            "note":  "ajout .gitattributes + renormalisation EOL"
                                         }
                                     ],
                           "Count":  2
                       },
                       {
-                          "date":  "2026-06-11 23:34",
-                          "reason":  "manual",
-                          "version":  "-",
+                          "date":  "2026-06-11 23:39",
+                          "reason":  "version",
+                          "version":  "v0.2.0",
                           "branch":  "main",
-                          "commit":  "5028d0c chore(iakaframe): update etat des lieux + commit global (version v0.1.0)",
+                          "commit":  "43b25c0 chore(iakaframe): update etat des lieux + commit global (manual)",
                           "dirty":  true,
-                          "files":  19,
-                          "note":  "ajout .gitattributes + renormalisation EOL"
+                          "files":  20,
+                          "note":  "init/update auto-detectent l\u0027existence sur Forgejo"
                       }
                   ],
         "Count":  2
     },
     {
-        "date":  "2026-06-11 23:39",
+        "date":  "2026-06-11 23:41",
         "reason":  "version",
-        "version":  "v0.2.0",
+        "version":  "v0.3.0",
         "branch":  "main",
-        "commit":  "43b25c0 chore(iakaframe): update etat des lieux + commit global (manual)",
+        "commit":  "be3bf1b chore(iakaframe): update etat des lieux + commit global (version v0.2.0)",
         "dirty":  true,
         "files":  20,
-        "note":  "init/update auto-detectent l\u0027existence sur Forgejo"
+        "note":  "doc HTML impactee : commandes init/update, Forgejo, cycle de doc, auto-detection"
     }
 ]

@@ -23,6 +23,7 @@ en place, au lieu de le réinventer à chaque fois.
 | [`iakaframe-snapshot.ps1`](./iakaframe-snapshot.ps1) | Génère l'état des lieux (MD + HTML) à chaque version / pause / reprise. |
 | [`iakaframe-onboard.ps1`](./iakaframe-onboard.ps1) | **Orchestrateur** : structure + Forgejo + 1er commit + docs, sur projet neuf ou existant. |
 | [`iakaframe-update.ps1`](./iakaframe-update.ps1) | **« update iakaframe »** : régénère l'état des lieux + commit global + push. |
+| [`iakaframe-common.ps1`](./iakaframe-common.ps1) | Helper partagé (token + détection d'existence Forgejo) ; dot-sourcé par les autres. |
 
 ### Le kit de démarrage (`kit/`)
 
