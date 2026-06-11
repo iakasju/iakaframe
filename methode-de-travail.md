@@ -264,6 +264,11 @@ append-only**. Les faits sont automatiques ; **Cowork complète le récit de rep
 (ce qui vient d'être fait, ce qui reste, la prochaine étape concrète). Ainsi, reprendre
 un projet après une pause = lire `etat-des-lieux.md`, pas fouiller sa mémoire.
 
+**Commande « update iakaframe »** — le checkpoint en une fois : `iakaframe-update.ps1`
+régénère l'état des lieux **puis** fait un **commit global** (`git add -A` + commit) et
+**push**. C'est le geste à faire à chaque changement de version et à chaque pause/reprise
+(`-Reason version|pause|reprise`), ou comme simple point de sauvegarde.
+
 ---
 
 ## Ce que cette méthode n'est pas

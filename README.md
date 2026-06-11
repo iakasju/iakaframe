@@ -22,6 +22,7 @@ en place, au lieu de le réinventer à chaque fois.
 | [`iakaframe-forgejo.ps1`](./iakaframe-forgejo.ps1) | Crée le dépôt Forgejo + branche le remote (token via env). |
 | [`iakaframe-snapshot.ps1`](./iakaframe-snapshot.ps1) | Génère l'état des lieux (MD + HTML) à chaque version / pause / reprise. |
 | [`iakaframe-onboard.ps1`](./iakaframe-onboard.ps1) | **Orchestrateur** : structure + Forgejo + 1er commit + docs, sur projet neuf ou existant. |
+| [`iakaframe-update.ps1`](./iakaframe-update.ps1) | **« update iakaframe »** : régénère l'état des lieux + commit global + push. |
 
 ### Le kit de démarrage (`kit/`)
 
@@ -107,6 +108,16 @@ pwsh C:\iakaframe\iakaframe-snapshot.ps1 -Reason pause   -Note "WIP : reprendre 
 
 Le script capte les faits git (version, branche, commits, état de l'arbre) et tient un
 journal append-only ; **Cowork complète le récit de reprise** dans le `.md`.
+
+### Commande « update iakaframe »
+
+Checkpoint en une commande : **régénère l'état des lieux + commit global + push**.
+
+```powershell
+pwsh C:\iakaframe\iakaframe-update.ps1                                  # checkpoint manuel
+pwsh C:\iakaframe\iakaframe-update.ps1 -Reason version -Version v0.3.0  # à un changement de version
+pwsh C:\iakaframe\iakaframe-update.ps1 -Reason pause -Note "..." -NoPush
+```
 
 ---
 

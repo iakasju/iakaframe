@@ -1,10 +1,22 @@
-﻿{
-    "date":  "2026-06-11 23:28",
-    "reason":  "version",
-    "version":  "v0.1.0",
-    "branch":  "main",
-    "commit":  "3827dd6 chore: init iakaframe (methode, kit, scripts, doc iakabox)",
-    "dirty":  false,
-    "files":  14,
-    "note":  "init framework: methode, kit, scripts, doc iakabox"
-}
+﻿[
+    {
+        "date":  "2026-06-11 23:28",
+        "reason":  "version",
+        "version":  "v0.1.0",
+        "branch":  "main",
+        "commit":  "3827dd6 chore: init iakaframe (methode, kit, scripts, doc iakabox)",
+        "dirty":  false,
+        "files":  14,
+        "note":  "init framework: methode, kit, scripts, doc iakabox"
+    },
+    {
+        "date":  "2026-06-11 23:32",
+        "reason":  "version",
+        "version":  "v0.1.0",
+        "branch":  "main",
+        "commit":  "91a195f docs: etat des lieux initial (iakaframe-snapshot v0.1.0)",
+        "dirty":  true,
+        "files":  18,
+        "note":  "definition de la commande update iakaframe"
+    }
+]
