@@ -1,0 +1,17 @@
+# Settings locaux de session (racine) — pas le template kit/.claude/
+/.claude/
+
+# Dépendances / builds
+node_modules/
+dist/
+build/
+target/
+
+# Secrets / env
+.env
+.env.local
+*.token
+
+# OS
+Thumbs.db
+.DS_Store

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iakabox — Guide d'utilisation (Git Forgejo &amp; services)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#0a0a0a;--bg-card:#1a1a1a;--text-primary:#f0f0f0;--text-secondary:#8a8a8a;
+  --text-muted:#555;--accent-gold:#c8a44e;--accent-gold-light:#e8c960;--accent-rgb:200,164,78;
+  --gradient-accent:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-light));
+  --radius-md:12px;--radius-lg:20px;--shadow-glow:0 0 40px rgba(var(--accent-rgb),0.15);
+  --font-sans:"Inter",-apple-system,BlinkMacSystemFont,sans-serif;
+  --red:#e74c3c;--green:#2ecc71;--blue:#3498db;--orange:#e67e22;--cyan:#1abc9c;--purple:#9b59b6;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased;}
+code{font-family:'SF Mono','Fira Code',monospace;}
+.hero{position:relative;min-height:60vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:4rem 2rem;overflow:hidden;}
+.hero::before{content:'';position:absolute;top:-30%;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(var(--accent-rgb),0.08) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(var(--accent-rgb),0.1);border:1px solid rgba(var(--accent-rgb),0.25);border-radius:999px;padding:.4rem 1rem;font-size:.8rem;color:var(--accent-gold);margin-bottom:2rem;letter-spacing:.05em;text-transform:uppercase;}
+.hero h1{font-size:clamp(2.2rem,6vw,4rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;max-width:800px;}
+.accent{background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent;}
+.hero-subtitle{color:var(--text-secondary);font-size:clamp(1rem,2vw,1.25rem);max-width:640px;margin-top:1.5rem;}
+main{max-width:72rem;margin:0 auto;padding:0 2rem 6rem;}
+.section{margin-bottom:5rem;scroll-margin-top:2rem;}
+.section-label{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-gold);margin-bottom:1rem;}
+.section-label::before{content:'';display:inline-block;width:24px;height:2px;background:var(--gradient-accent);}
+.section h2{font-size:clamp(1.4rem,3vw,2.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1.25rem;line-height:1.2;}
+.section>p{color:var(--text-secondary);font-size:1.05rem;max-width:70ch;margin-bottom:1.25rem;}
+.section h3{font-size:1.15rem;font-weight:700;margin:2rem 0 .75rem;}
+/* nav */
+.tocbar{position:sticky;top:0;z-index:10;background:rgba(10,10,10,.85);backdrop-filter:blur(10px);border-bottom:1px solid #1f1f1f;padding:.75rem 2rem;display:flex;gap:1.25rem;flex-wrap:wrap;justify-content:center;font-size:.85rem;}
+.tocbar a{color:var(--text-secondary);text-decoration:none;transition:color .2s;}
+.tocbar a:hover{color:var(--accent-gold);}
+/* card */
+.card{background:var(--bg-card);border:1px solid #2a2a2a;border-radius:var(--radius-md);padding:1.5rem 1.75rem;margin:1.25rem 0;}
+.card.glow{box-shadow:var(--shadow-glow);}
+/* code block */
+pre{background:#111;border:1px solid #2a2a2a;border-radius:var(--radius-md);padding:1.25rem 1.5rem;margin:1rem 0;overflow-x:auto;font-size:.85rem;line-height:1.6;}
+pre code{color:#d8d8d8;}
+.cmt{color:var(--text-muted);}
+.tok{color:var(--accent-gold);}
+.kw{color:var(--blue);}
+.str{color:var(--green);}
+p code,li code,td code{background:rgba(var(--accent-rgb),0.08);color:var(--accent-gold);padding:.12rem .4rem;border-radius:4px;font-size:.85rem;}
+/* table */
+table{width:100%;border-collapse:separate;border-spacing:0;margin:1.5rem 0;border-radius:var(--radius-md);overflow:hidden;border:1px solid #2a2a2a;font-size:.9rem;}
+th{background:var(--bg-card);font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:.7rem 1rem;text-align:left;font-weight:600;}
+td{padding:.7rem 1rem;border-top:1px solid #1f1f1f;color:var(--text-secondary);}
+td strong{color:var(--text-primary);}
+tr:hover td{background:#151515;}
+/* callouts */
+.note{display:flex;gap:1rem;border-radius:var(--radius-md);padding:1.1rem 1.4rem;margin:1.5rem 0;font-size:.92rem;}
+.note svg{flex-shrink:0;margin-top:2px;}
+.note.warn{background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.2);}
+.note.warn strong{color:var(--red);}
+.note.tip{background:rgba(46,204,113,.05);border:1px solid rgba(46,204,113,.2);}
+.note.tip strong{color:var(--green);}
+.note.info{background:rgba(52,152,219,.05);border:1px solid rgba(52,152,219,.2);}
+.note.info strong{color:var(--blue);}
+.note p{color:var(--text-secondary);}
+/* vm grid */
+.vm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0;}
+.vm-card{background:var(--bg-card);border:1px solid #2a2a2a;border-radius:var(--radius-md);padding:1.25rem;}
+.vm-card h4{font-size:1rem;font-weight:700;margin-bottom:.25rem;}
+.vm-ip{font-family:'SF Mono',monospace;font-size:.8rem;color:var(--accent-gold);margin-bottom:.6rem;}
+.vm-card ul{list-style:none;display:flex;flex-direction:column;gap:.25rem;}
+.vm-card li{font-size:.82rem;color:var(--text-secondary);}
+.badge{display:inline-block;font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.04em;padding:.12rem .5rem;border-radius:999px;}
+.b-gpu{background:rgba(155,89,182,.15);color:var(--purple);}
+.b-proxy{background:rgba(52,152,219,.15);color:var(--blue);}
+.b-apps{background:rgba(200,164,78,.15);color:var(--accent-gold);}
+.b-mon{background:rgba(46,204,113,.15);color:var(--green);}
+.b-notes{background:rgba(230,126,34,.15);color:var(--orange);}
+.footer{text-align:center;padding:3rem 2rem;border-top:1px solid #1f1f1f;margin-top:3rem;}
+.footer p{color:var(--text-muted);font-size:.85rem;}
+.footer .accent-line{width:60px;height:3px;background:var(--gradient-accent);border-radius:999px;margin:0 auto 1.5rem;}
+::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-thumb{background:#333;border-radius:999px;}
+@media(max-width:768px){main{padding:0 1.25rem 4rem;}.tocbar{gap:.8rem;}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-badge">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="8" rx="2"/><rect x="2" y="14" width="20" height="8" rx="2"/><line x1="6" y1="6" x2="6.01" y2="6"/><line x1="6" y1="18" x2="6.01" y2="18"/></svg>
+    Homelab self-hosted
+  </div>
+  <h1><span class="accent">iakabox</span> — Guide d'utilisation</h1>
+  <p class="hero-subtitle">Le homelab Proxmox de Stéphane : Git privé (Forgejo), IA locale (Ollama), automatisation, notes et monitoring. Comment s'en servir au quotidien.</p>
+</section>
+
+<nav class="tocbar">
+  <a href="#apercu">Aperçu</a>
+  <a href="#git">Git / Forgejo</a>
+  <a href="#ia">IA locale</a>
+  <a href="#services">Services</a>
+  <a href="#stockage">Stockage / SMB</a>
+  <a href="#depannage">Dépannage</a>
+</nav>
+
+<main>
+
+<!-- ============ APERCU ============ -->
+<section class="section" id="apercu">
+  <div class="section-label">Aperçu</div>
+  <h2>Qu'est-ce qu'iakabox&nbsp;?</h2>
+  <p>Un serveur unique (<code>bigserver</code>, Proxmox VE 9, hôte <code>192.168.2.20</code>) qui fait tourner 5 machines virtuelles, chacune dédiée à un rôle. L'ensemble est déployé en Infrastructure-as-Code (Ansible) et remplace une pile de services cloud par des équivalents auto-hébergés sur le LAN.</p>
+
+  <div class="vm-grid">
+    <div class="vm-card">
+      <h4>VM1 <span class="badge b-proxy">Proxy</span></h4>
+      <div class="vm-ip">192.168.2.10</div>
+      <ul><li>Nginx Proxy Manager (80/443, admin :81)</li><li>Routage des domaines <code>*.bigserver.local</code></li></ul>
+    </div>
+    <div class="vm-card">
+      <h4>VM2 <span class="badge b-apps">Apps</span></h4>
+      <div class="vm-ip">192.168.2.11</div>
+      <ul><li><strong>Forgejo</strong> (git) · PostgreSQL</li><li>n8n · Vikunja · Flowise</li><li>Portainer · Dashy · Homarr</li></ul>
+    </div>
+    <div class="vm-card">
+      <h4>VM3 <span class="badge b-gpu">IA · GPU</span></h4>
+      <div class="vm-ip">192.168.2.12</div>
+      <ul><li>Ollama · Open WebUI · LiteLLM</li><li>AnythingLLM · ComfyUI · Whisper</li><li>NVIDIA RTX 3060 (passthrough)</li></ul>
+    </div>
+    <div class="vm-card">
+      <h4>VM4 <span class="badge b-mon">Monitoring</span></h4>
+      <div class="vm-ip">192.168.2.13</div>
+      <ul><li>Prometheus · Grafana</li><li>Dozzle (logs Docker)</li></ul>
+    </div>
+    <div class="vm-card">
+      <h4>VM5 <span class="badge b-notes">Notes</span></h4>
+      <div class="vm-ip">192.168.2.14</div>
+      <ul><li>AppFlowy Cloud (port 3008)</li><li>Stack CRDT 13 conteneurs</li></ul>
+    </div>
+  </div>
+
+  <div class="note info">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <p><strong>Pas de DNS local.</strong> Les domaines <code>*.bigserver.local</code> existent via NPM mais ne résolvent pas partout. En pratique, on accède aux services <strong>en IP:port directe</strong> (voir tableau plus bas). Pour utiliser les noms, ajouter les entrées dans le <code>hosts</code> du poste client (→ <code>192.168.2.10</code>).</p>
+  </div>
+</section>
+
+<!-- ============ GIT / FORGEJO ============ -->
+<section class="section" id="git">
+  <div class="section-label">L'essentiel</div>
+  <h2>Git avec Forgejo</h2>
+  <p><strong>Forgejo</strong> (fork léger de Gitea) est le serveur git privé d'iakabox. Tous les projets y vivent : <code>robotimmo</code>, <code>iakabox</code>, et désormais les projets démarrés avec la méthode iakaframe.</p>
+
+  <table>
+    <tr><th>Élément</th><th>Valeur</th></tr>
+    <tr><td><strong>Web UI</strong></td><td><code>http://192.168.2.11:3001</code></td></tr>
+    <tr><td><strong>Compte</strong></td><td><code>sjupin</code></td></tr>
+    <tr><td><strong>Pattern de remote</strong></td><td><code>http://192.168.2.11:3001/sjupin/&lt;repo&gt;.git</code></td></tr>
+    <tr><td><strong>Auth</strong></td><td>HTTP + <strong>token</strong> (SSH inutilisable, voir plus bas)</td></tr>
+    <tr><td><strong>Dépôts privés</strong></td><td>oui par défaut (LAN protégé)</td></tr>
+  </table>
+
+  <div class="note warn">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>SSH ne marche pas.</strong> Le port 22 de <code>192.168.2.11</code> répond avec le sshd <em>système</em> de la VM, pas le serveur SSH de Forgejo : les clés du compte Forgejo n'y sont pas honorées (<code>Permission denied (publickey)</code>). <strong>Toujours utiliser HTTP + token.</strong> Ne pas s'acharner sur SSH.</p>
+  </div>
+
+  <h3>1. Générer un token</h3>
+  <p>Dans Forgejo : <strong>Paramètres → Applications → Générer un nouveau token</strong>. Scopes nécessaires :</p>
+  <ul style="color:var(--text-secondary);margin:.5rem 0 1rem 1.5rem;font-size:.95rem;">
+    <li><code>write:repository</code> — pour <code>push</code>/<code>pull</code></li>
+    <li><code>write:user</code> — en plus, pour <strong>créer</strong> un dépôt via l'API</li>
+  </ul>
+  <p>Garder le token côté client (dans <code>.git/config</code> local ou une variable d'environnement). Ne jamais le committer.</p>
+
+  <h3>2. Cloner / configurer un dépôt existant</h3>
+<pre><code><span class="cmt"># Clone avec token intégré dans l'URL (le plus simple sur le LAN)</span>
+git clone http://sjupin:<span class="tok">$TOKEN</span>@192.168.2.11:3001/sjupin/robotimmo.git
+
+<span class="cmt"># Ou : ajouter/rebrancher le remote sur un repo local</span>
+git remote add origin http://sjupin:<span class="tok">$TOKEN</span>@192.168.2.11:3001/sjupin/&lt;repo&gt;.git
+git push -u origin main</code></pre>
+
+  <div class="note tip">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    <p><strong>Le token dans l'URL = pas de re-saisie.</strong> Une fois <code>origin</code> configuré avec le token, <code>git push</code> fonctionne sans redemander d'identifiant. Le token vit dans <code>.git/config</code> (non committé).</p>
+  </div>
+
+  <h3>3. Créer un nouveau dépôt (API)</h3>
+<pre><code><span class="cmt"># T = token avec scope write:user. Description en ASCII uniquement !</span>
+curl -s -X POST \
+  -H <span class="str">"Authorization: token $T"</span> \
+  -H <span class="str">"Content-Type: application/json"</span> \
+  -d <span class="str">'{"name":"mon-projet","private":true,"auto_init":false,"description":"ASCII only"}'</span> \
+  http://192.168.2.11:3001/api/v1/user/repos</code></pre>
+
+  <div class="note warn">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    <p><strong>Description ASCII obligatoire.</strong> Un tiret cadratin « — » ou tout caractère non-ASCII casse l'encodage et renvoie <code>HTTP 422 « invalid UTF-8 »</code>. Rester en ASCII pur dans le champ description.</p>
+  </div>
+
+  <h3>4. Roter le token</h3>
+<pre><code>git remote set-url origin http://sjupin:<span class="tok">NOUVEAU_TOKEN</span>@192.168.2.11:3001/sjupin/&lt;repo&gt;.git
+git push</code></pre>
+
+  <div class="note info">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+    <p>Avec <strong>iakaframe</strong>, ces étapes sont automatisées : <code>iakaframe-onboard.ps1</code> crée le dépôt Forgejo, branche le remote (token lu depuis <code>$env:FORGEJO_TOKEN</code>) et fait le premier push. Voir le guide méthode.</p>
+  </div>
+</section>
+
+<!-- ============ IA LOCALE ============ -->
+<section class="section" id="ia">
+  <div class="section-label">IA locale</div>
+  <h2>Modèles &amp; endpoints IA (VM3, GPU)</h2>
+  <p>La VM3 porte la RTX 3060 et expose toute l'IA locale. Idéal comme backend pour vos apps (préférence self-hosted de la méthode).</p>
+
+  <table>
+    <tr><th>Service</th><th>Endpoint</th><th>Usage</th></tr>
+    <tr><td><strong>Ollama</strong></td><td><code>http://192.168.2.12:11434</code></td><td>API LLM locale (compatible REST). Modèles dans <code>/mnt/ollama-models</code>.</td></tr>
+    <tr><td><strong>LiteLLM</strong></td><td><code>http://192.168.2.12:4001</code></td><td>Proxy OpenAI-compatible (route vers Ollama + APIs externes). Point d'entrée unifié.</td></tr>
+    <tr><td><strong>Open WebUI</strong></td><td><code>http://192.168.2.12:8099</code></td><td>Chat web sur Ollama.</td></tr>
+    <tr><td><strong>AnythingLLM</strong></td><td><code>http://192.168.2.12:3005</code></td><td>RAG : upload de documents, embeddings, chaînes.</td></tr>
+    <tr><td><strong>ComfyUI</strong></td><td><code>http://192.168.2.12:8188</code></td><td>Génération d'images (Stable Diffusion).</td></tr>
+    <tr><td><strong>Whisper</strong></td><td><code>http://192.168.2.12:9000</code></td><td>Speech-to-text.</td></tr>
+    <tr><td><strong>Obot (MCP)</strong></td><td><code>http://192.168.2.12:3009</code></td><td>Plateforme MCP pour agents IA.</td></tr>
+  </table>
+
+<pre><code><span class="cmt"># Tirer un modèle sur la VM3</span>
+docker exec ollama ollama pull mistral:7b-instruct-q4_K_M
+
+<span class="cmt"># Tester l'API Ollama depuis le LAN</span>
+curl http://192.168.2.12:11434/api/generate -d <span class="str">'{"model":"mistral","prompt":"bonjour"}'</span></code></pre>
+
+  <div class="note warn">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>Driver GPU.</strong> Ollama récent exige un driver NVIDIA <strong>580+</strong> sur la VM3. En 535, on obtient une erreur CUDA. Vérifier le driver avant de mettre à jour Ollama.</p>
+  </div>
+</section>
+
+<!-- ============ SERVICES ============ -->
+<section class="section" id="services">
+  <div class="section-label">Référence</div>
+  <h2>Tous les services (IP:port)</h2>
+  <p>Accès direct en IP, sur le LAN <code>192.168.2.0/24</code>.</p>
+
+  <table>
+    <tr><th>Service</th><th>VM</th><th>URL</th><th>Rôle</th></tr>
+    <tr><td><strong>Nginx Proxy Manager</strong></td><td>VM1</td><td><code>192.168.2.10:81</code></td><td>Reverse proxy / SSL</td></tr>
+    <tr><td><strong>Forgejo</strong></td><td>VM2</td><td><code>192.168.2.11:3001</code></td><td>Git privé</td></tr>
+    <tr><td><strong>Portainer</strong></td><td>VM2</td><td><code>192.168.2.11:9000</code></td><td>Gestion Docker (multi-VM)</td></tr>
+    <tr><td><strong>n8n</strong></td><td>VM2</td><td><code>192.168.2.11:5678</code></td><td>Automatisation / workflows</td></tr>
+    <tr><td><strong>Vikunja</strong></td><td>VM2</td><td><code>192.168.2.11:3007</code></td><td>Tâches / kanban</td></tr>
+    <tr><td><strong>Flowise</strong></td><td>VM2</td><td><code>192.168.2.11:3006</code></td><td>Builder LangChain visuel</td></tr>
+    <tr><td><strong>FreshRSS</strong></td><td>VM2</td><td><code>192.168.2.11:8096</code></td><td>Lecteur RSS</td></tr>
+    <tr><td><strong>Adminer</strong></td><td>VM2</td><td><code>192.168.2.11:8082</code></td><td>Admin SQL</td></tr>
+    <tr><td><strong>Dashy / Homarr</strong></td><td>VM2</td><td><code>:4000</code> / <code>:7575</code></td><td>Dashboards portail</td></tr>
+    <tr><td><strong>PostgreSQL</strong></td><td>VM2</td><td><code>10.10.10.2:5432</code></td><td>DB centrale (inter-VM)</td></tr>
+    <tr><td><strong>Prometheus</strong></td><td>VM4</td><td><code>192.168.2.13:9090</code></td><td>Métriques</td></tr>
+    <tr><td><strong>Grafana</strong></td><td>VM4</td><td><code>192.168.2.13:3000</code></td><td>Dashboards monitoring</td></tr>
+    <tr><td><strong>Dozzle</strong></td><td>VM4</td><td><code>192.168.2.13:8097</code></td><td>Logs Docker temps réel</td></tr>
+    <tr><td><strong>AppFlowy</strong></td><td>VM5</td><td><code>192.168.2.14:3008</code></td><td>Notes / wiki (CRDT)</td></tr>
+    <tr><td><strong>Proxmox VE</strong></td><td>Hôte</td><td><code>192.168.2.20:8006</code></td><td>Hyperviseur (HTTPS)</td></tr>
+  </table>
+</section>
+
+<!-- ============ STOCKAGE / SMB ============ -->
+<section class="section" id="stockage">
+  <div class="section-label">Stockage partagé</div>
+  <h2>Le partage <code>work</code> (SMB, 8&nbsp;To)</h2>
+  <p>L'hôte Proxmox (<code>192.168.2.20</code>) expose un partage Samba sur le HDD 8&nbsp;To, pour le stockage temporaire et les sauvegardes.</p>
+
+  <table>
+    <tr><th>Élément</th><th>Valeur</th></tr>
+    <tr><td><strong>Chemin Windows</strong></td><td><code>\\192.168.2.20\work</code></td></tr>
+    <tr><td><strong>Chemin serveur</strong></td><td><code>/hdd/work</code> (quota 4&nbsp;To partagé)</td></tr>
+    <tr><td><strong>Comptes Samba</strong></td><td><code>iaka</code>, <code>sjupin</code> (groupe <code>iaka</code>, écriture)</td></tr>
+    <tr><td><strong>SSH hôte</strong></td><td><code>ssh root@192.168.2.20</code> (clé <code>~/.ssh/iakabox_key</code>, <code>Host bigserver</code>)</td></tr>
+  </table>
+
+  <div class="note warn">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    <p><strong>Ne pas lancer une stack Docker depuis le montage SMB</strong> (bind-mounts cassés, surtout sur macOS). Cloner et exécuter en local ; le partage sert au stockage et aux backups, pas à l'exécution.</p>
+  </div>
+
+  <p>Sauvegardes utiles présentes sur <code>work/</code> : <code>claude-backup/</code> (conversations Claude, 10 projets), <code>sources-backup/</code> (sources non-git), <code>ssh-backup/</code> (clés dont <code>iakabox_key</code>).</p>
+</section>
+
+<!-- ============ DEPANNAGE ============ -->
+<section class="section" id="depannage">
+  <div class="section-label">Dépannage</div>
+  <h2>Problèmes courants</h2>
+
+  <div class="card">
+    <h3 style="margin-top:0;">«&nbsp;Permission denied (publickey)&nbsp;» au git push</h3>
+    <p style="color:var(--text-secondary);font-size:.92rem;margin:0;">Vous utilisez SSH. Bascule sur HTTP + token : <code>git remote set-url origin http://sjupin:$TOKEN@192.168.2.11:3001/sjupin/&lt;repo&gt;.git</code></p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;">Création de dépôt → HTTP 422 « invalid UTF-8 »</h3>
+    <p style="color:var(--text-secondary);font-size:.92rem;margin:0;">La <code>description</code> contient un caractère non-ASCII (souvent un « — »). Mettre une description en ASCII pur.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;">Ollama : erreur CUDA</h3>
+    <p style="color:var(--text-secondary);font-size:.92rem;margin:0;">Driver NVIDIA trop ancien sur VM3. Passer en driver 580+.</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;">Un service ne répond pas par son nom <code>.bigserver.local</code></h3>
+    <p style="color:var(--text-secondary);font-size:.92rem;margin:0;">Pas de DNS local : utiliser l'IP:port directe, ou ajouter l'entrée dans le <code>hosts</code> du poste (→ <code>192.168.2.10</code>).</p>
+  </div>
+  <div class="card">
+    <h3 style="margin-top:0;">Inspecter / relancer un conteneur</h3>
+    <p style="color:var(--text-secondary);font-size:.92rem;margin:0;">Logs en temps réel via Dozzle (<code>192.168.2.13:8097</code>) ou Portainer (<code>192.168.2.11:9000</code>). En SSH sur la VM : <code>docker ps</code>, <code>docker logs &lt;c&gt;</code>, <code>docker compose restart &lt;svc&gt;</code>.</p>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p>iakabox · homelab Proxmox de Stéphane · guide d'utilisation</p>
+  <p style="margin-top:.35rem">Aucun secret dans ce document. Tokens et mots de passe vivent dans Forgejo, le vault Ansible et les <code>.git/config</code> locaux.</p>
+</footer>
+
+</body>
+</html>

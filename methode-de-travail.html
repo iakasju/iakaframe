@@ -1,0 +1,1060 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iakaframe — Méthode de travail IA-augmentée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-card: #1a1a1a;
+  --bg-card-hover: #222222;
+  --text-primary: #f0f0f0;
+  --text-secondary: #8a8a8a;
+  --text-muted: #555555;
+  --accent-gold: #c8a44e;
+  --accent-gold-light: #e8c960;
+  --accent-rgb: 200, 164, 78;
+  --gradient-accent: linear-gradient(135deg, var(--accent-gold), var(--accent-gold-light));
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --shadow-glow: 0 0 40px rgba(var(--accent-rgb), 0.15);
+  --font-sans: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  --red: #e74c3c;
+  --green: #2ecc71;
+  --blue: #3498db;
+  --purple: #9b59b6;
+  --orange: #e67e22;
+  --cyan: #1abc9c;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---- Hero ---- */
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), 0.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(var(--accent-rgb), 0.1);
+  border: 1px solid rgba(var(--accent-rgb), 0.25);
+  border-radius: 999px;
+  padding: 0.4rem 1rem;
+  font-size: 0.8rem;
+  color: var(--accent-gold);
+  margin-bottom: 2rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  font-size: clamp(2.5rem, 6vw, 4.5rem);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  max-width: 800px;
+}
+
+.accent {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-subtitle {
+  color: var(--text-secondary);
+  font-size: clamp(1rem, 2vw, 1.3rem);
+  max-width: 640px;
+  margin-top: 1.5rem;
+}
+
+.hero-scroll {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(8px); }
+}
+
+/* ---- Main ---- */
+main {
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 0 2rem 6rem;
+}
+
+/* ---- Section ---- */
+.section {
+  margin-bottom: 6rem;
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--accent-gold);
+  margin-bottom: 1rem;
+}
+
+.section-label::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: var(--gradient-accent);
+}
+
+.section h2 {
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.5rem;
+  line-height: 1.2;
+}
+
+.section > p {
+  color: var(--text-secondary);
+  font-size: 1.05rem;
+  max-width: 65ch;
+  margin-bottom: 1.5rem;
+}
+
+/* ---- Manifesto quote ---- */
+.manifesto {
+  position: relative;
+  background: var(--bg-card);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-lg);
+  padding: 3rem 3rem 3rem 4rem;
+  margin: 3rem 0;
+  box-shadow: var(--shadow-glow);
+}
+
+.manifesto::before {
+  content: '"';
+  position: absolute;
+  top: 1rem;
+  left: 1.5rem;
+  font-size: 5rem;
+  font-weight: 900;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  line-height: 1;
+}
+
+.manifesto p {
+  font-size: 1.3rem;
+  font-weight: 500;
+  line-height: 1.6;
+}
+
+.manifesto .author {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ---- Actor cards ---- */
+.actors-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.actor-card {
+  background: var(--bg-card);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.actor-card:hover {
+  border-color: rgba(var(--accent-rgb), 0.3);
+  box-shadow: var(--shadow-glow);
+}
+
+.actor-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+}
+
+.actor-card.human::after { background: var(--gradient-accent); }
+.actor-card.cowork::after { background: linear-gradient(90deg, var(--blue), var(--cyan)); }
+.actor-card.claudecode::after { background: linear-gradient(90deg, var(--green), #27ae60); }
+
+.actor-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.actor-icon.human { background: rgba(var(--accent-rgb), 0.12); }
+.actor-icon.cowork { background: rgba(52, 152, 219, 0.12); }
+.actor-icon.claudecode { background: rgba(46, 204, 113, 0.12); }
+
+.actor-card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.25rem;
+}
+
+.actor-role {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.75rem;
+}
+
+.actor-card.human .actor-role { color: var(--accent-gold); }
+.actor-card.cowork .actor-role { color: var(--blue); }
+.actor-card.claudecode .actor-role { color: var(--green); }
+
+.actor-card p { color: var(--text-secondary); font-size: 0.92rem; }
+
+.actor-tasks {
+  list-style: none;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.actor-tasks li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+}
+
+.actor-tasks li svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+
+/* ---- Rule callout ---- */
+.rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  background: rgba(231, 76, 60, 0.06);
+  border: 1px solid rgba(231, 76, 60, 0.2);
+  border-radius: var(--radius-md);
+  padding: 1.25rem 1.5rem;
+  margin: 2rem 0;
+}
+
+.rule svg { flex-shrink: 0; margin-top: 2px; }
+
+.rule strong { color: var(--red); }
+
+.rule p { color: var(--text-secondary); font-size: 0.92rem; }
+
+/* ---- Flow diagram ---- */
+.flow-container {
+  background: var(--bg-card);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-lg);
+  padding: 3rem 2rem;
+  margin: 2rem 0;
+  overflow-x: auto;
+}
+
+.flow-container svg { display: block; margin: 0 auto; }
+
+/* ---- Comparison cards ---- */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+@media (max-width: 640px) { .compare-grid { grid-template-columns: 1fr; } }
+
+.compare-card {
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  border: 1px solid;
+}
+
+.compare-card.bad {
+  background: rgba(231, 76, 60, 0.04);
+  border-color: rgba(231, 76, 60, 0.2);
+}
+
+.compare-card.good {
+  background: rgba(46, 204, 113, 0.04);
+  border-color: rgba(46, 204, 113, 0.2);
+}
+
+.compare-card h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.compare-card.bad h4 { color: var(--red); }
+.compare-card.good h4 { color: var(--green); }
+
+.compare-card p { color: var(--text-secondary); font-size: 0.92rem; }
+
+/* ---- Tool table ---- */
+.tool-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 2rem 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid #2a2a2a;
+}
+
+.tool-table th {
+  background: var(--bg-card);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0.85rem 1.25rem;
+  text-align: left;
+  font-weight: 600;
+}
+
+.tool-table td {
+  padding: 0.85rem 1.25rem;
+  font-size: 0.9rem;
+  border-top: 1px solid #1f1f1f;
+  color: var(--text-secondary);
+}
+
+.tool-table tr:hover td {
+  background: var(--bg-card);
+}
+
+.tool-table code {
+  background: rgba(var(--accent-rgb), 0.08);
+  color: var(--accent-gold);
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.tool-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.tool-chip.ts { background: rgba(52, 152, 219, 0.12); color: var(--blue); }
+.tool-chip.rs { background: rgba(230, 126, 34, 0.12); color: var(--orange); }
+.tool-chip.all { background: rgba(var(--accent-rgb), 0.12); color: var(--accent-gold); }
+
+/* ---- Pillar cards ---- */
+.pillars-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.pillar-card {
+  background: var(--bg-card);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  transition: border-color 0.3s, transform 0.3s;
+}
+
+.pillar-card:hover {
+  border-color: rgba(var(--accent-rgb), 0.3);
+  transform: translateY(-2px);
+}
+
+.pillar-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(var(--accent-rgb), 0.12);
+  color: var(--accent-gold);
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-bottom: 1rem;
+}
+
+.pillar-card h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.pillar-card p { color: var(--text-secondary); font-size: 0.9rem; }
+
+/* ---- File tree ---- */
+.file-tree {
+  background: var(--bg-card);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-md);
+  padding: 2rem;
+  margin: 2rem 0;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.82rem;
+  line-height: 1.9;
+  overflow-x: auto;
+}
+
+.file-tree .dir { color: var(--blue); font-weight: 600; }
+.file-tree .file { color: var(--text-secondary); }
+.file-tree .highlight { color: var(--accent-gold); font-weight: 600; }
+.file-tree .comment { color: var(--text-muted); font-style: italic; }
+.file-tree .done { color: var(--green); }
+
+/* ---- Stats bar ---- */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.stat-item {
+  background: var(--bg-card);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 900;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-top: 0.25rem;
+}
+
+/* ---- Anti-patterns ---- */
+.anti-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.anti-card {
+  background: var(--bg-card);
+  border: 1px solid #2a2a2a;
+  border-radius: var(--radius-md);
+  padding: 1.5rem 1.75rem;
+}
+
+.anti-card h4 {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: var(--text-primary);
+}
+
+.anti-card p { color: var(--text-secondary); font-size: 0.88rem; }
+
+/* ---- Footer ---- */
+.footer {
+  text-align: center;
+  padding: 3rem 2rem;
+  border-top: 1px solid #1f1f1f;
+  margin-top: 4rem;
+}
+
+.footer p {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+.footer .accent-line {
+  width: 60px;
+  height: 3px;
+  background: var(--gradient-accent);
+  border-radius: 999px;
+  margin: 0 auto 1.5rem;
+}
+
+/* ---- Scrollbar ---- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 999px; }
+::-webkit-scrollbar-thumb:hover { background: #555; }
+
+/* ---- Responsive ---- */
+@media (max-width: 768px) {
+  .hero { min-height: 80vh; padding: 3rem 1.5rem; }
+  main { padding: 0 1.25rem 4rem; }
+  .manifesto { padding: 2rem 2rem 2rem 3rem; }
+  .actors-grid { grid-template-columns: 1fr; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .flow-container { padding: 2rem 1rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== HERO ==================== -->
+<section class="hero">
+  <div class="hero-badge">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+    iakaframe · Méthodologie
+  </div>
+  <h1>Développement<br><span class="accent">IA-Augmenté</span></h1>
+  <p class="hero-subtitle">Comment un développeur et deux agents Claude — Cowork (réflexion) et Claude Code (exécution) — produisent du logiciel fiable grâce à un système d'instructions écrites. Pas du code jetable.</p>
+  <div class="hero-scroll">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
+  </div>
+</section>
+
+<main>
+
+<!-- ==================== PRINCIPE ==================== -->
+<section class="section">
+  <div class="section-label">Principe fondateur</div>
+  <h2>L'IA amplifie. Le workflow cadre.</h2>
+  <p>Une IA sans cadre génère du code plausible. Un workflow structuré, avec des rôles clairs, des instructions écrites et des outils de vérification, produit du logiciel fiable.</p>
+  <p>Le postulat est simple : l'IA est un exécutant puissant mais aveugle. Elle ne sait pas ce qu'elle ne sait pas. C'est le développeur qui apporte la vision, les décisions d'architecture, et les critères de qualité.</p>
+
+  <div class="manifesto">
+    <p>La qualité n'est pas dans le modèle. Elle est dans la méthode.</p>
+    <span class="author">— iakaframe, principe de conception</span>
+  </div>
+
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-value">3</div>
+      <div class="stat-label">Acteurs distincts</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">7</div>
+      <div class="stat-label">Étapes par cycle</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">0</div>
+      <div class="stat-label">Prompt vague toléré</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value">100%</div>
+      <div class="stat-label">Décisions tracées</div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== LES 3 ACTEURS ==================== -->
+<section class="section">
+  <div class="section-label">Les acteurs</div>
+  <h2>Trois rôles, zéro chevauchement</h2>
+  <p>Chaque acteur a un périmètre strict. Le développeur décide, Cowork spécifie, Claude Code implémente. Personne ne fait le travail d'un autre.</p>
+
+  <div class="actors-grid">
+    <!-- Développeur -->
+    <div class="actor-card human">
+      <div class="actor-icon human">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <h3>Le Développeur — Stéphane</h3>
+      <div class="actor-role">Décideur</div>
+      <p>Il tranche sur l'architecture, valide les choix techniques, et juge le résultat. Il ne délègue pas la réflexion — il délègue l'exécution.</p>
+      <ul class="actor-tasks">
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Définit les features et leur priorité
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Valide ou corrige les propositions
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Teste dans l'app réelle
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Donne du feedback persistant
+        </li>
+      </ul>
+    </div>
+
+    <!-- Cowork -->
+    <div class="actor-card cowork">
+      <div class="actor-icon cowork">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+      </div>
+      <h3>Cowork</h3>
+      <div class="actor-role">Claude · Réflexion</div>
+      <p>L'architecte et le rédacteur technique. Il analyse, propose, documente, et produit les fichiers d'instructions. Il ne touche jamais au code.</p>
+      <ul class="actor-tasks">
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Analyse le code existant (lecture seule)
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Rédige les instructions dans <code>instructions/</code>
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Produit specs, docs, rapports
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Prépare les workflows d'outillage
+        </li>
+      </ul>
+    </div>
+
+    <!-- Claude Code -->
+    <div class="actor-card claudecode">
+      <div class="actor-icon claudecode">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+      </div>
+      <h3>Claude Code</h3>
+      <div class="actor-role">Claude · Exécution</div>
+      <p>Le développeur IA. Il lit les instructions, écrit le code, lance les commandes. Il travaille dans le projet réel.</p>
+      <ul class="actor-tasks">
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Lit l'instruction avant chaque tâche
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Implémente feature par feature
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Exécute builds, tests, linting
+        </li>
+        <li>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Commite en conventional commits
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="rule">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    <div>
+      <p><strong>Règle absolue :</strong> Cowork ne modifie jamais le code source. Le jour où l'agent qui réfléchit est aussi celui qui exécute, il n'y a plus de contrôle.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== LE CYCLE ==================== -->
+<section class="section">
+  <div class="section-label">Le workflow</div>
+  <h2>Le cycle d'une feature</h2>
+  <p>Chaque feature passe par un cycle identique. Ce cycle se répète pour chaque unité de travail — qu'il s'agisse d'une nouvelle fonctionnalité, d'un refactoring, ou d'une correction d'architecture.</p>
+
+  <div class="flow-container">
+    <svg viewBox="0 0 900 520" xmlns="http://www.w3.org/2000/svg" width="100%" style="max-width:900px">
+      <defs>
+        <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#555"/>
+        </marker>
+        <marker id="arrow-gold" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#c8a44e"/>
+        </marker>
+        <linearGradient id="gGold" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#c8a44e"/><stop offset="100%" stop-color="#e8c960"/></linearGradient>
+        <linearGradient id="gBlue" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#3498db"/><stop offset="100%" stop-color="#1abc9c"/></linearGradient>
+        <linearGradient id="gGreen" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#2ecc71"/><stop offset="100%" stop-color="#27ae60"/></linearGradient>
+      </defs>
+
+      <!-- Step 1 -->
+      <rect x="340" y="10" width="220" height="52" rx="26" fill="none" stroke="url(#gGold)" stroke-width="2"/>
+      <text x="450" y="42" text-anchor="middle" fill="#f0f0f0" font-family="Inter,sans-serif" font-size="13" font-weight="600">1 · Le développeur exprime</text>
+      <circle cx="360" cy="36" r="8" fill="rgba(200,164,78,0.2)"/>
+      <text x="360" y="40" text-anchor="middle" fill="#c8a44e" font-size="10" font-weight="800">S</text>
+
+      <!-- Arrow 1→2 -->
+      <line x1="450" y1="62" x2="450" y2="88" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Step 2 -->
+      <rect x="340" y="90" width="220" height="52" rx="26" fill="none" stroke="url(#gBlue)" stroke-width="2"/>
+      <text x="450" y="122" text-anchor="middle" fill="#f0f0f0" font-family="Inter,sans-serif" font-size="13" font-weight="600">2 · Cowork analyse</text>
+      <circle cx="360" cy="116" r="8" fill="rgba(52,152,219,0.2)"/>
+      <text x="360" y="120" text-anchor="middle" fill="#3498db" font-size="10" font-weight="800">C</text>
+
+      <!-- Arrow 2→3 -->
+      <line x1="450" y1="142" x2="450" y2="168" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Step 3 -->
+      <rect x="310" y="170" width="280" height="52" rx="26" fill="none" stroke="#555" stroke-width="2" stroke-dasharray="4 3"/>
+      <text x="450" y="202" text-anchor="middle" fill="#f0f0f0" font-family="Inter,sans-serif" font-size="13" font-weight="600">3 · Discussion & arbitrages</text>
+      <circle cx="332" cy="196" r="8" fill="rgba(200,164,78,0.2)"/>
+      <text x="332" y="200" text-anchor="middle" fill="#c8a44e" font-size="10" font-weight="800">S</text>
+      <circle cx="568" cy="196" r="8" fill="rgba(52,152,219,0.2)"/>
+      <text x="568" y="200" text-anchor="middle" fill="#3498db" font-size="10" font-weight="800">C</text>
+
+      <!-- Arrow 3→4 -->
+      <line x1="450" y1="222" x2="450" y2="248" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Step 4 — highlight -->
+      <rect x="305" y="250" width="290" height="56" rx="28" fill="rgba(200,164,78,0.08)" stroke="url(#gGold)" stroke-width="2.5"/>
+      <text x="450" y="274" text-anchor="middle" fill="#c8a44e" font-family="Inter,sans-serif" font-size="13" font-weight="700">4 · Instructions écrites</text>
+      <text x="450" y="294" text-anchor="middle" fill="#8a8a8a" font-family="Inter,sans-serif" font-size="11">specs/instructions/*.md</text>
+
+      <!-- Arrow 4→5 -->
+      <line x1="450" y1="306" x2="450" y2="328" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Step 5 -->
+      <rect x="340" y="330" width="220" height="52" rx="26" fill="none" stroke="url(#gGold)" stroke-width="2"/>
+      <text x="450" y="362" text-anchor="middle" fill="#f0f0f0" font-family="Inter,sans-serif" font-size="13" font-weight="600">5 · Validation développeur</text>
+      <circle cx="360" cy="356" r="8" fill="rgba(200,164,78,0.2)"/>
+      <text x="360" y="360" text-anchor="middle" fill="#c8a44e" font-size="10" font-weight="800">S</text>
+
+      <!-- Arrow 5→6 -->
+      <line x1="450" y1="382" x2="450" y2="408" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Step 6 -->
+      <rect x="315" y="410" width="270" height="52" rx="26" fill="none" stroke="url(#gGreen)" stroke-width="2"/>
+      <text x="450" y="442" text-anchor="middle" fill="#f0f0f0" font-family="Inter,sans-serif" font-size="13" font-weight="600">6 · Claude Code implémente</text>
+      <circle cx="337" cy="436" r="8" fill="rgba(46,204,113,0.2)"/>
+      <text x="337" y="440" text-anchor="middle" fill="#2ecc71" font-size="10" font-weight="800">⌨</text>
+
+      <!-- Arrow 6→7 -->
+      <line x1="450" y1="462" x2="450" y2="478" stroke="#555" stroke-width="1.5" marker-end="url(#arrow)"/>
+
+      <!-- Step 7 -->
+      <rect x="330" y="480" width="240" height="36" rx="18" fill="none" stroke="url(#gGold)" stroke-width="1.5"/>
+      <text x="450" y="503" text-anchor="middle" fill="#8a8a8a" font-family="Inter,sans-serif" font-size="12">7 · Test & feedback → ↺ étape 2</text>
+
+      <!-- Feedback loop arrow -->
+      <path d="M 570 498 Q 720 498 720 196 Q 720 116 590 116" fill="none" stroke="#c8a44e" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arrow-gold)"/>
+      <text x="738" y="300" fill="#c8a44e" font-family="Inter,sans-serif" font-size="10" font-weight="600" transform="rotate(90 738 300)">feedback loop</text>
+
+      <!-- Legend -->
+      <circle cx="40" cy="490" r="8" fill="rgba(200,164,78,0.2)"/><text x="40" y="494" text-anchor="middle" fill="#c8a44e" font-size="10" font-weight="800">S</text>
+      <text x="56" y="494" fill="#8a8a8a" font-family="Inter,sans-serif" font-size="11">Stéphane</text>
+      <circle cx="160" cy="490" r="8" fill="rgba(52,152,219,0.2)"/><text x="160" y="494" text-anchor="middle" fill="#3498db" font-size="10" font-weight="800">C</text>
+      <text x="176" y="494" fill="#8a8a8a" font-family="Inter,sans-serif" font-size="11">Cowork</text>
+      <circle cx="290" cy="490" r="8" fill="rgba(46,204,113,0.2)"/><text x="290" y="494" text-anchor="middle" fill="#2ecc71" font-size="10" font-weight="800">⌨</text>
+      <text x="306" y="494" fill="#8a8a8a" font-family="Inter,sans-serif" font-size="11">Claude Code</text>
+    </svg>
+  </div>
+</section>
+
+<!-- ==================== POURQUOI ==================== -->
+<section class="section">
+  <div class="section-label">Pourquoi ça marche</div>
+  <h2>4 piliers de la qualité par le workflow</h2>
+
+  <div class="pillars-grid">
+    <div class="pillar-card">
+      <div class="pillar-number">1</div>
+      <h4>Séparation réflexion / exécution</h4>
+      <p>Une IA qui réfléchit et code en même temps optimise localement sans recul. Séparer les rôles force chaque décision à passer par un filtre : est-ce cohérent avec le reste du projet ?</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number">2</div>
+      <h4>Instructions écrites = specs vérifiables</h4>
+      <p>Un fichier <code>feature-auth.md</code> n'est pas un prompt vague. C'est un document structuré avec problème, décision, étapes, fichiers concernés. La mémoire de l'IA est volatile — les instructions sont permanentes.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number">3</div>
+      <h4>Vérification automatique</h4>
+      <p>L'IA génère le code. Les outils vérifient le code. Le développeur juge le résultat. Aucun des trois ne fait le travail des deux autres. La boucle est fermée.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number">4</div>
+      <h4>Feedback persistant (mémoire)</h4>
+      <p>Chaque correction, chaque préférence est mémorisée et appliquée aux sessions suivantes. L'IA apprend de ses erreurs — si et seulement si le workflow prévoit un mécanisme de feedback persistant.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== EXEMPLE CONCRET ==================== -->
+<section class="section">
+  <div class="section-label">Exemple concret</div>
+  <h2>Quand le workflow a évité une erreur</h2>
+
+  <div class="compare-grid">
+    <div class="compare-card bad">
+      <h4>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        Sans workflow
+      </h4>
+      <p>Sur IAKA Vod, Claude Code voulait ajouter FFmpeg pour le transcodage vidéo : solution lourde, des centaines de lignes. Ça compile, ça a l'air raisonnable. Mais c'est inutile — les players natifs décodent déjà tout en hardware.</p>
+    </div>
+    <div class="compare-card good">
+      <h4>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="16 8 10 16 7 13"/></svg>
+        Avec workflow
+      </h4>
+      <p>La question remonte à Cowork. Analyse de l'architecture → les players natifs (AVPlay, Shaka, hls.js) suffisent. Décision argumentée, instruction écrite, Claude Code implémente la bonne approche — pas la première qui compile.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== OUTILS ==================== -->
+<section class="section">
+  <div class="section-label">Outillage</div>
+  <h2>Les outils de vérification</h2>
+  <p>Sans vérification automatique, l'IA peut produire du code qui compile mais qui ne fait pas ce qu'on attend. Ces outils ferment la boucle.</p>
+
+  <table class="tool-table">
+    <thead>
+      <tr>
+        <th>Catégorie</th>
+        <th>Ce qu'elle vérifie</th>
+        <th>Exemples d'outils</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="color:#f0f0f0;font-weight:600">Typage statique</td>
+        <td>Types corrects, cohérence des interfaces</td>
+        <td><code>tsc</code> · <code>mypy</code> · <code>cargo check</code></td>
+      </tr>
+      <tr>
+        <td style="color:#f0f0f0;font-weight:600">Linting</td>
+        <td>Conventions, patterns dangereux, code mort</td>
+        <td><code>ESLint</code> · <code>Clippy</code> · <code>Ruff</code> · <code>Biome</code></td>
+      </tr>
+      <tr>
+        <td style="color:#f0f0f0;font-weight:600">Tests unitaires</td>
+        <td>Comportement attendu, régressions</td>
+        <td><code>Vitest</code> · <code>Jest</code> · <code>pytest</code> · <code>cargo test</code></td>
+      </tr>
+      <tr>
+        <td style="color:#f0f0f0;font-weight:600">Couverture</td>
+        <td>Code non testé identifié</td>
+        <td><code>V8 Coverage</code> · <code>Istanbul</code> · <code>coverage.py</code></td>
+      </tr>
+      <tr>
+        <td style="color:#f0f0f0;font-weight:600">Doc automatique</td>
+        <td>API documentée depuis le code source</td>
+        <td><code>TypeDoc</code> · <code>Sphinx</code> · <code>cargo doc</code> · <code>JSDoc</code></td>
+      </tr>
+      <tr>
+        <td style="color:#f0f0f0;font-weight:600">Rapport qualité</td>
+        <td>Vue consolidée de toutes les métriques</td>
+        <td><span class="tool-chip all">quality-report.sh · CI dashboard</span></td>
+      </tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ==================== STRUCTURE ==================== -->
+<section class="section">
+  <div class="section-label">Structure</div>
+  <h2>Le repo reflète le workflow</h2>
+  <p>La structure du projet n'est pas arbitraire — elle matérialise la séparation des rôles. C'est exactement ce que livre le kit de démarrage iakaframe.</p>
+
+  <div class="file-tree">
+    <span class="dir">mon-projet/</span><br>
+    ├── <span class="highlight">CLAUDE.md</span> <span class="comment">← Contrat de travail pour Claude Code</span><br>
+    │<br>
+    ├── <span class="dir">specs/</span> <span class="comment">← Espace Cowork — jamais de code ici</span><br>
+    │&nbsp;&nbsp; ├── <span class="file">PROJET.md</span> <span class="comment">← Vision, specs, sources de données</span><br>
+    │&nbsp;&nbsp; ├── <span class="dir">instructions/</span> <span class="comment">← LE CŒUR DU WORKFLOW</span><br>
+    │&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="file">_TEMPLATE.md</span> <span class="comment">gabarit d'instruction</span><br>
+    │&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="done">feature-auth.md</span> <span class="comment">✓ livrée</span><br>
+    │&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="done">feature-search.md</span> <span class="comment">✓ livrée</span><br>
+    │&nbsp;&nbsp; │&nbsp;&nbsp; ├── <span class="highlight">fix-navigation.md</span> <span class="comment">← correction en cours</span><br>
+    │&nbsp;&nbsp; │&nbsp;&nbsp; └── <span class="highlight">quality-workflow.md</span> <span class="comment">← outils qualité</span><br>
+    │&nbsp;&nbsp; └── <span class="dir">mock/</span> <span class="comment">← Données figées pour dev/test</span><br>
+    │<br>
+    ├── <span class="dir">src/</span> <span class="comment">← Code source — Claude Code écrit ici</span><br>
+    │<br>
+    ├── <span class="dir">scripts/</span><br>
+    │&nbsp;&nbsp; └── <span class="highlight">quality-report.sh</span> <span class="comment">← Rapport qualité automatisé</span><br>
+    └── <span class="file">.claude/settings.local.json</span> <span class="comment">← Permissions de Claude Code</span>
+  </div>
+</section>
+
+<!-- ==================== AGILITÉ ==================== -->
+<section class="section">
+  <div class="section-label">Impact en agilité</div>
+  <h2>Le sprint qui ne dort jamais</h2>
+  <p>Cette méthode ne remplace pas l'agilité — elle l'accélère en comprimant ce qui prenait des jours en heures, sans sacrifier la rigueur.</p>
+
+  <div class="compare-grid">
+    <div class="compare-card bad">
+      <h4>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Sprint classique
+      </h4>
+      <p>Le développeur écrit un ticket, discute en daily, code pendant 2-3 jours, ouvre une PR, attend la review, corrige, merge. Une feature = 1 à 2 semaines.</p>
+    </div>
+    <div class="compare-card good">
+      <h4>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        Sprint IA-augmenté
+      </h4>
+      <p>Le développeur exprime le besoin, Cowork analyse et rédige l'instruction en minutes, Claude Code implémente en continu. Le développeur review et itère. Une feature = quelques heures à 1-2 jours.</p>
+    </div>
+  </div>
+
+  <div class="pillars-grid">
+    <div class="pillar-card">
+      <div class="pillar-number" style="background:rgba(46,204,113,0.12)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+      </div>
+      <h4>Vélocité multipliée</h4>
+      <p>L'implémentation — la partie la plus chronophage du cycle — est déléguée. Le développeur se concentre sur les décisions à forte valeur ajoutée : architecture, arbitrages, validation.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number" style="background:rgba(52,152,219,0.12)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5"><path d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.66 0 3-4.03 3-9s-1.34-9-3-9m0 18c-1.66 0-3-4.03-3-9s1.34-9 3-9"/></svg>
+      </div>
+      <h4>Itérations plus courtes</h4>
+      <p>Le cycle réflexion → instruction → implémentation → feedback peut tourner plusieurs fois par jour. Le temps entre une idée et un prototype fonctionnel passe de semaines à heures.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number" style="background:rgba(155,89,182,0.12)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9b59b6" stroke-width="2.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <h4>Documentation native</h4>
+      <p>Les fichiers d'instructions ne sont pas de la documentation « en plus ». Ils sont le sprint backlog, les ADR, et les specs — écrits avant le code, pas après coup. La doc existe parce que le workflow l'exige.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number" style="background:rgba(230,126,34,0.12)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e67e22" stroke-width="2.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+      </div>
+      <h4>Développeur solo = équipe</h4>
+      <p>Un développeur seul avec cette méthode a le débit d'une petite équipe. Il pense comme un lead, spécifie comme un PM, et l'IA produit comme 2-3 développeurs juniors supervisés. Le bus factor reste à 1, mais la vélocité n'est plus celle d'un solo.</p>
+    </div>
+  </div>
+
+  <div class="manifesto" style="margin-top:2.5rem">
+    <p>L'agilité traditionnelle optimise la communication entre humains. L'agilité IA-augmentée optimise la boucle entre la décision humaine et l'exécution machine.</p>
+    <span class="author">— Le vrai changement n'est pas la vitesse de l'IA, c'est la vitesse de l'itération</span>
+  </div>
+</section>
+
+<!-- ==================== ANTI-PATTERNS ==================== -->
+<section class="section">
+  <div class="section-label">Ce que cette méthode n'est pas</div>
+  <h2>Trois confusions à éviter</h2>
+
+  <div class="anti-grid">
+    <div class="anti-card">
+      <h4>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        Pas du « vibe coding »
+      </h4>
+      <p>Le vibe coding, c'est un prompt vague → accepter ce qui sort. Ici, chaque ligne est spécifiée par une instruction, vérifiée par des outils, validée par un humain.</p>
+    </div>
+    <div class="anti-card">
+      <h4>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        Pas de l'automatisation aveugle
+      </h4>
+      <p>L'IA ne tourne pas en boucle. Chaque cycle passe par le développeur. Le feedback humain n'est pas optionnel — il est structurel.</p>
+    </div>
+    <div class="anti-card">
+      <h4>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        Pas un remplacement du dev
+      </h4>
+      <p>Le développeur fait moins de frappe et plus de décisions. Son temps passe de l'implémentation à l'architecture et au jugement. Le métier ne disparaît pas — il monte en abstraction.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== CLOSING ==================== -->
+<section class="section" style="text-align:center; max-width:600px; margin:0 auto 4rem">
+  <div class="section-label" style="justify-content:center">En résumé</div>
+  <h2>L'IA sans workflow produit du code jetable.<br><span class="accent">L'IA dans un workflow produit du logiciel.</span></h2>
+  <p style="margin:1.5rem auto 0; text-align:center">Trois piliers : séparation des rôles, instructions écrites, vérification automatique. Le développeur reste le décideur à chaque étape. L'IA amplifie sa capacité de production sans jamais remplacer son jugement.</p>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p>iakaframe · Méthode de travail IA-augmentée · 2026</p>
+  <p style="margin-top:0.35rem">Stéphane × Cowork × Claude Code · Applicable à tout stack, tout langage, tout projet</p>
+</footer>
+
+</body>
+</html>
