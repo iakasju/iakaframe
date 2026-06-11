@@ -1,0 +1,30 @@
+# Normalisation des fins de ligne (silence les avertissements LF/CRLF)
+* text=auto
+
+# Scripts PowerShell : CRLF (natif Windows, cible de ces scripts)
+*.ps1 text eol=crlf
+*.psm1 text eol=crlf
+*.psd1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Scripts shell : LF obligatoire (sinon ils cassent sous bash)
+*.sh text eol=lf
+
+# Docs / sources texte
+*.md   text
+*.html text
+*.css  text
+*.js   text
+*.ts   text
+*.json text
+*.yml  text
+*.yaml text
+
+# Binaires (pas de conversion)
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.pdf  binary
