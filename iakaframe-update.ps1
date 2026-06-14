@@ -82,7 +82,11 @@ try {
     $env:FORGEJO_TOKEN = [Environment]::GetEnvironmentVariable("FORGEJO_TOKEN","User")
     $branch = (git rev-parse --abbrev-ref HEAD).Trim()
     git push origin $branch
-    Write-Host "[3/3] Pousse sur origin/$branch." -ForegroundColor Green
+    if ($LASTEXITCODE -eq 0) {
+      Write-Host "[3/3] Pousse sur origin/$branch." -ForegroundColor Green
+    } else {
+      Write-Host "[3/3] ECHEC du push sur origin/$branch (code $LASTEXITCODE). Le commit local est conserve ; relancer 'git push origin $branch' quand le remote sera joignable." -ForegroundColor Red
+    }
   } else {
     Write-Host "[3/3] Rien de nouveau a pousser." -ForegroundColor DarkGray
   }
