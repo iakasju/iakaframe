@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iakaframe : l'équipe de dev augmentée</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#0a0a0a;--bg-card:#1a1a1a;--bg-deep:#111;--line:#2a2a2a;--line-soft:#1f1f1f;
+  --text-primary:#f0f0f0;--text-secondary:#8a8a8a;--text-muted:#555;
+  --accent-gold:#c8a44e;--accent-gold-light:#e8c960;--accent-rgb:200,164,78;
+  --gradient-accent:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-light));
+  --red:#e74c3c;--green:#2ecc71;--blue:#3498db;--orange:#e67e22;--cyan:#1abc9c;--purple:#9b59b6;
+  --radius-md:12px;--radius-lg:20px;--shadow-glow:0 0 40px rgba(var(--accent-rgb),0.15);
+  --font-sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
+code{font-family:var(--mono)}
+a{color:var(--accent-gold);text-decoration:none}
+.accent{background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1,h1.t,h2,.slide h1,.slide h2{font-family:var(--font-serif)}
+.hero{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:3.4rem 2rem 2.4rem;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:760px;height:760px;background:radial-gradient(circle,rgba(var(--accent-rgb),0.08) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(var(--accent-rgb),0.1);border:1px solid rgba(var(--accent-rgb),0.25);border-radius:999px;padding:.4rem 1rem;font-size:.78rem;color:var(--accent-gold);margin-bottom:1.4rem;letter-spacing:.08em;text-transform:uppercase}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;max-width:820px}
+.hero-subtitle{color:var(--text-secondary);font-size:clamp(1rem,2vw,1.18rem);max-width:680px;margin-top:1.1rem}
+.hero-meta{font-family:var(--mono);font-size:.74rem;color:var(--text-muted);margin-top:1rem;letter-spacing:.05em}
+.tabs{position:sticky;top:0;z-index:10;background:rgba(10,10,10,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);padding:.7rem 1rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+.tab{appearance:none;border:1px solid var(--line);background:var(--bg-card);color:var(--text-secondary);font:600 .85rem var(--font-sans);padding:.5rem .95rem;border-radius:999px;cursor:pointer;transition:.18s;white-space:nowrap}
+.tab:hover{color:var(--text-primary);border-color:rgba(var(--accent-rgb),.4)}
+.tab.active{color:#0a0a0a;background:var(--gradient-accent);border-color:transparent;box-shadow:var(--shadow-glow);font-weight:700}
+main{max-width:72rem;margin:0 auto;padding:2.4rem 2rem 5rem}
+.panel{display:none}.panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.section-label{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-gold);margin-bottom:1rem}
+.section-label::before{content:'';display:inline-block;width:24px;height:2px;background:var(--gradient-accent)}
+h1.t{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1rem;line-height:1.2}
+h2{font-size:clamp(1.25rem,2.4vw,1.6rem);font-weight:800;letter-spacing:-.01em;margin:2.2rem 0 .9rem}
+h3{font-size:1.1rem;font-weight:700;margin:1.4rem 0 .5rem}
+p{color:var(--text-secondary);font-size:1.02rem;max-width:74ch;margin:.55rem 0}
+.lead{color:var(--text-primary);font-size:1.08rem}
+strong{color:var(--text-primary)}
+ul{margin:.5rem 0 1rem;padding-left:1.2rem}
+li{margin:.3rem 0;color:var(--text-secondary)}li strong{color:var(--text-primary)}
+p code,li code,td code{background:rgba(var(--accent-rgb),0.08);color:var(--accent-gold);padding:.12rem .42rem;border-radius:5px;font-size:.85rem}
+.card{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.4rem 1.6rem;margin:1.1rem 0}
+.card.glow{box-shadow:var(--shadow-glow)}
+.grid{display:grid;gap:1.1rem}
+@media(min-width:780px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+.tag{display:inline-block;font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:.14rem .6rem;border-radius:999px;margin-right:.4rem}
+.t-go{background:rgba(var(--accent-rgb),.15);color:var(--accent-gold)}
+.t-on{background:rgba(46,204,113,.15);color:var(--green)}
+.t-wait{background:rgba(230,126,34,.15);color:var(--orange)}
+.t-keep{background:rgba(155,89,182,.15);color:var(--purple)}
+.t-info{background:rgba(52,152,219,.15);color:var(--blue)}
+pre{background:var(--bg-deep);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.1rem 1.4rem;margin:1rem 0;overflow-x:auto;font-size:.85rem;line-height:1.6}
+pre code{color:#d8d8d8}.cmt{color:var(--text-muted)}.tok{color:var(--accent-gold)}.kw{color:var(--blue)}.str{color:var(--green)}
+.scroll{overflow-x:auto;border-radius:var(--radius-md);margin:1.2rem 0}
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--line);font-size:.88rem}
+th{background:var(--bg-card);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:.7rem .9rem;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:.65rem .9rem;border-top:1px solid var(--line-soft);color:var(--text-secondary);vertical-align:top}
+tr:hover td{background:#151515}
+td strong,td.name{color:var(--text-primary)}
+.num{font-family:var(--mono);font-size:.8rem;color:var(--accent-gold);white-space:nowrap}
+.mono{font-family:var(--mono);font-size:.8rem;color:var(--text-secondary);white-space:nowrap}
+.dots{font-size:.78rem;letter-spacing:1px;color:var(--accent-gold)}.dots.risk{color:var(--red)}
+tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-gold);font-weight:700}
+.legend{font-size:.82rem;color:var(--text-muted);margin:.5rem .2rem}
+.note{display:flex;gap:.9rem;border-radius:var(--radius-md);padding:1rem 1.3rem;margin:1.3rem 0;font-size:.92rem}
+.note p{color:var(--text-secondary);margin:0;max-width:none}
+.note.warn{background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.22)}.note.warn b{color:var(--red)}
+.note.tip{background:rgba(46,204,113,.05);border:1px solid rgba(46,204,113,.22)}.note.tip b{color:var(--green)}
+.note.info{background:rgba(52,152,219,.05);border:1px solid rgba(52,152,219,.22)}.note.info b{color:var(--blue)}
+.seq{counter-reset:s;list-style:none;padding:0}
+.seq li{counter-increment:s;padding:.5rem 0 .5rem 2.6rem;position:relative;color:var(--text-secondary)}
+.seq li::before{content:counter(s);position:absolute;left:0;top:.45rem;width:26px;height:26px;border-radius:50%;background:var(--gradient-accent);color:#0a0a0a;font:700 .82rem var(--mono);display:flex;align-items:center;justify-content:center}
+.footer{text-align:center;padding:2.6rem 2rem;border-top:1px solid var(--line-soft);margin-top:1rem}
+.footer .accent-line{width:60px;height:3px;background:var(--gradient-accent);border-radius:999px;margin:0 auto 1.2rem}
+.footer p{color:var(--text-muted);font-size:.82rem;max-width:none;margin:.2rem auto}
+.ne-wordmark{font-weight:900;letter-spacing:-.01em;color:var(--text-primary)}
+.ne-wordmark b{font-weight:900}
+.ne-wordmark .edge{font-weight:900;background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#333;border-radius:999px}
+@media(max-width:768px){main{padding:1.8rem 1.2rem 4rem}}
+.grue{display:inline-block;vertical-align:-.18em;margin-right:.15em}
+.flow{display:grid;gap:.6rem;margin:1.2rem 0}
+@media(min-width:780px){.flow{grid-template-columns:repeat(3,1fr) auto;align-items:stretch}}
+.flow .step{background:var(--bg-deep);border:1px solid var(--line);border-radius:var(--radius-md);padding:.9rem 1rem;text-align:center}
+.flow .step .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-gold)}
+.flow .arr{display:flex;align-items:center;justify-content:center;color:var(--accent-gold);font-size:1.2rem}
+.role{border-left:2px solid rgba(var(--accent-rgb),.4)}
+.pull{font-family:var(--font-serif);font-size:1.25rem;color:var(--text-primary);font-weight:600;border-left:3px solid var(--accent-gold);padding:.2rem 0 .2rem 1.1rem;margin:1.4rem 0}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-badge">
+    <svg class="grue" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 48 48" fill="none" aria-hidden="true"><defs><linearGradient id="yelg" x1="10" y1="12" x2="40" y2="38"><stop offset="0" stop-color="#f4c430"/><stop offset="1" stop-color="#e8b21f"/></linearGradient></defs><g stroke="url(#yelg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M11 16 H39"/><path d="M20 16 L14 38 M20 16 L26 38"/><path d="M16.5 28 H23.5"/><path d="M20 16 V12.5"/><path d="M12 38 H28"/></g><circle cx="20" cy="11.4" r="1.6" fill="#f4c430"/><rect x="9.3" y="13.6" width="4" height="4.8" rx="1" fill="#f4c430"/><path d="M34 16 V25" stroke="#e8c960" stroke-width="1.8" stroke-linecap="round"/><path d="M34 25 a2 2 0 1 0 1.6 -0.4" stroke="#f4c430" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    NaonEdge · Méthode iakaframe
+  </div>
+  <h1>iakaframe : <span class="accent">l'équipe de dev augmentée</span></h1>
+  <p class="hero-subtitle">Un développeur, deux IA aux rôles séparés et une infra auto-hébergée — la méthode qui produit du logiciel fiable aujourd'hui, et trace la route vers un écosystème d'agents CI/CD demain.</p>
+  <div class="hero-meta">v3 · 2026-06-14 · interne · méthode + infra + équipe d'agents</div>
+</section>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="p1">Vision</button>
+  <button class="tab" data-tab="p2">L'équipe</button>
+  <button class="tab" data-tab="p3">Workflow</button>
+  <button class="tab" data-tab="p4">Qualité</button>
+  <button class="tab" data-tab="p5">Infrastructure</button>
+  <button class="tab" data-tab="p6">Vision avancée</button>
+  <button class="tab" data-tab="pag">L'équipe d'agents</button>
+  <button class="tab" data-tab="p7">Commandes &amp; route</button>
+</nav>
+
+<main>
+
+  <!-- ====================== VISION ====================== -->
+  <section class="panel active" id="p1">
+    <div class="section-label">Principe fondateur</div>
+    <h1 class="t">C'est le workflow qui produit la qualité, pas l'IA</h1>
+    <p class="lead">Une IA sans cadre génère du code plausible. Un workflow structuré — rôles clairs, instructions écrites, outils de vérification — produit du logiciel fiable. La différence entre les deux, c'est la méthode.</p>
+    <p>Le postulat est simple&nbsp;: l'IA est un exécutant puissant mais aveugle. Elle ne sait pas ce qu'elle ne sait pas. C'est le développeur qui apporte la vision, les décisions d'architecture et les critères de qualité.</p>
+    <p class="pull">L'IA amplifie ; le workflow cadre.</p>
+
+    <p><strong>iakaframe</strong> est la méthode de collaboration IA-augmentée extraite et généralisée des projets <code>IAKA Vod</code>, <code>robotimmo</code>, <code>iakaAFstorage</code>, <code>iakabox</code> et <code>iakaJarvis</code>. Elle est volontairement <strong>agnostique du stack</strong>&nbsp;: elle s'applique à n'importe quel langage, framework ou type de projet.</p>
+
+    <div class="grid three">
+      <div class="card glow">
+        <h3>Aujourd'hui</h3>
+        <p>Une <strong>équipe de dev augmentée</strong>&nbsp;: un humain + deux IA aux rôles séparés, cadrés par des fichiers d'instructions.</p>
+      </div>
+      <div class="card glow">
+        <h3>L'infra</h3>
+        <p>Un homelab auto-hébergé (<strong>iakabox</strong>)&nbsp;: Git, IA locale, reverse-proxy, orchestration — la préférence self-hosted en pratique.</p>
+      </div>
+      <div class="card glow">
+        <h3>Demain</h3>
+        <p>Le passage à un <strong>écosystème d'agents CI/CD</strong> (« Yakaframe Avancé »)&nbsp;: dev, test, prod et surveillance orchestrés en continu.</p>
+      </div>
+    </div>
+
+    <div class="note tip"><p><b>Fil rouge :</b> la même idée, à trois échelles. Le développeur reste le décideur ; l'IA exécute ; le workflow garantit que ce qui sort est fiable — que l'équipe compte deux IA ou cinquante agents.</p></div>
+  </section>
+
+  <!-- ====================== L'ÉQUIPE ====================== -->
+  <section class="panel" id="p2">
+    <div class="section-label">Les trois acteurs</div>
+    <h1 class="t">Trois rôles, zéro chevauchement</h1>
+    <p class="lead">Le développeur ne délègue pas la réflexion — il délègue l'exécution. Chacun des trois acteurs fait son travail, jamais celui des autres.</p>
+
+    <div class="card role">
+      <h3>1 · Le développeur (Stéphane) — le décideur</h3>
+      <p>Il tranche sur l'architecture, valide les choix techniques et juge le résultat.</p>
+      <ul>
+        <li>Définit les features et leur priorité (le backlog dans <code>CLAUDE.md</code>).</li>
+        <li>Valide ou corrige les propositions de Cowork.</li>
+        <li>Teste le résultat dans l'app réelle.</li>
+        <li>Donne du feedback qui sera <strong>mémorisé</strong> et appliqué aux sessions suivantes.</li>
+      </ul>
+    </div>
+
+    <div class="card role">
+      <h3>2 · Cowork (Claude — mode réflexion) — architecte &amp; rédacteur</h3>
+      <p>Cowork <strong>ne touche jamais au code</strong>. Il analyse (lecture seule), propose, documente et produit les fichiers d'instructions que Claude Code consommera.</p>
+      <ul>
+        <li>Analyse le code existant pour comprendre l'état réel du projet.</li>
+        <li>Discute les choix techniques avec le développeur.</li>
+        <li>Rédige des instructions précises dans <code>specs/instructions/</code>.</li>
+        <li>Produit specs, docs projet, rapports et workflows d'outillage.</li>
+      </ul>
+      <div class="note warn"><p><b>Règle absolue :</b> Cowork ne modifie jamais le code source. Le jour où l'agent qui réfléchit est aussi celui qui exécute, il n'y a plus de contrôle.</p></div>
+    </div>
+
+    <div class="card role">
+      <h3>3 · Claude Code (Claude — mode exécution) — le développeur IA</h3>
+      <p>Il lit les instructions, écrit le code, lance les commandes, produit les fichiers — dans le projet réel (<code>src/</code>, <code>src-tauri/</code>, <code>auth-api/</code>…).</p>
+      <ul>
+        <li>Lit l'instruction correspondante avant chaque tâche.</li>
+        <li>Implémente feature par feature, étape par étape.</li>
+        <li>Exécute builds, tests, linting.</li>
+        <li>Commite en <em>conventional commits</em>, avec des permissions explicites dans <code>.claude/settings.local.json</code>.</li>
+      </ul>
+    </div>
+
+    <h2>Préférences confirmées (transverses aux projets)</h2>
+    <div class="grid two">
+      <div class="card">
+        <ul>
+          <li>Réponses <strong>en français</strong>, concises et directes.</li>
+          <li><strong>MVP d'abord, puis on itère.</strong> Pas de sur-ingénierie.</li>
+          <li><strong>Self-hosted / open-source d'abord</strong> ; le cloud n'est qu'un <em>fallback</em> justifié.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <ul>
+          <li>Environnement <strong>Windows + Docker Desktop + PowerShell</strong>.</li>
+          <li><strong>Isolation Docker par projet</strong>&nbsp;: stack, réseau, volumes et ports hôte distincts (<code>&lt;projet&gt;-dev-*</code>).</li>
+          <li>Plans détaillés validés vite (souvent l'option « Recommandé ») ; <strong>commits atomiques</strong> par étape.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- ====================== WORKFLOW ====================== -->
+  <section class="panel" id="p3">
+    <div class="section-label">Le workflow en pratique</div>
+    <h1 class="t">Le cycle d'une feature</h1>
+    <p class="lead">Chaque feature passe par le même cycle&nbsp;: le développeur exprime un besoin, Cowork le traduit en instruction écrite, Claude Code implémente, le développeur juge.</p>
+
+    <ol class="seq">
+      <li>Le développeur exprime un besoin.</li>
+      <li>Cowork analyse le code existant (lecture seule).</li>
+      <li>Discussion développeur ↔ Cowork (choix techniques, arbitrages, scope).</li>
+      <li>Cowork rédige un fichier d'instructions → <code>specs/instructions/{feature}.md</code>.</li>
+      <li>Le développeur valide les instructions.</li>
+      <li>Claude Code lit et implémente (étape par étape, commits intermédiaires).</li>
+      <li>Le développeur teste et donne du feedback.</li>
+      <li>Si correction nécessaire → retour à l'étape 2, en Cowork.</li>
+    </ol>
+
+    <h2>Le cycle de correction d'erreur</h2>
+    <p>Quand Claude Code prend une mauvaise direction, le développeur <strong>ne corrige pas l'IA ligne par ligne</strong>. Il remonte au niveau de la décision (en Cowork), et la décision redescend sous forme d'instruction écrite.</p>
+    <div class="flow">
+      <div class="step"><div class="k">Constat</div>Le développeur voit le problème</div>
+      <div class="arr">→</div>
+      <div class="step"><div class="k">Cowork</div>Diagnostic &amp; solution</div>
+      <div class="arr">→</div>
+      <div class="step"><div class="k">Instruction</div>fix-{problème}.md → Claude Code applique</div>
+    </div>
+
+    <div class="note info"><p><b>Pourquoi écrire l'instruction ?</b> La mémoire de l'IA est volatile ; les fichiers d'instructions sont permanents. Six mois plus tard, l'historique des décisions est toujours là — relisible par l'IA comme par l'humain.</p></div>
+  </section>
+
+  <!-- ====================== QUALITÉ ====================== -->
+  <section class="panel" id="p4">
+    <div class="section-label">La qualité par le workflow</div>
+    <h1 class="t">Quatre piliers ferment la boucle</h1>
+
+    <div class="grid two">
+      <div class="card">
+        <h3>1 · Séparation réflexion / exécution</h3>
+        <p>Une IA qui réfléchit et code en même temps optimise localement. En séparant les rôles, chaque décision passe par un filtre&nbsp;: <em>est-ce cohérent avec le reste du projet&nbsp;?</em></p>
+      </div>
+      <div class="card">
+        <h3>2 · Instructions écrites = specs vérifiables</h3>
+        <p>Pas un prompt vague&nbsp;: le problème, l'existant, la décision, les étapes, les fichiers, les comportements attendus. Documentation <strong>vivante</strong>, écrite <em>avant</em> l'implémentation.</p>
+      </div>
+      <div class="card">
+        <h3>3 · Vérification automatique</h3>
+        <p>L'IA génère le code, les outils le vérifient, le développeur juge. Aucun des trois ne fait le travail des deux autres.</p>
+      </div>
+      <div class="card">
+        <h3>4 · Feedback persistant</h3>
+        <p>Chaque correction et préférence est <strong>mémorisée</strong> (mémoire projet Claude) et appliquée aux sessions suivantes. L'IA apprend de ses erreurs si — et seulement si — le workflow le prévoit.</p>
+      </div>
+    </div>
+
+    <div class="note tip"><p><b>Cas réel (IAKA Vod) :</b> Claude Code voulait ajouter FFmpeg pour le transcodage vidéo. C'est en Cowork que la décision a été prise de l'abandonner — les players natifs (AVPlay, Shaka, hls.js) décodent tout en hardware. Claude Code seul aurait implémenté une solution complexe et inutile.</p></div>
+
+    <h2>Les outils de vérification</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Catégorie</th><th>Ce qu'elle vérifie</th><th>Exemples d'outils</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Typage statique</td><td>Types corrects, cohérence des interfaces</td><td><code>tsc</code> · <code>mypy</code> · <code>cargo check</code></td></tr>
+        <tr><td class="name">Linting</td><td>Conventions, patterns dangereux, code mort</td><td>ESLint · Clippy · Ruff · Biome</td></tr>
+        <tr><td class="name">Tests unitaires</td><td>Comportement attendu, régressions</td><td>Vitest · Jest · pytest · <code>cargo test</code></td></tr>
+        <tr><td class="name">Couverture</td><td>Code non testé identifié</td><td>V8 Coverage · Istanbul · coverage.py</td></tr>
+        <tr><td class="name">Doc automatique</td><td>API documentée depuis le code</td><td>TypeDoc · Sphinx · <code>cargo doc</code></td></tr>
+        <tr><td class="name">Rapport qualité</td><td>Vue consolidée des métriques</td><td><code>quality-report.sh</code> (custom)</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Ce que cette méthode n'est pas</h2>
+    <ul>
+      <li><strong>Pas du « vibe coding ».</strong> Pas de prompt vague suivi d'une acceptation aveugle.</li>
+      <li><strong>Pas de l'automatisation aveugle.</strong> Chaque cycle passe par le développeur ; le feedback humain est structurel.</li>
+      <li><strong>Pas un remplacement du développeur.</strong> Il fait moins de frappe et plus de décisions ; le métier monte en abstraction.</li>
+    </ul>
+  </section>
+
+  <!-- ====================== INFRASTRUCTURE ====================== -->
+  <section class="panel" id="p5">
+    <div class="section-label">Infrastructure — homelab iakabox</div>
+    <h1 class="t">L'infra auto-hébergée qui porte la méthode</h1>
+    <p class="lead">La préférence self-hosted n'est pas théorique&nbsp;: <strong>iakabox</strong> est un homelab multi-VM sur le LAN <code>192.168.2.0/24</code> qui héberge Git, l'IA locale, le reverse-proxy et l'orchestration.</p>
+
+    <h2>Git par défaut : Forgejo</h2>
+    <p>Tout projet est versionné sur le <strong>Forgejo auto-hébergé</strong>. Pattern&nbsp;: <code>http://192.168.2.11:3001/sjupin/&lt;repo&gt;.git</code>, en <strong>HTTP + token</strong> (le SSH de cette box est inutilisable). Le token n'est jamais commité (variable <code>$env:FORGEJO_TOKEN</code>). Création de dépôt via l'API (description <strong>ASCII uniquement</strong>, sinon HTTP 422).</p>
+
+    <h2>IA locale — VM3 (GPU RTX 3060)</h2>
+    <p>La VM3 expose toute l'IA locale, backend idéal pour les apps de la méthode.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Service</th><th>Endpoint</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Ollama</td><td class="mono">192.168.2.12:11434</td><td>API LLM locale (REST)</td></tr>
+        <tr><td class="name">LiteLLM</td><td class="mono">192.168.2.12:4001</td><td>Proxy OpenAI-compatible (Ollama + APIs externes)</td></tr>
+        <tr><td class="name">Open WebUI</td><td class="mono">192.168.2.12:8099</td><td>Chat web sur Ollama</td></tr>
+        <tr><td class="name">AnythingLLM</td><td class="mono">192.168.2.12:3005</td><td>RAG : documents, embeddings, chaînes</td></tr>
+        <tr><td class="name">ComfyUI</td><td class="mono">192.168.2.12:8188</td><td>Génération d'images (Stable Diffusion)</td></tr>
+        <tr><td class="name">Whisper</td><td class="mono">192.168.2.12:9000</td><td>Speech-to-text</td></tr>
+        <tr><td class="name">Obot (MCP)</td><td class="mono">192.168.2.12:3009</td><td>Plateforme MCP pour agents IA</td></tr>
+      </tbody>
+    </table></div>
+
+    <h2>Services transverses</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Service</th><th>VM · URL</th><th>Rôle</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Nginx Proxy Manager</td><td class="mono">VM1 · 192.168.2.10:81</td><td>Reverse proxy / SSL · routage par alias</td></tr>
+        <tr><td class="name">Forgejo</td><td class="mono">VM2 · 192.168.2.11:3001</td><td>Git privé</td></tr>
+        <tr><td class="name">Portainer</td><td class="mono">VM2 · 192.168.2.11:9000</td><td>Gestion Docker multi-VM</td></tr>
+        <tr><td class="name">n8n</td><td class="mono">VM2 · 192.168.2.11:5678</td><td>Automatisation / orchestration</td></tr>
+        <tr><td class="name">Vikunja</td><td class="mono">VM2 · 192.168.2.11:3007</td><td>Tâches / kanban</td></tr>
+        <tr><td class="name">Flowise</td><td class="mono">VM2 · 192.168.2.11:3006</td><td>Builder LangChain visuel</td></tr>
+        <tr><td class="name">Dashy / Homarr</td><td class="mono">VM2 · :4000 / :7575</td><td>Dashboards portail</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="note info"><p><b>L'infra préfigure la vision avancée :</b> le reverse-proxy (NPM, routage par alias), l'orchestration (n8n), les agents MCP (Obot) et les dashboards sont déjà là. La cible « Yakaframe Avancé » s'appuie sur cette même base — environnements <strong>dev / staging / prod</strong>, proxy à alias de version, SSO et dashboard standardisé.</p></div>
+  </section>
+
+  <!-- ====================== VISION AVANCÉE ====================== -->
+  <section class="panel" id="p6">
+    <div class="section-label">Horizon — « Yakaframe Avancé »</div>
+    <h1 class="t">De l'équipe augmentée à l'écosystème d'agents</h1>
+    <p class="lead">La même méthode, poussée à l'échelle&nbsp;: passer d'une équipe de deux IA pilotées à la main à une chaîne CI/CD entièrement automatisée par des agents spécialisés, fonctionnant « au fil de l'eau ».</p>
+
+    <h2>Le sprint qui ne dort jamais</h2>
+    <p>La méthode ne remplace pas l'agilité — elle l'accélère, en comprimant ce qui prenait des jours en heures, sans sacrifier la rigueur.</p>
+    <div class="grid two">
+      <div class="card">
+        <h3>Sprint classique</h3>
+        <p>Ticket, daily, 2-3 jours de code, PR, attente de review, corrections, merge. <strong>Une feature = 1 à 2 semaines.</strong></p>
+      </div>
+      <div class="card glow">
+        <h3>Sprint IA-augmenté</h3>
+        <p>Le besoin est exprimé, Cowork rédige l'instruction en minutes, Claude Code implémente en continu, le développeur review et itère. <strong>Une feature = quelques heures à 1-2 jours.</strong></p>
+      </div>
+    </div>
+
+    <h2>L'écosystème d'agents CI/CD</h2>
+    <p>Le cœur de la cible&nbsp;: une chaîne d'intégration et de déploiement continus, entièrement automatisée par des agents spécialisés.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Agent</th><th>Rôle</th><th>Périmètre</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Développement <span class="tag t-go">×N</span></td><td>N agents en <strong>parallèle</strong> sur le code.</td><td>Dev</td></tr>
+        <tr><td class="name">Testeur &amp; Qualité</td><td>Tests unitaires et d'intégration dans des environnements dédiés.</td><td>Dev, stage</td></tr>
+        <tr><td class="name">Gestion de production</td><td>Déploie une version validée depuis le staging ; <strong>rollback</strong> via alias de version.</td><td>Staging → prod</td></tr>
+        <tr><td class="name">Surveillance de production</td><td>Supervise <code>health checks</code>, disponibilité des <code>endpoints</code> et charge système.</td><td>Prod</td></tr>
+      </tbody>
+    </table></div>
+    <p class="legend">Incarnation concrète et nommée de ces rôles&nbsp;: onglet <strong>« L'équipe d'agents »</strong>.</p>
+
+    <h2>Implémentation multi-plateformes</h2>
+    <div class="grid three">
+      <div class="card">
+        <h3>IA Cloud</h3>
+        <p>Implémentations pour <strong>Claude</strong> et <strong>ChatGPT</strong>. <span class="tag t-info">cloud</span></p>
+      </div>
+      <div class="card">
+        <h3>IA Locale</h3>
+        <p>Modèles <strong>auto-hébergés</strong> (Ollama/iakabox), recommandés par type d'agent (design, codage…). <span class="tag t-keep">self-hosted</span></p>
+      </div>
+      <div class="card">
+        <h3>Orchestration</h3>
+        <p>Évaluer <code>n8n</code> / <code>Hermes</code> / <code>Obot</code> pour orchestrer les agents. <span class="tag t-go">à évaluer</span></p>
+      </div>
+    </div>
+
+    <div class="note warn"><p><b>Garde-fou :</b> même à l'échelle des agents, la promotion en production ne part que d'une version <strong>validée en staging</strong>, et le développeur reste le décideur. L'automatisation ne supprime pas le filtre humain — elle le déplace vers l'architecture et le jugement.</p></div>
+  </section>
+
+  <!-- ====================== L'ÉQUIPE D'AGENTS ====================== -->
+  <section class="panel" id="pag">
+    <div class="section-label">Incarnation — l'équipe iakaframe</div>
+    <h1 class="t">Sept agents, un rôle chacun</h1>
+    <p class="lead">L'écosystème « Yakaframe Avancé » prend corps&nbsp;: chaque rôle de la chaîne CI/CD est incarné par un agent <strong>nommé</strong>, au périmètre fermé. Les trois acteurs restent le modèle&nbsp;; l'équipe en est la spécialisation industrielle.</p>
+
+    <p class="pull">L'image est mutualisée, le conteneur est étanche.</p>
+    <p>Comme l'isolation Docker par projet, on sépare <strong>définition</strong> et <strong>exécution</strong>&nbsp;: une persona est définie une seule fois et réutilisée partout, mais <strong>chaque projet instancie sa propre équipe</strong>, scopée à son repo. Aucun agent ne porte deux projets dans un même contexte — la répartition entre projets est un choix de <strong>portefeuille</strong>, pas un comportement d'agent.</p>
+
+    <h2>Le roster</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Agent</th><th>Rôle</th><th>Étape</th><th>Skill</th></tr></thead>
+      <tbody>
+        <tr><td class="name">🛡️ Aragorn</td><td>Coordination entre agents, suivi des jalons, reporting</td><td>transverse</td><td><code>iakaframe-aragorn</code></td></tr>
+        <tr><td class="name">🧙 Gandalf</td><td>Architecte-cadreur&nbsp;: besoin → instruction fermée</td><td><span class="num">J0</span></td><td><code>iakaframe-cadrage</code></td></tr>
+        <tr><td class="name">⚒️ Gimli</td><td>Développement&nbsp;: code, build, commits (×N parallèle)</td><td><span class="num">J1</span></td><td>CLAUDE.md</td></tr>
+        <tr><td class="name">🏹 Legolas</td><td>Qualité / test&nbsp;: verdict PASS, gate auto</td><td><span class="num">J2-3</span></td><td><code>iakaframe-qualite</code></td></tr>
+        <tr><td class="name">🌉 Helm</td><td>Production&nbsp;: déploiement, accès, rollback + surveillance</td><td><span class="num">J4-5</span></td><td><code>iakaframe-deploiement</code></td></tr>
+        <tr><td class="name">🎭 Loki</td><td>Design&nbsp;: supports on-brand (catalogue de chartes)</td><td>brique</td><td><code>iakaframe-naonedge</code></td></tr>
+        <tr><td class="name">📖 Nathalie</td><td>Guides utilisateurs / documentation</td><td>brique</td><td><code>iakaframe-nathalie</code></td></tr>
+      </tbody>
+    </table></div>
+    <p class="legend">n8n / Hermes sont des <strong>outils</strong> d'orchestration qu'Aragorn pilote — pas des agents.</p>
+
+    <h2>Les jalons — qui fait quoi</h2>
+    <p>Une feature avance par jalons. À chaque jalon, <strong>un seul</strong> agent est aux commandes&nbsp;; Aragorn enchaîne et vérifie le gate avant de passer au suivant.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Jalon</th><th>Agent</th><th>Entrée → sortie</th><th>Gate</th></tr></thead>
+      <tbody>
+        <tr><td class="num">J0 · Cadrage</td><td>🧙 Gandalf</td><td>besoin → <code>specs/instructions/</code></td><td><span class="tag t-wait">humain</span></td></tr>
+        <tr><td class="num">J1 · Dev</td><td>⚒️ Gimli ×N</td><td>instruction → branche + commits</td><td>—</td></tr>
+        <tr><td class="num">J2 · Qualité</td><td>🏹 Legolas</td><td>branche → verdict PASS/FAIL</td><td><span class="tag t-on">auto</span></td></tr>
+        <tr><td class="num">J3 · Intégration</td><td>🏹 → 🌉</td><td>PASS → <code>vX.Y.Z-rc</code> sur stage</td><td><span class="tag t-on">auto</span></td></tr>
+        <tr><td class="num">J4 · Déploiement</td><td>🌉 Helm</td><td>rc + feu vert → prod via alias</td><td><span class="tag t-wait">humain</span></td></tr>
+        <tr><td class="num">J5 · Surveillance</td><td>🌉 Helm</td><td>prod → santé / alerte / rollback</td><td><span class="tag t-info">continu</span></td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="grid two">
+      <div class="card">
+        <h3>Subagents dispatchables</h3>
+        <p>Chaque agent = un subagent Claude Code (<code>agents/&lt;nom&gt;.md</code>) à contexte isolé, <strong>dispatchable</strong> par Aragorn et <strong>parallélisable</strong> (N Gimli en worktrees).</p>
+      </div>
+      <div class="card">
+        <h3>Skills = savoir-faire</h3>
+        <p>Le rôle charge une skill (<code>skills/iakaframe-*</code>). Le subagent est le <em>contrat</em>&nbsp;; la skill est la <em>méthode</em>. Déclinable Claude / ChatGPT / IA locale.</p>
+      </div>
+    </div>
+
+    <div class="note tip"><p><b>Tout agent peut solliciter Stéphane directement</b> ; Aragorn est l'interlocuteur par défaut. Aucun agent ne franchit seul un gate de production.</p></div>
+  </section>
+
+  <!-- ====================== COMMANDES & ROUTE ====================== -->
+  <section class="panel" id="p7">
+    <div class="section-label">Commandes &amp; cycle de vie</div>
+    <h1 class="t">Deux commandes pour toute la vie du projet</h1>
+    <p class="lead">La méthode s'amorce et se maintient en deux gestes, sur un projet neuf comme existant.</p>
+
+    <div class="grid two">
+      <div class="card glow">
+        <h3>« init iakaframe »</h3>
+        <p>Sur un <strong>répertoire vide</strong>&nbsp;: nouveau projet (dépôt Forgejo, structure, premier commit, état des lieux <code>v0.1.0</code>). Sur un <strong>répertoire avec du code</strong>&nbsp;: reprise — structure déployée <em>autour</em> de l'existant, rien d'écrasé.</p>
+        <p>Orchestrateur&nbsp;: <code>iakaframe-onboard.ps1</code> (init + forgejo + commit + snapshot).</p>
+      </div>
+      <div class="card glow">
+        <h3>« update iakaframe »</h3>
+        <p>Le checkpoint en une fois (<code>iakaframe-update.ps1</code>)&nbsp;: régénère l'état des lieux, puis <code>git add -A</code> + commit global + push. À chaque changement de version et à chaque pause/reprise (<code>-Reason version|pause|reprise</code>).</p>
+      </div>
+    </div>
+
+    <div class="note info"><p><b>Auto-détection init ↔ update :</b> les deux commandes interrogent l'API Forgejo. <code>init</code> sur un dépôt déjà présent bascule en <code>update</code> ; <code>update</code> sur un dépôt absent bascule en <code>init</code>. Une seule chose à retenir — le bon comportement est choisi tout seul.</p></div>
+
+    <h2>L'état des lieux, régénéré aux bons moments</h2>
+    <p><code>iakaframe-snapshot.ps1</code> produit <code>specs/etat-des-lieux.md</code> + <code>.html</code> à partir des faits git (version, branche, derniers commits, arbre propre/sale) et tient un <strong>journal append-only</strong>. Les faits sont automatiques ; <strong>Cowork complète le récit de reprise</strong>. Reprendre un projet = lire l'état des lieux, pas fouiller sa mémoire.</p>
+
+    <h2>Gérer et lancer l'équipe d'agents</h2>
+    <p><code>iakaframe-agents.ps1</code> gère les agents et les affecte aux projets. La <strong>full team</strong> se déploie en une commande — chaque projet reçoit sa copie scopée (subagents + skills + catalogue de chartes).</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Commande</th><th>Effet</th></tr></thead>
+      <tbody>
+        <tr><td class="mono">-Action list</td><td>liste les agents canon + leur skill</td></tr>
+        <tr><td class="mono">-Action create -Agent &lt;nom&gt;</td><td>scaffold un nouvel agent depuis le template</td></tr>
+        <tr><td class="mono">-Action affect -Agent &lt;nom&gt; -Project &lt;p&gt;</td><td>affecte un agent à un projet</td></tr>
+        <tr><td class="mono">-Action fullteam -Project &lt;p&gt;</td><td><strong>déploie la full team</strong> dans un projet</td></tr>
+        <tr><td class="mono">-Action status -Project &lt;p&gt;</td><td>liste les agents déjà affectés</td></tr>
+      </tbody>
+    </table></div>
+    <pre><code><span class="cmt"># déployer toute l'équipe dans un projet</span>
+pwsh iakaframe-agents.ps1 -Action fullteam -Project C:\work\monprojet</code></pre>
+
+    <h2>Feuille de route — « Yakaframe Avancé »</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Action</th><th>Échéance</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Rédiger une note de cadrage pour lancer « Yakaframe Avancé » (livre / fichier)</td><td class="num">TBD</td></tr>
+        <tr><td class="name">Définir la méthodologie théorique agnostique (assistanat par IA et agents)</td><td class="num">TBD</td></tr>
+        <tr><td class="name">Concevoir l'architecture de l'écosystème d'agents et leurs interactions</td><td class="num">TBD</td></tr>
+        <tr><td class="name">Spécifier l'infrastructure standard (Proxy, SSO, Dev/Stage/Prod)</td><td class="num">TBD</td></tr>
+        <tr><td class="name">Définir le contenu d'un dashboard de surveillance standardisé</td><td class="num">TBD</td></tr>
+        <tr><td class="name">Créer les implémentations pour Claude, ChatGPT et modèles locaux</td><td class="num">TBD</td></tr>
+        <tr><td class="name">Évaluer l'intégration d'outils d'orchestration (ex. n8n)</td><td class="num">TBD</td></tr>
+      </tbody>
+    </table></div>
+
+    <div class="pull">L'IA sans workflow produit du code jetable. L'IA dans un workflow produit du logiciel. La qualité n'est pas dans le modèle — elle est dans la méthode.</div>
+    <p class="legend">Échéances à confirmer (TBD). Document de travail, susceptible d'évoluer.</p>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p><span class="ne-wordmark"><b>Naon</b><span class="edge">Edge</span></span> · iakaframe — l'équipe de dev augmentée · document interne</p>
+  <p>Design NaonEdge — d'après la charte iakabox · mise à jour du 2026-06-14 (équipe d'agents)</p>
+</footer>
+
+<script>
+  var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
+  tabs.forEach(function(t){t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('active')});
+    panels.forEach(function(p){p.classList.remove('active')});
+    t.classList.add('active');var el=document.getElementById(t.dataset.tab);
+    if(el){el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  });});
+</script>
+</body>
+</html>

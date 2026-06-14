@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="595" height="842" viewBox="0 0 595 842" font-family="Inter, sans-serif">
+  <!-- Gabarit flyer A5 (vectoriel, échelle 72dpi : 595x842 ; exporter ×~4 pour 300dpi).
+       Éditer les textes ci-dessous. Charte design NaonEdge. -->
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="595" y2="842">
+      <stop offset="0" stop-color="#c8a44e"/><stop offset="1" stop-color="#e8c960"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="20%" r="60%">
+      <stop offset="0" stop-color="#c8a44e" stop-opacity="0.10"/><stop offset="1" stop-color="#0a0a0a" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="595" height="842" fill="#0a0a0a"/>
+  <rect width="595" height="842" fill="url(#glow)"/>
+
+  <!-- Logo + wordmark -->
+  <g transform="translate(48,56)">
+    <rect x="0" y="0" width="40" height="40" rx="11" fill="#0a0a0a" stroke="url(#g)" stroke-width="2"/>
+    <path d="M11 12 L29 12 L20 29 Z" stroke="url(#g)" stroke-width="1.4" fill="none" opacity=".55"/>
+    <circle cx="11" cy="12" r="3" fill="#c8a44e"/><circle cx="29" cy="12" r="3" fill="#e8c960"/><circle cx="20" cy="29" r="3" fill="#c8a44e"/>
+    <text x="52" y="27" font-size="22" font-weight="900" letter-spacing="-0.5">
+      <tspan fill="#f0f0f0">Naon</tspan><tspan fill="url(#g)">Edge</tspan>
+    </text>
+  </g>
+
+  <!-- Eyebrow -->
+  <text x="48" y="180" font-size="13" letter-spacing="3" fill="#c8a44e" font-family="'SF Mono',monospace">VEILLE AUGMENTÉE</text>
+
+  <!-- Titre -->
+  <text x="48" y="240" font-size="52" font-weight="900" fill="#f0f0f0" letter-spacing="-1.5">Titre</text>
+  <text x="48" y="296" font-size="52" font-weight="900" fill="url(#g)" letter-spacing="-1.5">accroche</text>
+
+  <!-- Sous-titre -->
+  <text x="48" y="350" font-size="17" fill="#8a8a8a">Une phrase de promesse, claire et courte,</text>
+  <text x="48" y="376" font-size="17" fill="#8a8a8a">qui dit ce que le produit surveille pour vous.</text>
+
+  <!-- 3 points -->
+  <g transform="translate(48,430)" font-size="15" fill="#f0f0f0">
+    <circle cx="6" cy="-5" r="4" fill="#c8a44e"/><text x="22" y="0">Bénéfice clé numéro un</text>
+    <circle cx="6" cy="35" r="4" fill="#c8a44e"/><text x="22" y="40">Bénéfice clé numéro deux</text>
+    <circle cx="6" cy="75" r="4" fill="#c8a44e"/><text x="22" y="80">Bénéfice clé numéro trois</text>
+  </g>
+
+  <!-- CTA -->
+  <g transform="translate(48,600)">
+    <rect x="0" y="0" width="230" height="52" rx="26" fill="url(#g)"/>
+    <text x="115" y="33" font-size="17" font-weight="700" fill="#0a0a0a" text-anchor="middle">Appel à l'action</text>
+  </g>
+
+  <!-- Pied -->
+  <text x="48" y="790" font-size="12" fill="#555" font-family="'SF Mono',monospace">naonedge · veille augmentée · contact / URL</text>
+</svg>

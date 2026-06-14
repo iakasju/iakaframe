@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NaoEdge — Gabarit document</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- Design NaoEdge : pour un usage local, garder le lien ci-dessous.
+     Pour PARTAGER le fichier seul (mail, flyer), copier le contenu de naonedge.css
+     dans une balise <style> à la place de ce <link>. -->
+<link rel="stylesheet" href="naonedge.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-badge">
+    <img src="naonedge-logo.svg" alt="" width="16" height="16" style="filter:none"> NaonEdge · catégorie du document
+  </div>
+  <h1>Titre du document — <span class="accent">accent</span></h1>
+  <p class="hero-subtitle">Sous-titre : une phrase qui résume la promesse du document.</p>
+  <div class="hero-meta">v1 · AAAA-MM-JJ · interne</div>
+</section>
+
+<!-- Onglets OPTIONNELS : retirer ce <nav> et les .panel si document linéaire. -->
+<nav class="tabs">
+  <button class="tab active" data-tab="p1">Section 1</button>
+  <button class="tab" data-tab="p2">Section 2</button>
+</nav>
+
+<main>
+  <section class="panel active" id="p1">
+    <div class="section-label">Libellé de section</div>
+    <h1 class="t">Titre de section</h1>
+    <p class="lead">Phrase d'accroche en texte clair.</p>
+    <div class="card glow">
+      <h3>Une carte</h3>
+      <p>Contenu de carte. Utiliser <code>code</code> pour le technique.</p>
+      <ul><li><strong>Point clé</strong> — explication.</li></ul>
+    </div>
+    <div class="note tip"><p><b>Astuce :</b> encart vert pour une bonne pratique.</p></div>
+    <div class="note info"><p><b>Info :</b> encart bleu pour un point de contexte.</p></div>
+    <div class="note warn"><p><b>Attention :</b> encart rouge pour un risque.</p></div>
+  </section>
+
+  <section class="panel" id="p2">
+    <div class="section-label">Tableau</div>
+    <h1 class="t">Exemple de tableau</h1>
+    <div class="scroll"><table>
+      <thead><tr><th>Élément</th><th>Statut</th><th>Note</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Ligne A</td><td><span class="tag t-on">ok</span></td><td class="num">€00–00</td></tr>
+        <tr><td class="name">Ligne B</td><td><span class="tag t-wait">à faire</span></td><td class="num">—</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p><span class="ne-wordmark"><b>Naon</b><span class="edge">Edge</span></span> · document interne</p>
+  <p>Design NaonEdge — d'après la charte iakabox</p>
+</footer>
+
+<script>
+  var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
+  tabs.forEach(function(t){t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('active')});
+    panels.forEach(function(p){p.classList.remove('active')});
+    t.classList.add('active');var el=document.getElementById(t.dataset.tab);
+    if(el){el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  });});
+</script>
+</body>
+</html>

@@ -24,6 +24,7 @@ en place, au lieu de le réinventer à chaque fois.
 | [`iakaframe-onboard.ps1`](./iakaframe-onboard.ps1) | **Orchestrateur** : structure + Forgejo + 1er commit + docs, sur projet neuf ou existant. |
 | [`iakaframe-update.ps1`](./iakaframe-update.ps1) | **« update iakaframe »** : régénère l'état des lieux + commit global + push. |
 | [`iakaframe-common.ps1`](./iakaframe-common.ps1) | Helper partagé (token + détection d'existence Forgejo) ; dot-sourcé par les autres. |
+| [`design-naonedge/`](./design-naonedge/) | **Design NaonEdge** (label figé) : `naonedge.css` (charte canon), `naonedge-charte.md`, gabarits doc/slides/flyer, logo. À réutiliser pour tous les supports. |
 
 ### Le kit de démarrage (`kit/`)
 

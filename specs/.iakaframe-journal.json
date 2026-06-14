@@ -1,37 +1,13 @@
 ﻿[
     {
-        "value":  [
-                      {
-                          "value":  [
-                                        {
-                                            "value":  " ",
-                                            "Count":  2
-                                        },
-                                        {
-                                            "date":  "2026-06-11 23:34",
-                                            "reason":  "manual",
-                                            "version":  "-",
-                                            "branch":  "main",
-                                            "commit":  "5028d0c chore(iakaframe): update etat des lieux + commit global (version v0.1.0)",
-                                            "dirty":  true,
-                                            "files":  19,
-                                            "note":  "ajout .gitattributes + renormalisation EOL"
-                                        }
-                                    ],
-                          "Count":  2
-                      },
-                      {
-                          "date":  "2026-06-11 23:39",
-                          "reason":  "version",
-                          "version":  "v0.2.0",
-                          "branch":  "main",
-                          "commit":  "43b25c0 chore(iakaframe): update etat des lieux + commit global (manual)",
-                          "dirty":  true,
-                          "files":  20,
-                          "note":  "init/update auto-detectent l\u0027existence sur Forgejo"
-                      }
-                  ],
-        "Count":  2
+        "date":  "2026-06-11 23:39",
+        "reason":  "version",
+        "version":  "v0.2.0",
+        "branch":  "main",
+        "commit":  "43b25c0 chore(iakaframe): update etat des lieux + commit global (manual)",
+        "dirty":  true,
+        "files":  20,
+        "note":  "init/update auto-detectent l\u0027existence sur Forgejo"
     },
     {
         "date":  "2026-06-11 23:41",
@@ -42,5 +18,35 @@
         "dirty":  true,
         "files":  20,
         "note":  "doc HTML impactee : commandes init/update, Forgejo, cycle de doc, auto-detection"
+    },
+    {
+        "date":  "2026-06-14 02:16",
+        "reason":  "reprise",
+        "version":  "-",
+        "branch":  "main",
+        "commit":  "5191289 chore(iakaframe): update etat des lieux + commit global (version v0.3.0)",
+        "dirty":  true,
+        "files":  38,
+        "note":  ""
+    },
+    {
+        "date":  "2026-06-14 14:30",
+        "reason":  "reprise",
+        "version":  "-",
+        "branch":  "main",
+        "commit":  "5191289 chore(iakaframe): update etat des lieux + commit global (version v0.3.0)",
+        "dirty":  true,
+        "files":  41,
+        "note":  "rangement skills (9 dossiers) + PDF dans docs + fix journal System.Object"
+    },
+    {
+        "date":  "2026-06-14 15:14",
+        "reason":  "version",
+        "version":  "v0.4.0",
+        "branch":  "main",
+        "commit":  "5191289 chore(iakaframe): update etat des lieux + commit global (version v0.3.0)",
+        "dirty":  true,
+        "files":  53,
+        "note":  "equipe d agents (7 subagents + skills) + commande iakaframe-agents + HTML methode v3 + rangement skills/PDF + fix journal"
     }
 ]

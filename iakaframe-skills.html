@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iakaframe — Les skills de la méthode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* NaonEdge — charte canonique inlinée (design-naonedge/naonedge.css) */
+:root{
+  --bg-primary:#0a0a0a;--bg-card:#1a1a1a;--bg-deep:#111;--line:#2a2a2a;--line-soft:#1f1f1f;
+  --text-primary:#f0f0f0;--text-secondary:#8a8a8a;--text-muted:#555;
+  --accent-gold:#c8a44e;--accent-gold-light:#e8c960;--accent-rgb:200,164,78;
+  --gradient-accent:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-light));
+  --red:#e74c3c;--green:#2ecc71;--blue:#3498db;--orange:#e67e22;--cyan:#1abc9c;--purple:#9b59b6;
+  --radius-md:12px;--radius-lg:20px;--shadow-glow:0 0 40px rgba(var(--accent-rgb),0.15);
+  --font-sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
+code{font-family:var(--mono)}
+a{color:var(--accent-gold);text-decoration:none}
+.accent{background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1,h1.t,h2,.slide h1,.slide h2{font-family:var(--font-serif)}
+.hero{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:3.4rem 2rem 2.4rem;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:760px;height:760px;background:radial-gradient(circle,rgba(var(--accent-rgb),0.08) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(var(--accent-rgb),0.1);border:1px solid rgba(var(--accent-rgb),0.25);border-radius:999px;padding:.4rem 1rem;font-size:.78rem;color:var(--accent-gold);margin-bottom:1.4rem;letter-spacing:.08em;text-transform:uppercase}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;max-width:820px}
+.hero-subtitle{color:var(--text-secondary);font-size:clamp(1rem,2vw,1.18rem);max-width:680px;margin-top:1.1rem}
+.hero-meta{font-family:var(--mono);font-size:.74rem;color:var(--text-muted);margin-top:1rem;letter-spacing:.05em}
+main{max-width:72rem;margin:0 auto;padding:2.4rem 2rem 5rem}
+.section-label{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-gold);margin-bottom:1rem}
+.section-label::before{content:'';display:inline-block;width:24px;height:2px;background:var(--gradient-accent)}
+h1.t{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1rem;line-height:1.2}
+h2{font-size:clamp(1.25rem,2.4vw,1.6rem);font-weight:800;letter-spacing:-.01em;margin:2.6rem 0 .9rem}
+h3{font-size:1.1rem;font-weight:700;margin:1.4rem 0 .5rem}
+p{color:var(--text-secondary);font-size:1.02rem;max-width:74ch;margin:.55rem 0}
+.lead{color:var(--text-primary);font-size:1.08rem}
+strong{color:var(--text-primary)}
+ul{margin:.5rem 0 1rem;padding-left:1.2rem}
+li{margin:.3rem 0;color:var(--text-secondary)}li strong{color:var(--text-primary)}
+p code,li code,td code{background:rgba(var(--accent-rgb),0.08);color:var(--accent-gold);padding:.12rem .42rem;border-radius:5px;font-size:.85rem}
+.card{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.4rem 1.6rem;margin:1.1rem 0}
+.card.glow{box-shadow:var(--shadow-glow)}
+.card h3{margin-top:0;display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}
+.card h3 code{font-size:.92rem;background:rgba(var(--accent-rgb),.1);color:var(--accent-gold);padding:.18rem .5rem;border-radius:6px}
+.grid{display:grid;gap:1.1rem}
+@media(min-width:780px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+.tag{display:inline-block;font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:.14rem .6rem;border-radius:999px;margin-right:.4rem}
+.t-go{background:rgba(var(--accent-rgb),.15);color:var(--accent-gold)}
+.t-on{background:rgba(46,204,113,.15);color:var(--green)}
+.t-wait{background:rgba(230,126,34,.15);color:var(--orange)}
+.t-keep{background:rgba(155,89,182,.15);color:var(--purple)}
+.t-info{background:rgba(52,152,219,.15);color:var(--blue)}
+.t-new{background:var(--gradient-accent);color:#0a0a0a}
+pre{background:var(--bg-deep);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.1rem 1.4rem;margin:1rem 0;overflow-x:auto;font-size:.85rem;line-height:1.6}
+pre code{color:#d8d8d8}.cmt{color:var(--text-muted)}.tok{color:var(--accent-gold)}.kw{color:var(--blue)}.str{color:var(--green)}
+.scroll{overflow-x:auto;border-radius:var(--radius-md);margin:1.2rem 0}
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--line);font-size:.88rem}
+th{background:var(--bg-card);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:.7rem .9rem;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:.65rem .9rem;border-top:1px solid var(--line-soft);color:var(--text-secondary);vertical-align:top}
+tr:hover td{background:#151515}
+td strong,td.name{color:var(--text-primary)}
+td.name code{background:rgba(var(--accent-rgb),.08);color:var(--accent-gold);padding:.1rem .4rem;border-radius:5px;font-size:.82rem}
+tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-gold);font-weight:700}
+.note{display:flex;gap:.9rem;border-radius:var(--radius-md);padding:1rem 1.3rem;margin:1.3rem 0;font-size:.92rem}
+.note p{color:var(--text-secondary);margin:0;max-width:none}
+.note.warn{background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.22)}.note.warn b{color:var(--red)}
+.note.tip{background:rgba(46,204,113,.05);border:1px solid rgba(46,204,113,.22)}.note.tip b{color:var(--green)}
+.note.info{background:rgba(52,152,219,.05);border:1px solid rgba(52,152,219,.22)}.note.info b{color:var(--blue)}
+.seq{counter-reset:s;list-style:none;padding:0}
+.seq li{counter-increment:s;padding:.5rem 0 .5rem 2.6rem;position:relative;color:var(--text-secondary)}
+.seq li::before{content:counter(s);position:absolute;left:0;top:.45rem;width:26px;height:26px;border-radius:50%;background:var(--gradient-accent);color:#0a0a0a;font:700 .82rem var(--mono);display:flex;align-items:center;justify-content:center}
+.footer{text-align:center;padding:2.6rem 2rem;border-top:1px solid var(--line-soft);margin-top:1rem}
+.footer .accent-line{width:60px;height:3px;background:var(--gradient-accent);border-radius:999px;margin:0 auto 1.2rem}
+.footer p{color:var(--text-muted);font-size:.82rem;max-width:none;margin:.2rem auto}
+.ne-wordmark{font-weight:900;letter-spacing:-.01em;color:var(--text-primary)}
+.ne-wordmark b{font-weight:900}
+.ne-wordmark .edge{font-weight:900;background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#333;border-radius:999px}
+@media(max-width:768px){main{padding:1.8rem 1.2rem 4rem}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <span class="hero-badge">★ design NaonEdge</span>
+  <h1>Les <span class="accent">skills</span> de la méthode iakaframe</h1>
+  <p class="hero-subtitle">Neuf skills Claude qui rendent la méthode exécutable&nbsp;: chaque
+  skill incarne un moment du cycle où un cadre explicite change vraiment le résultat — amorcer,
+  cadrer, vérifier, déployer, faire le point… et désormais versionner, isoler, sauvegarder, mettre en forme.</p>
+  <p class="hero-meta">iakaframe · 5 skills d'origine + 4 ajoutés · 2026-06-14</p>
+</header>
+
+<main>
+
+  <span class="section-label">Vue d'ensemble</span>
+  <h1 class="t">Les 9 skills, par famille</h1>
+  <p class="lead">Une skill se déclenche sur des tâches <strong>complexes et multi-étapes</strong>,
+  pas sur des gestes triviaux. Les étapes déjà portées par <code>CLAUDE.md</code> et l'outillage
+  (dev, intégration, surveillance) ne sont volontairement <em>pas</em> des skills — en faire des
+  skills séparées les ferait sous-déclencher.</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Skill</th><th>Rôle / moment</th><th>Se déclenche quand…</th><th></th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="4">Cœur du cycle — les 5 skills d'origine</td></tr>
+      <tr><td class="name"><code>iakaframe-init</code></td><td>Amorçage</td><td>« démarrer / mettre en place la méthode sur un projet »</td><td><span class="tag t-info">cycle</span></td></tr>
+      <tr><td class="name"><code>iakaframe-cadrage</code></td><td>Étape 0 — architecte</td><td>décrire une feature, un bug, « cadrer », « spécifier »</td><td><span class="tag t-info">cycle</span></td></tr>
+      <tr><td class="name"><code>iakaframe-qualite</code></td><td>Étape 2 — vérificateur</td><td>« vérifier », « tester », gate avant intégration</td><td><span class="tag t-on">gate auto</span></td></tr>
+      <tr><td class="name"><code>iakaframe-deploiement</code></td><td>Étape 4 — opérateur</td><td>« déployer », « mettre en prod »</td><td><span class="tag t-wait">gate humain</span></td></tr>
+      <tr><td class="name"><code>iakaframe-etat-des-lieux</code></td><td>Orchestrateur (lecture)</td><td>« où en est le projet », « fais le point », reprise</td><td><span class="tag t-info">cycle</span></td></tr>
+      <tr class="grp"><td colspan="4">Brique manquante — les 4 skills ajoutés</td></tr>
+      <tr><td class="name"><code>iakaframe-forgejo</code></td><td>Git par défaut (iakabox)</td><td>« créer le dépôt », « brancher Forgejo », « pousser sur iakabox »</td><td><span class="tag t-new">nouveau</span></td></tr>
+      <tr><td class="name"><code>iakaframe-docker</code></td><td>Stack isolée par projet</td><td>« dockeriser », « docker-compose », « allouer les ports »</td><td><span class="tag t-new">nouveau</span></td></tr>
+      <tr><td class="name"><code>iakaframe-update</code></td><td>Orchestrateur (écriture)</td><td>« update iakaframe », « checkpoint », « commit global », « pousse tout »</td><td><span class="tag t-new">nouveau</span></td></tr>
+      <tr><td class="name"><code>iakaframe-naonedge</code></td><td>Studio de design</td><td>« faire une doc HTML », « un deck », « en style naonedge »</td><td><span class="tag t-new">nouveau</span></td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <span class="section-label">Les ajouts</span>
+  <h1 class="t">Pourquoi ces 4 skills manquaient</h1>
+  <p>Chacun comble un trou réel de la méthode déjà décrit dans <code>methode-de-travail.md</code>
+  ou dans la charte — pas une invention, une formalisation.</p>
+
+  <div class="grid two">
+
+    <div class="card glow">
+      <h3><code>iakaframe-forgejo</code> <span class="tag t-new">nouveau</span></h3>
+      <p>Le dépôt git par défaut de tout projet vit sur le <strong>Forgejo auto-hébergé
+      d'iakabox</strong> (HTTP + token, création via API, description ASCII, auto-détection
+      d'existence).</p>
+      <p><strong>Le manque&nbsp;:</strong> ce composant est <em>déjà nommé</em> dans la méthode
+      (l'orchestrateur d'amorçage = <code>init</code> + <code>forgejo</code> + commit + snapshot)
+      mais n'existait pas comme skill. C'est la brique la plus casse-gueule (token, 422 sur
+      desc non-ASCII, SSH inutilisable).</p>
+    </div>
+
+    <div class="card glow">
+      <h3><code>iakaframe-docker</code> <span class="tag t-new">nouveau</span></h3>
+      <p>La convention <strong>isolation Docker par projet</strong>&nbsp;: stack propre, containers
+      <code>&lt;projet&gt;-dev-*</code>, réseau et volumes dédiés, <strong>ports hôte décalés</strong>
+      pour ne jamais entrer en collision (ex. 5432 / 5433 / 5434).</p>
+      <p><strong>Le manque&nbsp;:</strong> allouer des ports sans collision et préfixer toute la
+      stack est multi-étapes et facile à rater. Un cadre explicite évite que deux projets de la
+      famille se marchent dessus.</p>
+    </div>
+
+    <div class="card glow">
+      <h3><code>iakaframe-update</code> <span class="tag t-new">nouveau</span></h3>
+      <p>La commande <strong>« update iakaframe »</strong>&nbsp;: régénère l'état des lieux, fait
+      un <strong>commit global atomique</strong> et pousse.</p>
+      <p><strong>Le manque&nbsp;:</strong> <code>etat-des-lieux</code> est en lecture seule (il
+      <em>constate</em>). Il manquait sa contrepartie en écriture qui <em>grave</em> le point de
+      sauvegarde. Symétrie naturelle&nbsp;: l'une lit, l'autre commite.</p>
+    </div>
+
+    <div class="card glow">
+      <h3><code>iakaframe-naonedge</code> <span class="tag t-new">nouveau</span></h3>
+      <p>Produire un support <strong>on-brand</strong> (doc, deck, flyer) selon la charte
+      <span class="ne-wordmark"><b>Naon</b><span class="edge">Edge</span></span> — <em>dark
+      premium · or</em> — sans diverger de <code>design-naonedge/</code>.</p>
+      <p><strong>Le manque&nbsp;:</strong> « écrire une doc en style NaonEdge » est exactement le
+      genre de tâche multi-étapes que la charte rend reproductible. Cette page en est la
+      première application.</p>
+    </div>
+
+  </div>
+
+  <span class="section-label">Le principe</span>
+  <h1 class="t">Pourquoi ces skills et pas d'autres</h1>
+  <p>Même logique que les 5 d'origine&nbsp;: une skill ne se justifie que là où un
+  <strong>cadre explicite change le résultat</strong>. Plusieurs candidats ont été
+  <strong>écartés volontairement</strong>&nbsp;:</p>
+
+  <div class="scroll">
+  <table>
+    <thead><tr><th>Candidat écarté</th><th>Pourquoi pas une skill</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Étape 1 — dev / Étape 3 — intégration / Étape 5 — surveillance</td><td>Déjà portées par <code>CLAUDE.md</code> et l'outillage. En faire des skills les ferait sous-déclencher.</td></tr>
+      <tr><td class="name">Cycle de correction d'erreur</td><td>C'est une variante de <code>iakaframe-cadrage</code> (instruction <code>fix-*.md</code>), pas un cadre distinct.</td></tr>
+      <tr><td class="name">Mock des API (<code>specs/mock/</code>)</td><td>Convention de dev appliquée dans l'exécution&nbsp;; pas assez multi-étapes pour mériter sa skill. À reconsidérer si le besoin grossit.</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <div class="note tip"><b>Règle qui traverse tout —</b>
+  <p>L'IA prépare et propose à l'intérieur d'un périmètre borné&nbsp;; <strong>l'humain décide aux
+  gates</strong>. <code>qualite</code> matérialise le gate automatique, <code>deploiement</code> le
+  gate humain. Aucune skill ne franchit seule un gate de mise en production.</p></div>
+
+  <span class="section-label">Installation</span>
+  <h1 class="t">Déposer les skills</h1>
+  <p>Chaque dossier <code>iakaframe-*</code> contenant un <code>SKILL.md</code> se dépose dans le
+  répertoire de skills&nbsp;; il se déclenche automatiquement quand le contexte correspond à sa
+  description.</p>
+  <pre><code><span class="cmt"># Claude Code — global ou projet</span>
+~/.claude/skills/iakaframe-*        <span class="cmt"># pour toutes les sessions</span>
+.claude/skills/iakaframe-*          <span class="cmt"># pour ce projet seulement</span>
+
+<span class="cmt"># Cowork — via le panneau des skills</span></code></pre>
+
+  <div class="note info"><b>Source —</b>
+  <p>Skills d'origine et nouveaux&nbsp;: <code>skills/mnt/user-data/outputs/skills/</code>.
+  Charte de design&nbsp;: <code>design-naonedge/</code> (<code>naonedge.css</code> canon).
+  Méthode complète&nbsp;: <code>methode-de-travail.md</code>.</p></div>
+
+</main>
+
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p><span class="ne-wordmark"><b>Naon</b><span class="edge">Edge</span></span> · design figé pour tous les supports iakaframe</p>
+  <p>iakaframe — la qualité n'est pas dans le modèle, elle est dans la méthode.</p>
+</footer>
+
+</body>
+</html>

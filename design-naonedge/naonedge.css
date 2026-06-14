@@ -1,0 +1,150 @@
+/* ============================================================================
+   NaonEdge — Design System (charte « dark premium · or »)
+   Naoned (Nantes en breton) + Edge (innovation).
+   ----------------------------------------------------------------------------
+   Feuille de style CANONIQUE, figée pour tous les supports NaonEdge :
+   documents HTML, decks/slides, gabarits de flyers, exports.
+   Dérivée de la charte iakabox (fond noir + accent or, Inter).
+   Usage : <link rel="stylesheet" href="naonedge.css"> + Inter (Google Fonts).
+   Pour un fichier à PARTAGER en standalone (flyer, deck envoyé), INLINER ce CSS
+   dans une balise <style> du document (cf. template-doc.html).
+   ========================================================================== */
+
+:root{
+  /* — Surfaces — */
+  --bg-primary:#0a0a0a;      /* fond global */
+  --bg-card:#1a1a1a;         /* cartes / panneaux */
+  --bg-deep:#111;            /* blocs de code / fonds profonds */
+  --line:#2a2a2a;            /* bords */
+  --line-soft:#1f1f1f;       /* séparateurs discrets */
+
+  /* — Texte — */
+  --text-primary:#f0f0f0;
+  --text-secondary:#8a8a8a;
+  --text-muted:#555;
+
+  /* — Accent OR (signature NaoEdge) — */
+  --accent-gold:#c8a44e;
+  --accent-gold-light:#e8c960;
+  --accent-rgb:200,164,78;
+  --gradient-accent:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-light));
+
+  /* — Couleurs sémantiques (encarts, badges) — */
+  --red:#e74c3c; --green:#2ecc71; --blue:#3498db;
+  --orange:#e67e22; --cyan:#1abc9c; --purple:#9b59b6;
+
+  /* — Formes — */
+  --radius-md:12px; --radius-lg:20px;
+  --shadow-glow:0 0 40px rgba(var(--accent-rgb),0.15);
+
+  /* — Typographie (alignée sur le site naonedge.com) —
+     Fraunces (titres serif) · IBM Plex Sans (corps) · JetBrains Mono (libellés/chiffres).
+     Charger via Google Fonts (cf. gabarits). */
+  --font-sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
+code{font-family:var(--mono)}
+a{color:var(--accent-gold);text-decoration:none}
+.accent{background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+/* Titres d'affichage en serif Fraunces */
+.hero h1,h1.t,h2,.slide h1,.slide h2{font-family:var(--font-serif)}
+
+/* — Hero — */
+.hero{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:3.4rem 2rem 2.4rem;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:760px;height:760px;background:radial-gradient(circle,rgba(var(--accent-rgb),0.08) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(var(--accent-rgb),0.1);border:1px solid rgba(var(--accent-rgb),0.25);border-radius:999px;padding:.4rem 1rem;font-size:.78rem;color:var(--accent-gold);margin-bottom:1.4rem;letter-spacing:.08em;text-transform:uppercase}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;max-width:820px}
+.hero-subtitle{color:var(--text-secondary);font-size:clamp(1rem,2vw,1.18rem);max-width:660px;margin-top:1.1rem}
+.hero-meta{font-family:var(--mono);font-size:.74rem;color:var(--text-muted);margin-top:1rem;letter-spacing:.05em}
+
+/* — Navigation par onglets (option) — */
+.tabs{position:sticky;top:0;z-index:10;background:rgba(10,10,10,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);padding:.7rem 1rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+.tab{appearance:none;border:1px solid var(--line);background:var(--bg-card);color:var(--text-secondary);font:600 .85rem var(--font-sans);padding:.5rem .95rem;border-radius:999px;cursor:pointer;transition:.18s;white-space:nowrap}
+.tab:hover{color:var(--text-primary);border-color:rgba(var(--accent-rgb),.4)}
+.tab.active{color:#0a0a0a;background:var(--gradient-accent);border-color:transparent;box-shadow:var(--shadow-glow);font-weight:700}
+
+/* — Structure de contenu — */
+main{max-width:72rem;margin:0 auto;padding:2.4rem 2rem 5rem}
+.panel{display:none}.panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.section-label{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-gold);margin-bottom:1rem}
+.section-label::before{content:'';display:inline-block;width:24px;height:2px;background:var(--gradient-accent)}
+h1.t{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1rem;line-height:1.2}
+h2{font-size:clamp(1.25rem,2.4vw,1.6rem);font-weight:800;letter-spacing:-.01em;margin:2.2rem 0 .9rem}
+h3{font-size:1.1rem;font-weight:700;margin:1.4rem 0 .5rem}
+p{color:var(--text-secondary);font-size:1.02rem;max-width:74ch;margin:.55rem 0}
+.lead{color:var(--text-primary);font-size:1.08rem}
+strong{color:var(--text-primary)}
+ul{margin:.5rem 0 1rem;padding-left:1.2rem}
+li{margin:.3rem 0;color:var(--text-secondary)}li strong{color:var(--text-primary)}
+p code,li code,td code{background:rgba(var(--accent-rgb),0.08);color:var(--accent-gold);padding:.12rem .42rem;border-radius:5px;font-size:.85rem}
+
+/* — Cartes & grilles — */
+.card{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.4rem 1.6rem;margin:1.1rem 0}
+.card.glow{box-shadow:var(--shadow-glow)}
+.grid{display:grid;gap:1.1rem}
+@media(min-width:780px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+
+/* — Badges / tags — */
+.tag{display:inline-block;font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:.14rem .6rem;border-radius:999px;margin-right:.4rem}
+.t-go{background:rgba(var(--accent-rgb),.15);color:var(--accent-gold)}
+.t-on{background:rgba(46,204,113,.15);color:var(--green)}
+.t-wait{background:rgba(230,126,34,.15);color:var(--orange)}
+.t-keep{background:rgba(155,89,182,.15);color:var(--purple)}
+.t-info{background:rgba(52,152,219,.15);color:var(--blue)}
+
+/* — Code — */
+pre{background:var(--bg-deep);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.1rem 1.4rem;margin:1rem 0;overflow-x:auto;font-size:.85rem;line-height:1.6}
+pre code{color:#d8d8d8}.cmt{color:var(--text-muted)}.tok{color:var(--accent-gold)}.kw{color:var(--blue)}.str{color:var(--green)}
+
+/* — Tables — */
+.scroll{overflow-x:auto;border-radius:var(--radius-md);margin:1.2rem 0}
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--line);font-size:.88rem}
+th{background:var(--bg-card);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:.7rem .9rem;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:.65rem .9rem;border-top:1px solid var(--line-soft);color:var(--text-secondary);vertical-align:top}
+tr:hover td{background:#151515}
+td strong,td.name{color:var(--text-primary)}
+.num{font-family:var(--mono);font-size:.8rem;color:var(--accent-gold);white-space:nowrap}
+.dots{font-size:.78rem;letter-spacing:1px;color:var(--accent-gold)}.dots.risk{color:var(--red)}
+tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-gold);font-weight:700}
+.legend{font-size:.82rem;color:var(--text-muted);margin:.5rem .2rem}
+
+/* — Encarts (callouts) — */
+.note{display:flex;gap:.9rem;border-radius:var(--radius-md);padding:1rem 1.3rem;margin:1.3rem 0;font-size:.92rem}
+.note p{color:var(--text-secondary);margin:0;max-width:none}
+.note.warn{background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.22)}.note.warn b{color:var(--red)}
+.note.tip{background:rgba(46,204,113,.05);border:1px solid rgba(46,204,113,.22)}.note.tip b{color:var(--green)}
+.note.info{background:rgba(52,152,219,.05);border:1px solid rgba(52,152,219,.22)}.note.info b{color:var(--blue)}
+
+/* — Liste séquence numérotée — */
+.seq{counter-reset:s;list-style:none;padding:0}
+.seq li{counter-increment:s;padding:.5rem 0 .5rem 2.6rem;position:relative;color:var(--text-secondary)}
+.seq li::before{content:counter(s);position:absolute;left:0;top:.45rem;width:26px;height:26px;border-radius:50%;background:var(--gradient-accent);color:#0a0a0a;font:700 .82rem var(--mono);display:flex;align-items:center;justify-content:center}
+
+/* — Pied — */
+.footer{text-align:center;padding:2.6rem 2rem;border-top:1px solid var(--line-soft);margin-top:1rem}
+.footer .accent-line{width:60px;height:3px;background:var(--gradient-accent);border-radius:999px;margin:0 auto 1.2rem}
+.footer p{color:var(--text-muted);font-size:.82rem;max-width:none;margin:.2rem auto}
+
+/* — Wordmark NaonEdge — "Naon" encre + "Edge" or (E majuscule) — */
+.ne-wordmark{font-weight:900;letter-spacing:-.01em;color:var(--text-primary)}
+.ne-wordmark b{font-weight:900}
+.ne-wordmark .edge{font-weight:900;background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#333;border-radius:999px}
+@media(max-width:768px){main{padding:1.8rem 1.2rem 4rem}}
+
+/* ============================================================================
+   SLIDES — gabarit plein écran (cf. template-slides.html)
+   ========================================================================== */
+.slide{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:6vh 8vw;scroll-snap-align:start;position:relative;border-bottom:1px solid var(--line-soft)}
+.slides-root{scroll-snap-type:y mandatory;overflow-y:auto;height:100vh}
+.slide h1{font-size:clamp(2rem,6vw,4rem);font-weight:900;letter-spacing:-.03em;line-height:1.05;max-width:18ch}
+.slide h2{font-size:clamp(1.4rem,3.5vw,2.4rem);font-weight:800;margin:0 0 1rem}
+.slide p{font-size:clamp(1rem,2.2vw,1.3rem);max-width:60ch}
+.slide .kicker{font-family:var(--mono);font-size:.8rem;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-gold);margin-bottom:1.2rem}
+.slide .pageno{position:absolute;bottom:4vh;right:8vw;font-family:var(--mono);font-size:.8rem;color:var(--text-muted)}

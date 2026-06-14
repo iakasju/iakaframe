@@ -71,17 +71,42 @@ if ($isGit) {
   foreach ($l in $raw) { if ($l) { $p = $l.Split('|',3); $recent += [pscustomobject]@{ hash=$p[0]; date=$p[1]; subject=$p[2] } } }
 }
 
-# Journal append-only
-$journal = @()
-if (Test-Path $journalFile) {
-  try { $journal = @(Get-Content $journalFile -Raw | ConvertFrom-Json) } catch { $journal = @() }
+# Journal append-only.
+# Robustesse : on re-extrait recursivement les VRAIES entrees (objet ayant date+reason)
+# et on jette tout wrapper parasite {value,Count} qu'une serialisation precedente aurait
+# pu introduire (bug historique des lignes "System.Object[]" / journal auto-imbrique).
+function Get-JournalEntries($node, $acc) {
+  if ($null -eq $node) { return }
+  if (($node -is [System.Collections.IEnumerable]) -and ($node -isnot [string])) {
+    foreach ($x in $node) { Get-JournalEntries $x $acc }
+    return
+  }
+  $props = @($node.PSObject.Properties.Name)
+  if (($props -contains 'date') -and ($props -contains 'reason')) {
+    $acc.Add([pscustomobject]@{
+      date=$node.date; reason=$node.reason; version=$node.version; branch=$node.branch
+      commit=$node.commit; dirty=$node.dirty; files=$node.files; note=$node.note
+    }) | Out-Null
+    return
+  }
+  if ($props -contains 'value') { Get-JournalEntries $node.value $acc }  # wrapper -> on descend
 }
-$entry = [pscustomobject]@{
+
+$entries = [System.Collections.Generic.List[object]]::new()
+if (Test-Path $journalFile) {
+  try { Get-JournalEntries (Get-Content $journalFile -Raw | ConvertFrom-Json) $entries } catch {}
+}
+$entries.Add([pscustomobject]@{
   date=$now; reason=$Reason; version=$Version; branch=$branch
   commit=$lastCommit; dirty=$dirty; files=$fileCount; note=$Note
-}
-$journal += $entry
-($journal | ConvertTo-Json -Depth 4) | Set-Content -Path $journalFile -Encoding UTF8
+}) | Out-Null
+$journal = $entries.ToArray()
+
+# Ecriture : -Depth large (structure plate) + garantie d'un tableau JSON de haut niveau
+# (sinon un journal a 1 entree serait serialise en objet seul et re-imbrique au tour suivant).
+$jsonOut = ConvertTo-Json -InputObject $journal -Depth 8
+if (-not $jsonOut.TrimStart().StartsWith('[')) { $jsonOut = "[$jsonOut]" }
+$jsonOut | Set-Content -Path $journalFile -Encoding UTF8
 
 # ---------- Rendu MD ----------
 $md = @()

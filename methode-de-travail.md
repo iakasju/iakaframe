@@ -43,6 +43,11 @@ Il ne délègue pas la réflexion — il délègue l'exécution.
 - **Self-hosted / open-source d'abord** : pour tout choix de backend, proposer
   la version locale en option n°1 ; le cloud n'est qu'un *fallback* justifié.
 - Travaille sur **Windows + Docker Desktop + PowerShell**.
+- **Isolation Docker par projet** : chaque projet tourne dans sa **propre stack
+  Docker** — réseau, volumes et containers **nommés/préfixés par projet**
+  (`<projet>-dev-*`) **et ports hôte distincts** (chaque projet décale ses ports
+  pour ne jamais entrer en collision avec un autre, ex. robotimmo 5432 / robby-bo
+  5433 / robbycollect 5434). Jamais de partage de stack ni de ressources entre projets.
 - Valide vite les plans détaillés ; choisit souvent l'option « Recommandé ».
 - Apprécie un découpage en **commits atomiques** par étape.
 
@@ -71,6 +76,96 @@ Il travaille dans le projet réel (`src/`, `src-tauri/`, `auth-api/`…).
 - Commite en *conventional commits*
 
 Claude Code a des permissions explicites dans `.claude/settings.local.json`.
+
+---
+
+## L'équipe d'agents (« Yakaframe Avancé »)
+
+Les trois acteurs sont le **modèle conceptuel** (décideur / réflexion / exécution). Pour
+industrialiser le développement « au fil de l'eau » sur une chaîne CI/CD, la couche
+réflexion+exécution se **spécialise en une équipe d'agents**, chacun avec un rôle fermé.
+Chaque agent porte une **incarnation** (un nom) pour le rendre mémorisable.
+
+> Référence canonique et fiches détaillées : `specs/equipe-agents.md`.
+> Définitions exécutables : `agents/` (subagents) + `skills/iakaframe-*` (savoir-faire).
+
+### Le roster
+
+| Agent | Rôle | Étape | Skill |
+|---|---|---|---|
+| 🛡️ **Aragorn** | Coordination entre agents, suivi des jalons, reporting | transverse | `iakaframe-aragorn` |
+| 🧙 **Gandalf** | Architecte-cadreur : besoin → instruction fermée | 0 | `iakaframe-cadrage` |
+| ⚒️ **Gimli** | Développement : code, build, commits (×N parallèle) | 1 | (CLAUDE.md) |
+| 🏹 **Legolas** | Qualité / test : verdict PASS, gate auto | 2-3 | `iakaframe-qualite` |
+| 🌉 **Helm** | Production : déploiement, accès, rollback **+ surveillance** | 4-5 | `iakaframe-deploiement` |
+| 🎭 **Loki** | Design : supports on-brand (catalogue de chartes `design-*/`) | brique | `iakaframe-naonedge` |
+| 📖 **Nathalie** | Guides utilisateurs / documentation | brique | `iakaframe-nathalie` |
+
+> **n8n / Hermes** sont des **outils** d'orchestration qu'Aragorn pilote — pas des agents.
+
+### Les jalons (qui fait quoi)
+
+Une feature avance par jalons. À chaque jalon, **un seul** agent est aux commandes ;
+Aragorn enchaîne et vérifie le gate avant de passer au suivant.
+
+| Jalon | Agent | Entrée → Sortie | Gate |
+|---|---|---|---|
+| **J0 — Cadrage** | 🧙 Gandalf | besoin → `specs/instructions/{feature}.md` | **humain** (Stéphane valide l'instruction) |
+| **J1 — Dev** | ⚒️ Gimli (×N) | instruction → branche + commits | — |
+| **J2 — Qualité** | 🏹 Legolas | branche → verdict PASS/FAIL | **auto** (tests verts) |
+| **J3 — Intégration** | 🏹 Legolas → 🌉 Helm | PASS → version candidate `vX.Y.Z-rc` sur stage | auto |
+| **J4 — Déploiement** | 🌉 Helm | rc recettée + feu vert → prod via alias | **humain** (feu vert tracé) |
+| **J5 — Surveillance** | 🌉 Helm | prod → santé OK / alerte / rollback | continu |
+
+Transverses : 🎭 **Loki** (supports visuels) et 📖 **Nathalie** (guides) interviennent sur
+sollicitation, à tout jalon. **Tout agent peut solliciter Stéphane directement** ; Aragorn
+est l'interlocuteur par défaut.
+
+### Étanchéité : l'image est mutualisée, le conteneur est étanche
+
+Comme pour l'isolation Docker par projet, on distingue **définition** et **exécution** :
+
+- **Définitions mutualisées** : une persona/skill est définie **une seule fois** (ici, dans
+  l'installation iakaframe) et réutilisée partout. *Da Vinci n'existe qu'une fois.*
+- **Exécution étanche** : **chaque projet instancie SA propre équipe**, scopée à son repo,
+  son `CLAUDE.md`, ses `specs/`. **Aucun agent ne porte deux projets dans un même contexte**
+  (zéro contamination inter-projets).
+- **Répartition entre projets** : elle se fait **au niveau portefeuille** (Stéphane décide
+  quel projet avance), **pas dans l'agent**. Dans un projet, Aragorn répartit entre agents.
+
+### Incarnation technique : subagents + skills
+
+- Chaque agent = un **subagent Claude Code** (`agents/<agent>.md`, déployé dans
+  `<projet>/.claude/agents/`) : contexte isolé, outils propres, **dispatchable** par Aragorn
+  et **parallélisable** (N Gimli en worktrees).
+- Le **savoir-faire** du rôle vit dans une **skill** (`skills/iakaframe-*`) que l'agent
+  charge. Le subagent = le *contrat* ; la skill = la *méthode*.
+- Cap multi-plateformes (vision PDF) : la même équipe sera déclinable sur Claude, ChatGPT et
+  IA locale auto-hébergée. Aujourd'hui : incarnation **Claude**.
+
+### Créer un agent
+
+1. **Partir du template** : `pwsh iakaframe-agents.ps1 -Action create -Agent <nom>` copie
+   `agents/_TEMPLATE.md` → `agents/<nom>.md`.
+2. **Remplir le frontmatter** (`name`, `description` précise pour le routage, `tools`) et le
+   corps (mission, périmètre fermé, entrées→sorties, gate, étanchéité).
+3. **Savoir-faire** : si le rôle a une méthode détaillée, créer la skill
+   `skills/iakaframe-<nom>/SKILL.md` et l'associer dans `iakaframe-agents.ps1` (`$skillOf`).
+4. **Déployer** : `-Action affect -Agent <nom> -Project <chemin>` (ou `fullteam`).
+
+### Gérer et lancer l'équipe — `iakaframe-agents.ps1`
+
+| Commande | Effet |
+|---|---|
+| `-Action list` | liste les agents canon + leur skill |
+| `-Action create -Agent <nom>` | scaffold un nouvel agent depuis le template |
+| `-Action affect -Agent <nom> -Project <chemin>` | affecte **un** agent à un projet |
+| `-Action fullteam -Project <chemin>` | **déploie la full team** dans un projet |
+| `-Action status -Project <chemin>` | liste les agents déjà affectés |
+| `-Global` | cible l'installation utilisateur `~/.claude` (définitions mutualisées) |
+
+`affect`/`fullteam` copient le subagent + sa skill dans `<projet>/.claude/` (et le catalogue
+de chartes `design-*/` pour Loki) : le projet reçoit **sa** copie scopée.
 
 ---
 

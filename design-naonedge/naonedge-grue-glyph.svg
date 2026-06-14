@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 48 48" fill="none" role="img" aria-label="grue">
+  <title>grue</title>
+  <defs><linearGradient id="yelg" x1="10" y1="12" x2="40" y2="38">
+    <stop offset="0" stop-color="#f4c430"/><stop offset="1" stop-color="#e8b21f"/>
+  </linearGradient></defs>
+  <g stroke="url(#yelg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M11 16 H39"/>
+    <path d="M20 16 L14 38 M20 16 L26 38"/>
+    <path d="M16.5 28 H23.5"/>
+    <path d="M20 16 V12.5"/>
+    <path d="M12 38 H28"/>
+  </g>
+  <circle cx="20" cy="11.4" r="1.6" fill="#f4c430"/>
+  <rect x="9.3" y="13.6" width="4" height="4.8" rx="1" fill="#f4c430"/>
+  <path d="M34 16 V25" stroke="#e8c960" stroke-width="1.8" stroke-linecap="round"/>
+  <path d="M34 25 a2 2 0 1 0 1.6 -0.4" stroke="#f4c430" stroke-width="2" fill="none" stroke-linecap="round"/>
+</svg>

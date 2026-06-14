@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48" fill="none" role="img" aria-label="NaonEdge">
+  <title>NaonEdge</title>
+  <defs>
+    <linearGradient id="ne" x1="0" y1="0" x2="48" y2="48">
+      <stop offset="0" stop-color="#c8a44e"/><stop offset="1" stop-color="#e8c960"/>
+    </linearGradient>
+  </defs>
+  <rect x="2.5" y="2.5" width="43" height="43" rx="12" fill="#0a0a0a" stroke="url(#ne)" stroke-width="2"/>
+  <path d="M14 14 L34 14 L24 33 Z" stroke="url(#ne)" stroke-width="1.6" fill="none" opacity=".55"/>
+  <circle cx="14" cy="14" r="3.4" fill="#c8a44e"/>
+  <circle cx="34" cy="14" r="3.4" fill="#e8c960"/>
+  <circle cx="24" cy="33" r="3.4" fill="#c8a44e"/>
+</svg>
