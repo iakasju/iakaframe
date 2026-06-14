@@ -416,7 +416,7 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
       </tbody>
     </table></div>
 
-    <div class="grid two">
+    <div class="grid three">
       <div class="card">
         <h3>Subagents dispatchables</h3>
         <p>Chaque agent = un subagent Claude Code (<code>agents/&lt;nom&gt;.md</code>) à contexte isolé, <strong>dispatchable</strong> par Aragorn et <strong>parallélisable</strong> (N Gimli en worktrees).</p>
@@ -425,9 +425,13 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
         <h3>Skills = savoir-faire</h3>
         <p>Le rôle charge une skill (<code>skills/iakaframe-*</code>). Le subagent est le <em>contrat</em>&nbsp;; la skill est la <em>méthode</em>. Déclinable Claude / ChatGPT / IA locale.</p>
       </div>
+      <div class="card">
+        <h3>Aragorn ↔ toi sur Slack</h3>
+        <p>Communication <strong>bidirectionnelle via n8n</strong> (qui porte les secrets)&nbsp;: Aragorn poste jalons, blocages et <strong>demandes de feu vert</strong>, et lit tes réponses — arbitrages, ordres de dispatch, feu vert prod. Un <strong>canal de pilotage</strong> à distance. <span class="tag t-info">self-hosted : Mattermost</span></p>
+      </div>
     </div>
 
-    <div class="note tip"><p><b>Tout agent peut solliciter Stéphane directement</b> ; Aragorn est l'interlocuteur par défaut. Aucun agent ne franchit seul un gate de production.</p></div>
+    <div class="note tip"><p><b>Tout agent peut solliciter Stéphane directement</b> ; Aragorn est l'interlocuteur par défaut. À l'inverse, <b>Stéphane peut demander à Aragorn de lancer un travail sur un agent</b> (ordre de mission + dispatch, après vérification du gate amont). Aucun agent ne franchit seul un gate de production.</p></div>
   </section>
 
   <!-- ====================== COMMANDES & ROUTE ====================== -->

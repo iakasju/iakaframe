@@ -121,6 +121,17 @@ Transverses : 🎭 **Loki** (supports visuels) et 📖 **Nathalie** (guides) int
 sollicitation, à tout jalon. **Tout agent peut solliciter Stéphane directement** ; Aragorn
 est l'interlocuteur par défaut.
 
+À l'inverse, **Stéphane peut demander à Aragorn de lancer un travail sur un agent** — en le
+nommant (« lance Gimli sur X ») ou en décrivant la tâche (Aragorn route). Aragorn émet un
+**ordre de mission** (quoi, base, critère de fin), vérifie le **gate amont** du jalon, puis
+**dispatche le subagent** (outil Agent en session, ou n8n/Hermes en chaîne automatisée).
+
+**Canal de communication — Slack (bidirectionnel, via n8n).** Aragorn dialogue avec Stéphane
+sur **Slack**, piloté par n8n (qui porte les identifiants — aucun secret côté agent) :
+sortant (états de jalons, blocages, **demandes de feu vert**) et entrant (arbitrages, ordres
+de dispatch, **feu vert prod** captés par un trigger n8n). Slack devient un **canal de
+pilotage à distance**. Équivalent self-hosted : Mattermost (même schéma).
+
 ### Étanchéité : l'image est mutualisée, le conteneur est étanche
 
 Comme pour l'isolation Docker par projet, on distingue **définition** et **exécution** :
