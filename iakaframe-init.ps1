@@ -23,7 +23,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
-$Kit = "C:\iakaframe\kit"
+$Kit = Join-Path (Split-Path -Parent $MyInvocation.MyCommand.Path) "kit"
 
 if (-not (Test-Path $Kit)) { throw "Kit introuvable : $Kit" }
 if (-not (Test-Path $Path)) { New-Item -ItemType Directory -Path $Path -Force | Out-Null }
