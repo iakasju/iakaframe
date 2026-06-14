@@ -93,7 +93,8 @@ Chaque agent porte une **incarnation** (un nom) pour le rendre mémorisable.
 
 | Agent | Rôle | Étape | Skill |
 |---|---|---|---|
-| 🛡️ **Aragorn** | Coordination entre agents, suivi des jalons, reporting | transverse | `iakaframe-aragorn` |
+| 🦅 **Odin** | Super-agent **portefeuille** : switch d'équipe, démarrage projet, création d'équipe | `C:\work` (le seul) | `iakaframe-odin` |
+| 🛡️ **Aragorn** | Coordination entre agents, suivi des jalons, reporting | par projet | `iakaframe-aragorn` |
 | 🧙 **Gandalf** | Architecte-cadreur : besoin → instruction fermée | 0 | `iakaframe-cadrage` |
 | ⚒️ **Gimli** | Développement : code, build, commits (×N parallèle) | 1 | (CLAUDE.md) |
 | 🏹 **Legolas** | Qualité / test : verdict PASS, gate auto | 2-3 | `iakaframe-qualite` |
@@ -102,6 +103,20 @@ Chaque agent porte une **incarnation** (un nom) pour le rendre mémorisable.
 | 📖 **Nathalie** | Guides utilisateurs / documentation | brique | `iakaframe-nathalie` |
 
 > **n8n / Hermes** sont des **outils** d'orchestration qu'Aragorn pilote — pas des agents.
+
+**Deux niveaux d'orchestration.** Au-dessus des équipes, un **super-agent portefeuille,
+🦅 Odin**, disponible en permanence, est le **seul agent affecté à `C:\work`** (la racine de
+tous les projets). Il reçoit les ordres de haut niveau de Stéphane — **switcher** d'équipe,
+**démarrer** un projet (`init iakaframe`), **créer** une équipe (`fullteam`) — et passe la
+main à l'**Aragorn** du projet concerné. La hiérarchie&nbsp;:
+
+```
+Stéphane → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents
+```
+
+Odin n'entre jamais dans le métier d'un projet&nbsp;: il ouvre la bonne porte, Aragorn
+coordonne à l'intérieur. C'est la **répartition entre projets** matérialisée — celle qui,
+sinon, resterait un geste manuel de Stéphane.
 
 ### Les jalons (qui fait quoi)
 

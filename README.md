@@ -13,18 +13,24 @@ en place, au lieu de le réinventer à chaque fois.
 
 | Fichier | Rôle |
 |---|---|
-| [`methode-de-travail.md`](./methode-de-travail.md) | **La référence canonique.** Principe, 3 acteurs, cycle, piliers de qualité. |
+| [`methode-de-travail.md`](./methode-de-travail.md) | **La référence canonique.** Principe, 3 acteurs, **équipe d'agents**, cycle, piliers de qualité. |
 | [`methode-de-travail.html`](./methode-de-travail.html) | Version présentable de la méthode (dark premium, ouvrable dans un navigateur). |
-| [`methode-de-travail.html`](./methode-de-travail.html) | Version présentable de la méthode. |
+| [`iakaframe-methode.html`](./iakaframe-methode.html) | **Présentation à onglets** de la méthode + équipe d'agents + infra + vision (NaonEdge). |
+| [`iakaframe-skills.html`](./iakaframe-skills.html) | Référence visuelle des **skills** (NaonEdge). |
 | [`iakabox-usage.html`](./iakabox-usage.html) | **Guide d'usage du homelab iakabox** : Git via Forgejo, IA locale, services. |
+| [`agents/`](./agents/) | **Définitions des subagents** de l'équipe (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie) + `_TEMPLATE.md`. |
+| [`skills/`](./skills/) | **12 skills** : savoir-faire des agents + briques de cycle de vie. Voir [`skills/README.md`](./skills/README.md). |
+| [`specs/equipe-agents.md`](./specs/equipe-agents.md) | **Référence canonique de l'équipe d'agents** (roster, jalons, étanchéité, incarnation). |
 | [`kit/`](./kit/) | **Kit de démarrage** à copier dans tout nouveau projet. |
 | [`iakaframe-init.ps1`](./iakaframe-init.ps1) | Déploie la structure du kit (sans rien écraser). |
 | [`iakaframe-forgejo.ps1`](./iakaframe-forgejo.ps1) | Crée le dépôt Forgejo + branche le remote (token via env). |
 | [`iakaframe-snapshot.ps1`](./iakaframe-snapshot.ps1) | Génère l'état des lieux (MD + HTML) à chaque version / pause / reprise. |
 | [`iakaframe-onboard.ps1`](./iakaframe-onboard.ps1) | **Orchestrateur** : structure + Forgejo + 1er commit + docs, sur projet neuf ou existant. |
 | [`iakaframe-update.ps1`](./iakaframe-update.ps1) | **« update iakaframe »** : régénère l'état des lieux + commit global + push. |
+| [`iakaframe-agents.ps1`](./iakaframe-agents.ps1) | **Gère l'équipe d'agents** : `list` / `create` / `affect` / `fullteam` / `status`. |
 | [`iakaframe-common.ps1`](./iakaframe-common.ps1) | Helper partagé (token + détection d'existence Forgejo) ; dot-sourcé par les autres. |
 | [`design-naonedge/`](./design-naonedge/) | **Design NaonEdge** (label figé) : `naonedge.css` (charte canon), `naonedge-charte.md`, gabarits doc/slides/flyer, logo. À réutiliser pour tous les supports. |
+| [`docs/`](./docs/) | Documents de référence (note de cadrage « Yakaframe Avancé », etc.). |
 
 ### Le kit de démarrage (`kit/`)
 
@@ -124,6 +130,30 @@ Checkpoint en une commande : **régénère l'état des lieux + commit global + p
 pwsh C:\iakaframe\iakaframe-update.ps1                                  # checkpoint manuel
 pwsh C:\iakaframe\iakaframe-update.ps1 -Reason version -Version v0.3.0  # à un changement de version
 pwsh C:\iakaframe\iakaframe-update.ps1 -Reason pause -Note "..." -NoPush
+```
+
+---
+
+## L'équipe d'agents (« Yakaframe Avancé »)
+
+La couche réflexion+exécution se spécialise en une **équipe d'agents nommés**, au périmètre
+fermé, qui incarnent la chaîne CI/CD. Référence : [`specs/equipe-agents.md`](./specs/equipe-agents.md).
+
+```
+Stéphane → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents
+```
+
+- 🦅 **Odin** — super-agent **portefeuille**, disponible en permanence, seul affecté à `C:\work` : switch d'équipe, démarrage projet, création d'équipe.
+- 🛡️ **Aragorn** — coordination entre agents, jalons, dispatch à la demande, canal **Slack** (via n8n).
+- 🧙 **Gandalf** (cadrage) · ⚒️ **Gimli** (dev) · 🏹 **Legolas** (qualité) · 🌉 **Helm** (prod + surveillance) · 🎭 **Loki** (design) · 📖 **Nathalie** (guides).
+
+**Modèle d'étanchéité** : définitions mutualisées (source unique), exécution étanche (chaque
+projet instancie sa propre équipe scopée). **Incarnation** : un subagent (`agents/`) + une
+skill-rôle (`skills/`).
+
+```powershell
+pwsh C:\work\iakaframe\iakaframe-agents.ps1 -Action fullteam -Project C:\mon-projet   # deployer l'equipe
+pwsh C:\work\iakaframe\iakaframe-agents.ps1 -Action affect -Agent odin -Project C:\work  # Odin au portefeuille
 ```
 
 ---

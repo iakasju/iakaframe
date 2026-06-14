@@ -48,5 +48,15 @@
         "dirty":  true,
         "files":  53,
         "note":  "equipe d agents (7 subagents + skills) + commande iakaframe-agents + HTML methode v3 + rangement skills/PDF + fix journal"
+    },
+    {
+        "date":  "2026-06-14 16:40",
+        "reason":  "pause",
+        "version":  "-",
+        "branch":  "main",
+        "commit":  "e244d86 feat(iakaframe): Aragorn dispatch a la demande + canal Slack via n8n",
+        "dirty":  true,
+        "files":  56,
+        "note":  "pause: equipe d agents (Odin -\u003e Aragorn -\u003e 8 agents) livree + doc impactee. Reprendre par push Forgejo puis cadrage voix-Slack-Piper"
     }
 ]

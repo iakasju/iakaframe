@@ -381,7 +381,7 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
   <!-- ====================== L'ÉQUIPE D'AGENTS ====================== -->
   <section class="panel" id="pag">
     <div class="section-label">Incarnation — l'équipe iakaframe</div>
-    <h1 class="t">Sept agents, un rôle chacun</h1>
+    <h1 class="t">Huit agents, un rôle chacun</h1>
     <p class="lead">L'écosystème « Yakaframe Avancé » prend corps&nbsp;: chaque rôle de la chaîne CI/CD est incarné par un agent <strong>nommé</strong>, au périmètre fermé. Les trois acteurs restent le modèle&nbsp;; l'équipe en est la spécialisation industrielle.</p>
 
     <p class="pull">L'image est mutualisée, le conteneur est étanche.</p>
@@ -391,7 +391,8 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
     <div class="scroll"><table>
       <thead><tr><th>Agent</th><th>Rôle</th><th>Étape</th><th>Skill</th></tr></thead>
       <tbody>
-        <tr><td class="name">🛡️ Aragorn</td><td>Coordination entre agents, suivi des jalons, reporting</td><td>transverse</td><td><code>iakaframe-aragorn</code></td></tr>
+        <tr><td class="name">🦅 Odin</td><td>Super-agent <strong>portefeuille</strong>&nbsp;: switch d'équipe, démarrage projet, création d'équipe</td><td><span class="mono">C:\work</span></td><td><code>iakaframe-odin</code></td></tr>
+        <tr><td class="name">🛡️ Aragorn</td><td>Coordination entre agents, suivi des jalons, reporting</td><td>par projet</td><td><code>iakaframe-aragorn</code></td></tr>
         <tr><td class="name">🧙 Gandalf</td><td>Architecte-cadreur&nbsp;: besoin → instruction fermée</td><td><span class="num">J0</span></td><td><code>iakaframe-cadrage</code></td></tr>
         <tr><td class="name">⚒️ Gimli</td><td>Développement&nbsp;: code, build, commits (×N parallèle)</td><td><span class="num">J1</span></td><td>CLAUDE.md</td></tr>
         <tr><td class="name">🏹 Legolas</td><td>Qualité / test&nbsp;: verdict PASS, gate auto</td><td><span class="num">J2-3</span></td><td><code>iakaframe-qualite</code></td></tr>
@@ -401,6 +402,8 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
       </tbody>
     </table></div>
     <p class="legend">n8n / Hermes sont des <strong>outils</strong> d'orchestration qu'Aragorn pilote — pas des agents.</p>
+
+    <div class="note info"><p><b>Deux niveaux d'orchestration :</b> au-dessus des équipes, le super-agent portefeuille <b>🦅 Odin</b> — disponible en permanence, seul agent affecté à <code>C:\work</code> — reçoit tes ordres de haut niveau (switch d'équipe, démarrage projet, création d'équipe) et passe la main à l'Aragorn du projet. Hiérarchie : <code>Stéphane → Odin → Aragorn → agents</code>.</p></div>
 
     <h2>Les jalons — qui fait quoi</h2>
     <p>Une feature avance par jalons. À chaque jalon, <strong>un seul</strong> agent est aux commandes&nbsp;; Aragorn enchaîne et vérifie le gate avant de passer au suivant.</p>

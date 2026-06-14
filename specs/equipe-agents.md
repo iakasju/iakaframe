@@ -28,17 +28,33 @@
 
 | Agent | Réf. / clin d'œil | Rôle | Étape / brique | Skill |
 |---|---|---|---|---|
-| 🛡️ **Aragorn** | le roi sur le seuil | **Coordination entre agents** : répartit, suit les jalons, rend compte à Stéphane | transverse (orchestration) | ❌ à créer |
+| 🦅 **Odin** | l'Allfather, règne sur les neuf royaumes | **Super-agent portefeuille** : switch d'équipe, démarrage projet, création d'équipe. Le seul affecté à `C:\work` | portefeuille (au-dessus des équipes) | ✅ `iakaframe-odin` |
+| 🛡️ **Aragorn** | le roi sur le seuil | **Coordination entre agents** : répartit, suit les jalons, rend compte à Stéphane | transverse / par projet | ✅ `iakaframe-aragorn` |
 | 🧙 **Gandalf** | Da Vinci — l'inventeur | **Création & cadrage amont** : invente la solution, écrit l'instruction fermée | 0 — cadrage | ✅ `iakaframe-cadrage` |
 | ⚒️ **Gimli** | le nain forgeron | **Développement** : code, build, commits atomiques | 1 — dev | (porté par Claude Code) |
 | 🏹 **Legolas** | l'archer à l'œil sûr | **Qualité / test** : typecheck, lint, tests unitaires + intégration | 2-3 — qualité/intég. | ✅ `iakaframe-qualite` |
-| 🌉 **Helm** | Heimdall, gardien du Bifröst (+ barre / Helm) | **Production** : déploiement, **gardien des accès** (proxy, SSO, alias, rollback) **+ surveillance prod** | 4-5 — déploiement & surveillance | ✅ `iakaframe-deploiement` *(à étendre)* |
-| 🎭 **Loki** | l'illusionniste, maître des apparences | **Graphisme / design** (charte NaonEdge) | brique design | ✅ `iakaframe-naonedge` |
-| 📖 **Nathalie** | — | **Guides utilisateurs / documentation** | brique doc | ❌ à créer |
+| 🌉 **Helm** | Heimdall, gardien du Bifröst (+ barre / Helm) | **Production** : déploiement, **gardien des accès** (proxy, SSO, alias, rollback) **+ surveillance prod** | 4-5 — déploiement & surveillance | ✅ `iakaframe-deploiement` |
+| 🎭 **Loki** | l'illusionniste, maître des apparences | **Graphisme / design** (catalogue de chartes `design-*/`) | brique design | ✅ `iakaframe-naonedge` |
+| 📖 **Nathalie** | — | **Guides utilisateurs / documentation** | brique doc | ✅ `iakaframe-nathalie` |
+
+> **Hiérarchie** : `Stéphane → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents`.
+> Odin est **disponible en permanence**, joignable par voix / Slack ; il ouvre la bonne porte,
+> Aragorn coordonne à l'intérieur. C'est la **répartition entre projets** matérialisée.
 
 ---
 
 ## Fiches détaillées
+
+### 🦅 Odin — Super-agent portefeuille (l'Allfather)
+- **Rôle** : niveau **portefeuille**, au-dessus de toutes les équipes. Reçoit les ordres de
+  haut niveau de Stéphane et les exécute&nbsp;: **switcher** d'équipe/projet, **démarrer** un
+  projet (`init iakaframe`), **créer** une équipe (`fullteam`), **vue d'ensemble**.
+- **Disponible en permanence**, joignable par **voix / Slack**.
+- **Le seul agent affecté à `C:\work`** (racine des projets) ; les équipes vivent dans
+  `<projet>/.claude/`. Hiérarchie : `Odin → Aragorn → agents`.
+- **Ne fait pas** : la coordination intra-équipe (→ Aragorn), ni le métier. Il n'écrit pas
+  dans le code des projets — il ouvre la porte, Aragorn entre.
+- **Skill** : `iakaframe-odin`.
 
 ### 🛡️ Aragorn — Coordinateur (le roi sur le seuil)
 - **Rôle** : coordination **entre agents**. Reçoit le besoin/vision de Stéphane, le découpe,
@@ -115,10 +131,13 @@
 
 ## État de l'outillage
 
-- ✅ **Définitions de subagents** : `agents/` (aragorn, gandalf, gimli, legolas, helm, loki,
-  nathalie) + `agents/_TEMPLATE.md`.
-- ✅ **Skills** : `iakaframe-aragorn`, `iakaframe-cadrage`, `iakaframe-qualite`,
-  `iakaframe-deploiement` (étendu surveillance), `iakaframe-naonedge` (catalogue de chartes),
-  `iakaframe-nathalie`. Gimli reste porté par le `CLAUDE.md` du projet.
+- ✅ **Définitions de subagents** : `agents/` (odin, aragorn, gandalf, gimli, legolas, helm,
+  loki, nathalie) + `agents/_TEMPLATE.md`.
+- ✅ **Skills** : `iakaframe-odin`, `iakaframe-aragorn`, `iakaframe-cadrage`,
+  `iakaframe-qualite`, `iakaframe-deploiement` (étendu surveillance), `iakaframe-naonedge`
+  (catalogue de chartes), `iakaframe-nathalie`. Gimli reste porté par le `CLAUDE.md` du projet.
 - ✅ **Commande** : `iakaframe-agents.ps1` (`list` / `create` / `affect` / `fullteam` /
-  `status`, option `-Global`). Voir `methode-de-travail.md` § « L'équipe d'agents ».
+  `status`, option `-Global`). `fullteam` **exclut Odin** (portefeuille) ; Odin s'affecte à
+  part : `-Action affect -Agent odin -Project C:\work`. Voir `methode-de-travail.md`.
+- ✅ **Odin affecté** à `C:\work\.claude\` (agent + skill). Les équipes projet se déploient
+  dans `<projet>/.claude/`.

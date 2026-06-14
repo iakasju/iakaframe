@@ -50,6 +50,7 @@ $skillsDir = Join-Path $root "skills"
 
 # Mapping agent -> skill-role (vide = porte par CLAUDE.md, ex. gimli).
 $skillOf = @{
+  odin     = "iakaframe-odin"
   aragorn  = "iakaframe-aragorn"
   gandalf  = "iakaframe-cadrage"
   gimli    = ""
@@ -58,6 +59,9 @@ $skillOf = @{
   loki     = "iakaframe-naonedge"
   nathalie = "iakaframe-nathalie"
 }
+
+# Agents de niveau PORTEFEUILLE : affectes a C:\work, jamais dans la full team d'un projet.
+$portfolioAgents = @("odin")
 
 function Get-Target {
   if ($Global) { return (Join-Path $HOME ".claude") }
@@ -111,7 +115,8 @@ switch ($Action) {
       Sort-Object BaseName | ForEach-Object {
         $n = $_.BaseName
         $s = if ($skillOf[$n]) { $skillOf[$n] } else { "(CLAUDE.md)" }
-        Write-Host ("  {0,-9} -> {1}" -f $n, $s)
+        $tag = if ($portfolioAgents -contains $n) { "  [portefeuille -> C:\work]" } else { "" }
+        Write-Host ("  {0,-9} -> {1}{2}" -f $n, $s, $tag)
       }
     Write-Host "`nUsage : -Action fullteam -Project <chemin>  ou  -Action affect -Agent <nom> -Project <chemin>" -ForegroundColor DarkGray
   }
@@ -135,9 +140,10 @@ switch ($Action) {
   "fullteam" {
     $where = if ($Global) { "~/.claude (mutualise)" } else { $Project }
     Write-Host "Deploiement de la FULL TEAM iakaframe -> $where" -ForegroundColor Cyan
-    Get-ChildItem -Path $agentsDir -Filter "*.md" | Where-Object { $_.BaseName -ne "_TEMPLATE" } |
+    Get-ChildItem -Path $agentsDir -Filter "*.md" |
+      Where-Object { $_.BaseName -ne "_TEMPLATE" -and ($portfolioAgents -notcontains $_.BaseName) } |
       Sort-Object BaseName | ForEach-Object { Affect-Agent $_.BaseName }
-    Write-Host "Full team deployee." -ForegroundColor Green
+    Write-Host "Full team deployee. (Odin = portefeuille, a affecter a C:\work : -Action affect -Agent odin -Project C:\work)" -ForegroundColor Green
   }
 
   "status" {

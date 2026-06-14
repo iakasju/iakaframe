@@ -89,44 +89,53 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
 <header class="hero">
   <span class="hero-badge">★ design NaonEdge</span>
   <h1>Les <span class="accent">skills</span> de la méthode iakaframe</h1>
-  <p class="hero-subtitle">Neuf skills Claude qui rendent la méthode exécutable&nbsp;: chaque
-  skill incarne un moment du cycle où un cadre explicite change vraiment le résultat — amorcer,
-  cadrer, vérifier, déployer, faire le point… et désormais versionner, isoler, sauvegarder, mettre en forme.</p>
-  <p class="hero-meta">iakaframe · 5 skills d'origine + 4 ajoutés · 2026-06-14</p>
+  <p class="hero-subtitle">Douze skills Claude qui rendent la méthode exécutable&nbsp;: depuis
+  l'équipe d'agents, une skill = le <strong>savoir-faire d'un agent</strong> (sa méthode) ou une
+  <strong>brique de cycle de vie</strong>. Le subagent est le contrat, la skill est la méthode.</p>
+  <p class="hero-meta">iakaframe · 7 skills de rôle + 5 briques · 2026-06-14</p>
 </header>
 
 <main>
 
   <span class="section-label">Vue d'ensemble</span>
-  <h1 class="t">Les 9 skills, par famille</h1>
-  <p class="lead">Une skill se déclenche sur des tâches <strong>complexes et multi-étapes</strong>,
-  pas sur des gestes triviaux. Les étapes déjà portées par <code>CLAUDE.md</code> et l'outillage
-  (dev, intégration, surveillance) ne sont volontairement <em>pas</em> des skills — en faire des
-  skills séparées les ferait sous-déclencher.</p>
+  <h1 class="t">Les 12 skills, par famille</h1>
+  <p class="lead">Depuis la formalisation de l'<strong>équipe d'agents</strong>, chaque rôle au
+  périmètre fermé a sa skill — c'est le <strong>savoir-faire</strong> que charge le subagent.
+  S'y ajoutent les <strong>briques de cycle de vie</strong> (amorçage, doc, git, Docker).
+  Référence de l'équipe&nbsp;: <code>iakaframe-methode.html</code> · <code>specs/equipe-agents.md</code>.</p>
 
   <div class="scroll">
   <table>
-    <thead><tr><th>Skill</th><th>Rôle / moment</th><th>Se déclenche quand…</th><th></th></tr></thead>
+    <thead><tr><th>Skill</th><th>Agent</th><th>Rôle</th><th></th></tr></thead>
     <tbody>
-      <tr class="grp"><td colspan="4">Cœur du cycle — les 5 skills d'origine</td></tr>
-      <tr><td class="name"><code>iakaframe-init</code></td><td>Amorçage</td><td>« démarrer / mettre en place la méthode sur un projet »</td><td><span class="tag t-info">cycle</span></td></tr>
-      <tr><td class="name"><code>iakaframe-cadrage</code></td><td>Étape 0 — architecte</td><td>décrire une feature, un bug, « cadrer », « spécifier »</td><td><span class="tag t-info">cycle</span></td></tr>
-      <tr><td class="name"><code>iakaframe-qualite</code></td><td>Étape 2 — vérificateur</td><td>« vérifier », « tester », gate avant intégration</td><td><span class="tag t-on">gate auto</span></td></tr>
-      <tr><td class="name"><code>iakaframe-deploiement</code></td><td>Étape 4 — opérateur</td><td>« déployer », « mettre en prod »</td><td><span class="tag t-wait">gate humain</span></td></tr>
-      <tr><td class="name"><code>iakaframe-etat-des-lieux</code></td><td>Orchestrateur (lecture)</td><td>« où en est le projet », « fais le point », reprise</td><td><span class="tag t-info">cycle</span></td></tr>
-      <tr class="grp"><td colspan="4">Brique manquante — les 4 skills ajoutés</td></tr>
-      <tr><td class="name"><code>iakaframe-forgejo</code></td><td>Git par défaut (iakabox)</td><td>« créer le dépôt », « brancher Forgejo », « pousser sur iakabox »</td><td><span class="tag t-new">nouveau</span></td></tr>
-      <tr><td class="name"><code>iakaframe-docker</code></td><td>Stack isolée par projet</td><td>« dockeriser », « docker-compose », « allouer les ports »</td><td><span class="tag t-new">nouveau</span></td></tr>
-      <tr><td class="name"><code>iakaframe-update</code></td><td>Orchestrateur (écriture)</td><td>« update iakaframe », « checkpoint », « commit global », « pousse tout »</td><td><span class="tag t-new">nouveau</span></td></tr>
-      <tr><td class="name"><code>iakaframe-naonedge</code></td><td>Studio de design</td><td>« faire une doc HTML », « un deck », « en style naonedge »</td><td><span class="tag t-new">nouveau</span></td></tr>
+      <tr class="grp"><td colspan="4">Skills de rôle — les agents (7)</td></tr>
+      <tr><td class="name"><code>iakaframe-odin</code></td><td>🦅 Odin</td><td>Super-agent portefeuille (switch, démarrage, création d'équipe)</td><td><span class="tag t-new">portefeuille</span></td></tr>
+      <tr><td class="name"><code>iakaframe-aragorn</code></td><td>🛡️ Aragorn</td><td>Coordination, jalons, dispatch, Slack</td><td><span class="tag t-go">orchestration</span></td></tr>
+      <tr><td class="name"><code>iakaframe-cadrage</code></td><td>🧙 Gandalf</td><td>Étape 0 — cadrage : besoin → instruction</td><td><span class="tag t-info">cycle</span></td></tr>
+      <tr><td class="name"><code>iakaframe-qualite</code></td><td>🏹 Legolas</td><td>Étapes 2-3 — qualité / test</td><td><span class="tag t-on">gate auto</span></td></tr>
+      <tr><td class="name"><code>iakaframe-deploiement</code></td><td>🌉 Helm</td><td>Étapes 4-5 — prod, accès, rollback + surveillance</td><td><span class="tag t-wait">gate humain</span></td></tr>
+      <tr><td class="name"><code>iakaframe-naonedge</code></td><td>🎭 Loki</td><td>Design — supports on-brand (catalogue de chartes)</td><td><span class="tag t-info">brique</span></td></tr>
+      <tr><td class="name"><code>iakaframe-nathalie</code></td><td>📖 Nathalie</td><td>Guides utilisateurs / documentation</td><td><span class="tag t-info">brique</span></td></tr>
+      <tr class="grp"><td colspan="4">Skills méthode &amp; briques de cycle de vie (5)</td></tr>
+      <tr><td class="name"><code>iakaframe-init</code></td><td>—</td><td>Amorçage : « démarrer / mettre en place la méthode »</td><td><span class="tag t-info">cycle</span></td></tr>
+      <tr><td class="name"><code>iakaframe-etat-des-lieux</code></td><td>—</td><td>Doc (lecture) : « où en est le projet », reprise</td><td><span class="tag t-info">cycle</span></td></tr>
+      <tr><td class="name"><code>iakaframe-update</code></td><td>—</td><td>Doc (écriture) : « update iakaframe », checkpoint, push</td><td><span class="tag t-info">cycle</span></td></tr>
+      <tr><td class="name"><code>iakaframe-forgejo</code></td><td>—</td><td>Git par défaut (iakabox) : dépôt, remote, token</td><td><span class="tag t-keep">infra</span></td></tr>
+      <tr><td class="name"><code>iakaframe-docker</code></td><td>—</td><td>Stack isolée par projet : containers, ports décalés</td><td><span class="tag t-keep">infra</span></td></tr>
     </tbody>
   </table>
   </div>
 
-  <span class="section-label">Les ajouts</span>
-  <h1 class="t">Pourquoi ces 4 skills manquaient</h1>
-  <p>Chacun comble un trou réel de la méthode déjà décrit dans <code>methode-de-travail.md</code>
-  ou dans la charte — pas une invention, une formalisation.</p>
+  <div class="note info"><b>Et Gimli&nbsp;?</b>
+  <p>⚒️ <strong>Gimli</strong> (développement, étape 1) n'a <strong>pas</strong> de skill dédiée&nbsp;:
+  son cadre vit dans le <code>CLAUDE.md</code> du projet et l'outillage. En faire une skill la
+  ferait sous-déclencher.</p></div>
+
+  <span class="section-label">Zoom</span>
+  <h1 class="t">Quatre briques clés, de plus près</h1>
+  <p>Au-delà du cœur du cycle, ces quatre skills couvrent des trous réels de la méthode déjà
+  décrits dans <code>methode-de-travail.md</code> ou dans la charte — pas une invention, une
+  formalisation.</p>
 
   <div class="grid two">
 
@@ -173,21 +182,22 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
   </div>
 
   <span class="section-label">Le principe</span>
-  <h1 class="t">Pourquoi ces skills et pas d'autres</h1>
-  <p>Même logique que les 5 d'origine&nbsp;: une skill ne se justifie que là où un
-  <strong>cadre explicite change le résultat</strong>. Plusieurs candidats ont été
-  <strong>écartés volontairement</strong>&nbsp;:</p>
+  <h1 class="t">Une skill par rôle d'agent — et les exceptions</h1>
+  <p>Une skill se justifie là où un <strong>cadre explicite change le résultat</strong>. Depuis
+  l'équipe d'agents, chaque rôle au périmètre fermé a la sienne. Restent <strong>écartés
+  volontairement</strong>&nbsp;:</p>
 
   <div class="scroll">
   <table>
     <thead><tr><th>Candidat écarté</th><th>Pourquoi pas une skill</th></tr></thead>
     <tbody>
-      <tr><td class="name">Étape 1 — dev / Étape 3 — intégration / Étape 5 — surveillance</td><td>Déjà portées par <code>CLAUDE.md</code> et l'outillage. En faire des skills les ferait sous-déclencher.</td></tr>
-      <tr><td class="name">Cycle de correction d'erreur</td><td>C'est une variante de <code>iakaframe-cadrage</code> (instruction <code>fix-*.md</code>), pas un cadre distinct.</td></tr>
-      <tr><td class="name">Mock des API (<code>specs/mock/</code>)</td><td>Convention de dev appliquée dans l'exécution&nbsp;; pas assez multi-étapes pour mériter sa skill. À reconsidérer si le besoin grossit.</td></tr>
+      <tr><td class="name">⚒️ Gimli — développement (étape 1)</td><td>Porté par le <code>CLAUDE.md</code> du projet et l'outillage. En faire une skill la ferait sous-déclencher. Seul agent sans skill dédiée.</td></tr>
+      <tr><td class="name">Cycle de correction d'erreur</td><td>Variante de <code>iakaframe-cadrage</code> (instruction <code>fix-*.md</code>), pas un cadre distinct.</td></tr>
+      <tr><td class="name">Mock des API (<code>specs/mock/</code>)</td><td>Convention de dev appliquée dans l'exécution&nbsp;; pas assez multi-étapes. À reconsidérer si le besoin grossit.</td></tr>
     </tbody>
   </table>
   </div>
+  <p style="font-size:.92rem;color:var(--text-muted)">Note&nbsp;: l'intégration (étape 3) est couverte par <code>iakaframe-qualite</code> (Legolas) et la surveillance (étape 5) par <code>iakaframe-deploiement</code> (Helm) — plus des trous, donc plus des écartés.</p>
 
   <div class="note tip"><b>Règle qui traverse tout —</b>
   <p>L'IA prépare et propose à l'intérieur d'un périmètre borné&nbsp;; <strong>l'humain décide aux
@@ -206,9 +216,10 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
 <span class="cmt"># Cowork — via le panneau des skills</span></code></pre>
 
   <div class="note info"><b>Source —</b>
-  <p>Skills d'origine et nouveaux&nbsp;: <code>skills/mnt/user-data/outputs/skills/</code>.
-  Charte de design&nbsp;: <code>design-naonedge/</code> (<code>naonedge.css</code> canon).
-  Méthode complète&nbsp;: <code>methode-de-travail.md</code>.</p></div>
+  <p>Skills&nbsp;: <code>skills/iakaframe-*/SKILL.md</code>. Subagents&nbsp;: <code>agents/*.md</code>.
+  Déploiement&nbsp;: <code>iakaframe-agents.ps1 -Action fullteam</code>. Équipe&nbsp;:
+  <code>specs/equipe-agents.md</code>. Charte de design&nbsp;: <code>design-naonedge/</code>.
+  Méthode complète&nbsp;: <code>methode-de-travail.md</code> (+ <code>iakaframe-methode.html</code>).</p></div>
 
 </main>
 

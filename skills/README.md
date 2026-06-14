@@ -1,8 +1,11 @@
-# Skills iakaframe — La méthode de l'équipe augmentée
+# Skills iakaframe — Le savoir-faire de l'équipe d'agents
 
-Neuf skills Claude qui rendent la méthode iakaframe exécutable dans Claude Code et Cowork.
-Chaque skill incarne une étape, un rôle ou une brique du cycle, avec son cadre, ses règles
-et son format de sortie.
+**Douze skills Claude** qui rendent la méthode iakaframe exécutable. Depuis la formalisation
+de l'**équipe d'agents**, une skill = le **savoir-faire d'un agent** (sa méthode détaillée),
+ou une **brique de cycle de vie** transverse. Le subagent (`agents/<nom>.md`) est le
+*contrat* ; la skill est la *méthode*.
+
+> Vue d'ensemble de l'équipe : `../specs/equipe-agents.md` · présentation : `../iakaframe-methode.html`.
 
 ## Installation
 
@@ -10,42 +13,50 @@ Dépose chaque dossier `iakaframe-*` dans ton répertoire de skills :
 - **Claude Code** : `~/.claude/skills/` (global) ou `.claude/skills/` (projet)
 - **Cowork** : via le panneau des skills
 
-Chaque skill se déclenche automatiquement quand le contexte correspond à sa description.
+Le plus simple : `iakaframe-agents.ps1 -Action fullteam -Project <chemin>` dépose agents +
+skills dans un projet. Chaque skill se déclenche quand le contexte correspond à sa description.
 
-## Le cœur du cycle (5 skills)
+## Skills de rôle — les agents (7)
 
-| Skill | Rôle / étape | Se déclenche quand… |
+| Skill | Agent | Rôle |
 |---|---|---|
-| `iakaframe-init` | Amorçage | démarrer / mettre en place la méthode sur un projet |
-| `iakaframe-cadrage` | Étape 0 — architecte | décrire une feature, un bug, « cadrer », « spécifier » |
-| `iakaframe-qualite` | Étape 2 — vérificateur | « vérifier », « tester », gate avant intégration |
-| `iakaframe-deploiement` | Étape 4 — opérateur | « déployer », « mettre en prod » (gate humain) |
-| `iakaframe-etat-des-lieux` | Orchestrateur (lecture) | « où en est le projet », « fais le point », reprise |
+| `iakaframe-odin` | 🦅 Odin | Super-agent **portefeuille** : switch d'équipe, démarrage projet, création d'équipe (seul à `C:\work`) |
+| `iakaframe-aragorn` | 🛡️ Aragorn | Coordination entre agents, jalons, dispatch à la demande, canal Slack |
+| `iakaframe-cadrage` | 🧙 Gandalf | Étape 0 — cadrage : besoin → instruction fermée |
+| `iakaframe-qualite` | 🏹 Legolas | Étapes 2-3 — qualité / test, gate auto |
+| `iakaframe-deploiement` | 🌉 Helm | Étapes 4-5 — déploiement, accès, rollback + surveillance |
+| `iakaframe-naonedge` | 🎭 Loki | Design : supports on-brand (catalogue de chartes `design-*/`) |
+| `iakaframe-nathalie` | 📖 Nathalie | Guides utilisateurs / documentation |
 
-## Les briques (4 skills)
+> ⚒️ **Gimli** (développement, étape 1) n'a **pas** de skill dédiée : il est porté par le
+> `CLAUDE.md` du projet et l'outillage.
+
+## Skills méthode & briques (5)
 
 | Skill | Rôle / brique | Se déclenche quand… |
 |---|---|---|
+| `iakaframe-init` | Amorçage | démarrer / mettre en place la méthode sur un projet |
+| `iakaframe-etat-des-lieux` | Cycle de doc (lecture) | « où en est le projet », « fais le point », reprise |
+| `iakaframe-update` | Cycle de doc (écriture) | « update iakaframe », « checkpoint », « commit global », « pousse tout » |
 | `iakaframe-forgejo` | Git par défaut (iakabox) | « créer le dépôt », « brancher Forgejo », « pousser sur iakabox » |
 | `iakaframe-docker` | Stack isolée par projet | « dockeriser », « docker-compose », « allouer les ports » |
-| `iakaframe-update` | Orchestrateur (écriture) | « update iakaframe », « checkpoint », « commit global », « pousse tout » |
-| `iakaframe-naonedge` | Studio de design (charte NaonEdge) | « faire une doc HTML », « un deck », « en style naonedge » |
 
-> Référence visuelle de l'ensemble : `iakaframe-skills.html` (style NaonEdge).
+> Référence visuelle : `../iakaframe-skills.html` (style NaonEdge).
 
-## Pourquoi ces skills et pas une par agent
+## Pourquoi une skill par agent (et pas seulement par étape)
 
-Une skill se déclenche sur des tâches **complexes et multi-étapes**, pas sur des gestes
-triviaux. Les étapes 1 (dev), 3 (intégration) et 5 (surveillance) sont déjà portées par
-l'agent de dev cadré via `CLAUDE.md` (déposé par `iakaframe-init`) et par l'outillage — en
-faire des skills séparées les ferait sous-déclencher. Restent **écartés volontairement** :
-le cycle de correction d'erreur (variante de `cadrage`, instruction `fix-*.md`) et le mock
-des API (`specs/mock/`, convention de dev appliquée à l'exécution). Les neuf retenues
-correspondent aux moments où un cadre explicite change vraiment le résultat : amorcer,
-cadrer, vérifier, déployer, faire le point — et versionner, isoler, sauvegarder, mettre en forme.
+Une skill se déclenche sur des tâches **complexes et multi-étapes**. Depuis l'équipe d'agents,
+chaque rôle au périmètre fermé mérite sa skill — c'est le **savoir-faire** que charge le
+subagent. **Gimli (dev)** reste l'exception : son cadre vit déjà dans le `CLAUDE.md` du projet,
+en faire une skill la ferait sous-déclencher.
+
+Restent **écartés volontairement** : le cycle de correction d'erreur (variante de `cadrage`,
+instruction `fix-*.md`) et le mock des API (`specs/mock/`, convention de dev).
 
 ## Le principe qui traverse tout
 
-L'IA prépare et propose à l'intérieur d'un périmètre borné ; **l'humain décide aux
-gates**. Les skills `qualite` (gate automatique) et `deploiement` (gate humain) matérialisent
-cette règle. Aucune skill ne franchit un gate de mise en production seule.
+L'IA prépare et propose à l'intérieur d'un périmètre borné ; **l'humain décide aux gates**.
+`qualite` (gate automatique) et `deploiement` (gate humain) matérialisent cette règle. Aucune
+skill ne franchit seule un gate de mise en production. Et **tout agent peut solliciter
+Stéphane directement** ; Aragorn (par projet) et Odin (portefeuille) sont les interlocuteurs
+par défaut, joignables par voix / Slack.
