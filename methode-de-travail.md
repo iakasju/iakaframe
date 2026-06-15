@@ -104,6 +104,16 @@ Chaque agent porte une **incarnation** (un nom) pour le rendre mémorisable.
 
 > **n8n / Hermes** sont des **outils** d'orchestration qu'Aragorn pilote — pas des agents.
 
+> **Règle — la réflexion et le cadrage s'appuient sur le web (obligatoire).** Un agent de
+> **réflexion / cadrage** (au premier chef 🧙 **Gandalf**, étape 0) **ne travaille pas
+> hors-ligne** : cadrer suppose de **vérifier des faits à jour** (versions et leur
+> compatibilité, état de l'art d'un outil/d'une lib, pièges connus, alternatives maintenues)
+> avant de fermer un périmètre — sinon l'instruction repose sur des suppositions périmées.
+> Ces agents disposent donc des outils **`WebSearch` / `WebFetch`** et **doivent** s'en servir
+> dès qu'une décision dépend d'un fait externe ; les faits vérifiés sont **cités (avec leurs
+> sources)** dans l'instruction. (Ex. vécu : sur Minecraft 1.21.10, dynmap officielle n'existe
+> pas encore — un cadrage hors-ligne l'aurait recommandée à tort.)
+
 **Deux niveaux d'orchestration.** Au-dessus des équipes, un **super-agent portefeuille,
 🦅 Odin**, disponible en permanence, est le **seul agent affecté à `C:\work`** (la racine de
 tous les projets). Il reçoit les ordres de haut niveau de Stéphane — **switcher** d'équipe,
@@ -117,6 +127,9 @@ Stéphane → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet)
 Odin n'entre jamais dans le métier d'un projet&nbsp;: il ouvre la bonne porte, Aragorn
 coordonne à l'intérieur. C'est la **répartition entre projets** matérialisée — celle qui,
 sinon, resterait un geste manuel de Stéphane.
+
+> **Lexique.** Une **équipe armée** (full team déployée dans `<projet>/.claude/`, prête à
+> démarrer mais pas encore lancée) se dit&nbsp;: **« la compagnie est à l'auberge »**.
 
 ### Les jalons (qui fait quoi)
 
