@@ -389,35 +389,41 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
 
     <h2>Le roster</h2>
     <div class="scroll"><table>
-      <thead><tr><th>Agent</th><th>Rôle</th><th>Étape</th><th>Skill</th></tr></thead>
+      <thead><tr><th>Agent</th><th>Pastille</th><th>Rôle</th><th>Phase</th><th>Skill</th></tr></thead>
       <tbody>
-        <tr><td class="name">🦅 Odin</td><td>Super-agent <strong>portefeuille</strong>&nbsp;: switch d'équipe, démarrage projet, création d'équipe</td><td><span class="mono">C:\work</span></td><td><code>iakaframe-odin</code></td></tr>
-        <tr><td class="name">🛡️ Aragorn</td><td>Coordination entre agents, suivi des jalons, reporting</td><td>par projet</td><td><code>iakaframe-aragorn</code></td></tr>
-        <tr><td class="name">🧙 Gandalf</td><td>Architecte-cadreur&nbsp;: besoin → instruction fermée</td><td><span class="num">J0</span></td><td><code>iakaframe-cadrage</code></td></tr>
-        <tr><td class="name">⚒️ Gimli</td><td>Développement&nbsp;: code, build, commits (×N parallèle)</td><td><span class="num">J1</span></td><td>CLAUDE.md</td></tr>
-        <tr><td class="name">🏹 Legolas</td><td>Qualité / test&nbsp;: verdict PASS, gate auto</td><td><span class="num">J2-3</span></td><td><code>iakaframe-qualite</code></td></tr>
-        <tr><td class="name">🌉 Helm</td><td>Production&nbsp;: déploiement, accès, rollback + surveillance</td><td><span class="num">J4-5</span></td><td><code>iakaframe-deploiement</code></td></tr>
-        <tr><td class="name">🎭 Loki</td><td>Design&nbsp;: supports on-brand (catalogue de chartes)</td><td>brique</td><td><code>iakaframe-naonedge</code></td></tr>
-        <tr><td class="name">📖 Nathalie</td><td>Guides utilisateurs / documentation</td><td>brique</td><td><code>iakaframe-nathalie</code></td></tr>
+        <tr><td class="name">🦅 Odin</td><td>🟡</td><td>Super-agent <strong>portefeuille</strong>&nbsp;: switch d'équipe, démarrage projet, création d'équipe</td><td>Portefeuille</td><td><code>iakaframe-odin</code></td></tr>
+        <tr><td class="name">🛡️ Aragorn</td><td>⬜</td><td>Coordination entre agents, suivi des phases, reporting</td><td>Transverse</td><td><code>iakaframe-aragorn</code></td></tr>
+        <tr><td class="name">🧙 Gandalf</td><td>🔵</td><td>Architecte-cadreur&nbsp;: besoin → instruction fermée</td><td>P1 Cadrage</td><td><code>iakaframe-cadrage</code></td></tr>
+        <tr><td class="name">⚒️ Gimli</td><td>🔴/🟢</td><td>Dev + devops&nbsp;: code, build, commits, déploiement jusqu'au staging (×N)</td><td>P2 → P3</td><td>CLAUDE.md</td></tr>
+        <tr><td class="name">🏹 Legolas</td><td>🔴/🟢</td><td>Qualité / test&nbsp;: verdict PASS, gate auto</td><td>P2 / P3</td><td><code>iakaframe-qualite</code></td></tr>
+        <tr><td class="name">🌉 Helm</td><td>🟣</td><td>Squad prod&nbsp;: déploiement, accès, rollback, surveillance, alertes</td><td>Prod (squad)</td><td><code>iakaframe-deploiement</code></td></tr>
+        <tr><td class="name">🎭 Loki</td><td>⬜</td><td>Design&nbsp;: supports on-brand (catalogue de chartes)</td><td>Transverse</td><td><code>iakaframe-naonedge</code></td></tr>
+        <tr><td class="name">📖 Nathalie</td><td>⬜</td><td>Guides utilisateurs / documentation</td><td>Transverse</td><td><code>iakaframe-nathalie</code></td></tr>
       </tbody>
     </table></div>
     <p class="legend">n8n / Hermes sont des <strong>outils</strong> d'orchestration qu'Aragorn pilote — pas des agents.</p>
 
     <div class="note info"><p><b>Deux niveaux d'orchestration :</b> au-dessus des équipes, le super-agent portefeuille <b>🦅 Odin</b> — disponible en permanence, seul agent affecté à <code>C:\work</code> — reçoit tes ordres de haut niveau (switch d'équipe, démarrage projet, création d'équipe) et passe la main à l'Aragorn du projet. Hiérarchie : <code>Stéphane → Odin → Aragorn → agents</code>.</p></div>
 
-    <h2>Les jalons — qui fait quoi</h2>
-    <p>Une feature avance par jalons. À chaque jalon, <strong>un seul</strong> agent est aux commandes&nbsp;; Aragorn enchaîne et vérifie le gate avant de passer au suivant.</p>
+    <h2>Les 3 phases (cible staging) + le squad prod</h2>
+    <p>La chaîne de dev a pour <strong>cible le staging</strong> et avance en <strong>3 phases</strong>. À chaque phase, <strong>un</strong> agent est aux commandes&nbsp;; Aragorn enchaîne et vérifie le gate. La <strong>prod</strong> est un <strong>squad séparé</strong>, sur feu vert humain.</p>
     <div class="scroll"><table>
-      <thead><tr><th>Jalon</th><th>Agent</th><th>Entrée → sortie</th><th>Gate</th></tr></thead>
+      <thead><tr><th>Phase</th><th>Agent(s)</th><th>Entrée → sortie</th><th>Gate</th></tr></thead>
       <tbody>
-        <tr><td class="num">J0 · Cadrage</td><td>🧙 Gandalf</td><td>besoin → <code>specs/instructions/</code></td><td><span class="tag t-wait">humain</span></td></tr>
-        <tr><td class="num">J1 · Dev</td><td>⚒️ Gimli ×N</td><td>instruction → branche + commits</td><td>—</td></tr>
-        <tr><td class="num">J2 · Qualité</td><td>🏹 Legolas</td><td>branche → verdict PASS/FAIL</td><td><span class="tag t-on">auto</span></td></tr>
-        <tr><td class="num">J3 · Intégration</td><td>🏹 → 🌉</td><td>PASS → <code>vX.Y.Z-rc</code> sur stage</td><td><span class="tag t-on">auto</span></td></tr>
-        <tr><td class="num">J4 · Déploiement</td><td>🌉 Helm</td><td>rc + feu vert → prod via alias</td><td><span class="tag t-wait">humain</span></td></tr>
-        <tr><td class="num">J5 · Surveillance</td><td>🌉 Helm</td><td>prod → santé / alerte / rollback</td><td><span class="tag t-info">continu</span></td></tr>
+        <tr><td class="num">🔵 P1 · Cadrage</td><td>🧙 Gandalf</td><td>besoin → <code>specs/instructions/</code></td><td><span class="tag t-wait">humain</span></td></tr>
+        <tr><td class="num">🔴 P2 · Réalisation</td><td>⚒️ Gimli ×N + 🏹 Legolas</td><td>instruction → branche + commits + PASS</td><td><span class="tag t-on">auto</span></td></tr>
+        <tr><td class="num">🟢 P3 · Staging</td><td>⚒️ Gimli (devops) + 🏹 Legolas</td><td>PASS → <code>vX.Y.Z-rc</code> en staging</td><td><span class="tag t-on">auto</span></td></tr>
       </tbody>
     </table></div>
+    <p class="legend">La chaîne <strong>s'arrête au staging</strong>&nbsp;; ⚒️ Gimli monte en <strong>dev + devops</strong>.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Squad prod (feu vert humain)</th><th>Agent</th><th>Entrée → sortie</th><th>Gate</th></tr></thead>
+      <tbody>
+        <tr><td class="num">🟣 Déploiement prod</td><td>🌉 Helm</td><td>rc + feu vert → prod via alias</td><td><span class="tag t-wait">humain</span></td></tr>
+        <tr><td class="num">🟣 Surveillance</td><td>🌉 Helm</td><td>prod → santé / alerte / rollback</td><td><span class="tag t-info">continu</span></td></tr>
+      </tbody>
+    </table></div>
+    <p class="legend"><b>Identité des agents</b>&nbsp;: en s'adressant à toi, un agent préfixe <code>&lt;pastille&gt; [ROYAUME][Agent]</code> — pastille = la phase (🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille), royaume en MAJUSCULE. Jamais sur les logs/traces de réflexion.</p>
 
     <div class="grid three">
       <div class="card">
@@ -430,7 +436,7 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
       </div>
       <div class="card">
         <h3>Aragorn ↔ toi sur Slack</h3>
-        <p>Communication <strong>bidirectionnelle via n8n</strong> (qui porte les secrets)&nbsp;: Aragorn poste jalons, blocages et <strong>demandes de feu vert</strong>, et lit tes réponses — arbitrages, ordres de dispatch, feu vert prod. Un <strong>canal de pilotage</strong> à distance. <span class="tag t-info">self-hosted : Mattermost</span></p>
+        <p>Communication <strong>bidirectionnelle via n8n</strong> (qui porte les secrets)&nbsp;: Aragorn poste les états de phase, blocages et <strong>demandes de feu vert</strong>, et lit tes réponses — arbitrages, ordres de dispatch, feu vert prod. Un <strong>canal de pilotage</strong> à distance. <span class="tag t-info">self-hosted : Mattermost</span></p>
       </div>
     </div>
 

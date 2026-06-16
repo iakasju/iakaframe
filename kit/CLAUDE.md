@@ -44,7 +44,7 @@ Stack : <!-- ex: React + TypeScript + Tauri/Rust + SQLite -->
 - **Langue du code** : anglais (identifiants, commits techniques).
 - **Langue de la doc et des échanges** : français.
 - **Commits** : *conventional commits* (`feat:`, `fix:`, `docs:`, `chore:`, `wip:`).
-- **Commits atomiques et fréquents** : après chaque jalon logique (filet de
+- **Commits atomiques et fréquents** : après chaque étape logique (filet de
   sécurité pour pouvoir revenir en arrière). Jamais de `reset --hard` ni de
   `push --force` de ton côté.
 - **MVP d'abord, puis itérer.** Pas de sur-ingénierie.

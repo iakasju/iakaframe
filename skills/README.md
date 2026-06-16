@@ -21,14 +21,14 @@ skills dans un projet. Chaque skill se déclenche quand le contexte correspond �
 | Skill | Agent | Rôle |
 |---|---|---|
 | `iakaframe-odin` | 🦅 Odin | Super-agent **portefeuille** : switch d'équipe, démarrage projet, création d'équipe (seul à `C:\work`) |
-| `iakaframe-aragorn` | 🛡️ Aragorn | Coordination entre agents, jalons, dispatch à la demande, canal Slack |
-| `iakaframe-cadrage` | 🧙 Gandalf | Étape 0 — cadrage : besoin → instruction fermée |
-| `iakaframe-qualite` | 🏹 Legolas | Étapes 2-3 — qualité / test, gate auto |
-| `iakaframe-deploiement` | 🌉 Helm | Étapes 4-5 — déploiement, accès, rollback + surveillance |
+| `iakaframe-aragorn` | 🛡️ Aragorn | Coordination entre agents, 3 phases + squad prod, dispatch à la demande, canal Slack |
+| `iakaframe-cadrage` | 🧙 Gandalf | P1 — cadrage : besoin → instruction fermée |
+| `iakaframe-qualite` | 🏹 Legolas | P2 / P3 — qualité / test, gate auto |
+| `iakaframe-deploiement` | 🌉 Helm | Squad prod — déploiement, accès, rollback, surveillance, alertes |
 | `iakaframe-naonedge` | 🎭 Loki | Design : supports on-brand (catalogue de chartes `design-*/`) |
 | `iakaframe-nathalie` | 📖 Nathalie | Guides utilisateurs / documentation |
 
-> ⚒️ **Gimli** (développement, étape 1) n'a **pas** de skill dédiée : il est porté par le
+> ⚒️ **Gimli** (développement + devops, P2 → P3) n'a **pas** de skill dédiée : il est porté par le
 > `CLAUDE.md` du projet et l'outillage.
 
 ## Skills méthode & briques (5)

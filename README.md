@@ -20,7 +20,7 @@ en place, au lieu de le réinventer à chaque fois.
 | [`iakabox-usage.html`](./iakabox-usage.html) | **Guide d'usage du homelab iakabox** : Git via Forgejo, IA locale, services. |
 | [`agents/`](./agents/) | **Définitions des subagents** de l'équipe (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie) + `_TEMPLATE.md`. |
 | [`skills/`](./skills/) | **12 skills** : savoir-faire des agents + briques de cycle de vie. Voir [`skills/README.md`](./skills/README.md). |
-| [`specs/equipe-agents.md`](./specs/equipe-agents.md) | **Référence canonique de l'équipe d'agents** (roster, jalons, étanchéité, incarnation). |
+| [`specs/equipe-agents.md`](./specs/equipe-agents.md) | **Référence canonique de l'équipe d'agents** (roster, 3 phases + squad prod, identité, étanchéité, incarnation). |
 | [`kit/`](./kit/) | **Kit de démarrage** à copier dans tout nouveau projet. |
 | [`iakaframe-init.ps1`](./iakaframe-init.ps1) | Déploie la structure du kit (sans rien écraser). |
 | [`iakaframe-forgejo.ps1`](./iakaframe-forgejo.ps1) | Crée le dépôt Forgejo + branche le remote (token via env). |
@@ -144,8 +144,8 @@ Stéphane → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet)
 ```
 
 - 🦅 **Odin** — super-agent **portefeuille**, disponible en permanence, seul affecté à `C:\work` : switch d'équipe, démarrage projet, création d'équipe.
-- 🛡️ **Aragorn** — coordination entre agents, jalons, dispatch à la demande, canal **Slack** (via n8n).
-- 🧙 **Gandalf** (cadrage) · ⚒️ **Gimli** (dev) · 🏹 **Legolas** (qualité) · 🌉 **Helm** (prod + surveillance) · 🎭 **Loki** (design) · 📖 **Nathalie** (guides).
+- 🛡️ **Aragorn** — coordination entre agents, **3 phases** (cadrage → réalisation → staging), dispatch à la demande, canal **Slack** (via n8n).
+- 🧙 **Gandalf** (cadrage) · ⚒️ **Gimli** (dev + devops jusqu'au staging) · 🏹 **Legolas** (qualité) · 🌉 **Helm** (**squad prod** : déploiement + surveillance + alertes) · 🎭 **Loki** (design) · 📖 **Nathalie** (guides).
 
 **Modèle d'étanchéité** : définitions mutualisées (source unique), exécution étanche (chaque
 projet instancie sa propre équipe scopée). **Incarnation** : un subagent (`agents/`) + une
