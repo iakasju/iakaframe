@@ -128,6 +128,13 @@ Odin n'entre jamais dans le métier d'un projet&nbsp;: il ouvre la bonne porte, 
 coordonne à l'intérieur. C'est la **répartition entre projets** matérialisée — celle qui,
 sinon, resterait un geste manuel de Stéphane.
 
+**Réveil d'Odin (par défaut).** Au **premier appel d'Odin dans `C:\work`** (par session), avant
+toute autre chose, il **régénère puis affiche le dashboard portefeuille** (NaonEdge dashboard)&nbsp;:
+`pwsh C:\work\naonedge-dashboard\scan.ps1` réécrit `data/projects.js` (métriques git/LOC/tokens/état
+des projets), puis il ouvre `C:\work\naonedge-dashboard\index.html`. Ensuite seulement il enchaîne
+sur la synthèse et l'ordre reçu. Aux appels suivants de la même session, le scan n'est relancé que si
+l'état a bougé ou si Stéphane le redemande.
+
 > **Lexique.** Une **équipe armée** (full team déployée dans `<projet>/.claude/`, prête à
 > démarrer mais pas encore lancée) se dit&nbsp;: **« la compagnie est à l'auberge »**.
 

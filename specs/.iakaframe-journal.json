@@ -68,5 +68,15 @@
         "dirty":  false,
         "files":  57,
         "note":  "v0.5.0 - team en 3 phases (cible staging) + squad prod separe (Helm) + Gimli dev+devops + identite agents par phase (pastille [ROYAUME][Agent]); doc/agents/skills/HTML alignes"
+    },
+    {
+        "date":  "2026-06-16 12:39",
+        "reason":  "manual",
+        "version":  "v0.5.0",
+        "branch":  "main",
+        "commit":  "517df08 feat(methode): refonte HTML - branding iakaframe XL + grue NaonEdge, onglets reordonnes (Principe/3 phases/Agents IA/.../Code en dernier), onglet 3 phases (cartes) remplace 3 acteurs",
+        "dirty":  true,
+        "files":  57,
+        "note":  ""
     }
 ]
