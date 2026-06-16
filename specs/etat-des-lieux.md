@@ -1,22 +1,24 @@
 ﻿# Etat des lieux - iakaframe
 
-> Genere par iakaframe-snapshot.ps1 le 2026-06-16 12:39 (motif: manual).
+> Genere par iakaframe-snapshot.ps1 le 2026-06-16 14:47 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.5.0 |
+| Version | v0.5.1 |
 | Branche | main |
-| Dernier commit | 517df08 feat(methode): refonte HTML - branding iakaframe XL + grue NaonEdge, onglets reordonnes (Principe/3 phases/Agents IA/.../Code en dernier), onglet 3 phases (cartes) remplace 3 acteurs |
+| Dernier commit | c5cbf70 chore(iakaframe): update etat des lieux + commit global (manual) |
 | Arbre | MODIFICATIONS NON COMMITEES |
 | Fichiers (hors .git/node_modules) | 57 |
+| Note | v0.5.1 - HTML rebrand (iakaframe XL + grue NaonEdge), onglets reordonnes (Principe/3 phases/Agents IA/.../Code dernier), onglet 3 phases remplace 3 acteurs, diagramme cycle en phases; methode-de-travail.md alignee 3 phases |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `c5cbf70` | 2026-06-16 | chore(iakaframe): update etat des lieux + commit global (manual) |
 | `517df08` | 2026-06-16 | feat(methode): refonte HTML - branding iakaframe XL + grue NaonEdge, onglets reordonnes (Principe/3 phases/Agents IA/.../Code en dernier), onglet 3 phases (cartes) remplace 3 acteurs |
 | `a4564b5` | 2026-06-16 | chore(iakaframe): update etat des lieux + commit global (version v0.5.0) |
 | `bb94f61` | 2026-06-16 | feat(methode): aligner docs peripheriques sur 3 phases + squad prod (README, kit, HTML autonomes, skills/README) |
@@ -26,7 +28,6 @@
 | `84fb8ce` | 2026-06-16 | feat(agents): Gimli dev+devops, Helm squad prod, regle d'identite (pastille=phase) sur tous les agents + template |
 | `ea9fe47` | 2026-06-16 | feat(methode): equipe-agents revu - Gimli dev+devops, Helm squad prod, identite par phase |
 | `0c827c3` | 2026-06-16 | feat(methode): team en 3 phases (cible staging) + squad prod + identite par phase |
-| `aab645a` | 2026-06-15 | feat(methode): Gandalf web-enabled (WebSearch/WebFetch) + regle reflexion/cadrage = web |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -39,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-06-16 14:47 | version | v0.5.1 | main | v0.5.1 - HTML rebrand (iakaframe XL + grue NaonEdge), onglets reordonnes (Principe/3 phases/Agents IA/.../Code dernier), onglet 3 phases remplace 3 acteurs, diagramme cycle en phases; methode-de-travail.md alignee 3 phases |
 | 2026-06-16 12:39 | manual | v0.5.0 | main |  |
 | 2026-06-16 11:59 | version | v0.5.0 | main | v0.5.0 - team en 3 phases (cible staging) + squad prod separe (Helm) + Gimli dev+devops + identite agents par phase (pastille [ROYAUME][Agent]); doc/agents/skills/HTML alignes |
 | 2026-06-14 16:40 | pause | - | main | pause: equipe d agents (Odin -> Aragorn -> 8 agents) livree + doc impactee. Reprendre par push Forgejo puis cadrage voix-Slack-Piper |

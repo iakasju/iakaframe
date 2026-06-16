@@ -1,7 +1,7 @@
 # iakaframe — Méthode de travail IA-augmentée
 
-> La méthode de collaboration entre **Stéphane** (le développeur), **Cowork**
-> (Claude en mode réflexion) et **Claude Code** (Claude en mode exécution),
+> La méthode de collaboration entre **Stéphane** (le décideur) et une **équipe d'agents IA**
+> organisée en **3 phases** (cadrage → réalisation → staging) + un **squad prod**,
 > extraite et généralisée à partir des projets `IAKA Vod`, `robotimmo`,
 > `iakaAFstorage`, `iakabox`, `iakaJarvis`.
 >
@@ -25,15 +25,19 @@ workflow cadre.**
 
 ---
 
-## Les trois acteurs
+## Les 3 phases (cible staging)
 
-### 1. Le développeur (Stéphane) — le décideur
+Un **décideur humain** et une **chaîne en 3 phases** portée par des agents IA. Plus de « deux
+acteurs Cowork / Claude Code » : la réflexion et l'exécution sont distribuées sur une **équipe**
+(voir plus bas), organisée en phases dont la **cible est le staging**.
 
-Il tranche sur l'architecture, valide les choix techniques et juge le résultat.
-Il ne délègue pas la réflexion — il délègue l'exécution.
+### Le décideur — Stéphane
+
+Il tranche sur l'architecture, valide les choix techniques et juge le résultat. Il ne délègue
+pas la réflexion — il délègue l'exécution. Il décide **à chaque gate**.
 
 - Définit les features et leur priorité (le backlog dans `CLAUDE.md`)
-- Valide ou corrige les propositions de Cowork
+- Valide ou corrige les instructions de cadrage
 - Teste le résultat dans l'app réelle
 - Donne du feedback qui sera **mémorisé** et appliqué aux sessions suivantes
 
@@ -51,31 +55,21 @@ Il ne délègue pas la réflexion — il délègue l'exécution.
 - Valide vite les plans détaillés ; choisit souvent l'option « Recommandé ».
 - Apprécie un découpage en **commits atomiques** par étape.
 
-### 2. Cowork (Claude — mode réflexion) — architecte & rédacteur
+### La chaîne en 3 phases
 
-Cowork **ne touche jamais au code**. Il analyse, propose, documente et produit
-les fichiers d'instructions que Claude Code consommera.
+1. **Cadrage** (🧙 Gandalf) — le besoin devient une **instruction fermée et vérifiable** dans
+   `specs/instructions/`. Lecture seule sur le code. **Gate humain** : Stéphane valide.
+2. **Réalisation** (⚒️ Gimli + 🏹 Legolas) — implémentation en **commits atomiques** + **gate
+   qualité** (typecheck, lint, tests). Verdict PASS pour avancer.
+3. **Déploiement staging** (⚒️ Gimli en **devops** + 🏹 Legolas) — build + mise en **staging**
+   (`vX.Y.Z-rc`). **La chaîne s'arrête au staging.**
 
-- Analyse le code existant pour comprendre l'état réel du projet (lecture seule)
-- Discute les choix techniques avec le développeur
-- Rédige des fichiers d'instructions précis dans `specs/instructions/`
-- Produit specs, docs projet, rapports
-- Prépare les workflows d'outillage (tests, doc, qualité)
+> **Règle absolue : la phase de cadrage ne touche jamais au code de production.** Le jour où
+> celui qui réfléchit est aussi celui qui exécute sans garde-fou, il n'y a plus de contrôle.
 
-> **Règle absolue : Cowork ne modifie jamais le code source.** Le jour où l'agent
-> qui réfléchit est aussi celui qui exécute, il n'y a plus de contrôle.
-
-### 3. Claude Code (Claude — mode exécution) — le développeur IA
-
-Il lit les instructions, écrit le code, lance les commandes, produit les fichiers.
-Il travaille dans le projet réel (`src/`, `src-tauri/`, `auth-api/`…).
-
-- Lit l'instruction correspondante avant chaque tâche
-- Implémente feature par feature, étape par étape
-- Exécute builds, tests, linting
-- Commite en *conventional commits*
-
-Claude Code a des permissions explicites dans `.claude/settings.local.json`.
+La **mise en production** est un **squad séparé** (🌉 Helm : déploiement prod, surveillance,
+alertes, rollback), déclenché sur **feu vert humain** — hors les 3 phases. Roster complet,
+détail des phases, squad prod et **identité des agents** : section suivante.
 
 ---
 

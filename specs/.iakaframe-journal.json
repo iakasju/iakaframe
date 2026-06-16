@@ -78,5 +78,15 @@
         "dirty":  true,
         "files":  57,
         "note":  ""
+    },
+    {
+        "date":  "2026-06-16 14:47",
+        "reason":  "version",
+        "version":  "v0.5.1",
+        "branch":  "main",
+        "commit":  "c5cbf70 chore(iakaframe): update etat des lieux + commit global (manual)",
+        "dirty":  true,
+        "files":  57,
+        "note":  "v0.5.1 - HTML rebrand (iakaframe XL + grue NaonEdge), onglets reordonnes (Principe/3 phases/Agents IA/.../Code dernier), onglet 3 phases remplace 3 acteurs, diagramme cycle en phases; methode-de-travail.md alignee 3 phases"
     }
 ]
