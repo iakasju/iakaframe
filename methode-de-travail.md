@@ -91,16 +91,16 @@ Chaque agent porte une **incarnation** (un nom) pour le rendre mémorisable.
 
 ### Le roster
 
-| Agent | Rôle | Étape | Skill |
-|---|---|---|---|
-| 🦅 **Odin** | Super-agent **portefeuille** : switch d'équipe, démarrage projet, création d'équipe | `C:\work` (le seul) | `iakaframe-odin` |
-| 🛡️ **Aragorn** | Coordination entre agents, suivi des jalons, reporting | par projet | `iakaframe-aragorn` |
-| 🧙 **Gandalf** | Architecte-cadreur : besoin → instruction fermée | 0 | `iakaframe-cadrage` |
-| ⚒️ **Gimli** | Développement : code, build, commits (×N parallèle) | 1 | (CLAUDE.md) |
-| 🏹 **Legolas** | Qualité / test : verdict PASS, gate auto | 2-3 | `iakaframe-qualite` |
-| 🌉 **Helm** | Production : déploiement, accès, rollback **+ surveillance** | 4-5 | `iakaframe-deploiement` |
-| 🎭 **Loki** | Design : supports on-brand (catalogue de chartes `design-*/`) | brique | `iakaframe-naonedge` |
-| 📖 **Nathalie** | Guides utilisateurs / documentation | brique | `iakaframe-nathalie` |
+| Agent | Pastille | Rôle | Phase | Skill |
+|---|---|---|---|---|
+| 🦅 **Odin** | 🟡 | Super-agent **portefeuille** : switch d'équipe, démarrage projet, création d'équipe | Portefeuille (le seul sur `C:\work`) | `iakaframe-odin` |
+| 🛡️ **Aragorn** | ⬜ | Coordination entre agents, suivi des phases, reporting | Transverse / par projet | `iakaframe-aragorn` |
+| 🧙 **Gandalf** | 🔵 | Architecte-cadreur : besoin → instruction fermée | P1 — Cadrage | `iakaframe-cadrage` |
+| ⚒️ **Gimli** | 🔴/🟢 | **Dev + devops** : code, build, commits, **déploiement jusqu'au staging** (×N) | P2 Réalisation → P3 Staging | (CLAUDE.md) |
+| 🏹 **Legolas** | 🔴/🟢 | Qualité / test : verdict PASS, gate auto (dev + validation stage) | P2 Réalisation / P3 Staging | `iakaframe-qualite` |
+| 🌉 **Helm** | 🟣 | **Équipe prod** : déploiement prod, surveillance, alertes, rollback, accès | Prod (squad séparé) | `iakaframe-deploiement` |
+| 🎭 **Loki** | ⬜ | Design : supports on-brand (catalogue de chartes `design-*/`) | Transverse | `iakaframe-naonedge` |
+| 📖 **Nathalie** | ⬜ | Guides utilisateurs / documentation | Transverse | `iakaframe-nathalie` |
 
 > **n8n / Hermes** sont des **outils** d'orchestration qu'Aragorn pilote — pas des agents.
 
@@ -131,34 +131,90 @@ sinon, resterait un geste manuel de Stéphane.
 > **Lexique.** Une **équipe armée** (full team déployée dans `<projet>/.claude/`, prête à
 > démarrer mais pas encore lancée) se dit&nbsp;: **« la compagnie est à l'auberge »**.
 
-### Les jalons (qui fait quoi)
+### Les 3 phases (cible staging) + le squad prod
 
-Une feature avance par jalons. À chaque jalon, **un seul** agent est aux commandes ;
-Aragorn enchaîne et vérifie le gate avant de passer au suivant.
+La chaîne de dev **a pour cible le staging** et avance en **3 phases**. À chaque phase, **un
+agent** est aux commandes ; Aragorn enchaîne et vérifie le gate avant de passer à la suivante.
 
-| Jalon | Agent | Entrée → Sortie | Gate |
+| Phase | Agent(s) | Entrée → Sortie | Gate |
 |---|---|---|---|
-| **J0 — Cadrage** | 🧙 Gandalf | besoin → `specs/instructions/{feature}.md` | **humain** (Stéphane valide l'instruction) |
-| **J1 — Dev** | ⚒️ Gimli (×N) | instruction → branche + commits | — |
-| **J2 — Qualité** | 🏹 Legolas | branche → verdict PASS/FAIL | **auto** (tests verts) |
-| **J3 — Intégration** | 🏹 Legolas → 🌉 Helm | PASS → version candidate `vX.Y.Z-rc` sur stage | auto |
-| **J4 — Déploiement** | 🌉 Helm | rc recettée + feu vert → prod via alias | **humain** (feu vert tracé) |
-| **J5 — Surveillance** | 🌉 Helm | prod → santé OK / alerte / rollback | continu |
+| 🔵 **P1 — Cadrage** | 🧙 Gandalf | besoin → `specs/instructions/{feature}.md` | **humain** (Stéphane valide l'instruction) |
+| 🔴 **P2 — Réalisation** | ⚒️ Gimli (dev, ×N) + 🏹 Legolas (qualité) | instruction → branche + commits + verdict PASS | **auto** (typecheck/lint/tests verts) |
+| 🟢 **P3 — Déploiement staging** | ⚒️ Gimli (**devops**) + 🏹 Legolas (validation) | PASS → image/build déployé en **staging** (`vX.Y.Z-rc`) | auto |
+
+> La chaîne **s'arrête au staging**. ⚒️ Gimli monte en **dev + devops** : il finit le travail
+> jusqu'à la mise en stage (build, image, déploiement). 🏹 Legolas valide en P2 (tests) puis sur
+> le stage en P3.
+
+**Le squad prod — séparé, sur feu vert humain.** La mise en production **n'est pas une phase**
+de la chaîne de dev : c'est une **équipe dédiée**, déclenchée par un **feu vert tracé** de
+Stéphane.
+
+| Étape prod | Agent | Entrée → Sortie | Gate |
+|---|---|---|---|
+| 🟣 **Déploiement prod** | 🌉 Helm | rc recettée + feu vert → prod (alias de version) | **humain** (feu vert tracé) |
+| 🟣 **Surveillance** | 🌉 Helm | prod → santé OK / alerte / rollback | continu |
+
+> Frontière nette : **dev → staging** (les 3 phases) puis **prod** (squad 🌉 Helm), avec une
+> **couture humaine** entre les deux. Le squad prod est **extensible** (rôles surveillance /
+> alerte dédiés à terme).
 
 Transverses : 🎭 **Loki** (supports visuels) et 📖 **Nathalie** (guides) interviennent sur
-sollicitation, à tout jalon. **Tout agent peut solliciter Stéphane directement** ; Aragorn
+sollicitation, à toute phase. **Tout agent peut solliciter Stéphane directement** ; Aragorn
 est l'interlocuteur par défaut.
 
 À l'inverse, **Stéphane peut demander à Aragorn de lancer un travail sur un agent** — en le
 nommant (« lance Gimli sur X ») ou en décrivant la tâche (Aragorn route). Aragorn émet un
-**ordre de mission** (quoi, base, critère de fin), vérifie le **gate amont** du jalon, puis
+**ordre de mission** (quoi, base, critère de fin), vérifie le **gate amont** de la phase, puis
 **dispatche le subagent** (outil Agent en session, ou n8n/Hermes en chaîne automatisée).
 
 **Canal de communication — Slack (bidirectionnel, via n8n).** Aragorn dialogue avec Stéphane
 sur **Slack**, piloté par n8n (qui porte les identifiants — aucun secret côté agent) :
-sortant (états de jalons, blocages, **demandes de feu vert**) et entrant (arbitrages, ordres
+sortant (états des phases, blocages, **demandes de feu vert**) et entrant (arbitrages, ordres
 de dispatch, **feu vert prod** captés par un trigger n8n). Slack devient un **canal de
 pilotage à distance**. Équivalent self-hosted : Mattermost (même schéma).
+
+### Identité des agents — qui te parle, et depuis quelle phase
+
+Quand un agent **s'adresse à Stéphane** (une **question**, une **prise de parole** qui lui est
+destinée), il **s'identifie** en tête de message :
+
+```
+<pastille-phase> [ROYAUME][Agent]  <le message…>
+```
+
+- **`[ROYAUME]`** = le projet courant, en **MAJUSCULE** (ex. `IAKABOX`) ; pour 🦅 Odin =
+  `PORTEFEUILLE`.
+- **La pastille = la PHASE** où l'agent agit (couleur **partagée** entre agents, pas propre à
+  l'agent). Un même agent **change de pastille** selon la phase :
+
+  | Phase | Pastille | Couleur |
+  |---|---|---|
+  | Cadrage / réflexion | 🔵 | bleu |
+  | Dev | 🔴 | rouge |
+  | Staging | 🟢 | vert |
+  | Prod | 🟣 | violet |
+  | Portefeuille (🦅 Odin) | 🟡 | or |
+
+  Agents transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la **phase servie**, ⬜ par défaut.
+
+- **Périmètre STRICT** : seulement les **paroles adressées à Stéphane**. **Jamais** sur les
+  **logs**, les **traces de réflexion**, la sortie d'outils. L'identité dit « un agent te
+  parle » ; elle ne pollue pas le travail.
+
+**Rendu.** Pastille emoji **partout** (terminal, Slack, HTML) ; en session le libellé passe en
+`code inline` pour ressortir ; en **HTML** il prend la **vraie couleur** de la phase. Exemples :
+
+> 🔵 `[IAKABOX][Gandalf]` instruction prête à valider.
+> 🔴 `[IAKABOX][Gimli]` dev en cours, commit `feat: …`.
+> 🟢 `[IAKABOX][Gimli]` déployé en staging, `v0.6.0-rc1`.
+> 🟣 `[IAKABOX][Helm]` prod en ligne, surveillance active.
+> 🟡 `[PORTEFEUILLE][Odin]` je rebascule le focus.
+
+> **Option terminal « vraie couleur »** : une fonction PowerShell `iaka-say` (profil) colorise le
+> bandeau par phase (ANSI : bleu/rouge/vert/magenta/jaune). Documentée en option — la **pastille**
+> reste le défaut (universelle, sans plomberie). Les rouges/verts du diff sont rendus par le
+> harnais, non reproductibles dans la prose d'un agent.
 
 ### Étanchéité : l'image est mutualisée, le conteneur est étanche
 
@@ -318,7 +374,7 @@ convention retenue sur les projets :
   `push --force`, suppression de volumes nommés…). Voir le `settings.local.json`
   du kit.
 - Sur certains projets, `defaultMode: bypassPermissions` est actif (aucun prompt).
-- **Contrepartie obligatoire : commit après chaque jalon logique** (toutes les
+- **Contrepartie obligatoire : commit après chaque étape logique** (toutes les
   5-10 min de travail productif), messages préfixés (`feat:`, `fix:`, `chore:`,
   `wip:`). Le filet de sécurité devient git : `git reset --hard <sha>` possible
   côté **développeur** en cas d'erreur.
