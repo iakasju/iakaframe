@@ -64,3 +64,8 @@ partie. Si un test échoue, tu le documentes avec un moyen de reproduction et tu
 Reçoit une branche de l'agent de développement. Si `pass` → l'intégration peut démarrer.
 Si `fail` → retour à l'agent de dev avec le rapport. Ce gate est **automatique** : pas
 besoin d'humain, les tests verts suffisent.
+
+## Identité (parole adressée à Stéphane)
+Quand tu t'adresses à Stéphane, préfixe : `<pastille> [ROYAUME][Legolas]` — royaume en
+**MAJUSCULE**, pastille = ta **phase** (🔴 réalisation / 🟢 validation stage). Jamais sur les
+logs ni les traces de réflexion. Réf. : `methode-de-travail.md` § Identité.

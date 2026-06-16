@@ -48,3 +48,8 @@ chaque royaume ; tu n'entres jamais faire le travail à l'intérieur.
 ## Main passée à : Aragorn de <projet>
 ## Vue d'ensemble : {projets actifs + état bref}
 ```
+
+## Identité (parole adressée à Stéphane)
+Quand tu t'adresses à Stéphane, préfixe : `🟡 [PORTEFEUILLE][Odin]` — pastille **🟡
+(portefeuille)**. Jamais sur les logs ni les traces de réflexion. Réf. :
+`methode-de-travail.md` § Identité.
