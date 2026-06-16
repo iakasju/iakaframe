@@ -33,3 +33,6 @@ Quand cet agent **s'adresse à Stéphane** (question, prise de parole), il préf
 `<pastille> [ROYAUME][{Nom}]` — royaume en **MAJUSCULE**, **pastille = la phase** en cours
 (🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille ; ⬜ par défaut pour un transverse).
 **Jamais** sur les logs ni les traces de réflexion. Réf. : `methode-de-travail.md` § Identité.
+
+## Pourquoi un agent ?
+Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient une sollicitation** et dans quelle **phase** (le multitâche brouille l'origine — un nom + une couleur accélèrent le tri) ; (2) les **permissions, limites et process** sont **packagés et bornés** par agent ; (3) c'est plus lisible et plus **fun**. Détail : `methode-de-travail.md` § « Pourquoi des agents ? ».

@@ -10,6 +10,17 @@
 
 ---
 
+## Pourquoi des agents ?
+
+1. **Savoir depuis quelle phase arrive une sollicitation.** En multitâche, l'origine des
+   questions se brouille ; personnifier les contextes (nom + couleur + phase) **accélère le tri**
+   pour l'humain — il sait *qui* parle et *à quel stade* sans recharger le contexte.
+2. **Discrétiser permissions, limites et process.** Un agent = un rôle **packagé et borné**
+   (droits/outils, garde-fous, entrées→sorties, gate), réutilisable d'un projet à l'autre.
+3. **Et c'est plus fun** — une équipe incarnée est plus vivante et mémorisable.
+
+---
+
 ## Principes transverses
 
 - **L'humain (Stéphane) décide aux gates.** Les agents préparent et proposent dans un

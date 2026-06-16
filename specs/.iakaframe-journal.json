@@ -88,5 +88,15 @@
         "dirty":  true,
         "files":  57,
         "note":  "v0.5.1 - HTML rebrand (iakaframe XL + grue NaonEdge), onglets reordonnes (Principe/3 phases/Agents IA/.../Code dernier), onglet 3 phases remplace 3 acteurs, diagramme cycle en phases; methode-de-travail.md alignee 3 phases"
+    },
+    {
+        "date":  "2026-06-16 15:03",
+        "reason":  "version",
+        "version":  "v0.5.2",
+        "branch":  "main",
+        "commit":  "10c65aa chore(iakaframe): update etat des lieux + commit global (version v0.5.1)",
+        "dirty":  true,
+        "files":  57,
+        "note":  "v0.5.2 - section \u0027Pourquoi des agents ?\u0027 (tri par phase, permissions/limites/process packages, fun) dans methode-de-travail.md, equipe-agents.md, HTML, et les 9 profils agents"
     }
 ]

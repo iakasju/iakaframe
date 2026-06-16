@@ -73,6 +73,22 @@ détail des phases, squad prod et **identité des agents** : section suivante.
 
 ---
 
+## Pourquoi des agents ?
+
+Découper la couche IA en agents nommés n'est pas cosmétique — ça résout des problèmes concrets :
+
+1. **Savoir depuis quelle phase arrive une sollicitation.** En multitâche, l'origine des
+   questions se brouille. Personnifier les contextes — un **nom**, une **couleur**, une
+   **phase** — fait gagner du temps à l'humain : d'un coup d'œil il sait *qui* lui parle et *à
+   quel stade*, et trie ses réponses sans recharger tout le contexte.
+2. **Discrétiser proprement permissions, limites et process.** Un agent = un rôle **packagé** :
+   ses droits (outils autorisés), ses garde-fous (ce qu'il ne fait pas), son process (entrées →
+   sorties, gate). Borné, lisible, réutilisable d'un projet à l'autre.
+3. **Et c'est plus fun.** Une équipe incarnée rend le travail vivant et mémorisable — on retient
+   « Gandalf cadre, Gimli forge » mieux qu'« agent 1, agent 2 ».
+
+---
+
 ## L'équipe d'agents (« Yakaframe Avancé »)
 
 Les trois acteurs sont le **modèle conceptuel** (décideur / réflexion / exécution). Pour
