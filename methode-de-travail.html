@@ -597,6 +597,8 @@ main {
 .ph-staging{color:#4CAF50;font-weight:700}
 .ph-prod{color:#9C27B0;font-weight:700}
 .ph-portef{color:#FFC107;font-weight:700}
+.hero h1.brandmark{font-size:clamp(3.6rem,13vw,8.5rem);line-height:.92;letter-spacing:-.04em;font-weight:800}
+.hero-tagline{font-size:clamp(1.05rem,3.2vw,1.9rem);font-weight:600;color:var(--text-secondary);letter-spacing:.08em;text-transform:uppercase;margin:.2rem 0 1.1rem}
 .codecard{background:var(--bg-card);border:1px solid #2a2a2a;border-radius:var(--radius-md);margin:1rem 0;overflow:hidden}
 .codecard-head{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.65rem 1rem;background:#161616;border-bottom:1px solid #222}
 .codecard-head .fname{font-family:var(--font-sans);font-weight:700;color:var(--text-primary);font-size:.9rem}
@@ -609,11 +611,12 @@ main {
 <!-- ==================== HERO ==================== -->
 <section class="hero">
   <div class="hero-badge">
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
-    iakaframe · Méthodologie
+    <svg width="14" height="14" viewBox="0 0 48 48" fill="none" role="img" aria-label="grue"><defs><linearGradient id="yelg" x1="10" y1="12" x2="40" y2="38"><stop offset="0" stop-color="#f4c430"/><stop offset="1" stop-color="#e8b21f"/></linearGradient></defs><g stroke="url(#yelg)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"><path d="M11 16 H39"/><path d="M20 16 L14 38 M20 16 L26 38"/><path d="M16.5 28 H23.5"/><path d="M20 16 V12.5"/><path d="M12 38 H28"/></g><circle cx="20" cy="11.4" r="1.6" fill="#f4c430"/><rect x="9.3" y="13.6" width="4" height="4.8" rx="1" fill="#f4c430"/></svg>
+    NaonEdge · Méthodologie
   </div>
-  <h1>Développement<br><span class="accent">IA-Augmenté</span></h1>
-  <p class="hero-subtitle">Comment un développeur et deux agents Claude — Cowork (réflexion) et Claude Code (exécution) — produisent du logiciel fiable grâce à un système d'instructions écrites. Pas du code jetable.</p>
+  <h1 class="brandmark">iaka<span class="accent">frame</span></h1>
+  <p class="hero-tagline">Développement IA-Augmenté</p>
+  <p class="hero-subtitle">Comment un développeur et une équipe d'agents IA produisent du logiciel fiable grâce à un système d'instructions écrites. Pas du code jetable.</p>
   <div class="hero-scroll">
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#555" stroke-width="2"><path d="M7 13l5 5 5-5M7 6l5 5 5-5"/></svg>
   </div>
@@ -623,13 +626,13 @@ main {
 
 <nav class="tabs">
   <button class="tab active" data-tab="p-vision">Principe</button>
-  <button class="tab" data-tab="p-acteurs">Acteurs</button>
-  <button class="tab" data-tab="p-equipe">Équipe d'agents</button>
-  <button class="tab" data-tab="p-code">Code</button>
+  <button class="tab" data-tab="p-phases">3 phases</button>
+  <button class="tab" data-tab="p-agents">Agents IA</button>
   <button class="tab" data-tab="p-workflow">Workflow</button>
   <button class="tab" data-tab="p-qualite">Qualité</button>
   <button class="tab" data-tab="p-commandes">Commandes</button>
   <button class="tab" data-tab="p-avance">Vision avancée</button>
+  <button class="tab" data-tab="p-code">Code</button>
 </nav>
 
 <div class="panel active" id="p-vision">
@@ -667,115 +670,70 @@ main {
 
 </div>
 
-<div class="panel" id="p-acteurs">
-<!-- ==================== LES 3 ACTEURS ==================== -->
+<div class="panel" id="p-phases">
+<!-- ==================== LES 3 PHASES ==================== -->
 <section class="section">
-  <div class="section-label">Les acteurs</div>
-  <h2>Trois rôles, zéro chevauchement</h2>
-  <p>Chaque acteur a un périmètre strict. Le développeur décide, Cowork spécifie, Claude Code implémente. Personne ne fait le travail d'un autre.</p>
+  <div class="section-label">Le cycle</div>
+  <h2>Trois phases, cible <span class="accent">staging</span></h2>
+  <p>La chaîne de dev avance en <strong>3 phases</strong> jusqu'au <strong>staging</strong>. À chaque phase, un agent est aux commandes&nbsp;; Aragorn enchaîne et vérifie le gate. La <strong>prod</strong> est un <strong>squad séparé</strong>, déclenché sur feu vert humain.</p>
 
   <div class="actors-grid">
-    <!-- Développeur -->
-    <div class="actor-card human">
-      <div class="actor-icon human">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </div>
-      <h3>Le Développeur — Stéphane</h3>
-      <div class="actor-role">Décideur</div>
-      <p>Il tranche sur l'architecture, valide les choix techniques, et juge le résultat. Il ne délègue pas la réflexion — il délègue l'exécution.</p>
+    <div class="actor-card">
+      <div class="actor-icon" style="background:rgba(33,150,243,.14)">🔵</div>
+      <h3><span class="ph-cadrage">P1 · Cadrage</span></h3>
+      <div class="actor-role">🧙 Gandalf — gate humain</div>
+      <p>Le besoin devient une <strong>instruction fermée et vérifiable</strong> dans <code>specs/instructions/</code>. Rien ne se code avant validation de Stéphane.</p>
       <ul class="actor-tasks">
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Définit les features et leur priorité
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Valide ou corrige les propositions
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Teste dans l'app réelle
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Donne du feedback persistant
-        </li>
+        <li><span class="ph-cadrage">▹</span> Besoin → instruction</li>
+        <li><span class="ph-cadrage">▹</span> Web vérifié (versions, état de l'art)</li>
+        <li><span class="ph-cadrage">▹</span> Critères d'acceptation testables</li>
       </ul>
     </div>
-
-    <!-- Cowork -->
-    <div class="actor-card cowork">
-      <div class="actor-icon cowork">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
-      </div>
-      <h3>Cowork</h3>
-      <div class="actor-role">Claude · Réflexion</div>
-      <p>L'architecte et le rédacteur technique. Il analyse, propose, documente, et produit les fichiers d'instructions. Il ne touche jamais au code.</p>
+    <div class="actor-card">
+      <div class="actor-icon" style="background:rgba(244,67,54,.14)">🔴</div>
+      <h3><span class="ph-dev">P2 · Réalisation</span></h3>
+      <div class="actor-role">⚒️ Gimli + 🏹 Legolas — gate auto</div>
+      <p>Gimli implémente en <strong>commits atomiques</strong>&nbsp;; Legolas passe le <strong>gate qualité</strong> (typecheck, lint, tests). Verdict PASS pour avancer.</p>
       <ul class="actor-tasks">
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Analyse le code existant (lecture seule)
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Rédige les instructions dans <code>instructions/</code>
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Produit specs, docs, rapports
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3498db" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Prépare les workflows d'outillage
-        </li>
+        <li><span class="ph-dev">▹</span> Code + build + commits (×N)</li>
+        <li><span class="ph-dev">▹</span> Tests verts = gate auto</li>
+        <li><span class="ph-dev">▹</span> FAIL → retour dev</li>
       </ul>
     </div>
-
-    <!-- Claude Code -->
-    <div class="actor-card claudecode">
-      <div class="actor-icon claudecode">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
-      </div>
-      <h3>Claude Code</h3>
-      <div class="actor-role">Claude · Exécution</div>
-      <p>Le développeur IA. Il lit les instructions, écrit le code, lance les commandes. Il travaille dans le projet réel.</p>
+    <div class="actor-card">
+      <div class="actor-icon" style="background:rgba(76,175,80,.14)">🟢</div>
+      <h3><span class="ph-staging">P3 · Staging</span></h3>
+      <div class="actor-role">⚒️ Gimli (devops) + 🏹 Legolas</div>
+      <p>Gimli enfile la casquette <strong>devops</strong>&nbsp;: build d'image et déploiement en <strong>staging</strong> (<code>vX.Y.Z-rc</code>). Legolas valide sur le stage. <strong>La chaîne s'arrête là.</strong></p>
       <ul class="actor-tasks">
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Lit l'instruction avant chaque tâche
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Implémente feature par feature
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Exécute builds, tests, linting
-        </li>
-        <li>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          Commite en conventional commits
-        </li>
+        <li><span class="ph-staging">▹</span> Build image</li>
+        <li><span class="ph-staging">▹</span> Déploiement staging (rc)</li>
+        <li><span class="ph-staging">▹</span> Validation sur stage</li>
       </ul>
     </div>
   </div>
 
+  <h3>Le squad prod — séparé, sur feu vert humain</h3>
+  <table class="tool-table">
+    <thead><tr><th>Étape prod</th><th>Agent</th><th>Entrée → sortie</th><th>Gate</th></tr></thead>
+    <tbody>
+      <tr><td><span class="ph-prod">🟣 Déploiement prod</span></td><td>🌉 Helm</td><td>rc recettée + feu vert → prod (alias)</td><td>humain</td></tr>
+      <tr><td><span class="ph-prod">🟣 Surveillance</span></td><td>🌉 Helm</td><td>prod → santé / alerte / rollback</td><td>continu</td></tr>
+    </tbody>
+  </table>
   <div class="rule">
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
-    <div>
-      <p><strong>Règle absolue :</strong> Cowork ne modifie jamais le code source. Le jour où l'agent qui réfléchit est aussi celui qui exécute, il n'y a plus de contrôle.</p>
-    </div>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C27B0" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
+    <div><p>Frontière nette&nbsp;: <strong>dev → staging</strong> (les 3 phases), puis <strong>prod</strong> (squad 🌉 Helm) sur <strong>feu vert humain</strong>. Le squad prod est extensible (surveillance / alertes dédiées).</p></div>
   </div>
 </section>
-
 </div>
 
-<!-- ==================== ÉQUIPE D'AGENTS ==================== -->
-<div class="panel" id="p-equipe">
+<!-- ==================== AGENTS IA ==================== -->
+<div class="panel" id="p-agents">
 <section class="section">
   <div class="section-label">Yakaframe Avancé</div>
-  <h2>L'équipe d'agents</h2>
-  <p>La couche réflexion+exécution se spécialise en une <strong>équipe d'agents nommés</strong>, au périmètre fermé, qui incarnent la chaîne CI/CD « au fil de l'eau ». Les trois acteurs restent le modèle ; l'équipe en est la spécialisation industrielle.</p>
+  <h2>Les <span class="accent">agents IA</span></h2>
+  <p>La réflexion et l'exécution sont portées par une <strong>équipe d'agents IA nommés</strong>, au périmètre fermé, qui incarnent la chaîne CI/CD « au fil de l'eau ». Chacun tient une <strong>phase</strong> (voir l'onglet 3 phases)&nbsp;; aucun ne déborde sur le rôle d'un autre.</p>
 
   <div class="manifesto">
     <p>Stéphane → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents</p>
@@ -798,26 +756,7 @@ main {
   </table>
   <p style="font-size:.9rem;color:var(--text-muted)">n8n / Hermes sont des <strong>outils</strong> d'orchestration qu'Aragorn pilote — pas des agents.</p>
 
-  <h3>Les 3 phases (cible staging) + le squad prod</h3>
-  <table class="tool-table">
-    <thead><tr><th>Phase</th><th>Agent(s)</th><th>Entrée → sortie</th><th>Gate</th></tr></thead>
-    <tbody>
-      <tr><td><span class="ph-cadrage">🔵 P1 · Cadrage</span></td><td>🧙 Gandalf</td><td>besoin → instruction</td><td>humain</td></tr>
-      <tr><td><span class="ph-dev">🔴 P2 · Réalisation</span></td><td>⚒️ Gimli ×N + 🏹 Legolas</td><td>instruction → branche + commits + PASS</td><td>auto</td></tr>
-      <tr><td><span class="ph-staging">🟢 P3 · Déploiement staging</span></td><td>⚒️ Gimli (devops) + 🏹 Legolas</td><td>PASS → <code>vX.Y.Z-rc</code> en staging</td><td>auto</td></tr>
-    </tbody>
-  </table>
-  <p style="font-size:.9rem;color:var(--text-muted)">La chaîne <strong>s'arrête au staging</strong>. ⚒️ Gimli monte en <strong>dev + devops</strong> ; 🏹 Legolas valide en P2 puis sur le stage en P3.</p>
-
-  <h3>Le squad prod — séparé, sur feu vert humain</h3>
-  <table class="tool-table">
-    <thead><tr><th>Étape prod</th><th>Agent</th><th>Entrée → sortie</th><th>Gate</th></tr></thead>
-    <tbody>
-      <tr><td><span class="ph-prod">🟣 Déploiement prod</span></td><td>🌉 Helm</td><td>rc recettée + feu vert → prod (alias)</td><td>humain</td></tr>
-      <tr><td><span class="ph-prod">🟣 Surveillance</span></td><td>🌉 Helm</td><td>prod → santé / alerte / rollback</td><td>continu</td></tr>
-    </tbody>
-  </table>
-  <p style="font-size:.9rem;color:var(--text-muted)">Frontière nette : <strong>dev → staging</strong> (3 phases) puis <strong>prod</strong> (squad 🌉 Helm), couture <strong>humaine</strong> entre les deux. Squad extensible (rôles surveillance/alerte dédiés).</p>
+  <p style="font-size:.9rem;color:var(--text-muted)">Le déroulé en <strong>3 phases</strong> (cadrage → réalisation → staging) et le <strong>squad prod</strong> sont détaillés dans l'onglet <strong>3 phases</strong>.</p>
 
   <h3>Identité des agents — qui te parle, depuis quelle phase</h3>
   <p>Quand un agent <strong>s'adresse à Stéphane</strong> (question, prise de parole), il s'identifie : <code>&lt;pastille&gt; [ROYAUME][Agent]</code> — royaume en <strong>MAJUSCULE</strong>, <strong>pastille = la phase</strong> (couleur partagée, pas propre à l'agent). <strong>Jamais</strong> sur les logs ni les traces de réflexion.</p>
@@ -2595,8 +2534,8 @@ fouiller sa mémoire.
 
 <footer class="footer">
   <div class="accent-line"></div>
-  <p>iakaframe · Méthode de travail IA-augmentée · 2026</p>
-  <p style="margin-top:0.35rem">Stéphane × Cowork × Claude Code · Applicable à tout stack, tout langage, tout projet</p>
+  <p>iakaframe · Méthode de travail IA-augmentée · NaonEdge · 2026</p>
+  <p style="margin-top:0.35rem">Stéphane × une équipe d'agents IA · Applicable à tout stack, tout langage, tout projet</p>
 </footer>
 
 <script>
