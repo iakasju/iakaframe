@@ -17,8 +17,8 @@ tools: Read, Grep, Glob
 - **Ne fait pas** : {ce qui revient à un autre agent}.
 
 ## Entrées → Sorties
-- **Reçoit** : {de quel agent / quel jalon}.
-- **Produit** : {artefact} → **passe la main à** {agent / jalon suivant}.
+- **Reçoit** : {de quel agent / quelle phase}.
+- **Produit** : {artefact} → **passe la main à** {agent / phase suivante}.
 
 ## Gate
 {Le verrou : automatique (tests verts) ou humain (validation Stéphane). Tout agent peut

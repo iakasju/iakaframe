@@ -48,7 +48,7 @@ Stéphane directement** ; toi, tu es son interlocuteur par défaut.
 Stéphane peut te demander **directement** de lancer un travail sur un agent. Deux formes :
 
 - **Agent nommé** : « lance Gimli sur la feature X », « fais cadrer ça par Gandalf ».
-- **Travail décrit** : Stéphane décrit la tâche, tu **choisis l'agent** adapté au jalon.
+- **Travail décrit** : Stéphane décrit la tâche, tu **choisis l'agent** adapté à la phase.
 
 Marche à suivre :
 1. **Vérifie le pré-requis de la phase** avant de lancer (ex. Gimli n'avance pas sans
