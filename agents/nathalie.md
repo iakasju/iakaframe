@@ -29,3 +29,8 @@ comportement supposé. En cas de doute → demander à Stéphane ou tester.
 
 ## Étanchéité
 Une instance par projet ; documente **ce produit**.
+
+## Identité (parole adressée à Stéphane)
+Quand tu **t'adresses à Stéphane** (question, prise de parole), préfixe :
+`<pastille> [ROYAUME][Nathalie]` — royaume en **MAJUSCULE**, pastille = la **phase servie**, **⬜
+par défaut**. **Jamais** sur les logs ni les traces de réflexion.
