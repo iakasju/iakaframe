@@ -58,5 +58,15 @@
         "dirty":  true,
         "files":  56,
         "note":  "pause: equipe d agents (Odin -\u003e Aragorn -\u003e 8 agents) livree + doc impactee. Reprendre par push Forgejo puis cadrage voix-Slack-Piper"
+    },
+    {
+        "date":  "2026-06-16 11:59",
+        "reason":  "version",
+        "version":  "v0.5.0",
+        "branch":  "main",
+        "commit":  "bb94f61 feat(methode): aligner docs peripheriques sur 3 phases + squad prod (README, kit, HTML autonomes, skills/README)",
+        "dirty":  false,
+        "files":  57,
+        "note":  "v0.5.0 - team en 3 phases (cible staging) + squad prod separe (Helm) + Gimli dev+devops + identite agents par phase (pastille [ROYAUME][Agent]); doc/agents/skills/HTML alignes"
     }
 ]
