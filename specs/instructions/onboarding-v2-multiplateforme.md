@@ -28,7 +28,8 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
   Résultat consigné (ex. `specs/etat-des-lieux` ou un `services.json`) et utilisé pour
   pré-remplir les options.
 - **Options à choisir (à terme)** : cible (claude/codex), brancher Forgejo ou git local,
-  activer le moteur IA (provider), thème, etc. — d'abord un onboarding guidé, options plus tard.
+  activer le moteur IA (provider), thème, **installer iakaIDE (optionnel)** — l'app desktop
+  portefeuille (Tauri) qui pilote les projets ; etc. D'abord un onboarding guidé, options plus tard.
 - **How-to** : messages d'explication à chaque étape + un récap final « voici ce qui a été posé,
   voici la suite ».
 - **PDF versionné** : doc d'install/usage (à partir de `methode-de-travail.html` / un HTML
@@ -44,7 +45,13 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
    Forgejo / Ollama / ComfyUI sur hôtes candidats, rapport + `-Json services.json`).
 3. **Umbrella** : garantir le dossier chapeau + Odin + dashboard.
 4. **Doc PDF versionnée** : pipeline HTML→PDF + tag de version.
-5. (plus tard) **options interactives** + how-to enrichi.
+5. **Modèles** (cf. `modeles-suggestion-install.md`) : à l'onboarding, 🎭 Loki vérifie les
+   modèles image/design (ComfyUI) et propose l'install ; 🛡️ Aragorn suggère un modèle Ollama
+   plus adapté au besoin. Gate humain avant tout pull.
+6. **iakaIDE (optionnel)** : proposer son installation (clone + build Tauri, ou binaire) au
+   niveau du **dossier chapeau** — l'app desktop qui pilote le portefeuille. Décliné par cible si
+   pertinent.
+7. (plus tard) **options interactives** + how-to enrichi.
 
 ## Hors scope (pour l'instant)
 

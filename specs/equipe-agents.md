@@ -90,6 +90,9 @@ Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
   déclenche le bon agent au bon moment, **surveille les phases** et **communique** l'avancement.
 - **Outils** : n8n / Hermes (orchestration — sous ses ordres, jamais l'inverse).
 - **Entrées** → **sorties** : besoin de Stéphane → plan de répartition, statut des phases, alertes.
+- **Modèles** : quand un **modèle IA plus adapté** existerait, Aragorn le **suggère** et propose
+  son **installation** (Ollama / ComfyUI) — **gate humain** avant tout pull. Cf.
+  `specs/instructions/modeles-suggestion-install.md`.
 - **Ne fait pas** : ni le cadrage fin (→ Gandalf), ni le code (→ Gimli), ni le déploiement (→ Helm).
 - **Gate** : tient Stéphane informé ; remonte tout blocage ou décision structurante.
 
@@ -129,6 +132,9 @@ Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
 
 ### 🎭 Loki — Graphisme / design (l'illusionniste)
 - **Rôle** : produit l'habillage visuel (docs HTML, decks, flyers, logos) selon la **charte NaonEdge**.
+- **Modèles image/design** : à l'**onboarding**, vérifie que les **modèles** nécessaires (ComfyUI :
+  checkpoint SDXL/Flux + LoRA on-brand) sont **présents** ; sinon **propose de les installer**
+  (lui-même ou la team) — **gate humain**. Cf. `specs/instructions/modeles-suggestion-install.md`.
 - **Skill** : `iakaframe-naonedge`.
 
 ### 📖 Nathalie — Guides utilisateurs
