@@ -120,6 +120,10 @@ Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
 - **Rôle** : **P2 Réalisation / P3 Staging**. typecheck + lint + tests unitaires et d'**intégration** en environnements
   dédiés (dev, stage). **Gate automatique** avant promotion.
 - **Entrées** → **sorties** : code de Gimli → rapport qualité (pass/fail) + blocage si régression.
+- **Revue Qualité de Version (RQV)** : à chaque **version mineure**, produit (avec 📖 Nathalie pour
+  la doc) le **document d'évaluation complète** — qualité code, couverture + exécution des tests,
+  traçabilité requirements, KPI CI/DORA — verdict go/no-go (gate humain). Stack : SonarQube +
+  Allure + DevLake. Cf. `specs/instructions/revue-qualite-version.md`.
 - **Skill** : `iakaframe-qualite`.
 
 ### 🌉 Helm — Équipe prod (Heimdall)
