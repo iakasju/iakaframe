@@ -24,15 +24,15 @@
 #>
 param(
   [string]$Path = (Get-Location).Path,
-  [ValidateSet("claude", "codex")][string]$Target = "claude",
+  [ValidateSet("claude", "codex", "ollama")][string]$Target = "claude",
   [switch]$Force
 )
 
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-$KitName = if ($Target -eq "codex") { "kit-codex" } else { "kit" }
-$ContractFile = if ($Target -eq "codex") { "AGENTS.md" } else { "CLAUDE.md" }
+$KitName = switch ($Target) { "codex" { "kit-codex" } "ollama" { "kit-ollama" } default { "kit" } }
+$ContractFile = if ($Target -eq "claude") { "CLAUDE.md" } else { "AGENTS.md" }
 $Kit = Join-Path $ScriptDir $KitName
 
 # Version iakaframe (lue depuis l'etat des lieux de l'installation).

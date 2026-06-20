@@ -36,14 +36,17 @@
 > Les tags exacts (taille/quant) sont laissés au `ollama pull`. Tableau à ajuster selon l'état
 > de l'art (Gandalf vérifie le web avant de figer).
 
-## Cible `ollama` — à planifier
+## Cible `ollama` — ✅ kit livré
 
-- **Constat** : Ollama est un **serveur de modèles**, pas un **harnais agentique**. Pour « faire
-  tourner les agents » en local, il faut un **outil agentique open** (ex. Aider, Continue, Cline,
-  opencode…) **pointé sur Ollama**. La cible `ollama` = **méthode iakaframe + contrat + table
-  modèle↔agent** pour cet outil, pas un nouveau harnais maison.
-- **Onboard** : `iakaframe-init.ps1 -Target ollama` → déployer un kit `kit-ollama/` (contrat
-  générique + recommandations modèles + pointeur outil agentique) — **à construire**.
+- **Constat** : Ollama est un **serveur de modèles**, pas un harnais. Deux couches sont
+  nécessaires : **orchestration** (n8n / Activepieces — déjà l'outil d'Aragorn : dispatch,
+  Slack, gates, appels Ollama) **+ harnais de code** qui édite le repo (Aider, OpenHands,
+  Cline/Continue, opencode…). La cible `ollama` = **méthode + contrat + table modèle↔agent**,
+  pas un harnais maison.
+- ✅ **`kit-ollama/`** livré : `AGENTS.md` (rôles + phases + table) + `MODELES.md` (modèle↔agent
+  + `ollama pull` + outils : n8n orchestration / harnais code) + templates `specs/`.
+- ✅ **Onboard** : `iakaframe-init.ps1 -Target ollama` (et `-onboard`) déploie `kit-ollama/`
+  (contrat `AGENTS.md`, marqueur `.iakaframe`). Testé.
 - **Aragorn** : quand un modèle plus adapté existe en local (ou à tester), le **suggère** (via le
   rapport d'alternatives) et propose l'install — gate humain (cf. `modeles-suggestion-install.md`).
 

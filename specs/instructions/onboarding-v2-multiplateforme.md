@@ -59,9 +59,10 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
    modèles image/design (ComfyUI) et propose l'install ; 🛡️ Aragorn suggère un modèle Ollama
    plus adapté au besoin. Gate humain avant tout pull.
 5bis. ✅ **Alternatives agents** : `iakaframe-alternatives.ps1` (table modèle local↔agent vs
-   installés Ollama) — lançable par Odin, utile en toute cible. **3e cible `ollama`** (ni Claude
-   ni ChatGPT → modèles locaux via outil agentique open) **à construire** (`kit-ollama/`). Cf.
-   `cible-ollama-modeles-agents.md`.
+   installés Ollama) — lançable par Odin, utile en toute cible.
+5ter. ✅ **3e cible `ollama`** livrée : `kit-ollama/` (`AGENTS.md` + `MODELES.md` + templates) +
+   `-Target ollama` dans init/onboard. Deux couches : **orchestration n8n/Activepieces** +
+   **harnais de code** (Aider/OpenHands/Cline…) sur Ollama. Cf. `cible-ollama-modeles-agents.md`.
 6. **iakaIDE (optionnel)** : proposer son installation (clone + build Tauri, ou binaire) au
    niveau du **dossier chapeau** — l'app desktop qui pilote le portefeuille. **Cible claude**
    pour l'instant ; **côté codex : annoncé pour plus tard** (iakaIDE est aujourd'hui orienté Claude).

@@ -33,7 +33,7 @@
 #>
 param(
   [string]$Path = (Get-Location).Path,
-  [ValidateSet("claude", "codex")][string]$Target = "claude",
+  [ValidateSet("claude", "codex", "ollama")][string]$Target = "claude",
   [switch]$Umbrella,
   [switch]$InitProjects,
   [string]$DashboardSource = "",
@@ -131,7 +131,7 @@ Write-Host "==== iakaframe : onboarding de $Path ====" -ForegroundColor Cyan
 
 # 1. Structure
 Write-Host ("`n[1/5] Structure de la methode (cible: {0})" -f $Target) -ForegroundColor Cyan
-$ContractFile = if ($Target -eq "codex") { "AGENTS.md" } else { "CLAUDE.md" }
+$ContractFile = if ($Target -eq "claude") { "CLAUDE.md" } else { "AGENTS.md" }
 $initArgs = @{ Path = $Path; Target = $Target }
 if ($Force) { $initArgs.Force = $true }
 & (Join-Path $dir "iakaframe-init.ps1") @initArgs
