@@ -79,6 +79,9 @@ Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
   haut niveau de Stéphane et les exécute&nbsp;: **switcher** d'équipe/projet, **démarrer** un
   projet (`init iakaframe`), **créer** une équipe (`fullteam`), **vue d'ensemble**.
 - **Disponible en permanence**, joignable par **voix / Slack**.
+- **Alternatives agents** : peut lancer **à la demande** un **état des lieux des alternatives**
+  (`iakaframe-alternatives.ps1`) — quel **modèle local (Ollama)** pour quel agent, dispo vs à
+  installer. Cf. `specs/instructions/cible-ollama-modeles-agents.md`.
 - **Le seul agent affecté à `C:\work`** (racine des projets) ; les équipes vivent dans
   `<projet>/.claude/`. Hiérarchie : `Odin → Aragorn → agents`.
 - **Ne fait pas** : la coordination intra-équipe (→ Aragorn), ni le métier. Il n'écrit pas

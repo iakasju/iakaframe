@@ -58,6 +58,10 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
 5. **Modèles** (cf. `modeles-suggestion-install.md`) : à l'onboarding, 🎭 Loki vérifie les
    modèles image/design (ComfyUI) et propose l'install ; 🛡️ Aragorn suggère un modèle Ollama
    plus adapté au besoin. Gate humain avant tout pull.
+5bis. ✅ **Alternatives agents** : `iakaframe-alternatives.ps1` (table modèle local↔agent vs
+   installés Ollama) — lançable par Odin, utile en toute cible. **3e cible `ollama`** (ni Claude
+   ni ChatGPT → modèles locaux via outil agentique open) **à construire** (`kit-ollama/`). Cf.
+   `cible-ollama-modeles-agents.md`.
 6. **iakaIDE (optionnel)** : proposer son installation (clone + build Tauri, ou binaire) au
    niveau du **dossier chapeau** — l'app desktop qui pilote le portefeuille. Décliné par cible si
    pertinent.
