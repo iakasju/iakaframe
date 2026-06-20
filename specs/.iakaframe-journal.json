@@ -108,5 +108,15 @@
         "dirty":  false,
         "files":  67,
         "note":  "v0.6.0 multi-plateforme + onboarding : kit-codex (incarnation Codex, AGENTS.md), detection services (git/ollama/comfyui), onboard -Target claude|codex + marqueur .iakaframe versionne, -Umbrella (chapeau: Odin local+global + dashboard + scan) + -InitProjects, iakaframe-alternatives (modeles locaux par agent, lance par Odin). Cadrages : conf GPU (Helm), suggestion/install modeles (Aragorn/Loki), docs en charte NaonEdge, cible ollama (kit-ollama a venir), iakaIDE annonce plus tard cote Codex."
+    },
+    {
+        "date":  "2026-06-20 21:51",
+        "reason":  "version",
+        "version":  "v0.6.1",
+        "branch":  "main",
+        "commit":  "7eb28a2 docs(ollama): OpenClaw (openclaw.ai) candidat all-in-one pour la cible ollama",
+        "dirty":  false,
+        "files":  72,
+        "note":  "v0.6.1 - cible ollama complete : kit-ollama (AGENTS.md + MODELES.md table modele/agent), -Target claude|codex|ollama dans init/onboard, rapport iakaframe-alternatives, outil recommande OpenClaw (openclaw.ai, all-in-one local). Les 3 incarnations : Claude / Codex / Ollama."
     }
 ]
