@@ -64,9 +64,11 @@ ni des specificites Windows**.
 
 ## Plan de migration (incremental, non destructif)
 
-1. **Squelette CLI** : `iakaframe --version`, `--help`, arbo commandes (commander). Publiable.
-2. **`services`** (le plus simple : sondes HTTP pures) -> 1re commande portee, valeur immediate.
-3. **`config`** (ecrit `iakaframe.json` + diagnostic) -> rapide, utile au bouton Go.
+1. ✅ **Squelette CLI** (`cli/`, paquet `@naonedge/iakaframe`) : `--version/--help/root`,
+   resolution chapeau, **zero dependance** (Node 20 `parseArgs`+`fetch`, commander ecarte).
+2. ✅ **`services`** : sondes Forgejo/Ollama/ComfyUI (`--hosts/--json/--timeout`), iso PS.
+   Teste en reel (Forgejo v1.26.2, Ollama, ComfyUI).
+3. ✅ **`config`** : ecrit `iakaframe.json` (runner/target) + diagnostic dispo. Teste.
 4. **`snapshot` / `update`** (git + generation MD/HTML de l'etat des lieux).
 5. **`onboard` / `init`** (FS + git + API Forgejo + templates) -> le gros morceau.
 6. **Go / protocole** cross-platform (ou delegation iakaIDE).
