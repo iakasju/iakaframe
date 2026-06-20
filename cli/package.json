@@ -11,11 +11,18 @@
   },
   "files": [
     "src",
+    "_bundled",
     "README.md"
   ],
   "scripts": {
     "start": "node src/index.js",
-    "test": "node --test"
+    "test": "node --test",
+    "bundle": "node scripts/bundle.js",
+    "prepack": "node scripts/bundle.js",
+    "prepublishOnly": "node scripts/bundle.js"
+  },
+  "publishConfig": {
+    "@naonedge:registry": "http://192.168.2.11:3001/api/packages/sjupin/npm/"
   },
   "license": "UNLICENSED"
 }

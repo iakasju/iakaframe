@@ -71,12 +71,16 @@ ni des specificites Windows**.
 3. ✅ **`config`** : ecrit `iakaframe.json` (runner/target) + diagnostic dispo. Teste.
 4. ✅ **`snapshot` / `update`** : journal append-only + MD + HTML (iso PS) ; update =
    snapshot + commit global + push, avec routage update<->onboard.
-5. ✅ **`init` / `onboard`** : init (kit + `.iakaframe`, non destructif) ; onboard =
-   structure + Forgejo (API) + 1er commit + etat des lieux + push, routage update-si-existe.
-   Teste en local (skip-forgejo/no-push). **Reste** : `--umbrella` (Odin+dashboard) encore en PS.
-6. **Go / protocole** cross-platform (ou delegation iakaIDE).
-7. **Distribution** : `npm publish` (public) **ou** registre **npm prive Forgejo** ; formules
-   optionnelles **scoop** (Win) / **brew** (macOS). CI **matrice Win/macOS/Linux** (parite).
+5. ✅ **`init` / `onboard`** (+ `--umbrella`) : init (kit + `.iakaframe`) ; onboard =
+   structure + Forgejo + 1er commit + etat des lieux + push, routage update-si-existe ;
+   **umbrella** = Odin local+global + dashboard + scan (PS si dispo) + projets en attente.
+   `agents` (list/affect/fullteam/status) porte aussi.
+6. ✅ **`go <projet>`** : lance le runner (ps/codex/iakaide) inline, cross-OS, fallback
+   gracieux ; runner lu dans `iakaframe.json` (surcharge `--runner`).
+7. ✅ **Distribution** : **publie sur le registre npm prive Forgejo** -> `@naonedge/iakaframe@0.1.0`
+   (`latest`). Assets embarques via `scripts/bundle.js` (`_bundled/`, prepack). CI **matrice
+   Win/macOS/Linux** (`.forgejo/workflows/cli-ci.yml`). **Reste** : scan dashboard encore PS ;
+   formules scoop/brew optionnelles ; iakaIDE sidecar.
 
 ## Hors scope (pour l'instant)
 

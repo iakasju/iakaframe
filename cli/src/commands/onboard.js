@@ -2,9 +2,12 @@
 import { parseArgs } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 import { isRepo, initRepoMain, run, hasChanges, hasRemoteOrigin } from '../lib/git.js';
 import { testRepo, createRepo, remoteUrl } from '../lib/forgejo.js';
-import { contractFile } from '../lib/kit.js';
+import { contractFile, frameworkRoot } from '../lib/kit.js';
+import { affectAgent } from '../lib/agents.js';
+import { hasCmd } from '../lib/which.js';
 import { runInit } from './init.js';
 import { doSnapshot } from './snapshot.js';
 
@@ -21,6 +24,8 @@ export async function runOnboard(argv) {
       'no-push': { type: 'boolean', default: false },
       force: { type: 'boolean', default: false },
       umbrella: { type: 'boolean', default: false },
+      'init-projects': { type: 'boolean', default: false },
+      'dashboard-source': { type: 'string' },
     },
   });
   if (!TARGETS.includes(values.target)) { console.error(`target invalide : ${values.target}`); process.exitCode = 1; return; }
@@ -28,11 +33,7 @@ export async function runOnboard(argv) {
   const repo = values.repo || path.basename(root);
   fs.mkdirSync(root, { recursive: true });
 
-  if (values.umbrella) {
-    console.log('Mode --umbrella pas encore porte dans la CLI (Odin + dashboard).');
-    console.log('Utiliser pour l\'instant : powershell iakaframe-onboard.ps1 -Umbrella -Path <chapeau>.');
-    return;
-  }
+  if (values.umbrella) { return runUmbrella(root, values); }
 
   // Routage : depot deja sur Forgejo + git local -> update.
   if (!values['skip-forgejo']) {
@@ -90,4 +91,75 @@ export async function runOnboard(argv) {
 
   console.log('\n==== Termine ====');
   console.log(`Prochaines etapes : remplir ${contract} + specs/PROJET.md ; une instruction par feature ; relancer 'iakaframe update' a chaque version/pause.`);
+}
+
+function copyDirExcept(src, dst, exclude = []) {
+  fs.mkdirSync(dst, { recursive: true });
+  for (const e of fs.readdirSync(src, { withFileTypes: true })) {
+    if (exclude.includes(e.name)) continue;
+    const s = path.join(src, e.name), d = path.join(dst, e.name);
+    if (e.isDirectory()) copyDirExcept(s, d, exclude); else fs.copyFileSync(s, d);
+  }
+}
+
+// Mode chapeau : Odin (local + global) + dashboard NaonEdge + scan + projets en attente.
+function runUmbrella(root, values) {
+  console.log(`==== iakaframe : onboarding UMBRELLA (dossier chapeau) : ${root} ====`);
+
+  // [1/3] Odin (portefeuille) : local + global
+  console.log('\n[1/3] Odin (portefeuille) : local + global');
+  affectAgent('odin', { project: root });
+  affectAgent('odin', { global: true });
+
+  // [2/3] Dashboard NaonEdge
+  console.log('\n[2/3] Dashboard NaonEdge');
+  const fwRoot = frameworkRoot();
+  const dashSrc = values['dashboard-source']
+    || (fwRoot ? path.join(path.dirname(fwRoot), 'naonedge-dashboard') : '');
+  const dashDest = path.join(root, 'naonedge-dashboard');
+  let dashOk = false;
+  if (dashSrc && fs.existsSync(dashSrc)) {
+    copyDirExcept(dashSrc, dashDest, ['data', '.git', 'node_modules']);
+    fs.mkdirSync(path.join(dashDest, 'data'), { recursive: true });
+    console.log(`  + dashboard copie -> ${dashDest}`);
+    dashOk = true;
+  } else {
+    console.log(`  ! source dashboard introuvable : ${dashSrc || '(inconnue)'} (non deploye)`);
+  }
+
+  // [3/3] Scan initial (scan.ps1 via PowerShell si dispo ; sinon a lancer manuellement)
+  console.log('\n[3/3] Scan initial du portefeuille');
+  const scan = path.join(dashDest, 'scan.ps1');
+  const ps = hasCmd('pwsh') ? 'pwsh' : hasCmd('powershell') ? 'powershell' : null;
+  if (dashOk && ps && fs.existsSync(scan)) {
+    const r = spawnSync(ps, ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scan, '-Root', root], { stdio: 'ignore' });
+    console.log(r.status === 0 ? '  + data/projects.js genere.' : '  ! scan a echoue (relancer scan.ps1).');
+  } else if (dashOk) {
+    console.log('  i PowerShell absent : lancer le scan plus tard (scan.ps1). Portage Node a venir.');
+  }
+
+  // [*] Projets du chapeau : proposer / amorcer
+  console.log('\n[*] Projets du chapeau');
+  const meta = ['naonedge-dashboard', 'iakaframe'];
+  const pending = [];
+  for (const e of fs.readdirSync(root, { withFileTypes: true })) {
+    if (!e.isDirectory()) continue;
+    if (meta.includes(e.name) || e.name[0] === '.' || e.name[0] === '_') continue;
+    const p = path.join(root, e.name);
+    const onboarded = ['.iakaframe', 'CLAUDE.md', 'AGENTS.md'].some(f => fs.existsSync(path.join(p, f)));
+    if (!onboarded) pending.push(e.name);
+  }
+  if (pending.length === 0) console.log('  = tous les projets sont deja onboardes.');
+  else if (values['init-projects']) {
+    console.log(`  amorcage de ${pending.length} projet(s) (structure seule, cible ${values.target})...`);
+    for (const name of pending) { runInit(['--path', path.join(root, name), '--target', values.target]); console.log(`    + ${name}`); }
+    console.log('  (Forgejo non touche : brancher chaque depot ensuite via onboard.)');
+  } else {
+    console.log(`  ${pending.length} projet(s) non onboarde(s) : ${pending.join(', ')}`);
+    console.log('  -> relancer avec --init-projects pour les amorcer (structure seule, sans Forgejo).');
+  }
+
+  console.log('\n==== Chapeau pret ====');
+  if (dashOk) console.log(`  - Dashboard : ouvrir ${path.join(dashDest, 'index.html')}`);
+  console.log('  - Onboarder un projet : iakaframe onboard --path <projet> [--target claude|codex]');
 }

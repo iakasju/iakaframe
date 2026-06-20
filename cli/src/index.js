@@ -6,6 +6,8 @@ import { runInit } from './commands/init.js';
 import { runSnapshot } from './commands/snapshot.js';
 import { runOnboard } from './commands/onboard.js';
 import { runUpdate } from './commands/update.js';
+import { runAgents } from './commands/agents.js';
+import { runGo } from './commands/go.js';
 import { resolveRoot } from './lib/root.js';
 
 const VERSION = '0.1.0';
@@ -29,7 +31,13 @@ Commandes :
                         --hosts a,b,c  --json <fichier>  --timeout <sec>
   config              Ecrit/maj <projet>/iakaframe.json (runner + cible)
                         --path <dir> --runner ps|codex|iakaide --target claude|codex|ollama
+  agents              Equipe d'agents : list | affect | fullteam | status
+                        --agent <nom> --project <dir> --global --force
+  go <projet>         Lance l'action du projet via son runner (ps/codex/iakaide)
+                        --path <dir> --runner <r> --do "tache"
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
+
+Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
 
 Options globales :
   -v, --version       Version
@@ -50,6 +58,8 @@ async function main() {
     case 'update':   await runUpdate(rest); break;
     case 'services': await runServices(rest); break;
     case 'config':   runConfig(rest); break;
+    case 'agents':   runAgents(rest); break;
+    case 'go':       runGo(rest); break;
     case 'root': {
       const i = rest.indexOf('--root');
       console.log(resolveRoot(i >= 0 ? rest[i + 1] : undefined));

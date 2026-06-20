@@ -1,0 +1,35 @@
+name: cli-ci
+# CI de la CLI @naonedge/iakaframe : tests sur Windows / macOS / Linux (Node 20).
+# Necessite des runners Forgejo Actions etiquetes en consequence ; a defaut, le job
+# ubuntu suffit (les autres restent en attente d'un runner adapte).
+on:
+  push:
+    paths:
+      - 'cli/**'
+      - '.forgejo/workflows/cli-ci.yml'
+  pull_request:
+    paths:
+      - 'cli/**'
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        node: [20]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Version & aide
+        run: |
+          node src/index.js --version
+          node src/index.js --help
+      - name: Tests
+        run: node --test

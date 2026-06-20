@@ -3,9 +3,15 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Racine du framework = 1er parent contenant un dossier 'kit' (depuis ce module).
+// Racine des assets iakaframe (kit/, agents/, skills/, design-*).
+// 1) paquet publie : <pkg>/_bundled (genere par scripts/bundle.js au prepack)
+// 2) dev in-repo : 1er parent contenant un dossier 'kit'.
 export function frameworkRoot() {
-  let d = path.dirname(fileURLToPath(import.meta.url));
+  const here = path.dirname(fileURLToPath(import.meta.url));
+  const pkgRoot = path.resolve(here, '..', '..');          // cli/src/lib -> cli/
+  const bundled = path.join(pkgRoot, '_bundled');
+  if (fs.existsSync(path.join(bundled, 'kit'))) return bundled;
+  let d = here;
   for (let i = 0; i < 8; i++) {
     if (fs.existsSync(path.join(d, 'kit'))) return d;
     const up = path.dirname(d);
@@ -22,12 +28,17 @@ export function contractFile(target) {
   return target === 'claude' ? 'CLAUDE.md' : 'AGENTS.md';
 }
 
-// Version iakaframe lue dans specs/etat-des-lieux.md (ligne | Version | ... |).
+// Version iakaframe : etat-des-lieux (dev) > _bundled/VERSION (publie) > package.json.
 export function frameworkVersion(root) {
   try {
     const md = fs.readFileSync(path.join(root, 'specs', 'etat-des-lieux.md'), 'utf8');
     const m = md.match(/^\|\s*Version\s*\|\s*(.+?)\s*\|/m);
     if (m) return m[1].trim();
+  } catch { /* ignore */ }
+  try { return fs.readFileSync(path.join(root, 'VERSION'), 'utf8').trim() || 'inconnue'; } catch { /* ignore */ }
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'package.json'), 'utf8'));
+    if (pkg.version) return 'v' + pkg.version;
   } catch { /* ignore */ }
   return 'inconnue';
 }
