@@ -50,7 +50,10 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
 3. ✅ **LIVRÉ** — **Umbrella** : `iakaframe-onboard.ps1 -Umbrella -Path <chapeau>` installe le
    niveau portefeuille — **Odin** (chapeau `.claude/` + global `~/.claude/`), **dashboard
    NaonEdge** copié (hors `data`/`.git`) + **scan initial** (`data/projects.js`). Option
-   `-DashboardSource`. Testé OK.
+   `-DashboardSource`. **Propose d'amorcer les projets** du chapeau non onboardés : par défaut
+   il les **liste** ; avec **`-InitProjects`** il les **amorce** (init structure seule, `-Target`,
+   **sans Forgejo**, non destructif, idempotent — saute ceux ayant déjà `.iakaframe`/contrat).
+   Testé OK.
 4. **Doc PDF versionnée** : pipeline HTML→PDF + tag de version.
 5. **Modèles** (cf. `modeles-suggestion-install.md`) : à l'onboarding, 🎭 Loki vérifie les
    modèles image/design (ComfyUI) et propose l'install ; 🛡️ Aragorn suggère un modèle Ollama

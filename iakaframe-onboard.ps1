@@ -17,6 +17,8 @@
 .PARAMETER Path        Racine du projet (ou du chapeau si -Umbrella). Defaut : courant.
 .PARAMETER Umbrella    Mode "dossier chapeau" : installe le niveau portefeuille (Odin local +
                        global, dashboard NaonEdge + scan) au lieu d'onboarder un projet.
+.PARAMETER InitProjects  (Umbrella) Amorce la structure iakaframe sur tous les projets du chapeau
+                         non encore onboardes (init structure seule, sans Forgejo, non destructif).
 .PARAMETER DashboardSource  Source du dashboard a copier (defaut : naonedge-dashboard voisin d'iakaframe).
 .PARAMETER Target      Incarnation : claude (defaut, CLAUDE.md) ou codex (AGENTS.md).
 .PARAMETER Repo        Nom du depot Forgejo. Defaut : nom du dossier.
@@ -33,6 +35,7 @@ param(
   [string]$Path = (Get-Location).Path,
   [ValidateSet("claude", "codex")][string]$Target = "claude",
   [switch]$Umbrella,
+  [switch]$InitProjects,
   [string]$DashboardSource = "",
   [string]$Repo = "",
   [string]$Description = "",
@@ -78,6 +81,33 @@ if ($Umbrella) {
     }
   } else {
     Write-Host ("  ! source dashboard introuvable : {0} (non deploye)" -f $DashboardSource) -ForegroundColor Yellow
+  }
+
+  # 4. Projets du chapeau : proposer / amorcer
+  Write-Host "`n[*] Projets du chapeau" -ForegroundColor Cyan
+  $meta = @("naonedge-dashboard", "iakaframe")
+  $projDirs = Get-ChildItem -Path $Path -Directory -Force | Where-Object {
+    ($_.Name -notin $meta) -and ($_.Name[0] -ne '.') -and ($_.Name[0] -ne '_')
+  }
+  $pending = @()
+  foreach ($p in $projDirs) {
+    $onboarded = (Test-Path (Join-Path $p.FullName ".iakaframe")) -or
+                 (Test-Path (Join-Path $p.FullName "CLAUDE.md")) -or
+                 (Test-Path (Join-Path $p.FullName "AGENTS.md"))
+    if (-not $onboarded) { $pending += $p }
+  }
+  if ($pending.Count -eq 0) {
+    Write-Host "  = tous les projets sont deja onboardes." -ForegroundColor DarkGray
+  } elseif ($InitProjects) {
+    Write-Host ("  amorcage de {0} projet(s) (structure seule, cible {1})..." -f $pending.Count, $Target) -ForegroundColor Cyan
+    foreach ($p in $pending) {
+      & (Join-Path $dir "iakaframe-init.ps1") -Path $p.FullName -Target $Target | Out-Null
+      Write-Host ("    + {0}" -f $p.Name) -ForegroundColor Green
+    }
+    Write-Host "  (Forgejo non touche : brancher chaque depot ensuite via iakaframe-onboard / -forgejo.)" -ForegroundColor DarkGray
+  } else {
+    Write-Host ("  {0} projet(s) non onboarde(s) : {1}" -f $pending.Count, ($pending.Name -join ", ")) -ForegroundColor Yellow
+    Write-Host "  -> relancer avec -InitProjects pour les amorcer (structure seule, sans Forgejo)." -ForegroundColor Yellow
   }
 
   Write-Host "`n==== Chapeau pret ====" -ForegroundColor Cyan
