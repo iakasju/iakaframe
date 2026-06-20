@@ -38,11 +38,15 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
 
 ## Étapes (proposées, à découper)
 
-1. ✅ **LIVRÉ (init)** — `iakaframe-init.ps1 -Target <claude|codex>` : déploie le bon contrat
-   (`CLAUDE.md`+`.claude/` ou `AGENTS.md`) + structure `specs/` + **marqueur `.iakaframe`**
-   (version estampillée). *Reste : threader `-Target` dans `iakaframe-onboard.ps1`.*
+1. ✅ **LIVRÉ** — `iakaframe-init.ps1 -Target <claude|codex>` (contrat + structure + marqueur
+   `.iakaframe` versionné) **ET** `iakaframe-onboard.ps1 -Target <claude|codex>` (threadé →
+   transmet à init, message final adapté au contrat).
 2. ✅ **LIVRÉ** — Module de **détection de services** : `iakaframe-services.ps1` (sonde
    Forgejo / Ollama / ComfyUI sur hôtes candidats, rapport + `-Json services.json`).
+2bis. **Conf GPU** (🌉 Helm) : vérifier driver NVIDIA / runtime / CUDA (`nvidia-smi`) sur l'hôte
+   IA ; **conseiller** une modif si nécessaire (ex. driver < 580 → Ollama récent échoue, cf.
+   crash Whisper) ; **proposer de l'appliquer via SSH** si accès + **autorisation explicite**
+   (gate humain, jamais sans feu vert ; les MAJ de driver sont lourdes/risquées).
 3. **Umbrella** : garantir le dossier chapeau + Odin + dashboard.
 4. **Doc PDF versionnée** : pipeline HTML→PDF + tag de version.
 5. **Modèles** (cf. `modeles-suggestion-install.md`) : à l'onboarding, 🎭 Loki vérifie les

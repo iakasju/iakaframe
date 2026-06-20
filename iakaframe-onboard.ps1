@@ -15,6 +15,7 @@
   Token Forgejo lu depuis FORGEJO_TOKEN.
 
 .PARAMETER Path        Racine du projet. Defaut : courant.
+.PARAMETER Target      Incarnation : claude (defaut, CLAUDE.md) ou codex (AGENTS.md).
 .PARAMETER Repo        Nom du depot Forgejo. Defaut : nom du dossier.
 .PARAMETER Description Description ASCII du depot.
 .PARAMETER Version     Version initiale pour le premier snapshot. Defaut : v0.1.0.
@@ -27,6 +28,7 @@
 #>
 param(
   [string]$Path = (Get-Location).Path,
+  [ValidateSet("claude", "codex")][string]$Target = "claude",
   [string]$Repo = "",
   [string]$Description = "",
   [string]$Version = "v0.1.0",
@@ -53,8 +55,9 @@ if ($repoExists -eq $true -and $gitExists) {
 Write-Host "==== iakaframe : onboarding de $Path ====" -ForegroundColor Cyan
 
 # 1. Structure
-Write-Host "`n[1/5] Structure de la methode" -ForegroundColor Cyan
-$initArgs = @{ Path = $Path }
+Write-Host ("`n[1/5] Structure de la methode (cible: {0})" -f $Target) -ForegroundColor Cyan
+$ContractFile = if ($Target -eq "codex") { "AGENTS.md" } else { "CLAUDE.md" }
+$initArgs = @{ Path = $Path; Target = $Target }
 if ($Force) { $initArgs.Force = $true }
 & (Join-Path $dir "iakaframe-init.ps1") @initArgs
 
@@ -110,6 +113,6 @@ if ($NoPush -or $SkipForgejo) {
 
 Write-Host "`n==== Termine ====" -ForegroundColor Cyan
 Write-Host "Prochaines etapes :" -ForegroundColor Cyan
-Write-Host "  1. Remplir CLAUDE.md (stack, commandes, backlog) et specs/PROJET.md (vision)."
+Write-Host ("  1. Remplir {0} (stack, commandes, backlog) et specs/PROJET.md (vision)." -f $ContractFile)
 Write-Host "  2. Pour chaque feature : specs/instructions/<feature>.md AVANT de coder."
 Write-Host "  3. Relancer iakaframe-snapshot.ps1 a chaque version et a chaque pause/reprise."

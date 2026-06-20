@@ -127,11 +127,18 @@ Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
 - **Déclenchement** : sur **feu vert humain** de Stéphane (couture entre staging et prod).
 - **Gate** : mise en production = **gate humain**. Helm ne promeut jamais seul.
 - **Extensible** : on pourra ajouter au squad des rôles surveillance/alerte dédiés.
+- **Conf GPU** : vérifie la conf GPU de l'hôte IA (driver NVIDIA / runtime / CUDA via
+  `nvidia-smi`), **conseille** une modif si nécessaire, et **propose de l'appliquer via SSH**
+  seulement avec accès + **autorisation** (gate humain). Cf.
+  `specs/instructions/onboarding-v2-multiplateforme.md`.
 - **Pastille** : 🟣 (prod).
 - **Skill** : `iakaframe-deploiement` (déploiement + surveillance).
 
 ### 🎭 Loki — Graphisme / design (l'illusionniste)
 - **Rôle** : produit l'habillage visuel (docs HTML, decks, flyers, logos) selon la **charte NaonEdge**.
+- **Règle — tous les docs/supports iakaframe sont en charte NaonEdge** (look & feel : dark
+  premium + accent or, Inter/Fraunces/JetBrains Mono, grue jaune, footer signé). Tout nouveau
+  doc s'y conforme ; les docs existants sont alignés. Cf. `specs/instructions/docs-charte-naonedge.md`.
 - **Modèles image/design** : à l'**onboarding**, vérifie que les **modèles** nécessaires (ComfyUI :
   checkpoint SDXL/Flux + LoRA on-brand) sont **présents** ; sinon **propose de les installer**
   (lui-même ou la team) — **gate humain**. Cf. `specs/instructions/modeles-suggestion-install.md`.
