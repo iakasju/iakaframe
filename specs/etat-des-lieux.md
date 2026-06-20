@@ -1,33 +1,33 @@
 ﻿# Etat des lieux - iakaframe
 
-> Genere par iakaframe-snapshot.ps1 le 2026-06-16 15:03 (motif: version).
+> Genere par iakaframe-snapshot.ps1 le 2026-06-20 21:34 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.5.2 |
+| Version | v0.6.0 |
 | Branche | main |
-| Dernier commit | 10c65aa chore(iakaframe): update etat des lieux + commit global (version v0.5.1) |
-| Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 57 |
-| Note | v0.5.2 - section 'Pourquoi des agents ?' (tri par phase, permissions/limites/process packages, fun) dans methode-de-travail.md, equipe-agents.md, HTML, et les 9 profils agents |
+| Dernier commit | 2381a71 docs(codex): iakaIDE annonce pour plus tard cote Codex (orientation Claude actuelle) |
+| Arbre | propre |
+| Fichiers (hors .git/node_modules) | 67 |
+| Note | v0.6.0 multi-plateforme + onboarding : kit-codex (incarnation Codex, AGENTS.md), detection services (git/ollama/comfyui), onboard -Target claude|codex + marqueur .iakaframe versionne, -Umbrella (chapeau: Odin local+global + dashboard + scan) + -InitProjects, iakaframe-alternatives (modeles locaux par agent, lance par Odin). Cadrages : conf GPU (Helm), suggestion/install modeles (Aragorn/Loki), docs en charte NaonEdge, cible ollama (kit-ollama a venir), iakaIDE annonce plus tard cote Codex. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `10c65aa` | 2026-06-16 | chore(iakaframe): update etat des lieux + commit global (version v0.5.1) |
-| `c5cbf70` | 2026-06-16 | chore(iakaframe): update etat des lieux + commit global (manual) |
-| `517df08` | 2026-06-16 | feat(methode): refonte HTML - branding iakaframe XL + grue NaonEdge, onglets reordonnes (Principe/3 phases/Agents IA/.../Code en dernier), onglet 3 phases (cartes) remplace 3 acteurs |
-| `a4564b5` | 2026-06-16 | chore(iakaframe): update etat des lieux + commit global (version v0.5.0) |
-| `bb94f61` | 2026-06-16 | feat(methode): aligner docs peripheriques sur 3 phases + squad prod (README, kit, HTML autonomes, skills/README) |
-| `db0172e` | 2026-06-16 | fix(methode): purge dernieres mentions jalon dans template + description/skill Aragorn (phases) |
-| `0bb829e` | 2026-06-16 | feat(methode): HTML - onglet equipe en 3 phases + squad prod + section identite (couleurs par phase) + cartes de code regenerees |
-| `01a2dff` | 2026-06-16 | feat(skills): rappel convention identite (pastille=phase) + Aragorn 3 phases/squad prod + Helm squad prod |
-| `84fb8ce` | 2026-06-16 | feat(agents): Gimli dev+devops, Helm squad prod, regle d'identite (pastille=phase) sur tous les agents + template |
-| `ea9fe47` | 2026-06-16 | feat(methode): equipe-agents revu - Gimli dev+devops, Helm squad prod, identite par phase |
+| `2381a71` | 2026-06-20 | docs(codex): iakaIDE annonce pour plus tard cote Codex (orientation Claude actuelle) |
+| `350f4f0` | 2026-06-20 | feat(alternatives): iakaframe-alternatives.ps1 - etat des lieux modeles locaux par agent + cadrage cible ollama |
+| `faaa3bd` | 2026-06-20 | feat(onboard): -Umbrella propose/amorce les projets du chapeau (-InitProjects) |
+| `646be88` | 2026-06-20 | feat(onboard): option -Umbrella - installe le dossier chapeau (Odin local+global + dashboard NaonEdge + scan) |
+| `bfb4699` | 2026-06-20 | feat(onboard): -Target threade dans onboard + capture conf GPU (Helm) + regle docs NaonEdge (Loki) |
+| `3d09a86` | 2026-06-20 | docs(methode): modeles - Aragorn suggere/installe (Ollama/ComfyUI), Loki check modeles design a l'onboarding ; option install iakaIDE |
+| `30fc1dc` | 2026-06-20 | feat(onboard): init multi-cible -Target claude|codex + marqueur .iakaframe (version estampillee) |
+| `3da0596` | 2026-06-20 | feat(onboard): iakaframe-services.ps1 - detection git/Forgejo, Ollama, ComfyUI |
+| `d462b2e` | 2026-06-20 | feat(codex): kit-codex (AGENTS.md + templates + README) - incarnation Codex de iakaframe |
+| `17777d4` | 2026-06-16 | chore(iakaframe): update etat des lieux + commit global (version v0.5.2) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-06-20 21:34 | version | v0.6.0 | main | v0.6.0 multi-plateforme + onboarding : kit-codex (incarnation Codex, AGENTS.md), detection services (git/ollama/comfyui), onboard -Target claude/codex + marqueur .iakaframe versionne, -Umbrella (chapeau: Odin local+global + dashboard + scan) + -InitProjects, iakaframe-alternatives (modeles locaux par agent, lance par Odin). Cadrages : conf GPU (Helm), suggestion/install modeles (Aragorn/Loki), docs en charte NaonEdge, cible ollama (kit-ollama a venir), iakaIDE annonce plus tard cote Codex. |
 | 2026-06-16 15:03 | version | v0.5.2 | main | v0.5.2 - section 'Pourquoi des agents ?' (tri par phase, permissions/limites/process packages, fun) dans methode-de-travail.md, equipe-agents.md, HTML, et les 9 profils agents |
 | 2026-06-16 14:47 | version | v0.5.1 | main | v0.5.1 - HTML rebrand (iakaframe XL + grue NaonEdge), onglets reordonnes (Principe/3 phases/Agents IA/.../Code dernier), onglet 3 phases remplace 3 acteurs, diagramme cycle en phases; methode-de-travail.md alignee 3 phases |
 | 2026-06-16 12:39 | manual | v0.5.0 | main |  |
