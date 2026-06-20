@@ -63,8 +63,8 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
    ni ChatGPT → modèles locaux via outil agentique open) **à construire** (`kit-ollama/`). Cf.
    `cible-ollama-modeles-agents.md`.
 6. **iakaIDE (optionnel)** : proposer son installation (clone + build Tauri, ou binaire) au
-   niveau du **dossier chapeau** — l'app desktop qui pilote le portefeuille. Décliné par cible si
-   pertinent.
+   niveau du **dossier chapeau** — l'app desktop qui pilote le portefeuille. **Cible claude**
+   pour l'instant ; **côté codex : annoncé pour plus tard** (iakaIDE est aujourd'hui orienté Claude).
 7. (plus tard) **options interactives** + how-to enrichi.
 
 ## Hors scope (pour l'instant)

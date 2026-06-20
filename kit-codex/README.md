@@ -34,6 +34,12 @@ kit-codex/
 | Coût | abonnement/auth Anthropic | abonnement ChatGPT / API OpenAI |
 | Méthode (3 phases, cadrage, états des lieux, Forgejo) | identique | **identique** |
 
+## iakaIDE — à venir pour Codex
+
+**iakaIDE** (l'app desktop portefeuille) est pour l'instant **orientée Claude** (elle lit
+`.claude/agents`, etc.). Une incarnation **Codex** est **annoncée pour plus tard** : avec ce kit,
+ton ami a déjà la **méthode complète** ; iakaIDE viendra ensuite.
+
 ## Prérequis côté infra (à vérifier)
 
 - **Service git** (Forgejo recommandé, self-hosted) — sinon git local + remote plus tard.
