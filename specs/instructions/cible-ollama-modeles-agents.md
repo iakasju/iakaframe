@@ -43,6 +43,10 @@
   Slack, gates, appels Ollama) **+ harnais de code** qui édite le repo (Aider, OpenHands,
   Cline/Continue, opencode…). La cible `ollama` = **méthode + contrat + table modèle↔agent**,
   pas un harnais maison.
+- **Candidat all-in-one recommandé : OpenClaw** (openclaw.ai) — open-source, local-first ;
+  couvre **exécution (shell/fichiers) + orchestration (multi-chat dont Slack, cron, skills)**
+  sur **Ollama**, sans Claude/ChatGPT. Ses **skills** mappent sur les **personas iakaframe** ;
+  compléter d'un harnais code-focused (Aider/OpenHands) pour le dev lourd.
 - ✅ **`kit-ollama/`** livré : `AGENTS.md` (rôles + phases + table) + `MODELES.md` (modèle↔agent
   + `ollama pull` + outils : n8n orchestration / harnais code) + templates `specs/`.
 - ✅ **Onboard** : `iakaframe-init.ps1 -Target ollama` (et `-onboard`) déploie `kit-ollama/`

@@ -37,3 +37,15 @@ iakaframe distingue **orchestration** et **exécution de code** :
 
 > Combo typique : **n8n** orchestre (rôle Aragorn) + un **harnais de code** exécute (rôle Gimli).
 > iakaframe ne fournit pas l'outil — il fournit la **méthode, le contrat et la table modèle↔agent**.
+
+### OpenClaw (openclaw.ai) — candidat all-in-one (recommandé pour ollama)
+
+**Open-source, local-first**, il couvre **les deux couches** : exécution système (shell,
+fichiers, navigateur, sandbox/full) **et** orchestration/canal (multi-chat **Slack/Telegram/
+Discord/Signal…**, **cron**, tâches de fond, **bibliothèque de skills** + skills auto-générées),
+sur **modèles locaux (Ollama)** — **sans Claude ni ChatGPT**.
+- Les **skills OpenClaw** mappent bien sur les **personas iakaframe** (Odin/Aragorn/Gandalf…).
+- Le **canal Slack** d'Aragorn est nativement couvert.
+- Pour du **dev lourd** (boucles code/build/test), le compléter d'un harnais code-focused
+  (Aider/OpenHands) — OpenClaw peut le piloter.
+- CLI + desktop, install npm/git ; données chez l'utilisateur.

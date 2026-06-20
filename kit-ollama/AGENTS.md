@@ -10,8 +10,10 @@
 ## Pré-requis
 
 - **Ollama** lancé et joignable (`http://<host>:11434`). Vérifier : `iakaframe-services.ps1`.
-- Un **outil agentique** qui lit `AGENTS.md` et sait cibler Ollama (ex. **Aider**
-  `--model ollama/<modele>`, ou Continue/Cline/opencode configurés sur l'endpoint Ollama).
+- Un **outil agentique** sur Ollama. Recommandé all-in-one : **OpenClaw** (openclaw.ai —
+  open-source, local-first, exécution + orchestration + canal Slack + skills). Sinon un harnais
+  de code : **Aider** `--model ollama/<modele>`, OpenHands, Continue/Cline/opencode. Détail et
+  deux couches : `MODELES.md`.
 - Les **modèles** voulus tirés via `ollama pull` (voir `MODELES.md`).
 
 ## Ce qu'est iakaframe
