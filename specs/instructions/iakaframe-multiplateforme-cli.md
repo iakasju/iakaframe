@@ -69,8 +69,11 @@ ni des specificites Windows**.
 2. ✅ **`services`** : sondes Forgejo/Ollama/ComfyUI (`--hosts/--json/--timeout`), iso PS.
    Teste en reel (Forgejo v1.26.2, Ollama, ComfyUI).
 3. ✅ **`config`** : ecrit `iakaframe.json` (runner/target) + diagnostic dispo. Teste.
-4. **`snapshot` / `update`** (git + generation MD/HTML de l'etat des lieux).
-5. **`onboard` / `init`** (FS + git + API Forgejo + templates) -> le gros morceau.
+4. ✅ **`snapshot` / `update`** : journal append-only + MD + HTML (iso PS) ; update =
+   snapshot + commit global + push, avec routage update<->onboard.
+5. ✅ **`init` / `onboard`** : init (kit + `.iakaframe`, non destructif) ; onboard =
+   structure + Forgejo (API) + 1er commit + etat des lieux + push, routage update-si-existe.
+   Teste en local (skip-forgejo/no-push). **Reste** : `--umbrella` (Odin+dashboard) encore en PS.
 6. **Go / protocole** cross-platform (ou delegation iakaIDE).
 7. **Distribution** : `npm publish` (public) **ou** registre **npm prive Forgejo** ; formules
    optionnelles **scoop** (Win) / **brew** (macOS). CI **matrice Win/macOS/Linux** (parite).

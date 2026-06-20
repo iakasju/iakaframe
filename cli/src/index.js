@@ -2,6 +2,10 @@
 // @naonedge/iakaframe - CLI multi-OS (Windows/macOS/Linux). Zero dependance runtime.
 import { runServices } from './commands/services.js';
 import { runConfig } from './commands/config.js';
+import { runInit } from './commands/init.js';
+import { runSnapshot } from './commands/snapshot.js';
+import { runOnboard } from './commands/onboard.js';
+import { runUpdate } from './commands/update.js';
 import { resolveRoot } from './lib/root.js';
 
 const VERSION = '0.1.0';
@@ -11,22 +15,27 @@ const HELP = `iakaframe v${VERSION} - methode de travail outillee (CLI multi-OS)
 Usage : iakaframe <commande> [options]
 
 Commandes :
+  onboard             Met en place la methode : structure + Forgejo + commit + etat + push
+                        --path <dir> --target claude|codex|ollama --repo <nom>
+                        --description "ascii" --version vX.Y.Z
+                        --skip-forgejo  --no-push  --force
+  init                Deploie le kit + marqueur .iakaframe (non destructif)
+                        --path <dir> --target claude|codex|ollama --force
+  snapshot            Etat des lieux (journal + MD + HTML)
+                        --path <dir> --reason version|pause|reprise|manual --version --note
+  update              Checkpoint : snapshot + commit global + push
+                        --path <dir> --reason --version --note --message --no-push
   services            Sonde git(Forgejo) / Ollama / ComfyUI
-                        --hosts a,b,c   hotes a sonder (defaut iakabox+localhost)
-                        --json <fichier>  ecrit un services.json
-                        --timeout <sec>   timeout par sonde (defaut 3)
+                        --hosts a,b,c  --json <fichier>  --timeout <sec>
   config              Ecrit/maj <projet>/iakaframe.json (runner + cible)
-                        --path <dir>      projet (defaut: dossier courant)
-                        --runner ps|codex|iakaide
-                        --target claude|codex|ollama
+                        --path <dir> --runner ps|codex|iakaide --target claude|codex|ollama
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
-                        --root <dir>      surcharge ponctuelle
 
 Options globales :
   -v, --version       Version
   -h, --help          Aide
 
-Dossier chapeau : IAKAFRAME_ROOT (env) ou --root, sinon ~/work (C:\\work sur Windows).`;
+Forgejo : token via FORGEJO_TOKEN. Dossier chapeau : IAKAFRAME_ROOT/--root, sinon ~/work.`;
 
 async function main() {
   const [cmd, ...rest] = process.argv.slice(2);
@@ -35,6 +44,10 @@ async function main() {
   if (cmd === '-v' || cmd === '--version' || cmd === 'version') { console.log(VERSION); return; }
 
   switch (cmd) {
+    case 'onboard':  await runOnboard(rest); break;
+    case 'init':     runInit(rest); break;
+    case 'snapshot': runSnapshot(rest); break;
+    case 'update':   await runUpdate(rest); break;
     case 'services': await runServices(rest); break;
     case 'config':   runConfig(rest); break;
     case 'root': {
