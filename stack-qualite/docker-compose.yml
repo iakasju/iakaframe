@@ -1,0 +1,67 @@
+# iakaframe - stack QUALITE (SonarQube + Allure). DevLake = phase 2 (compose dedie, cf. README).
+# Isolation par projet : reseau/volumes/ports propres, prefixes "iqual".
+# Prerequis hote (Linux) : sysctl vm.max_map_count=262144 (SonarQube/Elasticsearch).
+# Ports hote choisis pour eviter les collisions iakabox (9000/3001/8188/11434/3009/3008...).
+
+name: iakaframe-qualite
+
+services:
+  sonar-db:
+    image: postgres:16
+    container_name: iqual-sonar-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: ${SONAR_DB_PASSWORD}
+      POSTGRES_DB: sonar
+    volumes:
+      - sonar_db:/var/lib/postgresql/data
+    networks: [iqual]
+
+  sonarqube:
+    image: sonarqube:community
+    container_name: iqual-sonarqube
+    restart: unless-stopped
+    depends_on:
+      - sonar-db
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/sonar
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD}
+    ports:
+      - "9001:9000"          # UI Sonar -> http://<hote>:9001
+    volumes:
+      - sonar_data:/opt/sonarqube/data
+      - sonar_extensions:/opt/sonarqube/extensions
+      - sonar_logs:/opt/sonarqube/logs
+    ulimits:
+      nofile:
+        soft: 65536
+        hard: 65536
+    networks: [iqual]
+
+  allure:
+    image: frankescobar/allure-docker-service
+    container_name: iqual-allure
+    restart: unless-stopped
+    environment:
+      CHECK_RESULTS_EVERY_SECONDS: 3
+      KEEP_HISTORY: 1
+    ports:
+      - "5051:5050"          # rapports Allure -> http://<hote>:5051
+    volumes:
+      - allure_results:/app/allure-results
+      - allure_reports:/app/default-reports
+    networks: [iqual]
+
+volumes:
+  sonar_db:
+  sonar_data:
+  sonar_extensions:
+  sonar_logs:
+  allure_results:
+  allure_reports:
+
+networks:
+  iqual:
+    name: iakaframe-qualite

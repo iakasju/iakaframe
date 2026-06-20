@@ -27,9 +27,10 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
   - **ComfyUI** : tester `:8188` → dispo.
   Résultat consigné (ex. `specs/etat-des-lieux` ou un `services.json`) et utilisé pour
   pré-remplir les options.
-- **Options à choisir (à terme)** : cible (claude/codex), brancher Forgejo ou git local,
-  activer le moteur IA (provider), thème, **installer iakaIDE (optionnel)** — l'app desktop
-  portefeuille (Tauri) qui pilote les projets ; etc. D'abord un onboarding guidé, options plus tard.
+- **Options à choisir (à terme)** : cible (claude/codex/ollama), brancher Forgejo ou git local,
+  activer le moteur IA (provider), thème, **installer iakaIDE (optionnel)**, **activer la stack
+  qualité / RQV (optionnel)** — SonarQube/Allure (hébergés iakabox, cf. `stack-qualite/`) +
+  Revue Qualité de Version ; etc. D'abord un onboarding guidé, options plus tard.
 - **How-to** : messages d'explication à chaque étape + un récap final « voici ce qui a été posé,
   voici la suite ».
 - **PDF versionné** : doc d'install/usage (à partir de `methode-de-travail.html` / un HTML

@@ -5,6 +5,10 @@
 
 ## Concept
 
+> **Processus OPTIONNEL** (impact iakaframe) : activable **par projet** selon l'enjeu — tout
+> projet n'a pas besoin d'une RQV complète. Proposé à l'onboarding. **Infra hébergée sur iakabox**
+> (stack `stack-qualite/`).
+
 Quand une modif (ou une série) **mérite une version mineure**, on produit **avant le bump** un
 **document RQV** : une **évaluation complète** du logiciel, on-brand **NaonEdge**, versionnée et
 archivée. C'est le **gate qualité de version** (au-dessus du gate de phase).
@@ -42,7 +46,9 @@ dans un document **NaonEdge** versionné.
 
 ## Étapes (proposées, à découper)
 
-1. Choisir/poser **SonarQube Community** (self-hosted iakabox) + brancher l'analyse par projet.
+1. ✅ **Stack authorée** (`stack-qualite/` : SonarQube + Postgres + Allure ; DevLake phase 2) —
+   reste à **déployer sur un hôte iakabox** (sysctl `vm.max_map_count`, RAM ~3-4 Go, gate humain).
+   Puis brancher l'analyse par projet (sonar-scanner + couverture).
 2. Couverture par langage → import Sonar ; **Allure** pour le rapport d'exécution.
 3. **DevLake** (DORA) branché sur Forgejo si supporté (sinon KPI minimaux maison).
 4. **Traçabilité requirements** : convention liant `specs/instructions/<feature>` ↔ tests.
