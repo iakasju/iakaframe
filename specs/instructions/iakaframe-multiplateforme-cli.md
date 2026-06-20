@@ -82,8 +82,11 @@ ni des specificites Windows**.
    Win/macOS/Linux** (`.forgejo/workflows/cli-ci.yml`).
 8. ✅ **Scan dashboard porte en Node** (`naonedge-dashboard/scan.js`, cross-OS, iso scan.ps1 :
    git/tokens/LdC/langages/versions/agents/quality, lookups insensibles a la casse, BOM strippe).
-   L'umbrella lance `node scan.js` en priorite (fallback scan.ps1). **Reste** : formules
-   scoop/brew optionnelles ; iakaIDE sidecar ; bundler le dashboard pour l'umbrella en paquet publie.
+   L'umbrella lance `node scan.js` en priorite (fallback scan.ps1).
+9. ✅ **iakaIDE en sidecar** : iakaIDE delegue a la CLI (commande Rust `iakaframe` -> binaire
+   bundle ou fallback `node`), cf. iakaIDE `specs/instructions/sidecar-iakaframe.md`. typecheck +
+   cargo check OK. **Reste** : compiler le binaire (bun) + `externalBin` pour la prod ; formules
+   scoop/brew optionnelles ; bundler le dashboard pour l'umbrella en paquet publie.
 
 ## Hors scope (pour l'instant)
 
