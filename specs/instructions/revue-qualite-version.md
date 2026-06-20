@@ -46,9 +46,10 @@ dans un document **NaonEdge** versionné.
 
 ## Étapes (proposées, à découper)
 
-1. ✅ **Stack authorée** (`stack-qualite/` : SonarQube + Postgres + Allure ; DevLake phase 2) —
-   reste à **déployer sur un hôte iakabox** (sysctl `vm.max_map_count`, RAM ~3-4 Go, gate humain).
-   Puis brancher l'analyse par projet (sonar-scanner + couverture).
+1. ✅ **Stack DÉPLOYÉE** (2026-06-20) sur **VM4 iakabox** (`192.168.2.13`, stack séparée
+   `/opt/iakaframe-qualite/`) : SonarQube `:9002` (UP) + Postgres + Allure `:5051` ; VM4 montée
+   à 8 Go, sysctl appliqué. DevLake = phase 2. **Reste** : brancher l'analyse par projet
+   (sonar-scanner + couverture).
 2. Couverture par langage → import Sonar ; **Allure** pour le rapport d'exécution.
 3. **DevLake** (DORA) branché sur Forgejo si supporté (sinon KPI minimaux maison).
 4. **Traçabilité requirements** : convention liant `specs/instructions/<feature>` ↔ tests.

@@ -29,7 +29,7 @@ services:
       SONAR_JDBC_USERNAME: sonar
       SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD}
     ports:
-      - "9001:9000"          # UI Sonar -> http://<hote>:9001
+      - "9002:9000"          # UI Sonar -> http://<hote>:9002 (9001 pris par portainer-agent sur VM4)
     volumes:
       - sonar_data:/opt/sonarqube/data
       - sonar_extensions:/opt/sonarqube/extensions

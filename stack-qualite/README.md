@@ -8,7 +8,7 @@ préfixés `iqual` / `iakaframe-qualite`).
 
 | Service | URL | Rôle |
 |---|---|---|
-| SonarQube | `http://<hote>:9001` | quality gate, couverture, sécurité, tendance |
+| SonarQube | `http://<hote>:9002` | quality gate, couverture, sécurité, tendance |
 | Allure | `http://<hote>:5051` | rapport d'exécution des tests |
 
 Choisis pour éviter les collisions iakabox (9000 Portainer/ComfyUI/Whisper, 3001 Forgejo,
@@ -36,7 +36,7 @@ docker compose up -d
 1. Dans SonarQube : créer le projet + un token.
 2. Côté projet : générer la **couverture** (Vitest v8 / cargo-llvm-cov / pytest-cov / JaCoCo) au
    format lcov/cobertura, puis lancer **sonar-scanner** (image `sonarsource/sonar-scanner-cli`)
-   avec `sonar.host.url=http://<hote>:9001` + token + chemin de couverture.
+   avec `sonar.host.url=http://<hote>:9002` + token + chemin de couverture.
 3. Tests → produire du **JUnit XML** → envoyer à Allure (`/allure-results`) → rapport sur :5051.
 
 ## DevLake (KPI DORA) — phase 2
