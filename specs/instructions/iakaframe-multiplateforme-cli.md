@@ -1,6 +1,6 @@
 # Instruction (cadrage) : iakaframe multi-OS — CLI Node + iakaIDE GUI
 
-> Phase cadrage (🧙 Gandalf). Statut : 🔵 **à valider / à planifier**.
+> Phase cadrage (🧙 Gandalf). Statut : 🟢 **VALIDÉ** (2026-06-21) — décisions tranchées, prêt pour réalisation.
 > Fait suite à la question : « sous quelle forme livrer iakaframe avec des cibles multi-OS ? »
 > Decision de principe retenue avec Stephane : **CLI Node (npm) comme socle multi-OS**,
 > **iakaIDE (Tauri) comme GUI cross-platform** au-dessus, **scripts `.ps1` gardes en
@@ -79,16 +79,24 @@ Reecriture big-bang ; suppression des `.ps1` (gardes en parallele sur Windows ju
 **parite verifiee**) ; portage du dashboard `scan.ps1` (porte apres la CLI, ou absorbe par
 iakaIDE).
 
-## Decisions a confirmer (Stephane)
+## Decisions retenues (reco par defaut, 2026-06-21)
 
-1. **Distribution** : npm **public** (visibilite, simplicite) vs registre **prive Forgejo**
-   (souverainete) ? *(reco : prive Forgejo d'abord, public ensuite si ouverture.)*
-2. **Nom du paquet** : `iakaframe` (verifier dispo npm) / scope `@naonedge/iakaframe`.
-3. **Dossier chapeau hors Windows** : `~/work` par defaut ? (`IAKAFRAME_ROOT` pour surcharge.)
-4. **iakaIDE** : sidecar de la CLI (reco) vs reimplementation Rust ?
-5. **Node** : version plancher (>=20 LTS) et gestion d'install pour non-devs (volta/fnm ?).
+1. **Distribution** : **registre npm prive Forgejo** d'abord (self-hosted / souverainete,
+   coherent iakaframe) ; `npm publish` pointe sur le registre Forgejo (`.npmrc` scope ->
+   registry). Ouverture **npm public** plus tard si besoin.
+2. **Nom du paquet** : **`@naonedge/iakaframe`** (scope = colle au registre prive, evite la
+   collision npm public, marque l'atelier). **Binaire** expose : `iakaframe`.
+3. **Dossier chapeau** : **`~/work`** par defaut hors Windows, **`C:\work`** sur Windows ;
+   surcharge par **`IAKAFRAME_ROOT`** ou `--root`. Resolution via `os.homedir()`.
+4. **iakaIDE** : **sidecar de la CLI** (Tauri sidecar) — source de verite unique, zero double
+   maintenance. (Reimplementation Rust ecartee.)
+5. **Node** : plancher **Node 20 LTS**. Devs : **fnm** (leger, cross-OS) recommande. Non-devs :
+   **iakaIDE embarque le Node sidecar** -> rien a installer cote GUI ; CLI seule = fnm/volta.
 
-## Critere de fin (cadrage)
+## Critere de fin (cadrage) — ATTEINT
 
-Instruction validee + ordre des commandes a porter fige + decisions ci-dessus tranchees.
-La realisation (🔵 Gimli) demarre alors par le **squelette CLI + `services`**.
+Decisions tranchees (ci-dessus). **La realisation (🔵 Gimli) peut demarrer** par :
+**(1)** squelette CLI `@naonedge/iakaframe` (commander, `--version/--help`, resolution chapeau
+`~/work`/`C:\work`) ; **(2)** commande **`services`** (sondes HTTP Forgejo/Ollama/ComfyUI,
+`--json`) ; **(3)** commande **`config`** (`iakaframe.json` + diagnostic). Puis snapshot/update,
+puis onboard/init.
