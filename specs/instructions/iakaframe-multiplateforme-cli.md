@@ -79,8 +79,11 @@ ni des specificites Windows**.
    gracieux ; runner lu dans `iakaframe.json` (surcharge `--runner`).
 7. ✅ **Distribution** : **publie sur le registre npm prive Forgejo** -> `@naonedge/iakaframe@0.1.0`
    (`latest`). Assets embarques via `scripts/bundle.js` (`_bundled/`, prepack). CI **matrice
-   Win/macOS/Linux** (`.forgejo/workflows/cli-ci.yml`). **Reste** : scan dashboard encore PS ;
-   formules scoop/brew optionnelles ; iakaIDE sidecar.
+   Win/macOS/Linux** (`.forgejo/workflows/cli-ci.yml`).
+8. ✅ **Scan dashboard porte en Node** (`naonedge-dashboard/scan.js`, cross-OS, iso scan.ps1 :
+   git/tokens/LdC/langages/versions/agents/quality, lookups insensibles a la casse, BOM strippe).
+   L'umbrella lance `node scan.js` en priorite (fallback scan.ps1). **Reste** : formules
+   scoop/brew optionnelles ; iakaIDE sidecar ; bundler le dashboard pour l'umbrella en paquet publie.
 
 ## Hors scope (pour l'instant)
 

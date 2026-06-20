@@ -127,15 +127,17 @@ function runUmbrella(root, values) {
     console.log(`  ! source dashboard introuvable : ${dashSrc || '(inconnue)'} (non deploye)`);
   }
 
-  // [3/3] Scan initial (scan.ps1 via PowerShell si dispo ; sinon a lancer manuellement)
+  // [3/3] Scan initial : scan.js (Node, cross-OS) en priorite ; fallback scan.ps1.
   console.log('\n[3/3] Scan initial du portefeuille');
-  const scan = path.join(dashDest, 'scan.ps1');
-  const ps = hasCmd('pwsh') ? 'pwsh' : hasCmd('powershell') ? 'powershell' : null;
-  if (dashOk && ps && fs.existsSync(scan)) {
-    const r = spawnSync(ps, ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scan, '-Root', root], { stdio: 'ignore' });
-    console.log(r.status === 0 ? '  + data/projects.js genere.' : '  ! scan a echoue (relancer scan.ps1).');
-  } else if (dashOk) {
-    console.log('  i PowerShell absent : lancer le scan plus tard (scan.ps1). Portage Node a venir.');
+  const scanJs = path.join(dashDest, 'scan.js');
+  const scanPs = path.join(dashDest, 'scan.ps1');
+  if (dashOk && fs.existsSync(scanJs)) {
+    const r = spawnSync(process.execPath, [scanJs, '--root', root], { stdio: 'ignore' });
+    console.log(r.status === 0 ? '  + data/projects.js genere (scan.js).' : '  ! scan.js a echoue.');
+  } else if (dashOk && fs.existsSync(scanPs)) {
+    const ps = hasCmd('pwsh') ? 'pwsh' : hasCmd('powershell') ? 'powershell' : null;
+    if (ps) { const r = spawnSync(ps, ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scanPs, '-Root', root], { stdio: 'ignore' }); console.log(r.status === 0 ? '  + data/projects.js genere (scan.ps1).' : '  ! scan.ps1 a echoue.'); }
+    else console.log('  i scan a lancer manuellement : node scan.js --root <chapeau>.');
   }
 
   // [*] Projets du chapeau : proposer / amorcer
