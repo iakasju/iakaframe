@@ -38,7 +38,8 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
 ## Étapes (proposées, à découper)
 
 1. `iakaframe-onboard.ps1 -Target <claude|codex>` : déploie le bon contrat + structure + version.
-2. Module de **détection de services** (PowerShell) : Forgejo / Ollama / ComfyUI → rapport.
+2. ✅ **LIVRÉ** — Module de **détection de services** : `iakaframe-services.ps1` (sonde
+   Forgejo / Ollama / ComfyUI sur hôtes candidats, rapport + `-Json services.json`).
 3. **Umbrella** : garantir le dossier chapeau + Odin + dashboard.
 4. **Doc PDF versionnée** : pipeline HTML→PDF + tag de version.
 5. (plus tard) **options interactives** + how-to enrichi.
