@@ -47,7 +47,10 @@ Disposer d'un **process d'installation / onboarding** d'iakaframe qui :
    IA ; **conseiller** une modif si nécessaire (ex. driver < 580 → Ollama récent échoue, cf.
    crash Whisper) ; **proposer de l'appliquer via SSH** si accès + **autorisation explicite**
    (gate humain, jamais sans feu vert ; les MAJ de driver sont lourdes/risquées).
-3. **Umbrella** : garantir le dossier chapeau + Odin + dashboard.
+3. ✅ **LIVRÉ** — **Umbrella** : `iakaframe-onboard.ps1 -Umbrella -Path <chapeau>` installe le
+   niveau portefeuille — **Odin** (chapeau `.claude/` + global `~/.claude/`), **dashboard
+   NaonEdge** copié (hors `data`/`.git`) + **scan initial** (`data/projects.js`). Option
+   `-DashboardSource`. Testé OK.
 4. **Doc PDF versionnée** : pipeline HTML→PDF + tag de version.
 5. **Modèles** (cf. `modeles-suggestion-install.md`) : à l'onboarding, 🎭 Loki vérifie les
    modèles image/design (ComfyUI) et propose l'install ; 🛡️ Aragorn suggère un modèle Ollama

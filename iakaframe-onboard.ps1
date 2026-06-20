@@ -14,7 +14,10 @@
   Ne JAMAIS ecraser les fichiers existants (sauf -Force sur la structure).
   Token Forgejo lu depuis FORGEJO_TOKEN.
 
-.PARAMETER Path        Racine du projet. Defaut : courant.
+.PARAMETER Path        Racine du projet (ou du chapeau si -Umbrella). Defaut : courant.
+.PARAMETER Umbrella    Mode "dossier chapeau" : installe le niveau portefeuille (Odin local +
+                       global, dashboard NaonEdge + scan) au lieu d'onboarder un projet.
+.PARAMETER DashboardSource  Source du dashboard a copier (defaut : naonedge-dashboard voisin d'iakaframe).
 .PARAMETER Target      Incarnation : claude (defaut, CLAUDE.md) ou codex (AGENTS.md).
 .PARAMETER Repo        Nom du depot Forgejo. Defaut : nom du dossier.
 .PARAMETER Description Description ASCII du depot.
@@ -29,6 +32,8 @@
 param(
   [string]$Path = (Get-Location).Path,
   [ValidateSet("claude", "codex")][string]$Target = "claude",
+  [switch]$Umbrella,
+  [string]$DashboardSource = "",
   [string]$Repo = "",
   [string]$Description = "",
   [string]$Version = "v0.1.0",
@@ -42,6 +47,46 @@ $dir = Split-Path -Parent $MyInvocation.MyCommand.Path
 . (Join-Path $dir "iakaframe-common.ps1")
 if ([string]::IsNullOrWhiteSpace($Repo)) { $Repo = Split-Path -Leaf $Path }
 if (-not (Test-Path $Path)) { New-Item -ItemType Directory -Path $Path -Force | Out-Null }
+
+# === Mode UMBRELLA : installer le dossier chapeau (niveau portefeuille) ===
+if ($Umbrella) {
+  Write-Host "==== iakaframe : onboarding UMBRELLA (dossier chapeau) : $Path ====" -ForegroundColor Cyan
+
+  # 1. Odin : chapeau (.claude local) + global (~/.claude)
+  Write-Host "`n[1/3] Odin (portefeuille) : local + global" -ForegroundColor Cyan
+  & (Join-Path $dir "iakaframe-agents.ps1") -Action affect -Agent odin -Project $Path
+  & (Join-Path $dir "iakaframe-agents.ps1") -Action affect -Agent odin -Global
+
+  # 2. Dashboard NaonEdge
+  Write-Host "`n[2/3] Dashboard NaonEdge" -ForegroundColor Cyan
+  if ([string]::IsNullOrWhiteSpace($DashboardSource)) {
+    $DashboardSource = Join-Path (Split-Path -Parent $dir) "naonedge-dashboard"
+  }
+  $dashDest = Join-Path $Path "naonedge-dashboard"
+  if (Test-Path $DashboardSource) {
+    New-Item -ItemType Directory -Force -Path $dashDest | Out-Null
+    Get-ChildItem -Path $DashboardSource -Force | Where-Object { $_.Name -notin @("data", ".git") } | ForEach-Object {
+      Copy-Item -Path $_.FullName -Destination $dashDest -Recurse -Force
+    }
+    New-Item -ItemType Directory -Force -Path (Join-Path $dashDest "data") | Out-Null
+    Write-Host ("  + dashboard copie -> {0}" -f $dashDest) -ForegroundColor Green
+    Write-Host "`n[3/3] Scan initial du portefeuille" -ForegroundColor Cyan
+    $scan = Join-Path $dashDest "scan.ps1"
+    if (Test-Path $scan) {
+      try { & $scan -Root $Path | Out-Null; Write-Host "  + data/projects.js genere." -ForegroundColor Green }
+      catch { Write-Host ("  ! scan a echoue : {0}" -f $_.Exception.Message) -ForegroundColor Yellow }
+    }
+  } else {
+    Write-Host ("  ! source dashboard introuvable : {0} (non deploye)" -f $DashboardSource) -ForegroundColor Yellow
+  }
+
+  Write-Host "`n==== Chapeau pret ====" -ForegroundColor Cyan
+  Write-Host "  - Odin joignable depuis n'importe quel dossier (global) et dans le chapeau."
+  Write-Host ("  - Dashboard : ouvrir {0}\index.html" -f $dashDest)
+  Write-Host "  - Onboarder un projet : iakaframe-onboard.ps1 -Path <projet> [-Target claude|codex]"
+  Write-Host "  - (optionnel) installer iakaIDE au niveau du chapeau."
+  return
+}
 
 # Routage : si le depot existe deja sur Forgejo ET qu'on a un git local -> c'est un update.
 $gitExists = Test-Path (Join-Path $Path ".git")
