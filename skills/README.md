@@ -1,6 +1,6 @@
 # Skills iakaframe — Le savoir-faire de l'équipe d'agents
 
-**Douze skills Claude** qui rendent la méthode iakaframe exécutable. Depuis la formalisation
+**Treize skills Claude** qui rendent la méthode iakaframe exécutable. Depuis la formalisation
 de l'**équipe d'agents**, une skill = le **savoir-faire d'un agent** (sa méthode détaillée),
 ou une **brique de cycle de vie** transverse. Le subagent (`agents/<nom>.md`) est le
 *contrat* ; la skill est la *méthode*.
@@ -31,7 +31,7 @@ skills dans un projet. Chaque skill se déclenche quand le contexte correspond �
 > ⚒️ **Gimli** (développement + devops, P2 → P3) n'a **pas** de skill dédiée : il est porté par le
 > `CLAUDE.md` du projet et l'outillage.
 
-## Skills méthode & briques (5)
+## Skills méthode & briques (6)
 
 | Skill | Rôle / brique | Se déclenche quand… |
 |---|---|---|
@@ -40,6 +40,7 @@ skills dans un projet. Chaque skill se déclenche quand le contexte correspond �
 | `iakaframe-update` | Cycle de doc (écriture) | « update iakaframe », « checkpoint », « commit global », « pousse tout » |
 | `iakaframe-forgejo` | Git par défaut (iakabox) | « créer le dépôt », « brancher Forgejo », « pousser sur iakabox » |
 | `iakaframe-docker` | Stack isolée par projet | « dockeriser », « docker-compose », « allouer les ports » |
+| `iakaframe-log-conversation` | Main courante des IA (push MQTT→CouchDB) | « logguer la conversation », « tracer cet échange », « alimenter la main courante » |
 
 > Référence visuelle : `../iakaframe-skills.html` (style NaonEdge).
 
