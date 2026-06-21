@@ -128,5 +128,15 @@
         "dirty":  true,
         "files":  108,
         "note":  "kit-codex v0.6.0 : ajout MODELES.md + AGENTS/README/_TEMPLATE alignes ; doc HTML prise en main IA iakabox"
+    },
+    {
+        "date":  "2026-06-21 22:57",
+        "reason":  "pause",
+        "version":  "v0.6.1",
+        "branch":  "main",
+        "commit":  "1a55ebf chore(iakaframe): update etat des lieux + commit global (manual)",
+        "dirty":  false,
+        "files":  108,
+        "note":  "Pause apres livraison kit-codex v0.6.0 (MODELES.md + AGENTS/README/_TEMPLATE alignes) + doc HTML prise en main IA iakabox + zip des 3 kits (local, gitignore). Reprise : envoyer le zip a l\u0027ami (cible Codex) ; option release Forgejo ; iakaIDE Codex a venir."
     }
 ]

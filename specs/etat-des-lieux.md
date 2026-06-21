@@ -1,6 +1,6 @@
 ﻿# Etat des lieux - iakaframe
 
-> Genere par iakaframe-snapshot.ps1 le 2026-06-21 22:53 (motif: manual).
+> Genere par iakaframe-snapshot.ps1 le 2026-06-21 22:57 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,15 +9,16 @@
 |---|---|
 | Version | v0.6.1 |
 | Branche | main |
-| Dernier commit | 09876cb feat(skills): iakaframe-log-conversation (push main courante MQTT->CouchDB) |
-| Arbre | MODIFICATIONS NON COMMITEES |
+| Dernier commit | 1a55ebf chore(iakaframe): update etat des lieux + commit global (manual) |
+| Arbre | propre |
 | Fichiers (hors .git/node_modules) | 108 |
-| Note | kit-codex v0.6.0 : ajout MODELES.md + AGENTS/README/_TEMPLATE alignes ; doc HTML prise en main IA iakabox |
+| Note | Pause apres livraison kit-codex v0.6.0 (MODELES.md + AGENTS/README/_TEMPLATE alignes) + doc HTML prise en main IA iakabox + zip des 3 kits (local, gitignore). Reprise : envoyer le zip a l'ami (cible Codex) ; option release Forgejo ; iakaIDE Codex a venir. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `1a55ebf` | 2026-06-21 | chore(iakaframe): update etat des lieux + commit global (manual) |
 | `09876cb` | 2026-06-21 | feat(skills): iakaframe-log-conversation (push main courante MQTT->CouchDB) |
 | `3047dd5` | 2026-06-21 | docs(cadrage): iakaIDE sidecar branche (etape 9) |
 | `c3e45e1` | 2026-06-21 | feat(cli): umbrella lance node scan.js (cross-OS) en priorite, fallback scan.ps1 |
@@ -27,7 +28,6 @@
 | `3917e70` | 2026-06-21 | docs(cadrage): decisions multi-OS tranchees (registre Forgejo, @naonedge/iakaframe, ~/work, sidecar, Node 20) |
 | `752a9ad` | 2026-06-21 | docs(cadrage): instruction iakaframe multi-OS (CLI Node + iakaIDE GUI) |
 | `54e48d8` | 2026-06-20 | feat(config): iakaframe-config.ps1 - ecrit iakaframe.json par projet (runner/target + diagnostic) |
-| `566e629` | 2026-06-20 | fix(stack-qualite): SonarQube sur port 9002 (9001 pris) + stack deployee sur VM4 |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-06-21 22:57 | pause | v0.6.1 | main | Pause apres livraison kit-codex v0.6.0 (MODELES.md + AGENTS/README/_TEMPLATE alignes) + doc HTML prise en main IA iakabox + zip des 3 kits (local, gitignore). Reprise : envoyer le zip a l'ami (cible Codex) ; option release Forgejo ; iakaIDE Codex a venir. |
 | 2026-06-21 22:53 | manual | v0.6.1 | main | kit-codex v0.6.0 : ajout MODELES.md + AGENTS/README/_TEMPLATE alignes ; doc HTML prise en main IA iakabox |
 | 2026-06-20 21:51 | version | v0.6.1 | main | v0.6.1 - cible ollama complete : kit-ollama (AGENTS.md + MODELES.md table modele/agent), -Target claude/codex/ollama dans init/onboard, rapport iakaframe-alternatives, outil recommande OpenClaw (openclaw.ai, all-in-one local). Les 3 incarnations : Claude / Codex / Ollama. |
 | 2026-06-20 21:34 | version | v0.6.0 | main | v0.6.0 multi-plateforme + onboarding : kit-codex (incarnation Codex, AGENTS.md), detection services (git/ollama/comfyui), onboard -Target claude/codex + marqueur .iakaframe versionne, -Umbrella (chapeau: Odin local+global + dashboard + scan) + -InitProjects, iakaframe-alternatives (modeles locaux par agent, lance par Odin). Cadrages : conf GPU (Helm), suggestion/install modeles (Aragorn/Loki), docs en charte NaonEdge, cible ollama (kit-ollama a venir), iakaIDE annonce plus tard cote Codex. |
