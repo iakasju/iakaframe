@@ -1,10 +1,18 @@
 # AGENTS.md — contrat de travail iakaframe (incarnation Codex)
 
 > Fichier lu en priorité par **Codex** (OpenAI) à chaque session, à la racine du projet.
-> Équivalent du `CLAUDE.md` de l'incarnation Claude. Méthode **iakaframe v0.5.2**.
+> Équivalent du `CLAUDE.md` de l'incarnation Claude. Méthode **iakaframe v0.6.0**.
 > Référence complète de la méthode : `methode-de-travail.md` (fournie avec le kit).
+> Table modèle↔agent + multi-modèle : `MODELES.md`.
 
 ---
+
+## Pré-requis
+
+- **Codex CLI** installé et connecté à ton compte ChatGPT (ou à une clé API OpenAI).
+- **Git** + un dépôt (Forgejo recommandé en self-hosted ; un repo local suffit pour démarrer).
+- **(Optionnel) Modèles locaux** : un **Ollama** + un **LiteLLM** (compatible OpenAI) joignables,
+  pour faire tourner certains personas en local (cf. `MODELES.md`). Sans ça, tout tourne en cloud.
 
 ## Ce qu'est iakaframe
 
@@ -22,6 +30,24 @@ l'IA seule. Un **décideur humain** pilote ; une **équipe d'agents IA** (incarn
 > Sous Codex, le roster n'est pas un ensemble de sous-agents dispatchables (comme chez Claude)
 > mais une **galerie de personas** : tu joues **un rôle à la fois**, annoncé explicitement.
 
+## Les rôles & leurs moteurs (modèle par persona)
+
+Tu joues un rôle à la fois, **avec le modèle adapté** (table complète + setup multi-modèle dans
+`MODELES.md`). Principe : **local pour le volume, cloud pour le raisonnement critique**.
+
+| Rôle (persona) | Phase | Modèle conseillé |
+|---|---|---|
+| 🧙 Gandalf — cadrage | 🔵 P1 | raisonnement (cloud, ou `qwen2.5:14b` local) |
+| ⚒️ Gimli — dev + devops | 🔴 P2 → 🟢 P3 | code (`qwen2.5-coder:7b` local, ou Codex/GPT) |
+| 🏹 Legolas — qualité | 🔴/🟢 | code, **≠ modèle de Gimli** (`qwen2.5-coder:14b`) |
+| 🌉 Helm — squad prod | 🟣 | fiable (cloud, ou `qwen2.5:14b`) |
+| 🦅 Odin — portefeuille | 🟡 | raisonnement (cloud conseillé) |
+| 🎭 Loki — design | ⬜ | multimodal (GPT, ou `qwen2.5-vl`) |
+| 📖 Nathalie — guides | ⬜ | rédaction (`qwen2.5:7b` local suffit) |
+
+> Changer de modèle selon la tâche fait partie du rôle. En multi-modèle, **un profil Codex par
+> persona** (`codex --profile gimli`), cf. `MODELES.md`.
+
 ## Les 3 phases (cible : staging) + le squad prod
 
 | Phase | Rôle (persona) | Entrée → Sortie | Gate |
@@ -36,6 +62,9 @@ les 3 phases.
 
 **Au-dessus des projets** : 🦅 **Odin** (portefeuille) — switch de projet, démarrage, vue
 d'ensemble. **Transverses** : 🎭 Loki (design on-brand), 📖 Nathalie (guides).
+
+> Gate « ne pas valider son propre code » : sous Codex (personas en série), la **revue (Legolas)**
+> est une **passe distincte** sur le diff seul, complétée par la **CI** comme juge objectif.
 
 ## Règle absolue — cadrage avant code
 
@@ -82,6 +111,7 @@ par la phase **cadrage**.
 ```
 mon-projet/
 ├── AGENTS.md                 ← ce contrat (lu par Codex)
+├── MODELES.md                ← modèle par persona + setup multi-modèle
 ├── specs/
 │   ├── PROJET.md             ← vision / décisions (jamais de code ici)
 │   ├── instructions/         ← le cœur : une instruction par feature, AVANT de coder
@@ -92,9 +122,10 @@ mon-projet/
 
 ## How-to (Codex)
 
-1. Déposer ce `AGENTS.md` + le dossier `specs/` (templates) à la racine du repo → Codex lit
-   `AGENTS.md` automatiquement.
-2. Nouveau besoin → **persona Gandalf** : écrire l'instruction, la faire valider.
-3. Validée → **persona Gimli** (+ Legolas) : implémenter, tester, commiter par étapes.
-4. Staging atteint → **squad Helm** sur feu vert pour la prod.
-5. À chaque jalon : régénérer l'état des lieux (script) puis commit/push.
+1. Déposer `AGENTS.md` + `MODELES.md` + le dossier `specs/` (templates) à la racine du repo →
+   Codex lit `AGENTS.md` automatiquement. (Ou : `iakaframe-init.ps1 -Target codex`.)
+2. (Optionnel) configurer un **profil Codex par persona** pour le multi-modèle (cf. `MODELES.md`).
+3. Nouveau besoin → **persona Gandalf** : écrire l'instruction, la faire valider.
+4. Validée → **persona Gimli** (+ Legolas) : implémenter, tester, commiter par étapes.
+5. Staging atteint → **squad Helm** sur feu vert pour la prod.
+6. À chaque jalon : régénérer l'état des lieux (script) puis commit/push.

@@ -118,5 +118,15 @@
         "dirty":  false,
         "files":  72,
         "note":  "v0.6.1 - cible ollama complete : kit-ollama (AGENTS.md + MODELES.md table modele/agent), -Target claude|codex|ollama dans init/onboard, rapport iakaframe-alternatives, outil recommande OpenClaw (openclaw.ai, all-in-one local). Les 3 incarnations : Claude / Codex / Ollama."
+    },
+    {
+        "date":  "2026-06-21 22:53",
+        "reason":  "manual",
+        "version":  "v0.6.1",
+        "branch":  "main",
+        "commit":  "09876cb feat(skills): iakaframe-log-conversation (push main courante MQTT-\u003eCouchDB)",
+        "dirty":  true,
+        "files":  108,
+        "note":  "kit-codex v0.6.0 : ajout MODELES.md + AGENTS/README/_TEMPLATE alignes ; doc HTML prise en main IA iakabox"
     }
 ]

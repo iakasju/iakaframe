@@ -15,3 +15,6 @@ target/
 # OS
 Thumbs.db
 .DS_Store
+
+# Archives generees (bundles de kits, etc.)
+*.zip

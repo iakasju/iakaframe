@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prise en main — l'IA locale sur ta iakabox</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ===== NaonEdge — Design System (inliné pour un partage autonome) ===== */
+:root{
+  --bg-primary:#0a0a0a;--bg-card:#1a1a1a;--bg-deep:#111;--line:#2a2a2a;--line-soft:#1f1f1f;
+  --text-primary:#f0f0f0;--text-secondary:#8a8a8a;--text-muted:#555;
+  --accent-gold:#c8a44e;--accent-gold-light:#e8c960;--accent-rgb:200,164,78;
+  --gradient-accent:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-light));
+  --red:#e74c3c;--green:#2ecc71;--blue:#3498db;--orange:#e67e22;--cyan:#1abc9c;--purple:#9b59b6;
+  --radius-md:12px;--radius-lg:20px;--shadow-glow:0 0 40px rgba(var(--accent-rgb),0.15);
+  --font-sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
+code{font-family:var(--mono)}
+a{color:var(--accent-gold);text-decoration:none}
+.accent{background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1,h1.t,h2,.slide h1,.slide h2{font-family:var(--font-serif)}
+.hero{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:3.8rem 2rem 2.6rem;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:760px;height:760px;background:radial-gradient(circle,rgba(var(--accent-rgb),0.08) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(var(--accent-rgb),0.1);border:1px solid rgba(var(--accent-rgb),0.25);border-radius:999px;padding:.4rem 1rem;font-size:.78rem;color:var(--accent-gold);margin-bottom:1.4rem;letter-spacing:.08em;text-transform:uppercase}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;max-width:880px}
+.hero-subtitle{color:var(--text-secondary);font-size:clamp(1rem,2vw,1.18rem);max-width:680px;margin-top:1.1rem}
+.hero-meta{font-family:var(--mono);font-size:.74rem;color:var(--text-muted);margin-top:1rem;letter-spacing:.05em}
+.tabs{position:sticky;top:0;z-index:10;background:rgba(10,10,10,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);padding:.7rem 1rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+.tab{appearance:none;border:1px solid var(--line);background:var(--bg-card);color:var(--text-secondary);font:600 .85rem var(--font-sans);padding:.5rem .95rem;border-radius:999px;cursor:pointer;transition:.18s;white-space:nowrap}
+.tab:hover{color:var(--text-primary);border-color:rgba(var(--accent-rgb),.4)}
+.tab.active{color:#0a0a0a;background:var(--gradient-accent);border-color:transparent;box-shadow:var(--shadow-glow);font-weight:700}
+main{max-width:72rem;margin:0 auto;padding:2.4rem 2rem 5rem}
+.panel{display:none}.panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.section-label{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-gold);margin-bottom:1rem}
+.section-label::before{content:'';display:inline-block;width:24px;height:2px;background:var(--gradient-accent)}
+h1.t{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1rem;line-height:1.2}
+h2{font-size:clamp(1.25rem,2.4vw,1.6rem);font-weight:800;letter-spacing:-.01em;margin:2.2rem 0 .9rem}
+h3{font-size:1.1rem;font-weight:700;margin:1.4rem 0 .5rem}
+p{color:var(--text-secondary);font-size:1.02rem;max-width:74ch;margin:.55rem 0}
+.lead{color:var(--text-primary);font-size:1.08rem}
+strong{color:var(--text-primary)}
+ul{margin:.5rem 0 1rem;padding-left:1.2rem}
+li{margin:.3rem 0;color:var(--text-secondary)}li strong{color:var(--text-primary)}
+p code,li code,td code{background:rgba(var(--accent-rgb),0.08);color:var(--accent-gold);padding:.12rem .42rem;border-radius:5px;font-size:.85rem}
+.card{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.4rem 1.6rem;margin:1.1rem 0}
+.card h3{margin-top:0}
+.card.glow{box-shadow:var(--shadow-glow)}
+.grid{display:grid;gap:1.1rem}
+@media(min-width:780px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+.tag{display:inline-block;font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:.14rem .6rem;border-radius:999px;margin-right:.4rem}
+.t-go{background:rgba(var(--accent-rgb),.15);color:var(--accent-gold)}
+.t-on{background:rgba(46,204,113,.15);color:var(--green)}
+.t-wait{background:rgba(230,126,34,.15);color:var(--orange)}
+.t-keep{background:rgba(155,89,182,.15);color:var(--purple)}
+.t-info{background:rgba(52,152,219,.15);color:var(--blue)}
+pre{background:var(--bg-deep);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.1rem 1.4rem;margin:1rem 0;overflow-x:auto;font-size:.85rem;line-height:1.6}
+pre code{color:#d8d8d8}.cmt{color:var(--text-muted)}.tok{color:var(--accent-gold)}.kw{color:var(--blue)}.str{color:var(--green)}
+.scroll{overflow-x:auto;border-radius:var(--radius-md);margin:1.2rem 0}
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--line);font-size:.88rem}
+th{background:var(--bg-card);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:.7rem .9rem;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:.65rem .9rem;border-top:1px solid var(--line-soft);color:var(--text-secondary);vertical-align:top}
+tr:hover td{background:#151515}
+td strong,td.name{color:var(--text-primary)}
+.num{font-family:var(--mono);font-size:.8rem;color:var(--accent-gold);white-space:nowrap}
+.note{display:flex;gap:.9rem;border-radius:var(--radius-md);padding:1rem 1.3rem;margin:1.3rem 0;font-size:.92rem}
+.note p{color:var(--text-secondary);margin:0;max-width:none}
+.note.warn{background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.22)}.note.warn b{color:var(--red)}
+.note.tip{background:rgba(46,204,113,.05);border:1px solid rgba(46,204,113,.22)}.note.tip b{color:var(--green)}
+.note.info{background:rgba(52,152,219,.05);border:1px solid rgba(52,152,219,.22)}.note.info b{color:var(--blue)}
+.seq{counter-reset:s;list-style:none;padding:0;margin:1rem 0}
+.seq li{counter-increment:s;padding:.55rem 0 .55rem 2.8rem;position:relative;color:var(--text-secondary);border-bottom:1px solid var(--line-soft)}
+.seq li:last-child{border-bottom:none}
+.seq li::before{content:counter(s);position:absolute;left:0;top:.5rem;width:26px;height:26px;border-radius:50%;background:var(--gradient-accent);color:#0a0a0a;font:700 .82rem var(--mono);display:flex;align-items:center;justify-content:center}
+.layer{display:flex;gap:1rem;align-items:flex-start;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.2rem 1.4rem;margin:.8rem 0}
+.layer .ico{flex-shrink:0;width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;background:rgba(var(--accent-rgb),.1);border:1px solid rgba(var(--accent-rgb),.25)}
+.layer h3{margin:0 0 .2rem}
+.layer p{margin:.2rem 0}
+.footer{text-align:center;padding:2.6rem 2rem;border-top:1px solid var(--line-soft);margin-top:1rem}
+.footer .accent-line{width:60px;height:3px;background:var(--gradient-accent);border-radius:999px;margin:0 auto 1.2rem}
+.footer p{color:var(--text-muted);font-size:.82rem;max-width:none;margin:.2rem auto}
+.ne-wordmark{font-weight:900;letter-spacing:-.01em;color:var(--text-primary)}
+.ne-wordmark .edge{font-weight:900;background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#333;border-radius:999px}
+@media(max-width:768px){main{padding:1.8rem 1.2rem 4rem}}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-badge">NaonEdge · prise en main IA locale</div>
+  <h1>Prise en main de l'IA locale sur ta <span class="accent">iakabox</span></h1>
+  <p class="hero-subtitle">Discuter avec une IA, coder avec un agent, interroger tes documents — en local et privé. Guide de prise en main, pas à pas.</p>
+  <div class="hero-meta">v1 · 2026-06-21 · pour le nouveau propriétaire d'une iakabox</div>
+</section>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="p1">1 · Démarrer</button>
+  <button class="tab" data-tab="p2">2 · Le cours : App / Runner / Modèle</button>
+  <button class="tab" data-tab="p3">3 · Scénarios pas à pas</button>
+  <button class="tab" data-tab="p4">4 · Agents spécialisés (iakaframe)</button>
+  <button class="tab" data-tab="p5">5 · CI, Docker &amp; versions parallèles</button>
+  <button class="tab" data-tab="p6">6 · iakaframe + Codex</button>
+</nav>
+
+<main>
+
+<!-- ============================== 1. DÉMARRER ============================== -->
+<section class="panel active" id="p1">
+  <div class="section-label">Le point de départ</div>
+  <h1 class="t">Ce que tu as déjà sous le capot</h1>
+  <p class="lead">Une iakabox, c'est un petit cloud privé posé chez toi. À l'intérieur, une machine équipée d'une carte graphique fait tourner des modèles d'IA en local. Tu n'as <strong>rien à installer côté serveur</strong> : tout est déjà là, il faut juste savoir s'y brancher.</p>
+
+  <div class="note info">
+    <p><b>Tu viens de ChatGPT Pro + Codex.</b> Tu as donc déjà les bons réflexes : un <em>chat</em> pour réfléchir, un <em>agent de code</em> (Codex) pour exécuter. La box te redonne exactement ces deux usages, mais <strong>en local</strong> : tes prompts et ton code ne sortent plus de chez toi, et il n'y a plus de compteur de tokens à la fin du mois.</p>
+  </div>
+
+  <h2>ChatGPT Pro vs ta iakabox</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Critère</th><th>ChatGPT Pro + Codex</th><th>iakabox (IA locale)</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Où tournent tes données</td><td>Serveurs OpenAI (cloud, USA)</td><td><span class="tag t-on">chez toi</span> sur le LAN</td></tr>
+      <tr><td class="name">Coût à l'usage</td><td>Abonnement + tokens</td><td><span class="tag t-on">électricité</span> uniquement</td></tr>
+      <tr><td class="name">Confidentialité</td><td>Données envoyées dehors</td><td>Rien ne sort</td></tr>
+      <tr><td class="name">Hors-ligne / coupure internet</td><td>Inutilisable</td><td>Fonctionne</td></tr>
+      <tr><td class="name">Puissance brute du modèle</td><td><span class="tag t-go">très élevée</span></td><td>Bonne, bornée par ton GPU</td></tr>
+      <tr><td class="name">Le bon réflexe</td><td colspan="2">Garder le cloud pour les très gros raisonnements ponctuels, faire tout le quotidien en local.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Les 3 façons de parler à l'IA, de la plus simple à la plus riche</h2>
+  <p>Commence par la première ; passe aux suivantes quand le besoin se présente.</p>
+
+  <div class="grid three">
+    <div class="card glow">
+      <span class="tag t-on">pour démarrer</span>
+      <h3>① Direct dans Ollama</h3>
+      <p>Une ligne dans le terminal et tu discutes. Sans interface ni configuration. Utile pour <strong>vérifier que tout fonctionne</strong> et comprendre ce qui se passe.</p>
+      <p><code>ollama run qwen2.5</code></p>
+    </div>
+    <div class="card">
+      <span class="tag t-info">confort</span>
+      <h3>② Open WebUI</h3>
+      <p>Une interface web proche de ChatGPT, en local : historique des conversations, choix du modèle, ajout de fichiers. Pour le chat au quotidien.</p>
+      <p><code>http://192.168.2.12:8099</code></p>
+    </div>
+    <div class="card">
+      <span class="tag t-keep">remplace Codex</span>
+      <h3>③ Un agent de code en CLI</h3>
+      <p>L'équivalent local de Codex : un agent qui lit ton repo, écrit du code, lance les tests. On le branche sur la box via une API « façon OpenAI ».</p>
+      <p><code>aider</code> / Codex pointé sur la box</p>
+    </div>
+  </div>
+
+  <div class="note tip">
+    <p><b>Ordre conseillé :</b> commence par le scénario A (chat en 2 min) pour vérifier que ça marche, puis Open WebUI pour le confort. L'agent de code (l'équivalent de Codex) est en scénario C, quand tu seras à l'aise.</p>
+  </div>
+
+  <h2>Les adresses de ta box</h2>
+  <p>L'IA vit sur la machine GPU de la box, à l'adresse <code>192.168.2.12</code> sur ton réseau local. Voici les services à connaître :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Service</th><th>Adresse</th><th>À quoi ça sert</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Ollama</td><td><code>http://192.168.2.12:11434</code></td><td>Le moteur qui exécute les modèles + son API</td></tr>
+      <tr><td class="name">Open WebUI</td><td><code>http://192.168.2.12:8099</code></td><td>Le chat web (interface)</td></tr>
+      <tr><td class="name">LiteLLM</td><td><code>http://192.168.2.12:4001</code></td><td>Le « traducteur » API OpenAI → Ollama (clé pour les agents)</td></tr>
+      <tr><td class="name">AnythingLLM</td><td><code>http://192.168.2.12:3005</code></td><td>Discuter avec tes propres documents (RAG)</td></tr>
+    </tbody>
+  </table></div>
+  <p>Les trois premières lignes vont te servir tout le temps. Garde cet onglet sous le coude.</p>
+</section>
+
+<!-- ============================== 2. LE COURS ============================== -->
+<section class="panel" id="p2">
+  <div class="section-label">Comprendre l'architecture</div>
+  <h1 class="t">App, Runner, Modèle : les 3 couches de l'IA</h1>
+  <p class="lead">Une « IA » n'est pas un bloc unique : ce sont <strong>trois couches empilées</strong> et indépendantes. Comprendre où passe la frontière explique pourquoi on peut changer de modèle sans changer d'app, mélanger plusieurs modèles dans une équipe, ou brancher Codex sur ta box.</p>
+
+  <div class="layer">
+    <div class="ico">🧠</div>
+    <div>
+      <h3>Le MODÈLE — le cerveau, mais inerte</h3>
+      <p>Un gros fichier de « poids » (plusieurs Go) : <code>qwen2.5</code>, <code>mistral</code>, <code>llama3.1</code>, <code>qwen2.5-coder</code>… C'est le savoir figé, le résultat de l'entraînement. <strong>Seul, il ne fait rien</strong> — c'est un disque vinyle posé sur une étagère.</p>
+    </div>
+  </div>
+  <div class="layer">
+    <div class="ico">⚙️</div>
+    <div>
+      <h3>Le RUNNER — le moteur qui fait tourner le modèle</h3>
+      <p>Le programme qui charge le modèle en mémoire (GPU), le fait « réfléchir » et expose une <strong>API</strong> pour lui parler. Sur ta box, c'est <strong>Ollama</strong>. C'est la platine vinyle : elle lit n'importe quel disque et en sort un signal. Autres runners du monde : llama.cpp, vLLM, LM Studio.</p>
+    </div>
+  </div>
+  <div class="layer">
+    <div class="ico">🖥️</div>
+    <div>
+      <h3>L'APP — ce que toi, humain, tu touches</h3>
+      <p>L'interface ou l'outil qui envoie tes demandes au runner et t'affiche les réponses. <strong>Open WebUI</strong> (chat web), un <strong>agent de code</strong> comme Codex ou Aider, <strong>AnythingLLM</strong> (tes docs)… C'est la chaîne hi-fi et les enceintes : tu changes d'ampli sans changer de platine ni de disque.</p>
+    </div>
+  </div>
+
+  <h2>Ce que ce découpage permet</h2>
+  <p>Les trois couches sont <strong>interchangeables indépendamment</strong> :</p>
+  <ul>
+    <li><strong>Changer de modèle sans toucher à l'app</strong> — dans Open WebUI, un menu déroulant te fait passer de <code>mistral</code> à <code>qwen2.5-coder</code>. Même app, autre cerveau.</li>
+    <li><strong>Garder ton app préférée, changer de moteur</strong> — Codex parle « API OpenAI ». Si on fait répondre la box dans ce langage, Codex ne voit pas la différence et tape sur ta box au lieu du cloud.</li>
+    <li><strong>Mélanger les modèles</strong> — rien n'oblige une équipe d'agents à utiliser le même cerveau partout (on y revient en onglet 4).</li>
+  </ul>
+
+  <div class="note info">
+    <p><b>L'« API compatible OpenAI ».</b> La plupart des outils IA savent parler le dialecte d'OpenAI ; Ollama en parle un un peu différent. <strong>LiteLLM</strong> (sur ta box, port <code>4001</code>) sert de traducteur : il présente une API OpenAI standard et la traduit vers Ollama. En pratique, un outil prévu pour ChatGPT peut être branché sur ta box en changeant deux réglages : l'adresse et la clé.</p>
+  </div>
+
+  <div class="note warn">
+    <p><b>Piège à connaître : abonnement ChatGPT ≠ clé API.</b> Toutes les apps (Open WebUI, AnythingLLM, Codex, Aider…) se branchent sur la couche <strong>API</strong> — jamais sur ton compte grand public. Or chez OpenAI ce sont <strong>deux produits distincts, deux factures</strong> : l'<strong>abonnement ChatGPT</strong> (le site chatgpt.com, forfait fixe) n'inclut <em>aucun</em> accès API, tandis que la <strong>clé API</strong> (<code>platform.openai.com</code>) se paie <em>au token</em>, à part. Conclusion : tu ne peux pas « connecter ton abo ChatGPT Pro » dans Open WebUI ni dans AnythingLLM. Trois choix réalistes : ① les <strong>modèles locaux de la box</strong> (gratuit, privé — le défaut conseillé) ; ② une <strong>vraie clé API OpenAI</strong> (qualité GPT, mais coût en plus de l'abo) ; ③ surtout pas les ponts « ChatGPT web → API » non officiels (contraires aux CGU, risque de bannissement).</p>
+  </div>
+
+  <h2>Où vit chaque couche sur ta box</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Couche</th><th>Sur ta iakabox</th><th>Analogie hi-fi</th></tr></thead>
+    <tbody>
+      <tr><td><span class="tag t-go">Modèle</span></td><td><code>qwen2.5</code>, <code>mistral</code>, <code>qwen2.5-coder</code>… (fichiers de poids)</td><td>Le disque vinyle</td></tr>
+      <tr><td><span class="tag t-info">Runner</span></td><td>Ollama <code>:11434</code> (+ LiteLLM <code>:4001</code> comme adaptateur)</td><td>La platine</td></tr>
+      <tr><td><span class="tag t-keep">App</span></td><td>Open WebUI, Codex/Aider, AnythingLLM</td><td>L'ampli + les enceintes</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="note tip">
+    <p><b>Test de compréhension.</b> « Je veux essayer un modèle plus malin pour coder » → tu changes la couche <strong>Modèle</strong> (un <code>ollama pull</code>), tu ne touches ni au runner ni à l'app. « Je veux la même IA mais dans mon éditeur de code » → tu changes la couche <strong>App</strong>, le modèle et le runner ne bougent pas.</p>
+  </div>
+</section>
+
+<!-- ============================== 3. SCÉNARIOS ============================== -->
+<section class="panel" id="p3">
+  <div class="section-label">Mode d'emploi</div>
+  <h1 class="t">Scénarios pas à pas</h1>
+  <p class="lead">Quatre parcours, du plus simple au plus complet. Chacun est autonome : prends celui dont tu as besoin.</p>
+
+  <h2>Scénario A — Premier chat en 2 minutes <span class="tag t-on">débutant</span></h2>
+  <p>Objectif : vérifier que l'IA locale répond. Il te faut un terminal sur un poste du même réseau que la box.</p>
+  <ol class="seq">
+    <li>Vérifie que le moteur répond. Dans un navigateur, ouvre <code>http://192.168.2.12:11434</code> → tu dois lire « Ollama is running ».</li>
+    <li>Liste les modèles déjà installés sur la box :
+      <pre><code><span class="cmt"># depuis ton poste, en pointant l'API sur la box</span>
+curl http://192.168.2.12:11434/api/tags</code></pre>
+    </li>
+    <li>Si Ollama est installé aussi sur ton poste, tu peux discuter en une ligne (le client tape sur la box via la variable <code>OLLAMA_HOST</code>) :
+      <pre><code><span class="kw">export</span> OLLAMA_HOST=http://192.168.2.12:11434   <span class="cmt"># Windows PowerShell : $env:OLLAMA_HOST="http://192.168.2.12:11434"</span>
+ollama run qwen2.5</code></pre>
+    </li>
+    <li>Pose une question. Pour quitter : <code>/bye</code>.</li>
+  </ol>
+  <div class="note tip"><p><b>Pas envie d'installer Ollama sur ton poste ?</b> Saute directement au scénario B : Open WebUI ne demande qu'un navigateur.</p></div>
+
+  <h2>Scénario B — Le chat web (Open WebUI) <span class="tag t-info">quotidien</span></h2>
+  <p>Objectif : une interface proche de ChatGPT — historique, choix du modèle, fichiers joints — sans rien installer.</p>
+  <ol class="seq">
+    <li>Ouvre <code>http://192.168.2.12:8099</code> dans ton navigateur.</li>
+    <li>Crée ton compte (le premier compte créé est en général l'administrateur — demande à ton installateur si c'est déjà pris).</li>
+    <li>En haut de la conversation, déroule la liste des modèles et choisis-en un (ex. <code>qwen2.5</code> pour discuter, <code>qwen2.5-coder</code> pour du code).</li>
+    <li>Discute. Tu peux glisser un fichier dans la conversation pour le faire analyser.</li>
+    <li>Besoin d'un modèle absent de la liste ? Vois l'encadré « installer un modèle » plus bas, puis il apparaîtra ici.</li>
+  </ol>
+
+  <h2>Scénario C — Remplacer Codex par un agent de code local <span class="tag t-keep">avancé</span></h2>
+  <p>Objectif : retrouver un agent qui lit ton dépôt, modifie les fichiers et lance les commandes, mais branché sur ta box. Principe (cf. onglet 2) : on pointe l'agent sur <strong>LiteLLM</strong>, qui parle le langage d'OpenAI.</p>
+  <ol class="seq">
+    <li>Assure-toi qu'un bon modèle de code est présent (voir encadré ci-dessous) — par ex. <code>qwen2.5-coder:7b</code>.</li>
+    <li>Dis à l'agent « ton OpenAI, c'est ma box ». La plupart des agents (dont Codex) lisent deux variables d'environnement :
+      <pre><code><span class="cmt"># L'adresse de l'API : on vise LiteLLM sur la box, pas le cloud OpenAI</span>
+<span class="kw">export</span> OPENAI_BASE_URL=http://192.168.2.12:4001
+<span class="cmt"># Une clé est exigée par le protocole, mais en local elle peut être bidon</span>
+<span class="kw">export</span> OPENAI_API_KEY=sk-local-peu-importe</code></pre>
+    </li>
+    <li>Lance ton agent dans le dossier de ton projet. Exemple avec <strong>Aider</strong> (agent de code open-source, qui fonctionne bien avec les modèles locaux) :
+      <pre><code>pip install aider-install &amp;&amp; aider-install   <span class="cmt"># une fois</span>
+cd mon-projet
+aider --model openai/qwen2.5-coder:7b      <span class="cmt"># via le câble OpenAI ci-dessus</span></code></pre>
+    </li>
+    <li>Demande-lui une tâche concrète : « ajoute une route /health qui renvoie OK ». Il propose un diff, tu valides, il écrit. Comme Codex.</li>
+  </ol>
+  <div class="note info">
+    <p><b>Quel agent choisir ?</b> Tu peux garder <strong>Codex</strong> lui-même (il accepte une base URL personnalisée), ou passer à un agent pensé pour le local : <strong>Aider</strong> (CLI), ou des extensions d'éditeur comme <strong>Continue</strong> / <strong>Cline</strong> dans VS Code. Tous suivent la même logique : adresse = ta box, clé = peu importe. <strong>Claude Code</strong> (l'outil utilisé pour produire ce guide) reste une option pour les sessions nécessitant un agent cloud.</p>
+  </div>
+  <div class="note warn">
+    <p><b>Limites du matériel.</b> Un modèle local de 7–14 milliards de paramètres traite bien des tâches de code cadrées, mais n'égale pas les meilleurs modèles cloud sur un gros raisonnement d'architecture. Approche raisonnable : <strong>local pour le quotidien</strong> (boilerplate, refactor, tests, petites features), <strong>cloud pour les cas les plus difficiles</strong>. Le découpage App/Runner/Modèle permet justement de changer de modèle selon le besoin.</p>
+  </div>
+
+  <h2>Scénario D — Discuter avec tes propres documents (RAG) <span class="tag t-go">option</span></h2>
+  <p>But : poser des questions à tes PDF, notes, contrats, docs techniques. C'est le rôle d'<strong>AnythingLLM</strong> (le « RAG » : l'IA va chercher dans tes documents avant de répondre).</p>
+  <ol class="seq">
+    <li>Ouvre <code>http://192.168.2.12:3005</code>.</li>
+    <li>Crée un « espace de travail », choisis le modèle de la box comme cerveau.</li>
+    <li>Glisse tes documents (PDF, txt, md…). L'app les découpe et les indexe.</li>
+    <li>Pose tes questions : les réponses citent tes documents, et rien n'est envoyé dans le cloud.</li>
+  </ol>
+
+  <div class="note tip">
+    <p><b>Installer un nouveau modèle (vaut pour tous les scénarios).</b> Les modèles se tirent depuis la bibliothèque Ollama. Sur la box (en SSH) ou via Open WebUI :</p>
+    <pre><code><span class="cmt"># sur la machine GPU de la box</span>
+ollama pull qwen2.5-coder:7b     <span class="cmt"># bon modèle de code</span>
+ollama pull qwen2.5:7b           <span class="cmt"># bon généraliste / chat</span>
+ollama pull llama3.2:3b          <span class="cmt"># petit + rapide, tâches mécaniques</span>
+ollama list                      <span class="cmt"># ce qui est installé</span></code></pre>
+  </div>
+</section>
+
+<!-- ============================== 4. AGENTS ============================== -->
+<section class="panel" id="p4">
+  <div class="section-label">La marche d'après</div>
+  <h1 class="t">D'un chat unique à une équipe d'agents spécialisés</h1>
+  <p class="lead">Une fois à l'aise avec le chat et l'agent de code, une question arrive vite : pourquoi un seul agent généraliste, qui code <em>et</em> se relit <em>et</em> teste tout seul ? Dans la vraie vie, un dev seul qui valide son propre travail laisse passer des erreurs. Une <strong>équipe</strong>, avec des rôles séparés, en laisse beaucoup moins. C'est l'idée de la méthode <strong>iakaframe</strong>.</p>
+
+  <h2>Pourquoi spécialiser plutôt qu'un gros prompt fourre-tout</h2>
+  <ul>
+    <li><strong>Un rôle = une mission claire.</strong> Un agent « architecte » qui conçoit, un agent « codeur » qui exécute, un agent « relecteur » qui critique, un agent « testeur/qualité » qui valide. Chacun fait une chose et la fait bien.</li>
+    <li><strong>Personne ne valide son propre code.</strong> Le relecteur n'est pas le codeur. Les contrôles (« portes ») sont <em>indépendants</em> : c'est ce qui attrape les bugs qu'un agent unique s'auto-pardonne.</li>
+    <li><strong>Des prompts plus courts et plus nets.</strong> Un agent spécialisé a un contexte étroit → il dérive moins, il est plus rapide, il coûte moins.</li>
+  </ul>
+
+  <div class="note info">
+    <p><b>iakaframe en une phrase.</b> Trois acteurs, zéro chevauchement : <strong>toi</strong> = décideur (vision, arbitrages, validation) ; un Claude « réflexion » qui <em>écrit les instructions</em> mais ne touche pas au code ; un Claude « exécution » qui lit l'instruction, code, build, teste, commite. Le cycle d'une feature : besoin → analyse → discussion → <strong>instruction écrite</strong> → validation → implémentation → test → on recommence.</p>
+  </div>
+
+  <h2>Le multi-modèle : le bon cerveau pour chaque rôle</h2>
+  <p>C'est une application directe du cours de l'onglet 2. Puisque l'app et le modèle sont découplés, <strong>rien n'oblige tous les agents à partager le même modèle</strong>. On affecte le modèle au rôle :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Rôle de l'agent</th><th>Type de modèle</th><th>Pourquoi</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Architecte / relecteur</td><td><span class="tag t-go">gros &amp; malin</span> (qwen2.5-coder:14b, ou un modèle cloud)</td><td>Raisonnement, vision d'ensemble, détection de pièges</td></tr>
+      <tr><td class="name">Codeur</td><td><span class="tag t-info">spécialisé code</span> (qwen2.5-coder:7b)</td><td>Bon rapport qualité/vitesse sur l'écriture de code</td></tr>
+      <tr><td class="name">Tâches mécaniques</td><td><span class="tag t-keep">petit &amp; rapide</span> (llama3.2:3b)</td><td>Renommer, reformater, résumer : un petit modèle suffit</td></tr>
+    </tbody>
+  </table></div>
+  <p>Tu places ainsi la puissance (et le coût) sur les rôles qui en ont besoin, et tu gardes du débit sur les tâches triviales. Une équipe de modèles adaptés au rôle est généralement plus efficace qu'un modèle unique appliqué à tout.</p>
+
+  <h2>Les jalons : avancer par paliers vérifiés</h2>
+  <p>Un <strong>jalon</strong> (milestone), c'est un point d'étape où on s'arrête pour <em>valider avant de continuer</em>. Plutôt que laisser l'IA travailler longtemps et découvrir les problèmes à la fin, on cadence :</p>
+  <ol class="seq">
+    <li><strong>Instruction écrite</strong> et validée par toi → l'agent sait exactement quoi faire.</li>
+    <li><strong>Implémentation</strong> d'un morceau cohérent et petit.</li>
+    <li><strong>Porte de qualité</strong> : build + lint + tests passent (sinon on ne franchit pas le jalon).</li>
+    <li><strong>Commit</strong> atomique → un point de sauvegarde propre.</li>
+    <li><strong>Ton feedback réel</strong> → on ajuste, puis jalon suivant.</li>
+  </ol>
+  <div class="note tip"><p><b>Utile même seul.</b> Même avec un seul agent de code, suivre ces 5 étapes par petits incréments te garde le contrôle, et tout écart reste rattrapable au dernier commit.</p></div>
+</section>
+
+<!-- ============================== 5. CI / DOCKER ============================== -->
+<section class="panel" id="p5">
+  <div class="section-label">Le filet de sécurité</div>
+  <h1 class="t">Commits, CI, et tests Docker en parallèle</h1>
+  <p class="lead">Quand une IA modifie ton code, trois pratiques limitent fortement les dégâts et permettent de revenir en arrière : les <strong>commits fréquents</strong>, la <strong>CI</strong>, et les <strong>tests isolés sous Docker</strong>. Ta box héberge déjà le git (Forgejo) qui rend tout ça accessible.</p>
+
+  <h2>1. Les commits : revenir en arrière à tout moment</h2>
+  <p>Un commit, c'est une photo de ton projet à un instant T. La règle : <strong>petits et fréquents</strong> (un par jalon). Avantages quand une IA travaille :</p>
+  <ul>
+    <li><strong>Retour arrière immédiat</strong> si une modif part de travers — tu reviens au dernier bon commit.</li>
+    <li><strong>Historique lisible</strong> de qui a fait quoi (messages en « conventional commits » : <code>feat:</code>, <code>fix:</code>, <code>test:</code>…).</li>
+    <li><strong>Jamais de <code>git reset --hard</code> ni de <code>push --force</code> par l'IA</strong> — règle d'or : l'IA n'efface pas l'historique.</li>
+  </ul>
+
+  <h2>2. La CI : un robot qui vérifie à chaque commit</h2>
+  <p>La <strong>CI</strong> (intégration continue), c'est une recette automatique qui, à chaque commit poussé, refait les vérifications : installer, <strong>build</strong>, <strong>lint</strong>, <strong>tests</strong>. Si quelque chose casse, tu le sais tout de suite — pas trois jours plus tard.</p>
+  <div class="note info"><p><b>Sur ta box.</b> Forgejo (le git de l'iakabox) sait lancer des « Actions » à chaque push, comme GitHub. La CI peut tourner les tests dans un conteneur Docker propre, à chaque fois identique. Tu n'as à l'écrire qu'une fois.</p></div>
+
+  <h2>3. Les tests sous Docker : pareils partout, jetables</h2>
+  <p>Lancer les tests « sur ta machine », c'est dépendre de <em>ta</em> version de Node, <em>tes</em> variables, <em>tes</em> bibliothèques. Docker enferme le projet dans une <strong>boîte reproductible</strong> : même résultat sur ton poste, sur la box, dans la CI. Et à la fin, la boîte se jette — aucune pollution.</p>
+  <div class="note tip"><p><b>Convention iakaframe :</b> chaque projet a <strong>sa propre stack Docker</strong> (réseau, volumes, conteneurs préfixés par le nom du projet) et <strong>ses propres ports</strong>. Aucun projet ne marche sur les pieds d'un autre.</p></div>
+
+  <h2>4. Plusieurs versions en parallèle — le cas du dev web</h2>
+  <p>Particulièrement utile en dev web. Pour comparer deux pistes (l'existant et la proposition de l'IA), ou tester une branche sans casser ce qui marche, tu lances <strong>plusieurs versions en même temps</strong>, chacune dans sa boîte Docker, sur un <strong>port différent</strong> :</p>
+  <pre><code><span class="cmt"># Version actuelle (référence) sur le port 8080</span>
+docker compose -p monsite-main up -d        <span class="cmt"># http://localhost:8080</span>
+
+<span class="cmt"># Version proposée par l'IA sur le port 8081, en parallèle</span>
+docker compose -p monsite-ia up -d          <span class="cmt"># http://localhost:8081</span></code></pre>
+  <p>Tu ouvres les deux onglets côte à côte, tu compares directement dans le navigateur, tu gardes la version retenue et tu supprimes l'autre. Le <code>-p &lt;nom&gt;</code> isole chaque version (réseau + conteneurs distincts) ; les ports distincts évitent les collisions.</p>
+  <div class="note tip"><p><b>Le rituel complet, bout à bout.</b> L'agent code une feature (jalon) → la CI build + lint + teste sous Docker → tu lances la nouvelle version sur un port à part → tu la compares à la version de référence dans le navigateur → si c'est bon, commit + merge ; sinon, retour arrière, et l'instruction est affinée. C'est le cycle iakaframe complet.</p></div>
+
+  <h2>Et maintenant ?</h2>
+  <div class="card glow">
+    <h3>Ta feuille de route</h3>
+    <ul>
+      <li><span class="tag t-on">aujourd'hui</span> Scénario A puis B : prouve-toi que l'IA locale répond et chatte.</li>
+      <li><span class="tag t-info">cette semaine</span> Scénario C : branche un agent de code sur la box, remplace Codex sur une vraie petite tâche.</li>
+      <li><span class="tag t-keep">ensuite</span> Adopte les commits par jalon + un premier test sous Docker.</li>
+      <li><span class="tag t-go">quand tu veux aller plus loin</span> Découvre iakaframe en équipe (agents spécialisés + multi-modèle + CI Forgejo). Demande à Stéphane « init iakaframe ».</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================== 6. IAKAFRAME + CODEX ============================== -->
+<section class="panel" id="p6">
+  <div class="section-label">Pour qui code avec Codex</div>
+  <h1 class="t">Installer iakaframe dans Codex CLI</h1>
+  <p class="lead">Tu gardes <strong>Codex</strong> comme agent d'exécution et tu ajoutes par-dessus le cadre iakaframe. La méthode est <strong>identique</strong> à l'incarnation Claude ; seules deux choses changent : le contrat s'appelle <code>AGENTS.md</code> (au lieu de <code>CLAUDE.md</code>) et les agents deviennent des <strong>personas</strong> — tu joues un rôle à la fois, annoncé explicitement.</p>
+
+  <div class="note info"><p><b>Le kit existe déjà.</b> iakaframe fournit un <strong>kit Codex</strong> dédié : <code>kit-codex/</code> (un <code>AGENTS.md</code> + des gabarits <code>specs/</code>). Tu n'écris pas le contrat toi-même, tu le déposes à la racine du repo.</p></div>
+
+  <h2>Pré-requis</h2>
+  <ul>
+    <li><strong>Codex CLI installé</strong> et connecté à ton compte ChatGPT (ou ta clé API).</li>
+    <li><strong>Git</strong> sur ton poste, et un dépôt pour ton projet (le <strong>Forgejo</strong> de la box fait un remote idéal, mais un repo local suffit pour commencer).</li>
+    <li>Le dossier <code>kit-codex/</code> d'iakaframe (demande-le à Stéphane, ou récupère-le depuis le Forgejo).</li>
+  </ul>
+
+  <h2>Pas à pas</h2>
+  <ol class="seq">
+    <li><strong>Place-toi dans ton projet</strong> (ou crée-le) :
+      <pre><code>mkdir mon-projet &amp;&amp; cd mon-projet
+git init</code></pre>
+    </li>
+    <li><strong>Dépose le contrat et les gabarits</strong> à la racine du repo. Copie le contenu de <code>kit-codex/</code> :
+      <pre><code><span class="cmt"># tu dois obtenir, à la racine :</span>
+AGENTS.md                      <span class="cmt"># le contrat, lu auto par Codex</span>
+specs/PROJET.md                <span class="cmt"># vision / décisions</span>
+specs/instructions/_TEMPLATE.md <span class="cmt"># gabarit d'instruction</span></code></pre>
+    </li>
+    <li><strong>Remplis la vision</strong> dans <code>specs/PROJET.md</code> (stack, objectif, contraintes). Jamais de code ici.</li>
+    <li><strong>Lance Codex</strong> dans le dossier. Il lit <code>AGENTS.md</code> automatiquement à chaque session — il connaît désormais la méthode, les rôles et les règles.
+      <pre><code>codex            <span class="cmt"># Codex charge AGENTS.md (= ton contrat iakaframe)</span></code></pre>
+    </li>
+    <li><strong>Phase 1 — Cadrage (persona 🧙 Gandalf).</strong> Demande à Codex d'endosser Gandalf et d'écrire l'instruction de ta 1ʳᵉ feature dans <code>specs/instructions/&lt;feature&gt;.md</code>. <strong>Tu la valides</strong> avant tout code.</li>
+    <li><strong>Phase 2 — Réalisation (persona ⚒️ Gimli + 🏹 Legolas).</strong> Instruction validée → Codex implémente <em>par étapes</em>, lance typecheck + lint + tests, et commite en <em>conventional commits</em>.</li>
+    <li><strong>Jalon</strong> : régénère l'état des lieux puis commit/push avec les scripts iakaframe (agnostiques de l'agent) :
+      <pre><code>pwsh iakaframe-snapshot.ps1 -Reason pause
+pwsh iakaframe-update.ps1            <span class="cmt"># commit global + push Forgejo</span></code></pre>
+    </li>
+    <li><strong>Boucle</strong> : feature suivante → retour à l'étape 5. La chaîne s'arrête au <em>staging</em> ; la mise en prod est un squad séparé (🌉 Helm) sur ton feu vert.</li>
+  </ol>
+
+  <div class="note tip"><p><b>Différence clé avec Claude.</b> Chez Claude, les rôles sont des sous-agents dispatchables. Sous Codex, ce sont des <strong>personas joués en série</strong> : « je suis Gandalf, je cadre » puis « je suis Gimli, j'implémente ». Le gate « ne pas valider son propre code » se tient via une <strong>passe de revue distincte</strong> (persona Legolas, sur le diff seul) + la <strong>CI Forgejo</strong> comme juge objectif.</p></div>
+
+  <h2>Faire tourner certains personas sur Ollama (multi-modèle dans Codex)</h2>
+  <p><b>Oui, c'est possible</b>, grâce au découpage App/Runner/Modèle (onglet 2). Codex sait viser un <strong>fournisseur personnalisé</strong> compatible OpenAI : on pointe sur <strong>LiteLLM</strong> de la box (<code>192.168.2.12:4001</code>), puis on crée un <strong>profil par persona</strong>. Comme tu joues un rôle à la fois, tu choisis le modèle <em>à l'invocation</em>.</p>
+  <pre><code><span class="cmt"># ~/.codex/config.toml</span>
+
+<span class="cmt"># 1) Déclarer la box comme fournisseur "façon OpenAI" (via LiteLLM)</span>
+[model_providers.iakabox]
+name = <span class="str">"iakabox (LiteLLM -> Ollama)"</span>
+base_url = <span class="str">"http://192.168.2.12:4001/v1"</span>
+env_key = <span class="str">"IAKABOX_API_KEY"</span>   <span class="cmt"># clé bidon en local, mais exigée par le protocole</span>
+
+<span class="cmt"># 2) Un profil par persona : modèle + fournisseur</span>
+[profiles.gandalf]                 <span class="cmt"># cadrage/archi : raisonnement -> cloud (ton abo)</span>
+model = <span class="str">"gpt-5"</span>                  <span class="cmt"># mets l'id exact dispo dans ton Codex</span>
+
+[profiles.gimli]                   <span class="cmt"># dev : code -> LOCAL sur la box</span>
+model = <span class="str">"qwen2.5-coder:7b"</span>
+model_provider = <span class="str">"iakabox"</span>
+
+[profiles.legolas]                 <span class="cmt"># revue/qualité : un AUTRE modèle que Gimli</span>
+model = <span class="str">"qwen2.5-coder:14b"</span>
+model_provider = <span class="str">"iakabox"</span></code></pre>
+  <pre><code><span class="kw">export</span> IAKABOX_API_KEY=sk-local-peu-importe    <span class="cmt"># PowerShell : $env:IAKABOX_API_KEY="..."</span>
+codex --profile gimli      <span class="cmt"># je joue Gimli, sur le modèle LOCAL de la box</span>
+codex --profile gandalf    <span class="cmt"># je joue Gandalf, sur le cloud de ton abo</span></code></pre>
+  <div class="note warn"><p><b>Vérifie la syntaxe selon ta version de Codex</b> (<code>codex --help</code> / sa doc de config) : les clés <code>model_providers</code> / <code>profiles</code> / <code>base_url</code> / <code>env_key</code> peuvent légèrement varier. Le principe ne change pas : <em>fournisseur = la box, profil = persona</em>.</p></div>
+  <div class="note tip"><p><b>En pratique.</b> Cadrage et revue (Gandalf, Legolas), où le raisonnement compte → cloud ou gros modèle. Écriture de code en volume (Gimli) → local sur la box, gratuit et privé. La puissance — et le coût — sont placés sur les rôles qui en ont besoin.</p></div>
+
+  <!-- ===== Tableau final : modèles par agent ===== -->
+  <h2>Modèles IA conseillés par agent iakaframe</h2>
+  <p>Suggestions calibrées pour une iakabox à <strong>RTX 3060 (12 Go VRAM)</strong>. Adapte selon ton GPU. Idée directrice : <strong>local pour le volume, cloud pour le raisonnement critique</strong>.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Agent</th><th>Phase / rôle</th><th>Local (Ollama, box)</th><th>Cloud (abo ChatGPT)</th><th>Pourquoi</th></tr></thead>
+    <tbody>
+      <tr><td class="name">🧙 Gandalf</td><td>🔵 Cadrage / archi</td><td><code>qwen2.5:14b</code></td><td><span class="tag t-go">conseillé</span> meilleur modèle de raisonnement de l'abo</td><td>Le cadrage conditionne tout le reste : privilégier la finesse.</td></tr>
+      <tr><td class="name">⚒️ Gimli</td><td>🔴🟢 Dev / devops</td><td><span class="tag t-on">idéal</span> <code>qwen2.5-coder:7b</code> (ou <code>:14b</code> si VRAM)</td><td>Codex / GPT pour les passages durs</td><td>Gros volume d'écriture de code : le local fait très bien le job.</td></tr>
+      <tr><td class="name">🏹 Legolas</td><td>🔴 Qualité / revue / tests</td><td><code>qwen2.5-coder:14b</code> (≠ Gimli)</td><td>modèle de raisonnement si revue sensible</td><td>Gate indépendant : ne jamais réutiliser le modèle qui a écrit le code.</td></tr>
+      <tr><td class="name">🌉 Helm</td><td>🟣 Déploiement prod</td><td><code>qwen2.5:14b</code></td><td><span class="tag t-go">conseillé</span> modèle fiable</td><td>Risque élevé (rollback, prod) : priorité à la fiabilité.</td></tr>
+      <tr><td class="name">🦅 Odin</td><td>🟡 Portefeuille</td><td><code>qwen2.5:14b</code></td><td><span class="tag t-go">conseillé</span> meilleur raisonnement</td><td>Vue d'ensemble multi-projets, orchestration : cloud recommandé.</td></tr>
+      <tr><td class="name">🎭 Loki</td><td>⬜ Design on-brand</td><td><code>qwen2.5:7b</code></td><td>GPT multimodal (visuel)</td><td>Cohérence de charte ; le multimodal aide sur l'UI.</td></tr>
+      <tr><td class="name">📖 Nathalie</td><td>⬜ Guides / docs</td><td><span class="tag t-on">suffit</span> <code>qwen2.5:7b</code></td><td>optionnel</td><td>Tâche surtout linguistique (FR) : le local est largement assez bon.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note info"><p><b>Repère VRAM (RTX 3060, 12 Go).</b> Un modèle <strong>7B</strong> quantifié (q4) tourne <em>confortablement</em> ; un <strong>14B</strong> q4 passe mais <em>serré</em> (un seul à la fois) ; au-delà → cloud. Pour les sous-tâches triviales (renommer, reformater), garde un <strong>petit rapide</strong> : <code>llama3.2:3b</code>.</p></div>
+
+  <div class="card glow">
+    <h3>En résumé</h3>
+    <ul>
+      <li><strong>iakaframe + Codex : oui</strong>, via le kit <code>kit-codex/</code> (<code>AGENTS.md</code> + <code>specs/</code>).</li>
+      <li><strong>Multi-modèle : oui</strong> — profils Codex pointés sur la box (LiteLLM → Ollama), un modèle par persona.</li>
+      <li><strong>La règle d'or reste</strong> : cadrer avant de coder, un gate indépendant pour la qualité, commits atomiques, états des lieux.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p><span class="ne-wordmark">Naon<span class="edge">Edge</span></span> · prise en main de l'IA locale sur iakabox</p>
+  <p>Aucun secret dans ce document. Machine GPU de la box : <code>192.168.2.12</code> sur le LAN. Adapté de la charte iakabox &amp; de la méthode iakaframe.</p>
+</footer>
+
+<script>
+  var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
+  tabs.forEach(function(t){t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('active')});
+    panels.forEach(function(p){p.classList.remove('active')});
+    t.classList.add('active');var el=document.getElementById(t.dataset.tab);
+    if(el){el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  });});
+</script>
+</body>
+</html>

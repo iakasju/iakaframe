@@ -1,7 +1,8 @@
 # Instruction : <Titre de la feature ou du fix>
 
-> Rédigé en phase **cadrage** (persona Gandalf). Consommé par l'agent de réalisation (**Codex**)
-> comme instruction de travail. Copier ce gabarit en `feature-xxx.md` (ou `fix-xxx.md`) et le remplir.
+> Rédigé en phase **cadrage** (persona Gandalf). Consommé par l'agent de réalisation (**Codex**,
+> persona Gimli) comme instruction de travail. Copier ce gabarit en `feature-xxx.md` (ou
+> `fix-xxx.md`) et le remplir.
 
 ---
 
@@ -18,7 +19,7 @@
 ## Décision
 
 <!-- L'approche retenue et POURQUOI (les alternatives écartées et leur raison).
-     C'est la partie la plus importante : elle évite que Claude Code parte sur la
+     C'est la partie la plus importante : elle évite que Codex parte sur la
      première solution qui compile. -->
 
 ## Étapes d'implémentation
