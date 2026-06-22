@@ -22,6 +22,7 @@ en place, au lieu de le réinventer à chaque fois.
 | [`skills/`](./skills/) | **12 skills** : savoir-faire des agents + briques de cycle de vie. Voir [`skills/README.md`](./skills/README.md). |
 | [`specs/equipe-agents.md`](./specs/equipe-agents.md) | **Référence canonique de l'équipe d'agents** (roster, 3 phases + squad prod, identité, étanchéité, incarnation). |
 | [`kit/`](./kit/) | **Kit de démarrage** à copier dans tout nouveau projet. |
+| [`cli/`](./cli/) | **CLI Node multi-OS** `@naonedge/iakaframe` (Windows/macOS/Linux, **zéro dépendance** runtime) : 13 commandes de la méthode (`onboard`/`init`/`snapshot`/`update`/`services`/`config`/`agents`/`go`/`banner`/`brief`/`recap`/`jalon`/`root`). Voir [`cli/README.md`](./cli/README.md). |
 | [`iakaframe-init.ps1`](./iakaframe-init.ps1) | Déploie la structure du kit (sans rien écraser). |
 | [`iakaframe-forgejo.ps1`](./iakaframe-forgejo.ps1) | Crée le dépôt Forgejo + branche le remote (token via env). |
 | [`iakaframe-snapshot.ps1`](./iakaframe-snapshot.ps1) | Génère l'état des lieux (MD + HTML) à chaque version / pause / reprise. |
@@ -62,9 +63,9 @@ Deux mécanismes la rendent automatique :
 2. **`iakaframe-init.ps1`** — déploiement en une commande :
 
    ```powershell
-   pwsh C:\iakaframe\iakaframe-init.ps1                 # dans le dossier courant
-   pwsh C:\iakaframe\iakaframe-init.ps1 -Path C:\mon-projet
-   pwsh C:\iakaframe\iakaframe-init.ps1 -Force           # autorise l'écrasement
+   pwsh C:\work\iakaframe\iakaframe-init.ps1                 # dans le dossier courant
+   pwsh C:\work\iakaframe\iakaframe-init.ps1 -Path C:\mon-projet
+   pwsh C:\work\iakaframe\iakaframe-init.ps1 -Force           # autorise l'écrasement
    ```
 
    Le script ne remplace jamais un fichier existant (sauf `-Force`).
@@ -88,7 +89,7 @@ En une commande, sur un projet existant :
 
 ```powershell
 $env:FORGEJO_TOKEN = "<token>"
-pwsh C:\iakaframe\iakaframe-onboard.ps1 -Path C:\mon-projet -Description "ASCII description"
+pwsh C:\work\iakaframe\iakaframe-onboard.ps1 -Path C:\mon-projet -Description "ASCII description"
 ```
 
 Options utiles : `-SkipForgejo` (structure + docs sans dépôt distant), `-NoPush`,
@@ -115,8 +116,8 @@ L'état des lieux (`specs/etat-des-lieux.md` + `.html`) est régénéré **à ch
 changement de version** et **à chaque pause de dev / préparation de reprise** :
 
 ```powershell
-pwsh C:\iakaframe\iakaframe-snapshot.ps1 -Reason version -Version v0.2.0 -Note "feature X livrée"
-pwsh C:\iakaframe\iakaframe-snapshot.ps1 -Reason pause   -Note "WIP : reprendre par les tests"
+pwsh C:\work\iakaframe\iakaframe-snapshot.ps1 -Reason version -Version v0.2.0 -Note "feature X livrée"
+pwsh C:\work\iakaframe\iakaframe-snapshot.ps1 -Reason pause   -Note "WIP : reprendre par les tests"
 ```
 
 Le script capte les faits git (version, branche, commits, état de l'arbre) et tient un
@@ -127,10 +128,35 @@ journal append-only ; **Cowork complète le récit de reprise** dans le `.md`.
 Checkpoint en une commande : **régénère l'état des lieux + commit global + push**.
 
 ```powershell
-pwsh C:\iakaframe\iakaframe-update.ps1                                  # checkpoint manuel
-pwsh C:\iakaframe\iakaframe-update.ps1 -Reason version -Version v0.3.0  # à un changement de version
-pwsh C:\iakaframe\iakaframe-update.ps1 -Reason pause -Note "..." -NoPush
+pwsh C:\work\iakaframe\iakaframe-update.ps1                                  # checkpoint manuel
+pwsh C:\work\iakaframe\iakaframe-update.ps1 -Reason version -Version v0.3.0  # à un changement de version
+pwsh C:\work\iakaframe\iakaframe-update.ps1 -Reason pause -Note "..." -NoPush
 ```
+
+---
+
+## CLI & rituels de session
+
+La méthode est aussi outillée par la **CLI Node multi-OS** [`@naonedge/iakaframe`](./cli/)
+(zéro dépendance runtime), qui rejoue les `.ps1` de façon portable : `iakaframe <cmd>`.
+Au-delà du cycle de vie (`onboard`/`init`/`snapshot`/`update`), elle ajoute des **rituels
+de session** : les titres ASCII (`banner`), l'entrée de projet (`brief`), les gates
+(`jalon`) et la fermeture de session (`recap`).
+
+```powershell
+iakaframe banner "IAKAFRAME"                 # titre ASCII (FIGlet embarqué, zéro dep)
+iakaframe go mon-projet                       # entre dans le projet : titre + brief, puis runner
+iakaframe brief mon-projet                    # dernière étape + backlog + agents assignés
+iakaframe jalon --project mon-projet --name "Cadrage validé" --from Gandalf --to Gimli
+iakaframe recap mon-projet                    # fermeture : commits + agents mobilisés
+```
+
+Ces rituels sont câblés au **portefeuille** via les **hooks** de
+`C:\work\.claude\settings.json` :
+
+- **`SessionStart`** → affiche le titre ASCII `IAKAFRAME` (`iakaframe banner IAKAFRAME`).
+- **`SessionEnd`** → régénère l'état des lieux pour préparer la reprise
+  (`iakaframe snapshot --reason pause`, uniquement si un dossier `specs/` est présent).
 
 ---
 
