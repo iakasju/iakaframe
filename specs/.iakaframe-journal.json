@@ -148,5 +148,25 @@
         "dirty":  false,
         "files":  164,
         "note":  "Session: titres ASCII de royaume (FIGlet zero-dep) + cycle de session (brief/recap/jalon, tableaux, hooks) + runner aider + durcissement gate Legolas (anti Gimli-solo) + framework generique (l\u0027utilisateur)."
+    },
+    {
+        "date":  "2026-06-22 18:07",
+        "reason":  "manual",
+        "version":  "v0.6.1",
+        "branch":  "main",
+        "commit":  "467528a fix(update): git stderr ne tue plus le script (piege PS 5.1)",
+        "dirty":  false,
+        "files":  164,
+        "note":  "Dettes corrigees : panneau Code idempotent (build) + fix stderr update.ps1."
+    },
+    {
+        "date":  "2026-06-22 18:08",
+        "reason":  "manual",
+        "version":  "v0.6.1",
+        "branch":  "main",
+        "commit":  "85a35c9 fix(update): bascule ErrorActionPreference=Continue autour du bloc git",
+        "dirty":  true,
+        "files":  164,
+        "note":  "Dettes corrigees : panneau Code idempotent + fix stderr update.ps1 (EAP Continue)."
     }
 ]

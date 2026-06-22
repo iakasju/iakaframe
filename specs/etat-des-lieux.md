@@ -1,6 +1,6 @@
 ﻿# Etat des lieux - iakaframe
 
-> Genere par iakaframe-snapshot.ps1 le 2026-06-22 16:37 (motif: manual).
+> Genere par iakaframe-snapshot.ps1 le 2026-06-22 18:08 (motif: manual).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.6.1 |
 | Branche | main |
-| Dernier commit | 4b048ab docs(method): gate Legolas independant obligatoire + gradation (anti Gimli-solo) |
-| Arbre | propre |
+| Dernier commit | 85a35c9 fix(update): bascule ErrorActionPreference=Continue autour du bloc git |
+| Arbre | MODIFICATIONS NON COMMITEES |
 | Fichiers (hors .git/node_modules) | 164 |
-| Note | Session: titres ASCII de royaume (FIGlet zero-dep) + cycle de session (brief/recap/jalon, tableaux, hooks) + runner aider + durcissement gate Legolas (anti Gimli-solo) + framework generique (l'utilisateur). |
+| Note | Dettes corrigees : panneau Code idempotent + fix stderr update.ps1 (EAP Continue). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `85a35c9` | 2026-06-22 | fix(update): bascule ErrorActionPreference=Continue autour du bloc git |
+| `467528a` | 2026-06-22 | fix(update): git stderr ne tue plus le script (piege PS 5.1) |
+| `28bf866` | 2026-06-22 | fix(build): panneau Code idempotent (marqueurs START/END) + regen 22 fichiers |
+| `4f847ab` | 2026-06-22 | docs: refonte docs lots B/C/D - 13 skills + cycle de session + alignement HTML |
+| `9dff45d` | 2026-06-22 | docs: refonte docs lot A - verite des commandes CLI + chemins |
+| `a667410` | 2026-06-22 | chore(iakaframe): update etat des lieux + checkpoint session (manual) |
 | `4b048ab` | 2026-06-22 | docs(method): gate Legolas independant obligatoire + gradation (anti Gimli-solo) |
 | `380e732` | 2026-06-22 | feat(cli): runner aider (exécuteur alternatif, sgpt annulé) |
 | `3b22147` | 2026-06-22 | docs(method): durcit identite (DOIT) + rituels jalons et cloture (briques C/F/E) |
 | `f8cff87` | 2026-06-22 | chore(iakaframe): remplace Stephane par l'utilisateur (framework generique) |
-| `ac72be6` | 2026-06-22 | feat(cli): brief/recap/jalon + tableaux ASCII (cycle de session iakaframe) |
-| `0dcb545` | 2026-06-22 | feat(cli): titre ASCII de royaume (FIGlet embarque, zero-dep) |
-| `89c702e` | 2026-06-21 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `1a55ebf` | 2026-06-21 | chore(iakaframe): update etat des lieux + commit global (manual) |
-| `09876cb` | 2026-06-21 | feat(skills): iakaframe-log-conversation (push main courante MQTT->CouchDB) |
-| `3047dd5` | 2026-06-21 | docs(cadrage): iakaIDE sidecar branche (etape 9) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,8 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-06-22 18:08 | manual | v0.6.1 | main | Dettes corrigees : panneau Code idempotent + fix stderr update.ps1 (EAP Continue). |
+| 2026-06-22 18:07 | manual | v0.6.1 | main | Dettes corrigees : panneau Code idempotent (build) + fix stderr update.ps1. |
 | 2026-06-22 16:37 | manual | v0.6.1 | main | Session: titres ASCII de royaume (FIGlet zero-dep) + cycle de session (brief/recap/jalon, tableaux, hooks) + runner aider + durcissement gate Legolas (anti Gimli-solo) + framework generique (l'utilisateur). |
 | 2026-06-21 22:57 | pause | v0.6.1 | main | Pause apres livraison kit-codex v0.6.0 (MODELES.md + AGENTS/README/_TEMPLATE alignes) + doc HTML prise en main IA iakabox + zip des 3 kits (local, gitignore). Reprise : envoyer le zip a l'ami (cible Codex) ; option release Forgejo ; iakaIDE Codex a venir. |
 | 2026-06-21 22:53 | manual | v0.6.1 | main | kit-codex v0.6.0 : ajout MODELES.md + AGENTS/README/_TEMPLATE alignes ; doc HTML prise en main IA iakabox |
