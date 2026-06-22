@@ -18,6 +18,25 @@ function launchCli(cmd, dir, task) {
   return spawnSync(cmd, safe ? [safe] : [], { cwd: dir, stdio: 'inherit' });
 }
 
+// Construit les args d'aider (fonction pure, testable). --no-auto-commits : iakaframe
+// garde la main sur le git. Avec une tache -> one-shot (--yes --message), sinon interactif.
+export function aiderArgs({ task = '', model = '' } = {}) {
+  const safe = task ? task.replace(/["`$;|&<>\r\n]/g, ' ').trim() : '';
+  const args = ['--no-auto-commits'];
+  if (model) args.push('--model', model);
+  if (safe) args.push('--yes', '--message', safe);
+  return args;
+}
+
+function launchAider(dir, args) {
+  console.log(`-> aider ${args.join(' ')}  (dans ${dir})`);
+  if (process.platform === 'win32') {
+    const str = 'aider ' + args.map(a => (/\s/.test(a) ? `"${a}"` : a)).join(' ');
+    return spawnSync(str, { cwd: dir, stdio: 'inherit', shell: true });
+  }
+  return spawnSync('aider', args, { cwd: dir, stdio: 'inherit' });
+}
+
 function iakaideBinary(root) {
   const dir = path.join(root, 'iakaide', 'src-tauri', 'target', 'release');
   try {
@@ -61,6 +80,10 @@ export function runGo(argv) {
     const exe = iakaideBinary(root);
     if (exe) { printBanner('iakaIDE', bannerFont); console.log(`-> iakaIDE (${path.basename(dir)})`); spawn(exe, ['--project', path.basename(dir), '--do', task], { detached: true, stdio: 'ignore' }).unref(); return; }
     console.warn('iakaIDE non build -> fallback Claude.'); runner = 'ps';
+  }
+  if (runner === 'aider') {
+    if (hasCmd('aider')) { printBanner('aider', bannerFont); return void launchAider(dir, aiderArgs({ task, model: cfg.aiderModel })); }
+    console.warn('aider absent -> fallback Claude.'); runner = 'ps';
   }
   // ps / defaut
   if (!hasCmd('claude')) { console.error('Claude Code (claude) introuvable dans le PATH.'); process.exitCode = 1; return; }

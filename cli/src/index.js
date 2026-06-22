@@ -34,10 +34,11 @@ Commandes :
   services            Sonde git(Forgejo) / Ollama / ComfyUI
                         --hosts a,b,c  --json <fichier>  --timeout <sec>
   config              Ecrit/maj <projet>/iakaframe.json (runner + cible)
-                        --path <dir> --runner ps|codex|iakaide --target claude|codex|ollama
+                        --path <dir> --runner ps|codex|iakaide|aider --target claude|codex|ollama
+                        --aider-model <m>  (ex: ollama/llama3, pour le runner aider)
   agents              Equipe d'agents : list | affect | fullteam | status
                         --agent <nom> --project <dir> --global --force
-  go <projet>         Lance l'action du projet via son runner (ps/codex/iakaide)
+  go <projet>         Lance l'action du projet via son runner (ps/codex/iakaide/aider)
                         --path <dir> --runner <r> --do "tache"
   banner <texte>      Titre ASCII (FIGlet embarque, zero dep)
                         --font <nom>  (defaut : ANSI Shadow ; repli : Standard)
