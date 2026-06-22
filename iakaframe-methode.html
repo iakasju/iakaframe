@@ -466,6 +466,33 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
     <h2>L'état des lieux, régénéré aux bons moments</h2>
     <p><code>iakaframe-snapshot.ps1</code> produit <code>specs/etat-des-lieux.md</code> + <code>.html</code> à partir des faits git (version, branche, derniers commits, arbre propre/sale) et tient un <strong>journal append-only</strong>. Les faits sont automatiques ; <strong>Cowork complète le récit de reprise</strong>. Reprendre un projet = lire l'état des lieux, pas fouiller sa mémoire.</p>
 
+    <h2>Cycle de session</h2>
+    <p>Au-delà du cycle d'une feature, chaque <strong>session</strong> a son propre rituel — du
+    démarrage au portefeuille jusqu'à la clôture, avec des <strong>jalons</strong> visibles à
+    chaque gate.</p>
+    <div class="scroll"><table>
+      <thead><tr><th>Moment</th><th>Geste</th><th>Effet</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Démarrage (portefeuille)</td><td class="mono">hook SessionStart</td><td>affiche le titre <strong>IAKAFRAME</strong></td></tr>
+        <tr><td class="name">Entrée d'un projet</td><td class="mono">iakaframe brief &lt;projet&gt;</td><td>titre + tableau dernière étape / backlog + agents assignés</td></tr>
+        <tr><td class="name">À chaque gate</td><td class="mono">iakaframe jalon</td><td>titre FIGlet <strong>Standard</strong> + tableau émetteur / contenu / récepteur, puis <strong>« JALON VALIDÉ »</strong> et la suite</td></tr>
+        <tr><td class="name">Clôture (pause / stop)</td><td class="mono">iakaframe recap</td><td>commits de session + agents mobilisés + projet</td></tr>
+      </tbody>
+    </table></div>
+    <p>Les jalons rendent chaque gate <strong>très visible</strong>&nbsp;: l'<strong>émetteur</strong>
+    (l'agent qui pose le jalon), le <strong>contenu</strong>, le <strong>récepteur</strong> (qui
+    valide — souvent l'utilisateur). À la validation, le récepteur affiche <strong>« JALON
+    VALIDÉ »</strong> puis explique l'étape ou l'agent suivant.</p>
+
+    <div class="note info"><p><b>Hooks de portefeuille —</b> au niveau <code>C:\work\.claude\settings.json</code>,
+    <code>SessionStart</code> affiche le bandeau <strong>IAKAFRAME</strong> et <code>SessionEnd</code>
+    déclenche <code>snapshot --reason pause</code> (régénère l'état des lieux avant de fermer). Le
+    <code>recap</code> reste affiché par l'agent. Police du bandeau réglée par <code>bannerFont</code>
+    (ANSI Shadow par défaut, repli <code>Standard</code>).</p></div>
+
+    <div class="note tip"><p><b>Runner —</b> la méthode n'est pas liée à un seul outil&nbsp;: le runner est
+    sélectionnable, p. ex. <code>go --runner aider</code> pour piloter la session via <strong>aider</strong>.</p></div>
+
     <h2>Gérer et lancer l'équipe d'agents</h2>
     <p><code>iakaframe-agents.ps1</code> gère les agents et les affecte aux projets. La <strong>full team</strong> se déploie en une commande — chaque projet reçoit sa copie scopée (subagents + skills + catalogue de chartes).</p>
     <div class="scroll"><table>

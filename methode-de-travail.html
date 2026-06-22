@@ -766,7 +766,7 @@ main {
   <p style="font-size:.9rem;color:var(--text-muted)">Le déroulé en <strong>3 phases</strong> (cadrage → réalisation → staging) et le <strong>squad prod</strong> sont détaillés dans l'onglet <strong>3 phases</strong>.</p>
 
   <h3>Identité des agents — qui te parle, depuis quelle phase</h3>
-  <p>Quand un agent <strong>s'adresse à l'utilisateur</strong> (question, prise de parole), il s'identifie : <code>&lt;pastille&gt; [ROYAUME][Agent]</code> — royaume en <strong>MAJUSCULE</strong>, <strong>pastille = la phase</strong> (couleur partagée, pas propre à l'agent). <strong>Jamais</strong> sur les logs ni les traces de réflexion.</p>
+  <p>Quand un agent <strong>s'adresse à l'utilisateur</strong> (question, prise de parole), il <strong>DOIT</strong> s'identifier en tête de message — règle <strong>obligatoire</strong> (anti-dérive hors méthode) : <code>&lt;pastille&gt; [ROYAUME][Agent]</code> — royaume en <strong>MAJUSCULE</strong> (<code>PORTEFEUILLE</code> pour 🦅 Odin), <strong>pastille = la phase</strong> (couleur partagée entre agents, pas propre à l'agent ; un même agent change de pastille selon la phase). <strong>Périmètre STRICT</strong> : seulement les paroles adressées à l'utilisateur — <strong>jamais</strong> sur les logs, les traces de réflexion ni la sortie d'outils.</p>
   <table class="tool-table">
     <thead><tr><th>Phase</th><th>Pastille</th><th>Exemple (parole adressée à l'utilisateur)</th></tr></thead>
     <tbody>
@@ -778,6 +778,25 @@ main {
     </tbody>
   </table>
   <p style="font-size:.9rem;color:var(--text-muted)">Transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la <strong>phase servie</strong>, ⬜ par défaut. Rendu : pastille partout, <code>code inline</code> en session, vraie couleur en HTML, option PowerShell <code>iaka-say</code> en terminal.</p>
+
+  <h3>Jalons (gates) &amp; clôture de session</h3>
+  <p>Chaque gate de la méthode (instruction prête, dev à vérifier, qualité, prod) <strong>DOIT</strong> être rendu <strong>très visible</strong> via <code>iakaframe jalon</code> — pas un simple message noyé dans le flux.</p>
+  <table class="tool-table">
+    <thead><tr><th>Zone du jalon</th><th>Contenu</th></tr></thead>
+    <tbody>
+      <tr><td style="color:#f0f0f0;font-weight:600">Titre FIGlet</td><td>ASCII <strong>FIGlet <code>Standard</code></strong> (police réservée aux jalons, distincte de l'ANSI Shadow des titres de royaume) : <code>&lt;PROJET&gt; - JALON : &lt;nom&gt;</code></td></tr>
+      <tr><td style="color:#f0f0f0;font-weight:600">Tableau 3 zones</td><td><strong>émetteur</strong> (l'agent qui pose le jalon) · <strong>contenu</strong> · <strong>récepteur</strong> (qui valide — souvent l'utilisateur)</td></tr>
+      <tr><td style="color:#f0f0f0;font-weight:600">À vérifier</td><td>fichiers / dev listés par l'agent <strong>dans son message</strong> en <code>chemin:ligne</code> (cliquables côté Claude Code)</td></tr>
+      <tr><td style="color:#f0f0f0;font-weight:600">Validation</td><td>à la validation par l'utilisateur, le récepteur affiche <strong>« JALON VALIDÉ »</strong> puis <strong>explique la suite</strong> (étape / agent suivant)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="rule" style="background:rgba(var(--accent-rgb),0.06);border-color:rgba(var(--accent-rgb),0.2);">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#c8a44e" stroke-width="2"><path d="M21 12a9 9 0 11-6.219-8.56"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    <div>
+      <p style="color:var(--text-secondary)"><strong style="color:var(--accent-gold)">Clôture (pause / stop / exit).</strong> L'agent actif <strong>DOIT</strong>, avant de fermer : (1) préparer la reprise — <code>iakaframe snapshot --reason pause</code> ; (2) afficher le recap — <code>iakaframe recap</code> (commits de session + agents mobilisés + projet) ; (3) <strong>proposer</strong> de sauvegarder l'état — <code>iakaframe update</code> — et <strong>attendre la validation</strong> de l'utilisateur. <strong>Jamais</strong> de commit automatique silencieux.</p>
+    </div>
+  </div>
 
   <h3>Étanchéité · incarnation · communication</h3>
   <p><strong>Étanchéité</strong> — l'image est mutualisée, le conteneur est étanche : définitions uniques, mais chaque projet instancie <strong>sa</strong> propre équipe scopée (jamais deux projets dans un même contexte). <strong>Incarnation</strong> — un subagent (<code>agents/</code>) + une skill-rôle (<code>skills/</code>) : le subagent est le contrat, la skill la méthode. <strong>Communication</strong> — Odin et Aragorn dialoguent avec l'utilisateur par <strong>voix / Slack</strong> (via n8n) ; Aragorn lance un travail sur un agent à la demande.</p>
@@ -2227,6 +2246,20 @@ fouiller sa mémoire.
       <p>Chaque correction, chaque préférence est mémorisée et appliquée aux sessions suivantes. L'IA apprend de ses erreurs — si et seulement si le workflow prévoit un mécanisme de feedback persistant.</p>
     </div>
   </div>
+
+  <h3>Gate qualité indépendant — auto-validation <span class="ph-dev">INTERDITE</span></h3>
+  <p>L'exécuteur (⚒️ Gimli) ne juge <strong>jamais</strong> sa propre qualité ni ne déclare son travail « prêt » : c'est 🏹 <strong>Legolas</strong>, dans un <strong>contexte séparé</strong>, qui rend le verdict. <strong>Aucune feature ne passe à l'étape suivante sans verdict Legolas explicite.</strong> La <strong>profondeur</strong> du gate s'adapte au changement :</p>
+  <table class="tool-table">
+    <thead><tr><th>Type de changement</th><th>Profondeur du gate qualité</th></tr></thead>
+    <tbody>
+      <tr><td style="color:#f0f0f0;font-weight:600">Fix / modif <em>non</em> mineure</td><td>simple <strong>validation de tests</strong> (la suite passe au vert) — <em>pas</em> de campagne qualité complète</td></tr>
+      <tr><td style="color:#f0f0f0;font-weight:600">Version mineure (feature)</td><td><strong>campagne complète</strong> : tests + lint + typage + couverture + rapport</td></tr>
+    </tbody>
+  </table>
+  <div class="rule">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+    <div><p>C'est l'anti-dérive « <strong>Gimli solo</strong> » : l'agent qui code ne se valide jamais lui-même. Le verdict appartient à un agent distinct, dans un contexte distinct (cf. chartes Gimli / Legolas / Aragorn).</p></div>
+  </div>
 </section>
 
 <!-- ==================== EXEMPLE CONCRET ==================== -->
@@ -2390,6 +2423,50 @@ fouiller sa mémoire.
       <tr><td><code>iakaframe-update</code></td><td>« update » : état des lieux + commit global + push</td></tr>
     </tbody>
   </table>
+</section>
+
+<!-- ==================== CYCLE DE SESSION ==================== -->
+<section class="section">
+  <div class="section-label">Cycle de session</div>
+  <h2>Au démarrage, pendant, à la clôture</h2>
+  <p>Une session iakaframe s'ouvre, vit et se ferme de façon ritualisée — pour que l'humain sache toujours <em>où il en est</em> et qu'aucun travail ne se perde. Au niveau portefeuille, démarrage et clôture sont câblés en <strong>hooks</strong> ; à l'intérieur, trois commandes rythment le travail.</p>
+
+  <div class="pillars-grid">
+    <div class="pillar-card">
+      <div class="pillar-number" style="background:rgba(255,193,7,.12);color:#FFC107">▶</div>
+      <h4>Démarrage</h4>
+      <p>Sous le portefeuille, on affiche le titre <span class="pill">IAKAFRAME</span>. À l'entrée d'un projet, <code>iakaframe brief &lt;projet&gt;</code> (titre + dernière étape + backlog + agents assignés).</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number" style="background:rgba(200,164,78,.12)">⚑</div>
+      <h4>Pendant</h4>
+      <p>À chaque gate, <code>iakaframe jalon</code> rend le passage très visible (titre FIGlet + tableau émetteur/contenu/récepteur + « JALON VALIDÉ »). Voir l'onglet <strong>Agents IA</strong>.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number" style="background:rgba(46,204,113,.12)">■</div>
+      <h4>Clôture</h4>
+      <p><code>iakaframe snapshot --reason pause</code> puis <code>iakaframe recap</code> (commits + agents + projet), et on <strong>propose</strong> <code>iakaframe update</code> — jamais de commit silencieux.</p>
+    </div>
+  </div>
+
+  <div class="box">
+    <h4>Hooks portefeuille — <code>C:\work\.claude\settings.json</code></h4>
+    <p>
+      • <code>SessionStart</code> → affiche le bandeau <strong>IAKAFRAME</strong><br>
+      • <code>SessionEnd</code> → déclenche <code>iakaframe snapshot --reason pause</code><br>
+      • La police du bandeau est réglée par <code>bannerFont</code> : par défaut <strong>ANSI Shadow</strong>, repli <strong><code>Standard</code></strong> si la police est indisponible (la même <code>Standard</code> que les titres de jalon).
+    </p>
+  </div>
+
+  <div class="cmd">
+    <span class="c"># entrée projet : titre + derniere etape + backlog + agents</span><br>
+    <span class="g">iakaframe brief</span> mon-projet<br><br>
+    <span class="c"># rendre un gate tres visible (FIGlet Standard + tableau 3 zones)</span><br>
+    <span class="g">iakaframe jalon</span><br><br>
+    <span class="c"># cloture : snapshot + recap, puis proposer update</span><br>
+    <span class="g">iakaframe snapshot</span> --reason pause<br>
+    <span class="g">iakaframe recap</span>
+  </div>
 </section>
 
 <!-- ==================== GIT PAR DÉFAUT ==================== -->

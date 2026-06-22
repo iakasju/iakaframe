@@ -248,6 +248,11 @@ destinée), il **DOIT s'identifier** en tête de message — règle **obligatoir
 
 **Démarrage.** À l'ouverture d'une session sous le portefeuille, on affiche le titre **IAKAFRAME** ;
 à l'entrée d'un projet, `iakaframe brief <projet>` (titre + dernière étape + backlog + agents assignés).
+Au niveau portefeuille, ces deux automatismes sont câblés en **hooks** dans
+`C:\work\.claude\settings.json` : **`SessionStart`** affiche le bandeau **IAKAFRAME** et
+**`SessionEnd`** déclenche `iakaframe snapshot --reason pause`. La police du bandeau est réglée par
+**`bannerFont`** (par défaut **ANSI Shadow**, repli **`Standard`** si la police est indisponible —
+la même `Standard` que les titres de jalon).
 
 **Clôture (pause / stop / exit).** L'agent actif **DOIT**, avant de fermer :
 1. préparer la reprise — `iakaframe snapshot --reason pause` (régénère l'état des lieux) ;
