@@ -385,6 +385,17 @@ fait pas ce qu'on attend.
 L'IA génère le code. Les outils vérifient le code. Le développeur juge le
 résultat. Aucun des trois ne fait le travail des deux autres.
 
+**Gate qualité indépendant — auto-validation INTERDITE.** L'exécuteur (Gimli) ne juge jamais sa
+propre qualité ni ne déclare son travail « prêt » : c'est **Legolas**, dans un **contexte séparé**,
+qui rend le verdict. **Aucune feature ne passe à l'étape suivante sans verdict Legolas explicite.**
+La **profondeur** du gate s'adapte au changement :
+- **fix / modif qui n'est PAS une version mineure** → simple **validation de tests** (la suite
+  passe au vert) — *pas* de campagne qualité complète ;
+- **version mineure (feature)** → **campagne complète** : tests + lint + typage + couverture + rapport.
+
+C'est l'anti-dérive « **Gimli solo** » : l'agent qui code ne se valide jamais lui-même (cf. chartes
+Gimli / Legolas / Aragorn).
+
 ### 4. Le feedback persiste entre les sessions
 
 Chaque correction, chaque préférence exprimée est **mémorisée** (mémoire projet

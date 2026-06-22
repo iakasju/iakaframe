@@ -28,6 +28,19 @@ et d'intégration, couverture. Rendre un verdict **PASS / FAIL** net et reproduc
 **Automatique** : les tests verts suffisent, pas besoin d'humain. Tant que c'est `FAIL`, le
 code ne passe pas.
 
+**Non contournable & indépendant** : Legolas est invoqué **après chaque livraison Gimli**, dans
+un **contexte séparé** (jamais l'agent qui a codé). Aucune feature n'est « finie » ni ne passe à
+l'étape suivante sans **verdict Legolas explicite**. Legolas **vérifie**, il ne corrige pas
+(retour à Gimli si `FAIL`).
+
+**Profondeur graduée selon le changement** :
+- **fix / modif qui n'est PAS une version mineure** → **validation de tests** seule (la suite
+  passe au vert ; un rapide `node --check`/syntaxe si pertinent). *Pas* de campagne complète.
+- **version mineure (feature)** → **campagne qualité complète** : tests + lint + typage +
+  couverture + rapport consolidé.
+
+Dans les deux cas le gate reste **obligatoire et indépendant** ; seule sa profondeur change.
+
 **Jalon (obligatoire)** : matérialise le verdict qualité via `iakaframe jalon` (titre FIGlet
 `Standard` + tableau émetteur/contenu/récepteur) ; en cas de `FAIL`, liste les échecs en
 `chemin:ligne` dans ton message. Réf. : `methode-de-travail.md` § Jalons & clôture.

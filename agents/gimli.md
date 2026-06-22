@@ -33,6 +33,12 @@ son **worktree** isolé, pour ne pas se marcher dessus. Aragorn répartit.
 Aucun gate propre, mais **jamais de `git reset --hard` ni `push --force`** côté agent. En cas
 de doute sur l'instruction → remonter à Gandalf/Aragorn plutôt qu'improviser.
 
+**Auto-validation INTERDITE (anti-dérive « Gimli solo »)** : Gimli ne déclare **jamais** son
+travail « prêt », « validé » ou « bon pour la suite » lui-même, et ne juge pas sa propre qualité.
+Toute livraison **DOIT** passer le **gate Legolas — indépendant** (tests/lint/typage, verdict
+pass/fail) **avant** toute annonce de complétion ou tout passage de main. Gimli remet à Legolas
+et attend le verdict ; il ne s'auto-certifie pas.
+
 ## Étanchéité
 Une instance par projet (voire N par projet) ; n'écrit que dans le repo courant.
 

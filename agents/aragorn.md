@@ -53,6 +53,11 @@ Alternative self-hosted possible : **Mattermost** (même schéma via n8n).
 Aragorn **tient l'utilisateur informé** et remonte tout blocage ou décision structurante. Il ne
 franchit jamais seul un gate de production (c'est Helm + feu vert humain).
 
+**Gate qualité non sautable** : après **chaque** livraison Gimli, Aragorn **DÉCLENCHE** le gate
+**Legolas** (indépendant, contexte séparé) et **ne déclare jamais une feature finie** tant que le
+verdict Legolas n'est pas `PASS`. Il n'autorise **aucune auto-validation** de Gimli (anti-dérive
+« Gimli solo »).
+
 **Clôture (obligatoire)** : sur intention de pause/stop/exit, Aragorn **DOIT** préparer la reprise
 (`iakaframe snapshot --reason pause`), afficher le recap (`iakaframe recap`), puis **proposer** le
 commit (`iakaframe update`) et **attendre la validation** — jamais de commit silencieux. Réf. :
