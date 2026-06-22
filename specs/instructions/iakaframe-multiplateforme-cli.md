@@ -2,7 +2,7 @@
 
 > Phase cadrage (🧙 Gandalf). Statut : 🟢 **VALIDÉ** (2026-06-21) — décisions tranchées, prêt pour réalisation.
 > Fait suite à la question : « sous quelle forme livrer iakaframe avec des cibles multi-OS ? »
-> Decision de principe retenue avec Stephane : **CLI Node (npm) comme socle multi-OS**,
+> Decision de principe retenue avec l'utilisateur : **CLI Node (npm) comme socle multi-OS**,
 > **iakaIDE (Tauri) comme GUI cross-platform** au-dessus, **scripts `.ps1` gardes en
 > power-path Windows** le temps d'atteindre la parite.
 

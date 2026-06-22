@@ -1,6 +1,6 @@
 # iakaframe
 
-**La méthode de travail entre Stéphane, Cowork et Claude Code — formalisée et réutilisable.**
+**La méthode de travail entre l'utilisateur, Cowork et Claude Code — formalisée et réutilisable.**
 
 Ce dépôt extrait et généralise la façon de collaborer mise au point au fil des
 projets `IAKA Vod`, `robotimmo`, `iakaAFstorage`, `iakabox` et `iakaJarvis`.
@@ -140,7 +140,7 @@ La couche réflexion+exécution se spécialise en une **équipe d'agents nommés
 fermé, qui incarnent la chaîne CI/CD. Référence : [`specs/equipe-agents.md`](./specs/equipe-agents.md).
 
 ```
-Stéphane → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents
+l'utilisateur → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents
 ```
 
 - 🦅 **Odin** — super-agent **portefeuille**, disponible en permanence, seul affecté à `C:\work` : switch d'équipe, démarrage projet, création d'équipe. **Au premier appel par session, il régénère et affiche le dashboard projets** (`naonedge-dashboard\scan.ps1` puis `index.html`) avant la synthèse.
@@ -164,7 +164,7 @@ En analysant les projets et la mémoire Claude associée, la méthode se résume
 **trois acteurs, un cycle, des preuves persistantes** :
 
 ### Trois acteurs, zéro chevauchement
-- **Stéphane (développeur)** = décideur : vision, arbitrages, validation, test réel.
+- **l'utilisateur (développeur)** = décideur : vision, arbitrages, validation, test réel.
 - **Cowork (Claude réflexion)** = architecte/rédacteur : analyse en lecture seule,
   rédige les instructions. **Ne code jamais.**
 - **Claude Code (Claude exécution)** = développeur IA : lit l'instruction, code,

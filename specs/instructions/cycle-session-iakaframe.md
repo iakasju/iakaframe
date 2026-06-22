@@ -12,7 +12,7 @@ Cinq briques. Réutilisation maximale de l'existant (`banner`, `snapshot`, `upda
 **hooks Claude Code** posés au **niveau portefeuille** `C:\work\.claude\settings.json`
 (et **pas** dans `~/.claude` — ça cible iakaframe sans toucher les autres usages, et
 évite le blocage auto-mode sur le settings global). L'interaction « propose de
-commiter » est **conversationnelle** (l'agent demande, Stéphane valide) — un hook ne
+commiter » est **conversationnelle** (l'agent demande, l'utilisateur valide) — un hook ne
 peut pas prompter à la fermeture ; le hook ne sert que de **filet** (snapshot silencieux).
 
 ## Périmètre
@@ -35,7 +35,7 @@ peut pas prompter à la fermeture ; le hook ne sert que de **filet** (snapshot s
 
 ### Brique C — Identité quand un agent parle (anti-dérive)
 - **Inclus** : **durcir** dans **toutes** les chartes `agents/*.md` et dans
-  `methode-de-travail.md` que **chaque** prise de parole adressée à Stéphane est
+  `methode-de-travail.md` que **chaque** prise de parole adressée à l'utilisateur est
   préfixée `<puce de phase> [PROJET][Agent]` (PROJET en MAJUSCULE), **obligatoire**
   (formulation « DOIT », pas « peut »), jamais sur logs/traces. But : éviter les
   dérives hors méthode.
@@ -47,7 +47,7 @@ peut pas prompter à la fermeture ; le hook ne sert que de **filet** (snapshot s
   - Nouvelle commande **`iakaframe recap [--project <p>]`** : **tableau ASCII** récap de
     session — ce qui a été fait (commits de la session via `git log`), **agents
     mobilisés**, **nom du projet**.
-  - Comportement d'agent : sur intention de stop/pause/exit exprimée par Stéphane,
+  - Comportement d'agent : sur intention de stop/pause/exit exprimée par l'utilisateur,
     l'agent actif lance `iakaframe snapshot --reason pause` (prépare la reprise dans
     `specs/etat-des-lieux.md`) puis affiche `iakaframe recap`.
   - Filet : hook **`SessionEnd`** (portefeuille) lançant `iakaframe snapshot --reason pause`
@@ -57,7 +57,7 @@ peut pas prompter à la fermeture ; le hook ne sert que de **filet** (snapshot s
 ### Brique E — Proposer de commiter à la fermeture
 - **Inclus** : comportement d'agent — avant de clore, l'agent **propose** de sauvegarder
   l'état via `iakaframe update` (snapshot + commit global) et **attend la validation**
-  de Stéphane. **Jamais** de commit automatique silencieux.
+  de l'utilisateur. **Jamais** de commit automatique silencieux.
 - **Exclu** : push automatique (séparé ; reste sur décision explicite).
 
 ### Brique F — Jalons (gates) très visibles
@@ -67,14 +67,14 @@ Un « jalon » = un gate de la méthode (instruction prête, dev à vérifier, q
      jalons pour les différencier des titres de royaume) : `<PROJET> - JALON : <nom>` ;
   2. un **tableau ASCII à 3 zones** : **gauche = émetteur** (agent qui pose le jalon),
      **milieu = contenu** du jalon, **droite = récepteur** (qui doit valider — souvent
-     Stéphane).
+     l'utilisateur).
   - Options : `--project --name --from --to --content --files a:1,b:2`.
   - **Liens cliquables** : le CLI imprime les chemins tels quels ; c'est **l'agent** qui,
     dans son message, liste les fichiers/dev à vérifier en `chemin:ligne` (cliquables côté
     Claude Code). Le tableau référence « voir message » pour ces liens.
-- **Validation** : quand Stéphane valide, le **récepteur** (agent ou Stéphane→agent suivant)
+- **Validation** : quand l'utilisateur valide, le **récepteur** (agent ou l'utilisateur→agent suivant)
   affiche **« JALON VALIDÉ »** (bandeau court) puis **explique la suite** (étape/agent
-  suivant). C'est un comportement d'agent, déclenché par l'accord de Stéphane.
+  suivant). C'est un comportement d'agent, déclenché par l'accord de l'utilisateur.
 - **Exclu** : machine à états persistante des jalons (suivi en base) — MVP = affichage.
 
 ## Étapes d'implémentation
@@ -93,7 +93,7 @@ Un « jalon » = un gate de la méthode (instruction prête, dev à vérifier, q
    « JALON VALIDÉ » + explication de la suite).
 5. `C:\work\.claude\settings.json` — hooks `SessionStart` (banner IAKAFRAME) et
    `SessionEnd` (snapshot pause). Créer le fichier s'il n'existe pas. **À appliquer par
-   Stéphane** si l'auto-mode bloque l'écriture (lui fournir le bloc JSON).
+   l'utilisateur** si l'auto-mode bloque l'écriture (lui fournir le bloc JSON).
 6. `agents/*.md` + `methode-de-travail.md` — durcir la règle d'identité (brique C).
 7. Tests : `table.js` (rendu déterministe vs fixture), `etat.js` (parsing sur exemples),
    `recap`/`brief` (sortie non vide + colonnes attendues sur un projet bidon).
@@ -111,7 +111,7 @@ Un « jalon » = un gate de la méthode (instruction prête, dev à vérifier, q
 - **Hooks system** : `SessionStart`/`SessionEnd` ne peuvent pas prompter → l'interactif
   (brique E) reste conversationnel ; le hook ne fait que snapshot silencieux. Documenté.
 - **Auto-mode** peut bloquer l'écriture de `C:\work\.claude\settings.json` → fournir le
-  bloc à coller à Stéphane (comme pour `defaultMode`).
+  bloc à coller à l'utilisateur (comme pour `defaultMode`).
 - **Parsing fragile** de `etat-des-lieux.md` / `CLAUDE.md` (formats variables) → parser
   défensif + repli « (section introuvable) », jamais de crash.
 - **Largeur terminal** : tableaux longs → adapter à `process.stdout.columns`, repli largeur fixe.
@@ -127,8 +127,8 @@ Un « jalon » = un gate de la méthode (instruction prête, dev à vérifier, q
 - [ ] Toutes les chartes `agents/*.md` imposent (formulation « DOIT ») le préfixe `<puce> [PROJET][Agent]`.
 - [ ] `cli/package.json` : toujours **zéro dépendance runtime**.
 - [ ] Parsing défensif : un `etat-des-lieux.md`/`CLAUDE.md` non conforme ne fait pas planter (repli lisible).
-- [ ] `iakaframe jalon --project P --name "..." --from Gandalf --to Stéphane --content "..." --files a.js:1` affiche le titre FIGlet **Standard** `P - JALON : ...` + le tableau 3 zones (émetteur / contenu / récepteur).
+- [ ] `iakaframe jalon --project P --name "..." --from Gandalf --to l'utilisateur --content "..." --files a.js:1` affiche le titre FIGlet **Standard** `P - JALON : ...` + le tableau 3 zones (émetteur / contenu / récepteur).
 - [ ] Le titre de jalon utilise bien **Standard** (et non ANSI Shadow), pour le distinguer d'un titre de royaume.
-- [ ] À la validation d'un jalon par Stéphane, le récepteur affiche « JALON VALIDÉ » puis explique l'étape/agent suivant.
+- [ ] À la validation d'un jalon par l'utilisateur, le récepteur affiche « JALON VALIDÉ » puis explique l'étape/agent suivant.
 - [ ] Les chartes imposent le rituel de jalon (cadre + fichiers en `chemin:ligne` dans le message + message de validation).
 - [ ] Tests `table`/`etat` verts ; suite globale verte.

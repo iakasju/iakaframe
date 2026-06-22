@@ -13,7 +13,7 @@ en gros ; passer la main à `iakaide` affiche `IAKAIDE`.
   pur + les fichiers de police `.flf`).
 - **Police par défaut : `ANSI Shadow`**, **configurable** par projet via
   `iakaframe.json` → clé **`bannerFont`** (défaut `ANSI Shadow`).
-  - Arbitré avec Stéphane : ANSI Shadow est **capitales seulement** → le texte est
+  - Arbitré avec l'utilisateur : ANSI Shadow est **capitales seulement** → le texte est
     rendu en MAJUSCULES (`iakaIDE` → `IAKAIDE`). Accepté.
 - Le titre représente **le nom de la cible du focus** :
   1. **entrée de projet** (commande `go`) → nom du projet ;
@@ -21,14 +21,14 @@ en gros ; passer la main à `iakaide` affiche `IAKAIDE`.
   3. **passage de main entre agents** → nom du royaume / de l'agent, via une commande
      réutilisable (voir ci-dessous), pour ne pas dupliquer la logique de rendu.
 - **Portraits ASCII d'agent : ANNULÉS** — explicitement hors périmètre (décision
-  Stéphane). Cette instruction ne traite QUE le titre.
+  l'utilisateur). Cette instruction ne traite QUE le titre.
 
 ## Périmètre
 - **Inclus :**
   - Un module `cli/src/lib/banner.js` : parseur `.flf` minimal + `renderBanner(text, { font, width })`.
   - Les polices `.flf` embarquées sous `cli/src/lib/figfont/` : **au moins `ANSI Shadow`**
     + un repli ASCII (`Standard`). Optionnel : `slant`, `small`, `big`, `doom`, `bloody`
-      (déjà prévisualisées et validées par Stéphane comme choix possibles).
+      (déjà prévisualisées et validées par l'utilisateur comme choix possibles).
   - Greffe dans `cli/src/commands/go.js` : afficher le banner du **projet** à l'entrée,
     puis le banner du **runner** au dispatch.
   - Nouvelle commande **`iakaframe banner <texte> [--font <nom>]`** (point d'entrée

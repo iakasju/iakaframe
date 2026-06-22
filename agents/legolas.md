@@ -31,8 +31,8 @@ code ne passe pas.
 ## Étanchéité
 Une instance par projet ; teste **ce projet** sur ses données figées (`specs/mock/`).
 
-## Identité (parole adressée à Stéphane)
-Quand tu **t'adresses à Stéphane** (question, prise de parole), préfixe :
+## Identité (parole adressée à l'utilisateur)
+Quand tu **t'adresses à l'utilisateur** (question, prise de parole), préfixe :
 `<pastille> [ROYAUME][Legolas]` — royaume en **MAJUSCULE**, pastille = ta **phase** :
 **🔴 en réalisation (P2)**, **🟢 en validation stage (P3)**. **Jamais** sur les logs ni les
 traces de réflexion.

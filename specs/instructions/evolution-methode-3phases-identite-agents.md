@@ -1,7 +1,7 @@
 # Instruction — Évolution de la méthode : team à 3 phases + squad prod + identité colorée des agents
 
 > **Phase cadrage (🧙 Gandalf).** Inscrire « dans le marbre » les évolutions décidées avec
-> Stéphane depuis le dernier doc HTML. Gate : validation humaine de cette instruction avant
+> l'utilisateur depuis le dernier doc HTML. Gate : validation humaine de cette instruction avant
 > toute modification.
 > Statut : 🟡 **à valider** (2026-06-15).
 
@@ -12,13 +12,13 @@
 La méthode a évolué en discussion mais le doc de référence ne le reflète pas encore :
 
 1. Les **« 3 acteurs »** (décideur / réflexion / exécution) et l'**équipe d'agents** (6 jalons
-   J0–J5) cohabitent sans articulation claire. Stéphane veut un récit unifié : **une team
+   J0–J5) cohabitent sans articulation claire. l'utilisateur veut un récit unifié : **une team
    organisée en 3 phases de travail**.
 2. Le **roster doit changer** : la chaîne de dev cible le **staging**, et la **prod** devient
    une **équipe à part**.
 3. Manque une présentation soignée : **agents**, leurs **périmètres**, le **workflow**, et le
    **rôle d'Odin**.
-4. **Nouvelle convention** : quand un agent **s'adresse à Stéphane**, il s'**identifie** par
+4. **Nouvelle convention** : quand un agent **s'adresse à l'utilisateur**, il s'**identifie** par
    `[royaume][agent]` avec une **couleur distincte par agent**.
 
 ---
@@ -40,7 +40,7 @@ Roster actuel (résumé) : Gimli = dev (J1) ; Legolas = qualité (J2-J3) ; **Hel
 
 ---
 
-## 3. Décisions (arbitrées avec Stéphane)
+## 3. Décisions (arbitrées avec l'utilisateur)
 
 ### 3.1 — Réarticulation : une team, 3 phases (cible = STAGING)
 
@@ -50,7 +50,7 @@ est le staging** :
 
 | Phase | Agent(s) | Entrée → Sortie | Gate |
 |---|---|---|---|
-| **P1 — Cadrage** | 🧙 Gandalf | besoin → `specs/instructions/{feature}.md` | **humain** (Stéphane valide) |
+| **P1 — Cadrage** | 🧙 Gandalf | besoin → `specs/instructions/{feature}.md` | **humain** (l'utilisateur valide) |
 | **P2 — Réalisation** | ⚒️ Gimli (dev, ×N) + 🏹 Legolas (qualité) | instruction → branche + commits + verdict PASS | **auto** (typecheck/lint/tests verts) |
 | **P3 — Déploiement staging** | ⚒️ Gimli **en devops** | PASS → image/build déployé en **staging** (rc) ; Legolas valide sur stage | auto |
 
@@ -82,7 +82,7 @@ subagents+skills, lexique (« la compagnie est à l'auberge »), règle Gandalf 
 
 ### 3.4 — Identité colorée des agents (nouvelle convention)
 
-**Règle.** Quand un agent **s'adresse directement à Stéphane** — une **question** ou une **prise
+**Règle.** Quand un agent **s'adresse directement à l'utilisateur** — une **question** ou une **prise
 de parole** qui lui est destinée — il **préfixe** son message par son identité :
 
 ```
@@ -97,7 +97,7 @@ de parole** qui lui est destinée — il **préfixe** son message par son identi
   message reste en couleur par défaut** (seule l'identité est « colorée »).
 - L'agent peut conserver son **emoji-persona** (🧙⚒️🏹🌉🦅…) à l'intérieur du libellé s'il le
   souhaite ; la **pastille de tête** reste celle de la **phase**.
-- **Périmètre d'application : STRICT.** Uniquement les **paroles adressées à Stéphane**
+- **Périmètre d'application : STRICT.** Uniquement les **paroles adressées à l'utilisateur**
   (questions, messages directs, demandes de feu vert). **Exclus** : les **logs**, les **traces
   de réflexion**, la sortie d'outils, le bruit d'exécution. → l'identité signale « un agent te
   parle », elle ne pollue pas le travail.
@@ -142,7 +142,7 @@ de parole** qui lui est destinée — il **préfixe** son message par son identi
 
 ## 4. Périmètre du livrable (à valider — hypothèse : « marbre complet »)
 
-> ⚠️ Point à confirmer par Stéphane. Hypothèse retenue : **docs + agents + skills + HTML**, pour
+> ⚠️ Point à confirmer par l'utilisateur. Hypothèse retenue : **docs + agents + skills + HTML**, pour
 > que le nouveau découpage et la convention soient **réellement appliqués**, pas seulement
 > décrits. Repli possible : docs seulement (agents/skills dans un second temps).
 
@@ -157,7 +157,7 @@ de parole** qui lui est destinée — il **préfixe** son message par son identi
    - Helm → recentrer **équipe prod** (déploiement prod + surveillance + alertes + rollback).
    - **Tous** → ajouter dans le contrat la **règle d'auto-identification** : pastille **de la
      phase en cours** + `[ROYAUME][Agent]` (royaume en MAJUSCULE), uniquement sur parole adressée
-     à Stéphane, **hors logs/réflexion**.
+     à l'utilisateur, **hors logs/réflexion**.
 4. **`skills/iakaframe-*`** : rappel de la convention d'identité dans chaque skill concernée
    (a minima odin/aragorn/cadrage/qualite/deploiement).
 5. **`methode-de-travail.html`** : régénérer (onglets) avec la vraie couleur d'identité ; relancer
@@ -174,7 +174,7 @@ de parole** qui lui est destinée — il **préfixe** son message par son identi
 - `specs/equipe-agents.md` cohérent (Gimli dev+devops, Helm prod).
 - `agents/*.md` portent le nouveau périmètre + la règle d'identité + leur pastille.
 - `methode-de-travail.html` régénéré, identité en couleur réelle.
-- Relecture Stéphane OK ; `update iakaframe` (commit + push), tag éventuel **v0.5.0**.
+- Relecture l'utilisateur OK ; `update iakaframe` (commit + push), tag éventuel **v0.5.0**.
 
 ---
 
@@ -188,5 +188,5 @@ de parole** qui lui est destinée — il **préfixe** son message par son identi
 - **Forgejo** (`192.168.2.11:3001`) parfois injoignable → push en attente, `update` retentera.
 - **Cohérence** : ne pas laisser le doc parler de « J0–J5 » à un endroit et « 3 phases » à un
   autre — purger les anciennes mentions de jalons OU les présenter comme le détail des 3 phases.
-- **Convention d'identité** : bien cantonner aux **paroles adressées à Stéphane** ; ne jamais
+- **Convention d'identité** : bien cantonner aux **paroles adressées à l'utilisateur** ; ne jamais
   préfixer logs/traces (sinon bruit).

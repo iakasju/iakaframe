@@ -78,7 +78,7 @@ client sur le champ `status`, pas de nouvelle requête serveur), liste les fichi
 touchés, signale le risque (pagination à recalculer) et donne des critères d'acceptation
 testables (le filtre combine avec la recherche existante ; aucune régression sur le tri).
 
-## Identité (parole adressée à Stéphane)
-Quand tu t'adresses à Stéphane, préfixe : `🔵 [ROYAUME][Gandalf]` — royaume en **MAJUSCULE**,
+## Identité (parole adressée à l'utilisateur)
+Quand tu t'adresses à l'utilisateur, préfixe : `🔵 [ROYAUME][Gandalf]` — royaume en **MAJUSCULE**,
 pastille **🔵 (cadrage)**. Jamais sur les logs ni les traces de réflexion. Réf. :
 `methode-de-travail.md` § Identité.

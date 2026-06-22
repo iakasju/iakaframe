@@ -1,6 +1,6 @@
 # iakaframe — Méthode de travail IA-augmentée
 
-> La méthode de collaboration entre **Stéphane** (le décideur) et une **équipe d'agents IA**
+> La méthode de collaboration entre **l'utilisateur** (le décideur) et une **équipe d'agents IA**
 > organisée en **3 phases** (cadrage → réalisation → staging) + un **squad prod**,
 > extraite et généralisée à partir des projets `IAKA Vod`, `robotimmo`,
 > `iakaAFstorage`, `iakabox`, `iakaJarvis`.
@@ -31,7 +31,7 @@ Un **décideur humain** et une **chaîne en 3 phases** portée par des agents IA
 acteurs Cowork / Claude Code » : la réflexion et l'exécution sont distribuées sur une **équipe**
 (voir plus bas), organisée en phases dont la **cible est le staging**.
 
-### Le décideur — Stéphane
+### Le décideur — l'utilisateur
 
 Il tranche sur l'architecture, valide les choix techniques et juge le résultat. Il ne délègue
 pas la réflexion — il délègue l'exécution. Il décide **à chaque gate**.
@@ -58,7 +58,7 @@ pas la réflexion — il délègue l'exécution. Il décide **à chaque gate**.
 ### La chaîne en 3 phases
 
 1. **Cadrage** (🧙 Gandalf) — le besoin devient une **instruction fermée et vérifiable** dans
-   `specs/instructions/`. Lecture seule sur le code. **Gate humain** : Stéphane valide.
+   `specs/instructions/`. Lecture seule sur le code. **Gate humain** : l'utilisateur valide.
 2. **Réalisation** (⚒️ Gimli + 🏹 Legolas) — implémentation en **commits atomiques** + **gate
    qualité** (typecheck, lint, tests). Verdict PASS pour avancer.
 3. **Déploiement staging** (⚒️ Gimli en **devops** + 🏹 Legolas) — build + mise en **staging**
@@ -126,24 +126,24 @@ Chaque agent porte une **incarnation** (un nom) pour le rendre mémorisable.
 
 **Deux niveaux d'orchestration.** Au-dessus des équipes, un **super-agent portefeuille,
 🦅 Odin**, disponible en permanence, est le **seul agent affecté à `C:\work`** (la racine de
-tous les projets). Il reçoit les ordres de haut niveau de Stéphane — **switcher** d'équipe,
+tous les projets). Il reçoit les ordres de haut niveau de l'utilisateur — **switcher** d'équipe,
 **démarrer** un projet (`init iakaframe`), **créer** une équipe (`fullteam`) — et passe la
 main à l'**Aragorn** du projet concerné. La hiérarchie&nbsp;:
 
 ```
-Stéphane → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents
+l'utilisateur → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents
 ```
 
 Odin n'entre jamais dans le métier d'un projet&nbsp;: il ouvre la bonne porte, Aragorn
 coordonne à l'intérieur. C'est la **répartition entre projets** matérialisée — celle qui,
-sinon, resterait un geste manuel de Stéphane.
+sinon, resterait un geste manuel de l'utilisateur.
 
 **Réveil d'Odin (par défaut).** Au **premier appel d'Odin dans `C:\work`** (par session), avant
 toute autre chose, il **régénère puis affiche le dashboard portefeuille** (NaonEdge dashboard)&nbsp;:
 `pwsh C:\work\naonedge-dashboard\scan.ps1` réécrit `data/projects.js` (métriques git/LOC/tokens/état
 des projets), puis il ouvre `C:\work\naonedge-dashboard\index.html`. Ensuite seulement il enchaîne
 sur la synthèse et l'ordre reçu. Aux appels suivants de la même session, le scan n'est relancé que si
-l'état a bougé ou si Stéphane le redemande.
+l'état a bougé ou si l'utilisateur le redemande.
 
 > **Lexique.** Une **équipe armée** (full team déployée dans `<projet>/.claude/`, prête à
 > démarrer mais pas encore lancée) se dit&nbsp;: **« la compagnie est à l'auberge »**.
@@ -155,7 +155,7 @@ agent** est aux commandes ; Aragorn enchaîne et vérifie le gate avant de passe
 
 | Phase | Agent(s) | Entrée → Sortie | Gate |
 |---|---|---|---|
-| 🔵 **P1 — Cadrage** | 🧙 Gandalf | besoin → `specs/instructions/{feature}.md` | **humain** (Stéphane valide l'instruction) |
+| 🔵 **P1 — Cadrage** | 🧙 Gandalf | besoin → `specs/instructions/{feature}.md` | **humain** (l'utilisateur valide l'instruction) |
 | 🔴 **P2 — Réalisation** | ⚒️ Gimli (dev, ×N) + 🏹 Legolas (qualité) | instruction → branche + commits + verdict PASS | **auto** (typecheck/lint/tests verts) |
 | 🟢 **P3 — Déploiement staging** | ⚒️ Gimli (**devops**) + 🏹 Legolas (validation) | PASS → image/build déployé en **staging** (`vX.Y.Z-rc`) | auto |
 
@@ -165,7 +165,7 @@ agent** est aux commandes ; Aragorn enchaîne et vérifie le gate avant de passe
 
 **Le squad prod — séparé, sur feu vert humain.** La mise en production **n'est pas une phase**
 de la chaîne de dev : c'est une **équipe dédiée**, déclenchée par un **feu vert tracé** de
-Stéphane.
+l'utilisateur.
 
 | Étape prod | Agent | Entrée → Sortie | Gate |
 |---|---|---|---|
@@ -177,15 +177,15 @@ Stéphane.
 > alerte dédiés à terme).
 
 Transverses : 🎭 **Loki** (supports visuels) et 📖 **Nathalie** (guides) interviennent sur
-sollicitation, à toute phase. **Tout agent peut solliciter Stéphane directement** ; Aragorn
+sollicitation, à toute phase. **Tout agent peut solliciter l'utilisateur directement** ; Aragorn
 est l'interlocuteur par défaut.
 
-À l'inverse, **Stéphane peut demander à Aragorn de lancer un travail sur un agent** — en le
+À l'inverse, **l'utilisateur peut demander à Aragorn de lancer un travail sur un agent** — en le
 nommant (« lance Gimli sur X ») ou en décrivant la tâche (Aragorn route). Aragorn émet un
 **ordre de mission** (quoi, base, critère de fin), vérifie le **gate amont** de la phase, puis
 **dispatche le subagent** (outil Agent en session, ou n8n/Hermes en chaîne automatisée).
 
-**Canal de communication — Slack (bidirectionnel, via n8n).** Aragorn dialogue avec Stéphane
+**Canal de communication — Slack (bidirectionnel, via n8n).** Aragorn dialogue avec l'utilisateur
 sur **Slack**, piloté par n8n (qui porte les identifiants — aucun secret côté agent) :
 sortant (états des phases, blocages, **demandes de feu vert**) et entrant (arbitrages, ordres
 de dispatch, **feu vert prod** captés par un trigger n8n). Slack devient un **canal de
@@ -193,7 +193,7 @@ pilotage à distance**. Équivalent self-hosted : Mattermost (même schéma).
 
 ### Identité des agents — qui te parle, et depuis quelle phase
 
-Quand un agent **s'adresse à Stéphane** (une **question**, une **prise de parole** qui lui est
+Quand un agent **s'adresse à l'utilisateur** (une **question**, une **prise de parole** qui lui est
 destinée), il **s'identifie** en tête de message :
 
 ```
@@ -215,7 +215,7 @@ destinée), il **s'identifie** en tête de message :
 
   Agents transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la **phase servie**, ⬜ par défaut.
 
-- **Périmètre STRICT** : seulement les **paroles adressées à Stéphane**. **Jamais** sur les
+- **Périmètre STRICT** : seulement les **paroles adressées à l'utilisateur**. **Jamais** sur les
   **logs**, les **traces de réflexion**, la sortie d'outils. L'identité dit « un agent te
   parle » ; elle ne pollue pas le travail.
 
@@ -242,7 +242,7 @@ Comme pour l'isolation Docker par projet, on distingue **définition** et **exé
 - **Exécution étanche** : **chaque projet instancie SA propre équipe**, scopée à son repo,
   son `CLAUDE.md`, ses `specs/`. **Aucun agent ne porte deux projets dans un même contexte**
   (zéro contamination inter-projets).
-- **Répartition entre projets** : elle se fait **au niveau portefeuille** (Stéphane décide
+- **Répartition entre projets** : elle se fait **au niveau portefeuille** (l'utilisateur décide
   quel projet avance), **pas dans l'agent**. Dans un projet, Aragorn répartit entre agents.
 
 ### Incarnation technique : subagents + skills

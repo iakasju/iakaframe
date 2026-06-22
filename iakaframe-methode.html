@@ -157,7 +157,7 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
     <p class="lead">Le développeur ne délègue pas la réflexion — il délègue l'exécution. Chacun des trois acteurs fait son travail, jamais celui des autres.</p>
 
     <div class="card role">
-      <h3>1 · Le développeur (Stéphane) — le décideur</h3>
+      <h3>1 · Le développeur (l'utilisateur) — le décideur</h3>
       <p>Il tranche sur l'architecture, valide les choix techniques et juge le résultat.</p>
       <ul>
         <li>Définit les features et leur priorité (le backlog dans <code>CLAUDE.md</code>).</li>
@@ -403,7 +403,7 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
     </table></div>
     <p class="legend">n8n / Hermes sont des <strong>outils</strong> d'orchestration qu'Aragorn pilote — pas des agents.</p>
 
-    <div class="note info"><p><b>Deux niveaux d'orchestration :</b> au-dessus des équipes, le super-agent portefeuille <b>🦅 Odin</b> — disponible en permanence, seul agent affecté à <code>C:\work</code> — reçoit tes ordres de haut niveau (switch d'équipe, démarrage projet, création d'équipe) et passe la main à l'Aragorn du projet. Hiérarchie : <code>Stéphane → Odin → Aragorn → agents</code>.</p></div>
+    <div class="note info"><p><b>Deux niveaux d'orchestration :</b> au-dessus des équipes, le super-agent portefeuille <b>🦅 Odin</b> — disponible en permanence, seul agent affecté à <code>C:\work</code> — reçoit tes ordres de haut niveau (switch d'équipe, démarrage projet, création d'équipe) et passe la main à l'Aragorn du projet. Hiérarchie : <code>l'utilisateur → Odin → Aragorn → agents</code>.</p></div>
 
     <h2>Les 3 phases (cible staging) + le squad prod</h2>
     <p>La chaîne de dev a pour <strong>cible le staging</strong> et avance en <strong>3 phases</strong>. À chaque phase, <strong>un</strong> agent est aux commandes&nbsp;; Aragorn enchaîne et vérifie le gate. La <strong>prod</strong> est un <strong>squad séparé</strong>, sur feu vert humain.</p>
@@ -440,7 +440,7 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
       </div>
     </div>
 
-    <div class="note tip"><p><b>Tout agent peut solliciter Stéphane directement</b> ; Aragorn est l'interlocuteur par défaut. À l'inverse, <b>Stéphane peut demander à Aragorn de lancer un travail sur un agent</b> (ordre de mission + dispatch, après vérification du gate amont). Aucun agent ne franchit seul un gate de production.</p></div>
+    <div class="note tip"><p><b>Tout agent peut solliciter l'utilisateur directement</b> ; Aragorn est l'interlocuteur par défaut. À l'inverse, <b>l'utilisateur peut demander à Aragorn de lancer un travail sur un agent</b> (ordre de mission + dispatch, après vérification du gate amont). Aucun agent ne franchit seul un gate de production.</p></div>
   </section>
 
   <!-- ====================== COMMANDES & ROUTE ====================== -->

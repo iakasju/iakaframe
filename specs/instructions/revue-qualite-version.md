@@ -24,7 +24,7 @@ archivée. C'est le **gate qualité de version** (au-dessus du gate de phase).
 5. **Qualité de la doc** : API docs générées à jour, état des lieux, guides utilisateurs (Nathalie).
 6. **KPI CI / DORA** : deployment frequency, lead time, change failure rate, MTTR + taux de
    réussite build/test.
-7. **Verdict** : go/no-go pour le bump de version mineure (gate humain : Stéphane).
+7. **Verdict** : go/no-go pour le bump de version mineure (gate humain : l'utilisateur).
 
 ## Outillage recommandé (références du métier, 2026)
 

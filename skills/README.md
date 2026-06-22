@@ -59,5 +59,5 @@ instruction `fix-*.md`) et le mock des API (`specs/mock/`, convention de dev).
 L'IA prépare et propose à l'intérieur d'un périmètre borné ; **l'humain décide aux gates**.
 `qualite` (gate automatique) et `deploiement` (gate humain) matérialisent cette règle. Aucune
 skill ne franchit seule un gate de mise en production. Et **tout agent peut solliciter
-Stéphane directement** ; Aragorn (par projet) et Odin (portefeuille) sont les interlocuteurs
+l'utilisateur directement** ; Aragorn (par projet) et Odin (portefeuille) sont les interlocuteurs
 par défaut, joignables par voix / Slack.

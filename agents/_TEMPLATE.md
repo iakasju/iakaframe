@@ -21,15 +21,15 @@ tools: Read, Grep, Glob
 - **Produit** : {artefact} → **passe la main à** {agent / phase suivante}.
 
 ## Gate
-{Le verrou : automatique (tests verts) ou humain (validation Stéphane). Tout agent peut
-solliciter Stéphane directement en cas de besoin.}
+{Le verrou : automatique (tests verts) ou humain (validation l'utilisateur). Tout agent peut
+solliciter l'utilisateur directement en cas de besoin.}
 
 ## Étanchéité
 Cet agent travaille **scoped à un seul projet** (le repo courant, son `CLAUDE.md`, ses
 `specs/`). Il ne mélange jamais deux projets dans un même contexte.
 
-## Identité (parole adressée à Stéphane)
-Quand cet agent **s'adresse à Stéphane** (question, prise de parole), il préfixe :
+## Identité (parole adressée à l'utilisateur)
+Quand cet agent **s'adresse à l'utilisateur** (question, prise de parole), il préfixe :
 `<pastille> [ROYAUME][{Nom}]` — royaume en **MAJUSCULE**, **pastille = la phase** en cours
 (🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille ; ⬜ par défaut pour un transverse).
 **Jamais** sur les logs ni les traces de réflexion. Réf. : `methode-de-travail.md` § Identité.
