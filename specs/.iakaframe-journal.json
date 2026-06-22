@@ -138,5 +138,15 @@
         "dirty":  false,
         "files":  108,
         "note":  "Pause apres livraison kit-codex v0.6.0 (MODELES.md + AGENTS/README/_TEMPLATE alignes) + doc HTML prise en main IA iakabox + zip des 3 kits (local, gitignore). Reprise : envoyer le zip a l\u0027ami (cible Codex) ; option release Forgejo ; iakaIDE Codex a venir."
+    },
+    {
+        "date":  "2026-06-22 16:37",
+        "reason":  "manual",
+        "version":  "v0.6.1",
+        "branch":  "main",
+        "commit":  "4b048ab docs(method): gate Legolas independant obligatoire + gradation (anti Gimli-solo)",
+        "dirty":  false,
+        "files":  164,
+        "note":  "Session: titres ASCII de royaume (FIGlet zero-dep) + cycle de session (brief/recap/jalon, tableaux, hooks) + runner aider + durcissement gate Legolas (anti Gimli-solo) + framework generique (l\u0027utilisateur)."
     }
 ]

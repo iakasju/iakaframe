@@ -1,6 +1,6 @@
 ﻿# Etat des lieux - iakaframe
 
-> Genere par iakaframe-snapshot.ps1 le 2026-06-21 22:57 (motif: pause).
+> Genere par iakaframe-snapshot.ps1 le 2026-06-22 16:37 (motif: manual).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.6.1 |
 | Branche | main |
-| Dernier commit | 1a55ebf chore(iakaframe): update etat des lieux + commit global (manual) |
+| Dernier commit | 4b048ab docs(method): gate Legolas independant obligatoire + gradation (anti Gimli-solo) |
 | Arbre | propre |
-| Fichiers (hors .git/node_modules) | 108 |
-| Note | Pause apres livraison kit-codex v0.6.0 (MODELES.md + AGENTS/README/_TEMPLATE alignes) + doc HTML prise en main IA iakabox + zip des 3 kits (local, gitignore). Reprise : envoyer le zip a l'ami (cible Codex) ; option release Forgejo ; iakaIDE Codex a venir. |
+| Fichiers (hors .git/node_modules) | 164 |
+| Note | Session: titres ASCII de royaume (FIGlet zero-dep) + cycle de session (brief/recap/jalon, tableaux, hooks) + runner aider + durcissement gate Legolas (anti Gimli-solo) + framework generique (l'utilisateur). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `4b048ab` | 2026-06-22 | docs(method): gate Legolas independant obligatoire + gradation (anti Gimli-solo) |
+| `380e732` | 2026-06-22 | feat(cli): runner aider (exécuteur alternatif, sgpt annulé) |
+| `3b22147` | 2026-06-22 | docs(method): durcit identite (DOIT) + rituels jalons et cloture (briques C/F/E) |
+| `f8cff87` | 2026-06-22 | chore(iakaframe): remplace Stephane par l'utilisateur (framework generique) |
+| `ac72be6` | 2026-06-22 | feat(cli): brief/recap/jalon + tableaux ASCII (cycle de session iakaframe) |
+| `0dcb545` | 2026-06-22 | feat(cli): titre ASCII de royaume (FIGlet embarque, zero-dep) |
+| `89c702e` | 2026-06-21 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `1a55ebf` | 2026-06-21 | chore(iakaframe): update etat des lieux + commit global (manual) |
 | `09876cb` | 2026-06-21 | feat(skills): iakaframe-log-conversation (push main courante MQTT->CouchDB) |
 | `3047dd5` | 2026-06-21 | docs(cadrage): iakaIDE sidecar branche (etape 9) |
-| `c3e45e1` | 2026-06-21 | feat(cli): umbrella lance node scan.js (cross-OS) en priorite, fallback scan.ps1 |
-| `5e3d5cb` | 2026-06-21 | feat(cli): agents + go + distribution Forgejo + umbrella (iakaframe multi-OS) |
-| `d2903fe` | 2026-06-21 | feat(cli): commandes init/snapshot/onboard/update (portage iakaframe multi-OS) |
-| `1585ac1` | 2026-06-21 | feat(cli): squelette @naonedge/iakaframe + commandes services & config (multi-OS, zero-dep) |
-| `3917e70` | 2026-06-21 | docs(cadrage): decisions multi-OS tranchees (registre Forgejo, @naonedge/iakaframe, ~/work, sidecar, Node 20) |
-| `752a9ad` | 2026-06-21 | docs(cadrage): instruction iakaframe multi-OS (CLI Node + iakaIDE GUI) |
-| `54e48d8` | 2026-06-20 | feat(config): iakaframe-config.ps1 - ecrit iakaframe.json par projet (runner/target + diagnostic) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-06-22 16:37 | manual | v0.6.1 | main | Session: titres ASCII de royaume (FIGlet zero-dep) + cycle de session (brief/recap/jalon, tableaux, hooks) + runner aider + durcissement gate Legolas (anti Gimli-solo) + framework generique (l'utilisateur). |
 | 2026-06-21 22:57 | pause | v0.6.1 | main | Pause apres livraison kit-codex v0.6.0 (MODELES.md + AGENTS/README/_TEMPLATE alignes) + doc HTML prise en main IA iakabox + zip des 3 kits (local, gitignore). Reprise : envoyer le zip a l'ami (cible Codex) ; option release Forgejo ; iakaIDE Codex a venir. |
 | 2026-06-21 22:53 | manual | v0.6.1 | main | kit-codex v0.6.0 : ajout MODELES.md + AGENTS/README/_TEMPLATE alignes ; doc HTML prise en main IA iakabox |
 | 2026-06-20 21:51 | version | v0.6.1 | main | v0.6.1 - cible ollama complete : kit-ollama (AGENTS.md + MODELES.md table modele/agent), -Target claude/codex/ollama dans init/onboard, rapport iakaframe-alternatives, outil recommande OpenClaw (openclaw.ai, all-in-one local). Les 3 incarnations : Claude / Codex / Ollama. |
