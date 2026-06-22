@@ -66,6 +66,16 @@ export function affectAgent(name, { project, global = false, force = false } = {
   return true;
 }
 
+// Agents reellement assignes a un projet (<projet>/.claude/agents), sinon team complete canon.
+export function assignedAgents(projectDir) {
+  try {
+    const dep = path.join(path.resolve(projectDir), '.claude', 'agents');
+    const f = fs.readdirSync(dep).filter(x => x.endsWith('.md')).map(x => x.replace(/\.md$/, '')).sort();
+    if (f.length) return f;
+  } catch { /* pas encore deploye */ }
+  return listAgents().filter(a => !PORTFOLIO_AGENTS.includes(a));
+}
+
 export function fullteam({ project, global = false, force = false } = {}) {
   for (const name of listAgents()) {
     if (PORTFOLIO_AGENTS.includes(name)) continue;

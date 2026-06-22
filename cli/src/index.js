@@ -9,6 +9,9 @@ import { runUpdate } from './commands/update.js';
 import { runAgents } from './commands/agents.js';
 import { runGo } from './commands/go.js';
 import { runBanner } from './commands/banner.js';
+import { runBrief } from './commands/brief.js';
+import { runRecap } from './commands/recap.js';
+import { runJalon } from './commands/jalon.js';
 import { resolveRoot } from './lib/root.js';
 
 const VERSION = '0.1.0';
@@ -38,6 +41,12 @@ Commandes :
                         --path <dir> --runner <r> --do "tache"
   banner <texte>      Titre ASCII (FIGlet embarque, zero dep)
                         --font <nom>  (defaut : ANSI Shadow ; repli : Standard)
+  brief <projet>      Entree projet : titre + tableau (derniere etape + backlog) + agents
+                        --path <dir> --font <nom>
+  recap <projet>      Fermeture : tableau recap session (commits + agents + projet)
+                        --path <dir> --n <nb commits>
+  jalon               Cadre d'un jalon (gate) : titre Standard + tableau emetteur/contenu/recepteur
+                        --project --name --from --to --content --files a:1,b:2 --next --validated
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
@@ -64,6 +73,9 @@ async function main() {
     case 'agents':   runAgents(rest); break;
     case 'go':       runGo(rest); break;
     case 'banner':   runBanner(rest); break;
+    case 'brief':    runBrief(rest); break;
+    case 'recap':    runRecap(rest); break;
+    case 'jalon':    runJalon(rest); break;
     case 'root': {
       const i = rest.indexOf('--root');
       console.log(resolveRoot(i >= 0 ? rest[i + 1] : undefined));

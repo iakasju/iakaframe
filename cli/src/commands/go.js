@@ -7,6 +7,7 @@ import { spawnSync, spawn } from 'node:child_process';
 import { resolveRoot } from '../lib/root.js';
 import { hasCmd } from '../lib/which.js';
 import { printBanner, DEFAULT_FONT } from '../lib/banner.js';
+import { brief } from './brief.js';
 
 function launchCli(cmd, dir, task) {
   const safe = task ? task.replace(/["`$;|&<>\r\n]/g, ' ').trim() : '';
@@ -49,8 +50,8 @@ export function runGo(argv) {
   const bannerFont = cfg.bannerFont || DEFAULT_FONT;
   const task = values.do || '';
 
-  // Titre ASCII du royaume qu'on ouvre.
-  printBanner(path.basename(dir), bannerFont);
+  // Entree de royaume : titre ASCII + tableau (derniere etape + backlog + agents).
+  brief(dir, bannerFont);
 
   if (runner === 'codex') {
     if (hasCmd('codex')) { printBanner('Codex', bannerFont); return void launchCli('codex', dir, task); }
