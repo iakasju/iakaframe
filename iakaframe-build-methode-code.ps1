@@ -4,8 +4,9 @@
   les agents (agents/*.md) et skills (skills/iakaframe-*/SKILL.md).
 
 .DESCRIPTION
-  Lit chaque fichier, echappe le HTML, et remplace le marqueur <!--CODE_BLOCKS--> par une
-  carte par fichier (titre + bouton download + <pre>). A relancer quand les agents/skills
+  Lit chaque fichier, echappe le HTML, et remplace le contenu entre les marqueurs
+  <!--CODE_BLOCKS_START--> et <!--CODE_BLOCKS_END--> par une carte par fichier (titre +
+  bouton download + <pre>). IDEMPOTENT : re-lancable a volonte quand les agents/skills
   changent. Lecture/ecriture en UTF-8 sans BOM (preserve les accents).
 #>
 $ErrorActionPreference = "Stop"
@@ -50,8 +51,11 @@ Get-ChildItem (Join-Path $root "skills") -Directory -Filter "iakaframe-*" | Sort
 }
 
 $raw = ReadU $html
-if ($raw -notmatch '<!--CODE_BLOCKS-->') { throw "Marqueur <!--CODE_BLOCKS--> introuvable dans $html" }
-$raw = $raw.Replace('<!--CODE_BLOCKS-->', $sb.ToString())
+if ($raw -notmatch '<!--CODE_BLOCKS_START-->') { throw "Marqueurs <!--CODE_BLOCKS_START/END--> introuvables dans $html." }
+# Remplace tout entre les deux marqueurs. Evaluateur scriptblock (et non chaine) pour que
+# les '$' du code genere ne soient pas pris pour des backreferences regex.
+$replacement = "<!--CODE_BLOCKS_START-->`r`n" + $sb.ToString() + "<!--CODE_BLOCKS_END-->"
+$raw = [regex]::Replace($raw, '(?s)<!--CODE_BLOCKS_START-->.*?<!--CODE_BLOCKS_END-->', { $replacement })
 [System.IO.File]::WriteAllText($html, $raw, $enc)
 
 Write-Host "Panneau Code genere : $count fichiers integres dans methode-de-travail.html" -ForegroundColor Green
