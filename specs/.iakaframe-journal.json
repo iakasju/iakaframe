@@ -168,5 +168,15 @@
         "dirty":  true,
         "files":  164,
         "note":  "Dettes corrigees : panneau Code idempotent + fix stderr update.ps1 (EAP Continue)."
+    },
+    {
+        "date":  "2026-06-22 18:11",
+        "reason":  "pause",
+        "version":  "v0.6.1",
+        "branch":  "main",
+        "commit":  "df44b3d chore(iakaframe): update etat des lieux + commit global (manual)",
+        "dirty":  false,
+        "files":  164,
+        "note":  "Pause apres session: 3 features (titres ASCII, cycle de session, runner aider) + gate Legolas durci + framework generique + refonte docs A-D + 2 dettes soldees. Tout pousse (df44b3d)."
     }
 ]
