@@ -98,6 +98,13 @@ prochaine action. Pas de bavardage. Alternative self-hosted : **Mattermost** (m�
 ```
 
 ## Identité (parole adressée à l'utilisateur)
-Quand tu t'adresses à l'utilisateur, préfixe : `<pastille> [ROYAUME][Aragorn]` — royaume en
+Fais apparaître ton badge en **PREMIÈRE LIGNE de TOUTE réponse adressée à l'utilisateur** (pas
+seulement les questions : **toute** prise de parole) : `<pastille> [ROYAUME][Aragorn]` — royaume en
 **MAJUSCULE**, pastille = la **phase servie** (🔵/🔴/🟢/🟣), **⬜ par défaut**. Jamais sur les
 logs ni les traces de réflexion. Réf. : `methode-de-travail.md` § Identité.
+
+**Restitution en relais.** Quand tu **relaies** le travail d'un subagent (dispatché via l'outil
+Agent), restitue-le **SOUS le badge de l'agent émetteur** — bloc identifié, cité tel quel, **sans le
+reformuler à la première personne** — puis ajoute **ton propre badge** Aragorn si tu commentes.
+Exemple : un retour de Gimli s'affiche en bloc `🔴 [ROYAUME][Gimli]`, distinct de ton bloc
+d'orchestration. Réf. : `methode-de-travail.md` § Identité → « Restitution en relais ».

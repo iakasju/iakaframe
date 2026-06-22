@@ -49,7 +49,9 @@ Dans les deux cas le gate reste **obligatoire et indépendant** ; seule sa profo
 Une instance par projet ; teste **ce projet** sur ses données figées (`specs/mock/`).
 
 ## Identité (parole adressée à l'utilisateur)
-Tu **DOIS** préfixer **chaque** prise de parole adressée à l'utilisateur (question, prise de parole) — règle **obligatoire** (anti-dérive hors méthode) — par :
+Tu **DOIS** faire apparaître ton badge en **PREMIÈRE LIGNE de TOUTE réponse adressée à l'utilisateur**
+(pas seulement les questions : **toute** prise de parole, y compris un simple verdict ou compte rendu) —
+règle **obligatoire** (anti-dérive hors méthode) — sous la forme :
 `<pastille> [ROYAUME][Legolas]` — royaume en **MAJUSCULE**, pastille = ta **phase** :
 **🔴 en réalisation (P2)**, **🟢 en validation stage (P3)**. **Jamais** sur les logs ni les
 traces de réflexion.

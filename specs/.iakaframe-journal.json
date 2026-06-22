@@ -1,182 +1,22 @@
-﻿[
-    {
-        "date":  "2026-06-11 23:39",
-        "reason":  "version",
-        "version":  "v0.2.0",
-        "branch":  "main",
-        "commit":  "43b25c0 chore(iakaframe): update etat des lieux + commit global (manual)",
-        "dirty":  true,
-        "files":  20,
-        "note":  "init/update auto-detectent l\u0027existence sur Forgejo"
-    },
-    {
-        "date":  "2026-06-11 23:41",
-        "reason":  "version",
-        "version":  "v0.3.0",
-        "branch":  "main",
-        "commit":  "be3bf1b chore(iakaframe): update etat des lieux + commit global (version v0.2.0)",
-        "dirty":  true,
-        "files":  20,
-        "note":  "doc HTML impactee : commandes init/update, Forgejo, cycle de doc, auto-detection"
-    },
-    {
-        "date":  "2026-06-14 02:16",
-        "reason":  "reprise",
-        "version":  "-",
-        "branch":  "main",
-        "commit":  "5191289 chore(iakaframe): update etat des lieux + commit global (version v0.3.0)",
-        "dirty":  true,
-        "files":  38,
-        "note":  ""
-    },
-    {
-        "date":  "2026-06-14 14:30",
-        "reason":  "reprise",
-        "version":  "-",
-        "branch":  "main",
-        "commit":  "5191289 chore(iakaframe): update etat des lieux + commit global (version v0.3.0)",
-        "dirty":  true,
-        "files":  41,
-        "note":  "rangement skills (9 dossiers) + PDF dans docs + fix journal System.Object"
-    },
-    {
-        "date":  "2026-06-14 15:14",
-        "reason":  "version",
-        "version":  "v0.4.0",
-        "branch":  "main",
-        "commit":  "5191289 chore(iakaframe): update etat des lieux + commit global (version v0.3.0)",
-        "dirty":  true,
-        "files":  53,
-        "note":  "equipe d agents (7 subagents + skills) + commande iakaframe-agents + HTML methode v3 + rangement skills/PDF + fix journal"
-    },
-    {
-        "date":  "2026-06-14 16:40",
-        "reason":  "pause",
-        "version":  "-",
-        "branch":  "main",
-        "commit":  "e244d86 feat(iakaframe): Aragorn dispatch a la demande + canal Slack via n8n",
-        "dirty":  true,
-        "files":  56,
-        "note":  "pause: equipe d agents (Odin -\u003e Aragorn -\u003e 8 agents) livree + doc impactee. Reprendre par push Forgejo puis cadrage voix-Slack-Piper"
-    },
-    {
-        "date":  "2026-06-16 11:59",
-        "reason":  "version",
-        "version":  "v0.5.0",
-        "branch":  "main",
-        "commit":  "bb94f61 feat(methode): aligner docs peripheriques sur 3 phases + squad prod (README, kit, HTML autonomes, skills/README)",
-        "dirty":  false,
-        "files":  57,
-        "note":  "v0.5.0 - team en 3 phases (cible staging) + squad prod separe (Helm) + Gimli dev+devops + identite agents par phase (pastille [ROYAUME][Agent]); doc/agents/skills/HTML alignes"
-    },
-    {
-        "date":  "2026-06-16 12:39",
-        "reason":  "manual",
-        "version":  "v0.5.0",
-        "branch":  "main",
-        "commit":  "517df08 feat(methode): refonte HTML - branding iakaframe XL + grue NaonEdge, onglets reordonnes (Principe/3 phases/Agents IA/.../Code en dernier), onglet 3 phases (cartes) remplace 3 acteurs",
-        "dirty":  true,
-        "files":  57,
-        "note":  ""
-    },
-    {
-        "date":  "2026-06-16 14:47",
-        "reason":  "version",
-        "version":  "v0.5.1",
-        "branch":  "main",
-        "commit":  "c5cbf70 chore(iakaframe): update etat des lieux + commit global (manual)",
-        "dirty":  true,
-        "files":  57,
-        "note":  "v0.5.1 - HTML rebrand (iakaframe XL + grue NaonEdge), onglets reordonnes (Principe/3 phases/Agents IA/.../Code dernier), onglet 3 phases remplace 3 acteurs, diagramme cycle en phases; methode-de-travail.md alignee 3 phases"
-    },
-    {
-        "date":  "2026-06-16 15:03",
-        "reason":  "version",
-        "version":  "v0.5.2",
-        "branch":  "main",
-        "commit":  "10c65aa chore(iakaframe): update etat des lieux + commit global (version v0.5.1)",
-        "dirty":  true,
-        "files":  57,
-        "note":  "v0.5.2 - section \u0027Pourquoi des agents ?\u0027 (tri par phase, permissions/limites/process packages, fun) dans methode-de-travail.md, equipe-agents.md, HTML, et les 9 profils agents"
-    },
-    {
-        "date":  "2026-06-20 21:34",
-        "reason":  "version",
-        "version":  "v0.6.0",
-        "branch":  "main",
-        "commit":  "2381a71 docs(codex): iakaIDE annonce pour plus tard cote Codex (orientation Claude actuelle)",
-        "dirty":  false,
-        "files":  67,
-        "note":  "v0.6.0 multi-plateforme + onboarding : kit-codex (incarnation Codex, AGENTS.md), detection services (git/ollama/comfyui), onboard -Target claude|codex + marqueur .iakaframe versionne, -Umbrella (chapeau: Odin local+global + dashboard + scan) + -InitProjects, iakaframe-alternatives (modeles locaux par agent, lance par Odin). Cadrages : conf GPU (Helm), suggestion/install modeles (Aragorn/Loki), docs en charte NaonEdge, cible ollama (kit-ollama a venir), iakaIDE annonce plus tard cote Codex."
-    },
-    {
-        "date":  "2026-06-20 21:51",
-        "reason":  "version",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "7eb28a2 docs(ollama): OpenClaw (openclaw.ai) candidat all-in-one pour la cible ollama",
-        "dirty":  false,
-        "files":  72,
-        "note":  "v0.6.1 - cible ollama complete : kit-ollama (AGENTS.md + MODELES.md table modele/agent), -Target claude|codex|ollama dans init/onboard, rapport iakaframe-alternatives, outil recommande OpenClaw (openclaw.ai, all-in-one local). Les 3 incarnations : Claude / Codex / Ollama."
-    },
-    {
-        "date":  "2026-06-21 22:53",
-        "reason":  "manual",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "09876cb feat(skills): iakaframe-log-conversation (push main courante MQTT-\u003eCouchDB)",
-        "dirty":  true,
-        "files":  108,
-        "note":  "kit-codex v0.6.0 : ajout MODELES.md + AGENTS/README/_TEMPLATE alignes ; doc HTML prise en main IA iakabox"
-    },
-    {
-        "date":  "2026-06-21 22:57",
-        "reason":  "pause",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "1a55ebf chore(iakaframe): update etat des lieux + commit global (manual)",
-        "dirty":  false,
-        "files":  108,
-        "note":  "Pause apres livraison kit-codex v0.6.0 (MODELES.md + AGENTS/README/_TEMPLATE alignes) + doc HTML prise en main IA iakabox + zip des 3 kits (local, gitignore). Reprise : envoyer le zip a l\u0027ami (cible Codex) ; option release Forgejo ; iakaIDE Codex a venir."
-    },
-    {
-        "date":  "2026-06-22 16:37",
-        "reason":  "manual",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "4b048ab docs(method): gate Legolas independant obligatoire + gradation (anti Gimli-solo)",
-        "dirty":  false,
-        "files":  164,
-        "note":  "Session: titres ASCII de royaume (FIGlet zero-dep) + cycle de session (brief/recap/jalon, tableaux, hooks) + runner aider + durcissement gate Legolas (anti Gimli-solo) + framework generique (l\u0027utilisateur)."
-    },
-    {
-        "date":  "2026-06-22 18:07",
-        "reason":  "manual",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "467528a fix(update): git stderr ne tue plus le script (piege PS 5.1)",
-        "dirty":  false,
-        "files":  164,
-        "note":  "Dettes corrigees : panneau Code idempotent (build) + fix stderr update.ps1."
-    },
-    {
-        "date":  "2026-06-22 18:08",
-        "reason":  "manual",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "85a35c9 fix(update): bascule ErrorActionPreference=Continue autour du bloc git",
-        "dirty":  true,
-        "files":  164,
-        "note":  "Dettes corrigees : panneau Code idempotent + fix stderr update.ps1 (EAP Continue)."
-    },
-    {
-        "date":  "2026-06-22 18:11",
-        "reason":  "pause",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "df44b3d chore(iakaframe): update etat des lieux + commit global (manual)",
-        "dirty":  false,
-        "files":  164,
-        "note":  "Pause apres session: 3 features (titres ASCII, cycle de session, runner aider) + gate Legolas durci + framework generique + refonte docs A-D + 2 dettes soldees. Tout pousse (df44b3d)."
-    }
+[
+  {
+    "date": "2026-06-22 18:16",
+    "reason": "pause",
+    "version": "v0.6.1",
+    "branch": "main",
+    "commit": "feb72d0 docs(reprise): etat des lieux pause - fin de session titres & rituels",
+    "dirty": false,
+    "files": 164,
+    "note": ""
+  },
+  {
+    "date": "2026-06-22 23:53",
+    "reason": "version",
+    "version": "v0.6.1",
+    "branch": "main",
+    "commit": "51f952f feat(skills): skill iakastart bootstrap team + convention globale",
+    "dirty": true,
+    "files": 167,
+    "note": "rituel identite agents : auto-annonce durcie (premiere ligne de toute reponse) + restitution en relais sous le badge de l emetteur"
+  }
 ]

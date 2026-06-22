@@ -193,8 +193,10 @@ pilotage à distance**. Équivalent self-hosted : Mattermost (même schéma).
 
 ### Identité des agents — qui te parle, et depuis quelle phase
 
-Quand un agent **s'adresse à l'utilisateur** (une **question**, une **prise de parole** qui lui est
-destinée), il **DOIT s'identifier** en tête de message — règle **obligatoire** (anti-dérive hors méthode) :
+Quand un agent **s'adresse à l'utilisateur**, il **DOIT s'identifier** — règle **obligatoire**
+(anti-dérive hors méthode). Le badge **DOIT apparaître en PREMIÈRE LIGNE de TOUTE réponse adressée
+à l'utilisateur** (pas seulement les questions ou demandes : **toute** prise de parole, y compris
+une simple restitution ou un compte rendu) :
 
 ```
 <pastille-phase> [ROYAUME][Agent]  <le message…>
@@ -232,6 +234,25 @@ destinée), il **DOIT s'identifier** en tête de message — règle **obligatoir
 > bandeau par phase (ANSI : bleu/rouge/vert/magenta/jaune). Documentée en option — la **pastille**
 > reste le défaut (universelle, sans plomberie). Les rouges/verts du diff sont rendus par le
 > harnais, non reproductibles dans la prose d'un agent.
+
+#### Restitution en relais — l'orchestrateur ne vole pas le badge de l'émetteur
+
+Quand un **orchestrateur** (🦅 Odin / 🛡️ Aragorn / **Claude principal** non personnifié) **relaie**
+le travail d'un **subagent** (dispatché via l'outil Agent, dont seul le message final revient au
+parent), il **DOIT le restituer dans un bloc identifié SOUS le badge de l'agent émetteur**, **sans
+le fondre dans sa propre voix** et **sans le reformuler à la première personne**. Il **cite/encadre**
+le message de l'émetteur tel quel, puis ajoute **son propre badge** s'il commente — l'utilisateur
+doit toujours savoir **qui** a réellement parlé.
+
+Exemple — Aragorn relaie un travail de Gimli :
+
+> 🔴 `[ROYAUME][Gimli]` — restitué par Aragorn
+> {le message du subagent Gimli, tel quel ou cité, **pas** reformulé en « je »}
+>
+> 🛡️ `[ROYAUME][Aragorn]` {commentaire d'orchestration, séparé et badgé à part}
+
+Règle : **jamais** de reformulation « je » du travail d'un subagent par l'orchestrateur ; le badge
+de l'émetteur reste visible, distinct de celui de l'orchestrateur.
 
 ### Jalons (gates) & clôture de session
 
