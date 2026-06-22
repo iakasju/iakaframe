@@ -6,6 +6,7 @@ import path from 'node:path';
 import { spawnSync, spawn } from 'node:child_process';
 import { resolveRoot } from '../lib/root.js';
 import { hasCmd } from '../lib/which.js';
+import { printBanner, DEFAULT_FONT } from '../lib/banner.js';
 
 function launchCli(cmd, dir, task) {
   const safe = task ? task.replace(/["`$;|&<>\r\n]/g, ' ').trim() : '';
@@ -42,18 +43,22 @@ export function runGo(argv) {
   }
   if (!fs.existsSync(dir)) { console.error(`Dossier introuvable : ${dir}`); process.exitCode = 1; return; }
 
-  let runner = values.runner;
-  if (!runner) { try { runner = JSON.parse(fs.readFileSync(path.join(dir, 'iakaframe.json'), 'utf8')).runner; } catch { /* defaut */ } }
-  runner = runner || 'ps';
+  let cfg = {};
+  try { cfg = JSON.parse(fs.readFileSync(path.join(dir, 'iakaframe.json'), 'utf8')); } catch { /* defaut */ }
+  let runner = values.runner || cfg.runner || 'ps';
+  const bannerFont = cfg.bannerFont || DEFAULT_FONT;
   const task = values.do || '';
 
+  // Titre ASCII du royaume qu'on ouvre.
+  printBanner(path.basename(dir), bannerFont);
+
   if (runner === 'codex') {
-    if (hasCmd('codex')) return void launchCli('codex', dir, task);
+    if (hasCmd('codex')) { printBanner('Codex', bannerFont); return void launchCli('codex', dir, task); }
     console.warn('Codex CLI absent -> fallback Claude.'); runner = 'ps';
   }
   if (runner === 'iakaide') {
     const exe = iakaideBinary(root);
-    if (exe) { console.log(`-> iakaIDE (${path.basename(dir)})`); spawn(exe, ['--project', path.basename(dir), '--do', task], { detached: true, stdio: 'ignore' }).unref(); return; }
+    if (exe) { printBanner('iakaIDE', bannerFont); console.log(`-> iakaIDE (${path.basename(dir)})`); spawn(exe, ['--project', path.basename(dir), '--do', task], { detached: true, stdio: 'ignore' }).unref(); return; }
     console.warn('iakaIDE non build -> fallback Claude.'); runner = 'ps';
   }
   // ps / defaut

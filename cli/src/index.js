@@ -8,6 +8,7 @@ import { runOnboard } from './commands/onboard.js';
 import { runUpdate } from './commands/update.js';
 import { runAgents } from './commands/agents.js';
 import { runGo } from './commands/go.js';
+import { runBanner } from './commands/banner.js';
 import { resolveRoot } from './lib/root.js';
 
 const VERSION = '0.1.0';
@@ -35,6 +36,8 @@ Commandes :
                         --agent <nom> --project <dir> --global --force
   go <projet>         Lance l'action du projet via son runner (ps/codex/iakaide)
                         --path <dir> --runner <r> --do "tache"
+  banner <texte>      Titre ASCII (FIGlet embarque, zero dep)
+                        --font <nom>  (defaut : ANSI Shadow ; repli : Standard)
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
@@ -60,6 +63,7 @@ async function main() {
     case 'config':   runConfig(rest); break;
     case 'agents':   runAgents(rest); break;
     case 'go':       runGo(rest); break;
+    case 'banner':   runBanner(rest); break;
     case 'root': {
       const i = rest.indexOf('--root');
       console.log(resolveRoot(i >= 0 ? rest[i + 1] : undefined));
