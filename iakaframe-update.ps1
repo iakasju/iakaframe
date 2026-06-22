@@ -60,9 +60,12 @@ if ($Note)    { $snapArgs.Note = $Note }
 
 # 2/3. Commit global + push
 Push-Location $Path
+# git ecrit des warnings sur stderr (LF->CRLF, progress du push) ; sous ErrorActionPreference=Stop
+# ils deviennent fatals (meme avec 2>$null en PS 5.1). On bascule en 'Continue' pour le bloc git
+# et on verifie l'exit code a la place.
+$eapSaved = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
 try {
-  # 2>$null : les warnings git (ex. LF->CRLF) sur stderr deviendraient des erreurs
-  # fatales avec ErrorActionPreference=Stop. On les ecarte ; l'exit code reste verifie.
   git add -A 2>$null
   $changes = git status --porcelain
   if (-not $changes) {
@@ -93,6 +96,7 @@ try {
     Write-Host "[3/3] Rien de nouveau a pousser." -ForegroundColor DarkGray
   }
 } finally {
+  $ErrorActionPreference = $eapSaved
   Pop-Location
 }
 
