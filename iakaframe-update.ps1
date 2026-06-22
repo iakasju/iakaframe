@@ -61,7 +61,9 @@ if ($Note)    { $snapArgs.Note = $Note }
 # 2/3. Commit global + push
 Push-Location $Path
 try {
-  git add -A
+  # 2>$null : les warnings git (ex. LF->CRLF) sur stderr deviendraient des erreurs
+  # fatales avec ErrorActionPreference=Stop. On les ecarte ; l'exit code reste verifie.
+  git add -A 2>$null
   $changes = git status --porcelain
   if (-not $changes) {
     Write-Host "`n[2/3] Rien a committer (arbre propre)." -ForegroundColor DarkGray
@@ -70,7 +72,7 @@ try {
       $v = if ($Version) { " $Version" } else { "" }
       $Message = "chore(iakaframe): update etat des lieux + commit global ($Reason$v)"
     }
-    git commit -m $Message | Out-Null
+    git commit -m $Message 2>$null | Out-Null
     Write-Host "`n[2/3] Commit global cree : $Message" -ForegroundColor Green
   }
 
@@ -81,7 +83,7 @@ try {
   } elseif ($changes) {
     $env:FORGEJO_TOKEN = [Environment]::GetEnvironmentVariable("FORGEJO_TOKEN","User")
     $branch = (git rev-parse --abbrev-ref HEAD).Trim()
-    git push origin $branch
+    git push origin $branch 2>$null
     if ($LASTEXITCODE -eq 0) {
       Write-Host "[3/3] Pousse sur origin/$branch." -ForegroundColor Green
     } else {
