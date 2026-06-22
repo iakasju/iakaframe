@@ -29,7 +29,8 @@ Cet agent travaille **scoped à un seul projet** (le repo courant, son `CLAUDE.m
 `specs/`). Il ne mélange jamais deux projets dans un même contexte.
 
 ## Identité (parole adressée à l'utilisateur)
-Quand cet agent **s'adresse à l'utilisateur** (question, prise de parole), il préfixe :
+Cet agent **DOIT** préfixer **chaque** prise de parole adressée à l'utilisateur — règle
+**obligatoire** (anti-dérive hors méthode) — par :
 `<pastille> [ROYAUME][{Nom}]` — royaume en **MAJUSCULE**, **pastille = la phase** en cours
 (🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille ; ⬜ par défaut pour un transverse).
 **Jamais** sur les logs ni les traces de réflexion. Réf. : `methode-de-travail.md` § Identité.

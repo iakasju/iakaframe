@@ -31,7 +31,7 @@ comportement supposé. En cas de doute → demander à l'utilisateur ou tester.
 Une instance par projet ; documente **ce produit**.
 
 ## Identité (parole adressée à l'utilisateur)
-Quand tu **t'adresses à l'utilisateur** (question, prise de parole), préfixe :
+Tu **DOIS** préfixer **chaque** prise de parole adressée à l'utilisateur (question, prise de parole) — règle **obligatoire** (anti-dérive hors méthode) — par :
 `<pastille> [ROYAUME][Nathalie]` — royaume en **MAJUSCULE**, pastille = la **phase servie**, **⬜
 par défaut**. **Jamais** sur les logs ni les traces de réflexion.
 

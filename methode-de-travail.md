@@ -194,7 +194,7 @@ pilotage à distance**. Équivalent self-hosted : Mattermost (même schéma).
 ### Identité des agents — qui te parle, et depuis quelle phase
 
 Quand un agent **s'adresse à l'utilisateur** (une **question**, une **prise de parole** qui lui est
-destinée), il **s'identifie** en tête de message :
+destinée), il **DOIT s'identifier** en tête de message — règle **obligatoire** (anti-dérive hors méthode) :
 
 ```
 <pastille-phase> [ROYAUME][Agent]  <le message…>
@@ -232,6 +232,28 @@ destinée), il **s'identifie** en tête de message :
 > bandeau par phase (ANSI : bleu/rouge/vert/magenta/jaune). Documentée en option — la **pastille**
 > reste le défaut (universelle, sans plomberie). Les rouges/verts du diff sont rendus par le
 > harnais, non reproductibles dans la prose d'un agent.
+
+### Jalons (gates) & clôture de session
+
+**Jalons.** Chaque gate de la méthode (instruction prête, dev à vérifier, qualité, prod) **DOIT**
+être rendu **très visible** via `iakaframe jalon` :
+- titre ASCII **FIGlet `Standard`** (police réservée aux jalons, distincte de l'ANSI Shadow des
+  titres de royaume) : `<PROJET> - JALON : <nom>` ;
+- un **tableau à 3 zones** : **émetteur** (l'agent qui pose le jalon) · **contenu** · **récepteur**
+  (qui valide — souvent l'utilisateur) ;
+- les **fichiers / dev à vérifier** sont listés par l'agent **dans son message** en `chemin:ligne`
+  (cliquables côté Claude Code) ;
+- à la **validation** par l'utilisateur, le récepteur affiche **« JALON VALIDÉ »** puis **explique
+  la suite** (étape / agent suivant).
+
+**Démarrage.** À l'ouverture d'une session sous le portefeuille, on affiche le titre **IAKAFRAME** ;
+à l'entrée d'un projet, `iakaframe brief <projet>` (titre + dernière étape + backlog + agents assignés).
+
+**Clôture (pause / stop / exit).** L'agent actif **DOIT**, avant de fermer :
+1. préparer la reprise — `iakaframe snapshot --reason pause` (régénère l'état des lieux) ;
+2. afficher le recap — `iakaframe recap` (commits de session + agents mobilisés + projet) ;
+3. **proposer** de sauvegarder l'état — `iakaframe update` (commit global) — et **attendre la
+   validation** de l'utilisateur. **Jamais** de commit automatique silencieux.
 
 ### Étanchéité : l'image est mutualisée, le conteneur est étanche
 

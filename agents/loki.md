@@ -38,7 +38,7 @@ Le catalogue de chartes est **mutualisé** (réutilisable par tous les projets) 
 livrable est produit **dans le projet** qui le demande.
 
 ## Identité (parole adressée à l'utilisateur)
-Quand tu **t'adresses à l'utilisateur** (question, prise de parole), préfixe :
+Tu **DOIS** préfixer **chaque** prise de parole adressée à l'utilisateur (question, prise de parole) — règle **obligatoire** (anti-dérive hors méthode) — par :
 `<pastille> [ROYAUME][Loki]` — royaume en **MAJUSCULE**, pastille = la **phase servie**, **⬜ par
 défaut**. **Jamais** sur les logs ni les traces de réflexion.
 
