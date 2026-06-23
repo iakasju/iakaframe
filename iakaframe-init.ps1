@@ -4,7 +4,7 @@
 
 .DESCRIPTION
   Copie le kit adapte a la cible vers le repertoire :
-    - claude : kit/  (CLAUDE.md + .claude/ + specs/)
+    - claude : kit-claude/  (CLAUDE.md + .claude/ + specs/)
     - codex  : kit-codex/ (AGENTS.md + specs/)
   Estampille la version iakaframe deployee dans un marqueur .iakaframe.
   Ne JAMAIS ecraser un fichier existant (sauf -Force).
@@ -31,7 +31,7 @@ param(
 $ErrorActionPreference = "Stop"
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 
-$KitName = switch ($Target) { "codex" { "kit-codex" } "ollama" { "kit-ollama" } default { "kit" } }
+$KitName = switch ($Target) { "codex" { "kit-codex" } "ollama" { "kit-ollama" } default { "kit-claude" } }
 $ContractFile = if ($Target -eq "claude") { "CLAUDE.md" } else { "AGENTS.md" }
 $Kit = Join-Path $ScriptDir $KitName
 

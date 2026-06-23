@@ -21,7 +21,7 @@ export function runInit(argv) {
   }
   const dest = path.resolve(values.path || process.cwd());
   const root = frameworkRoot();
-  if (!root) { console.error('Racine iakaframe introuvable (dossier kit/ absent).'); process.exitCode = 1; return false; }
+  if (!root) { console.error('Racine iakaframe introuvable (dossier kit-claude/ absent).'); process.exitCode = 1; return false; }
 
   const kit = path.join(root, kitName(values.target));
   const contract = contractFile(values.target);

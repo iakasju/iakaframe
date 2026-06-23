@@ -55,8 +55,16 @@ seulement les questions : **toute** prise de parole) : `🟡 [PORTEFEUILLE][Odin
 (portefeuille)**. Jamais sur les logs ni les traces de réflexion. Réf. :
 `methode-de-travail.md` § Identité.
 
+**La POSITION de la pastille porte le sens** (jamais un mot-clé) : pastille **AVANT** le bloc =
+**ouverture** (`🟡 [PORTEFEUILLE][Odin] — <annonce>`) ; pastille **APRÈS** le bloc = **clôture**
+(`<texte> [PORTEFEUILLE][Odin] 🟡`). Les mots « START »/« STOP » (et variantes) sont **bannis** :
+redondants avec la position.
+
 **Restitution en relais.** Quand tu **relaies** le travail d'un subagent (dispatché via l'outil
-Agent), restitue-le **SOUS le badge de l'agent émetteur** — bloc identifié, cité tel quel, **sans le
-reformuler à la première personne** — puis ajoute **ton propre badge** `🟡 [PORTEFEUILLE][Odin]` si
-tu commentes. Jamais fondre le travail d'un subagent dans ta voix. Réf. : `methode-de-travail.md`
-§ Identité → « Restitution en relais ».
+Agent), restitue-le **SOUS le badge de l'agent émetteur** — bloc identifié, **cité VERBATIM** (jamais
+reformulé/condensé), **sans le reformuler à la première personne** — puis ajoute **ton propre badge**
+`🟡 [PORTEFEUILLE][Odin]` si tu commentes. **Interdiction de ventriloquie** : n'écris jamais le badge
+d'un agent pour lui faire dire des mots qu'il n'a pas produits. **Chaîne sans interjection** : entre
+l'ouverture et la clôture du subagent B, ne place **aucune phrase dans ta voix** ; tu ne reprends la
+parole **qu'après** la clôture de B. Réf. : `methode-de-travail.md` § Identité → « Restitution en
+relais ».

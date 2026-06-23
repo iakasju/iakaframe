@@ -21,7 +21,7 @@ en place, au lieu de le réinventer à chaque fois.
 | [`agents/`](./agents/) | **Définitions des subagents** de l'équipe (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie) + `_TEMPLATE.md`. |
 | [`skills/`](./skills/) | **12 skills** : savoir-faire des agents + briques de cycle de vie. Voir [`skills/README.md`](./skills/README.md). |
 | [`specs/equipe-agents.md`](./specs/equipe-agents.md) | **Référence canonique de l'équipe d'agents** (roster, 3 phases + squad prod, identité, étanchéité, incarnation). |
-| [`kit/`](./kit/) | **Kit de démarrage** à copier dans tout nouveau projet. |
+| [`kit-claude/`](./kit-claude/) | **Kit de démarrage** à copier dans tout nouveau projet. |
 | [`cli/`](./cli/) | **CLI Node multi-OS** `@naonedge/iakaframe` (Windows/macOS/Linux, **zéro dépendance** runtime) : 13 commandes de la méthode (`onboard`/`init`/`snapshot`/`update`/`services`/`config`/`agents`/`go`/`banner`/`brief`/`recap`/`jalon`/`root`). Voir [`cli/README.md`](./cli/README.md). |
 | [`iakaframe-init.ps1`](./iakaframe-init.ps1) | Déploie la structure du kit (sans rien écraser). |
 | [`iakaframe-forgejo.ps1`](./iakaframe-forgejo.ps1) | Crée le dépôt Forgejo + branche le remote (token via env). |
@@ -33,10 +33,10 @@ en place, au lieu de le réinventer à chaque fois.
 | [`design-naonedge/`](./design-naonedge/) | **Design NaonEdge** (label figé) : `naonedge.css` (charte canon), `naonedge-charte.md`, gabarits doc/slides/flyer, logo. À réutiliser pour tous les supports. |
 | [`docs/`](./docs/) | Documents de référence (note de cadrage « Yakaframe Avancé », etc.). |
 
-### Le kit de démarrage (`kit/`)
+### Le kit de démarrage (`kit-claude/`)
 
 ```
-kit/
+kit-claude/
 ├── CLAUDE.md                       ← Contrat de travail Claude Code (à remplir)
 ├── .claude/settings.local.json     ← Permissions (allowlist large + denylist destructive)
 └── specs/
@@ -45,7 +45,7 @@ kit/
         └── _TEMPLATE.md            ← Gabarit d'un fichier d'instruction
 ```
 
-**Pour démarrer un projet :** copier le contenu de `kit/` à la racine du nouveau
+**Pour démarrer un projet :** copier le contenu de `kit-claude/` à la racine du nouveau
 repo, puis remplir `CLAUDE.md` et `specs/PROJET.md`.
 
 ---

@@ -3,17 +3,17 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Racine des assets iakaframe (kit/, agents/, skills/, design-*).
+// Racine des assets iakaframe (kit-claude/, agents/, skills/, design-*).
 // 1) paquet publie : <pkg>/_bundled (genere par scripts/bundle.js au prepack)
-// 2) dev in-repo : 1er parent contenant un dossier 'kit'.
+// 2) dev in-repo : 1er parent contenant un dossier 'kit-claude'.
 export function frameworkRoot() {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const pkgRoot = path.resolve(here, '..', '..');          // cli/src/lib -> cli/
   const bundled = path.join(pkgRoot, '_bundled');
-  if (fs.existsSync(path.join(bundled, 'kit'))) return bundled;
+  if (fs.existsSync(path.join(bundled, 'kit-claude'))) return bundled;
   let d = here;
   for (let i = 0; i < 8; i++) {
-    if (fs.existsSync(path.join(d, 'kit'))) return d;
+    if (fs.existsSync(path.join(d, 'kit-claude'))) return d;
     const up = path.dirname(d);
     if (up === d) break;
     d = up;
@@ -22,7 +22,7 @@ export function frameworkRoot() {
 }
 
 export function kitName(target) {
-  return target === 'codex' ? 'kit-codex' : target === 'ollama' ? 'kit-ollama' : 'kit';
+  return target === 'codex' ? 'kit-codex' : target === 'ollama' ? 'kit-ollama' : 'kit-claude';
 }
 export function contractFile(target) {
   return target === 'claude' ? 'CLAUDE.md' : 'AGENTS.md';

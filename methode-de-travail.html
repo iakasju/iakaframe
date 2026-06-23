@@ -752,13 +752,13 @@ main {
     <thead><tr><th>Agent</th><th>Pastille</th><th>Rôle</th><th>Phase</th><th>Skill</th></tr></thead>
     <tbody>
       <tr><td>🦅 Odin</td><td>🟡</td><td>Super-agent <strong>portefeuille</strong> : switch d'équipe, démarrage projet, création d'équipe (seul à <code>C:\work</code>)</td><td>Portefeuille</td><td><code>iakaframe-odin</code></td></tr>
-      <tr><td>🛡️ Aragorn</td><td>⬜</td><td>Coordination entre agents, suivi des phases, dispatch à la demande, canal Slack</td><td>Transverse</td><td><code>iakaframe-aragorn</code></td></tr>
+      <tr><td>🛡️ Aragorn</td><td>🟠</td><td>Coordination entre agents, suivi des phases, dispatch à la demande, canal Slack</td><td>Transverse</td><td><code>iakaframe-aragorn</code></td></tr>
       <tr><td>🧙 Gandalf</td><td>🔵</td><td>Architecte-cadreur : besoin → instruction fermée</td><td>P1 Cadrage</td><td><code>iakaframe-cadrage</code></td></tr>
       <tr><td>⚒️ Gimli</td><td>🔴/🟢</td><td><strong>Dev + devops</strong> : code, build, commits, déploiement jusqu'au staging (×N)</td><td>P2 → P3</td><td>CLAUDE.md</td></tr>
       <tr><td>🏹 Legolas</td><td>🔴/🟢</td><td>Qualité / test : verdict PASS, gate auto (dev + validation stage)</td><td>P2 / P3</td><td><code>iakaframe-qualite</code></td></tr>
       <tr><td>🌉 Helm</td><td>🟣</td><td><strong>Équipe prod</strong> : déploiement prod, surveillance, alertes, rollback, accès</td><td>Prod (squad)</td><td><code>iakaframe-deploiement</code></td></tr>
-      <tr><td>🎭 Loki</td><td>⬜</td><td>Design : supports on-brand (catalogue de chartes <code>design-*/</code>)</td><td>Transverse</td><td><code>iakaframe-naonedge</code></td></tr>
-      <tr><td>📖 Nathalie</td><td>⬜</td><td>Guides utilisateurs / documentation</td><td>Transverse</td><td><code>iakaframe-nathalie</code></td></tr>
+      <tr><td>🎭 Loki</td><td>🟠</td><td>Design : supports on-brand (catalogue de chartes <code>design-*/</code>)</td><td>Transverse</td><td><code>iakaframe-naonedge</code></td></tr>
+      <tr><td>📖 Nathalie</td><td>🟠</td><td>Guides utilisateurs / documentation</td><td>Transverse</td><td><code>iakaframe-nathalie</code></td></tr>
     </tbody>
   </table>
   <p style="font-size:.9rem;color:var(--text-muted)">n8n / Hermes sont des <strong>outils</strong> d'orchestration qu'Aragorn pilote — pas des agents.</p>
@@ -777,7 +777,7 @@ main {
       <tr><td><span class="ph-portef">Portefeuille</span></td><td>🟡</td><td><span class="ph-portef">🟡 [PORTEFEUILLE][Odin]</span> je rebascule le focus.</td></tr>
     </tbody>
   </table>
-  <p style="font-size:.9rem;color:var(--text-muted)">Transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la <strong>phase servie</strong>, ⬜ par défaut. Rendu : pastille partout, <code>code inline</code> en session, vraie couleur en HTML, option PowerShell <code>iaka-say</code> en terminal.</p>
+  <p style="font-size:.9rem;color:var(--text-muted)">Transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la <strong>phase servie</strong>, 🟠 par défaut. Rendu : pastille partout, <code>code inline</code> en session, vraie couleur en HTML, option PowerShell <code>iaka-say</code> en terminal.</p>
 
   <h3>Jalons (gates) &amp; clôture de session</h3>
   <p>Chaque gate de la méthode (instruction prête, dev à vérifier, qualité, prod) <strong>DOIT</strong> être rendu <strong>très visible</strong> via <code>iakaframe jalon</code> — pas un simple message noyé dans le flux.</p>
@@ -858,7 +858,7 @@ Cet agent travaille **scoped à un seul projet** (le repo courant, son `CLAUDE.m
 Cet agent **DOIT** préfixer **chaque** prise de parole adressée à l'utilisateur — règle
 **obligatoire** (anti-dérive hors méthode) — par :
 `&lt;pastille&gt; [ROYAUME][{Nom}]` — royaume en **MAJUSCULE**, **pastille = la phase** en cours
-(🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille ; ⬜ par défaut pour un transverse).
+(🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille ; 🟠 par défaut pour un transverse).
 **Jamais** sur les logs ni les traces de réflexion. Réf. : `methode-de-travail.md` § Identité.
 
 ## Pourquoi un agent ?
@@ -935,7 +935,7 @@ Une instance d'Aragorn par projet. Il coordonne l'équipe **de ce projet uniquem
 ## Identité (parole adressée à l'utilisateur)
 Tu **DOIS** préfixer **chaque** prise de parole adressée à l'utilisateur (question, prise de parole, demande de feu vert) — règle **obligatoire** (anti-dérive hors méthode) — par :
 `&lt;pastille&gt; [ROYAUME][Aragorn]` — royaume en **MAJUSCULE**, pastille = la **phase servie** au
-moment où tu parles (🔵/🔴/🟢/🟣), **⬜ par défaut**. **Jamais** sur les logs ni les traces de
+moment où tu parles (🔵/🔴/🟢/🟣), **🟠 par défaut**. **Jamais** sur les logs ni les traces de
 réflexion.
 
 ## Pourquoi un agent ?
@@ -1199,7 +1199,7 @@ livrable est produit **dans le projet** qui le demande.
 
 ## Identité (parole adressée à l'utilisateur)
 Tu **DOIS** préfixer **chaque** prise de parole adressée à l'utilisateur (question, prise de parole) — règle **obligatoire** (anti-dérive hors méthode) — par :
-`&lt;pastille&gt; [ROYAUME][Loki]` — royaume en **MAJUSCULE**, pastille = la **phase servie**, **⬜ par
+`&lt;pastille&gt; [ROYAUME][Loki]` — royaume en **MAJUSCULE**, pastille = la **phase servie**, **🟠 par
 défaut**. **Jamais** sur les logs ni les traces de réflexion.
 
 ## Pourquoi un agent ?
@@ -1239,7 +1239,7 @@ Une instance par projet ; documente **ce produit**.
 
 ## Identité (parole adressée à l'utilisateur)
 Tu **DOIS** préfixer **chaque** prise de parole adressée à l'utilisateur (question, prise de parole) — règle **obligatoire** (anti-dérive hors méthode) — par :
-`&lt;pastille&gt; [ROYAUME][Nathalie]` — royaume en **MAJUSCULE**, pastille = la **phase servie**, **⬜
+`&lt;pastille&gt; [ROYAUME][Nathalie]` — royaume en **MAJUSCULE**, pastille = la **phase servie**, **🟠
 par défaut**. **Jamais** sur les logs ni les traces de réflexion.
 
 ## Pourquoi un agent ?
@@ -1396,7 +1396,7 @@ prochaine action. Pas de bavardage. Alternative self-hosted : **Mattermost** (m�
 
 ## Identité (parole adressée à l'utilisateur)
 Quand tu t'adresses à l'utilisateur, préfixe : `&lt;pastille&gt; [ROYAUME][Aragorn]` — royaume en
-**MAJUSCULE**, pastille = la **phase servie** (🔵/🔴/🟢/🟣), **⬜ par défaut**. Jamais sur les
+**MAJUSCULE**, pastille = la **phase servie** (🔵/🔴/🟢/🟣), **🟠 par défaut**. Jamais sur les
 logs ni les traces de réflexion. Réf. : `methode-de-travail.md` § Identité.
 </pre></div>
 <div class="codecard"><div class="codecard-head"><span><span class="fname">iakaframe-cadrage</span><span class="fpath">skills/iakaframe-cadrage/SKILL.md</span></span><button class="dlbtn" onclick="iakaDL('code-skill-iakaframe-cadrage','iakaframe-cadrage-SKILL.md')">&#x2B07; download</button></div><pre id="code-skill-iakaframe-cadrage" data-path="skills/iakaframe-cadrage/SKILL.md">---

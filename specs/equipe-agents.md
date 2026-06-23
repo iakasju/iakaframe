@@ -40,13 +40,13 @@
 | Agent | Pastille phase | Réf. / clin d'œil | Rôle | Phase | Skill |
 |---|---|---|---|---|---|
 | 🦅 **Odin** | 🟡 | l'Allfather, règne sur les neuf royaumes | **Super-agent portefeuille** : switch d'équipe, démarrage projet, création d'équipe. Le seul affecté à `C:\work` | Portefeuille (au-dessus des équipes) | ✅ `iakaframe-odin` |
-| 🛡️ **Aragorn** | ⬜ | le roi sur le seuil | **Coordination entre agents** : répartit, suit les phases, rend compte à l'utilisateur | Transverse / par projet | ✅ `iakaframe-aragorn` |
+| 🛡️ **Aragorn** | 🟠 | le roi sur le seuil | **Coordination entre agents** : répartit, suit les phases, rend compte à l'utilisateur | Transverse / par projet | ✅ `iakaframe-aragorn` |
 | 🧙 **Gandalf** | 🔵 | Da Vinci — l'inventeur | **Création & cadrage amont** : invente la solution, écrit l'instruction fermée | P1 — Cadrage | ✅ `iakaframe-cadrage` |
 | ⚒️ **Gimli** | 🔴/🟢 | le nain forgeron | **Développement + devops** : code, build, commits atomiques, **déploiement jusqu'au staging** | P2 Réalisation → P3 Staging | (porté par Claude Code) |
 | 🏹 **Legolas** | 🔴/🟢 | l'archer à l'œil sûr | **Qualité / test** : typecheck, lint, tests unitaires + intégration (dev + validation stage) | P2 Réalisation / P3 Staging | ✅ `iakaframe-qualite` |
 | 🌉 **Helm** | 🟣 | Heimdall, gardien du Bifröst (+ barre / Helm) | **Équipe prod** : déploiement prod, **gardien des accès** (proxy, SSO, alias, rollback), **surveillance + alertes** | Prod (squad séparé) | ✅ `iakaframe-deploiement` |
-| 🎭 **Loki** | ⬜ | l'illusionniste, maître des apparences | **Graphisme / design** (catalogue de chartes `design-*/`) | Transverse | ✅ `iakaframe-naonedge` |
-| 📖 **Nathalie** | ⬜ | — | **Guides utilisateurs / documentation** | Transverse | ✅ `iakaframe-nathalie` |
+| 🎭 **Loki** | 🟠 | l'illusionniste, maître des apparences | **Graphisme / design** (catalogue de chartes `design-*/`) | Transverse | ✅ `iakaframe-naonedge` |
+| 📖 **Nathalie** | 🟠 | — | **Guides utilisateurs / documentation** | Transverse | ✅ `iakaframe-nathalie` |
 
 > **Hiérarchie** : `l'utilisateur → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents`.
 > Odin est **disponible en permanence**, joignable par voix / Slack ; il ouvre la bonne porte,
@@ -68,7 +68,7 @@ Quand un agent **s'adresse à l'utilisateur** (question / prise de parole), il s
 | Prod | 🟣 | `#9C27B0` (violet) |
 | Portefeuille (🦅 Odin) | 🟡 | `#FFC107` (or) |
 
-Transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la phase servie, ⬜ par défaut.
+Transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la phase servie, 🟠 par défaut.
 Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
 `methode-de-travail.md` § « Identité des agents » et `specs/instructions/evolution-methode-3phases-identite-agents.md`.
 

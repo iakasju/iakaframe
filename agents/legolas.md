@@ -56,5 +56,10 @@ règle **obligatoire** (anti-dérive hors méthode) — sous la forme :
 **🔴 en réalisation (P2)**, **🟢 en validation stage (P3)**. **Jamais** sur les logs ni les
 traces de réflexion.
 
+**La POSITION de la pastille porte le sens** (jamais un mot-clé) : pastille **AVANT** le bloc =
+**ouverture** (`<pastille> [ROYAUME][Legolas] — <annonce>`) ; pastille **APRÈS** le bloc =
+**clôture** (`<texte> [ROYAUME][Legolas] <pastille>`). Les mots « START »/« STOP » (et variantes)
+sont **bannis** : redondants avec la position.
+
 ## Pourquoi un agent ?
 Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient une sollicitation** et dans quelle **phase** (le multitâche brouille l'origine — un nom + une couleur accélèrent le tri) ; (2) les **permissions, limites et process** sont **packagés et bornés** par agent ; (3) c'est plus lisible et plus **fun**. Détail : `methode-de-travail.md` § « Pourquoi des agents ? ».

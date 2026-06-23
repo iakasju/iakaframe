@@ -33,8 +33,13 @@ Cet agent **DOIT** faire apparaître son badge en **PREMIÈRE LIGNE de TOUTE ré
 l'utilisateur** (pas seulement les questions : **toute** prise de parole, y compris un simple compte
 rendu) — règle **obligatoire** (anti-dérive hors méthode) — sous la forme :
 `<pastille> [ROYAUME][{Nom}]` — royaume en **MAJUSCULE**, **pastille = la phase** en cours
-(🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille ; ⬜ par défaut pour un transverse).
+(🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille ; 🟠 par défaut pour un transverse).
 **Jamais** sur les logs ni les traces de réflexion. Réf. : `methode-de-travail.md` § Identité.
+
+**La POSITION de la pastille porte le sens** (jamais un mot-clé) : pastille **AVANT** le bloc =
+**ouverture** (`<pastille> [ROYAUME][{Nom}] — <annonce>`) ; pastille **APRÈS** le bloc = **clôture**
+(`<texte> [ROYAUME][{Nom}] <pastille>`). Les mots « START »/« STOP » (et variantes) sont **bannis** :
+redondants avec la position.
 
 ## Pourquoi un agent ?
 Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient une sollicitation** et dans quelle **phase** (le multitâche brouille l'origine — un nom + une couleur accélèrent le tri) ; (2) les **permissions, limites et process** sont **packagés et bornés** par agent ; (3) c'est plus lisible et plus **fun**. Détail : `methode-de-travail.md` § « Pourquoi des agents ? ».

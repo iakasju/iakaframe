@@ -114,7 +114,7 @@ de parole** qui lui est destinée — il **préfixe** son message par son identi
 
 > **Agents transverses** (🛡️ Aragorn coordination, 🎭 Loki design, 📖 Nathalie guides) :
 > prennent la **pastille de la phase qu'ils servent** au moment où ils parlent ; à défaut de
-> phase rattachée, ⬜ (neutre).
+> phase rattachée, ⬜ (neutre). *(⬜ remplacé par 🟠 — rond orange — depuis la Décision 3.7 du rituel d'identité, 2026-06-23.)*
 
 **Rendu :**
 - **Session Claude Code** : pastille emoji (= couleur de la **phase**) **+ libellé

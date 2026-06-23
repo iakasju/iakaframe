@@ -104,13 +104,13 @@ Chaque agent porte une **incarnation** (un nom) pour le rendre mémorisable.
 | Agent | Pastille | Rôle | Phase | Skill |
 |---|---|---|---|---|
 | 🦅 **Odin** | 🟡 | Super-agent **portefeuille** : switch d'équipe, démarrage projet, création d'équipe | Portefeuille (le seul sur `C:\work`) | `iakaframe-odin` |
-| 🛡️ **Aragorn** | ⬜ | Coordination entre agents, suivi des phases, reporting | Transverse / par projet | `iakaframe-aragorn` |
+| 🛡️ **Aragorn** | 🟠 | Coordination entre agents, suivi des phases, reporting | Transverse / par projet | `iakaframe-aragorn` |
 | 🧙 **Gandalf** | 🔵 | Architecte-cadreur : besoin → instruction fermée | P1 — Cadrage | `iakaframe-cadrage` |
 | ⚒️ **Gimli** | 🔴/🟢 | **Dev + devops** : code, build, commits, **déploiement jusqu'au staging** (×N) | P2 Réalisation → P3 Staging | (CLAUDE.md) |
 | 🏹 **Legolas** | 🔴/🟢 | Qualité / test : verdict PASS, gate auto (dev + validation stage) | P2 Réalisation / P3 Staging | `iakaframe-qualite` |
 | 🌉 **Helm** | 🟣 | **Équipe prod** : déploiement prod, surveillance, alertes, rollback, accès | Prod (squad séparé) | `iakaframe-deploiement` |
-| 🎭 **Loki** | ⬜ | Design : supports on-brand (catalogue de chartes `design-*/`) | Transverse | `iakaframe-naonedge` |
-| 📖 **Nathalie** | ⬜ | Guides utilisateurs / documentation | Transverse | `iakaframe-nathalie` |
+| 🎭 **Loki** | 🟠 | Design : supports on-brand (catalogue de chartes `design-*/`) | Transverse | `iakaframe-naonedge` |
+| 📖 **Nathalie** | 🟠 | Guides utilisateurs / documentation | Transverse | `iakaframe-nathalie` |
 
 > **n8n / Hermes** sont des **outils** d'orchestration qu'Aragorn pilote — pas des agents.
 
@@ -215,11 +215,20 @@ une simple restitution ou un compte rendu) :
   | Prod | 🟣 | violet |
   | Portefeuille (🦅 Odin) | 🟡 | or |
 
-  Agents transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la **phase servie**, ⬜ par défaut.
+  Agents transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la **phase servie**, 🟠 par défaut.
 
 - **Périmètre STRICT** : seulement les **paroles adressées à l'utilisateur**. **Jamais** sur les
   **logs**, les **traces de réflexion**, la sortie d'outils. L'identité dit « un agent te
   parle » ; elle ne pollue pas le travail.
+
+- **La POSITION de la pastille porte le sens — jamais un mot-clé.** Le « double badge » d'une
+  intervention s'exprime par **où se trouve la pastille**, pas par un libellé :
+  - **Ouverture** = pastille **AVANT** le bloc : `🟡 [PORTEFEUILLE][Odin] — <annonce de ce qui va être fait>`.
+  - **Clôture** = pastille **APRÈS** le bloc : `<texte final> [PORTEFEUILLE][Odin] 🟡`.
+
+  Les mots « START » / « STOP » (et toutes leurs variantes : `(START)`, `— START :`, `(start + stop)`, etc.)
+  sont **bannis** du texte des badges et des messages d'identité : ils sont **redondants** avec la
+  position de la pastille. On dit « ouverture (pastille avant) » et « clôture (pastille après) ».
 
 **Rendu.** Pastille emoji **partout** (terminal, Slack, HTML) ; en session le libellé passe en
 `code inline` pour ressortir ; en **HTML** il prend la **vraie couleur** de la phase. Exemples :
@@ -253,6 +262,23 @@ Exemple — Aragorn relaie un travail de Gimli :
 
 Règle : **jamais** de reformulation « je » du travail d'un subagent par l'orchestrateur ; le badge
 de l'émetteur reste visible, distinct de celui de l'orchestrateur.
+
+**Chaîne de badges sans interjection (délégation A→B).** Sur une délégation, la séquence est
+**strictement** : (1) **A ouvre** (pastille avant) et annonce qu'il délègue à B ; (2) **A clôt**
+(pastille après) ; (3) **immédiatement B ouvre** (pastille avant) et parle **à la première
+personne** ; (4) **B travaille puis restitue** ; (5) **B clôt** (pastille après) ; (6) **A rouvre**
+pour restituer en relais (sous le badge de B) et/ou commenter. **Interdit** : entre l'ouverture de B
+(3) et la clôture de B (5), l'orchestrateur A **ne place AUCUNE phrase dans SA voix** (pas de « je le
+dispatche », « règle enregistrée », « voilà le retour »…). A ne reprend la parole **qu'après** la
+clôture de B.
+
+**Citation verbatim — aucun agent ne parle sous le badge d'un autre.** Un badge `[ROYAUME][Agent]`
+n'introduit **QUE les mots propres de l'agent qu'il nomme**. Lors d'une restitution en relais,
+l'orchestrateur **cite VERBATIM** la sortie de l'émetteur sous le badge de celui-ci — **jamais** une
+reformulation, condensation, sélection ou synthèse. Tout commentaire/condensé est la **voix de
+l'orchestrateur** et apparaît **sous SON propre badge**. **Interdiction de ventriloquie** : on
+n'écrit jamais le badge d'un agent pour lui faire dire des mots qu'il n'a pas produits. (Portée des
+deux règles ci-dessus : **orchestrateurs uniquement** — 🦅 Odin / 🛡️ Aragorn / Claude principal.)
 
 ### Jalons (gates) & clôture de session
 

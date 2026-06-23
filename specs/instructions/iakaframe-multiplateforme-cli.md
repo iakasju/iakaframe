@@ -18,7 +18,7 @@ ni des specificites Windows**.
 | Brique | Etat multi-OS |
 |---|---|
 | Scripts `*.ps1` (onboard/init/snapshot/update/agents/services/alternatives/config) | **Windows-centric** : `C:\work`, registre `HKCU` (protocole `naonwork://`), `wt.exe`, chemins. **= le verrou.** |
-| Kits (`kit/`, `kit-codex/`, `kit-ollama/`) | **Deja OS-agnostiques** (markdown/templates). |
+| Kits (`kit-claude/`, `kit-codex/`, `kit-ollama/`) | **Deja OS-agnostiques** (markdown/templates). |
 | Stack qualite (`stack-qualite/`, SonarQube+Allure) | **OS-agnostique** (Docker). Inchangee. |
 | Acces Forgejo / Sonar | HTTP + token = **portable**. |
 | Dashboard NaonEdge (`scan.ps1`, bouton Go) | PowerShell + protocole Windows = **a porter / deleguer a iakaIDE**. |

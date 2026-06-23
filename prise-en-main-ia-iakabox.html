@@ -475,8 +475,8 @@ codex --profile gandalf    <span class="cmt"># je joue Gandalf, sur le cloud de 
       <tr><td class="name">🏹 Legolas</td><td>🔴 Qualité / revue / tests</td><td><code>qwen2.5-coder:14b</code> (≠ Gimli)</td><td>modèle de raisonnement si revue sensible</td><td>Gate indépendant : ne jamais réutiliser le modèle qui a écrit le code.</td></tr>
       <tr><td class="name">🌉 Helm</td><td>🟣 Déploiement prod</td><td><code>qwen2.5:14b</code></td><td><span class="tag t-go">conseillé</span> modèle fiable</td><td>Risque élevé (rollback, prod) : priorité à la fiabilité.</td></tr>
       <tr><td class="name">🦅 Odin</td><td>🟡 Portefeuille</td><td><code>qwen2.5:14b</code></td><td><span class="tag t-go">conseillé</span> meilleur raisonnement</td><td>Vue d'ensemble multi-projets, orchestration : cloud recommandé.</td></tr>
-      <tr><td class="name">🎭 Loki</td><td>⬜ Design on-brand</td><td><code>qwen2.5:7b</code></td><td>GPT multimodal (visuel)</td><td>Cohérence de charte ; le multimodal aide sur l'UI.</td></tr>
-      <tr><td class="name">📖 Nathalie</td><td>⬜ Guides / docs</td><td><span class="tag t-on">suffit</span> <code>qwen2.5:7b</code></td><td>optionnel</td><td>Tâche surtout linguistique (FR) : le local est largement assez bon.</td></tr>
+      <tr><td class="name">🎭 Loki</td><td>🟠 Design on-brand</td><td><code>qwen2.5:7b</code></td><td>GPT multimodal (visuel)</td><td>Cohérence de charte ; le multimodal aide sur l'UI.</td></tr>
+      <tr><td class="name">📖 Nathalie</td><td>🟠 Guides / docs</td><td><span class="tag t-on">suffit</span> <code>qwen2.5:7b</code></td><td>optionnel</td><td>Tâche surtout linguistique (FR) : le local est largement assez bon.</td></tr>
     </tbody>
   </table></div>
   <div class="note info"><p><b>Repère VRAM (RTX 3060, 12 Go).</b> Un modèle <strong>7B</strong> quantifié (q4) tourne <em>confortablement</em> ; un <strong>14B</strong> q4 passe mais <em>serré</em> (un seul à la fois) ; au-delà → cloud. Pour les sous-tâches triviales (renommer, reformater), garde un <strong>petit rapide</strong> : <code>llama3.2:3b</code>.</p></div>

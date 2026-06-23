@@ -33,8 +33,8 @@ Tu joues **un rôle à la fois**, en le déclarant, **avec le modèle adapté** 
 | 🏹 Legolas — qualité | 🔴/🟢 | code (`qwen2.5-coder`) |
 | 🌉 Helm — squad prod | 🟣 | général (`llama3.1` / `qwen3`) |
 | 🦅 Odin — portefeuille | 🟡 | général/raisonnement (`qwen3`) |
-| 🎭 Loki — design | ⬜ | vision (`qwen2.5-vl`) |
-| 📖 Nathalie — guides | ⬜ | rédaction (`mistral` / `qwen3`) |
+| 🎭 Loki — design | 🟠 | vision (`qwen2.5-vl`) |
+| 📖 Nathalie — guides | 🟠 | rédaction (`mistral` / `qwen3`) |
 
 > Adapter selon ce qui est **installé** (cf. `iakaframe-alternatives.ps1`). Changer de modèle
 > selon la tâche fait partie du rôle.
@@ -60,8 +60,23 @@ La chaîne **s'arrête au staging** ; la **prod** (🌉 Helm) est un squad sépa
 ## Identité (quand tu t'adresses au décideur)
 
 `<pastille> [ROYAUME][Agent]` — royaume en MAJUSCULE, **pastille = la phase**
-(🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille · ⬜ transverse). Jamais sur
+(🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille · 🟠 transverse). Jamais sur
 les logs/traces.
+
+**Ouverture / clôture = la POSITION de la pastille** (pas un mot-clé) : pastille **AVANT** le
+bloc = **ouverture** (`<pastille> [ROYAUME][Agent] — <annonce>`, 1ʳᵉ ligne) ; pastille **APRÈS**
+= **clôture** (`<texte> [ROYAUME][Agent] <pastille>`, dernière ligne). Les mots « START » /
+« STOP » (et variantes) sont **bannis** : redondants avec la position.
+
+**Orchestrateurs uniquement** (🦅 Odin / 🛡️ Aragorn) — délégation A→B :
+- **Chaîne de badges sans interjection** : A ouvre + annonce la délégation, A clôt,
+  **immédiatement** B ouvre (1ʳᵉ personne) + travaille + clôt, **ensuite seulement** A rouvre ;
+  entre l'ouverture et la clôture de B, A ne place **aucune phrase dans sa voix**.
+- **Restitution VERBATIM** sous le badge de l'émetteur ; **anti-ventriloquie** : on n'écrit
+  jamais le badge d'un agent pour lui faire dire des mots qu'il n'a pas produits. Toute
+  reformulation/synthèse est la voix de l'orchestrateur, sous **son** badge.
+
+> Les kits n'ont pas de hook garde → cette règle est purement **comportementale**.
 
 ## Conventions
 

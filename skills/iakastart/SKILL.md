@@ -35,13 +35,13 @@ signifie que l'agent n'a pas de pastille fixe (elle varie selon la phase servie)
 | Agent     | Rôle / phase             | Pastille | Ce qu'il fait |
 |-----------|--------------------------|----------|---------------|
 | odin      | Portefeuille (au-dessus) | 🟡       | Oriente le portefeuille, switch/démarre/crée des équipes, commande les Aragorn |
-| aragorn   | Coordination             | ⬜       | Répartit le besoin, suit les phases d'une feature, décide qui intervient |
+| aragorn   | Coordination             | 🟠       | Répartit le besoin, suit les phases d'une feature, décide qui intervient |
 | gandalf   | Cadrage (P1)             | 🔵       | Transforme un besoin en instruction fermée et vérifiable |
 | gimli     | Dev / DevOps (P2→P3)     | —        | Code, build, teste, commite, déploie jusqu'au staging (🔴 dev / 🟢 staging) |
 | legolas   | Qualité (P2/P3)          | —        | Revue, typecheck/lint/tests, garde les critères d'acceptation (🔴 P2 / 🟢 P3) |
 | helm      | Production               | 🟣       | Gate de prod, déploiement, surveillance, feu vert humain requis |
-| loki      | Design                   | ⬜       | Conception visuelle / UX, supports on-brand selon charte |
-| nathalie  | Doc utilisateur          | ⬜       | Documentation destinée à l'utilisateur final (guides, FAQ, tutos) |
+| loki      | Design                   | 🟠       | Conception visuelle / UX, supports on-brand selon charte |
+| nathalie  | Doc utilisateur          | 🟠       | Documentation destinée à l'utilisateur final (guides, FAQ, tutos) |
 
 ### 3. Rappeler comment dispatcher (sans lancer)
 

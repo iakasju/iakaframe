@@ -12,8 +12,8 @@
 | 🏹 Legolas | 🔴 qualité / revue / tests | modèle de raisonnement si revue sensible | `qwen2.5-coder:14b` (**≠ Gimli**) | Gate indépendant : ne jamais réutiliser le modèle qui a écrit le code. |
 | 🌉 Helm | 🟣 déploiement prod | **conseillé** : modèle fiable | `qwen2.5:14b` | Risque élevé (rollback, prod) : priorité à la fiabilité. |
 | 🦅 Odin | 🟡 portefeuille | **conseillé** : meilleur raisonnement | `qwen2.5:14b` | Vue d'ensemble multi-projets : cloud recommandé. |
-| 🎭 Loki | ⬜ design on-brand | GPT multimodal (visuel) | `qwen2.5:7b` (ou `qwen2.5-vl`) | Cohérence de charte ; le multimodal aide sur l'UI. |
-| 📖 Nathalie | ⬜ guides / docs | optionnel | **suffit** : `qwen2.5:7b` | Tâche surtout linguistique (FR) : le local est assez bon. |
+| 🎭 Loki | 🟠 design on-brand | GPT multimodal (visuel) | `qwen2.5:7b` (ou `qwen2.5-vl`) | Cohérence de charte ; le multimodal aide sur l'UI. |
+| 📖 Nathalie | 🟠 guides / docs | optionnel | **suffit** : `qwen2.5:7b` | Tâche surtout linguistique (FR) : le local est assez bon. |
 
 ## Principe
 
