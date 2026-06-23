@@ -8,7 +8,7 @@ const cliDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = path.resolve(cliDir, '..');
 const bundled = path.join(cliDir, '_bundled');
 
-const ASSETS = ['kit-claude', 'kit-codex', 'kit-ollama', 'agents', 'skills', 'design-naonedge'];
+const ASSETS = ['kit-claude', 'kit-codex', 'kit-ollama', 'kit-anythingllm', 'kit-openwebui', 'agents', 'skills', 'design-naonedge'];
 
 function copyDir(src, dst) {
   fs.mkdirSync(dst, { recursive: true });
