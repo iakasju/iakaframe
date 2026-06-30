@@ -592,6 +592,33 @@ régénère l'état des lieux **puis** fait un **commit global** (`git add -A` +
 Une version mineure est un **jalon** : on la scelle par une revue complète et une **trace
 qualité durable**, pas seulement par le gate du dernier lot.
 
+### Mémoire humaine — documentation des fichiers importants dans AppFlowy
+
+En plus de l'état des lieux (mémoire **de reprise**, dans le dépôt), on tient une **mémoire
+humaine** des idées et projets dans **AppFlowy** auto-hébergé sur l'iakabox (instance
+`notes.bigserver.local`, hôte « bigserver »). But : garder une **trace lisible, navigable et
+durable** des décisions et de la documentation structurante, **hors du dépôt**, consultable
+sans cloner ni lire du Markdown brut.
+
+**Quand.** Aux **mêmes moments** que l'état des lieux — à chaque **changement de version** et
+à chaque **pause / reprise**. La publication AppFlowy **double** la régénération de la doc
+d'état : on ne documente jamais « quand on y pense ».
+
+**Quoi (fichiers importants = docs structurants du projet).** `CLAUDE.md`, `specs/PROJET.md`,
+`specs/instructions/*`, `specs/etat-des-lieux.md`, `docs/qualite/*`. Pas le code, pas les
+fichiers générés : seulement la **couche narrative et décisionnelle**.
+
+**Comment (structure AppFlowy).** **Un espace par projet** (au nom du projet) → une **page
+« vue d'ensemble »** (synthèse + liens) → **une sous-page par fichier important** (contenu du
+fichier, rafraîchi). Idempotent et non destructif : créer si absent, mettre à jour sinon —
+jamais d'écrasement aveugle, jamais de page fantôme.
+
+**Avec quoi.** Une skill dédiée `iakaframe-appflowy-doc` (calquée sur
+`iakaframe-log-conversation` : petit CLI Node, **config par variables d'env**, **aucun secret
+en dépôt**). Elle s'authentifie à l'API AppFlowy (GoTrue email+mot de passe → token), provisionne
+si besoin, puis crée/met à jour espaces et pages via l'API `/api/.../page-view`. C'est un
+**geste machine** : la mémoire humaine est **alimentée par instrumentation**, pas tenue à la main.
+
 ---
 
 ## Ce que cette méthode n'est pas
