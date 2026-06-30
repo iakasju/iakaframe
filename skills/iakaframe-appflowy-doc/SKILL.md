@@ -23,13 +23,36 @@ Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : 
 - **Docs structurants** : `CLAUDE.md`, `specs/PROJET.md`, `specs/instructions/*.md`,
   `specs/etat-des-lieux.md`, `docs/qualite/*.md`. **Jamais le code ni les fichiers générés.**
 
-## Pré-requis (variables d'env — jamais commitées)
+## Identifiants (résolution en cascade — jamais commités)
 
-| Variable | Rôle | Défaut |
-|---|---|---|
-| `APPFLOWY_URL` | base de l'instance AppFlowy | — (requis) |
-| `APPFLOWY_EMAIL` | compte AppFlowy | — (requis) |
-| `APPFLOWY_PASSWORD` | mot de passe | — (requis) |
+Les trois identifiants sont résolus dans cet ordre, **l'env ayant toujours priorité** :
+
+1. **Variables d'env** : `APPFLOWY_URL`, `APPFLOWY_EMAIL`, `APPFLOWY_PASSWORD`.
+2. **Repli fichier** : pour toute variable **encore absente** de l'env, lecture d'un fichier
+   dotenv local — `$IAKAFRAME_APPFLOWY_ENV` s'il est défini, sinon
+   `~/.config/iakaframe/appflowy.env`. Fichier absent/illisible → ignoré silencieusement.
+
+Ce repli permet de fonctionner dans une session fraîche (ex. Claude Desktop) où les variables
+d'env ne sont pas exportées, sans jamais mettre de secret dans le code.
+
+| Variable | Rôle |
+|---|---|
+| `APPFLOWY_URL` | base de l'instance AppFlowy (ex. `http://192.168.2.14:3008`) |
+| `APPFLOWY_EMAIL` | compte AppFlowy |
+| `APPFLOWY_PASSWORD` | mot de passe |
+
+**Format du fichier** (`KEY=VALUE`, un par ligne ; `#` = commentaire ; quotes entourantes
+optionnelles) :
+
+```
+APPFLOWY_URL=http://host:port
+APPFLOWY_EMAIL=email
+APPFLOWY_PASSWORD=motdepasse
+```
+
+> **Sécurité** : `chmod 600 ~/.config/iakaframe/appflowy.env`, **jamais commité** (ni le
+> fichier, ni son contenu). Si après la cascade une valeur manque encore, message net citant
+> **et** les variables d'env **et** le chemin du fichier attendu, code de sortie non nul.
 
 ## Utilisation
 
@@ -78,7 +101,8 @@ Fichier illisible → ignoré proprement.
 ## Tests
 
 `node test.mjs` — tests unitaires des fonctions **pures** (résolution des docs, mapping
-fichier → blocs, parsing d'arguments) ; le HTTP est mocké/évité. La recette réelle se fait
+fichier → blocs, parsing d'arguments, **parseur dotenv** `parseDotenv`) ; le HTTP et l'I/O
+fichier d'identifiants sont mockés/évités (fixtures bidon, **aucun secret réel**). La recette réelle se fait
 manuellement contre l'instance avec un projet de test, puis nettoyage.
 
 ## Hors périmètre (différé tracé)
@@ -87,4 +111,4 @@ manuellement contre l'instance avec un projet de test, puis nettoyage.
   aux moments version/pause/reprise est un lot suivant).
 - Rendu riche Markdown (titres, listes, code) au-delà du paragraphe.
 - Liens cliquables vue d'ensemble → sous-pages (MVP = inventaire texte).
-- Secret au keychain (MVP = env).
+- Secret au keychain (MVP = env, repli fichier dotenv local).

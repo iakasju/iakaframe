@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict'
 import {
   isStructuralDoc, selectStructuralDocs, para, fileToBlocks,
-  overviewBlocks, chunk, parseArgs, resolveDocPaths,
+  overviewBlocks, chunk, parseArgs, resolveDocPaths, parseDotenv,
 } from './appflowy-doc.mjs'
 
 let n = 0
@@ -118,6 +118,31 @@ test('resolveDocPaths : dossiers absents -> sans crash', () => {
     readdirSync: () => { throw new Error('ENOENT') },
   }
   assert.deepEqual(resolveDocPaths('/repo', fsMock), ['CLAUDE.md'])
+})
+
+// parseDotenv : parseur pur d'identifiants (fixtures bidon, jamais de vrai secret)
+test('parseDotenv : KV simple', () => {
+  assert.deepEqual(parseDotenv('APPFLOWY_URL=http://host:3008'), { APPFLOWY_URL: 'http://host:3008' })
+})
+test('parseDotenv : commentaires et lignes vides ignorés', () => {
+  const txt = '# commentaire\n\nAPPFLOWY_EMAIL=bob@example.test\n   \n# autre'
+  assert.deepEqual(parseDotenv(txt), { APPFLOWY_EMAIL: 'bob@example.test' })
+})
+test('parseDotenv : quotes entourantes retirées (simples et doubles)', () => {
+  assert.deepEqual(parseDotenv('A="vvv"\nB=\'www\''), { A: 'vvv', B: 'www' })
+})
+test('parseDotenv : espaces autour de clé et valeur trimés', () => {
+  assert.deepEqual(parseDotenv('  KEY  =  val  '), { KEY: 'val' })
+})
+test('parseDotenv : ligne malformée (sans =) ignorée', () => {
+  assert.deepEqual(parseDotenv('garbage sans egal\nKEY=ok'), { KEY: 'ok' })
+})
+test('parseDotenv : valeur avec = interne préservée, clé vide ignorée', () => {
+  assert.deepEqual(parseDotenv('=orphelin\nTOK=a=b=c'), { TOK: 'a=b=c' })
+})
+test('parseDotenv : texte vide -> objet vide', () => {
+  assert.deepEqual(parseDotenv(''), {})
+  assert.deepEqual(parseDotenv(undefined), {})
 })
 
 console.log(`\n${n} tests OK`)

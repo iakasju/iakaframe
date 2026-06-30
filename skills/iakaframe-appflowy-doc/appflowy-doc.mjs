@@ -6,10 +6,11 @@
 // Usage :
 //   node appflowy-doc.mjs --project <nom> --root <chemin-projet>
 //
-// Config 100 % env (aucun secret en dur, jamais commité) :
-//   APPFLOWY_URL    (ex. http://192.168.2.14:3008)
-//   APPFLOWY_EMAIL  (compte AppFlowy)
-//   APPFLOWY_PASSWORD
+// Identifiants résolus en cascade (aucun secret en dur, jamais commité) :
+//   1. env d'abord : APPFLOWY_URL / APPFLOWY_EMAIL / APPFLOWY_PASSWORD
+//   2. repli fichier dotenv local pour toute variable manquante :
+//      $IAKAFRAME_APPFLOWY_ENV, sinon ~/.config/iakaframe/appflowy.env
+//   (ex. APPFLOWY_URL=http://192.168.2.14:3008)
 //
 // Modèle de données (tranché avec Stéphane, cf. specs/instructions/appflowy-doc-skill.md) :
 //   espace = nom du projet ; sous-page = chemin relatif du fichier ; idempotence par nom.
@@ -22,6 +23,7 @@
 
 import fs from 'node:fs'
 import path from 'node:path'
+import os from 'node:os'
 
 // ───────────────────────── Fonctions pures (testables) ─────────────────────────
 
@@ -90,6 +92,37 @@ export function chunk(arr, size) {
   return out
 }
 
+// Parse défensif d'un texte dotenv (PUR, sans I/O) -> { KEY: VALUE }.
+// Lignes `KEY=VALUE` ; ignore vides + commentaires (#) ; trim clé/valeur ;
+// retire une paire de quotes entourantes (' ou ") ; ligne malformée (sans =) ignorée.
+export function parseDotenv(text) {
+  const out = {}
+  if (!text) return out
+  for (const rawLine of String(text).split(/\r?\n/)) {
+    const line = rawLine.trim()
+    if (!line || line.startsWith('#')) continue
+    const eq = line.indexOf('=')
+    if (eq === -1) continue
+    const key = line.slice(0, eq).trim()
+    if (!key) continue
+    let value = line.slice(eq + 1).trim()
+    if (value.length >= 2) {
+      const q = value[0]
+      if ((q === '"' || q === "'") && value[value.length - 1] === q) {
+        value = value.slice(1, -1)
+      }
+    }
+    out[key] = value
+  }
+  return out
+}
+
+// Chemin du fichier d'identifiants (override env, sinon ~/.config/iakaframe/appflowy.env).
+export function appflowyEnvPath(env) {
+  if (env.IAKAFRAME_APPFLOWY_ENV) return env.IAKAFRAME_APPFLOWY_ENV
+  return path.join(os.homedir(), '.config', 'iakaframe', 'appflowy.env')
+}
+
 // Parse minimaliste des arguments CLI.
 export function parseArgs(argv) {
   const get = (name) => {
@@ -119,6 +152,33 @@ export function resolveDocPaths(root, fsApi = fs) {
     }
   }
   return selectStructuralDocs(out)
+}
+
+// Lecture défensive du fichier d'identifiants (I/O isolée du parseur pur).
+// Absent / illisible -> {} (on retombera sur l'erreur de config si vraiment rien).
+function readEnvFile(filePath, fsApi = fs) {
+  try {
+    return parseDotenv(fsApi.readFileSync(filePath, 'utf8'))
+  } catch {
+    return {}
+  }
+}
+
+// Résout les 3 identifiants en cascade : env d'abord, puis fichier pour les manquants.
+// L'env a toujours priorité ; on ne lit le fichier que s'il manque quelque chose.
+export function resolveCredentials(env, fsApi = fs) {
+  const KEYS = ['APPFLOWY_URL', 'APPFLOWY_EMAIL', 'APPFLOWY_PASSWORD']
+  const creds = {}
+  for (const k of KEYS) creds[k] = env[k]
+  if (KEYS.some((k) => !creds[k])) {
+    const fromFile = readEnvFile(appflowyEnvPath(env), fsApi)
+    for (const k of KEYS) if (!creds[k] && fromFile[k]) creds[k] = fromFile[k]
+  }
+  return {
+    base: creds.APPFLOWY_URL,
+    email: creds.APPFLOWY_EMAIL,
+    password: creds.APPFLOWY_PASSWORD,
+  }
 }
 
 // ───────────────────────── Client HTTP AppFlowy ─────────────────────────
@@ -253,11 +313,12 @@ export async function run(argv, env) {
   if (!project || !root) {
     throw new AppFlowyError('usage : node appflowy-doc.mjs --project <nom> --root <chemin-projet>')
   }
-  const base = env.APPFLOWY_URL
-  const email = env.APPFLOWY_EMAIL
-  const password = env.APPFLOWY_PASSWORD
+  const { base, email, password } = resolveCredentials(env)
   if (!base || !email || !password) {
-    throw new AppFlowyError('config manquante : APPFLOWY_URL, APPFLOWY_EMAIL et APPFLOWY_PASSWORD requis (env)')
+    throw new AppFlowyError(
+      `config manquante : définis APPFLOWY_URL/EMAIL/PASSWORD (env), ` +
+      `ou renseigne ${appflowyEnvPath(env)}`,
+    )
   }
   if (!fs.existsSync(root)) {
     throw new AppFlowyError(`chemin projet introuvable : ${root}`)
