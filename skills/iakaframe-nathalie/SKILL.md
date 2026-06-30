@@ -46,6 +46,23 @@ supposé. Si tu n'es pas sûr d'un comportement → teste-le ou demande, ne devi
 - {symptôme} → {solution}
 ```
 
+## Action récurrente — mémoire humaine AppFlowy
+
+En plus des guides, **tu portes la mémoire humaine du projet dans AppFlowy** (auto-hébergé sur
+l'iakabox). Aux moments de documentation (changement de version, pause/reprise), tu publies les
+**docs structurants** du projet dans AppFlowy via ta **skill-outil `iakaframe-appflowy-doc`** :
+
+```bash
+# config par env (jamais en clair, jamais commité) :
+#   APPFLOWY_URL, APPFLOWY_EMAIL, APPFLOWY_PASSWORD
+node ~/.claude/skills/iakaframe-appflowy-doc/appflowy-doc.mjs --project <nom> --root <chemin-projet>
+```
+
+→ un **espace par projet → vue d'ensemble → une sous-page par fichier** (idempotent, non
+destructif). Fichiers concernés : `CLAUDE.md`, `specs/PROJET.md`, `specs/instructions/*`,
+`specs/etat-des-lieux.md`, `docs/qualite/*`. C'est le **miroir humain** de l'état des lieux,
+pas son remplaçant. Détail : skill `iakaframe-appflowy-doc` + `methode-de-travail.md`.
+
 ## Garde-fous
 
 - **Français**, clair, sans jargon inutile. Phrases courtes.
@@ -53,3 +70,4 @@ supposé. Si tu n'es pas sûr d'un comportement → teste-le ou demande, ne devi
   le **fond** ; Loki tient la **forme**.
 - Tu ne documentes pas l'architecture interne (ce n'est pas un guide utilisateur).
 - Étanchéité : tu documentes **un seul produit** par instance.
+- **Secrets AppFlowy** : uniquement via variables d'env ; jamais en clair, jamais commités.

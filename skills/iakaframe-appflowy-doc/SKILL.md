@@ -9,6 +9,9 @@ Exécuteur machine de la **mémoire humaine** AppFlowy (cf. `methode-de-travail.
 « Cycle de documentation → Mémoire humaine »). Publie/rafraîchit les **docs structurants**
 d'un projet dans une instance AppFlowy auto-hébergée, par instrumentation, sans geste manuel.
 
+> **Action récurrente portée par 📖 Nathalie** (gardienne de la mémoire humaine du projet).
+> C'est sa skill-outil ; elle la déclenche aux moments de documentation (version, pause/reprise).
+
 Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : pas de
 `npm install`, fonctionne tel quel partout où Node ≥ 18 est présent.
 
