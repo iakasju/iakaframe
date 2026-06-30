@@ -293,6 +293,16 @@ deux règles ci-dessus : **orchestrateurs uniquement** — 🦅 Odin / 🛡️ A
 - à la **validation** par l'utilisateur, le récepteur affiche **« JALON VALIDÉ »** puis **explique
   la suite** (étape / agent suivant).
 
+**Estimation du temps à l'entrée d'un jalon de dev (obligatoire).** Au moment où le gate
+**cadrage → réalisation** (P1 → P2) s'ouvre — c'est-à-dire **avant que Gimli ne code** — l'instruction
+validée **DOIT** être accompagnée d'une **estimation chiffrée** : **équivalent jour-homme** (spec
+fermée), **niveau de complexité/risque** et les **inconnues** susceptibles de la faire glisser. Le but
+est que l'utilisateur **décide en connaissance de cause** (engager, découper, ou re-cadrer) avant
+d'engager la réalisation. L'estimation est posée par l'agent qui ouvre le jalon de dev (Aragorn en
+coordination, ou Gandalf en clôture de cadrage) ; elle est **rappelée à la clôture du lot** confrontée
+au temps réel, pour affiner les futures estimations. Une estimation n'est **pas un engagement ferme** :
+c'est un ordre de grandeur assumé et révisable.
+
 **Démarrage.** À l'ouverture d'une session sous le portefeuille, on affiche le titre **IAKAFRAME** ;
 à l'entrée d'un projet, `iakaframe brief <projet>` (titre + dernière étape + backlog + agents assignés).
 Au niveau portefeuille, ces deux automatismes sont câblés en **hooks** dans
@@ -565,6 +575,22 @@ un projet après une pause = lire `etat-des-lieux.md`, pas fouiller sa mémoire.
 régénère l'état des lieux **puis** fait un **commit global** (`git add -A` + commit) et
 **push**. C'est le geste à faire à chaque changement de version et à chaque pause/reprise
 (`-Reason version|pause|reprise`), ou comme simple point de sauvegarde.
+
+### Version mineure — revue complète + doc qualité versionné
+
+À chaque passage d'une **version MINEURE** (ex. `v0.9 → v0.10`), en plus du cycle ci-dessus :
+
+1. **Revue de code complète + revue qualité** (gate Legolas élargi) : pas seulement le diff
+   du dernier lot, mais un balayage de l'état réel du codebase au jalon — correctness, bugs,
+   robustesse, sécurité (socle), invariants d'architecture, plus la chaîne qualité fraîche
+   (tests, lint, typage, couverture, clippy/fmt). Verdict net PASS/FAIL.
+2. **Une fois le gate PASS**, **générer le DOC QUALITÉ de la version** dans le **répertoire
+   `doc`/`docs` du projet** (ex. `docs/qualite/vX.Y.0.md`) : périmètre de la version,
+   résultats qualité (chiffres réels), constats de revue + leur traitement, invariants
+   vérifiés, recette manuelle restante, différés connus, verdict + candidate.
+
+Une version mineure est un **jalon** : on la scelle par une revue complète et une **trace
+qualité durable**, pas seulement par le gate du dernier lot.
 
 ---
 

@@ -5,7 +5,13 @@
 //
 // Usage :
 //   node iakalog.mjs --role <user|assistant|system> --content "..." \
-//        [--conv <id>] [--royaume <r>] [--agent <a>] [--tokens N]
+//        [--conv <id>] [--royaume <r>] [--agent <a>] [--tokens N] \
+//        [--meta '<json>'] [--canal <valeur>] [--id <_id>]
+//
+//   --meta  : JSON arbitraire pour le champ meta (def {} ; rétro-compatible). JSON
+//             invalide -> retombe sur {} (message stderr, pas de crash).
+//   --canal : raccourci pour meta.canal (fusionné après --meta).
+//   --id    : _id déterministe transporté dans le payload (le bridge l'honore s'il existe).
 //
 // Config par variables d'env (aucun secret en dur) :
 //   IAKALOG_MQTT_URL (def mqtt://192.168.2.11:1883), IAKALOG_USER, IAKALOG_PASS,
@@ -29,6 +35,20 @@ const role = arg('role')
 const content = arg('content')
 const tokens = parseInt(arg('tokens', '0'), 10) || 0
 
+// --meta '<json>' (def {}) ; rétro-compatible. JSON invalide -> {} sans crash.
+let meta = {}
+const metaRaw = arg('meta')
+if (metaRaw) {
+  try {
+    const parsed = JSON.parse(metaRaw)
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) meta = parsed
+    else console.error('iakalog: --meta ignoré (pas un objet JSON), meta={}')
+  } catch { console.error('iakalog: --meta ignoré (JSON invalide), meta={}') }
+}
+const canal = arg('canal')
+if (canal) meta.canal = canal
+const docId = arg('id')
+
 const u = URL.match(/^mqtt:\/\/([^:/]+)(?::(\d+))?/)
 if (!u) fail('IAKALOG_MQTT_URL invalide (attendu mqtt://host:port)')
 if (!USER || !PASS) fail('IAKALOG_USER / IAKALOG_PASS manquants')
@@ -36,7 +56,9 @@ if (!role || !content) fail('--role et --content sont requis')
 const host = u[1], port = parseInt(u[2] || '1883', 10)
 
 const topic = `${prefix}/${royaume}/${agent}/${conv}`
-const payload = JSON.stringify({ role, content, ts: new Date().toISOString(), tokens, meta: {} })
+const doc = { role, content, ts: new Date().toISOString(), tokens, meta }
+if (docId) doc._id = docId
+const payload = JSON.stringify(doc)
 
 // --- encodage MQTT 3.1.1 ---
 const remLen = (n) => { const o = []; do { let d = n % 128; n = Math.floor(n / 128); if (n > 0) d |= 0x80; o.push(d) } while (n > 0); return Buffer.from(o) }

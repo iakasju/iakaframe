@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pensée · Adresse · Geste — les trois canaux d'un agent LLM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,800;9..144,900&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================================
+   NaonEdge — Design System (charte « dark premium · or ») — inliné (standalone)
+   ========================================================================== */
+:root{
+  --bg-primary:#0a0a0a;--bg-card:#1a1a1a;--bg-deep:#111;--line:#2a2a2a;--line-soft:#1f1f1f;
+  --text-primary:#f0f0f0;--text-secondary:#8a8a8a;--text-muted:#555;
+  --accent-gold:#c8a44e;--accent-gold-light:#e8c960;--accent-rgb:200,164,78;
+  --gradient-accent:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-light));
+  --red:#e74c3c;--green:#2ecc71;--blue:#3498db;--orange:#e67e22;--cyan:#1abc9c;--purple:#9b59b6;
+  --radius-md:12px;--radius-lg:20px;--shadow-glow:0 0 40px rgba(var(--accent-rgb),0.15);
+  --font-sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
+code{font-family:var(--mono)}
+a{color:var(--accent-gold);text-decoration:none}
+.accent{background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1,h1.t,h2,.slide h1,.slide h2{font-family:var(--font-serif)}
+.hero{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:3.4rem 2rem 2.4rem;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:760px;height:760px;background:radial-gradient(circle,rgba(var(--accent-rgb),0.08) 0%,transparent 70%);pointer-events:none}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:rgba(var(--accent-rgb),0.1);border:1px solid rgba(var(--accent-rgb),0.25);border-radius:999px;padding:.4rem 1rem;font-size:.78rem;color:var(--accent-gold);margin-bottom:1.4rem;letter-spacing:.08em;text-transform:uppercase}
+.hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;letter-spacing:-.03em;line-height:1.1;max-width:820px}
+.hero-subtitle{color:var(--text-secondary);font-size:clamp(1rem,2vw,1.18rem);max-width:660px;margin-top:1.1rem}
+.hero-meta{font-family:var(--mono);font-size:.74rem;color:var(--text-muted);margin-top:1rem;letter-spacing:.05em}
+.tabs{position:sticky;top:0;z-index:10;background:rgba(10,10,10,.85);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft);padding:.7rem 1rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+.tab{appearance:none;border:1px solid var(--line);background:var(--bg-card);color:var(--text-secondary);font:600 .85rem var(--font-sans);padding:.5rem .95rem;border-radius:999px;cursor:pointer;transition:.18s;white-space:nowrap}
+.tab:hover{color:var(--text-primary);border-color:rgba(var(--accent-rgb),.4)}
+.tab.active{color:#0a0a0a;background:var(--gradient-accent);border-color:transparent;box-shadow:var(--shadow-glow);font-weight:700}
+main{max-width:72rem;margin:0 auto;padding:2.4rem 2rem 5rem}
+.panel{display:none}.panel.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.section-label{display:inline-flex;align-items:center;gap:.5rem;font-size:.75rem;font-weight:600;text-transform:uppercase;letter-spacing:.1em;color:var(--accent-gold);margin-bottom:1rem}
+.section-label::before{content:'';display:inline-block;width:24px;height:2px;background:var(--gradient-accent)}
+h1.t{font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;letter-spacing:-.02em;margin-bottom:1rem;line-height:1.2}
+h2{font-size:clamp(1.25rem,2.4vw,1.6rem);font-weight:800;letter-spacing:-.01em;margin:2.2rem 0 .9rem}
+h3{font-size:1.1rem;font-weight:700;margin:1.4rem 0 .5rem}
+p{color:var(--text-secondary);font-size:1.02rem;max-width:74ch;margin:.55rem 0}
+.lead{color:var(--text-primary);font-size:1.08rem}
+strong{color:var(--text-primary)}
+ul{margin:.5rem 0 1rem;padding-left:1.2rem}
+li{margin:.3rem 0;color:var(--text-secondary)}li strong{color:var(--text-primary)}
+p code,li code,td code{background:rgba(var(--accent-rgb),0.08);color:var(--accent-gold);padding:.12rem .42rem;border-radius:5px;font-size:.85rem}
+.card{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.4rem 1.6rem;margin:1.1rem 0}
+.card.glow{box-shadow:var(--shadow-glow)}
+.grid{display:grid;gap:1.1rem}
+@media(min-width:780px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+.tag{display:inline-block;font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:.14rem .6rem;border-radius:999px;margin-right:.4rem}
+.t-go{background:rgba(var(--accent-rgb),.15);color:var(--accent-gold)}
+.t-on{background:rgba(46,204,113,.15);color:var(--green)}
+.t-wait{background:rgba(230,126,34,.15);color:var(--orange)}
+.t-keep{background:rgba(155,89,182,.15);color:var(--purple)}
+.t-info{background:rgba(52,152,219,.15);color:var(--blue)}
+pre{background:var(--bg-deep);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.1rem 1.4rem;margin:1rem 0;overflow-x:auto;font-size:.85rem;line-height:1.6}
+pre code{color:#d8d8d8}.cmt{color:var(--text-muted)}.tok{color:var(--accent-gold)}.kw{color:var(--blue)}.str{color:var(--green)}
+.scroll{overflow-x:auto;border-radius:var(--radius-md);margin:1.2rem 0}
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--line);font-size:.88rem}
+th{background:var(--bg-card);font-size:.7rem;text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:.7rem .9rem;text-align:left;font-weight:600;white-space:nowrap}
+td{padding:.65rem .9rem;border-top:1px solid var(--line-soft);color:var(--text-secondary);vertical-align:top}
+tr:hover td{background:#151515}
+td strong,td.name{color:var(--text-primary)}
+.num{font-family:var(--mono);font-size:.8rem;color:var(--accent-gold);white-space:nowrap}
+.note{display:flex;gap:.9rem;border-radius:var(--radius-md);padding:1rem 1.3rem;margin:1.3rem 0;font-size:.92rem}
+.note p{color:var(--text-secondary);margin:0;max-width:none}
+.note.warn{background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.22)}.note.warn b{color:var(--red)}
+.note.tip{background:rgba(46,204,113,.05);border:1px solid rgba(46,204,113,.22)}.note.tip b{color:var(--green)}
+.note.info{background:rgba(52,152,219,.05);border:1px solid rgba(52,152,219,.22)}.note.info b{color:var(--blue)}
+.seq{counter-reset:s;list-style:none;padding:0}
+.seq li{counter-increment:s;padding:.5rem 0 .5rem 2.6rem;position:relative;color:var(--text-secondary)}
+.seq li::before{content:counter(s);position:absolute;left:0;top:.45rem;width:26px;height:26px;border-radius:50%;background:var(--gradient-accent);color:#0a0a0a;font:700 .82rem var(--mono);display:flex;align-items:center;justify-content:center}
+.footer{text-align:center;padding:2.6rem 2rem;border-top:1px solid var(--line-soft);margin-top:1rem}
+.footer .accent-line{width:60px;height:3px;background:var(--gradient-accent);border-radius:999px;margin:0 auto 1.2rem}
+.footer p{color:var(--text-muted);font-size:.82rem;max-width:none;margin:.2rem auto}
+.ne-wordmark{font-weight:900;letter-spacing:-.01em;color:var(--text-primary)}
+.ne-wordmark b{font-weight:900}
+.ne-wordmark .edge{font-weight:900;background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-thumb{background:#333;border-radius:999px}
+@media(max-width:768px){main{padding:1.8rem 1.2rem 4rem}}
+/* — petits ajouts locaux (dans l'esprit charte) — */
+.chan{display:flex;gap:1rem;align-items:flex-start}
+.chan .dot{flex:0 0 auto;width:14px;height:14px;border-radius:50%;margin-top:.5rem}
+.dot-think{background:var(--purple)}.dot-speak{background:var(--accent-gold)}.dot-act{background:var(--blue)}
+.keep{background:rgba(var(--accent-rgb),.06);border:1px solid rgba(var(--accent-rgb),.3);border-radius:var(--radius-lg);padding:1.6rem 1.8rem;margin:1.6rem 0;box-shadow:var(--shadow-glow)}
+.keep h3{margin-top:0;color:var(--accent-gold);font-family:var(--font-serif)}
+.keep ul{margin-bottom:0}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-badge">NaonEdge · note de concept · pour Christophe</div>
+  <h1>Pensée, Adresse, Geste —<br><span class="accent">les trois canaux d'un agent LLM</span></h1>
+  <p class="hero-subtitle">Et la seule règle à retenir pour poser des garde-fous qui tiennent : un garde-fou n'a d'autorité que sur le canal où il est posé.</p>
+  <div class="hero-meta">note interne · 2026-06-24 · méthode iakaframe</div>
+</section>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="p1">Les 3 canaux</button>
+  <button class="tab" data-tab="p2">Pourquoi ce n'est pas « natif »</button>
+  <button class="tab" data-tab="p3">La leçon : garder le bon canal</button>
+</nav>
+
+<main>
+
+  <!-- ============ PANEL 1 ============ -->
+  <section class="panel active" id="p1">
+    <div class="section-label">Le modèle mental</div>
+    <h1 class="t">Un agent parle sur trois canaux distincts</h1>
+    <p class="lead">Quand tu observes un agent IA travailler, tu vois en réalité <strong>trois types de sortie</strong> qui n'ont ni le même destinataire, ni le même statut. Les confondre, c'est se tromper sur ce qu'on peut contrôler.</p>
+
+    <div class="card glow">
+      <div class="chan"><span class="dot dot-think"></span><div>
+        <h3 style="margin-top:0">Pensée <span class="tag t-keep">privé</span></h3>
+        <p>La <strong>délibération</strong> : le raisonnement interne où l'agent pèse ses options et planifie. Ce n'est pas adressé à l'humain — un brouillon mental. Selon la configuration, il est <strong>masqué ou visible</strong>, mais dans tous les cas il n'engage pas l'agent comme une parole.</p>
+      </div></div>
+    </div>
+
+    <div class="card glow">
+      <div class="chan"><span class="dot dot-speak"></span><div>
+        <h3 style="margin-top:0">Adresse <span class="tag t-go">public</span></h3>
+        <p>La <strong>parole</strong> : le texte réellement adressé à l'humain. C'est le seul canal qu'on doit supposer <strong>toujours visible</strong>, et donc le seul qui « engage » l'agent vis-à-vis de son interlocuteur.</p>
+      </div></div>
+    </div>
+
+    <div class="card glow">
+      <div class="chan"><span class="dot dot-act"></span><div>
+        <h3 style="margin-top:0">Geste <span class="tag t-info">action</span></h3>
+        <p>L'<strong>exécution</strong> : les appels d'outils et leurs résultats — lire un fichier, lancer une commande, et surtout <strong>déléguer une tâche à un autre agent</strong>. Ni pensée, ni parole : des <strong>actes</strong>. C'est par ce canal que l'agent agit réellement sur le monde.</p>
+      </div></div>
+    </div>
+
+    <div class="note info"><p><b>Le piège classique :</b> « dire à un agent de faire quelque chose » ressemble à de la parole, mais c'est un <b>geste</b> (un appel de délégation). Ce que l'humain lit (« je demande à X de… ») et ce qui part réellement vers X sont deux canaux différents — et rien ne garantit qu'ils coïncident.</p></div>
+  </section>
+
+  <!-- ============ PANEL 2 ============ -->
+  <section class="panel" id="p2">
+    <div class="section-label">Sous le capot</div>
+    <h1 class="t">Cette séparation n'existe pas dans le modèle</h1>
+    <p class="lead">C'est le point contre-intuitif, et le plus important pour bien raisonner ensuite.</p>
+
+    <p>Un LLM, c'est un modèle qui <strong>prédit le prochain token</strong>. Il produit <strong>un seul flux de tokens</strong>, indifférencié. Il n'y a pas, dans le modèle lui-même, trois tuyaux séparés. Pensée, adresse et geste sont <strong>la même opération</strong> — la même prédiction — simplement <strong>routée différemment par une couche extérieure</strong>.</p>
+
+    <div class="note tip"><p><b>À retenir :</b> la « pensée » d'un agent n'est pas une délibération cachée qui précéderait la parole comme chez un humain. C'est du texte généré comme le reste ; un harnais décide juste de le traiter à part. La séparation est <b>fonctionnelle</b>, pas <b>ontologique</b>.</p></div>
+
+    <h2>La distinction est imposée par trois couches empilées</h2>
+    <ol class="seq">
+      <li><strong>L'entraînement</strong> — on apprend au modèle à respecter des rôles et des formats.</li>
+      <li><strong>Un protocole de balisage</strong> — un format structuré qui distingue ce qui est pensée, parole ou appel d'outil.</li>
+      <li><strong>Un harnais</strong> — le programme autour du modèle qui <em>route</em> : il exécute les gestes, masque ou montre la pensée, affiche l'adresse.</li>
+    </ol>
+
+    <p>Autrement dit : la séparation à trois canaux n'est pas une propriété <strong>« des LLM »</strong>, c'est une propriété du <strong>système agentique</strong> construit autour d'un LLM.</p>
+
+    <h2>Tous les modèles n'ont pas les trois</h2>
+    <div class="scroll"><table>
+      <thead><tr><th>Canal</th><th>Présence</th><th>Comment c'est obtenu</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Adresse</td><td><span class="tag t-on">universel</span></td><td>Tout LLM conversationnel produit une réponse adressée.</td></tr>
+        <tr><td class="name">Geste</td><td><span class="tag t-wait">ajouté</span></td><td><em>Tool use</em> / function calling : un protocole + un harnais qui intercepte et exécute. Sans harnais, un « geste » n'est que du texte.</td></tr>
+        <tr><td class="name">Pensée (structurée)</td><td><span class="tag t-info">selon modèle</span></td><td>Canal de raisonnement séparé (<em>extended thinking</em>, modèles type o1 / R1). Absent des modèles non raisonnants.</td></tr>
+      </tbody>
+    </table></div>
+    <p>Un LLM nu, ou un petit modèle local sans harnais, peut n'avoir que <strong>l'adresse</strong>.</p>
+  </section>
+
+  <!-- ============ PANEL 3 ============ -->
+  <section class="panel" id="p3">
+    <div class="section-label">La conséquence pratique</div>
+    <h1 class="t">Un garde-fou n'a d'autorité que sur le canal où il est posé</h1>
+    <p class="lead">Parce que les frontières entre canaux sont <strong>conventionnelles</strong> (imposées par-dessus) et non <strong>substantielles</strong> (inscrites dans le modèle), elles sont structurellement <strong>poreuses</strong>. Une règle posée sur un canal ne contraint pas les autres.</p>
+
+    <h2>Le cas concret : une équipe d'agents</h2>
+    <p>Beaucoup de garde-fous comportementaux — par exemple « chaque agent s'identifie par un badge quand il parle » — sont posés sur le canal <strong>adresse</strong>, aux frontières de la parole. Mais le franchissement de rôle, lui, se joue dans un <strong>geste</strong> : la délégation. Le garde surveille donc précisément l'endroit où l'infraction ne se produit pas.</p>
+
+    <div class="grid two">
+      <div class="card">
+        <h3>L'aller <span class="tag t-info">geste</span></h3>
+        <p>Le prompt réellement envoyé à l'agent délégué. Non badgé, non montré verbatim, non vérifié contre ce qui a été annoncé. <strong>Angle mort.</strong></p>
+      </div>
+      <div class="card">
+        <h3>Le retour <span class="tag t-info">geste</span></h3>
+        <p>Ce que l'agent renvoie. Si on ne le capture pas, « je restitue fidèlement » ne repose que sur la bonne foi de l'orchestrateur.</p>
+      </div>
+    </div>
+
+    <h2>Le remède : garder le canal des gestes</h2>
+    <p>Il faut un garde-fou branché sur l'outil de délégation lui-même — pas seulement sur la parole :</p>
+    <pre><code><span class="cmt"># un garde déclenché AVANT et APRÈS chaque délégation</span>
+<span class="kw">PreToolUse</span>  → journaliser <span class="str">l'aller</span> verbatim + valider l'agent ciblé
+<span class="kw">PostToolUse</span> → journaliser <span class="str">le retour</span> verbatim (rend la restitution vérifiable)</code></pre>
+
+    <div class="note warn"><p><b>Et même au mieux :</b> un garde sur le geste peut vérifier la <b>cohérence</b> (l'agent ciblé est-il celui annoncé ? le périmètre tient-il ?) mais pas la <b>vérité</b> profonde d'un badge (qui a <em>vraiment</em> fait le travail). C'est déjà beaucoup — à condition d'être sur le bon canal.</p></div>
+
+    <div class="keep">
+      <h3>À retenir en une carte</h3>
+      <ul>
+        <li><strong>Trois canaux</strong> : pensée (privé) · adresse (public) · geste (action).</li>
+        <li><strong>Séparation conventionnelle</strong>, pas native : un LLM ne produit qu'un flux de tokens ; les canaux sont imposés par entraînement + protocole + harnais.</li>
+        <li><strong>Donc poreuse</strong> : une règle sur un canal ne protège pas les autres.</li>
+        <li><strong>Donc</strong> : place chaque garde-fou <em>sur le canal qu'il prétend garder</em>. Les actes se gardent sur le canal des gestes, pas sur celui de la parole.</li>
+      </ul>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p><span class="ne-wordmark"><b>Naon</b><span class="edge">Edge</span></span> · note de concept interne</p>
+  <p>Design NaonEdge — d'après la charte iakabox · méthode iakaframe</p>
+</footer>
+
+<script>
+  var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
+  tabs.forEach(function(t){t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('active')});
+    panels.forEach(function(p){p.classList.remove('active')});
+    t.classList.add('active');var el=document.getElementById(t.dataset.tab);
+    if(el){el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  });});
+</script>
+</body>
+</html>
