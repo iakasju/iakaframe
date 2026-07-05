@@ -9,6 +9,23 @@
 <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
 <!-- Charte Cinabre : pointée en relatif vers le dépôt frère iakacharte (jamais rapatriée). -->
 <link rel="stylesheet" href="../iakacharte/design-cinabre/cinabre.css">
+<!-- Styles de schéma : dérivés des variables Cinabre (un seul accent, cinabre). À affiner par le studio design. -->
+<style>
+  .flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:.5rem;margin:1.3rem 0}
+  .flow-chip{display:flex;flex-direction:column;gap:.15rem;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:.65rem .85rem;box-shadow:var(--shadow-soft);min-width:118px}
+  .flow-chip .p{font-size:1.1rem;line-height:1}
+  .flow-chip .r{font-weight:600;color:var(--text-primary);font-size:.9rem}
+  .flow-chip .ph{font:600 .6rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted)}
+  .flow-arr{display:flex;align-items:center;color:var(--accent-ink);font-weight:700;font-size:1.15rem}
+  .nest{border:1px solid var(--line);border-radius:var(--radius-lg);padding:1rem 1.1rem;background:var(--bg-deep)}
+  .nest-label{font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--accent-ink);margin-bottom:.55rem;display:block}
+  .nest .nest{background:var(--bg-card);margin-top:.55rem;box-shadow:var(--shadow-soft)}
+  .nest .cap{color:var(--text-secondary);font-size:.9rem;margin:.15rem 0 .2rem}
+  .nest-row{display:flex;gap:.6rem;flex-wrap:wrap}
+  .nest-row .nest{flex:1;min-width:150px}
+  .relay{border-left:3px solid var(--accent);padding:.35rem 0 .35rem 1rem;margin:.5rem 0;background:var(--bg-card)}
+  .relay .who{font:600 .78rem var(--mono);color:var(--accent-ink)}
+</style>
 </head>
 <body>
 
@@ -16,7 +33,7 @@
   <div class="hero-badge">Méthode · document chapeau</div>
   <h1>iakaframe — l'équipe augmentée, <span class="accent">cadrée</span></h1>
   <p class="hero-subtitle">Une méthode de travail avec l'IA : des rôles fermés, des instructions écrites avant le code, et un humain qui décide à chaque jalon. La qualité n'est pas dans le modèle — elle est dans la méthode.</p>
-  <div class="hero-meta">v0.1.0 · 2026-07-05 · document de référence</div>
+  <div class="hero-meta">v0.2.0 · 2026-07-05 · document de référence</div>
 </section>
 
 <nav class="tabs">
@@ -25,6 +42,7 @@
   <button class="tab" data-tab="methode">La méthode</button>
   <button class="tab" data-tab="agnostique">L'agnosticisme</button>
   <button class="tab" data-tab="roles">Les rôles</button>
+  <button class="tab" data-tab="emboitement">L'emboîtement</button>
   <button class="tab" data-tab="outils">Les outils</button>
   <button class="tab" data-tab="sources">Sources</button>
 </nav>
@@ -105,7 +123,7 @@
 <!-- ============================= LA MÉTHODE (Comprendre + Consulter) ============================= -->
 <section class="panel" id="methode">
   <div class="section-label">Comprendre</div>
-  <h1 class="t">La méthode : un cycle et des jalons</h1>
+  <h1 class="t">La méthode : un cycle, des jalons, une trace</h1>
   <p class="lead">Le besoin ne descend jamais directement dans le code. Il passe par un cycle où chaque étape ferme un peu plus l'ambiguïté, jusqu'à une <strong>instruction écrite et vérifiable</strong> — puis l'exécution.</p>
 
   <h2>Le cycle d'une feature</h2>
@@ -165,27 +183,116 @@
   <p class="legend">Frontière nette : dev → staging (les 3 phases), puis prod (squad séparé), avec une couture humaine entre les deux.</p>
 
   <div class="section-label">Comprendre</div>
-  <h2>Pourquoi ça crée de la qualité</h2>
-  <div class="grid two">
-    <div class="card">
-      <h3>Les instructions écrites sont une spec vérifiable</h3>
-      <p>Un fichier <code>specs/instructions/{feature}.md</code> n'est pas un prompt vague : problème, existant, décision, étapes, fichiers touchés, critères d'acceptation testables. <strong>La mémoire de l'IA est volatile ; les fichiers d'instructions sont permanents.</strong></p>
-    </div>
-    <div class="card">
-      <h3>Le gate qualité est indépendant</h3>
-      <p>Celui qui code ne se valide jamais lui-même. Le responsable qualité rend un verdict <strong>PASS / FAIL</strong> net, dans un contexte séparé. Aucune feature n'avance sans ce verdict. C'est l'anti-dérive « l'IA juge et partie ».</p>
-    </div>
-    <div class="card">
-      <h3>Les commits atomiques sont le filet</h3>
-      <p>Un commit après chaque étape logique (conventional commits). Le filet de sécurité devient git : on peut revenir en arrière proprement. Jamais de <code>reset --hard</code> ni de <code>push --force</code> côté IA.</p>
-    </div>
-    <div class="card">
-      <h3>L'état des lieux rend la reprise possible</h3>
-      <p>À chaque version et à chaque pause/reprise, on régénère un <code>etat-des-lieux.md</code> à partir des faits git + un récit de reprise. Reprendre un projet = <strong>lire une page</strong>, pas fouiller sa mémoire.</p>
+  <h2>Le graphe des délégations &amp; la chaîne de badges</h2>
+  <p>Deux niveaux d'orchestration s'emboîtent : le <strong>portefeuille</strong> (au-dessus de tous les projets) et, dans chaque projet, le <strong>coordinateur</strong>. Le portefeuille ouvre la bonne porte, puis passe la main.</p>
+
+  <div class="nest">
+    <span class="nest-label">Portefeuille — au-dessus de ~/work</span>
+    <p class="cap">Le gestionnaire de portefeuille : switche d'équipe, démarre / crée un projet, puis délègue au coordinateur du projet concerné.</p>
+    <div class="nest-row">
+      <div class="nest"><span class="nest-label">Projet A</span><p class="cap">coordinateur → équipe de rôles</p></div>
+      <div class="nest"><span class="nest-label">Projet B</span><p class="cap">coordinateur → équipe de rôles</p></div>
+      <div class="nest"><span class="nest-label">Projet C</span><p class="cap">coordinateur → équipe de rôles</p></div>
     </div>
   </div>
 
-  <div class="note info"><p><b>Info — profondeur du gate :</b> un fix ou une modif mineure → simple validation des tests (la suite passe au vert). Une <strong>version mineure</strong> (feature) → campagne complète (tests + lint + typage + couverture + rapport) et une trace qualité durable versionnée dans <code>docs/qualite/</code>.</p></div>
+  <h3>La chaîne d'une feature (qui parle, dans quelle phase)</h3>
+  <div class="flow">
+    <div class="flow-chip"><span class="p">🟡</span><span class="r">décideur</span><span class="ph">portefeuille</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-chip"><span class="p">🟠</span><span class="r">coordinateur</span><span class="ph">projet</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-chip"><span class="p">🔵</span><span class="r">cadreur-architecte</span><span class="ph">P1 cadrage</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-chip"><span class="p">🔴</span><span class="r">développeur-devops</span><span class="ph">P2/P3</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-chip"><span class="p">🔴🟢</span><span class="r">vérificateur qualité</span><span class="ph">P2/P3</span></div>
+    <div class="flow-arr">→</div>
+    <div class="flow-chip"><span class="p">🟣</span><span class="r">squad prod</span><span class="ph">feu vert humain</span></div>
+  </div>
+
+  <div class="card">
+    <h3>La position de la pastille porte le sens</h3>
+    <p>Quand un rôle s'adresse au décideur, il s'identifie par un badge <code>&lt;pastille&gt; [ROYAUME][Rôle]</code>. Ce n'est pas un mot-clé qui marque l'ouverture ou la clôture, mais <strong>la position de la pastille</strong> :</p>
+    <pre><code><span class="cmt">// ouverture — pastille AVANT le bloc</span>
+🟠 [ROYAUME][coordinateur] — je délègue le cadrage à l'architecte-cadreur…
+
+<span class="cmt">// clôture — pastille APRÈS le bloc</span>
+…instruction transmise. [ROYAUME][coordinateur] 🟠</code></pre>
+    <p>Les mots « START » / « STOP » sont bannis : ils feraient double emploi avec la position.</p>
+  </div>
+
+  <h3>Anatomie d'une délégation A → B (sans vol de badge)</h3>
+  <p>Une délégation produit une <strong>chaîne de badges ininterrompue</strong>. L'orchestrateur ne parle jamais dans sa voix entre l'ouverture et la clôture du rôle délégué, et il ne restitue jamais le travail d'un autre à la première personne.</p>
+  <ol class="seq">
+    <li><strong>A ouvre</strong> (pastille avant) et annonce qu'il délègue à B.</li>
+    <li><strong>A clôt</strong> (pastille après).</li>
+    <li><strong>B ouvre</strong> (pastille avant) et parle à la première personne.</li>
+    <li><strong>B travaille</strong>, puis restitue son résultat.</li>
+    <li><strong>B clôt</strong> (pastille après).</li>
+    <li><strong>A rouvre</strong> pour restituer en relais — <strong>sous le badge de B, cité verbatim</strong> — puis commente sous son propre badge.</li>
+  </ol>
+  <div class="relay">
+    <span class="who">🔴 [ROYAUME][développeur] — restitué par le coordinateur</span>
+    <p>{le message du rôle délégué, cité tel quel, jamais reformulé en « je »}</p>
+  </div>
+  <div class="note warn"><p><b>Attention — anti-ventriloquie :</b> un badge n'introduit <strong>que</strong> les mots propres du rôle qu'il nomme. Toute reformulation ou synthèse est la voix de l'orchestrateur et passe <strong>sous son propre badge</strong>. On n'écrit jamais le badge d'un rôle pour lui faire dire des mots qu'il n'a pas produits.</p></div>
+
+  <div class="section-label">Consulter</div>
+  <h2>Les jalons (gates)</h2>
+  <p>Un <strong>jalon</strong> est un point de contrôle rendu très visible : instruction prête, dev à vérifier, verdict qualité, feu vert prod. Il s'affiche en trois zones — <strong>qui pose</strong>, <strong>quoi</strong>, <strong>qui valide</strong> — puis, à la validation, le récepteur annonce « JALON VALIDÉ » et explique la suite.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Zone</th><th>Rôle</th><th>Exemple</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Émetteur</td><td>qui pose le jalon</td><td>l'architecte-cadreur pose l'instruction cadrée</td></tr>
+      <tr><td class="name">Contenu</td><td>ce qui est soumis</td><td>l'instruction + les fichiers à vérifier en <code>chemin:ligne</code></td></tr>
+      <tr><td class="name">Récepteur</td><td>qui valide</td><td>le décideur (souvent), ou le rôle suivant</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="grid two">
+    <div class="card">
+      <h3>Jalons humains — non automatisables</h3>
+      <p>La <strong>validation d'une instruction</strong> (P1) et la <strong>bascule en production</strong> sont des décisions humaines, toujours. Sans feu vert explicite et tracé, la chaîne s'arrête et attend.</p>
+    </div>
+    <div class="card">
+      <h3>Jalons automatiques — les tests suffisent</h3>
+      <p>Le passage <strong>dev → staging</strong> repose sur un verdict qualité <strong>PASS</strong> indépendant (tests verts, lint, typage). Pas besoin d'humain : les outils tranchent.</p>
+    </div>
+  </div>
+  <p>À l'entrée du jalon de dev, l'instruction validée est accompagnée d'une <strong>estimation chiffrée</strong> (jour-homme, complexité, inconnues) pour que le décideur engage en connaissance de cause.</p>
+
+  <div class="section-label">Comprendre</div>
+  <h2>La structure de répertoires, remplie par la méthode</h2>
+  <p>Le geste <code>init iakaframe</code> scaffolde l'arborescence de travail (sans jamais écraser le code en place), puis la vie du projet la remplit. Le résultat : la méthode <strong>matérialisée en fichiers</strong>. Voici l'arbre réel de ce dépôt (la méthode elle-même), les fichiers qui l'incarnent annotés.</p>
+
+  <pre><code>iakaframe/
+├── methode-de-travail.md          <span class="cmt"># LA MÉTHODE (référence canonique)</span>
+├── README.md
+├── CLAUDE.md <span class="tok">*</span>                     <span class="cmt"># consignes projet — présent dans un projet produit</span>
+├── agents/                        <span class="cmt"># les 8 CONTRATS de rôle (subagents) — un .md par rôle</span>
+│   └── *.md  (8 rôles)            <span class="cmt">#   + _TEMPLATE.md (gabarit d'un nouveau rôle)</span>
+├── skills/                        <span class="cmt"># l'INCARNATION technique (le savoir-faire outillé)</span>
+│   ├── iakaframe-cadrage/  iakaframe-qualite/  iakaframe-deploiement/
+│   ├── iakaframe-forgejo/  iakaframe-docker/  iakaframe-init/
+│   ├── iakaframe-etat-des-lieux/  iakaframe-update/
+│   ├── iakaframe-appflowy-doc/  iakaframe-log-conversation/
+│   ├── iakaframe-naonedge/  iakastart/  <span class="cmt"># (+ skills portefeuille, coordination, rédaction)</span>
+│   └── README.md
+├── specs/                         <span class="cmt"># le CADRAGE écrit (jamais de code ici)</span>
+│   ├── PROJET.md <span class="tok">*</span>                  <span class="cmt"># vision projet — présent dans un projet produit</span>
+│   ├── instructions/  (18 .md)    <span class="cmt"># une instruction fermée par feature / fix</span>
+│   ├── etat-des-lieux.md          <span class="cmt"># l'ÉTAT DES LIEUX (mémoire de reprise)</span>
+│   ├── glossaire-iakaframe.md     <span class="cmt"># les libellés canoniques des rôles</span>
+│   └── equipe-agents.md
+├── kit-claude/  kit-codex/  kit-openwebui/     <span class="cmt"># KITS d'incarnation (multi-outils)</span>
+│   kit-anythingllm/  kit-ollama/
+├── stack-qualite/                 <span class="cmt"># le gate qualité conteneurisé</span>
+├── docs/                          <span class="cmt"># doc de référence + qualité versionnée</span>
+├── design-naonedge/               <span class="cmt"># charte legacy (Cinabre vit dans iakacharte, dépôt frère)</span>
+└── cli/                           <span class="cmt"># le CLI @naonedge/iakaframe (multi-OS)</span></code></pre>
+  <p class="legend"><span class="tok">*</span> <code>CLAUDE.md</code> et <code>specs/PROJET.md</code> sont le socle scaffolé par <code>init iakaframe</code> dans un <strong>projet produit</strong> ; ce dépôt-ci <em>est</em> la méthode, il ne les porte donc pas à sa racine. Le dossier <code>specs/instructions/</code> est la trace vivante de toutes les décisions — écrite <em>avant</em> l'implémentation, jamais après coup.</p>
 </section>
 
 <!-- ============================= L'AGNOSTICISME (Comprendre) ============================= -->
@@ -209,10 +316,22 @@
     </table></div>
   </div>
 
+  <h2>Le geste prime sur l'outil</h2>
+  <p>Chaque brique d'outillage nomme un <strong>geste</strong> (commit, mémoire humaine, support visuel…) et une <strong>implémentation courante</strong>. L'implémentation est un choix par défaut, pas une dépendance : le nom d'un outil ou d'une marque ne doit jamais tenir lieu d'identité au geste.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Geste</th><th>Implémentation courante (défaut)</th><th>Réimplantable en</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Commit / versionnement</td><td>forge self-hosted (Forgejo)</td><td>GitHub, GitLab…</td></tr>
+      <tr><td class="name">Mémoire humaine</td><td>AppFlowy auto-hébergé</td><td>tout wiki / base de notes</td></tr>
+      <tr><td class="name">Design / support visuel</td><td>charte Cinabre</td><td>toute charte du catalogue</td></tr>
+      <tr><td class="name">Environnement isolé</td><td>Docker par projet</td><td>tout runtime de conteneur</td></tr>
+    </tbody>
+  </table></div>
+
   <h2>Self-hosted d'abord, mais réimplantable</h2>
   <p>La méthode privilégie le <strong>self-hosted / open-source</strong> : pour tout choix de backend, la version locale est l'option n°1, le cloud n'est qu'un repli justifié. Mais ce n'est qu'un <em>défaut de goût</em>, pas une dépendance : les mêmes rôles se rejouent avec d'autres briques. Les définitions de rôles sont pensées pour se décliner sur plusieurs incarnations d'IA — aujourd'hui l'implémentation courante, demain d'autres.</p>
 
-  <div class="note tip"><p><b>Astuce :</b> la bonne question n'est jamais « quel outil ? » mais « quel <em>rôle</em> ce geste sert-il, et son jalon est-il franchi ? ». Change l'outil, garde le rôle : la méthode tient toujours.</p></div>
+  <div class="note tip"><p><b>Astuce :</b> la bonne question n'est jamais « quel outil ? » mais « quel <em>geste</em> ce rôle sert-il, et son jalon est-il franchi ? ». Change l'outil, garde le geste : la méthode tient toujours.</p></div>
 </section>
 
 <!-- ============================= LES RÔLES (Consulter) ============================= -->
@@ -270,96 +389,138 @@
   <div class="note info"><p><b>Info — image mutualisée, conteneur étanche :</b> une définition de rôle existe une seule fois, mais chaque projet instancie <strong>sa</strong> propre équipe, scopée à son dépôt. Aucun rôle ne porte deux projets dans un même contexte.</p></div>
 </section>
 
+<!-- ============================= L'EMBOÎTEMENT (Comprendre) ============================= -->
+<section class="panel" id="emboitement">
+  <div class="section-label">Comprendre</div>
+  <h1 class="t">L'emboîtement : portefeuille ⊃ projets ⊃ rôles ⊃ skills</h1>
+  <p class="lead">La méthode est une suite de <strong>poupées gigognes</strong>. Chaque niveau contient le suivant, sans jamais mélanger les contextes. C'est cette imbrication qui rend l'ensemble étanche et réutilisable.</p>
+
+  <div class="nest">
+    <span class="nest-label">Portefeuille — ~/work</span>
+    <p class="cap">Un seul niveau au-dessus de tout : oriente entre projets, ne fait pas le métier.</p>
+    <div class="nest">
+      <span class="nest-label">Projet — un dépôt</span>
+      <p class="cap">Sa propre équipe, son <code>CLAUDE.md</code>, ses <code>specs/</code>, sa stack Docker.</p>
+      <div class="nest">
+        <span class="nest-label">Rôle — un agent de l'équipe</span>
+        <p class="cap">Un périmètre fermé, une phase, un jalon.</p>
+        <div class="nest">
+          <span class="nest-label">Incarnation — subagent + skill(s)</span>
+          <p class="cap">Le subagent = le <strong>contrat</strong> (contexte isolé, outils propres, dispatchable). La skill = la <strong>méthode</strong> (le geste outillé, réutilisable).</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid two">
+    <div class="card">
+      <h3>Le contrat et la méthode</h3>
+      <p>Chaque rôle est un <strong>subagent</strong> (fichier <code>agents/&lt;rôle&gt;.md</code>) : contexte isolé, outils propres, parallélisable (plusieurs développeurs en worktrees). Son <strong>savoir-faire</strong> vit dans une ou plusieurs <strong>skills</strong> (<code>skills/iakaframe-*</code>) qu'il charge. Le subagent est le contrat ; la skill est la méthode.</p>
+    </div>
+    <div class="card">
+      <h3>Source d'image et copie active</h3>
+      <p>Les skills et contrats vivent <strong>à la source</strong> dans le dépôt (<code>agents/*</code>, <code>skills/iakaframe-*</code>) — c'est l'<em>image</em> — et sont <strong>déployés</strong> dans <code>~/.claude/</code> (la copie active chargée à l'exécution). Règle d'or : on édite la source, puis on redéploie ; jamais la copie à la main.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Une skill = un geste outillé, réutilisable</h3>
+    <p>Une skill n'est pas liée à un projet : c'est un <strong>geste</strong> défini une fois (cadrer, tester, versionner, mémoriser…) et rejoué partout. Un projet reçoit <strong>sa copie scopée</strong> de l'équipe et des skills ; deux projets ne partagent jamais un contexte. La définition est mutualisée, l'exécution est étanche.</p>
+  </div>
+
+  <div class="note info"><p><b>Info :</b> déployer une équipe sur un projet copie les contrats + leurs skills dans <code>&lt;projet&gt;/.claude/</code> (et le catalogue de chartes pour le studio design). Une équipe déployée mais pas encore lancée, dans le lexique maison : « la compagnie est à l'auberge ».</p></div>
+</section>
+
 <!-- ============================= LES OUTILS (Consulter) ============================= -->
 <section class="panel" id="outils">
   <div class="section-label">Consulter</div>
   <h1 class="t">L'outillage de la méthode</h1>
-  <p class="lead">La méthode s'exécute à travers un outillage concret et cohérent : des <strong>skills</strong> (le savoir-faire de chaque geste), un CLI multi-plateforme, une forge auto-hébergée, des scripts de checkpoint, une mémoire humaine, un canal d'identité et des garde-fous.</p>
+  <p class="lead">La méthode s'exécute à travers un outillage concret. On le classe par <strong>geste</strong> — ce qu'il sert — l'outil n'étant que l'<strong>implémentation courante</strong>, cohérente avec l'agnosticisme du cadre.</p>
 
-  <h2>Les skills iaka* — le savoir-faire packagé</h2>
-  <p>Chaque rôle ou geste vit dans une <strong>skill</strong> : un contrat de méthode que l'IA charge à la demande. Voici l'inventaire réel, ce que chacune fait vraiment.</p>
+  <h2>Les skills — un geste, une implémentation</h2>
+  <p>Chaque geste vit dans une <strong>skill</strong> : un contrat de méthode que l'IA charge à la demande. Le geste porte le titre ; l'outil ou la skill technique est l'implémentation courante.</p>
 
   <div class="scroll"><table>
-    <thead><tr><th>Skill</th><th>Ce qu'elle fait</th><th>Geste / rôle</th></tr></thead>
+    <thead><tr><th>Geste</th><th>Ce qu'il fait</th><th>Implémentation courante</th></tr></thead>
     <tbody>
       <tr>
-        <td class="name">iakastart</td>
-        <td>Point d'entrée nommé : affiche le bandeau ASCII <code>IAKAFRAME</code> + le roster des 8 rôles et les rend prêts à dispatch. Détecte l'étage (portefeuille vs projet) et propose le bon interlocuteur. <strong>Ne spawne aucun agent.</strong></td>
-        <td>Bootstrap</td>
+        <td class="name">Bootstrap d'équipe</td>
+        <td>Affiche le bandeau <code>IAKAFRAME</code> + le roster des 8 rôles, détecte l'étage (portefeuille / projet), rend prêt à dispatch. <strong>Ne spawne aucun agent.</strong></td>
+        <td><code>iakastart</code></td>
       </tr>
       <tr>
-        <td class="name">skill portefeuille</td>
-        <td>Reçoit les ordres de haut niveau (switcher, démarrer, créer une équipe, statut) au niveau de la racine des projets, commande les coordinateurs, puis délègue. Ne code, ne cadre, ne déploie pas.</td>
-        <td>Gestionnaire de portefeuille</td>
+        <td class="name">Orientation portefeuille</td>
+        <td>Reçoit les ordres de haut niveau (switcher, démarrer, créer une équipe, statut), commande les coordinateurs, puis délègue.</td>
+        <td>skill portefeuille</td>
       </tr>
       <tr>
-        <td class="name">skill coordination</td>
-        <td>Découpe une feature en phases, émet des ordres de mission, dispatche le bon rôle, vérifie les jalons, dialogue avec le décideur (Slack via n8n, ou Mattermost). Répartit et suit.</td>
-        <td>Coordinateur</td>
+        <td class="name">Coordination</td>
+        <td>Découpe une feature en phases, émet des ordres de mission, dispatche le bon rôle, vérifie les jalons, dialogue avec le décideur.</td>
+        <td>skill coordination (canal Slack / Mattermost)</td>
       </tr>
       <tr>
-        <td class="name">iakaframe-cadrage</td>
-        <td>Étape 0 : transforme un besoin en langage naturel en instruction fermée dans <code>specs/instructions/</code> (problème, décision, périmètre, étapes, fichiers, risques, critères testables). Lecture seule.</td>
-        <td>Architecte-cadreur</td>
+        <td class="name">Cadrage</td>
+        <td>Transforme un besoin en instruction fermée et vérifiable (problème, décision, périmètre, étapes, fichiers, risques, critères testables). Lecture seule.</td>
+        <td><code>iakaframe-cadrage</code></td>
       </tr>
       <tr>
-        <td class="name">iakaframe-qualite</td>
-        <td>Exécute le gate : rapport qualité, tests, lint, typage, couverture ; cherche les cas limites ; rend un verdict PASS / FAIL avec reproduction. Signale, ne corrige pas.</td>
-        <td>Responsable qualité</td>
+        <td class="name">Gate qualité</td>
+        <td>Rapport qualité, tests, lint, typage, couverture ; cherche les cas limites ; verdict PASS / FAIL avec reproduction. Signale, ne corrige pas.</td>
+        <td><code>iakaframe-qualite</code></td>
       </tr>
       <tr>
-        <td class="name">iakaframe-deploiement</td>
-        <td>Promeut une version candidate du staging vers la prod par bascule d'alias (rollback prêt), sur feu vert humain tracé. Puis surveille : health-checks, disponibilité, charge.</td>
-        <td>Équipe prod</td>
+        <td class="name">Déploiement prod</td>
+        <td>Promeut une version candidate vers la prod par bascule d'alias (rollback prêt), sur feu vert humain tracé. Puis surveille.</td>
+        <td><code>iakaframe-deploiement</code></td>
       </tr>
       <tr>
-        <td class="name">iakaframe-init</td>
-        <td>Amorce un projet (neuf ou existant) : dépose <code>specs/</code>, <code>CLAUDE.md</code>, contrats d'agent, script qualité — sans jamais écraser le code en place.</td>
-        <td>Amorçage</td>
+        <td class="name">Amorçage</td>
+        <td>Scaffolde la structure d'un projet (neuf ou existant) sans écraser le code en place.</td>
+        <td><code>iakaframe-init</code></td>
       </tr>
       <tr>
-        <td class="name">iakaframe-forgejo</td>
-        <td>Crée ou rebranche le dépôt sur la forge auto-hébergée (HTTP + token, jamais de secret en clair), avec auto-détection de l'existence du dépôt (bascule init ↔ update).</td>
-        <td>Versionnement</td>
+        <td class="name">Commit / versionnement</td>
+        <td>Crée ou rebranche le dépôt (HTTP + token, jamais de secret en clair), auto-détection init ↔ update.</td>
+        <td>forge self-hosted — Forgejo par défaut, réimplantable (GitHub / GitLab) — <code>iakaframe-forgejo</code></td>
       </tr>
       <tr>
-        <td class="name">iakaframe-docker</td>
-        <td>Scaffolde une stack Docker <strong>isolée</strong> : réseau, volumes et conteneurs préfixés par projet, ports hôte distincts sans collision. Aucun partage entre projets.</td>
-        <td>Environnement</td>
+        <td class="name">Environnement isolé</td>
+        <td>Stack Docker préfixée par projet : réseau, volumes, ports hôte distincts sans collision. Aucun partage entre projets.</td>
+        <td><code>iakaframe-docker</code></td>
       </tr>
       <tr>
-        <td class="name">iakaframe-etat-des-lieux</td>
-        <td>Régénère l'état des lieux à partir des faits git + un récit de reprise. Constate sans rien modifier ; ne franchit aucun jalon.</td>
-        <td>Checkpoint (lecture)</td>
+        <td class="name">Checkpoint (lecture)</td>
+        <td>Régénère l'état des lieux à partir des faits git + un récit de reprise. Constate sans rien modifier.</td>
+        <td><code>iakaframe-etat-des-lieux</code></td>
       </tr>
       <tr>
-        <td class="name">iakaframe-update</td>
-        <td>Le checkpoint en écriture : régénère l'état des lieux, commit global atomique, push. Le geste réflexe à chaque version et à chaque pause/reprise.</td>
-        <td>Checkpoint (écriture)</td>
+        <td class="name">Checkpoint (écriture)</td>
+        <td>Régénère l'état des lieux, commit global atomique, push. Le geste réflexe à chaque version et pause/reprise.</td>
+        <td><code>iakaframe-update</code></td>
       </tr>
       <tr>
-        <td class="name">iakaframe-naonedge</td>
-        <td>Produit un support visuel on-brand selon la bonne charte du catalogue (<strong>Cinabre</strong> par défaut). Ne diverge jamais de la charte canon.</td>
-        <td>Studio design</td>
+        <td class="name">Design / support visuel</td>
+        <td>Produit un support on-brand selon la bonne charte du catalogue, sans improviser de palette.</td>
+        <td>charte <strong>Cinabre</strong> par défaut (le nom « naonedge » est daté) — <code>iakaframe-naonedge</code></td>
       </tr>
       <tr>
-        <td class="name">skill rédaction</td>
-        <td>Rédige la doc utilisateur (guides, modes d'emploi, FAQ) sur le comportement réel vérifié ; structure selon quatre besoins (Se lancer / Faire / Consulter / Comprendre) ; source chaque fait.</td>
-        <td>Rédaction</td>
+        <td class="name">Rédaction doc</td>
+        <td>Doc utilisateur (guides, FAQ) sur le comportement réel vérifié ; structure selon quatre besoins (Se lancer / Faire / Consulter / Comprendre) ; source chaque fait.</td>
+        <td>skill rédaction</td>
       </tr>
       <tr>
-        <td class="name">iakaframe-appflowy-doc</td>
-        <td>Publie/rafraîchit la mémoire humaine dans AppFlowy auto-hébergé : un espace par projet → une vue d'ensemble → une sous-page par doc structurant. Idempotent, non destructif, secrets par env.</td>
-        <td>Mémoire humaine</td>
+        <td class="name">Mémoire humaine</td>
+        <td>Publie/rafraîchit les docs structurants : un espace par projet → une vue d'ensemble → une sous-page par fichier. Idempotent, non destructif, secrets par env.</td>
+        <td>AppFlowy auto-hébergé (implémentation) — <code>iakaframe-appflowy-doc</code></td>
       </tr>
       <tr>
-        <td class="name">iakaframe-log-conversation</td>
-        <td>Trace un échange dans la main courante centralisée (MQTT → CouchDB). Node pur, zéro dépendance ; secrets par env ; échec propre sans bloquer le flux.</td>
-        <td>Main courante</td>
+        <td class="name">Main courante</td>
+        <td>Trace un échange dans la main courante centralisée. Node pur, zéro dépendance ; échec propre sans bloquer le flux.</td>
+        <td>MQTT → CouchDB — <code>iakaframe-log-conversation</code></td>
       </tr>
     </tbody>
   </table></div>
-  <p class="legend">Les skills de portefeuille, de coordination et de rédaction portent en interne le nom de code de leur rôle ; elles sont désignées ici par leur fonction, conformément à la règle de terminologie externe.</p>
+  <p class="legend">Les skills de portefeuille, de coordination et de rédaction portent en interne le nom de code de leur rôle ; elles sont désignées ici par leur geste, conformément à la règle de terminologie externe.</p>
 
   <h2>Autour des skills</h2>
   <div class="grid two">
@@ -368,16 +529,16 @@
       <p>Le paquet <code>@naonedge/iakaframe</code> (Node, zéro dépendance) porte les commandes de la méthode : <code>banner</code>, <code>brief</code>, <code>jalon</code>, <code>snapshot</code>, <code>update</code>, <code>onboard</code>, <code>recap</code>… C'est la voie <strong>cross-OS</strong> ; les scripts <code>.ps1</code> restent le chemin rapide sous Windows.</p>
     </div>
     <div class="card">
-      <h3>La forge auto-hébergée</h3>
-      <p>Dépôt par défaut : une forge <strong>Forgejo</strong> auto-hébergée (open-source), en HTTP + token. Cohérent avec le « self-hosted d'abord ». Création de dépôt par API ; le token n'est jamais écrit en dur ni commité.</p>
+      <h3>Commit / versionnement</h3>
+      <p>Geste par défaut : une <strong>forge self-hosted</strong>, Forgejo, en HTTP + token — cohérent avec le « self-hosted d'abord ». <strong>Réimplantable</strong> sur GitHub, GitLab ou toute forge. Le token n'est jamais écrit en dur ni commité.</p>
     </div>
     <div class="card">
       <h3>Les scripts de cycle</h3>
       <p><code>onboard</code> amorce (structure + dépôt + premier état des lieux). <code>snapshot</code> régénère l'état des lieux (faits git + récit). <code>update</code> scelle un checkpoint (état des lieux + commit global + push). Init et update <strong>s'auto-détectent</strong>.</p>
     </div>
     <div class="card">
-      <h3>La mémoire humaine AppFlowy</h3>
-      <p>Miroir <strong>humain</strong> de l'état des lieux, hors du dépôt : les docs structurants publiés dans AppFlowy auto-hébergé, lisibles sans cloner ni lire du Markdown brut. Alimentée par instrumentation, pas à la main.</p>
+      <h3>La mémoire humaine</h3>
+      <p>Miroir <strong>humain</strong> de l'état des lieux, hors du dépôt : les docs structurants publiés dans une base de notes auto-hébergée (AppFlowy par défaut), lisibles sans cloner ni lire du Markdown brut. Alimentée par instrumentation, pas à la main.</p>
     </div>
     <div class="card">
       <h3>Le canal d'identité (badges &amp; pastilles)</h3>
@@ -385,7 +546,7 @@
     </div>
     <div class="card">
       <h3>Les hooks garde-fous</h3>
-      <p>Des hooks tiennent la discipline sans la déléguer au modèle : garde d'identité (double badge), câblage du bandeau au démarrage, snapshot automatique en fin de session, garde du canal des gestes. Bornés, jamais utilisés pour déclencher le bootstrap.</p>
+      <p>Des hooks tiennent la discipline sans la déléguer au modèle : garde d'identité (double badge), garde du canal des gestes (délégation auditée, hors-roster bloqué), garde de périmètre (un geste hors du projet est signalé/bloqué). Bornés, jamais utilisés pour déclencher le bootstrap.</p>
     </div>
     <div class="card">
       <h3>La stack Docker isolée</h3>
@@ -424,22 +585,33 @@
       <thead><tr><th>Affirmation</th><th>Source</th></tr></thead>
       <tbody>
         <tr><td class="name">Principe fondateur, cycle, piliers</td><td class="num">methode-de-travail.md:13-25, 636-645</td></tr>
-        <tr><td class="name">Trois acteurs, séparation réflexion/exécution</td><td class="num">CLAUDE.md · methode-de-travail.md:60-73</td></tr>
+        <tr><td class="name">Trois acteurs, séparation réflexion/exécution</td><td class="num">methode-de-travail.md:60-73</td></tr>
         <tr><td class="name">Roster des 8 rôles &amp; phases</td><td class="num">methode-de-travail.md:104-181</td></tr>
+        <tr><td class="name">Deux niveaux d'orchestration (portefeuille ↔ projet)</td><td class="num">methode-de-travail.md:127-139</td></tr>
         <tr><td class="name">Libellés canoniques de rôle</td><td class="num">specs/glossaire-iakaframe.md:8-21</td></tr>
         <tr><td class="name">Gate qualité indépendant (anti juge-et-partie)</td><td class="num">methode-de-travail.md:450-459</td></tr>
+        <tr><td class="name">Badge : position = ouverture/clôture</td><td class="num">methode-de-travail.md:224-231 · rituel-identite-agents.md:103-108</td></tr>
+        <tr><td class="name">Restitution en relais + verbatim + anti-ventriloquie</td><td class="num">methode-de-travail.md:247-281 · rituel-identite-agents.md:110-122</td></tr>
+        <tr><td class="name">Chaîne A→B sans interjection de l'orchestrateur</td><td class="num">specs/instructions/rituel-identite-agents.md:110-119</td></tr>
+        <tr><td class="name">Pastille transverse 🟠 (ex-⬜)</td><td class="num">specs/instructions/rituel-identite-agents.md:124-125</td></tr>
+        <tr><td class="name">Jalons : émetteur / contenu / récepteur + estimation</td><td class="num">methode-de-travail.md:283-304 · cycle-session-iakaframe.md:63-78</td></tr>
+        <tr><td class="name">Incarnation subagents + skills</td><td class="num">methode-de-travail.md:332-340</td></tr>
+        <tr><td class="name">Source = image, déploiement global ~/.claude</td><td class="num">specs/instructions/rituel-identite-agents.md:54-56, 209-210</td></tr>
+        <tr><td class="name">Structure du projet reflète le workflow</td><td class="num">methode-de-travail.md:498-527</td></tr>
+        <tr><td class="name">init iakaframe : scaffold neuf/existant</td><td class="num">methode-de-travail.md:530-548 · skills/iakaframe-init/SKILL.md</td></tr>
+        <tr><td class="name">Étanchéité : image mutualisée / conteneur étanche</td><td class="num">methode-de-travail.md:320-330</td></tr>
         <tr><td class="name">Cadrage : format d'instruction</td><td class="num">skills/iakaframe-cadrage/SKILL.md:32-62</td></tr>
         <tr><td class="name">Qualité : verdict PASS/FAIL</td><td class="num">skills/iakaframe-qualite/SKILL.md:11-66</td></tr>
         <tr><td class="name">Déploiement : feu vert humain, rollback</td><td class="num">skills/iakaframe-deploiement/SKILL.md:11-87</td></tr>
-        <tr><td class="name">État des lieux (lecture) / update (écriture)</td><td class="num">skills/iakaframe-etat-des-lieux · skills/iakaframe-update</td></tr>
-        <tr><td class="name">Forge : HTTP+token, auto-détection, ASCII</td><td class="num">skills/iakaframe-forgejo/SKILL.md:14-71</td></tr>
+        <tr><td class="name">Forge : HTTP+token, auto-détection init↔update</td><td class="num">skills/iakaframe-forgejo/SKILL.md:14-71</td></tr>
         <tr><td class="name">Docker isolé (préfixes, ports décalés)</td><td class="num">skills/iakaframe-docker/SKILL.md:14-64</td></tr>
-        <tr><td class="name">Mémoire humaine AppFlowy (modèle, idempotence)</td><td class="num">skills/iakaframe-appflowy-doc/SKILL.md:18-98</td></tr>
+        <tr><td class="name">Mémoire humaine (modèle, idempotence)</td><td class="num">skills/iakaframe-appflowy-doc/SKILL.md:18-98</td></tr>
         <tr><td class="name">Main courante (MQTT→CouchDB)</td><td class="num">skills/iakaframe-log-conversation/SKILL.md:6-39</td></tr>
         <tr><td class="name">Studio design : charte Cinabre par défaut</td><td class="num">skills/iakaframe-naonedge/SKILL.md:26-51</td></tr>
         <tr><td class="name">Bootstrap : roster, ne spawne rien</td><td class="num">skills/iakastart/SKILL.md:29-102</td></tr>
-        <tr><td class="name">Badges / pastilles / position porte le sens</td><td class="num">methode-de-travail.md:194-281</td></tr>
+        <tr><td class="name">Hooks garde-fous (identité / gestes / périmètre)</td><td class="num">gardes-fous-canal-gestes-hooks.md · garde-perimetre-gestes-directs.md</td></tr>
         <tr><td class="name">CLI @naonedge/iakaframe (commandes)</td><td class="num">cli/package.json · cli/src/commands/*</td></tr>
+        <tr><td class="name">Arbre réel du dépôt (annoté)</td><td class="num">find . -maxdepth 2 (relevé 2026-07-05)</td></tr>
         <tr><td class="name">Agnosticisme du stack</td><td class="num">methode-de-travail.md:7-10, 338-340</td></tr>
       </tbody>
     </table></div>
@@ -453,7 +625,7 @@
       <li><strong>AppFlowy</strong> — espace de travail open-source auto-hébergeable : <a href="https://appflowy.io">appflowy.io</a></li>
       <li><strong>Node.js</strong> — <code>fetch</code> natif (≥ 18), zéro dépendance : <a href="https://nodejs.org">nodejs.org</a></li>
     </ul>
-    <div class="note info"><p><b>Info :</b> les outils web de vérification n'étaient pas disponibles à la rédaction de cette v0.1.0 ; les références externes pointent vers les sites officiels et restent à re-vérifier au prochain passage.</p></div>
+    <div class="note info"><p><b>Info :</b> les outils web de vérification n'étaient pas disponibles à la rédaction de cette v0.2.0 ; les références externes pointent vers les sites officiels et restent à re-vérifier au prochain passage.</p></div>
   </div>
 </section>
 
@@ -462,7 +634,7 @@
 <footer class="footer">
   <div class="accent-line"></div>
   <p><span class="ne-wordmark"><b>iaka</b><span class="edge">frame</span></span> · document chapeau de la méthode</p>
-  <p>v0.1.0 · 2026-07-05 · rédaction : la doc utilisateur · mise en forme : charte Cinabre</p>
+  <p>v0.2.0 · 2026-07-05 · rédaction : la doc utilisateur · mise en forme : charte Cinabre</p>
 </footer>
 
 <script>
