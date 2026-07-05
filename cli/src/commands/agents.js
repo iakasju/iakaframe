@@ -3,7 +3,7 @@ import { parseArgs } from 'node:util';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { listAgents, affectAgent, fullteam, SKILL_OF, PORTFOLIO_AGENTS } from '../lib/agents.js';
+import { listPersonas, affectPersona, fullteam, skillOfPersona, PORTFOLIO_PERSONAS } from '../lib/agents.js';
 
 export function runAgents(argv) {
   const { values, positionals } = parseArgs({
@@ -19,17 +19,17 @@ export function runAgents(argv) {
 
   switch (action) {
     case 'list':
-      console.log('Equipe iakaframe - definitions canon :');
-      for (const n of listAgents()) {
-        const s = SKILL_OF[n] || '(CLAUDE.md)';
-        const tag = PORTFOLIO_AGENTS.includes(n) ? '  [portefeuille]' : '';
+      console.log('Equipe iakaframe - personas canon :');
+      for (const n of listPersonas()) {
+        const s = skillOfPersona(n) || '(CLAUDE.md)';
+        const tag = PORTFOLIO_PERSONAS.includes(n) ? '  [portefeuille]' : '';
         console.log(`  ${n.padEnd(9)} -> ${s}${tag}`);
       }
       break;
     case 'affect':
       if (!values.agent) { console.error('Preciser --agent <nom>.'); process.exitCode = 1; return; }
-      console.log(`Affectation de '${values.agent}' -> ${values.global ? '~/.claude (mutualise)' : project}`);
-      affectAgent(values.agent, { project, global: values.global, force: values.force });
+      console.log(`Affectation de la persona '${values.agent}' -> ${values.global ? '~/.claude (mutualise)' : project}`);
+      affectPersona(values.agent, { project, global: values.global, force: values.force });
       break;
     case 'fullteam':
       console.log(`Deploiement FULL TEAM -> ${values.global ? '~/.claude' : project}`);
@@ -39,7 +39,7 @@ export function runAgents(argv) {
     case 'status': {
       const target = values.global ? path.join(os.homedir(), '.claude') : path.join(path.resolve(project), '.claude');
       const dir = path.join(target, 'agents');
-      console.log(`Agents affectes dans : ${target}`);
+      console.log(`Personas affectees dans : ${target}`);
       if (fs.existsSync(dir)) fs.readdirSync(dir).filter(f => f.endsWith('.md')).sort().forEach(f => console.log(`  - ${f.replace(/\.md$/, '')}`));
       else console.log('  (aucun - lancer agents fullteam)');
       break;

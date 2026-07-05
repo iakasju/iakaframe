@@ -22,24 +22,26 @@ Usage : iakaframe <commande> [options]
 
 Commandes :
   onboard             Met en place la methode : structure + Forgejo + commit + etat + push
-                        --path <dir> --target claude|codex|ollama --repo <nom>
+                        --path <dir> --node claude|codex|ollama-localhost|ollama-lan --repo <nom>
                         --description "ascii" --version vX.Y.Z
-                        --skip-forgejo  --no-push  --force
+                        --skip-forgejo  --no-push  --force  (--target = alias deprecie de --node)
   init                Deploie le kit + marqueur .iakaframe (non destructif)
-                        --path <dir> --target claude|codex|ollama --force
+                        --path <dir> --node claude|codex|ollama-localhost|ollama-lan --force
+                        (--target = alias deprecie de --node)
   snapshot            Etat des lieux (journal + MD + HTML)
                         --path <dir> --reason version|pause|reprise|manual --version --note
   update              Checkpoint : snapshot + commit global + push
                         --path <dir> --reason --version --note --message --no-push
   services            Sonde git(Forgejo) / Ollama / ComfyUI
                         --hosts a,b,c  --json <fichier>  --timeout <sec>
-  config              Ecrit/maj <projet>/iakaframe.json (runner + cible)
-                        --path <dir> --runner ps|codex|iakaide|aider --target claude|codex|ollama
-                        --aider-model <m>  (ex: ollama/llama3, pour le runner aider)
-  agents              Equipe d'agents : list | affect | fullteam | status
+  config              Ecrit/maj <projet>/iakaframe.json (runner + nœud)
+                        --path <dir> --runner claude-code|ollama|litellm|codex --node <n>
+                        (alias legacy runner : ps, iakaide, aider - deprecies ; --target = alias de --node)
+                        --aider-model <m>  (ex: ollama/llama3, pour le launcher legacy aider)
+  agents              Equipe de personas : list | affect | fullteam | status
                         --agent <nom> --project <dir> --global --force
-  go <projet>         Lance l'action du projet via son runner (ps/codex/iakaide/aider)
-                        --path <dir> --runner <r> --do "tache"
+  go <projet>         Lance l'action du projet via son runner (claude-code|ollama|litellm|codex)
+                        --path <dir> --runner <r> --do "tache"  (launchers legacy : aider, iakaide)
   banner <texte>      Titre ASCII (FIGlet embarque, zero dep)
                         --font <nom>  (defaut : ANSI Shadow ; repli : Standard)
   brief <projet>      Entree projet : titre + tableau (derniere etape + backlog) + agents

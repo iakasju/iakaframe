@@ -5,19 +5,19 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { isRepo, initRepoMain, run, hasChanges, hasRemoteOrigin } from '../lib/git.js';
 import { testRepo, createRepo, remoteUrl } from '../lib/forgejo.js';
-import { contractFile, frameworkRoot } from '../lib/kit.js';
-import { affectAgent } from '../lib/agents.js';
+import { contractFileForNode, frameworkRoot } from '../lib/kit.js';
+import { affectPersona } from '../lib/agents.js';
 import { hasCmd } from '../lib/which.js';
-import { runInit } from './init.js';
+import { runInit, resolveNode } from './init.js';
 import { doSnapshot } from './snapshot.js';
-
-const TARGETS = ['claude', 'codex', 'ollama'];
 
 export async function runOnboard(argv) {
   const { values } = parseArgs({
     args: argv,
     options: {
-      path: { type: 'string' }, target: { type: 'string', default: 'claude' },
+      path: { type: 'string' },
+      node: { type: 'string' },                 // claude|codex|ollama-localhost|ollama-lan
+      target: { type: 'string' },               // alias DEPRECIE de --node
       repo: { type: 'string' }, description: { type: 'string', default: '' },
       version: { type: 'string', default: 'v0.1.0' },
       'skip-forgejo': { type: 'boolean', default: false },
@@ -28,12 +28,13 @@ export async function runOnboard(argv) {
       'dashboard-source': { type: 'string' },
     },
   });
-  if (!TARGETS.includes(values.target)) { console.error(`target invalide : ${values.target}`); process.exitCode = 1; return; }
+  const { node, error } = resolveNode(values);
+  if (error) { console.error(error); process.exitCode = 1; return; }
   const root = path.resolve(values.path || process.cwd());
   const repo = values.repo || path.basename(root);
   fs.mkdirSync(root, { recursive: true });
 
-  if (values.umbrella) { return runUmbrella(root, values); }
+  if (values.umbrella) { return runUmbrella(root, values, node); }
 
   // Routage : depot deja sur Forgejo + git local -> update.
   if (!values['skip-forgejo']) {
@@ -46,11 +47,11 @@ export async function runOnboard(argv) {
   }
 
   console.log(`==== iakaframe : onboarding de ${root} ====`);
-  const contract = contractFile(values.target);
+  const contract = contractFileForNode(node);
 
   // [1] Structure
-  console.log(`\n[1/5] Structure de la methode (cible: ${values.target})`);
-  runInit(['--path', root, '--target', values.target, ...(values.force ? ['--force'] : [])]);
+  console.log(`\n[1/5] Structure de la methode (nœud: ${node})`);
+  runInit(['--path', root, '--node', node, ...(values.force ? ['--force'] : [])]);
 
   // [2] Git + Forgejo
   if (!values['skip-forgejo']) {
@@ -103,13 +104,13 @@ function copyDirExcept(src, dst, exclude = []) {
 }
 
 // Mode chapeau : Odin (local + global) + dashboard NaonEdge + scan + projets en attente.
-function runUmbrella(root, values) {
+function runUmbrella(root, values, node) {
   console.log(`==== iakaframe : onboarding UMBRELLA (dossier chapeau) : ${root} ====`);
 
   // [1/3] Odin (portefeuille) : local + global
   console.log('\n[1/3] Odin (portefeuille) : local + global');
-  affectAgent('odin', { project: root });
-  affectAgent('odin', { global: true });
+  affectPersona('odin', { project: root });
+  affectPersona('odin', { global: true });
 
   // [2/3] Dashboard NaonEdge
   console.log('\n[2/3] Dashboard NaonEdge');
@@ -153,8 +154,8 @@ function runUmbrella(root, values) {
   }
   if (pending.length === 0) console.log('  = tous les projets sont deja onboardes.');
   else if (values['init-projects']) {
-    console.log(`  amorcage de ${pending.length} projet(s) (structure seule, cible ${values.target})...`);
-    for (const name of pending) { runInit(['--path', path.join(root, name), '--target', values.target]); console.log(`    + ${name}`); }
+    console.log(`  amorcage de ${pending.length} projet(s) (structure seule, nœud ${node})...`);
+    for (const name of pending) { runInit(['--path', path.join(root, name), '--node', node]); console.log(`    + ${name}`); }
     console.log('  (Forgejo non touche : brancher chaque depot ensuite via onboard.)');
   } else {
     console.log(`  ${pending.length} projet(s) non onboarde(s) : ${pending.join(', ')}`);
@@ -163,5 +164,5 @@ function runUmbrella(root, values) {
 
   console.log('\n==== Chapeau pret ====');
   if (dashOk) console.log(`  - Dashboard : ouvrir ${path.join(dashDest, 'index.html')}`);
-  console.log('  - Onboarder un projet : iakaframe onboard --path <projet> [--target claude|codex]');
+  console.log('  - Onboarder un projet : iakaframe onboard --path <projet> [--node claude|codex|ollama-localhost|ollama-lan]');
 }

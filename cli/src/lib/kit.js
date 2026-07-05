@@ -1,7 +1,12 @@
-// Localisation et copie des kits iakaframe (kit / kit-codex / kit-ollama).
+// Localisation et copie des kits iakaframe (kit-claude / kit-codex / kit-ollama).
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import {
+  normalizeNode,
+  kitNameForNode as _kitNameForNode,
+  contractFileForNode as _contractFileForNode,
+} from './vocab.js';
 
 // Racine des assets iakaframe (kit-claude/, agents/, skills/, design-*).
 // 1) paquet publie : <pkg>/_bundled (genere par scripts/bundle.js au prepack)
@@ -21,11 +26,20 @@ export function frameworkRoot() {
   return null;
 }
 
+// Nom du dossier de kit / fichier-contrat pour un NŒUD canonique (NodeKind). Le FORMAT
+// (claude-md/agents-md) porte le fichier-contrat, distinct du nœud (cf. vocab.js).
+export function kitNameForNode(node) { return _kitNameForNode(node); }
+export function contractFileForNode(node) { return _contractFileForNode(node); }
+
+// --- Alias DEPRECIES (retro-compat, conserves >= 1 version mineure - P2 Q-3) ---
+// Ancienne signature basee sur "target" (claude|codex|ollama) : normalise le target legacy
+// en nœud canonique (ollama -> ollama-localhost) puis delegue. Les appelants valident deja
+// la valeur en amont ; le repli 'claude' ne sert que de garde defensive.
 export function kitName(target) {
-  return target === 'codex' ? 'kit-codex' : target === 'ollama' ? 'kit-ollama' : 'kit-claude';
+  return kitNameForNode(normalizeNode(target).node || 'claude');
 }
 export function contractFile(target) {
-  return target === 'claude' ? 'CLAUDE.md' : 'AGENTS.md';
+  return contractFileForNode(normalizeNode(target).node || 'claude');
 }
 
 // Version iakaframe : etat-des-lieux (dev) > _bundled/VERSION (publie) > package.json.

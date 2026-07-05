@@ -6,7 +6,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { resolveRoot } from '../lib/root.js';
 import { table, wrap } from '../lib/table.js';
-import { assignedAgents } from '../lib/agents.js';
+import { assignedPersonas } from '../lib/agents.js';
 
 function gitLog(dir, n) {
   try {
@@ -32,7 +32,7 @@ export function runRecap(argv) {
   const rows = [
     ['Projet', path.basename(dir)],
     ['Commits (session)', wrap(gitLog(dir, n).join('\n'), w).join('\n')],
-    ['Agents mobilises', wrap(assignedAgents(dir).join(', '), w).join('\n')],
+    ['Personas mobilisees', wrap(assignedPersonas(dir).join(', '), w).join('\n')],
   ];
   console.log(table(['Champ', 'Valeur'], rows));
 }

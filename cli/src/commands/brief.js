@@ -7,7 +7,7 @@ import { resolveRoot } from '../lib/root.js';
 import { printBanner, DEFAULT_FONT } from '../lib/banner.js';
 import { table, wrap } from '../lib/table.js';
 import { lastStep, backlog } from '../lib/etat.js';
-import { assignedAgents } from '../lib/agents.js';
+import { assignedPersonas } from '../lib/agents.js';
 
 function colWidth() { return Math.max(40, Math.min(80, (process.stdout.columns || 100) - 22)); }
 
@@ -19,7 +19,7 @@ export function brief(dir, font = DEFAULT_FONT, { title = true } = {}) {
   const rows = [
     ['Derniere etape', wrap(lastStep(dir), w).join('\n')],
     ['Backlog', wrap(bl, w).join('\n')],
-    ['Agents assignes', wrap(assignedAgents(dir).join(', '), w).join('\n')],
+    ['Personas assignees', wrap(assignedPersonas(dir).join(', '), w).join('\n')],
   ];
   console.log(table(['Champ', 'Valeur'], rows));
 }
