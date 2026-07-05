@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iakaframe — la méthode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- Charte Cinabre : pointée en relatif vers le dépôt frère iakacharte (jamais rapatriée). -->
+<link rel="stylesheet" href="../iakacharte/design-cinabre/cinabre.css">
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-badge">Méthode · document chapeau</div>
+  <h1>iakaframe — l'équipe augmentée, <span class="accent">cadrée</span></h1>
+  <p class="hero-subtitle">Une méthode de travail avec l'IA : des rôles fermés, des instructions écrites avant le code, et un humain qui décide à chaque jalon. La qualité n'est pas dans le modèle — elle est dans la méthode.</p>
+  <div class="hero-meta">v0.1.0 · 2026-07-05 · document de référence</div>
+</section>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="idee">L'idée</button>
+  <button class="tab" data-tab="douleur">La douleur d'origine</button>
+  <button class="tab" data-tab="methode">La méthode</button>
+  <button class="tab" data-tab="agnostique">L'agnosticisme</button>
+  <button class="tab" data-tab="roles">Les rôles</button>
+  <button class="tab" data-tab="outils">Les outils</button>
+  <button class="tab" data-tab="sources">Sources</button>
+</nav>
+
+<main>
+
+<!-- ============================= L'IDÉE (Comprendre) ============================= -->
+<section class="panel active" id="idee">
+  <div class="section-label">Comprendre</div>
+  <h1 class="t">L'idée : une équipe, pas un prompt</h1>
+  <p class="lead">iakaframe transforme « une IA qui code » en <strong>une équipe qui livre</strong>. Le principe tient en une phrase : <strong>c'est le workflow qui produit la qualité, pas l'IA</strong>. L'IA amplifie ; le workflow cadre.</p>
+
+  <div class="card glow">
+    <h3>Trois acteurs, zéro chevauchement</h3>
+    <p>À la base, un modèle conceptuel simple — trois responsabilités qui ne se recouvrent jamais :</p>
+    <ul>
+      <li><strong>Le décideur (l'humain)</strong> — porte la vision, tranche l'architecture, teste le résultat réel, valide à chaque jalon. Il délègue l'exécution, jamais la réflexion.</li>
+      <li><strong>La réflexion / le cadrage</strong> — analyse l'existant en lecture seule et transforme un besoin en <strong>instruction écrite</strong> ; ne touche jamais au code de production.</li>
+      <li><strong>L'exécution</strong> — lit l'instruction validée, code, build, teste, commite.</li>
+    </ul>
+    <p>Cette séparation est le cœur : le jour où celui qui réfléchit est aussi celui qui exécute sans garde-fou, il n'y a plus de contrôle.</p>
+  </div>
+
+  <h2>De trois acteurs à une compagnie</h2>
+  <p>Pour industrialiser le développement au fil de l'eau, les couches réflexion et exécution se <strong>spécialisent en une équipe d'agents</strong>, chacun avec un rôle fermé : ses droits, ses garde-fous, ses entrées et sorties. On sait toujours <em>qui</em> parle et <em>depuis quelle phase</em>.</p>
+
+  <div class="grid two">
+    <div class="card">
+      <h3>Un rôle = un contrat packagé</h3>
+      <p>Chaque rôle borne ses permissions (outils autorisés), ses interdits (ce qu'il ne fait pas) et son process (entrée → sortie → jalon). Lisible, réutilisable d'un projet à l'autre.</p>
+    </div>
+    <div class="card">
+      <h3>Deux niveaux d'orchestration</h3>
+      <p>Un niveau <strong>portefeuille</strong> ouvre la bonne porte entre projets ; à l'intérieur d'un projet, un <strong>coordinateur</strong> répartit le travail entre les rôles et surveille les jalons.</p>
+    </div>
+  </div>
+
+  <div class="note info"><p><b>Info :</b> les rôles sont incarnés (un nom de code interne, une couleur) pour être mémorisables. Dans toute documentation externe — comme cette page — on ne désigne jamais un rôle par son nom de code : voir l'onglet <strong>Les rôles</strong>.</p></div>
+</section>
+
+<!-- ======================= LA DOULEUR D'ORIGINE (Comprendre) ======================= -->
+<section class="panel" id="douleur">
+  <div class="section-label">Comprendre</div>
+  <h1 class="t">La douleur d'origine : l'IA qui code sans cadre</h1>
+  <p class="lead">Une IA sans cadre génère du code <em>plausible</em> — pas forcément du logiciel <em>fiable</em>. Elle est un exécutant puissant mais aveugle : elle ne sait pas ce qu'elle ne sait pas. Livrée à elle-même, elle produit quatre douleurs concrètes.</p>
+
+  <div class="grid two">
+    <div class="card">
+      <h3>1 · La dérive de périmètre</h3>
+      <p>« Tant qu'on y est… » — l'IA ajoute des fonctions non demandées, optimise localement et perd de vue l'architecture globale. <em>Vécu :</em> vouloir embarquer FFmpeg pour transcoder une vidéo alors que les players natifs décodent déjà tout en matériel. Solution complexe, inutile.</p>
+    </div>
+    <div class="card">
+      <h3>2 · L'IA qui valide son propre travail</h3>
+      <p>Quand celui qui code juge aussi sa propre qualité, il devient juge et partie. Le code « compile » et est déclaré « prêt » — sans regard indépendant. C'est l'anti-patron le plus coûteux.</p>
+    </div>
+    <div class="card">
+      <h3>3 · La perte de traçabilité</h3>
+      <p>La mémoire d'une IA est volatile. Sans trace écrite, les décisions techniques s'évaporent d'une session à l'autre : six mois plus tard, personne ne sait pourquoi ce choix a été fait.</p>
+    </div>
+    <div class="card">
+      <h3>4 · L'absence de méthode reproductible</h3>
+      <p>Chaque tâche repart d'un prompt vague suivi d'une acceptation aveugle. Rien ne se capitalise : ni les préférences, ni les corrections, ni le cadre. Le « vibe coding » ne passe pas à l'échelle.</p>
+    </div>
+  </div>
+
+  <div class="note warn"><p><b>Attention :</b> le problème n'est pas la puissance du modèle — c'est l'absence de cadre autour. Un modèle plus fort sans méthode dérive simplement plus vite.</p></div>
+
+  <div class="card glow">
+    <h3>Ce que la méthode refuse d'être</h3>
+    <ul>
+      <li><strong>Pas du « vibe coding »</strong> — chaque ligne est spécifiée, vérifiée par des outils, validée par un humain.</li>
+      <li><strong>Pas de l'automatisation aveugle</strong> — l'IA ne tourne pas en boucle ; le feedback humain est structurel, pas optionnel.</li>
+      <li><strong>Pas un remplacement du développeur</strong> — il fait moins de frappe et plus de décisions ; son métier monte en abstraction.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ============================= LA MÉTHODE (Comprendre + Consulter) ============================= -->
+<section class="panel" id="methode">
+  <div class="section-label">Comprendre</div>
+  <h1 class="t">La méthode : un cycle et des jalons</h1>
+  <p class="lead">Le besoin ne descend jamais directement dans le code. Il passe par un cycle où chaque étape ferme un peu plus l'ambiguïté, jusqu'à une <strong>instruction écrite et vérifiable</strong> — puis l'exécution.</p>
+
+  <h2>Le cycle d'une feature</h2>
+  <ol class="seq">
+    <li><strong>Besoin</strong> — le décideur exprime ce qu'il veut.</li>
+    <li><strong>Analyse</strong> — lecture seule de l'existant (code, conventions, état des lieux).</li>
+    <li><strong>Discussion</strong> — arbitrages, options, périmètre ; on pose le problème avant la solution.</li>
+    <li><strong>Instruction écrite</strong> — le besoin devient un fichier fermé dans <code>specs/instructions/</code>.</li>
+    <li><strong>Validation</strong> — le décideur valide (ou corrige) l'instruction. Jalon humain.</li>
+    <li><strong>Implémentation</strong> — le code s'écrit par petits pas, en commits atomiques.</li>
+    <li><strong>Test &amp; feedback</strong> — l'humain teste dans l'app réelle ; le feedback est mémorisé.</li>
+    <li><strong>Boucle</strong> — une correction remonte au niveau de la décision, pas du micro-management ligne à ligne.</li>
+  </ol>
+
+  <div class="note tip"><p><b>Astuce :</b> quand l'IA prend une mauvaise direction, on ne la corrige pas ligne par ligne. On remonte à la décision, et la décision redescend sous forme d'instruction corrective écrite.</p></div>
+
+  <div class="section-label">Consulter</div>
+  <h2>Les 3 phases (cible staging) + le squad prod</h2>
+  <p>La chaîne de dev a pour <strong>cible le staging</strong> et avance en trois phases. À chaque phase, un rôle est aux commandes ; le coordinateur vérifie le jalon avant de passer à la suivante.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Phase</th><th>Rôle aux commandes</th><th>Entrée → sortie</th><th>Jalon</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="name">🔵 P1 — Cadrage</td>
+        <td>l'architecte-cadreur</td>
+        <td>besoin → <code>specs/instructions/{feature}.md</code></td>
+        <td><span class="tag t-wait">humain</span></td>
+      </tr>
+      <tr>
+        <td class="name">🔴 P2 — Réalisation</td>
+        <td>le développeur (×N) + le responsable qualité</td>
+        <td>instruction → branche + commits + verdict PASS</td>
+        <td><span class="tag t-on">auto</span></td>
+      </tr>
+      <tr>
+        <td class="name">🟢 P3 — Déploiement staging</td>
+        <td>le développeur (devops) + le responsable qualité</td>
+        <td>PASS → build en staging <code>vX.Y.Z-rc</code></td>
+        <td><span class="tag t-on">auto</span></td>
+      </tr>
+      <tr class="grp"><td colspan="4">La chaîne s'arrête au staging — la prod est un squad séparé</td></tr>
+      <tr>
+        <td class="name">🟣 Déploiement prod</td>
+        <td>l'équipe de déploiement production</td>
+        <td>rc recettée + feu vert → prod (alias de version)</td>
+        <td><span class="tag t-wait">humain</span></td>
+      </tr>
+      <tr>
+        <td class="name">🟣 Surveillance</td>
+        <td>l'équipe de déploiement production</td>
+        <td>prod → santé OK / alerte / rollback</td>
+        <td><span class="tag t-info">continu</span></td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="legend">Frontière nette : dev → staging (les 3 phases), puis prod (squad séparé), avec une couture humaine entre les deux.</p>
+
+  <div class="section-label">Comprendre</div>
+  <h2>Pourquoi ça crée de la qualité</h2>
+  <div class="grid two">
+    <div class="card">
+      <h3>Les instructions écrites sont une spec vérifiable</h3>
+      <p>Un fichier <code>specs/instructions/{feature}.md</code> n'est pas un prompt vague : problème, existant, décision, étapes, fichiers touchés, critères d'acceptation testables. <strong>La mémoire de l'IA est volatile ; les fichiers d'instructions sont permanents.</strong></p>
+    </div>
+    <div class="card">
+      <h3>Le gate qualité est indépendant</h3>
+      <p>Celui qui code ne se valide jamais lui-même. Le responsable qualité rend un verdict <strong>PASS / FAIL</strong> net, dans un contexte séparé. Aucune feature n'avance sans ce verdict. C'est l'anti-dérive « l'IA juge et partie ».</p>
+    </div>
+    <div class="card">
+      <h3>Les commits atomiques sont le filet</h3>
+      <p>Un commit après chaque étape logique (conventional commits). Le filet de sécurité devient git : on peut revenir en arrière proprement. Jamais de <code>reset --hard</code> ni de <code>push --force</code> côté IA.</p>
+    </div>
+    <div class="card">
+      <h3>L'état des lieux rend la reprise possible</h3>
+      <p>À chaque version et à chaque pause/reprise, on régénère un <code>etat-des-lieux.md</code> à partir des faits git + un récit de reprise. Reprendre un projet = <strong>lire une page</strong>, pas fouiller sa mémoire.</p>
+    </div>
+  </div>
+
+  <div class="note info"><p><b>Info — profondeur du gate :</b> un fix ou une modif mineure → simple validation des tests (la suite passe au vert). Une <strong>version mineure</strong> (feature) → campagne complète (tests + lint + typage + couverture + rapport) et une trace qualité durable versionnée dans <code>docs/qualite/</code>.</p></div>
+</section>
+
+<!-- ============================= L'AGNOSTICISME (Comprendre) ============================= -->
+<section class="panel" id="agnostique">
+  <div class="section-label">Comprendre</div>
+  <h1 class="t">L'agnosticisme : un cadre de rôles, pas un outil</h1>
+  <p class="lead">iakaframe est volontairement <strong>agnostique du stack</strong>. Elle ne dépend d'aucun langage, framework, LLM ou hébergeur particulier : c'est un <strong>cadre de rôles et de gestes</strong>, transposable ailleurs. Les rôles priment sur l'implémentation.</p>
+
+  <div class="card glow">
+    <h3>Ce qui est stable vs ce qui est interchangeable</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Invariant (le cadre)</th><th>Interchangeable (l'implémentation)</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Séparer réflexion et exécution</td><td>Le modèle qui réfléchit / qui code</td></tr>
+        <tr><td class="name">Instruction écrite avant le code</td><td>Le format d'édition, l'IDE, le CLI</td></tr>
+        <tr><td class="name">Gate qualité indépendant</td><td>Les outils (tsc, ESLint, pytest, clippy…)</td></tr>
+        <tr><td class="name">Jalons humains tracés</td><td>Le canal (terminal, Slack, Mattermost)</td></tr>
+        <tr><td class="name">Trace durable des décisions</td><td>Le support (git, forge auto-hébergée, wiki)</td></tr>
+        <tr><td class="name">Isolation par projet</td><td>La techno de conteneur / d'environnement</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <h2>Self-hosted d'abord, mais réimplantable</h2>
+  <p>La méthode privilégie le <strong>self-hosted / open-source</strong> : pour tout choix de backend, la version locale est l'option n°1, le cloud n'est qu'un repli justifié. Mais ce n'est qu'un <em>défaut de goût</em>, pas une dépendance : les mêmes rôles se rejouent avec d'autres briques. Les définitions de rôles sont pensées pour se décliner sur plusieurs incarnations d'IA — aujourd'hui l'implémentation courante, demain d'autres.</p>
+
+  <div class="note tip"><p><b>Astuce :</b> la bonne question n'est jamais « quel outil ? » mais « quel <em>rôle</em> ce geste sert-il, et son jalon est-il franchi ? ». Change l'outil, garde le rôle : la méthode tient toujours.</p></div>
+</section>
+
+<!-- ============================= LES RÔLES (Consulter) ============================= -->
+<section class="panel" id="roles">
+  <div class="section-label">Consulter</div>
+  <h1 class="t">Les rôles de la méthode</h1>
+  <p class="lead">Huit rôles, désignés ici par leur <strong>libellé canonique</strong>. Les noms de code internes n'apparaissent que dans les artefacts du dépôt — jamais dans une doc destinée à l'extérieur.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Rôle</th><th>Portée / phase</th><th>Le geste</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="name">Le gestionnaire de portefeuille</td>
+        <td>Portefeuille (multi-projets) · 🟡</td>
+        <td>Oriente entre projets : switche d'équipe, démarre un projet, crée une équipe, fait le point. Ouvre la bonne porte, puis passe la main au coordinateur. Ne code, ne cadre, ne déploie pas.</td>
+      </tr>
+      <tr>
+        <td class="name">Le coordinateur</td>
+        <td>Transverse / par projet · 🟠</td>
+        <td>Chef d'orchestre d'une feature : découpe en phases, déclenche le bon rôle au bon moment, vérifie chaque jalon, rend compte au décideur. Répartit et suit — ne fait pas le travail métier.</td>
+      </tr>
+      <tr>
+        <td class="name">L'architecte-cadreur</td>
+        <td>P1 — Cadrage · 🔵</td>
+        <td>Transforme un besoin en instruction fermée et vérifiable, en lecture seule sur le code. Pose le problème avant la solution, ferme le périmètre, donne des critères d'acceptation testables. Ne code jamais.</td>
+      </tr>
+      <tr>
+        <td class="name">Le développeur (dev + devops)</td>
+        <td>P2 Réalisation → P3 Staging · 🔴/🟢</td>
+        <td>Lit l'instruction validée, implémente en commits atomiques, build, et déploie jusqu'au staging. Ne se valide jamais lui-même.</td>
+      </tr>
+      <tr>
+        <td class="name">Le responsable qualité</td>
+        <td>P2 / P3 · 🔴/🟢</td>
+        <td>Cherche à faire tomber le code : tests, lint, typage, couverture. Rend un verdict net PASS / FAIL avec reproduction des échecs. Signale, ne corrige pas — pour rester indépendant.</td>
+      </tr>
+      <tr>
+        <td class="name">L'équipe de déploiement production</td>
+        <td>Prod (squad séparé) · 🟣</td>
+        <td>Promeut une version recettée du staging vers la prod par bascule d'alias, rollback prêt. Puis surveille (santé, disponibilité, charge). Seul gate non automatisable : le feu vert est humain, toujours.</td>
+      </tr>
+      <tr>
+        <td class="name">Le studio design</td>
+        <td>Transverse · 🟠</td>
+        <td>Produit les supports on-brand (docs, decks, flyers, pages) selon la charte du catalogue — sans jamais improviser une palette. Met en forme le fond fourni par la rédaction.</td>
+      </tr>
+      <tr>
+        <td class="name">La rédaction (guides &amp; doc utilisateur)</td>
+        <td>Transverse · 🟠</td>
+        <td>Écrit la doc destinée à l'utilisateur final (guides, modes d'emploi, FAQ) sur le comportement réel vérifié. Tient aussi la mémoire humaine du projet hors du dépôt.</td>
+      </tr>
+    </tbody>
+  </table></div>
+
+  <div class="note info"><p><b>Info — image mutualisée, conteneur étanche :</b> une définition de rôle existe une seule fois, mais chaque projet instancie <strong>sa</strong> propre équipe, scopée à son dépôt. Aucun rôle ne porte deux projets dans un même contexte.</p></div>
+</section>
+
+<!-- ============================= LES OUTILS (Consulter) ============================= -->
+<section class="panel" id="outils">
+  <div class="section-label">Consulter</div>
+  <h1 class="t">L'outillage de la méthode</h1>
+  <p class="lead">La méthode s'exécute à travers un outillage concret et cohérent : des <strong>skills</strong> (le savoir-faire de chaque geste), un CLI multi-plateforme, une forge auto-hébergée, des scripts de checkpoint, une mémoire humaine, un canal d'identité et des garde-fous.</p>
+
+  <h2>Les skills iaka* — le savoir-faire packagé</h2>
+  <p>Chaque rôle ou geste vit dans une <strong>skill</strong> : un contrat de méthode que l'IA charge à la demande. Voici l'inventaire réel, ce que chacune fait vraiment.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Skill</th><th>Ce qu'elle fait</th><th>Geste / rôle</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="name">iakastart</td>
+        <td>Point d'entrée nommé : affiche le bandeau ASCII <code>IAKAFRAME</code> + le roster des 8 rôles et les rend prêts à dispatch. Détecte l'étage (portefeuille vs projet) et propose le bon interlocuteur. <strong>Ne spawne aucun agent.</strong></td>
+        <td>Bootstrap</td>
+      </tr>
+      <tr>
+        <td class="name">skill portefeuille</td>
+        <td>Reçoit les ordres de haut niveau (switcher, démarrer, créer une équipe, statut) au niveau de la racine des projets, commande les coordinateurs, puis délègue. Ne code, ne cadre, ne déploie pas.</td>
+        <td>Gestionnaire de portefeuille</td>
+      </tr>
+      <tr>
+        <td class="name">skill coordination</td>
+        <td>Découpe une feature en phases, émet des ordres de mission, dispatche le bon rôle, vérifie les jalons, dialogue avec le décideur (Slack via n8n, ou Mattermost). Répartit et suit.</td>
+        <td>Coordinateur</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-cadrage</td>
+        <td>Étape 0 : transforme un besoin en langage naturel en instruction fermée dans <code>specs/instructions/</code> (problème, décision, périmètre, étapes, fichiers, risques, critères testables). Lecture seule.</td>
+        <td>Architecte-cadreur</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-qualite</td>
+        <td>Exécute le gate : rapport qualité, tests, lint, typage, couverture ; cherche les cas limites ; rend un verdict PASS / FAIL avec reproduction. Signale, ne corrige pas.</td>
+        <td>Responsable qualité</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-deploiement</td>
+        <td>Promeut une version candidate du staging vers la prod par bascule d'alias (rollback prêt), sur feu vert humain tracé. Puis surveille : health-checks, disponibilité, charge.</td>
+        <td>Équipe prod</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-init</td>
+        <td>Amorce un projet (neuf ou existant) : dépose <code>specs/</code>, <code>CLAUDE.md</code>, contrats d'agent, script qualité — sans jamais écraser le code en place.</td>
+        <td>Amorçage</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-forgejo</td>
+        <td>Crée ou rebranche le dépôt sur la forge auto-hébergée (HTTP + token, jamais de secret en clair), avec auto-détection de l'existence du dépôt (bascule init ↔ update).</td>
+        <td>Versionnement</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-docker</td>
+        <td>Scaffolde une stack Docker <strong>isolée</strong> : réseau, volumes et conteneurs préfixés par projet, ports hôte distincts sans collision. Aucun partage entre projets.</td>
+        <td>Environnement</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-etat-des-lieux</td>
+        <td>Régénère l'état des lieux à partir des faits git + un récit de reprise. Constate sans rien modifier ; ne franchit aucun jalon.</td>
+        <td>Checkpoint (lecture)</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-update</td>
+        <td>Le checkpoint en écriture : régénère l'état des lieux, commit global atomique, push. Le geste réflexe à chaque version et à chaque pause/reprise.</td>
+        <td>Checkpoint (écriture)</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-naonedge</td>
+        <td>Produit un support visuel on-brand selon la bonne charte du catalogue (<strong>Cinabre</strong> par défaut). Ne diverge jamais de la charte canon.</td>
+        <td>Studio design</td>
+      </tr>
+      <tr>
+        <td class="name">skill rédaction</td>
+        <td>Rédige la doc utilisateur (guides, modes d'emploi, FAQ) sur le comportement réel vérifié ; structure selon quatre besoins (Se lancer / Faire / Consulter / Comprendre) ; source chaque fait.</td>
+        <td>Rédaction</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-appflowy-doc</td>
+        <td>Publie/rafraîchit la mémoire humaine dans AppFlowy auto-hébergé : un espace par projet → une vue d'ensemble → une sous-page par doc structurant. Idempotent, non destructif, secrets par env.</td>
+        <td>Mémoire humaine</td>
+      </tr>
+      <tr>
+        <td class="name">iakaframe-log-conversation</td>
+        <td>Trace un échange dans la main courante centralisée (MQTT → CouchDB). Node pur, zéro dépendance ; secrets par env ; échec propre sans bloquer le flux.</td>
+        <td>Main courante</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <p class="legend">Les skills de portefeuille, de coordination et de rédaction portent en interne le nom de code de leur rôle ; elles sont désignées ici par leur fonction, conformément à la règle de terminologie externe.</p>
+
+  <h2>Autour des skills</h2>
+  <div class="grid two">
+    <div class="card">
+      <h3>Le CLI multi-plateforme</h3>
+      <p>Le paquet <code>@naonedge/iakaframe</code> (Node, zéro dépendance) porte les commandes de la méthode : <code>banner</code>, <code>brief</code>, <code>jalon</code>, <code>snapshot</code>, <code>update</code>, <code>onboard</code>, <code>recap</code>… C'est la voie <strong>cross-OS</strong> ; les scripts <code>.ps1</code> restent le chemin rapide sous Windows.</p>
+    </div>
+    <div class="card">
+      <h3>La forge auto-hébergée</h3>
+      <p>Dépôt par défaut : une forge <strong>Forgejo</strong> auto-hébergée (open-source), en HTTP + token. Cohérent avec le « self-hosted d'abord ». Création de dépôt par API ; le token n'est jamais écrit en dur ni commité.</p>
+    </div>
+    <div class="card">
+      <h3>Les scripts de cycle</h3>
+      <p><code>onboard</code> amorce (structure + dépôt + premier état des lieux). <code>snapshot</code> régénère l'état des lieux (faits git + récit). <code>update</code> scelle un checkpoint (état des lieux + commit global + push). Init et update <strong>s'auto-détectent</strong>.</p>
+    </div>
+    <div class="card">
+      <h3>La mémoire humaine AppFlowy</h3>
+      <p>Miroir <strong>humain</strong> de l'état des lieux, hors du dépôt : les docs structurants publiés dans AppFlowy auto-hébergé, lisibles sans cloner ni lire du Markdown brut. Alimentée par instrumentation, pas à la main.</p>
+    </div>
+    <div class="card">
+      <h3>Le canal d'identité (badges &amp; pastilles)</h3>
+      <p>Quand un rôle s'adresse au décideur, il s'identifie : <code>&lt;pastille&gt; [ROYAUME][Rôle]</code>. La <strong>position</strong> de la pastille porte le sens — avant le bloc = ouverture, après = clôture. La <strong>couleur = la phase</strong> servie, partagée entre rôles.</p>
+    </div>
+    <div class="card">
+      <h3>Les hooks garde-fous</h3>
+      <p>Des hooks tiennent la discipline sans la déléguer au modèle : garde d'identité (double badge), câblage du bandeau au démarrage, snapshot automatique en fin de session, garde du canal des gestes. Bornés, jamais utilisés pour déclencher le bootstrap.</p>
+    </div>
+    <div class="card">
+      <h3>La stack Docker isolée</h3>
+      <p>Chaque projet tourne dans <strong>sa</strong> stack : réseau, volumes et conteneurs préfixés par projet, ports hôte distincts. Jamais de partage de ressources entre projets de la famille.</p>
+    </div>
+    <div class="card">
+      <h3>Les kits d'incarnation</h3>
+      <p>Des kits prêts à poser pour incarner la méthode sur plusieurs outils : <code>kit-claude</code>, <code>kit-codex</code>, <code>kit-openwebui</code>, <code>kit-anythingllm</code>, <code>kit-ollama</code>. La même méthode, plusieurs incarnations d'IA.</p>
+    </div>
+  </div>
+
+  <div class="section-label">Consulter</div>
+  <h2>Les pastilles de phase</h2>
+  <div class="scroll"><table>
+    <thead><tr><th>Phase</th><th>Pastille</th><th>Quand</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Cadrage / réflexion</td><td>🔵</td><td>P1 — le besoin devient instruction</td></tr>
+      <tr><td class="name">Dev</td><td>🔴</td><td>P2 — implémentation</td></tr>
+      <tr><td class="name">Staging</td><td>🟢</td><td>P3 — build déployé en <code>vX.Y.Z-rc</code></td></tr>
+      <tr><td class="name">Prod</td><td>🟣</td><td>Squad séparé, feu vert humain</td></tr>
+      <tr><td class="name">Portefeuille</td><td>🟡</td><td>Au-dessus des projets</td></tr>
+      <tr><td class="name">Transverse</td><td>🟠</td><td>Rôles servant à toute phase (par défaut)</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ============================= SOURCES (Consulter) ============================= -->
+<section class="panel" id="sources">
+  <div class="section-label">Consulter</div>
+  <h1 class="t">Sources &amp; vérification</h1>
+  <p class="lead">Discipline maison : rien n'est affirmé qui ne soit tracé. Les faits internes se citent en <code>chemin:ligne</code> (racine du dépôt <code>iakaframe/</code>) ; les faits d'état de l'art se réfèrent à leur site officiel.</p>
+
+  <div class="card">
+    <h3>Faits internes (dépôt iakaframe)</h3>
+    <div class="scroll"><table>
+      <thead><tr><th>Affirmation</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td class="name">Principe fondateur, cycle, piliers</td><td class="num">methode-de-travail.md:13-25, 636-645</td></tr>
+        <tr><td class="name">Trois acteurs, séparation réflexion/exécution</td><td class="num">CLAUDE.md · methode-de-travail.md:60-73</td></tr>
+        <tr><td class="name">Roster des 8 rôles &amp; phases</td><td class="num">methode-de-travail.md:104-181</td></tr>
+        <tr><td class="name">Libellés canoniques de rôle</td><td class="num">specs/glossaire-iakaframe.md:8-21</td></tr>
+        <tr><td class="name">Gate qualité indépendant (anti juge-et-partie)</td><td class="num">methode-de-travail.md:450-459</td></tr>
+        <tr><td class="name">Cadrage : format d'instruction</td><td class="num">skills/iakaframe-cadrage/SKILL.md:32-62</td></tr>
+        <tr><td class="name">Qualité : verdict PASS/FAIL</td><td class="num">skills/iakaframe-qualite/SKILL.md:11-66</td></tr>
+        <tr><td class="name">Déploiement : feu vert humain, rollback</td><td class="num">skills/iakaframe-deploiement/SKILL.md:11-87</td></tr>
+        <tr><td class="name">État des lieux (lecture) / update (écriture)</td><td class="num">skills/iakaframe-etat-des-lieux · skills/iakaframe-update</td></tr>
+        <tr><td class="name">Forge : HTTP+token, auto-détection, ASCII</td><td class="num">skills/iakaframe-forgejo/SKILL.md:14-71</td></tr>
+        <tr><td class="name">Docker isolé (préfixes, ports décalés)</td><td class="num">skills/iakaframe-docker/SKILL.md:14-64</td></tr>
+        <tr><td class="name">Mémoire humaine AppFlowy (modèle, idempotence)</td><td class="num">skills/iakaframe-appflowy-doc/SKILL.md:18-98</td></tr>
+        <tr><td class="name">Main courante (MQTT→CouchDB)</td><td class="num">skills/iakaframe-log-conversation/SKILL.md:6-39</td></tr>
+        <tr><td class="name">Studio design : charte Cinabre par défaut</td><td class="num">skills/iakaframe-naonedge/SKILL.md:26-51</td></tr>
+        <tr><td class="name">Bootstrap : roster, ne spawne rien</td><td class="num">skills/iakastart/SKILL.md:29-102</td></tr>
+        <tr><td class="name">Badges / pastilles / position porte le sens</td><td class="num">methode-de-travail.md:194-281</td></tr>
+        <tr><td class="name">CLI @naonedge/iakaframe (commandes)</td><td class="num">cli/package.json · cli/src/commands/*</td></tr>
+        <tr><td class="name">Agnosticisme du stack</td><td class="num">methode-de-travail.md:7-10, 338-340</td></tr>
+      </tbody>
+    </table></div>
+  </div>
+
+  <div class="card">
+    <h3>État de l'art (références externes)</h3>
+    <ul>
+      <li><strong>Forgejo</strong> — forge logicielle auto-hébergée, open-source : <a href="https://forgejo.org">forgejo.org</a></li>
+      <li><strong>Docker</strong> — isolation par conteneurs : <a href="https://docs.docker.com">docs.docker.com</a></li>
+      <li><strong>AppFlowy</strong> — espace de travail open-source auto-hébergeable : <a href="https://appflowy.io">appflowy.io</a></li>
+      <li><strong>Node.js</strong> — <code>fetch</code> natif (≥ 18), zéro dépendance : <a href="https://nodejs.org">nodejs.org</a></li>
+    </ul>
+    <div class="note info"><p><b>Info :</b> les outils web de vérification n'étaient pas disponibles à la rédaction de cette v0.1.0 ; les références externes pointent vers les sites officiels et restent à re-vérifier au prochain passage.</p></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p><span class="ne-wordmark"><b>iaka</b><span class="edge">frame</span></span> · document chapeau de la méthode</p>
+  <p>v0.1.0 · 2026-07-05 · rédaction : la doc utilisateur · mise en forme : charte Cinabre</p>
+</footer>
+
+<script>
+  var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
+  tabs.forEach(function(t){t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('active')});
+    panels.forEach(function(p){p.classList.remove('active')});
+    t.classList.add('active');var el=document.getElementById(t.dataset.tab);
+    if(el){el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  });});
+</script>
+</body>
+</html>
