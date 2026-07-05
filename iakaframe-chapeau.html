@@ -21,10 +21,30 @@
   .nest-label{font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.12em;color:var(--accent-ink);margin-bottom:.55rem;display:block}
   .nest .nest{background:var(--bg-card);margin-top:.55rem;box-shadow:var(--shadow-soft)}
   .nest .cap{color:var(--text-secondary);font-size:.9rem;margin:.15rem 0 .2rem}
+  .nest .file{font:600 .68rem var(--mono);color:var(--accent-ink)}
   .nest-row{display:flex;gap:.6rem;flex-wrap:wrap}
   .nest-row .nest{flex:1;min-width:150px}
-  .relay{border-left:3px solid var(--accent);padding:.35rem 0 .35rem 1rem;margin:.5rem 0;background:var(--bg-card)}
-  .relay .who{font:600 .78rem var(--mono);color:var(--accent-ink)}
+  /* — Arbre de conversation & délégation (adapté du concept IakaCockpit, charte Cinabre : un seul accent) — */
+  .tree{margin:1.2rem 0}
+  .tnode{position:relative;padding:0 0 .4rem 30px;margin-bottom:.15rem}
+  .tnode::before{content:"";position:absolute;left:8px;top:0;bottom:0;width:2px;background:var(--line)}
+  .tnode:last-child::before{bottom:auto;height:20px}
+  .tnode .knot{position:absolute;left:1px;top:13px;width:14px;height:14px;border-radius:50%;background:var(--bg-primary);border:2px solid var(--text-muted);z-index:1}
+  .tnode.main .knot{border-color:var(--accent)}
+  .tnode .tcard{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:.6rem .85rem;box-shadow:var(--shadow-soft)}
+  .tnode .ln1{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;margin-bottom:.2rem}
+  .tnode .ln1 .bdg{font:600 .72rem var(--mono);color:var(--accent-ink)}
+  .tnode .ln1 .role{font-weight:600;color:var(--text-primary);font-size:.92rem}
+  .tnode .ln1 .uuid{margin-left:auto;font:400 .66rem var(--mono);color:var(--text-muted)}
+  .tnode .ln2{font-size:.9rem;color:var(--text-secondary);line-height:1.5}
+  .tnode .ln2 code{font-family:var(--mono);font-size:.78rem;background:var(--bg-deep);color:var(--accent-ink);padding:.05rem .4rem;border-radius:5px}
+  .side-wrap{margin:.4rem 0 .8rem 30px;padding-left:22px;position:relative;border-left:2px dashed rgba(var(--accent-rgb),.45)}
+  .side-wrap .sidehead{font:600 .68rem var(--mono);color:var(--accent-ink);margin:0 0 .5rem -2px;display:flex;align-items:center;gap:.4rem;text-transform:uppercase;letter-spacing:.06em}
+  .side-wrap .tnode::before{background:rgba(var(--accent-rgb),.22)}
+  .side-wrap .tnode .knot{border-style:dashed;border-color:var(--accent)}
+  .attrib{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.45rem}
+  .attrib .a{font:400 .68rem var(--mono);color:var(--text-muted);background:var(--bg-deep);padding:.15rem .5rem;border-radius:6px}
+  .attrib .a b{color:var(--accent-ink)}
 </style>
 </head>
 <body>
@@ -32,8 +52,8 @@
 <section class="hero">
   <div class="hero-badge">Méthode · document chapeau</div>
   <h1>iakaframe — l'équipe augmentée, <span class="accent">cadrée</span></h1>
-  <p class="hero-subtitle">Une méthode de travail avec l'IA : des rôles fermés, des instructions écrites avant le code, et un humain qui décide à chaque jalon. La qualité n'est pas dans le modèle — elle est dans la méthode.</p>
-  <div class="hero-meta">v0.2.0 · 2026-07-05 · document de référence</div>
+  <p class="hero-subtitle">iakaframe n'est pas une technologie, c'est une <strong>discipline de travail</strong> : des rôles fermés, des instructions écrites avant le code, un humain qui décide à chaque jalon. Le modèle, le runner ? Un substrat interchangeable. La qualité n'est pas dans l'outil — elle est dans la méthode.</p>
+  <div class="hero-meta">v0.4.0 · 2026-07-05 · document de référence</div>
 </section>
 
 <nav class="tabs">
@@ -52,22 +72,28 @@
 <!-- ============================= L'IDÉE (Comprendre) ============================= -->
 <section class="panel active" id="idee">
   <div class="section-label">Comprendre</div>
-  <h1 class="t">L'idée : une équipe, pas un prompt</h1>
+  <h1 class="t">L'idée : un décideur, une équipe d'experts</h1>
   <p class="lead">iakaframe transforme « une IA qui code » en <strong>une équipe qui livre</strong>. Le principe tient en une phrase : <strong>c'est le workflow qui produit la qualité, pas l'IA</strong>. L'IA amplifie ; le workflow cadre.</p>
 
   <div class="card glow">
-    <h3>Trois acteurs, zéro chevauchement</h3>
-    <p>À la base, un modèle conceptuel simple — trois responsabilités qui ne se recouvrent jamais :</p>
-    <ul>
-      <li><strong>Le décideur (l'humain)</strong> — porte la vision, tranche l'architecture, teste le résultat réel, valide à chaque jalon. Il délègue l'exécution, jamais la réflexion.</li>
-      <li><strong>La réflexion / le cadrage</strong> — analyse l'existant en lecture seule et transforme un besoin en <strong>instruction écrite</strong> ; ne touche jamais au code de production.</li>
-      <li><strong>L'exécution</strong> — lit l'instruction validée, code, build, teste, commite.</li>
-    </ul>
-    <p>Cette séparation est le cœur : le jour où celui qui réfléchit est aussi celui qui exécute sans garde-fou, il n'y a plus de contrôle.</p>
+    <h3>Une discipline, pas une technologie</h3>
+    <p>iakaframe <strong>n'est pas une technologie, c'est une discipline de travail</strong> — un protocole de <strong>rôles</strong>, de <strong>gestes</strong> et de <strong>jalons</strong>. L'IA (le modèle, le runner, l'outil agentique) n'est qu'un <strong>substrat interchangeable</strong> : ce qui produit la qualité, c'est la méthode, pas l'outil. On peut changer de modèle, de runner, d'outil — la discipline, elle, reste. C'est ce qui la rend <strong>transmissible</strong> (les kits) et <strong>durable</strong>.</p>
   </div>
 
-  <h2>De trois acteurs à une compagnie</h2>
-  <p>Pour industrialiser le développement au fil de l'eau, les couches réflexion et exécution se <strong>spécialisent en une équipe d'agents</strong>, chacun avec un rôle fermé : ses droits, ses garde-fous, ses entrées et sorties. On sait toujours <em>qui</em> parle et <em>depuis quelle phase</em>.</p>
+  <div class="card glow">
+    <h3>Le décideur, c'est l'utilisateur</h3>
+    <p>Le <strong>décideur n'est pas un persona</strong> : c'est <strong>l'humain, l'utilisateur</strong>. Il est au-dessus de l'équipe et ne délègue jamais la réflexion — seulement l'exécution.</p>
+    <ul>
+      <li>Il porte la <strong>vision</strong> et tranche l'<strong>architecture</strong>.</li>
+      <li>Il <strong>valide</strong> ou corrige, <strong>teste</strong> le résultat dans l'app réelle.</li>
+      <li>Il <strong>tranche les jalons humains</strong> (validation d'une instruction, feu vert de mise en production).</li>
+    </ul>
+  </div>
+
+  <h2>Une équipe d'experts spécialisés</h2>
+  <p>Sous le décideur, la réflexion et l'exécution sont distribuées sur une <strong>équipe d'experts</strong> — des rôles spécialisés, aux <strong>périmètres étanches</strong>, sans le moindre chevauchement. Chacun a ses droits, ses garde-fous, ses entrées et ses sorties. On sait toujours <em>qui</em> parle et <em>depuis quelle phase</em>. Chaque rôle est joué par un <strong>persona</strong> : le <strong>rôle est la fonction</strong> (cadrage, développement, qualité, coordination…), le <strong>persona en est l'incarnation jouable</strong>, portable d'un runner à l'autre.</p>
+
+  <div class="note info"><p><b>Info :</b> le nombre d'experts n'est pas figé — l'équipe se compose selon le besoin. Ce qui est invariant, c'est la règle : <strong>un rôle = un périmètre fermé, zéro chevauchement</strong>.</p></div>
 
   <div class="grid two">
     <div class="card">
@@ -75,8 +101,8 @@
       <p>Chaque rôle borne ses permissions (outils autorisés), ses interdits (ce qu'il ne fait pas) et son process (entrée → sortie → jalon). Lisible, réutilisable d'un projet à l'autre.</p>
     </div>
     <div class="card">
-      <h3>Deux niveaux d'orchestration</h3>
-      <p>Un niveau <strong>portefeuille</strong> ouvre la bonne porte entre projets ; à l'intérieur d'un projet, un <strong>coordinateur</strong> répartit le travail entre les rôles et surveille les jalons.</p>
+      <h3>La coordination à deux niveaux</h3>
+      <p>La coordination existe à <strong>deux étages</strong> : une <strong>coordination de portefeuille</strong> (au-dessus des projets : oriente, répartit entre projets, commande les coordinations de projet) et, dans chaque projet, une <strong>coordination de projet</strong> qui répartit le travail entre les experts et surveille les jalons.</p>
     </div>
   </div>
 
@@ -124,53 +150,53 @@
 <section class="panel" id="methode">
   <div class="section-label">Comprendre</div>
   <h1 class="t">La méthode : un cycle, des jalons, une trace</h1>
-  <p class="lead">Le besoin ne descend jamais directement dans le code. Il passe par un cycle où chaque étape ferme un peu plus l'ambiguïté, jusqu'à une <strong>instruction écrite et vérifiable</strong> — puis l'exécution.</p>
+  <p class="lead">Le besoin ne descend jamais directement dans le code. Il passe par un cycle où chaque étape ferme un peu plus l'ambiguïté, jusqu'à une <strong>instruction écrite et vérifiable</strong> — puis l'exécution. Trois <strong>jalons</strong> rythment les <strong>3 phases</strong> ; un quatrième garde la porte de la production.</p>
 
-  <h2>Le cycle d'une feature</h2>
+  <h2>Le cycle d'une feature, et où se posent les jalons</h2>
   <ol class="seq">
     <li><strong>Besoin</strong> — le décideur exprime ce qu'il veut.</li>
     <li><strong>Analyse</strong> — lecture seule de l'existant (code, conventions, état des lieux).</li>
     <li><strong>Discussion</strong> — arbitrages, options, périmètre ; on pose le problème avant la solution.</li>
     <li><strong>Instruction écrite</strong> — le besoin devient un fichier fermé dans <code>specs/instructions/</code>.</li>
-    <li><strong>Validation</strong> — le décideur valide (ou corrige) l'instruction. Jalon humain.</li>
+    <li><strong>Validation</strong> — <span class="tag t-wait">jalon humain</span> le décideur valide (ou corrige) l'instruction. <em>Ferme la P1.</em></li>
     <li><strong>Implémentation</strong> — le code s'écrit par petits pas, en commits atomiques.</li>
-    <li><strong>Test &amp; feedback</strong> — l'humain teste dans l'app réelle ; le feedback est mémorisé.</li>
+    <li><strong>Test &amp; feedback</strong> — <span class="tag t-on">jalon auto</span> verdict qualité PASS, puis le décideur teste dans l'app réelle. <em>Ferme la P2 (puis la P3 au stage).</em></li>
     <li><strong>Boucle</strong> — une correction remonte au niveau de la décision, pas du micro-management ligne à ligne.</li>
   </ol>
 
   <div class="note tip"><p><b>Astuce :</b> quand l'IA prend une mauvaise direction, on ne la corrige pas ligne par ligne. On remonte à la décision, et la décision redescend sous forme d'instruction corrective écrite.</p></div>
 
   <div class="section-label">Consulter</div>
-  <h2>Les 3 phases (cible staging) + le squad prod</h2>
-  <p>La chaîne de dev a pour <strong>cible le staging</strong> et avance en trois phases. À chaque phase, un rôle est aux commandes ; le coordinateur vérifie le jalon avant de passer à la suivante.</p>
+  <h2>Les 3 phases + le squad prod, fermées par leurs jalons</h2>
+  <p>La chaîne de dev a pour <strong>cible le staging</strong> et avance en trois phases ; chaque phase est <strong>fermée par un jalon</strong>. La production est un squad séparé, gardé par un jalon humain.</p>
 
   <div class="scroll"><table>
-    <thead><tr><th>Phase</th><th>Rôle aux commandes</th><th>Entrée → sortie</th><th>Jalon</th></tr></thead>
+    <thead><tr><th>Phase</th><th>Rôle aux commandes</th><th>Entrée → sortie</th><th>Jalon (émetteur → récepteur)</th></tr></thead>
     <tbody>
       <tr>
         <td class="name">🔵 P1 — Cadrage</td>
         <td>l'architecte-cadreur</td>
         <td>besoin → <code>specs/instructions/{feature}.md</code></td>
-        <td><span class="tag t-wait">humain</span></td>
+        <td><span class="tag t-wait">humain</span> cadreur → décideur</td>
       </tr>
       <tr>
         <td class="name">🔴 P2 — Réalisation</td>
         <td>le développeur (×N) + le responsable qualité</td>
         <td>instruction → branche + commits + verdict PASS</td>
-        <td><span class="tag t-on">auto</span></td>
+        <td><span class="tag t-on">auto</span> qualité → coordination projet</td>
       </tr>
       <tr>
         <td class="name">🟢 P3 — Déploiement staging</td>
         <td>le développeur (devops) + le responsable qualité</td>
         <td>PASS → build en staging <code>vX.Y.Z-rc</code></td>
-        <td><span class="tag t-on">auto</span></td>
+        <td><span class="tag t-on">auto</span> qualité → coordination projet</td>
       </tr>
       <tr class="grp"><td colspan="4">La chaîne s'arrête au staging — la prod est un squad séparé</td></tr>
       <tr>
         <td class="name">🟣 Déploiement prod</td>
         <td>l'équipe de déploiement production</td>
         <td>rc recettée + feu vert → prod (alias de version)</td>
-        <td><span class="tag t-wait">humain</span></td>
+        <td><span class="tag t-wait">humain</span> équipe prod → décideur</td>
       </tr>
       <tr>
         <td class="name">🟣 Surveillance</td>
@@ -180,36 +206,11 @@
       </tr>
     </tbody>
   </table></div>
-  <p class="legend">Frontière nette : dev → staging (les 3 phases), puis prod (squad séparé), avec une couture humaine entre les deux.</p>
+  <p class="legend">Deux jalons <strong>humains</strong> (validation d'instruction en P1, feu vert prod) ; les passages <strong>dev → staging</strong> sont des jalons <strong>automatiques</strong> (tests verts). Un jalon s'affiche en trois zones : <strong>qui pose</strong> · <strong>quoi</strong> · <strong>qui valide</strong> ; à la validation, le récepteur annonce « JALON VALIDÉ » et explique la suite.</p>
 
   <div class="section-label">Comprendre</div>
-  <h2>Le graphe des délégations &amp; la chaîne de badges</h2>
-  <p>Deux niveaux d'orchestration s'emboîtent : le <strong>portefeuille</strong> (au-dessus de tous les projets) et, dans chaque projet, le <strong>coordinateur</strong>. Le portefeuille ouvre la bonne porte, puis passe la main.</p>
-
-  <div class="nest">
-    <span class="nest-label">Portefeuille — au-dessus de ~/work</span>
-    <p class="cap">Le gestionnaire de portefeuille : switche d'équipe, démarre / crée un projet, puis délègue au coordinateur du projet concerné.</p>
-    <div class="nest-row">
-      <div class="nest"><span class="nest-label">Projet A</span><p class="cap">coordinateur → équipe de rôles</p></div>
-      <div class="nest"><span class="nest-label">Projet B</span><p class="cap">coordinateur → équipe de rôles</p></div>
-      <div class="nest"><span class="nest-label">Projet C</span><p class="cap">coordinateur → équipe de rôles</p></div>
-    </div>
-  </div>
-
-  <h3>La chaîne d'une feature (qui parle, dans quelle phase)</h3>
-  <div class="flow">
-    <div class="flow-chip"><span class="p">🟡</span><span class="r">décideur</span><span class="ph">portefeuille</span></div>
-    <div class="flow-arr">→</div>
-    <div class="flow-chip"><span class="p">🟠</span><span class="r">coordinateur</span><span class="ph">projet</span></div>
-    <div class="flow-arr">→</div>
-    <div class="flow-chip"><span class="p">🔵</span><span class="r">cadreur-architecte</span><span class="ph">P1 cadrage</span></div>
-    <div class="flow-arr">→</div>
-    <div class="flow-chip"><span class="p">🔴</span><span class="r">développeur-devops</span><span class="ph">P2/P3</span></div>
-    <div class="flow-arr">→</div>
-    <div class="flow-chip"><span class="p">🔴🟢</span><span class="r">vérificateur qualité</span><span class="ph">P2/P3</span></div>
-    <div class="flow-arr">→</div>
-    <div class="flow-chip"><span class="p">🟣</span><span class="r">squad prod</span><span class="ph">feu vert humain</span></div>
-  </div>
+  <h2>Le graphe des délégations : une conversation-arbre</h2>
+  <p>Une conversation iakaframe n'est pas une liste : c'est un <strong>arbre</strong> (<code>uuid → parentUuid</code>). Le tronc « main » porte le fil principal ; une <strong>délégation</strong> ouvre une <strong>sidechain</strong>. Sur chaque nœud, le <strong>badge est l'attribution machine</strong> (<code>attributionAgent</code>) rendue visible — il est émis, pas décoré.</p>
 
   <div class="card">
     <h3>La position de la pastille porte le sens</h3>
@@ -222,77 +223,56 @@
     <p>Les mots « START » / « STOP » sont bannis : ils feraient double emploi avec la position.</p>
   </div>
 
-  <h3>Anatomie d'une délégation A → B (sans vol de badge)</h3>
-  <p>Une délégation produit une <strong>chaîne de badges ininterrompue</strong>. L'orchestrateur ne parle jamais dans sa voix entre l'ouverture et la clôture du rôle délégué, et il ne restitue jamais le travail d'un autre à la première personne.</p>
-  <ol class="seq">
-    <li><strong>A ouvre</strong> (pastille avant) et annonce qu'il délègue à B.</li>
-    <li><strong>A clôt</strong> (pastille après).</li>
-    <li><strong>B ouvre</strong> (pastille avant) et parle à la première personne.</li>
-    <li><strong>B travaille</strong>, puis restitue son résultat.</li>
-    <li><strong>B clôt</strong> (pastille après).</li>
-    <li><strong>A rouvre</strong> pour restituer en relais — <strong>sous le badge de B, cité verbatim</strong> — puis commente sous son propre badge.</li>
-  </ol>
-  <div class="relay">
-    <span class="who">🔴 [ROYAUME][développeur] — restitué par le coordinateur</span>
-    <p>{le message du rôle délégué, cité tel quel, jamais reformulé en « je »}</p>
-  </div>
-  <div class="note warn"><p><b>Attention — anti-ventriloquie :</b> un badge n'introduit <strong>que</strong> les mots propres du rôle qu'il nomme. Toute reformulation ou synthèse est la voix de l'orchestrateur et passe <strong>sous son propre badge</strong>. On n'écrit jamais le badge d'un rôle pour lui faire dire des mots qu'il n'a pas produits.</p></div>
+  <h3>L'arbre d'une délégation (le badge = l'attribution du nœud)</h3>
+  <div class="tree">
+    <div class="tnode main"><div class="knot"></div><div class="tcard">
+      <div class="ln1"><span class="role">le décideur (utilisateur)</span><span class="bdg">parole</span><span class="uuid">a1f0…2c</span></div>
+      <div class="ln2">« Cadre puis implémente la feature X. »</div>
+    </div></div>
 
-  <div class="section-label">Consulter</div>
-  <h2>Les jalons (gates)</h2>
-  <p>Un <strong>jalon</strong> est un point de contrôle rendu très visible : instruction prête, dev à vérifier, verdict qualité, feu vert prod. Il s'affiche en trois zones — <strong>qui pose</strong>, <strong>quoi</strong>, <strong>qui valide</strong> — puis, à la validation, le récepteur annonce « JALON VALIDÉ » et explique la suite.</p>
+    <div class="tnode main"><div class="knot"></div><div class="tcard">
+      <div class="ln1"><span class="bdg">🟡</span><span class="role">la coordination de portefeuille</span><span class="uuid">a1f0…5e</span></div>
+      <div class="ln2">Oriente vers le projet X, passe la main à la coordination de projet. <code>parentUuid: a1f0…2c</code></div>
+      <div class="attrib"><span class="a">attributionAgent : <b>gestionnaire de portefeuille</b></span></div>
+    </div></div>
 
-  <div class="scroll"><table>
-    <thead><tr><th>Zone</th><th>Rôle</th><th>Exemple</th></tr></thead>
-    <tbody>
-      <tr><td class="name">Émetteur</td><td>qui pose le jalon</td><td>l'architecte-cadreur pose l'instruction cadrée</td></tr>
-      <tr><td class="name">Contenu</td><td>ce qui est soumis</td><td>l'instruction + les fichiers à vérifier en <code>chemin:ligne</code></td></tr>
-      <tr><td class="name">Récepteur</td><td>qui valide</td><td>le décideur (souvent), ou le rôle suivant</td></tr>
-    </tbody>
-  </table></div>
+    <div class="tnode main"><div class="knot"></div><div class="tcard">
+      <div class="ln1"><span class="bdg">🟠</span><span class="role">la coordination de projet</span><span class="uuid">b3c7…91</span></div>
+      <div class="ln2">Découpe en phases + délègue le cadrage. <code>parentUuid: a1f0…5e</code></div>
+      <div class="attrib"><span class="a">attributionAgent : <b>coordinateur</b></span><span class="a">attributionSkill : <b>coordination</b></span></div>
+    </div></div>
 
-  <div class="grid two">
-    <div class="card">
-      <h3>Jalons humains — non automatisables</h3>
-      <p>La <strong>validation d'une instruction</strong> (P1) et la <strong>bascule en production</strong> sont des décisions humaines, toujours. Sans feu vert explicite et tracé, la chaîne s'arrête et attend.</p>
+    <div class="side-wrap">
+      <div class="sidehead">⎇ sidechain · délégation « cadrage » · isSidechain:true</div>
+      <div class="tnode side"><div class="knot"></div><div class="tcard">
+        <div class="ln1"><span class="bdg">🔵</span><span class="role">l'architecte-cadreur</span><span class="uuid">c9d2…04</span></div>
+        <div class="ln2">Rédige l'instruction fermée et vérifiable. <code>logicalParentUuid: b3c7…91</code></div>
+        <div class="attrib"><span class="a">agentName : <b>architecte-cadreur</b></span><span class="a">sourceToolAssistantUUID : <b>b3c7…91</b></span></div>
+      </div></div>
+      <div class="tnode side"><div class="knot"></div><div class="tcard">
+        <div class="ln1"><span class="bdg">🔵</span><span class="role">l'architecte-cadreur</span><span class="bdg">pensée</span><span class="uuid">c9d2…77</span></div>
+        <div class="ln2">« Le point dur, c'est la compat, pas l'UI. »</div>
+      </div></div>
+      <div class="tnode side"><div class="knot"></div><div class="tcard">
+        <div class="ln1"><span class="bdg">🔵</span><span class="role">l'architecte-cadreur</span><span class="bdg">rapport</span><span class="uuid">c9d2…f3</span></div>
+        <div class="ln2">Rend l'instruction → <strong>ferme la sidechain</strong>.</div>
+      </div></div>
     </div>
-    <div class="card">
-      <h3>Jalons automatiques — les tests suffisent</h3>
-      <p>Le passage <strong>dev → staging</strong> repose sur un verdict qualité <strong>PASS</strong> indépendant (tests verts, lint, typage). Pas besoin d'humain : les outils tranchent.</p>
-    </div>
+
+    <div class="tnode main"><div class="knot"></div><div class="tcard">
+      <div class="ln1"><span class="bdg">🟠</span><span class="role">la coordination de projet</span><span class="uuid">b3c7…d8</span></div>
+      <div class="ln2">Reprend le tronc, restitue le <strong>verbatim</strong> du cadreur au décideur. <code>parentUuid: b3c7…91</code></div>
+    </div></div>
+
+    <div class="tnode main"><div class="knot"></div><div class="tcard">
+      <div class="ln1"><span class="bdg">🔴</span><span class="role">le développeur-devops</span><span class="uuid">e4a8…1b</span></div>
+      <div class="ln2">Branche d'exécution : commits atomiques, build jusqu'au staging.</div>
+      <div class="attrib"><span class="a">attributionAgent : <b>développeur-devops</b></span></div>
+    </div></div>
   </div>
-  <p>À l'entrée du jalon de dev, l'instruction validée est accompagnée d'une <strong>estimation chiffrée</strong> (jour-homme, complexité, inconnues) pour que le décideur engage en connaissance de cause.</p>
+  <p class="legend">Une délégation crée une <strong>sidechain</strong> (nœuds rattachés par <code>logicalParentUuid</code>) ; l'orchestrateur reprend ensuite le tronc et restitue le résultat. Le <strong>badge de chaque nœud EST son attribution machine</strong> — modèle repris du concept « Arbre &amp; agents » d'IakaCockpit, adapté à la charte Cinabre.</p>
 
-  <div class="section-label">Comprendre</div>
-  <h2>La structure de répertoires, remplie par la méthode</h2>
-  <p>Le geste <code>init iakaframe</code> scaffolde l'arborescence de travail (sans jamais écraser le code en place), puis la vie du projet la remplit. Le résultat : la méthode <strong>matérialisée en fichiers</strong>. Voici l'arbre réel de ce dépôt (la méthode elle-même), les fichiers qui l'incarnent annotés.</p>
-
-  <pre><code>iakaframe/
-├── methode-de-travail.md          <span class="cmt"># LA MÉTHODE (référence canonique)</span>
-├── README.md
-├── CLAUDE.md <span class="tok">*</span>                     <span class="cmt"># consignes projet — présent dans un projet produit</span>
-├── agents/                        <span class="cmt"># les 8 CONTRATS de rôle (subagents) — un .md par rôle</span>
-│   └── *.md  (8 rôles)            <span class="cmt">#   + _TEMPLATE.md (gabarit d'un nouveau rôle)</span>
-├── skills/                        <span class="cmt"># l'INCARNATION technique (le savoir-faire outillé)</span>
-│   ├── iakaframe-cadrage/  iakaframe-qualite/  iakaframe-deploiement/
-│   ├── iakaframe-forgejo/  iakaframe-docker/  iakaframe-init/
-│   ├── iakaframe-etat-des-lieux/  iakaframe-update/
-│   ├── iakaframe-appflowy-doc/  iakaframe-log-conversation/
-│   ├── iakaframe-naonedge/  iakastart/  <span class="cmt"># (+ skills portefeuille, coordination, rédaction)</span>
-│   └── README.md
-├── specs/                         <span class="cmt"># le CADRAGE écrit (jamais de code ici)</span>
-│   ├── PROJET.md <span class="tok">*</span>                  <span class="cmt"># vision projet — présent dans un projet produit</span>
-│   ├── instructions/  (18 .md)    <span class="cmt"># une instruction fermée par feature / fix</span>
-│   ├── etat-des-lieux.md          <span class="cmt"># l'ÉTAT DES LIEUX (mémoire de reprise)</span>
-│   ├── glossaire-iakaframe.md     <span class="cmt"># les libellés canoniques des rôles</span>
-│   └── equipe-agents.md
-├── kit-claude/  kit-codex/  kit-openwebui/     <span class="cmt"># KITS d'incarnation (multi-outils)</span>
-│   kit-anythingllm/  kit-ollama/
-├── stack-qualite/                 <span class="cmt"># le gate qualité conteneurisé</span>
-├── docs/                          <span class="cmt"># doc de référence + qualité versionnée</span>
-├── design-naonedge/               <span class="cmt"># charte legacy (Cinabre vit dans iakacharte, dépôt frère)</span>
-└── cli/                           <span class="cmt"># le CLI @naonedge/iakaframe (multi-OS)</span></code></pre>
-  <p class="legend"><span class="tok">*</span> <code>CLAUDE.md</code> et <code>specs/PROJET.md</code> sont le socle scaffolé par <code>init iakaframe</code> dans un <strong>projet produit</strong> ; ce dépôt-ci <em>est</em> la méthode, il ne les porte donc pas à sa racine. Le dossier <code>specs/instructions/</code> est la trace vivante de toutes les décisions — écrite <em>avant</em> l'implémentation, jamais après coup.</p>
+  <div class="note warn"><p><b>Attention — anti-ventriloquie :</b> un badge n'introduit <strong>que</strong> les mots propres du rôle qu'il nomme. Lors d'une restitution en relais, l'orchestrateur cite le rôle délégué <strong>verbatim, sous le badge de celui-ci</strong> ; tout commentaire passe sous <strong>son propre badge</strong>. On n'écrit jamais le badge d'un rôle pour lui faire dire des mots qu'il n'a pas produits.</p></div>
 </section>
 
 <!-- ============================= L'AGNOSTICISME (Comprendre) ============================= -->
@@ -300,6 +280,8 @@
   <div class="section-label">Comprendre</div>
   <h1 class="t">L'agnosticisme : un cadre de rôles, pas un outil</h1>
   <p class="lead">iakaframe est volontairement <strong>agnostique du stack</strong>. Elle ne dépend d'aucun langage, framework, LLM ou hébergeur particulier : c'est un <strong>cadre de rôles et de gestes</strong>, transposable ailleurs. Les rôles priment sur l'implémentation.</p>
+
+  <div class="note info"><p><b>Le fil directeur :</b> une <strong>discipline</strong> se transpose, une <strong>technologie</strong> se périme. iakaframe est du premier genre — un protocole de rôles, de gestes et de jalons. Change le modèle, le runner ou l'outil agentique : la discipline reste. C'est précisément ce qui la rend portable (les kits) et durable.</p></div>
 
   <div class="card glow">
     <h3>Ce qui est stable vs ce qui est interchangeable</h3>
@@ -331,6 +313,19 @@
   <h2>Self-hosted d'abord, mais réimplantable</h2>
   <p>La méthode privilégie le <strong>self-hosted / open-source</strong> : pour tout choix de backend, la version locale est l'option n°1, le cloud n'est qu'un repli justifié. Mais ce n'est qu'un <em>défaut de goût</em>, pas une dépendance : les mêmes rôles se rejouent avec d'autres briques. Les définitions de rôles sont pensées pour se décliner sur plusieurs incarnations d'IA — aujourd'hui l'implémentation courante, demain d'autres.</p>
 
+  <h2>Une équipe, des runners hétérogènes</h2>
+  <p>Un rôle est un <strong>contrat portable</strong> (identité + périmètre + geste) ; le runner n'est que le substrat d'exécution. L'équipe peut donc être <strong>hétérogène</strong> : chaque rôle peut être <strong>issu et exécuté sur un runner différent</strong>, chacun avec <strong>son propre modèle</strong>.</p>
+  <div class="flow">
+    <div class="flow-chip"><span class="p">🟠</span><span class="r">la coordination</span><span class="ph">Claude Code</span></div>
+    <div class="flow-arr">·</div>
+    <div class="flow-chip"><span class="p">🔵</span><span class="r">le cadrage</span><span class="ph">Codex</span></div>
+    <div class="flow-arr">·</div>
+    <div class="flow-chip"><span class="p">🔴</span><span class="r">le développement</span><span class="ph">modèle local (Ollama)</span></div>
+    <div class="flow-arr">·</div>
+    <div class="flow-chip"><span class="p">🟢</span><span class="r">la qualité</span><span class="ph">encore un autre</span></div>
+  </div>
+  <div class="note info"><p><b>Ce qui les unit :</b> un <strong>protocole partagé</strong> — les <strong>instructions écrites</strong> (le format d'échange), le <strong>rituel d'identité</strong> (badges), les <strong>jalons</strong>. Peu importe le runner ou le modèle sous chaque rôle : tant que ces trois-là sont respectés, l'équipe reste cohérente.</p></div>
+
   <div class="note tip"><p><b>Astuce :</b> la bonne question n'est jamais « quel outil ? » mais « quel <em>geste</em> ce rôle sert-il, et son jalon est-il franchi ? ». Change l'outil, garde le geste : la méthode tient toujours.</p></div>
 </section>
 
@@ -338,19 +333,19 @@
 <section class="panel" id="roles">
   <div class="section-label">Consulter</div>
   <h1 class="t">Les rôles de la méthode</h1>
-  <p class="lead">Huit rôles, désignés ici par leur <strong>libellé canonique</strong>. Les noms de code internes n'apparaissent que dans les artefacts du dépôt — jamais dans une doc destinée à l'extérieur.</p>
+  <p class="lead">Les rôles de l'équipe, désignés ici par leur <strong>libellé canonique</strong>. Les noms de code internes n'apparaissent que dans les artefacts du dépôt — jamais dans une doc destinée à l'extérieur. Le décideur (l'utilisateur) n'y figure pas : il n'est pas un persona, il est au-dessus de l'équipe.</p>
 
   <div class="scroll"><table>
     <thead><tr><th>Rôle</th><th>Portée / phase</th><th>Le geste</th></tr></thead>
     <tbody>
       <tr>
         <td class="name">Le gestionnaire de portefeuille</td>
-        <td>Portefeuille (multi-projets) · 🟡</td>
-        <td>Oriente entre projets : switche d'équipe, démarre un projet, crée une équipe, fait le point. Ouvre la bonne porte, puis passe la main au coordinateur. Ne code, ne cadre, ne déploie pas.</td>
+        <td>Coordination de portefeuille · 🟡</td>
+        <td>Oriente entre projets : switche d'équipe, démarre un projet, crée une équipe, fait le point. Commande les coordinations de projet, ouvre la bonne porte, puis passe la main. Ne code, ne cadre, ne déploie pas.</td>
       </tr>
       <tr>
         <td class="name">Le coordinateur</td>
-        <td>Transverse / par projet · 🟠</td>
+        <td>Coordination de projet · 🟠</td>
         <td>Chef d'orchestre d'une feature : découpe en phases, déclenche le bon rôle au bon moment, vérifie chaque jalon, rend compte au décideur. Répartit et suit — ne fait pas le travail métier.</td>
       </tr>
       <tr>
@@ -392,43 +387,66 @@
 <!-- ============================= L'EMBOÎTEMENT (Comprendre) ============================= -->
 <section class="panel" id="emboitement">
   <div class="section-label">Comprendre</div>
-  <h1 class="t">L'emboîtement : portefeuille ⊃ projets ⊃ rôles ⊃ skills</h1>
-  <p class="lead">La méthode est une suite de <strong>poupées gigognes</strong>. Chaque niveau contient le suivant, sans jamais mélanger les contextes. C'est cette imbrication qui rend l'ensemble étanche et réutilisable.</p>
+  <h1 class="t">L'emboîtement : le contexte est empilé, du grain à l'enveloppe</h1>
+  <p class="lead">Le comportement effectif d'un persona, à tout instant, est la <strong>somme empilée</strong> de plusieurs couches d'instructions. Chaque couche externe <strong>englobe et complète</strong> les internes — rien n'est isolé, tout s'additionne.</p>
 
+  <h2>1 · Les contextes emboîtés</h2>
+  <p>Premier emboîtement, structurel : le portefeuille contient les projets, chaque projet a son équipe d'experts, chaque expert est techniquement incarné.</p>
   <div class="nest">
     <span class="nest-label">Portefeuille — ~/work</span>
-    <p class="cap">Un seul niveau au-dessus de tout : oriente entre projets, ne fait pas le métier.</p>
+    <p class="cap">La coordination de portefeuille : oriente entre projets, ne fait pas le métier.</p>
     <div class="nest">
       <span class="nest-label">Projet — un dépôt</span>
-      <p class="cap">Sa propre équipe, son <code>CLAUDE.md</code>, ses <code>specs/</code>, sa stack Docker.</p>
+      <p class="cap">Sa coordination de projet, son fichier d'instructions (<code>CLAUDE.md</code> pour Claude Code, <code>AGENTS.md</code> ailleurs), ses <code>specs/</code>, sa stack Docker.</p>
       <div class="nest">
-        <span class="nest-label">Rôle — un agent de l'équipe</span>
-        <p class="cap">Un périmètre fermé, une phase, un jalon.</p>
+        <span class="nest-label">Équipe — les rôles d'experts</span>
+        <p class="cap">Un périmètre fermé par rôle, une phase, un jalon.</p>
         <div class="nest">
-          <span class="nest-label">Incarnation — subagent + skill(s)</span>
-          <p class="cap">Le subagent = le <strong>contrat</strong> (contexte isolé, outils propres, dispatchable). La skill = la <strong>méthode</strong> (le geste outillé, réutilisable).</p>
+          <span class="nest-label">Incarnation — persona + skill(s)</span>
+          <p class="cap">Le <strong>persona</strong> = le contrat (incarné en <em>subagent</em> sur Claude Code, en profil/Model ailleurs) ; la skill = la <strong>méthode</strong> (le geste outillé).</p>
         </div>
       </div>
     </div>
   </div>
 
+  <h2>2 · L'inclusion du contexte, en 5 couches d'instructions</h2>
+  <p>Second emboîtement, celui qui compte vraiment : <strong>des instructions</strong>, pas seulement des dossiers. De l'enveloppe (la méthode, au-dessus de tout) vers le grain (les interdits d'un rôle), chaque couche est un <strong>fichier réel</strong>.</p>
+
+  <div class="nest">
+    <span class="nest-label">5 · portefeuille.md — la méthode, au-dessus de tous les projets</span>
+    <p class="cap">Le <strong>fichier d'instructions global</strong>, lu dans <strong>toutes</strong> les sessions, au-dessus de tous les projets. Implémentation courante : <span class="file">~/.claude/CLAUDE.md</span> (Claude Code) — <code>AGENTS.md</code> pour d'autres outils. <em>« portefeuille.md » nomme le rôle, pas un fichier littéral.</em></p>
+    <div class="nest">
+      <span class="nest-label">4 · projet.md — les règles &amp; l'assemblage du projet</span>
+      <p class="cap">Le <strong>fichier d'instructions du projet</strong> + <span class="file">specs/PROJET.md</span> — assemble les experts et les conventions du projet. Implémentation courante : <span class="file">&lt;projet&gt;/CLAUDE.md</span> (Claude Code) ou <code>AGENTS.md</code> (Codex, Ollama, OpenWebUI…).</p>
+      <div class="nest">
+        <span class="nest-label">3 · persona — le contrat de rôle</span>
+        <p class="cap"><span class="file">agents/&lt;rôle&gt;.md</span> — identité + périmètre + <code>tools</code> + skills portées.</p>
+        <div class="nest">
+          <span class="nest-label">2 · skills — un geste outillé</span>
+          <p class="cap">Les <span class="file">SKILL.md</span> — source dans le dossier <code>skills/</code> du dépôt, déployées dans le dossier de skills de l'outil (<span class="file">~/.claude/skills/</span> pour Claude Code).</p>
+          <div class="nest">
+            <span class="nest-label">1 · tools / règles / interdits — le grain</span>
+            <p class="cap">Le frontmatter <code>tools:</code> du contrat + le périmètre « ne sort jamais de… » (interdits) + les <strong>garde-fous par hooks</strong> (identité, gestes, périmètre).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note info"><p><b>Info — la somme empilée :</b> à tout instant, comportement effectif = <code>portefeuille.md ⊃ projet.md ⊃ persona ⊃ skills ⊃ tools/règles/interdits</code>. Un persona n'agit jamais « nu » : il agit avec la méthode globale, plus les règles de son projet, plus son contrat, plus ses gestes, plus ses garde-fous — tout empilé.</p></div>
+
   <div class="grid two">
     <div class="card">
       <h3>Le contrat et la méthode</h3>
-      <p>Chaque rôle est un <strong>subagent</strong> (fichier <code>agents/&lt;rôle&gt;.md</code>) : contexte isolé, outils propres, parallélisable (plusieurs développeurs en worktrees). Son <strong>savoir-faire</strong> vit dans une ou plusieurs <strong>skills</strong> (<code>skills/iakaframe-*</code>) qu'il charge. Le subagent est le contrat ; la skill est la méthode.</p>
+      <p>Chaque rôle est incarné par un <strong>persona</strong> défini dans un contrat (<code>agents/&lt;rôle&gt;.md</code>) : il s'exécute en <strong>contexte isolé</strong> — un <em>subagent</em> sur Claude Code, un profil ou un Model ailleurs — avec ses outils propres (frontmatter <code>tools:</code>), parallélisable. Son savoir-faire vit dans une ou plusieurs <strong>skills</strong> (<code>skills/iakaframe-*</code>). Le persona est le contrat ; la skill est la méthode.</p>
     </div>
     <div class="card">
       <h3>Source d'image et copie active</h3>
-      <p>Les skills et contrats vivent <strong>à la source</strong> dans le dépôt (<code>agents/*</code>, <code>skills/iakaframe-*</code>) — c'est l'<em>image</em> — et sont <strong>déployés</strong> dans <code>~/.claude/</code> (la copie active chargée à l'exécution). Règle d'or : on édite la source, puis on redéploie ; jamais la copie à la main.</p>
+      <p>Les skills et contrats vivent <strong>à la source</strong> dans le dépôt (<code>agents/*</code>, <code>skills/iakaframe-*</code>) — l'<em>image</em> — et sont <strong>déployés</strong> dans le dossier actif de l'outil (<code>~/.claude/</code> pour Claude Code) — la copie chargée à l'exécution. Règle d'or : on édite la source, puis on redéploie ; jamais la copie à la main.</p>
     </div>
   </div>
 
-  <div class="card">
-    <h3>Une skill = un geste outillé, réutilisable</h3>
-    <p>Une skill n'est pas liée à un projet : c'est un <strong>geste</strong> défini une fois (cadrer, tester, versionner, mémoriser…) et rejoué partout. Un projet reçoit <strong>sa copie scopée</strong> de l'équipe et des skills ; deux projets ne partagent jamais un contexte. La définition est mutualisée, l'exécution est étanche.</p>
-  </div>
-
-  <div class="note info"><p><b>Info :</b> déployer une équipe sur un projet copie les contrats + leurs skills dans <code>&lt;projet&gt;/.claude/</code> (et le catalogue de chartes pour le studio design). Une équipe déployée mais pas encore lancée, dans le lexique maison : « la compagnie est à l'auberge ».</p></div>
+  <div class="note info"><p><b>Info :</b> déployer une équipe sur un projet copie les contrats + leurs skills dans le dossier de config de l'outil du projet (<code>&lt;projet&gt;/.claude/</code> pour Claude Code) — et le catalogue de chartes pour le studio design. Une équipe déployée mais pas encore lancée, dans le lexique maison : « la compagnie est à l'auberge ».</p></div>
 </section>
 
 <!-- ============================= LES OUTILS (Consulter) ============================= -->
@@ -445,16 +463,16 @@
     <tbody>
       <tr>
         <td class="name">Bootstrap d'équipe</td>
-        <td>Affiche le bandeau <code>IAKAFRAME</code> + le roster des 8 rôles, détecte l'étage (portefeuille / projet), rend prêt à dispatch. <strong>Ne spawne aucun agent.</strong></td>
+        <td>Affiche le bandeau <code>IAKAFRAME</code> + le roster des rôles, détecte l'étage (portefeuille / projet), rend prêt à dispatch. <strong>Ne spawne aucun persona.</strong></td>
         <td><code>iakastart</code></td>
       </tr>
       <tr>
-        <td class="name">Orientation portefeuille</td>
-        <td>Reçoit les ordres de haut niveau (switcher, démarrer, créer une équipe, statut), commande les coordinateurs, puis délègue.</td>
+        <td class="name">Coordination de portefeuille</td>
+        <td>Reçoit les ordres de haut niveau (switcher, démarrer, créer une équipe, statut), commande les coordinations de projet, puis délègue.</td>
         <td>skill portefeuille</td>
       </tr>
       <tr>
-        <td class="name">Coordination</td>
+        <td class="name">Coordination de projet</td>
         <td>Découpe une feature en phases, émet des ordres de mission, dispatche le bon rôle, vérifie les jalons, dialogue avec le décideur.</td>
         <td>skill coordination (canal Slack / Mattermost)</td>
       </tr>
@@ -558,6 +576,21 @@
     </div>
   </div>
 
+  <h2>Le principe des kits : une méthode, N incarnations</h2>
+  <p>Un <strong>kit</strong> est une <strong>incarnation</strong> de la même méthode sur une solution donnée. La méthode — les rôles, les 3 phases, le cadrage-avant-code, le rituel d'identité — est <strong>identique</strong> d'un kit à l'autre. Ce qui change, c'est le <strong>support d'incarnation</strong> : la solution, le <strong>fichier d'instructions du contrat</strong>, et la forme que prend le roster (<em>subagents</em> natifs sur Claude Code, personas de manière générale, ou Models importables).</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Kit</th><th>Solution</th><th>Contrat</th><th>Forme du roster</th></tr></thead>
+    <tbody>
+      <tr><td class="name">kit-claude</td><td>Claude Code</td><td><code>CLAUDE.md</code></td><td>personas en <em>subagents</em> &amp; skills natifs</td></tr>
+      <tr><td class="name">kit-codex</td><td>ChatGPT / Codex</td><td><code>AGENTS.md</code></td><td>personas ; multi-modèle possible (un profil Codex par persona, LiteLLM → Ollama)</td></tr>
+      <tr><td class="name">kit-ollama</td><td>modèles locaux via un outil agentique open (Aider, Continue, Cline, opencode…)</td><td><code>AGENTS.md</code></td><td>personas servis par le modèle adapté</td></tr>
+      <tr><td class="name">kit-openwebui</td><td>Open WebUI</td><td><code>AGENTS.md</code></td><td>un persona = un Model importable (system prompt = rôle + rituel d'identité)</td></tr>
+      <tr><td class="name">kit-anythingllm</td><td>AnythingLLM</td><td><code>AGENTS.md</code></td><td>un persona par rôle</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note info"><p><b>Info :</b> « une méthode, N incarnations » — on porte l'équipe augmentée <strong>là où l'utilisateur travaille déjà</strong>, sans réécrire la méthode. Le fichier d'instructions du contrat (<code>CLAUDE.md</code>, <code>AGENTS.md</code>…) n'est qu'une implémentation du même rôle.</p></div>
+
   <div class="section-label">Consulter</div>
   <h2>Les pastilles de phase</h2>
   <div class="scroll"><table>
@@ -567,7 +600,7 @@
       <tr><td class="name">Dev</td><td>🔴</td><td>P2 — implémentation</td></tr>
       <tr><td class="name">Staging</td><td>🟢</td><td>P3 — build déployé en <code>vX.Y.Z-rc</code></td></tr>
       <tr><td class="name">Prod</td><td>🟣</td><td>Squad séparé, feu vert humain</td></tr>
-      <tr><td class="name">Portefeuille</td><td>🟡</td><td>Au-dessus des projets</td></tr>
+      <tr><td class="name">Portefeuille</td><td>🟡</td><td>Coordination au-dessus des projets</td></tr>
       <tr><td class="name">Transverse</td><td>🟠</td><td>Rôles servant à toute phase (par défaut)</td></tr>
     </tbody>
   </table></div>
@@ -577,29 +610,33 @@
 <section class="panel" id="sources">
   <div class="section-label">Consulter</div>
   <h1 class="t">Sources &amp; vérification</h1>
-  <p class="lead">Discipline maison : rien n'est affirmé qui ne soit tracé. Les faits internes se citent en <code>chemin:ligne</code> (racine du dépôt <code>iakaframe/</code>) ; les faits d'état de l'art se réfèrent à leur site officiel.</p>
+  <p class="lead">Discipline maison : rien n'est affirmé qui ne soit tracé. Les faits internes se citent en <code>chemin:ligne</code> (racine du dépôt <code>iakaframe/</code>, sauf chemins explicités) ; les faits d'état de l'art se réfèrent à leur site officiel.</p>
 
   <div class="card">
-    <h3>Faits internes (dépôt iakaframe)</h3>
+    <h3>Faits internes (dépôts iakaframe &amp; IakaCockpit)</h3>
     <div class="scroll"><table>
       <thead><tr><th>Affirmation</th><th>Source</th></tr></thead>
       <tbody>
         <tr><td class="name">Principe fondateur, cycle, piliers</td><td class="num">methode-de-travail.md:13-25, 636-645</td></tr>
-        <tr><td class="name">Trois acteurs, séparation réflexion/exécution</td><td class="num">methode-de-travail.md:60-73</td></tr>
-        <tr><td class="name">Roster des 8 rôles &amp; phases</td><td class="num">methode-de-travail.md:104-181</td></tr>
-        <tr><td class="name">Deux niveaux d'orchestration (portefeuille ↔ projet)</td><td class="num">methode-de-travail.md:127-139</td></tr>
+        <tr><td class="name">Discipline &gt; technologie : la qualité vient du workflow, pas de l'IA</td><td class="num">methode-de-travail.md:13-25, 410-479</td></tr>
+        <tr><td class="name">Un persona incarne un rôle (le roster devient des personas)</td><td class="num">kit-codex/README.md:1-6 · kit-ollama/README.md:1-6</td></tr>
+        <tr><td class="name">Décideur = l'utilisateur (valide, teste, tranche)</td><td class="num">methode-de-travail.md:34-43</td></tr>
+        <tr><td class="name">Équipe d'experts, périmètres étanches (sans nombre figé)</td><td class="num">methode-de-travail.md:84-98, 320-330</td></tr>
+        <tr><td class="name">Deux niveaux de coordination (portefeuille ↔ projet)</td><td class="num">methode-de-travail.md:127-139</td></tr>
+        <tr><td class="name">Roster des rôles &amp; phases</td><td class="num">methode-de-travail.md:104-181</td></tr>
         <tr><td class="name">Libellés canoniques de rôle</td><td class="num">specs/glossaire-iakaframe.md:8-21</td></tr>
         <tr><td class="name">Gate qualité indépendant (anti juge-et-partie)</td><td class="num">methode-de-travail.md:450-459</td></tr>
+        <tr><td class="name">Jalons dans le workflow (émetteur/récepteur, humain/auto)</td><td class="num">methode-de-travail.md:283-304, 368-388 · cycle-session-iakaframe.md:63-78</td></tr>
         <tr><td class="name">Badge : position = ouverture/clôture</td><td class="num">methode-de-travail.md:224-231 · rituel-identite-agents.md:103-108</td></tr>
         <tr><td class="name">Restitution en relais + verbatim + anti-ventriloquie</td><td class="num">methode-de-travail.md:247-281 · rituel-identite-agents.md:110-122</td></tr>
-        <tr><td class="name">Chaîne A→B sans interjection de l'orchestrateur</td><td class="num">specs/instructions/rituel-identite-agents.md:110-119</td></tr>
-        <tr><td class="name">Pastille transverse 🟠 (ex-⬜)</td><td class="num">specs/instructions/rituel-identite-agents.md:124-125</td></tr>
-        <tr><td class="name">Jalons : émetteur / contenu / récepteur + estimation</td><td class="num">methode-de-travail.md:283-304 · cycle-session-iakaframe.md:63-78</td></tr>
-        <tr><td class="name">Incarnation subagents + skills</td><td class="num">methode-de-travail.md:332-340</td></tr>
+        <tr><td class="name">Modèle arbre de délégation (sidechains, attributionAgent)</td><td class="num">IakaCockpit/specs/design/redesign/A/concepts/arbre.html:44-84</td></tr>
+        <tr><td class="name">Incarnation personas (subagents) + skills</td><td class="num">methode-de-travail.md:332-340</td></tr>
+        <tr><td class="name">Contrat de rôle : frontmatter tools + porté par le fichier d'instructions projet</td><td class="num">agents/&lt;rôle&gt;.md:1-8</td></tr>
+        <tr><td class="name">Couche portefeuille = fichier d'instructions global (lu partout ; impl. Claude Code)</td><td class="num">~/.claude/CLAUDE.md</td></tr>
+        <tr><td class="name">Couche projet = fichier d'instructions + specs/PROJET.md (impl. Claude Code)</td><td class="num">IakaCockpit/CLAUDE.md · IakaCockpit/specs/PROJET.md</td></tr>
         <tr><td class="name">Source = image, déploiement global ~/.claude</td><td class="num">specs/instructions/rituel-identite-agents.md:54-56, 209-210</td></tr>
-        <tr><td class="name">Structure du projet reflète le workflow</td><td class="num">methode-de-travail.md:498-527</td></tr>
-        <tr><td class="name">init iakaframe : scaffold neuf/existant</td><td class="num">methode-de-travail.md:530-548 · skills/iakaframe-init/SKILL.md</td></tr>
-        <tr><td class="name">Étanchéité : image mutualisée / conteneur étanche</td><td class="num">methode-de-travail.md:320-330</td></tr>
+        <tr><td class="name">Hooks garde-fous (identité / gestes / périmètre)</td><td class="num">gardes-fous-canal-gestes-hooks.md · garde-perimetre-gestes-directs.md</td></tr>
+        <tr><td class="name">Structure du projet / init scaffold</td><td class="num">methode-de-travail.md:498-548 · skills/iakaframe-init/SKILL.md</td></tr>
         <tr><td class="name">Cadrage : format d'instruction</td><td class="num">skills/iakaframe-cadrage/SKILL.md:32-62</td></tr>
         <tr><td class="name">Qualité : verdict PASS/FAIL</td><td class="num">skills/iakaframe-qualite/SKILL.md:11-66</td></tr>
         <tr><td class="name">Déploiement : feu vert humain, rollback</td><td class="num">skills/iakaframe-deploiement/SKILL.md:11-87</td></tr>
@@ -609,9 +646,11 @@
         <tr><td class="name">Main courante (MQTT→CouchDB)</td><td class="num">skills/iakaframe-log-conversation/SKILL.md:6-39</td></tr>
         <tr><td class="name">Studio design : charte Cinabre par défaut</td><td class="num">skills/iakaframe-naonedge/SKILL.md:26-51</td></tr>
         <tr><td class="name">Bootstrap : roster, ne spawne rien</td><td class="num">skills/iakastart/SKILL.md:29-102</td></tr>
-        <tr><td class="name">Hooks garde-fous (identité / gestes / périmètre)</td><td class="num">gardes-fous-canal-gestes-hooks.md · garde-perimetre-gestes-directs.md</td></tr>
         <tr><td class="name">CLI @naonedge/iakaframe (commandes)</td><td class="num">cli/package.json · cli/src/commands/*</td></tr>
-        <tr><td class="name">Arbre réel du dépôt (annoté)</td><td class="num">find . -maxdepth 2 (relevé 2026-07-05)</td></tr>
+        <tr><td class="name">Kits : une méthode, N incarnations (contrat, personas)</td><td class="num">kit-codex/README.md:1-6 · kit-ollama/README.md:1-6 · kit-openwebui/README.md:1-8</td></tr>
+        <tr><td class="name">Un persona = un Model importable (Open WebUI)</td><td class="num">kit-openwebui/README.md:3-6</td></tr>
+        <tr><td class="name">Un modèle par rôle/persona ; multi-modèle LiteLLM → Ollama</td><td class="num">kit-codex/MODELES.md:1-8 · kit-*/MODELES.md</td></tr>
+        <tr><td class="name">Runners hétérogènes / incarnations d'IA multiples</td><td class="num">methode-de-travail.md:338-340 · kit-*/MODELES.md</td></tr>
         <tr><td class="name">Agnosticisme du stack</td><td class="num">methode-de-travail.md:7-10, 338-340</td></tr>
       </tbody>
     </table></div>
@@ -625,7 +664,7 @@
       <li><strong>AppFlowy</strong> — espace de travail open-source auto-hébergeable : <a href="https://appflowy.io">appflowy.io</a></li>
       <li><strong>Node.js</strong> — <code>fetch</code> natif (≥ 18), zéro dépendance : <a href="https://nodejs.org">nodejs.org</a></li>
     </ul>
-    <div class="note info"><p><b>Info :</b> les outils web de vérification n'étaient pas disponibles à la rédaction de cette v0.2.0 ; les références externes pointent vers les sites officiels et restent à re-vérifier au prochain passage.</p></div>
+    <div class="note info"><p><b>Info :</b> les outils web de vérification n'étaient pas disponibles à la rédaction de cette v0.4.0 ; les références externes pointent vers les sites officiels et restent à re-vérifier au prochain passage.</p></div>
   </div>
 </section>
 
@@ -634,7 +673,7 @@
 <footer class="footer">
   <div class="accent-line"></div>
   <p><span class="ne-wordmark"><b>iaka</b><span class="edge">frame</span></span> · document chapeau de la méthode</p>
-  <p>v0.2.0 · 2026-07-05 · rédaction : la doc utilisateur · mise en forme : charte Cinabre</p>
+  <p>v0.4.0 · 2026-07-05 · rédaction : la doc utilisateur · mise en forme : charte Cinabre</p>
 </footer>
 
 <script>
