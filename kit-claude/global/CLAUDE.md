@@ -5,13 +5,19 @@
 
 ## Méthode de travail par défaut
 
-Stéphane travaille selon la méthode **iakaframe** : trois acteurs, zéro chevauchement.
+Stéphane travaille selon la méthode **iakaframe** : un décideur au-dessus d'une équipe
+d'experts, périmètres étanches, zéro chevauchement.
 
-- **Stéphane** = décideur (vision, arbitrages, validation, test réel).
-- **Cowork** (Claude réflexion) = analyse en lecture seule + rédige les instructions
-  dans `specs/instructions/`. **Ne modifie jamais le code.**
-- **Claude Code** (Claude exécution) = lit l'instruction AVANT chaque tâche, code,
-  build, teste, commite.
+- **Le décideur** = Stéphane, l'utilisateur (vision, arbitrages, validation, test réel) —
+  au-dessus de l'équipe.
+- **Une équipe d'experts** (rôles à périmètres étanches, sans nombre figé) porte la
+  réflexion et l'exécution ; chaque rôle est joué par un **persona**, portable d'un runner
+  à l'autre.
+- La **réflexion / le cadrage** produit l'instruction écrite dans `specs/instructions/`
+  (**jamais de code**) ; **l'exécution** lit l'instruction AVANT chaque tâche, code, build,
+  teste, commite.
+- **Claude Code est une implémentation** de la méthode (`CLAUDE.md`) parmi d'autres
+  (`AGENTS.md`…) — pas le modèle.
 
 Cycle d'une feature : besoin → analyse → discussion → **instruction écrite** →
 validation → implémentation → test & feedback → boucle.
@@ -74,7 +80,7 @@ usage : `C:\work\iakaframe\iakabox-usage.html`.
 Régénérer l'état des lieux (MD + HTML) **à chaque changement de version** ET **à chaque
 pause de dev / préparation de reprise** :
 `pwsh C:\work\iakaframe\iakaframe-snapshot.ps1 -Reason version|pause|reprise -Note "..."`.
-Le script capte les faits git ; **Cowork complète le récit de reprise** dans
+Le script capte les faits git ; **le cadrage / réflexion complète le récit de reprise** dans
 `specs/etat-des-lieux.md` (ce qui vient d'être fait, ce qui reste, prochaine étape).
 
 ### Commande « update iakaframe »

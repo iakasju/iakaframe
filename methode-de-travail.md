@@ -1,7 +1,7 @@
 # iakaframe — Méthode de travail IA-augmentée
 
-> La méthode de collaboration entre **l'utilisateur** (le décideur) et une **équipe d'agents IA**
-> organisée en **3 phases** (cadrage → réalisation → staging) + un **squad prod**,
+> La méthode de collaboration entre **l'utilisateur** (le décideur) et une **équipe d'experts**
+> (des **personas** incarnant des rôles) organisée en **3 phases** (cadrage → réalisation → staging) + un **squad prod**,
 > extraite et généralisée à partir des projets `IAKA Vod`, `robotimmo`,
 > `iakaAFstorage`, `iakabox`, `iakaJarvis`.
 >
@@ -27,9 +27,9 @@ workflow cadre.**
 
 ## Les 3 phases (cible staging)
 
-Un **décideur humain** et une **chaîne en 3 phases** portée par des agents IA. Plus de « deux
-acteurs Cowork / Claude Code » : la réflexion et l'exécution sont distribuées sur une **équipe**
-(voir plus bas), organisée en phases dont la **cible est le staging**.
+Un **décideur humain** et une **chaîne en 3 phases** portée par des experts. Plus de modèle à
+deux acteurs nommés par leur runner : la réflexion et l'exécution sont distribuées sur une
+**équipe** (voir plus bas), organisée en phases dont la **cible est le staging**.
 
 ### Le décideur — l'utilisateur
 
@@ -91,10 +91,11 @@ Découper la couche IA en agents nommés n'est pas cosmétique — ça résout d
 
 ## L'équipe d'agents (« Yakaframe Avancé »)
 
-Les trois acteurs sont le **modèle conceptuel** (décideur / réflexion / exécution). Pour
-industrialiser le développement « au fil de l'eau » sur une chaîne CI/CD, la couche
-réflexion+exécution se **spécialise en une équipe d'agents**, chacun avec un rôle fermé.
-Chaque agent porte une **incarnation** (un nom) pour le rendre mémorisable.
+Le modèle, c'est **un décideur (l'utilisateur) + une équipe d'experts** aux périmètres étanches,
+**sans nombre figé**. La réflexion et l'exécution sont **distribuées sur les rôles** de cette
+équipe ; chaque rôle est incarné par un **persona** (un nom) pour le rendre mémorisable. Pour
+industrialiser le développement « au fil de l'eau » sur une chaîne CI/CD, ces rôles se
+**spécialisent**, chacun avec un périmètre fermé.
 
 > Référence canonique et fiches détaillées : `specs/equipe-agents.md`.
 > Définitions exécutables : `agents/` (subagents) + `skills/iakaframe-*` (savoir-faire).
@@ -329,14 +330,16 @@ Comme pour l'isolation Docker par projet, on distingue **définition** et **exé
 - **Répartition entre projets** : elle se fait **au niveau portefeuille** (l'utilisateur décide
   quel projet avance), **pas dans l'agent**. Dans un projet, Aragorn répartit entre agents.
 
-### Incarnation technique : subagents + skills
+### Incarnation : personas + skills
 
-- Chaque agent = un **subagent Claude Code** (`agents/<agent>.md`, déployé dans
-  `<projet>/.claude/agents/`) : contexte isolé, outils propres, **dispatchable** par Aragorn
-  et **parallélisable** (N Gimli en worktrees).
-- Le **savoir-faire** du rôle vit dans une **skill** (`skills/iakaframe-*`) que l'agent
-  charge. Le subagent = le *contrat* ; la skill = la *méthode*.
-- Cap multi-plateformes (vision PDF) : la même équipe sera déclinable sur Claude, ChatGPT et
+- Chaque rôle est incarné par un **persona** = son **contrat** (contexte isolé, outils propres,
+  **dispatchable** par Aragorn et **parallélisable** — N Gimli en worktrees). Sur **Claude Code**,
+  un persona s'implémente en **subagent** (`agents/<rôle>.md`, déployé dans
+  `<projet>/.claude/agents/`) ; sur d'autres runners, en profil/Model (`AGENTS.md`). Claude Code
+  n'est qu'**une implémentation parmi d'autres**.
+- Le **savoir-faire** du rôle vit dans une **skill** (`skills/iakaframe-*`) que le persona
+  charge. Le **persona = le contrat** ; la **skill = la méthode**.
+- Cap multi-plateformes (vision PDF) : la même équipe est déclinable sur Claude, ChatGPT et
   IA locale auto-hébergée. Aujourd'hui : incarnation **Claude**.
 
 ### Créer un agent
@@ -370,39 +373,39 @@ de chartes `design-*/` pour Loki) : le projet reçoit **sa** copie scopée.
 ### Le cycle standard d'une feature
 
 ```
-1. Le développeur exprime un besoin
+1. Le décideur exprime un besoin
         ↓
-2. Cowork analyse le code existant (lecture seule)
+2. Le cadrage (l'architecte-cadreur) analyse le code existant (lecture seule)
         ↓
-3. Discussion développeur ↔ Cowork (choix techniques, arbitrages, scope)
+3. Discussion décideur ↔ cadrage (choix techniques, arbitrages, scope)
         ↓
-4. Cowork rédige un fichier d'instructions → specs/instructions/{feature}.md
+4. Le cadrage rédige un fichier d'instructions → specs/instructions/{feature}.md
         ↓
-5. Le développeur valide les instructions
+5. Le décideur valide les instructions
         ↓
-6. Claude Code lit les instructions et implémente (étape par étape, commits intermédiaires)
+6. Le développeur lit les instructions et implémente (étape par étape, commits intermédiaires)
         ↓
-7. Le développeur teste et donne du feedback
+7. Le décideur teste et donne du feedback
         ↓
-8. Si correction nécessaire → retour à l'étape 2 (en Cowork)
+8. Si correction nécessaire → retour à l'étape 2 (le cadrage)
 ```
 
 ### Le cycle de correction d'erreur
 
-Quand Claude Code prend une mauvaise direction, le développeur **ne corrige pas
-l'IA ligne par ligne**. Il remonte au niveau de la décision (en Cowork), et la
+Quand l'exécution prend une mauvaise direction, le décideur **ne corrige pas
+l'IA ligne par ligne**. Il remonte au niveau de la décision (le cadrage), et la
 décision redescend sous forme d'instruction écrite.
 
 ```
-1. Le développeur constate le problème
+1. Le décideur constate le problème
         ↓
-2. Discussion en Cowork (pas de micro-management dans Claude Code)
+2. Discussion au niveau du cadrage (pas de micro-management dans l'exécution)
         ↓
-3. Cowork diagnostique, propose une solution
+3. Le cadrage diagnostique, propose une solution
         ↓
-4. Cowork rédige une instruction corrective → specs/instructions/fix-{problème}.md
+4. Le cadrage rédige une instruction corrective → specs/instructions/fix-{problème}.md
         ↓
-5. Claude Code lit et applique la correction
+5. Le développeur lit et applique la correction
 ```
 
 ---
@@ -415,17 +418,17 @@ Une IA qui réfléchit et code en même temps optimise localement, sans recul su
 l'architecture globale. En séparant les rôles, chaque décision passe par un
 filtre : *est-ce cohérent avec le reste du projet ?*
 
-> Exemple réel (IAKA Vod) : Claude Code voulait ajouter FFmpeg pour le transcodage
-> vidéo. C'est en Cowork que la décision a été prise de supprimer cette approche —
-> les players natifs (AVPlay, Shaka, hls.js) décodent tout en hardware. Claude Code
-> seul aurait implémenté une solution complexe et inutile.
+> Exemple réel (IAKA Vod) : l'exécution seule aurait embarqué FFmpeg pour le transcodage
+> vidéo. C'est au cadrage que la décision a été prise de supprimer cette approche —
+> les players natifs (AVPlay, Shaka, hls.js) décodent tout en hardware. L'exécution
+> livrée à elle-même aurait implémenté une solution complexe et inutile.
 
 ### 2. Les instructions écrites sont une spécification vérifiable
 
 Un fichier `specs/instructions/{feature}.md` n'est pas un prompt vague. C'est un
 document structuré : le problème, ce qui existe, la décision, les étapes, les
-fichiers concernés, les comportements attendus. Claude Code peut le relire, le
-développeur peut le relire, et six mois plus tard l'historique des décisions est
+fichiers concernés, les comportements attendus. L'exécution peut le relire, le
+décideur peut le relire, et six mois plus tard l'historique des décisions est
 toujours là.
 
 **La mémoire de l'IA est volatile. Les fichiers d'instructions sont permanents.**
@@ -465,7 +468,7 @@ Claude) et appliquée aux sessions suivantes. Exemples réels :
 
 - « Ne pas gaspiller les appels API — utiliser du mock en dev, cacher
   agressivement » → fixtures figées dans `specs/mock/` + cache.
-- « Cowork = réflexion, Claude Code = exécution » → jamais de code depuis Cowork.
+- « Séparer réflexion et exécution » → le rôle de cadrage ne touche jamais au code de production.
 - « Commit régulièrement pour pouvoir downgrade une erreur » → commits atomiques
   fréquents, jamais de `reset --hard`/`push --force` côté IA (filet de sécurité git).
 - « Privilégier le self-hosted » → Ollama/local proposé avant tout cloud.
@@ -499,10 +502,10 @@ convention retenue sur les projets :
 
 ```
 mon-projet/
-├── CLAUDE.md                    ← Contrat de travail pour Claude Code
-│                                  (stack, conventions, commandes, backlog)
+├── CLAUDE.md                    ← Contrat de rôle (CLAUDE.md pour Claude Code,
+│                                  AGENTS.md ailleurs ; stack, conventions, backlog)
 │
-├── specs/                       ← Espace Cowork (JAMAIS de code ici)
+├── specs/                       ← Espace cadrage / réflexion (JAMAIS de code ici)
 │   ├── PROJET.md                ← Vision projet, specs, sources de données
 │   ├── instructions/            ← LE CŒUR DU WORKFLOW
 │   │   ├── _TEMPLATE.md             (gabarit d'instruction)
@@ -512,9 +515,9 @@ mon-projet/
 │   │   └── quality-workflow.md      ← outils qualité (doc, tests, rapport)
 │   └── mock/                    ← Données figées pour dev/test (zéro appel API)
 │
-├── src/                         ← Code source (Claude Code écrit ici)
+├── src/                         ← Code source (le développeur écrit ici)
 ├── scripts/quality-report.sh    ← Rapport qualité automatisé
-└── .claude/settings.local.json  ← Permissions explicites de Claude Code
+└── .claude/settings.local.json  ← Permissions du runner (Claude Code par défaut)
 ```
 
 Le dossier `specs/instructions/` est la trace complète de toutes les décisions
@@ -522,8 +525,8 @@ techniques du projet. Chaque feature a son fichier ; chaque fichier contient le
 « pourquoi » et le « comment ». C'est de la documentation **vivante**, écrite
 *avant* l'implémentation — pas après coup.
 
-> Note : sur IAKA Vod, ce dossier s'appelle `claudecowork/` au lieu de `specs/`.
-> Le nom importe peu — c'est le rôle (espace réflexion, jamais de code) qui compte.
+> Note : le nom de ce dossier importe peu (sur certains projets il diffère de `specs/`).
+> C'est le **rôle** — espace de cadrage / réflexion, jamais de code — qui compte.
 
 ---
 
@@ -567,7 +570,7 @@ moments précis**, par `iakaframe-snapshot.ps1` :
 
 Le script produit `specs/etat-des-lieux.md` + `.html` à partir des faits git (version,
 branche, derniers commits, arbre propre/sale, nb de fichiers) et tient un **journal
-append-only**. Les faits sont automatiques ; **Cowork complète le récit de reprise**
+append-only**. Les faits sont automatiques ; **le rôle de cadrage / réflexion complète le récit de reprise**
 (ce qui vient d'être fait, ce qui reste, la prochaine étape concrète). Ainsi, reprendre
 un projet après une pause = lire `etat-des-lieux.md`, pas fouiller sa mémoire.
 
