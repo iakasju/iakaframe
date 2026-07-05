@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iakaframe — étude comparative</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+<!-- Charte Cinabre : pointée en relatif vers le dépôt frère iakacharte (jamais rapatriée). -->
+<link rel="stylesheet" href="../iakacharte/design-cinabre/cinabre.css">
+<!-- Styles de schéma : dérivés des variables Cinabre (un seul accent). À affiner par le studio design. -->
+<style>
+  .spectrum{display:flex;align-items:stretch;gap:.6rem;margin:1.2rem 0;flex-wrap:wrap}
+  .pole{flex:1;min-width:250px;background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:1rem 1.2rem;box-shadow:var(--shadow-soft)}
+  .pole .lab{font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--accent-ink);margin-bottom:.35rem;display:block}
+  .pole ul{margin:.3rem 0 0}
+  .axis{height:3px;background:var(--gradient-accent);border-radius:999px;margin:.2rem 0 1.1rem}
+  .src{font:400 .8rem var(--mono);color:var(--text-muted);margin:.4rem .2rem 0}
+  .src a{color:var(--accent-ink)}
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <div class="hero-badge">Étude comparative · veille</div>
+  <h1>iakaframe face au <span class="accent">dev multi-agents</span></h1>
+  <p class="hero-subtitle">Où se situe iakaframe dans la famille des méthodes et frameworks de développement piloté par plusieurs agents d'IA ? Ce qu'elle partage, ce qui la distingue, et ce qu'elle pourrait emprunter.</p>
+  <div class="hero-meta">v0.2.0 · 2026-07-05 · faits vérifiés au web + lectures comparatives</div>
+</section>
+
+<nav class="tabs">
+  <button class="tab active" data-tab="pos">Positionnement</button>
+  <button class="tab" data-tab="corpus">Le corpus</button>
+  <button class="tab" data-tab="compar">Comparatif</button>
+  <button class="tab" data-tab="focus">Deux focus</button>
+  <button class="tab" data-tab="signature">La signature</button>
+  <button class="tab" data-tab="emprunts">Emprunts</button>
+  <button class="tab" data-tab="sources">Sources</button>
+</nav>
+
+<main>
+
+<!-- ============================= POSITIONNEMENT (Comprendre) ============================= -->
+<section class="panel active" id="pos">
+  <div class="section-label">Comprendre</div>
+  <h1 class="t">Positionnement : deux pôles, une famille</h1>
+  <p class="lead">Depuis 2023, une famille d'approches fait collaborer <strong>plusieurs agents d'IA</strong> pour produire du logiciel. Elles se répartissent sur un axe : d'un côté la <strong>discipline « humain-partenaire »</strong> (le workflow encadre, l'humain décide), de l'autre l'<strong>essaim autonome</strong> (on optimise le débit et l'autonomie). iakaframe se range clairement au premier pôle.</p>
+
+  <div class="note info"><p><b>Convention de lecture :</b> les <strong>faits</strong> sont sourcés par une <strong>URL</strong> (voir chaque carte + l'onglet Sources). Les <strong>lectures comparatives</strong> — nos rapprochements, nos jugements de proximité — sont signalées par un encart « <em>Lecture (la nôtre)</em> » et n'engagent que nous.</p></div>
+
+  <div class="axis"></div>
+  <div class="spectrum">
+    <div class="pole">
+      <span class="lab">Pôle A · discipline humain-partenaire</span>
+      <p>Le workflow produit la qualité ; l'humain valide à des jalons. Spec avant code, revue humaine.</p>
+      <ul>
+        <li><strong>iakaframe</strong> — rôles fermés, jalons humains, self-hosted souverain</li>
+        <li><strong>BMAD-METHOD</strong> — « partnership over automation », agile story-driven</li>
+        <li><strong>GPT-Pilot</strong> — l'humain relit chaque tâche (comme une revue de PR)</li>
+      </ul>
+    </div>
+    <div class="pole">
+      <span class="lab">Pôle B · essaim autonome / débit</span>
+      <p>On maximise l'autonomie et le débit ; l'humain intervient peu. Orchestration massive, benchmarks.</p>
+      <ul>
+        <li><strong>Ruflo</strong> (ex-Claude-Flow) — « hive-mind », quasi-autonome</li>
+        <li><strong>MetaGPT</strong> — « first AI software company », SOP autonome</li>
+        <li><strong>ChatDev</strong> — entreprise logicielle virtuelle (recherche)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="card glow">
+    <h3>Lecture (la nôtre) — la ligne de partage</h3>
+    <p>Ce qui sépare les deux pôles n'est pas la technique (tous font du multi-agents) mais la <strong>place de l'humain</strong> et la <strong>finalité</strong> : le pôle A optimise le <strong>contrôle</strong> (traçabilité, revue, périmètres étanches) ; le pôle B optimise le <strong>débit autonome</strong> (parallélisme, benchmarks, autonomie). iakaframe et BMAD sont des <strong>disciplines</strong> ; Ruflo et MetaGPT sont d'abord des <strong>moteurs</strong>.</p>
+  </div>
+</section>
+
+<!-- ============================= LE CORPUS (Consulter) ============================= -->
+<section class="panel" id="corpus">
+  <div class="section-label">Consulter</div>
+  <h1 class="t">Le corpus, du plus proche au plus lointain</h1>
+  <p class="lead">Une carte courte par projet : nature, personas/rôles, phases, place de l'humain, runners. Faits sourcés en bas de chaque carte.</p>
+
+  <div class="card glow">
+    <h3>iakaframe <span class="tag t-go">référence</span></h3>
+    <ul>
+      <li><strong>Nature</strong> — méthode / discipline (protocole de rôles, gestes, jalons).</li>
+      <li><strong>Rôles</strong> — coordination de portefeuille &amp; de projet, cadreur-architecte, développeur-devops, vérificateur qualité, studio design, rédactrice, squad prod ; décideur = l'utilisateur.</li>
+      <li><strong>Phases</strong> — 3 phases (cadrage → réalisation → staging) + squad prod séparé.</li>
+      <li><strong>Humain</strong> — jalons humains (validation d'instruction, feu vert prod) ; anti-auto-validation.</li>
+      <li><strong>Runners</strong> — Claude Code, Codex, Ollama, Open WebUI, AnythingLLM (kits) ; équipe hétérogène possible.</li>
+    </ul>
+    <p class="src">Réf. interne : <code>methode-de-travail.md</code> · doc chapeau <code>iakaframe-chapeau.html</code>.</p>
+  </div>
+
+  <div class="grid two">
+    <div class="card">
+      <h3>BMAD-METHOD <span class="tag t-info">jumeau philosophique</span></h3>
+      <ul>
+        <li><strong>Nature</strong> — méthode / discipline, 100 % open source (<strong>~50,1k★</strong> au relevé du 2026-07-05).</li>
+        <li><strong>Personas</strong> — 12+ nommés : Analyste, PM, Architecte, Product Owner, Scrum Master, Développeur, QA, UX, Rédacteur technique (system prompts : persona + menu + mémoire).</li>
+        <li><strong>Phases</strong> — Analysis → Planning → Solutioning → Implementation (agile, story-driven, sprints).</li>
+        <li><strong>Spec</strong> — PRD 1 page + user stories à critères d'acceptation.</li>
+        <li><strong>Humain</strong> — « partnership over automation », ne remplace pas le jugement ; checkpoints.</li>
+        <li><strong>Runners</strong> — Claude Code (recommandé), Cursor, Codex CLI + web bundles (Google Gemini Gems, ChatGPT Custom GPTs).</li>
+        <li><strong>Install</strong> — <code>npx bmad-method install</code> (Node 20.12+ / Python 3.10+, mode CI/CD).</li>
+        <li><strong>Innovations</strong> — scale-adaptive planning, 34+ workflows, modules d'extension (BMad Builder, Test Architect TEA, Game Dev Studio, Creative Suite), « Party Mode », skill <code>bmad-help</code>.</li>
+      </ul>
+      <p class="src">Sources : <a href="https://github.com/bmad-code-org/BMAD-METHOD">github</a> · <a href="https://docs.bmad-method.org/">docs</a> · <a href="https://www.augmentcode.com/guides/bmad-method-ai-development">augmentcode</a> · <a href="https://diegorodrigo.dev/en/2026/04/06/bmad-in-practice-the-complete-ai-agent-development-workflow/">diegorodrigo</a></p>
+    </div>
+
+    <div class="card">
+      <h3>Ruflo (ex-Claude-Flow) <span class="tag t-wait">cousin technique</span></h3>
+      <ul>
+        <li><strong>Nature</strong> — moteur d'orchestration « hive-mind ».</li>
+        <li><strong>Personas</strong> — une <em>queen agent</em> décompose ; <strong>100+ agents spécialisés</strong> en parallèle ; consensus queen-led (Raft / Byzantine / Gossip) ; topologies hiérarchique / mesh / adaptive.</li>
+        <li><strong>Méthode</strong> — SPARC embarquée : Specification → Pseudocode → Architecture → Refinement → Completion — « méthodologie en 5 phases à <em>quality gates</em> ».</li>
+        <li><strong>Mémoire</strong> — AgentDB indexée HNSW + ReasoningBank + SONA ; RAG natif.</li>
+        <li><strong>Humain</strong> — quasi-autonome (hooks en arrière-plan, « tourne sans commandes explicites »).</li>
+        <li><strong>Perf</strong> — <strong>84,8 % SWE-bench</strong> (benchmark <strong>auto-déclaré</strong> : Ruflo orchestrant Claude Sonnet 4.5, sans entraînement supplémentaire) ; ~75 % d'économies API ; 4-6+ outils simultanés.</li>
+        <li><strong>Runners</strong> — <strong>multi-runner</strong> : natif <strong>Claude Code / Codex / Hermes</strong> « and many more » + ruvLLM (modèle local) + SONA.</li>
+        <li><strong>Adoption</strong> — <strong>~63,1k★, ~7 130 commits</strong> (repo <code>ruvnet/ruflo</code>, au relevé du 2026-07-05 ; en forte croissance — sources antérieures : 31k–58,9k selon la date). Réécrit en Rust, renommé (janv. 2026).</li>
+      </ul>
+      <p class="src">Sources : <a href="https://github.com/ruvnet/ruflo">github ruvnet/ruflo</a> · <a href="https://github.com/ruvnet/ruflo/wiki/SWE-Bench-Evaluation">wiki SWE-bench</a> · <a href="https://pasqualepillitteri.it/en/news/774/claude-flow-ruflo-multi-agent-orchestration-guide">pasqualepillitteri.it</a></p>
+    </div>
+
+    <div class="card">
+      <h3>MetaGPT</h3>
+      <ul>
+        <li><strong>Nature</strong> — framework « first AI software company » (<strong>~67k★</strong> au relevé du 2026-07-05).</li>
+        <li><strong>Rôles</strong> — 5 typés : Product Manager, Architect, Project Manager, Engineer, QA Engineer.</li>
+        <li><strong>Idée clé</strong> — « Code = SOP(Team) » ; le PM produit un <strong>PRD</strong> (User Stories + Requirement Pool) ; communication par <strong>artefacts / handoffs structurés</strong>, pas par chat.</li>
+        <li><strong>Humain</strong> — surtout autonome. Papier ICLR.</li>
+      </ul>
+      <p class="src">Sources : <a href="https://github.com/FoundationAgents/MetaGPT">github</a> · <a href="https://arxiv.org/html/2308.00352v6">arXiv 2308.00352v6</a> · <a href="https://www.ibm.com/think/topics/metagpt">IBM</a></p>
+    </div>
+
+    <div class="card">
+      <h3>ChatDev</h3>
+      <ul>
+        <li><strong>Nature</strong> — entreprise logicielle virtuelle (recherche).</li>
+        <li><strong>Rôles</strong> — CEO / CTO / programmeur / relecteur / testeur.</li>
+        <li><strong>Phases</strong> — design → coding → testing → documentation.</li>
+        <li><strong>Communication</strong> — par <strong>dialogue</strong> entre rôles.</li>
+      </ul>
+      <p class="src">Projet de recherche (académique).</p>
+    </div>
+
+    <div class="card">
+      <h3>GPT-Pilot / Pythagora <span class="tag t-info">pôle humain</span></h3>
+      <ul>
+        <li><strong>Nature</strong> — outil « the first real AI developer ».</li>
+        <li><strong>Rôles</strong> — Specification Writer / Architect / Tech Lead / Developer / Debugger.</li>
+        <li><strong>Humain</strong> — pas-à-pas ; l'humain relit <strong>chaque tâche</strong> avant de continuer (« comme une revue de PR avant merge »). ~95 % du code, demande revue quand bloqué.</li>
+      </ul>
+      <p class="src">Source : <a href="https://github.com/Pythagora-io/gpt-pilot">github</a></p>
+    </div>
+
+    <div class="card">
+      <h3>CrewAI</h3>
+      <ul>
+        <li><strong>Nature</strong> — framework d'agents.</li>
+        <li><strong>Agents</strong> — définis par « Role – Goal – Backstory ».</li>
+        <li><strong>Orchestration</strong> — « crews » à process typés (séquentiel / hiérarchique).</li>
+      </ul>
+      <p class="src">Source : <a href="https://github.com/crewaiinc/crewai">github</a></p>
+    </div>
+  </div>
+
+  <div class="note info"><p><b>Info — la plomberie sous les méthodes :</b> sous ces disciplines vit une couche d'<strong>orchestration</strong> : AutoGen/AG2 (GroupChat conversationnel), LangGraph (graphe d'état typé, checkpointing), OpenAI Agents SDK (handoffs explicites), sous-agents Claude Code. Ce sont des <em>substrats</em>, pas des méthodes. <span class="src" style="display:inline">Source : <a href="https://www.langchain.com/resources/ai-agent-frameworks">langchain.com</a></span></p></div>
+</section>
+
+<!-- ============================= COMPARATIF (Consulter) ============================= -->
+<section class="panel" id="compar">
+  <div class="section-label">Consulter</div>
+  <h1 class="t">Tableau comparatif transversal</h1>
+  <p class="lead">Onze axes, six approches. Cellules volontairement courtes ; les détails et sources sont dans « Le corpus ». Certaines cases relèvent d'une <em>lecture</em> (classification), pas d'un fait brut.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Axe</th><th>iakaframe</th><th>BMAD</th><th>Ruflo</th><th>MetaGPT</th><th>GPT-Pilot</th><th>CrewAI</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Nature</td><td>méthode / discipline</td><td>méthode / discipline</td><td>moteur d'orchestration</td><td>framework (SOP)</td><td>outil dev IA</td><td>framework</td></tr>
+      <tr><td class="name">Personas / rôles</td><td>rôles fermés, périmètres étanches</td><td>12+ personas nommés</td><td>queen + 100+ agents</td><td>5 rôles typés (PM/Arch/PM/Eng/QA)</td><td>Spec/Architect/Lead/Dev/Debugger</td><td>Role-Goal-Backstory (définis)</td></tr>
+      <tr><td class="name">Phases</td><td>3 phases + squad prod</td><td>Analysis→Planning→Solutioning→Impl.</td><td>SPARC (5, TDD)</td><td>SOP type waterfall</td><td>pas-à-pas</td><td>process séquentiel / hiérarchique</td></tr>
+      <tr><td class="name">Spec avant code</td><td><span class="tag t-go">oui, dur</span> instruction fermée</td><td><span class="tag t-go">oui</span> PRD + user stories</td><td>oui (SPARC Spec), mais autonome</td><td>oui (artefacts), autonome</td><td><span class="tag t-go">oui</span> Spec Writer</td><td>variable (selon config)</td></tr>
+      <tr><td class="name">Place de l'humain / gates</td><td><span class="tag t-go">jalons humains</span></td><td>partenariat, checkpoints</td><td>quasi-autonome</td><td>surtout autonome</td><td><span class="tag t-go">revue de chaque tâche</span></td><td>human-in-the-loop optionnel</td></tr>
+      <tr><td class="name">Mémoire</td><td>état des lieux (git) + mémoire humaine + main courante</td><td>docs / story files</td><td>SQLite + distribuée + RAG</td><td>artefacts partagés</td><td>DB de progression</td><td>courte / longue configurable</td></tr>
+      <tr><td class="name">Agnosticisme / runners</td><td>5 kits, équipe hétérogène</td><td>multi-runner (Claude/Cursor/Codex + web bundles)</td><td>multi-runner (Claude/Codex/Hermes) + ruvLLM/SONA</td><td>LLM API</td><td>LLM API (GPT-4 reco)</td><td>multi-LLM (LiteLLM)</td></tr>
+      <tr><td class="name">Orchestration / parallélisme</td><td>dispatch + N dev en worktrees, arbre-sidechains</td><td>34+ workflows, « Party Mode »</td><td><span class="tag t-wait">essaim massif</span> 4-6+ simultanés</td><td>SOP séquentiel</td><td>séquentiel</td><td>crews (seq / hiérarchique)</td></tr>
+      <tr><td class="name">Traçabilité / identité</td><td><span class="tag t-go">canal d'identité (badges verbatim)</span></td><td>story files + checkpoints</td><td>logs / mémoire / hooks</td><td>artefacts documentaires</td><td>journal des tâches</td><td>traces verbeuses</td></tr>
+      <tr><td class="name">Self-hosted</td><td><span class="tag t-go">souverain</span> Forgejo/Ollama/Docker</td><td>open source, local (CLI)</td><td>open source, local possible</td><td>open source, LLM cloud défaut</td><td>open source, LLM cloud</td><td>open source, LLM au choix</td></tr>
+      <tr><td class="name">Portée multi-projets</td><td><span class="tag t-go">coordination de portefeuille</span></td><td>par projet</td><td>par essaim / instance</td><td>par projet</td><td>par projet</td><td>par crew</td></tr>
+    </tbody>
+  </table></div>
+  <p class="legend">Cases « oui / souverain / massif » = notre <em>classification</em> à partir des faits sourcés (Le corpus). Les libellés produits (SPARC, Party Mode, hive-mind…) sont des faits sourcés.</p>
+</section>
+
+<!-- ============================= DEUX FOCUS (Comprendre + Consulter) ============================= -->
+<section class="panel" id="focus">
+  <div class="section-label">Comprendre</div>
+  <h1 class="t">Deux focus : les plus proches</h1>
+  <p class="lead">Deux voisins méritent une comparaison serrée : <strong>BMAD</strong> (jumeau philosophique) et <strong>Ruflo</strong> (cousin technique, opposé philosophiquement).</p>
+
+  <h2>BMAD ⇄ iakaframe — jumeaux philosophiques</h2>
+  <p>Même credo : <strong>une discipline, pas une technologie</strong> ; spec avant code ; l'humain reste partenaire. La divergence est de <em>forme</em>, pas de <em>fond</em>.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Trait</th><th>iakaframe</th><th>BMAD-METHOD</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="3">Ce qui rapproche</td></tr>
+      <tr><td class="name">Philosophie</td><td>discipline &gt; techno, humain aux jalons</td><td>« partnership over automation »</td></tr>
+      <tr><td class="name">Spec avant code</td><td>instruction fermée vérifiable</td><td>PRD 1 page + user stories</td></tr>
+      <tr><td class="name">Rôles nommés</td><td>rôles fermés (libellés canoniques)</td><td>12+ personas nommés</td></tr>
+      <tr><td class="name">Multi-runners</td><td>5 kits (Claude, Codex, Ollama…)</td><td>Claude/Cursor/Codex + web bundles</td></tr>
+      <tr class="grp"><td colspan="3">Ce qui distingue</td></tr>
+      <tr><td class="name">Rythme</td><td>3 phases + squad prod (cible staging)</td><td>agile story-driven, sprints, 34+ workflows</td></tr>
+      <tr><td class="name">Adaptativité</td><td>profondeur du gate selon le changement</td><td>scale-adaptive planning (à emprunter)</td></tr>
+      <tr><td class="name">Identité</td><td><span class="tag t-go">canal de badges verbatim</span></td><td>checkpoints / story files</td></tr>
+      <tr><td class="name">Portefeuille</td><td>coordination multi-projets</td><td>centré projet</td></tr>
+      <tr><td class="name">Souveraineté</td><td>self-hosted (Forgejo, Ollama, Docker/projet)</td><td>open source, install locale</td></tr>
+      <tr><td class="name">Mémoire humaine</td><td>publiée hors dépôt (base de notes)</td><td>docs de projet</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note info"><p><b>Lecture (la nôtre) :</b> BMAD et iakaframe résolvent le <strong>même</strong> problème (encadrer l'IA par une discipline) avec deux tempéraments — BMAD <em>agile et extensible</em> (modules, Party Mode), iakaframe <em>souverain et traçable</em> (self-hosted, badges, portefeuille). Ce sont des cousins germains.</p></div>
+
+  <h2>Ruflo ⇄ iakaframe — cousins techniques, opposés</h2>
+  <p>Techniquement proches (agents multiples, méthode spec-first embarquée, multi-runner avec modèle local), mais aux <strong>antipodes philosophiques</strong>.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Trait</th><th>iakaframe</th><th>Ruflo (ex-Claude-Flow)</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="3">Ce qui rapproche (technique)</td></tr>
+      <tr><td class="name">Agents multiples</td><td>équipe de rôles dispatchés</td><td>queen + essaim de workers</td></tr>
+      <tr><td class="name">Méthode spec-first</td><td>cadrage → instruction</td><td>SPARC (Spec → … → Completion)</td></tr>
+      <tr><td class="name">Multi-runner + local</td><td>5 kits (Claude, Codex, Ollama…)</td><td>Claude/Codex/Hermes + ruvLLM local</td></tr>
+      <tr><td class="name">Mémoire outillée</td><td>git + mémoire humaine + main courante</td><td>AgentDB (HNSW) + ReasoningBank + RAG</td></tr>
+      <tr class="grp"><td colspan="3">Ce qui oppose (philosophie)</td></tr>
+      <tr><td class="name">Finalité</td><td><span class="tag t-go">contrôle humain</span></td><td><span class="tag t-wait">débit autonome</span></td></tr>
+      <tr><td class="name">Humain</td><td>jalons humains obligatoires</td><td>quasi-autonome (hooks de fond)</td></tr>
+      <tr><td class="name">Validation</td><td>gate qualité indépendant (anti juge-et-partie)</td><td>queen-led consensus</td></tr>
+      <tr><td class="name">Culture</td><td>traçabilité, périmètres étanches</td><td>benchmarks (84,8 % SWE-bench, auto-déclaré)</td></tr>
+      <tr><td class="name">Échelle</td><td>N dev en worktrees, cadré</td><td>essaim massif, 100+ agents, 4-6+ outils simultanés</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note info"><p><b>Lecture (la nôtre) :</b> Ruflo optimise le <strong>débit</strong> qu'une IA peut produire seule ; iakaframe optimise le <strong>contrôle</strong> qu'un humain garde sur ce qui est produit. Même boîte à outils, thèse inverse : l'un veut que l'IA en fasse le plus <em>sans nous</em>, l'autre veut qu'elle en fasse le plus <em>sous notre décision</em>. À noter (fait) : le <strong>multi-runner n'est pas</strong> ce qui les sépare — Ruflo aussi est multi-runner (Claude/Codex/Hermes) ; la vraie ligne de partage reste la <strong>place de l'humain</strong> et la <strong>souveraineté self-hosted</strong>.</p></div>
+</section>
+
+<!-- ============================= LA SIGNATURE (Comprendre) ============================= -->
+<section class="panel" id="signature">
+  <div class="section-label">Comprendre</div>
+  <h1 class="t">La signature d'iakaframe</h1>
+  <p class="lead">Ce qu'aucun autre du corpus ne réunit au même endroit — la combinaison qui fait l'identité de la méthode.</p>
+
+  <div class="note info"><p><b>Mise au point (fait vérifié) :</b> l'<strong>agnosticisme / multi-runner n'est pas</strong> un différenciateur d'iakaframe — <strong>BMAD</strong> (Claude/Cursor/Codex + bundles web) et <strong>Ruflo</strong> (Claude Code / Codex / Hermes « and many more ») sont aussi multi-runner. Ce qui reste vraiment propre à iakaframe, ce sont les quatre traits ci-dessous.</p></div>
+
+  <div class="grid two">
+    <div class="card glow">
+      <h3>Le canal d'identité (badges verbatim)</h3>
+      <p>Chaque prise de parole porte un badge <code>&lt;pastille&gt; [ROYAUME][Rôle]</code> ; la position de la pastille marque ouverture/clôture ; une restitution en relais cite l'émetteur <strong>verbatim</strong>, sans ventriloquie. On sait toujours <em>qui</em> a écrit quoi. <em>Peu d'approches du corpus formalisent l'attribution à ce point.</em></p>
+    </div>
+    <div class="card glow">
+      <h3>La coordination de portefeuille</h3>
+      <p>Un niveau <strong>au-dessus des projets</strong> oriente et répartit entre eux, puis passe la main à la coordination de projet. La plupart des autres approches s'arrêtent au périmètre d'un projet.</p>
+    </div>
+    <div class="card glow">
+      <h3>Le self-hosted souverain</h3>
+      <p>Forge <strong>Forgejo</strong>, modèles <strong>Ollama</strong>, <strong>Open WebUI</strong>, <strong>Docker par projet</strong> (réseau/volumes/ports isolés). La souveraineté des données est un parti pris, pas une option.</p>
+    </div>
+    <div class="card glow">
+      <h3>Le décideur humain aux jalons</h3>
+      <p>Deux jalons <strong>non automatisables</strong> (validation d'instruction, feu vert prod) et un <strong>gate qualité indépendant</strong> : celui qui code ne se valide jamais lui-même.</p>
+    </div>
+  </div>
+
+  <div class="note info"><p><b>Lecture (la nôtre) :</b> pris isolément, chacun de ces traits existe ailleurs. Leur <strong>réunion</strong> — identité tracée + portefeuille + souveraineté + contrôle humain — est ce qui distingue iakaframe dans la famille.</p></div>
+</section>
+
+<!-- ============================= EMPRUNTS (Consulter) ============================= -->
+<section class="panel" id="emprunts">
+  <div class="section-label">Consulter</div>
+  <h1 class="t">Emprunts possibles (backlog)</h1>
+  <p class="lead">Ce que la veille suggère d'étudier pour iakaframe — sans renier sa signature (contrôle humain, souveraineté). À arbitrer par le décideur.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>Emprunt</th><th>Origine</th><th>Ce que ça apporterait</th><th>Vigilance</th></tr></thead>
+    <tbody>
+      <tr>
+        <td class="name">Scale-adaptive planning</td>
+        <td>BMAD</td>
+        <td>Ajuster la profondeur du cadrage/gate à la complexité réelle du changement.</td>
+        <td>Déjà amorcé (profondeur du gate) — formaliser sans alourdir.</td>
+      </tr>
+      <tr>
+        <td class="name">Galerie d'outils MCP</td>
+        <td>Ruflo</td>
+        <td>Un catalogue d'outils MCP réutilisables, brochables par rôle.</td>
+        <td>Garder le périmètre étanche par rôle (pas d'outil tout-puissant).</td>
+      </tr>
+      <tr>
+        <td class="name">Mémoire distribuée / fédérée</td>
+        <td>Ruflo</td>
+        <td>Partager une mémoire entre instances/projets d'un même portefeuille.</td>
+        <td>Ne pas casser l'étanchéité inter-projets ; rester self-hosted.</td>
+      </tr>
+      <tr>
+        <td class="name">Culture benchmark (SWE-bench)</td>
+        <td>Ruflo</td>
+        <td>Mesurer objectivement la méthode sur des tâches standardisées.</td>
+        <td>Un score ne remplace pas le jugement humain (notre thèse).</td>
+      </tr>
+      <tr>
+        <td class="name">Bundles web (runners non-CLI)</td>
+        <td>BMAD</td>
+        <td>Porter les rôles vers des runners sans CLI (Gems, Custom GPTs).</td>
+        <td>Cohérent avec l'agnosticisme des kits ; préserver le rituel d'identité.</td>
+      </tr>
+    </tbody>
+  </table></div>
+  <div class="note info"><p><b>Lecture (la nôtre) :</b> aucun de ces emprunts n'entame la signature d'iakaframe s'il est adopté <strong>en gardant l'humain aux jalons</strong> et la <strong>souveraineté self-hosted</strong>. On emprunte des <em>gestes</em>, pas une philosophie.</p></div>
+</section>
+
+<!-- ============================= SOURCES (Consulter) ============================= -->
+<section class="panel" id="sources">
+  <div class="section-label">Consulter</div>
+  <h1 class="t">Sources</h1>
+  <p class="lead">Faits externes attribués à ces URL, vérifiés au web le 2026-07-05. Les compteurs d'étoiles et de performance sont datés « au relevé du 2026-07-05 » (chiffres volatils) ; le score SWE-bench de Ruflo est <strong>auto-déclaré</strong>.</p>
+
+  <div class="card">
+    <h3>BMAD-METHOD <span class="tag t-info">~50,1k★ · 2026-07-05</span></h3>
+    <ul>
+      <li><a href="https://github.com/bmad-code-org/BMAD-METHOD">github.com/bmad-code-org/BMAD-METHOD</a></li>
+      <li><a href="https://docs.bmad-method.org/">docs.bmad-method.org</a></li>
+      <li><a href="https://www.augmentcode.com/guides/bmad-method-ai-development">augmentcode.com — guide BMAD</a></li>
+      <li><a href="https://diegorodrigo.dev/en/2026/04/06/bmad-in-practice-the-complete-ai-agent-development-workflow/">diegorodrigo.dev — BMAD in practice</a></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>Ruflo (ex-Claude-Flow) <span class="tag t-info">~63,1k★ · ~7 130 commits · 2026-07-05</span></h3>
+    <ul>
+      <li><a href="https://github.com/ruvnet/ruflo">github.com/ruvnet/ruflo (repo canonique)</a></li>
+      <li><a href="https://github.com/ruvnet/ruflo/wiki/SWE-Bench-Evaluation">wiki — SWE-Bench Evaluation (score auto-déclaré)</a></li>
+      <li><a href="https://pasqualepillitteri.it/en/news/774/claude-flow-ruflo-multi-agent-orchestration-guide">pasqualepillitteri.it — Ruflo orchestration guide</a></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>MetaGPT <span class="tag t-info">~67k★ · 2026-07-05</span></h3>
+    <ul>
+      <li><a href="https://github.com/FoundationAgents/MetaGPT">github.com/FoundationAgents/MetaGPT</a></li>
+      <li><a href="https://arxiv.org/html/2308.00352v6">arxiv.org/html/2308.00352v6 (papier)</a></li>
+      <li><a href="https://www.ibm.com/think/topics/metagpt">ibm.com — MetaGPT</a></li>
+    </ul>
+  </div>
+  <div class="card">
+    <h3>GPT-Pilot · CrewAI · orchestration</h3>
+    <ul>
+      <li><a href="https://github.com/Pythagora-io/gpt-pilot">github.com/Pythagora-io/gpt-pilot</a></li>
+      <li><a href="https://github.com/crewaiinc/crewai">github.com/crewaiinc/crewai</a></li>
+      <li><a href="https://www.langchain.com/resources/ai-agent-frameworks">langchain.com — AI agent frameworks (AutoGen, LangGraph, OpenAI Agents SDK…)</a></li>
+    </ul>
+  </div>
+  <div class="note tip"><p><b>Faits vérifiés au web le 2026-07-05 :</b> cette révision v0.2.0 intègre une fiche de veille vérifiée (repo <code>ruvnet/ruflo</code>, compteurs d'étoiles, SWE-bench auto-déclaré, Ruflo multi-runner). Les chiffres volatils (étoiles, commits) sont horodatés « au relevé du 2026-07-05 » et à re-parcourir au prochain passage.</p></div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p><span class="ne-wordmark"><b>iaka</b><span class="edge">frame</span></span> · étude comparative</p>
+  <p>v0.2.0 · 2026-07-05 · faits vérifiés au web + lectures comparatives · mise en forme : charte Cinabre</p>
+</footer>
+
+<script>
+  var tabs=document.querySelectorAll('.tab'),panels=document.querySelectorAll('.panel');
+  tabs.forEach(function(t){t.addEventListener('click',function(){
+    tabs.forEach(function(x){x.classList.remove('active')});
+    panels.forEach(function(p){p.classList.remove('active')});
+    t.classList.add('active');var el=document.getElementById(t.dataset.tab);
+    if(el){el.classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+  });});
+</script>
+</body>
+</html>
