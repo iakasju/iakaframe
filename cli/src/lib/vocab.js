@@ -10,8 +10,8 @@
 
 // --- Enums canoniques ---
 export const RUNNER_KINDS = ['claude-code', 'ollama', 'litellm', 'codex'];
-export const NODE_KINDS = ['claude', 'codex', 'ollama-localhost', 'ollama-lan'];
-export const KIT_FORMATS = ['claude-md', 'agents-md'];
+export const NODE_KINDS = ['claude', 'codex', 'ollama-localhost', 'ollama-lan', 'openwebui'];
+export const KIT_FORMATS = ['claude-md', 'agents-md', 'openwebui-models'];
 
 // --- Tables d'alias / retro-compat ---
 export const RUNNER_ALIASES = {
@@ -33,6 +33,7 @@ export const NODE_ALIASES = {
   ollama: 'ollama-localhost',   // valeur legacy indistincte -> localhost par defaut (Q-2)
   'ollama-localhost': 'ollama-localhost',
   'ollama-lan': 'ollama-lan',
+  openwebui: 'openwebui',
 };
 
 export const CONTRACT_FILE_BY_FORMAT = {
@@ -44,12 +45,14 @@ export const FORMAT_BY_NODE = {
   codex: 'agents-md',
   'ollama-localhost': 'agents-md',
   'ollama-lan': 'agents-md',
+  openwebui: 'openwebui-models',
 };
 export const KIT_NAME_BY_NODE = {
   claude: 'kit-claude',
   codex: 'kit-codex',
   'ollama-localhost': 'kit-ollama',
   'ollama-lan': 'kit-ollama',
+  openwebui: 'kit-openwebui',
 };
 
 // --- Helpers de format / nom de kit (miroir de node.ts) ---
