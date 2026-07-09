@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { isRepo, initRepoMain, run, hasChanges, hasRemoteOrigin } from '../lib/git.js';
-import { testRepo, createRepo, remoteUrl } from '../lib/forgejo.js';
+import { testRepo, createRepo, remoteUrl, token } from '../lib/forgejo.js';
 import { contractFileForNode, frameworkRoot } from '../lib/kit.js';
 import { affectPersona } from '../lib/agents.js';
 import { hasCmd } from '../lib/which.js';
@@ -72,6 +72,11 @@ export async function runOnboard(argv) {
   console.log('\n[3/5] Premier commit');
   const gi = path.join(root, '.gitignore');
   if (!fs.existsSync(gi)) fs.writeFileSync(gi, 'node_modules/\n.env\n.env.local\ndist/\nbuild/\ntarget/\n', 'utf8');
+  // .env du projet : recopie auto du token Forgejo depuis la source unique (<chapeau>/.env).
+  // .env est gitignore -> jamais committe/pousse.
+  const tk = token();
+  if (tk) { fs.writeFileSync(path.join(root, '.env'), `FORGEJO_TOKEN=${tk}\n`, { mode: 0o600 }); console.log('  + .env projet (token Forgejo recopie).'); }
+  else console.log('  ! token Forgejo absent -> .env projet non ecrit (colle-le dans <chapeau>/.env puis relance token-sync).');
   run(root, ['add', '-A']);
   if (hasChanges(root)) { run(root, ['commit', '-m', 'chore: init iakaframe (structure + methode de travail)']); console.log('  + commit cree.'); }
   else console.log('  = rien a committer.');

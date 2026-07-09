@@ -1,8 +1,25 @@
 // Acces Forgejo (iakabox) - API v1, auth HTTP+token. Token jamais en dur (FORGEJO_TOKEN).
+import fs from 'node:fs';
+import path from 'node:path';
+import { resolveRoot } from './root.js';
+
 const DEF_URL = 'http://192.168.2.11:3001';
 const DEF_USER = 'sjupin';
 
-export function token() { return process.env.FORGEJO_TOKEN || ''; }
+// Un placeholder de template est traite comme absent.
+const isBadToken = v => !v || /LE_NOUVEAU_TOKEN_ICI|COLLE_/i.test(v);
+
+// Token : env shell s'il est valide, sinon source unique <chapeau>/.env (FORGEJO_TOKEN=...).
+export function token() {
+  const envv = process.env.FORGEJO_TOKEN;
+  if (!isBadToken(envv)) return envv;
+  try {
+    const txt = fs.readFileSync(path.join(resolveRoot(), '.env'), 'utf8');
+    const m = txt.match(/^\s*FORGEJO_TOKEN\s*=\s*(.+?)\s*$/m);
+    if (m && !isBadToken(m[1])) return m[1].replace(/^["']|["']$/g, '');
+  } catch {}
+  return '';
+}
 export function cfg(opts = {}) {
   return {
     url: opts.url || process.env.FORGEJO_URL || DEF_URL,
