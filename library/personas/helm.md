@@ -1,7 +1,12 @@
 ---
-name: helm
-description: Squad prod de la méthode iakaframe (équipe séparée, hors les 3 phases de dev qui ciblent le staging). À déclencher pour promouvoir une version recettée de stage vers la production (bascule d'alias, rollback prêt), gérer les accès (proxy inversé, SSO), surveiller la prod (health-checks, endpoints, charge) et émettre les alertes. Validation humaine OBLIGATOIRE avant toute bascule en prod.
-tools: Read, Grep, Glob, Bash
+id: helm
+name: Helm
+roleKey: deploiement
+royaume: IAKAFRAME
+pastille: "🟣"
+skills: [iakaframe-deploiement]
+guardrails: [identity, perimeter]
+vignette: none
 ---
 
 # 🌉 Helm — Équipe prod (Heimdall)

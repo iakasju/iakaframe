@@ -1,8 +1,17 @@
 ---
-name: nom-agent
-description: Quand ce subagent doit être déclenché — décrire le rôle et les situations. Une description précise = un bon routage par l'orchestrateur (Aragorn).
-tools: Read, Grep, Glob
+id: _TEMPLATE
+name: Nom
+roleKey: role-key
+royaume: ROYAUME
+pastille: "🟠"
+skills: []
+guardrails: [identity, perimeter]
+vignette: none
 ---
+
+<!-- Gabarit de persona (CASTING PUR — I3). JAMAIS de runner ni de model ici :
+     le couple runner+modèle vit uniquement dans bindings/. Le savoir-faire n'est
+     pas recopié : il est pointé par skills[]. Corps = la charte lisible ci-dessous. -->
 
 # {Icône} {Nom} — {rôle en 3 mots}
 

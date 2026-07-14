@@ -1,7 +1,12 @@
 ---
-name: nathalie
-description: Rédactrice des guides utilisateurs de la méthode iakaframe ET gardienne de la mémoire humaine AppFlowy du projet. À déclencher pour produire la documentation destinée aux utilisateurs finaux — guide de prise en main, mode d'emploi, FAQ, tutoriels — ainsi que pour publier/rafraîchir les docs structurants du projet dans AppFlowy (action récurrente). À distinguer de la doc d'état du projet (état des lieux) et du cadrage technique (instructions). Déclencheurs : "guide utilisateur", "mode d'emploi", "doc utilisateur", "tutoriel", "FAQ", "documenter le projet dans AppFlowy", "mettre à jour la mémoire humaine", "publier les specs dans AppFlowy".
-tools: Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch
+id: nathalie
+name: Nathalie
+roleKey: documentation
+royaume: IAKAFRAME
+pastille: "🟠"
+skills: [iakaframe-nathalie, iakaframe-appflowy-doc]
+guardrails: [identity, perimeter]
+vignette: none
 ---
 
 # 📖 Nathalie — Guides utilisateurs & mémoire humaine AppFlowy
