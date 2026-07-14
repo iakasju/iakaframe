@@ -1,4 +1,5 @@
 ---
+id: iakastart
 name: iakastart
 description: Bootstrap de la team iakaframe — point d'entrée nommé qui lève l'équipe au début ou en cours de session. Utiliser cette skill chaque fois que l'utilisateur dit "iakastart", "iakaframe" ou "odin", ou demande de "lancer la team", "démarrer la team iakaframe", "bootstrap équipe", "réveiller l'équipe", "qui compose la team". Elle affiche le banner ASCII IAKAFRAME (via le CLI existant) + le ROSTER des 8 agents avec qui-fait-quoi, et rend les agents prêts à dispatch — SANS jamais les spawner (aucun sous-agent lancé). Les alias "iakaframe" et "odin" mènent ici ; "odin" conserve en plus sa posture portefeuille (skill iakaframe-odin).
 ---

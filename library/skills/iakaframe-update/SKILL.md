@@ -1,4 +1,5 @@
 ---
+id: iakaframe-update
 name: iakaframe-update
 description: Exécute le checkpoint « update iakaframe » — régénère l'état des lieux, fait un commit global atomique et pousse sur Forgejo. Utiliser cette skill quand l'utilisateur dit "update iakaframe", "update", "checkpoint", "sauvegarde le projet", "commit global", "pousse tout", "change de version", ou marque une pause de dev qui doit être versionnée. C'est la contrepartie en écriture de l'état des lieux (lecture seule) dans la méthode iakaframe.
 ---

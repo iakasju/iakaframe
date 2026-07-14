@@ -1,4 +1,5 @@
 ---
+id: iakaframe-etat-des-lieux
 name: iakaframe-etat-des-lieux
 description: Régénère l'état des lieux d'un projet à partir des faits objectifs (git, tests, tags) et d'un récit de reprise, pour qu'on puisse reprendre le projet après une pause sans tout relire. Utiliser cette skill quand l'utilisateur demande "où en est le projet", "fais le point", "état des lieux", "reprends le projet", "checkpoint", "génère le récap", ou reprend une session après une interruption. C'est le rôle de l'orchestrateur dans la méthode iakaframe.
 ---

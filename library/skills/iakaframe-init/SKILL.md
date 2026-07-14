@@ -1,4 +1,5 @@
 ---
+id: iakaframe-init
 name: iakaframe-init
 description: Amorce un projet avec la structure iakaframe complète — arborescence specs/, CLAUDE.md, les sept contrats d'agent, le cadrage du workflow et le script qualité. Utiliser cette skill quand l'utilisateur veut "démarrer un projet iakaframe", "mettre en place la méthode", "initialiser la structure", "déposer les contrats d'agent", "onboarder un dépôt", ou amorcer un nouveau projet (ou un projet existant) selon la méthode de l'équipe augmentée. À lancer une fois au début d'un projet.
 ---

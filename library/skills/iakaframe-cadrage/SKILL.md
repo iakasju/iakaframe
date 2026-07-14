@@ -1,4 +1,5 @@
 ---
+id: iakaframe-cadrage
 name: iakaframe-cadrage
 description: Transforme un besoin exprimé en langage naturel en une instruction de travail écrite, fermée et vérifiable, prête pour un agent de développement. Utiliser cette skill chaque fois que l'utilisateur décrit une fonctionnalité à construire, un bug à corriger, ou demande de "cadrer", "spécifier", "préparer une instruction", "écrire un ticket", ou de lancer une tâche de dev — même sans employer ces mots exacts. C'est l'étape 0 de la méthode iakaframe : ne jamais coder avant d'avoir cadré.
 ---

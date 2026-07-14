@@ -1,4 +1,5 @@
 ---
+id: iakaframe-forgejo
 name: iakaframe-forgejo
 description: Crée ou rebranche le dépôt git d'un projet sur le Forgejo auto-hébergé du homelab iakabox (HTTP + token), avec auto-détection de l'existence du dépôt. Utiliser cette skill quand l'utilisateur veut "créer le dépôt", "brancher Forgejo", "pousser sur iakabox", "mettre le projet sur le git", "ajouter le remote", ou quand une commande init/update iakaframe a besoin de versionner un projet. C'est la brique git par défaut de la méthode iakaframe (composant de l'orchestrateur d'amorçage).
 ---

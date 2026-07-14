@@ -1,4 +1,5 @@
 ---
+id: iakaframe-nathalie
 name: iakaframe-nathalie
 description: Rédige la documentation destinée aux utilisateurs finaux d'un produit — guide de prise en main, mode d'emploi, tutoriel pas-à-pas, FAQ. Utiliser cette skill quand l'utilisateur demande un "guide utilisateur", "mode d'emploi", "doc utilisateur", "manuel", "tutoriel", "FAQ", ou d'expliquer comment se servir d'une feature. À distinguer de la doc d'état du projet (état des lieux) et du cadrage technique (instructions).
 ---

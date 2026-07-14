@@ -1,4 +1,5 @@
 ---
+id: iakaframe-qualite
 name: iakaframe-qualite
 description: Exécute le gate qualité d'une branche (tests unitaires et d'intégration, lint, typage, couverture) et rend un verdict net pass/fail avec reproduction des échecs, sans corriger le code. Utiliser cette skill quand l'utilisateur demande de "vérifier", "tester", "valider la qualité", "lancer le rapport qualité", "est-ce que c'est bon pour l'intégration", ou avant tout passage de dev vers stage. C'est l'étape 2 (vérificateur) de la méthode iakaframe.
 ---

@@ -1,4 +1,5 @@
 ---
+id: iakaframe-aragorn
 name: iakaframe-aragorn
 description: Coordonne l'équipe d'agents iakaframe sur une feature de bout en bout — découpe le besoin en phases (cible staging) + squad prod, déclenche le bon agent au bon moment, suit l'avancement et rend compte à l'utilisateur. Utiliser cette skill quand l'utilisateur veut "lancer une feature", "coordonner", "répartir le travail entre agents", "où en est la feature", "qui doit intervenir", ou piloter la chaîne (n8n/Hermes). C'est l'orchestrateur de la méthode iakaframe.
 ---

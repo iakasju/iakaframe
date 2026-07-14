@@ -1,4 +1,5 @@
 ---
+id: iakaframe-deploiement
 name: iakaframe-deploiement
 description: Promeut une version recettée de stage vers la production par bascule d'alias (validation humaine obligatoire, rollback prêt à tout instant) ET surveille la production (health-checks, endpoints, charge). Utiliser cette skill quand l'utilisateur demande de "déployer", "mettre en prod", "promouvoir", "basculer la version", "livrer", "surveiller la prod", "vérifier la santé", "les health-checks". C'est l'agent Helm — étapes 4-5 (production & surveillance) de la méthode iakaframe, dont la seule étape avec un gate humain non automatisable.
 ---
