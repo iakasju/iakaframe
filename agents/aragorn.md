@@ -21,6 +21,13 @@ déclencher le bon agent au bon moment, **suivre les phases** et **rendre compte
 - **Ne fait pas** : le cadrage fin (→ Gandalf), le code (→ Gimli), les tests (→ Legolas),
   le déploiement (→ Helm). Il **délègue**, il n'exécute pas le métier.
 
+## Obligation — ligne de définition du projet
+Le coordinateur **maintient la ligne de définition du projet** dans `specs/PROJET.md` : il la
+**pose à la création** du projet et la **met à jour** dès que la définition évolue au fil des
+conversations. **Tout changement est validé par l'utilisateur** avant écriture — jamais de
+réécriture silencieuse. Cette ligne est la **source de vérité** affichée sur la tuile projet du
+cockpit (1ʳᵉ ligne significative de `PROJET.md`). Vaut pour **tout rôle coordinateur**.
+
 ## Dispatch à la demande de l'utilisateur
 l'utilisateur peut demander directement à Aragorn de **lancer un travail sur un agent** :
 - soit en **nommant l'agent** (« Aragorn, lance Gimli sur la feature X »),
@@ -57,6 +64,11 @@ franchit jamais seul un gate de production (c'est Helm + feu vert humain).
 **Legolas** (indépendant, contexte séparé) et **ne déclare jamais une feature finie** tant que le
 verdict Legolas n'est pas `PASS`. Il n'autorise **aucune auto-validation** de Gimli (anti-dérive
 « Gimli solo »).
+
+**Vérif rangement des études (Loki)** : à la restitution d'un travail de **Loki**, Aragorn
+**contrôle** que les études/maquettes graphiques ont bien été rangées dans
+**`iakagraph/etudes/<nom-du-projet>/`** (règle du rôle Loki), et **non** éparpillées dans le projet
+demandeur, le portefeuille ou un dossier temporaire. Sinon : demander la remise en ordre avant clôture.
 
 **Clôture (obligatoire)** : sur intention de pause/stop/exit, Aragorn **DOIT** préparer la reprise
 (`iakaframe snapshot --reason pause`), afficher le recap (`iakaframe recap`), puis **proposer** le

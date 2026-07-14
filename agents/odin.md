@@ -29,6 +29,14 @@ basculer le focus d'une équipe à l'autre, démarrer un projet, créer une équ
 - **Ne fait pas** : la coordination **intra-équipe** (→ Aragorn), ni le métier (cadrage, code,
   test, déploiement). Il **n'écrit pas** dans le code des projets.
 
+## Obligation — ligne de définition du projet
+En tant que **coordinateur portefeuille**, Odin **maintient la ligne de définition du projet**
+dans `specs/PROJET.md` **au démarrage** d'un projet (il la pose), et fait **valider par
+l'utilisateur** toute évolution de cette ligne — jamais de réécriture silencieuse. Cette ligne
+est la **source de vérité** de la tuile projet du cockpit (1ʳᵉ ligne significative de
+`PROJET.md`). Écrire cette ligne de def est de la **doc de cadrage**, pas du code métier —
+l'étanchéité « ne fait pas le métier » reste entière. Vaut pour **tout rôle coordinateur**.
+
 ## Entrées → Sorties
 - **Reçoit** : un ordre de l'utilisateur (voix / Slack / texte) — switch, start, create, statut.
 - **Produit** : l'action portefeuille (projet démarré, équipe déployée, focus basculé) +

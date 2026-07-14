@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="fr" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>iakaframe — présentation</title>
+<script>try{var t=localStorage.getItem('ne-doc-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}catch(e){}</script>
+<style>
+:root{
+  --bg-primary:#0a0a0a; --bg-card:#1a1a1a; --bg-deep:#111;
+  --line:#2a2a2a; --line-soft:#1f1f1f;
+  --text-primary:#f0f0f0; --text-secondary:#8a8a8a; --text-muted:#555;
+  --accent-gold:#c8a44e; --accent-gold-light:#e8c960; --accent-rgb:200,164,78;
+  --gradient-accent:linear-gradient(135deg,var(--accent-gold),var(--accent-gold-light));
+  --red:#e74c3c; --green:#2ecc71; --blue:#3498db; --orange:#e67e22; --purple:#9b59b6;
+  --radius-md:12px; --radius-lg:20px; --shadow-glow:0 0 40px rgba(var(--accent-rgb),0.15);
+  --font-sans:"IBM Plex Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  --font-serif:"Fraunces",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+:root, :root[data-theme="dark"]{
+  --w-gold:#c8a44e; --w-gold-light:#e8c960; --w-accent-rgb:200,164,78;
+  --w-mut:#555; --w-shadow:rgba(0,0,0,.5); --w-tg-bg:#161616;
+}
+:root[data-theme="light"]{
+  --w-gold:#a8842e; --w-gold-light:#c8a44e; --w-accent-rgb:168,132,46;
+  --w-mut:#9a938a; --w-shadow:rgba(120,110,90,.18); --w-tg-bg:#fff;
+  --bg-primary:#f4f2ec; --bg-card:#fff; --bg-deep:#f1ede3;
+  --line:#e2dccb; --line-soft:#ece7db;
+  --text-primary:#1a1a1a; --text-secondary:#4a4a4a; --text-muted:#9a938a;
+  --accent-gold:#a8842e; --accent-gold-light:#c8a44e; --accent-rgb:168,132,46;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.6;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;min-height:100vh;transition:background .25s,color .25s}
+a{color:var(--accent-gold);text-decoration:none}
+code{font-family:var(--mono)}
+.doc-accent{background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Entete */
+.doc-head{display:flex;align-items:center;gap:.8rem;padding:1.1rem 1.6rem;border-bottom:1px solid var(--line-soft);max-width:80rem;margin:0 auto;width:100%}
+.doc-brand{font-family:var(--font-serif);font-weight:300;letter-spacing:-.02em;font-size:1.35rem}
+.doc-brand em{font-style:italic;font-weight:400;color:#f4c430}
+.doc-proj{font-family:var(--mono);font-size:.8rem;color:var(--accent-gold);letter-spacing:.02em}
+.doc-sep{flex:1}
+.doc-stamp{font-family:var(--mono);font-size:.68rem;color:var(--text-muted);white-space:nowrap}
+
+/* Interrupteur de theme (repris verbatim d'index.html) */
+.theme-toggle{position:relative;width:58px;height:26px;border-radius:999px;flex:0 0 auto;cursor:pointer;padding:0;margin-right:.4rem;
+  background:var(--w-tg-bg);border:1px solid rgba(var(--w-accent-rgb),.45);box-shadow:0 1px 3px var(--w-shadow) inset;transition:background .25s}
+.theme-toggle .ic{position:absolute;top:50%;transform:translateY(-50%);width:13px;height:13px;stroke:var(--w-mut);fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.theme-toggle .moon{left:7px}.theme-toggle .sun{right:7px}
+.theme-toggle .knob{position:absolute;top:2px;width:20px;height:20px;border-radius:50%;
+  background:linear-gradient(180deg,var(--w-gold-light),var(--w-gold));box-shadow:0 1px 4px rgba(0,0,0,.45);transition:left .22s ease}
+:root[data-theme="dark"] .theme-toggle .knob{left:2px}
+:root[data-theme="light"] .theme-toggle .knob{left:36px}
+:root[data-theme="dark"] .theme-toggle .moon{stroke:#241c07;z-index:1}
+:root[data-theme="light"] .theme-toggle .sun{stroke:#241c07;z-index:1}
+
+/* Onglets */
+.doc-tabs{position:sticky;top:0;z-index:20;background:var(--bg-primary);border-bottom:1px solid var(--line-soft);
+  padding:.6rem 1.6rem;display:flex;gap:.5rem;flex-wrap:wrap;max-width:80rem;margin:0 auto;width:100%}
+.doc-tab{appearance:none;border:1px solid var(--line);background:var(--bg-card);color:var(--text-secondary);
+  font:600 .85rem var(--font-sans);padding:.42rem .9rem;border-radius:999px;cursor:pointer;transition:.16s;white-space:nowrap}
+.doc-tab:hover{color:var(--text-primary);border-color:rgba(var(--accent-rgb),.4)}
+.doc-tab.active{color:#0a0a0a;background:var(--gradient-accent);border-color:transparent;box-shadow:var(--shadow-glow);font-weight:700}
+
+/* Panneaux */
+.doc-stage{flex:1;max-width:80rem;margin:0 auto;width:100%;padding:1.6rem 1.6rem 3rem}
+.doc-panel{display:none}
+.doc-panel.active{display:block;animation:doc-fade .22s ease}
+@keyframes doc-fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.doc-panel.active{animation:none}}
+
+.doc-h{font-family:var(--font-serif);font-size:1.3rem;font-weight:700;margin:1.6rem 0 .7rem;padding-bottom:.35rem;border-bottom:1px solid var(--line);color:var(--text-primary)}
+.doc-h:first-child{margin-top:.2rem}
+.doc-h4{font-size:1rem;font-weight:700;margin:.2rem 0 .5rem;color:var(--accent-gold)}
+.doc-sub{font:600 .72rem var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin:1rem 0 .4rem}
+.doc-note{border:1px dashed var(--line);border-radius:var(--radius-md);padding:1rem 1.2rem;color:var(--text-muted);font-size:.9rem;margin:.5rem 0}
+.doc-note code{background:rgba(var(--accent-rgb),.08);color:var(--accent-gold);padding:.1rem .4rem;border-radius:5px}
+.doc-empty{text-align:center;padding:2.4rem 1.2rem}
+.doc-cols{display:grid;gap:1.4rem;grid-template-columns:1fr}
+@media(min-width:760px){.doc-cols{grid-template-columns:1fr 1fr}}
+
+/* Chips stack + arbre */
+.doc-chips{display:flex;flex-wrap:wrap;gap:.5rem;margin:.4rem 0}
+.doc-chip{font:600 .78rem var(--font-sans);background:rgba(var(--accent-rgb),.1);color:var(--accent-gold);
+  border:1px solid rgba(var(--accent-rgb),.35);padding:.28rem .7rem;border-radius:999px}
+.doc-chip-na{background:var(--bg-card);color:var(--text-muted);border-color:var(--line)}
+.doc-stack-detail{margin:.7rem 0;font-size:.85rem;color:var(--text-secondary)}
+.doc-stack-detail>div{padding:.2rem 0}
+.doc-k{color:var(--text-muted);font-family:var(--mono);font-size:.78rem}
+.doc-v{color:var(--text-primary);font-family:var(--mono);font-size:.8rem}
+.doc-kv{margin:.4rem 0}
+.doc-tree{list-style:none;padding:0;margin:.4rem 0;display:flex;flex-wrap:wrap;gap:.4rem}
+.doc-tree li{font-family:var(--mono);font-size:.8rem;color:var(--text-secondary);background:var(--bg-card);
+  border:1px solid var(--line-soft);border-radius:6px;padding:.22rem .6rem}
+.doc-tree li.doc-tree-key{color:var(--accent-gold);border-color:rgba(var(--accent-rgb),.35)}
+
+/* Logs / status / issues */
+.doc-log,.doc-status{list-style:none;padding:0;margin:.3rem 0 .8rem;font-family:var(--mono);font-size:.78rem}
+.doc-log li,.doc-status li{padding:.18rem .5rem;border-bottom:1px solid var(--line-soft);color:var(--text-secondary);white-space:pre-wrap;word-break:break-word}
+.doc-bul{margin:.3rem 0 .8rem 1.1rem}
+.doc-bul li{color:var(--text-secondary);margin:.25rem 0;font-size:.9rem}
+.doc-issues{list-style:none;padding:0;margin:.4rem 0}
+.doc-issue{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;padding:.4rem .2rem;border-bottom:1px solid var(--line-soft)}
+.doc-inum{font-family:var(--mono);font-size:.76rem;color:var(--text-muted)}
+.doc-istate{font:700 .6rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:.12rem .4rem;border-radius:5px}
+.doc-istate-open{background:rgba(46,204,113,.16);color:var(--green);border:1px solid rgba(46,204,113,.4)}
+.doc-istate-closed{background:rgba(120,120,120,.14);color:var(--text-muted);border:1px solid var(--line)}
+.doc-ititle{color:var(--text-primary);font-size:.88rem;flex:1;min-width:12ch}
+.doc-label{font:600 .64rem var(--font-sans);background:rgba(var(--accent-rgb),.08);color:var(--accent-gold);border:1px solid rgba(var(--accent-rgb),.3);padding:.1rem .45rem;border-radius:999px}
+
+/* Rendu markdown (repris d'index.html, prefixe .doc-md) */
+.doc-md{max-width:80ch}
+.doc-md h1{font-family:var(--font-serif);font-size:1.9rem;font-weight:800;letter-spacing:-.02em;margin:1.6rem 0 .8rem;line-height:1.2}
+.doc-md h2{font-family:var(--font-serif);font-size:1.4rem;font-weight:700;margin:1.8rem 0 .7rem;padding-bottom:.35rem;border-bottom:1px solid var(--line)}
+.doc-md h3{font-size:1.12rem;font-weight:700;margin:1.3rem 0 .5rem;color:var(--text-primary)}
+.doc-md h4{font-size:1rem;font-weight:700;margin:1.1rem 0 .4rem;color:var(--accent-gold)}
+.doc-md p{color:var(--text-secondary);margin:.6rem 0}
+.doc-md a{color:var(--accent-gold)}
+.doc-md strong{color:var(--text-primary)}
+.doc-md em{color:var(--text-secondary)}
+.doc-md code{background:rgba(var(--accent-rgb),.08);color:var(--accent-gold);padding:.1rem .4rem;border-radius:5px;font-size:.85em}
+.doc-md pre{background:var(--bg-deep);border:1px solid var(--line);border-radius:var(--radius-md);padding:1rem 1.2rem;margin:1rem 0;overflow-x:auto}
+.doc-md pre code{background:none;color:#d8d8d8;padding:0}
+.doc-md blockquote{border-left:3px solid var(--accent-gold);background:rgba(var(--accent-rgb),.05);padding:.6rem 1rem;margin:1rem 0;border-radius:0 8px 8px 0;color:var(--text-secondary)}
+.doc-md hr{border:0;border-top:1px solid var(--line);margin:1.6rem 0}
+.doc-md ul{list-style:none;padding-left:0;margin:.6rem 0}
+.doc-md ul.bul{padding-left:1.2rem;list-style:disc}
+.doc-md ul.bul li{color:var(--text-secondary);margin:.3rem 0}
+.doc-md li{margin:.35rem 0;color:var(--text-secondary)}
+.doc-md .chk{display:inline-flex;align-items:baseline;gap:.55rem;padding:.35rem 0}
+.doc-md .chk .pill{flex:0 0 auto;width:18px;height:18px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font:700 .7rem var(--mono);margin-top:.15rem}
+.doc-md .chk.todo .pill{border:1px solid var(--line);background:var(--bg-deep);color:var(--text-muted)}
+.doc-md .chk.doing .pill{background:rgba(52,152,219,.16);color:var(--blue);border:1px solid rgba(52,152,219,.4)}
+.doc-md .chk.done .pill{background:rgba(46,204,113,.16);color:var(--green);border:1px solid rgba(46,204,113,.4)}
+.doc-md .chk.block .pill{background:rgba(231,76,60,.16);color:var(--red);border:1px solid rgba(231,76,60,.45)}
+.doc-md .chk .txt{color:var(--text-secondary)}
+.doc-md .chk.done .txt{color:var(--text-muted)}
+.doc-md .chk.block .txt{color:var(--text-primary)}
+
+.doc-foot{text-align:center;padding:1.4rem 1.6rem;border-top:1px solid var(--line-soft);color:var(--text-muted);font-size:.78rem;margin-top:auto}
+.doc-foot code{background:rgba(var(--accent-rgb),.08);color:var(--accent-gold);padding:.1rem .4rem;border-radius:5px}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#333;border-radius:999px}
+</style>
+</head>
+<body>
+<header class="doc-head">
+  <div class="doc-brand">NAOn<em>Edge</em> · <span class="doc-proj">iakaframe</span></div>
+  <span class="doc-sep"></span>
+  <button class="theme-toggle" id="themeToggle" type="button" aria-label="Basculer theme clair/sombre" title="Basculer theme clair/sombre"><svg class="ic moon" viewBox="0 0 24 24"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg class="ic sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="knob"></span></button>
+  <span class="doc-stamp">généré le 2026-07-09</span>
+</header>
+<nav class="doc-tabs" id="doc-tabs">
+  <button class="doc-tab active" data-tab="presentation" type="button">Présentation</button>
+  <button class="doc-tab" data-tab="archi" type="button">Archi</button>
+  <button class="doc-tab" data-tab="backlog" type="button">Backlog</button>
+</nav>
+<main class="doc-stage">
+  <section class="doc-panel active" data-panel="presentation"><div class="doc-md"><h1>iakaframe</h1><p><strong>La méthode de travail entre l'utilisateur, Cowork et Claude Code — formalisée et réutilisable.</strong></p><p>Ce dépôt extrait et généralise la façon de collaborer mise au point au fil des</p><p>projets <code>IAKA Vod</code>, <code>robotimmo</code>, <code>iakaAFstorage</code>, <code>iakabox</code> et <code>iakaJarvis</code>.</p><p>Objectif : pouvoir démarrer <strong>n'importe quel nouveau projet</strong> avec le cadre déjà</p><p>en place, au lieu de le réinventer à chaque fois.</p><hr><h2>Contenu</h2><p>| Fichier | Rôle |</p><p>|---|---|</p><p>| <a href="./methode-de-travail.md" target="_blank" rel="noopener"><code>methode-de-travail.md</code></a> | <strong>La référence canonique.</strong> Principe, 3 acteurs, <strong>équipe d'agents</strong>, cycle, piliers de qualité. |</p><p>| <a href="./methode-de-travail.html" target="_blank" rel="noopener"><code>methode-de-travail.html</code></a> | Version présentable de la méthode (dark premium, ouvrable dans un navigateur). |</p><p>| <a href="./iakaframe-methode.html" target="_blank" rel="noopener"><code>iakaframe-methode.html</code></a> | <strong>Présentation à onglets</strong> de la méthode + équipe d'agents + infra + vision (NaonEdge). |</p><p>| <a href="./iakaframe-skills.html" target="_blank" rel="noopener"><code>iakaframe-skills.html</code></a> | Référence visuelle des <strong>skills</strong> (NaonEdge). |</p><p>| <a href="./iakabox-usage.html" target="_blank" rel="noopener"><code>iakabox-usage.html</code></a> | <strong>Guide d'usage du homelab iakabox</strong> : Git via Forgejo, IA locale, services. |</p><p>| <a href="./agents/" target="_blank" rel="noopener"><code>agents/</code></a> | <strong>Définitions des subagents</strong> de l'équipe (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie) + <code>_TEMPLATE.md</code>. |</p><p>| <a href="./skills/" target="_blank" rel="noopener"><code>skills/</code></a> | <strong>12 skills</strong> : savoir-faire des agents + briques de cycle de vie. Voir <a href="./skills/README.md" target="_blank" rel="noopener"><code>skills/README.md</code></a>. |</p><p>| <a href="./specs/equipe-agents.md" target="_blank" rel="noopener"><code>specs/equipe-agents.md</code></a> | <strong>Référence canonique de l'équipe d'agents</strong> (roster, 3 phases + squad prod, identité, étanchéité, incarnation). |</p><p>| <a href="./kit-claude/" target="_blank" rel="noopener"><code>kit-claude/</code></a> | <strong>Kit de démarrage</strong> à copier dans tout nouveau projet. |</p><p>| <a href="./cli/" target="_blank" rel="noopener"><code>cli/</code></a> | <strong>CLI Node multi-OS</strong> <code>@naonedge/iakaframe</code> (Windows/macOS/Linux, <strong>zéro dépendance</strong> runtime) : 13 commandes de la méthode (<code>onboard</code>/<code>init</code>/<code>snapshot</code>/<code>update</code>/<code>services</code>/<code>config</code>/<code>agents</code>/<code>go</code>/<code>banner</code>/<code>brief</code>/<code>recap</code>/<code>jalon</code>/<code>root</code>). Voir <a href="./cli/README.md" target="_blank" rel="noopener"><code>cli/README.md</code></a>. |</p><p>| <a href="./iakaframe-init.ps1" target="_blank" rel="noopener"><code>iakaframe-init.ps1</code></a> | Déploie la structure du kit (sans rien écraser). |</p><p>| <a href="./iakaframe-forgejo.ps1" target="_blank" rel="noopener"><code>iakaframe-forgejo.ps1</code></a> | Crée le dépôt Forgejo + branche le remote (token via env). |</p><p>| <a href="./iakaframe-snapshot.ps1" target="_blank" rel="noopener"><code>iakaframe-snapshot.ps1</code></a> | Génère l'état des lieux (MD + HTML) à chaque version / pause / reprise. |</p><p>| <a href="./iakaframe-onboard.ps1" target="_blank" rel="noopener"><code>iakaframe-onboard.ps1</code></a> | <strong>Orchestrateur</strong> : structure + Forgejo + 1er commit + docs, sur projet neuf ou existant. |</p><p>| <a href="./iakaframe-update.ps1" target="_blank" rel="noopener"><code>iakaframe-update.ps1</code></a> | <strong>« update iakaframe »</strong> : régénère l'état des lieux + commit global + push. |</p><p>| <a href="./iakaframe-agents.ps1" target="_blank" rel="noopener"><code>iakaframe-agents.ps1</code></a> | <strong>Gère l'équipe d'agents</strong> : <code>list</code> / <code>create</code> / <code>affect</code> / <code>fullteam</code> / <code>status</code>. |</p><p>| <a href="./iakaframe-common.ps1" target="_blank" rel="noopener"><code>iakaframe-common.ps1</code></a> | Helper partagé (token + détection d'existence Forgejo) ; dot-sourcé par les autres. |</p><p>| <a href="./design-naonedge/" target="_blank" rel="noopener"><code>design-naonedge/</code></a> | <strong>Design NaonEdge</strong> (label figé) : <code>naonedge.css</code> (charte canon), <code>naonedge-charte.md</code>, gabarits doc/slides/flyer, logo. À réutiliser pour tous les supports. |</p><p>| <a href="./docs/" target="_blank" rel="noopener"><code>docs/</code></a> | Documents de référence (note de cadrage « Yakaframe Avancé », etc.). |</p><h3>Le kit de démarrage (<code>kit-claude/</code>)</h3><pre><code>kit-claude/
+├── CLAUDE.md                       ← Contrat de travail Claude Code (à remplir)
+├── .claude/settings.local.json     ← Permissions (allowlist large + denylist destructive)
+└── specs/
+    ├── PROJET.md                   ← Gabarit de vision/specs projet
+    └── instructions/
+        └── _TEMPLATE.md            ← Gabarit d'un fichier d'instruction</code></pre><p><strong>Pour démarrer un projet :</strong> copier le contenu de <code>kit-claude/</code> à la racine du nouveau</p><p>repo, puis remplir <code>CLAUDE.md</code> et <code>specs/PROJET.md</code>.</p><hr><h2>La méthode appliquée par défaut sur tout nouveau projet</h2><p>Deux mécanismes la rendent automatique :</p><p>1. <strong><code>C:\Users\sjupi\.claude\CLAUDE.md</code></strong> (instructions globales, lues à chaque</p><p>   session, tous projets confondus). Il dit à Claude : sur un projet <strong>neuf/vide</strong></p><p>   (ni <code>CLAUDE.md</code> ni <code>specs/</code>), amorcer la méthode iakaframe avant toute autre</p><p>   chose. Sur un projet qui a déjà son <code>CLAUDE.md</code>, celui-ci <strong>prime</strong> — pas</p><p>   d'écrasement.</p><p>2. <strong><code>iakaframe-init.ps1</code></strong> — déploiement en une commande :</p><p>   ```powershell</p><p>   pwsh C:\work\iakaframe\iakaframe-init.ps1                 # dans le dossier courant</p><p>   pwsh C:\work\iakaframe\iakaframe-init.ps1 -Path C:\mon-projet</p><p>   pwsh C:\work\iakaframe\iakaframe-init.ps1 -Force           # autorise l'écrasement</p><p>   ```</p><p>   Le script ne remplace jamais un fichier existant (sauf <code>-Force</code>).</p><blockquote>Concrètement : dans un nouveau dossier, lancez <code>claude</code> et demandez « initialise</blockquote><blockquote>le projet » — la méthode se met en place toute seule.</blockquote><hr><h2>La commande « init iakaframe »</h2><p>Dans n'importe quel répertoire, dire à Claude <strong>« init iakaframe »</strong>. Selon le contenu :</p><ul class="bul"><li><strong>Répertoire vide</strong> → nouveau projet : dépôt Forgejo nommé d'après le dossier,</li></ul><p>  structure de la méthode, premier commit, état des lieux v0.1.0, push.</p><ul class="bul"><li><strong>Répertoire avec déjà du dev</strong> → reprise : structure déployée <em>autour</em> du code</li></ul><p>  existant (rien d'écrasé), dépôt Forgejo branché si absent, état des lieux de</p><p>  <strong>reprise</strong> généré et résumé — puis on continue selon la méthode.</p><p>En une commande, sur un projet existant :</p><pre><code>$env:FORGEJO_TOKEN = &quot;&lt;token&gt;&quot;
+pwsh C:\work\iakaframe\iakaframe-onboard.ps1 -Path C:\mon-projet -Description &quot;ASCII description&quot;</code></pre><p>Options utiles : <code>-SkipForgejo</code> (structure + docs sans dépôt distant), <code>-NoPush</code>,</p><p><code>-Force</code> (réécrit la structure), <code>-Version vX.Y.Z</code>.</p><blockquote><strong>Auto-détection (init ↔ update).</strong> Les deux commandes vérifient l'existence du dépôt</blockquote><blockquote>sur Forgejo et basculent l'une vers l'autre : <code>init</code> sur un dépôt <strong>déjà sur Forgejo</strong></blockquote><blockquote>→ fait un <code>update</code> ; <code>update</code> sur un dépôt <strong>absent de Forgejo</strong> (ou sans git local)</blockquote><blockquote>→ fait un <code>init</code>. On peut taper indifféremment l'une ou l'autre.</blockquote><hr><h2>Git par défaut : Forgejo (iakabox)</h2><p>Tout projet est versionné sur le <strong>Forgejo du homelab iakabox</strong> :</p><p><code>http://192.168.2.11:3001/sjupin/&lt;repo&gt;.git</code>, en <strong>HTTP + token</strong> (SSH inutilisable).</p><p>Le token n'est jamais écrit en dur ni commité — il est lu depuis <code>$env:FORGEJO_TOKEN</code></p><p>(ou vit dans le <code>.git/config</code> local). Voir <a href="./iakabox-usage.html" target="_blank" rel="noopener"><code>iakabox-usage.html</code></a></p><p>pour le détail (clone, push, création de dépôt via l'API, rotation).</p><h2>Cycle de documentation (état des lieux)</h2><p>L'état des lieux (<code>specs/etat-des-lieux.md</code> + <code>.html</code>) est régénéré **à chaque</p><p>changement de version<strong> et </strong>à chaque pause de dev / préparation de reprise** :</p><pre><code>pwsh C:\work\iakaframe\iakaframe-snapshot.ps1 -Reason version -Version v0.2.0 -Note &quot;feature X livrée&quot;
+pwsh C:\work\iakaframe\iakaframe-snapshot.ps1 -Reason pause   -Note &quot;WIP : reprendre par les tests&quot;</code></pre><p>Le script capte les faits git (version, branche, commits, état de l'arbre) et tient un</p><p>journal append-only ; <strong>Cowork complète le récit de reprise</strong> dans le <code>.md</code>.</p><h3>Commande « update iakaframe »</h3><p>Checkpoint en une commande : <strong>régénère l'état des lieux + commit global + push</strong>.</p><pre><code>pwsh C:\work\iakaframe\iakaframe-update.ps1                                  # checkpoint manuel
+pwsh C:\work\iakaframe\iakaframe-update.ps1 -Reason version -Version v0.3.0  # à un changement de version
+pwsh C:\work\iakaframe\iakaframe-update.ps1 -Reason pause -Note &quot;...&quot; -NoPush</code></pre><hr><h2>CLI &amp; rituels de session</h2><p>La méthode est aussi outillée par la <strong>CLI Node multi-OS</strong> <a href="./cli/" target="_blank" rel="noopener"><code>@naonedge/iakaframe</code></a></p><p>(zéro dépendance runtime), qui rejoue les <code>.ps1</code> de façon portable : <code>iakaframe &lt;cmd&gt;</code>.</p><p>Au-delà du cycle de vie (<code>onboard</code>/<code>init</code>/<code>snapshot</code>/<code>update</code>), elle ajoute des **rituels</p><p>de session** : les titres ASCII (<code>banner</code>), l'entrée de projet (<code>brief</code>), les gates</p><p>(<code>jalon</code>) et la fermeture de session (<code>recap</code>).</p><pre><code>iakaframe banner &quot;IAKAFRAME&quot;                 # titre ASCII (FIGlet embarqué, zéro dep)
+iakaframe go mon-projet                       # entre dans le projet : titre + brief, puis runner
+iakaframe brief mon-projet                    # dernière étape + backlog + agents assignés
+iakaframe jalon --project mon-projet --name &quot;Cadrage validé&quot; --from Gandalf --to Gimli
+iakaframe recap mon-projet                    # fermeture : commits + agents mobilisés</code></pre><p>Ces rituels sont câblés au <strong>portefeuille</strong> via les <strong>hooks</strong> de</p><p><code>C:\work\.claude\settings.json</code> :</p><ul class="bul"><li><strong><code>SessionStart</code></strong> → affiche le titre ASCII <code>IAKAFRAME</code> (<code>iakaframe banner IAKAFRAME</code>).</li><li><strong><code>SessionEnd</code></strong> → régénère l'état des lieux pour préparer la reprise</li></ul><p>  (<code>iakaframe snapshot --reason pause</code>, uniquement si un dossier <code>specs/</code> est présent).</p><hr><h2>L'équipe d'agents (« Yakaframe Avancé »)</h2><p>La couche réflexion+exécution se spécialise en une <strong>équipe d'agents nommés</strong>, au périmètre</p><p>fermé, qui incarnent la chaîne CI/CD. Référence : <a href="./specs/equipe-agents.md" target="_blank" rel="noopener"><code>specs/equipe-agents.md</code></a>.</p><pre><code>l'utilisateur → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents</code></pre><ul class="bul"><li>🦅 <strong>Odin</strong> — super-agent <strong>portefeuille</strong>, disponible en permanence, seul affecté à <code>C:\work</code> : switch d'équipe, démarrage projet, création d'équipe. <strong>Au premier appel par session, il régénère et affiche le dashboard projets</strong> (<code>naonedge-dashboard\scan.ps1</code> puis <code>index.html</code>) avant la synthèse.</li><li>🛡️ <strong>Aragorn</strong> — coordination entre agents, <strong>3 phases</strong> (cadrage → réalisation → staging), dispatch à la demande, canal <strong>Slack</strong> (via n8n).</li><li>🧙 <strong>Gandalf</strong> (cadrage) · ⚒️ <strong>Gimli</strong> (dev + devops jusqu'au staging) · 🏹 <strong>Legolas</strong> (qualité) · 🌉 <strong>Helm</strong> (<strong>squad prod</strong> : déploiement + surveillance + alertes) · 🎭 <strong>Loki</strong> (design) · 📖 <strong>Nathalie</strong> (guides).</li></ul><p><strong>Modèle d'étanchéité</strong> : définitions mutualisées (source unique), exécution étanche (chaque</p><p>projet instancie sa propre équipe scopée). <strong>Incarnation</strong> : un subagent (<code>agents/</code>) + une</p><p>skill-rôle (<code>skills/</code>).</p><pre><code>pwsh C:\work\iakaframe\iakaframe-agents.ps1 -Action fullteam -Project C:\mon-projet   # deployer l'equipe
+pwsh C:\work\iakaframe\iakaframe-agents.ps1 -Action affect -Agent odin -Project C:\work  # Odin au portefeuille</code></pre><hr><h2>Résumé de l'investigation — la méthode telle qu'elle est réellement appliquée</h2><p>En analysant les projets et la mémoire Claude associée, la méthode se résume à</p><p><strong>trois acteurs, un cycle, des preuves persistantes</strong> :</p><h3>Trois acteurs, zéro chevauchement</h3><ul class="bul"><li><strong>l'utilisateur (développeur)</strong> = décideur : vision, arbitrages, validation, test réel.</li><li><strong>Cowork (Claude réflexion)</strong> = architecte/rédacteur : analyse en lecture seule,</li></ul><p>  rédige les instructions. <strong>Ne code jamais.</strong></p><ul class="bul"><li><strong>Claude Code (Claude exécution)</strong> = développeur IA : lit l'instruction, code,</li></ul><p>  build, teste, commite.</p><h3>Un cycle répété pour chaque feature</h3><p>besoin → analyse Cowork → discussion → <strong>instruction écrite</strong> → validation →</p><p>implémentation Claude Code → test &amp; feedback → (boucle).</p><h3>Des preuves transverses (relevées dans la mémoire des projets)</h3><ul class="bul"><li><strong>Langue : français</strong>, réponses concises. Code/identifiants en anglais.</li><li><strong>Self-hosted / open-source d'abord</strong> (Ollama local avant tout cloud) —</li></ul><p>  <em>iakaAFstorage</em>.</p><ul class="bul"><li><strong>Commits atomiques fréquents</strong> comme filet de sécurité, surtout quand les</li></ul><p>  permissions sont en bypass — <em>robotimmo</em>.</p><ul class="bul"><li><strong>Permissions larges + denylist destructive</strong> pour fluidifier le workflow</li></ul><p>  Docker/dev ; confirmation par message texte pour le vraiment risqué.</p><ul class="bul"><li><strong>Réutiliser l'infra existante</strong> (ex. relais MCP) plutôt que réimplémenter —</li></ul><p>  <em>IAKA Vod</em>.</p><ul class="bul"><li><strong>MVP d'abord, puis itérer.</strong> Pas de sur-ingénierie.</li><li><strong>Mock des données en dev</strong> pour ne pas gaspiller les quotas API — <em>IAKA Vod</em>.</li><li><strong>Outils de vérification</strong> systématiques : typecheck, lint, tests, rapport</li></ul><p>  qualité consolidé.</p><h3>La conviction de fond</h3><blockquote>L'IA sans workflow produit du code jetable. L'IA dans un workflow produit du</blockquote><blockquote>logiciel. <strong>La qualité n'est pas dans le modèle, elle est dans la méthode.</strong></blockquote><hr><h2>Origine</h2><p>La première formalisation vit dans <code>C:\iakaVODdash\claudecowork\</code></p><p>(<code>methode-de-travail.md</code> + <code>.html</code>). <code>iakaframe</code> en est la version</p><p>project-agnostic, destinée à être réutilisée tel quel sur les futurs projets.</p></div></section>
+  <section class="doc-panel" data-panel="archi"><h3 class="doc-h">Stack détectée</h3><div class="doc-chips"><span class="doc-chip doc-chip-na">indéterminée</span></div><h3 class="doc-h">Arbre de 1er niveau</h3><ul class="doc-tree"><li class="">.claude/</li><li class="">.forgejo/</li><li class="">agents/</li><li class="">cli/</li><li class="">design-naonedge/</li><li class="">docs/</li><li class="">kit-anythingllm/</li><li class="">kit-claude/</li><li class="">kit-codex/</li><li class="">kit-ollama/</li><li class="">kit-openwebui/</li><li class="">skills/</li><li class="doc-tree-key">specs/</li><li class="">stack-qualite/</li></ul></section>
+  <section class="doc-panel" data-panel="backlog"><h3 class="doc-h">Fait / reste à faire</h3><div class="doc-cols"><div><h4 class="doc-h4">Reste à faire</h4><div class="doc-note">Aucune issue ouverte.</div></div><div><h4 class="doc-h4">Fait</h4><div class="doc-sub">10 derniers commits</div><ul class="doc-log"><li>4296653 fix(cli): miroir vocab openwebui + openwebui-models (parite avec core P3c)</li><li>945a981 refactor(cli): vocabulaire aligne sur @iakaframe/core (persona/rôle, runner unifie, nœud/format)</li><li>0a2932f docs(veille): etude comparative des methodes multi-agents v0.2.0 (web-verifiee)</li><li>5ba234a docs(cadrage): instruction alignement methode source (phase 1)</li><li>84f8556 refactor(methode): aligne le modele source — equipe d'experts/personas, agnostique (phase 1)</li><li>98473a5 docs(reprise): etat des lieux 2026-07-05 — expertise redactrice + doc chapeau v0.4.0</li><li>8743ef8 feat(doc): chapeau iakaframe v0.4.0 — personas, discipline pas techno, kits par solution, runners heterogenes</li><li>169cfd4 feat(doc): chapeau iakaframe v0.2.0 — graphe delegations, jalons, arbre, emboitement</li><li>9a713d7 feat(doc): chapeau iakaframe — page HTML Cinabre v0.1.0</li><li>79b250b feat(nathalie): expertise doc — web+sourcing, structuration 4 types, glossaire roles</li></ul></div></div><h3 class="doc-h">Git view</h3><div class="doc-kv"><span class="doc-k">Branche</span> <span class="doc-v">main</span></div><div class="doc-sub">15 derniers commits</div><ul class="doc-log"><li>4296653 fix(cli): miroir vocab openwebui + openwebui-models (parite avec core P3c)</li><li>945a981 refactor(cli): vocabulaire aligne sur @iakaframe/core (persona/rôle, runner unifie, nœud/format)</li><li>0a2932f docs(veille): etude comparative des methodes multi-agents v0.2.0 (web-verifiee)</li><li>5ba234a docs(cadrage): instruction alignement methode source (phase 1)</li><li>84f8556 refactor(methode): aligne le modele source — equipe d'experts/personas, agnostique (phase 1)</li><li>98473a5 docs(reprise): etat des lieux 2026-07-05 — expertise redactrice + doc chapeau v0.4.0</li><li>8743ef8 feat(doc): chapeau iakaframe v0.4.0 — personas, discipline pas techno, kits par solution, runners heterogenes</li><li>169cfd4 feat(doc): chapeau iakaframe v0.2.0 — graphe delegations, jalons, arbre, emboitement</li><li>9a713d7 feat(doc): chapeau iakaframe — page HTML Cinabre v0.1.0</li><li>79b250b feat(nathalie): expertise doc — web+sourcing, structuration 4 types, glossaire roles</li><li>79a9578 feat(appflowy-doc): repli identifiants sur fichier dotenv local</li><li>20a0949 feat(nathalie): Nathalie porte l'action recurrente memoire humaine AppFlowy</li><li>559efc8 feat(appflowy-doc): skill mémoire humaine AppFlowy (espace/projet, idempotent)</li><li>2bffa6f docs(cadrage): instruction skill iakaframe-appflowy-doc (memoire humaine AppFlowy)</li><li>5a76e63 docs(methode): habitude memoire humaine — documenter les fichiers importants dans AppFlowy</li></ul><div class="doc-sub">Arbre de travail</div><ul class="doc-status"><li> M agents/aragorn.md</li><li> M agents/loki.md</li><li>?? doc/</li></ul><h3 class="doc-h">Issues Forgejo</h3><div class="doc-note">Aucune issue sur Forgejo.</div></section>
+</main>
+<footer class="doc-foot">NAOnEdge · page générée par <code>.portefeuille/docgen.mjs</code> · 2026-07-09</footer>
+<script>(function(){var tabs=document.getElementById('doc-tabs');if(tabs){tabs.addEventListener('click',function(e){var t=e.target.closest('.doc-tab');if(!t)return;var k=t.getAttribute('data-tab');var i,a=document.querySelectorAll('.doc-tab');for(i=0;i<a.length;i++)a[i].classList.toggle('active',a[i].getAttribute('data-tab')===k);var p=document.querySelectorAll('.doc-panel');for(i=0;i<p.length;i++)p[i].classList.toggle('active',p[i].getAttribute('data-panel')===k);});}var root=document.documentElement,KEY='ne-doc-theme';if(!root.getAttribute('data-theme'))root.setAttribute('data-theme','dark');var b=document.getElementById('themeToggle');if(b){b.addEventListener('click',function(){var n=(root.getAttribute('data-theme')==='light')?'dark':'light';root.setAttribute('data-theme',n);try{localStorage.setItem(KEY,n);}catch(e){}});}})();</script>
+</body></html>

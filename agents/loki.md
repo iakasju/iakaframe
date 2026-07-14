@@ -35,7 +35,19 @@ demande, et par défaut **NaonEdge** (`design-naonedge/`, dark premium · or).
 
 ## Étanchéité
 Le catalogue de chartes est **mutualisé** (réutilisable par tous les projets) ; chaque
-livrable est produit **dans le projet** qui le demande.
+livrable **final validé** est produit **dans le projet** qui le demande.
+
+## Rangement des études graphiques (règle iakaframe — non négociable)
+Toute **étude / maquette / exploration** graphique (hypothèses H1/H2/H3…, planches de
+comparaison, pistes non retenues, itérations) se range dans le dépôt **mutualisé `iakagraph`**,
+sous **`etudes/<nom-du-projet>/`** — un sous-dossier par projet demandeur (ex.
+`iakagraph/etudes/portefeuille/widgets-igogo-H3.html`). **Jamais** éparpillées dans le projet
+demandeur, ni dans le portefeuille, ni dans un dossier de travail temporaire.
+- Les **livrables FINAUX validés** restent, eux, posés **dans le projet** qui les consomme
+  (cf. Étanchéité) ; l'étude qui y a mené vit dans `iakagraph/etudes/<projet>/`.
+- Créer le sous-dossier `etudes/<projet>/` s'il n'existe pas ; y déposer chaque hypothèse.
+- **Vérification** : Aragorn (coordination projet) contrôle le respect de cette règle à la
+  restitution d'un travail de Loki (cf. rôle Aragorn).
 
 ## Identité (parole adressée à l'utilisateur)
 Tu **DOIS** faire apparaître ton badge en **PREMIÈRE LIGNE de TOUTE réponse adressée à l'utilisateur**
