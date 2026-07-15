@@ -12,6 +12,11 @@ import { runBanner } from './commands/banner.js';
 import { runBrief } from './commands/brief.js';
 import { runRecap } from './commands/recap.js';
 import { runJalon } from './commands/jalon.js';
+import { runList } from './commands/list.js';
+import { runShow } from './commands/show.js';
+import { runAdd } from './commands/add.js';
+import { runAssemble } from './commands/assemble.js';
+import { runSwitch } from './commands/switch.js';
 import { resolveRoot } from './lib/root.js';
 
 const VERSION = '0.1.0';
@@ -50,6 +55,13 @@ Commandes :
                         --path <dir> --n <nb commits>
   jalon               Cadre d'un jalon (gate) : titre Standard + tableau emetteur/contenu/recepteur
                         --project --name --from --to --content --files a:1,b:2 --next --validated
+  list [type]         Inventaire de la bibliotheque (pool + assemblages) par scan
+                        type : personas|skills|principles|rituals|guardrails|roles|workflows|
+                        scaffolds|teams|methods|bindings|kits  (--json --ascii --root)
+  show <id>           Contrat d'un atome/assemblage : frontmatter + corps  (--type --json --root)
+  add <kind> <fic>    Livre un assemblage : team|method|binding (valide refs I1)  (--force --json)
+  assemble <m> <t>    Compose un kit (methode+team[+binding]) - dry-run  (--write --binding --json)
+  switch|use <m> <t>  Bascule un projet vers methode/team  (--path --binding --rollback --json)
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
@@ -79,6 +91,12 @@ async function main() {
     case 'brief':    runBrief(rest); break;
     case 'recap':    runRecap(rest); break;
     case 'jalon':    runJalon(rest); break;
+    case 'list':     runList(rest); break;
+    case 'show':     runShow(rest); break;
+    case 'add':      runAdd(rest); break;
+    case 'assemble': runAssemble(rest); break;
+    case 'switch':
+    case 'use':      runSwitch(rest); break;
     case 'root': {
       const i = rest.indexOf('--root');
       console.log(resolveRoot(i >= 0 ? rest[i + 1] : undefined));

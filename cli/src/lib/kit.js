@@ -8,17 +8,28 @@ import {
   contractFileForNode as _contractFileForNode,
 } from './vocab.js';
 
-// Racine des assets iakaframe (kit-claude/, agents/, skills/, design-*).
+// Racine des assets iakaframe (bibliotheque library/ + methods/ + kits/, ou anciens kit-*).
 // 1) paquet publie : <pkg>/_bundled (genere par scripts/bundle.js au prepack)
-// 2) dev in-repo : 1er parent contenant un dossier 'kit-claude'.
+// 2) dev in-repo : 1er parent portant un marqueur valide.
+//
+// Q-1 : le rangement « pool + assemblages » a deplace `kit-*` -> `kits/`, ce qui CASSAIT le
+// marqueur historique `kit-claude`. On bascule sur un marqueur robuste au rangement : double
+// marqueur `library/` + `methods/` a la racine du depot, ou `kits/` (les deux issus du
+// rangement). Le legacy `kit-claude` reste accepte pour les depots non encore ranges.
+function hasFrameworkMarker(d) {
+  if (fs.existsSync(path.join(d, 'library')) && fs.existsSync(path.join(d, 'methods'))) return true;
+  if (fs.existsSync(path.join(d, 'kits'))) return true;
+  return fs.existsSync(path.join(d, 'kit-claude'));
+}
+
 export function frameworkRoot() {
   const here = path.dirname(fileURLToPath(import.meta.url));
   const pkgRoot = path.resolve(here, '..', '..');          // cli/src/lib -> cli/
   const bundled = path.join(pkgRoot, '_bundled');
-  if (fs.existsSync(path.join(bundled, 'kit-claude'))) return bundled;
+  if (fs.existsSync(bundled) && hasFrameworkMarker(bundled)) return bundled;
   let d = here;
   for (let i = 0; i < 8; i++) {
-    if (fs.existsSync(path.join(d, 'kit-claude'))) return d;
+    if (hasFrameworkMarker(d)) return d;
     const up = path.dirname(d);
     if (up === d) break;
     d = up;
