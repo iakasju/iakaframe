@@ -64,6 +64,26 @@ test('checkRefs : binding teamId casse + runner invalide', () => {
   assert.ok(r.badRunners.some(b => b.runner === 'gpt'));
 });
 
+test('checkRefs/checkSchema : binding converge E1 (alias `bindings` + node/origin)', () => {
+  // Forme E1 : pas de methodId, affectations sous `bindings` (alias de `assignments`), + node/origin.
+  const e1 = {
+    id: 'b_e1', teamId: 't_full', node: 'claude', origin: 'forge-default',
+    bindings: [{ personaId: 'p_dev', runner: 'claude-code', model: '' }],
+  };
+  assert.equal(checkSchema('binding', e1).ok, true, 'schema E1 valide (id+teamId+bindings)');
+  assert.equal(checkRefs('binding', e1, FIX).ok, true, 'refs E1 valides (bindings lu comme assignments)');
+
+  // Forme pool (assignments) reste valide -> retro-compat non cassee.
+  const pool = { id: 'b_pool', methodId: 'm_test', teamId: 't_full',
+    assignments: [{ personaId: 'p_dev', runner: 'claude-code', model: '' }] };
+  assert.equal(checkSchema('binding', pool).ok, true);
+
+  // Ni assignments ni bindings -> schema incomplet.
+  const empty = checkSchema('binding', { id: 'b', teamId: 't_full' });
+  assert.equal(empty.ok, false);
+  assert.ok(empty.missing.includes('assignments|bindings'));
+});
+
 test('checkSchema : champs requis par kind', () => {
   assert.equal(checkSchema('team', { id: 't', personas: ['a'], coordinator: 'a' }).ok, true);
   const miss = checkSchema('team', { id: 't' });

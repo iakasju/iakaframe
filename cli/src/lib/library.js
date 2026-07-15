@@ -172,9 +172,9 @@ export function checkRefs(kind, data, root) {
     needEach('roleKeys', data.roleKeys, 'roles');
     needEach('scaffoldIds', data.scaffoldIds, 'scaffolds');
   } else if (kind === 'binding') {
-    need('methodId', data.methodId, 'methods');
+    need('methodId', data.methodId, 'methods');   // methodId du pool : tolere (E1 ne le porte pas)
     need('teamId', data.teamId, 'teams');
-    for (const a of toArray(data.assignments)) {
+    for (const a of bindingRows(data)) {          // schema converge E1 : assignments OU bindings
       need('assignments[].personaId', a && a.personaId, 'personas');
       if (a && a.runner && !RUNNER_KINDS.includes(a.runner)) {
         badRunners.push({ personaId: a.personaId, runner: a.runner });
@@ -186,17 +186,28 @@ export function checkRefs(kind, data, root) {
   return { ok: missing.length === 0 && badRunners.length === 0, missing, badRunners };
 }
 
+// Liste d'affectations d'un binding : schema converge E1 (evolution-binding-ar1.md). On lit
+// `assignments` (pool, historique) OU `bindings` (E1, 1re classe) comme ALIAS — les deux acceptes.
+export function bindingRows(data) {
+  const rows = data.assignments != null ? data.assignments : data.bindings;
+  return toArray(rows);
+}
+
 // --- Validation de schema minimale (champs requis) pour `add` --------------------------------
+// Binding : schema converge E1 (id + teamId + au moins une affectation). `methodId` du pool reste
+// TOLERE mais non requis (les bindings E1 sont par-noeud et ne le portent pas) ; `node`/`origin`
+// sont additifs (non requis pour la retro-compat des bindings existants).
 const REQUIRED = {
   team:    ['id', 'personas', 'coordinator'],
   method:  ['id', 'workflowId', 'roleKeys'],
-  binding: ['id', 'methodId', 'teamId', 'assignments'],
+  binding: ['id', 'teamId'],
 };
 export function checkSchema(kind, data) {
   const req = REQUIRED[kind];
   if (!req) throw new Error(`kind inconnu : ${kind}`);
   const missing = req.filter(f => data[f] == null || data[f] === '' ||
     (Array.isArray(data[f]) && data[f].length === 0));
+  if (kind === 'binding' && bindingRows(data).length === 0) missing.push('assignments|bindings');
   return { ok: missing.length === 0, missing };
 }
 
