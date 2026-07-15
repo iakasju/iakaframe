@@ -2,6 +2,7 @@
 // racine bibliotheque (Q-2), scan par motif (invariant I2 : index par scan), resolution d'id,
 // integrite referentielle (I1) et composition (assemble). Zero dependance runtime.
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { parseFrontmatter } from './frontmatter.js';
 import { frameworkRoot } from './kit.js';
@@ -36,18 +37,33 @@ const EXCLUDED = new Set(['_TEMPLATE.md', 'README.md']);
 
 // --- 4.2 Resolution de la racine bibliotheque (TRANCHE) -------------------------------------
 // Priorite : --root (opt) > IAKAFRAME_HOME > remontee jusqu'au double marqueur library/+methods/
-//           > frameworkRoot() (repli assets embarques / in-repo).
+//           > sonde <chapeau>/iakaframe (parite GUI) > frameworkRoot() (repli assets/in-repo).
 // IAKAFRAME_HOME (racine bibliotheque) est DISTINCTE de IAKAFRAME_ROOT (dossier chapeau ~/work).
 export function libraryRoot(opt) {
   if (opt) return path.resolve(opt);
   if (process.env.IAKAFRAME_HOME) return path.resolve(process.env.IAKAFRAME_HOME);
   const marked = findUp(process.cwd(), isLibraryRootDir);
   if (marked) return marked;
+  // Sonde <chapeau>/iakaframe, ancre fixe reconnue par la GUI (src-tauri/src/paths.rs
+  // resolve_iakaframe_home : `<hat>/iakaframe` valide par le MEME double marqueur library/+methods/).
+  // Convergence CLI<->GUI hors-arbre : cwd hors bibliotheque + IAKAFRAME_HOME absent => meme racine.
+  const hatCandidate = path.join(hatRoot(), 'iakaframe');
+  if (isLibraryRootDir(hatCandidate)) return hatCandidate;
   const fw = frameworkRoot();
   if (fw) return fw;
   return process.cwd();
 }
 
+// Racine du chapeau (calque de GUI paths.rs resolve_hat_root) : IAKAFRAME_ROOT si defini/non vide,
+// sinon <home>/work (jamais de disque Windows en dur), sinon 'work' relatif.
+function hatRoot() {
+  const env = process.env.IAKAFRAME_ROOT;
+  if (env && env.trim() !== '') return env.trim();
+  const home = os.homedir();
+  return home ? path.join(home, 'work') : 'work';
+}
+
+// Double marqueur library/+methods/ (calque de GUI is_library_home).
 function isLibraryRootDir(d) {
   return fs.existsSync(path.join(d, 'library')) && fs.existsSync(path.join(d, 'methods'));
 }
