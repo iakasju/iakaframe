@@ -1,42 +1,12 @@
-﻿[
-    {
-        "date":  "2026-06-22 18:16",
-        "reason":  "pause",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "feb72d0 docs(reprise): etat des lieux pause - fin de session titres \u0026 rituels",
-        "dirty":  false,
-        "files":  164,
-        "note":  ""
-    },
-    {
-        "date":  "2026-06-22 23:53",
-        "reason":  "version",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "51f952f feat(skills): skill iakastart bootstrap team + convention globale",
-        "dirty":  true,
-        "files":  167,
-        "note":  "rituel identite agents : auto-annonce durcie (premiere ligne de toute reponse) + restitution en relais sous le badge de l emetteur"
-    },
-    {
-        "date":  "2026-06-22 23:57",
-        "reason":  "manual",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "1d3937f feat(method): rituel d identite - auto-annonce durcie + restitution en relais",
-        "dirty":  false,
-        "files":  167,
-        "note":  ""
-    },
-    {
-        "date":  "2026-06-23 10:00",
-        "reason":  "version",
-        "version":  "v0.6.1",
-        "branch":  "main",
-        "commit":  "7568f6b chore(iakaframe): update etat des lieux + commit global (manual)",
-        "dirty":  true,
-        "files":  171,
-        "note":  "rituel identite 3.4-3.9: position pastille, chaine sans interjection, verbatim anti-ventriloquie, transverse orange, propagation kits codex/ollama, kit-claude versionne + globaux"
-    }
+[
+  {
+    "date": "2026-07-15 20:13",
+    "reason": "reprise",
+    "version": "v0.6.1",
+    "branch": "feat/cli-convergence",
+    "commit": "38d74a6 feat(cli): assemble --write aligne sur @iakaframe/core + golden de parite",
+    "dirty": false,
+    "files": 271,
+    "note": "convergence CLI (GAP a/b/c) : racine partagee, schema binding E1, parite kit core"
+  }
 ]
