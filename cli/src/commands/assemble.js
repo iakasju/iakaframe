@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { table } from '../lib/table.js';
-import { assemble, libraryRoot } from '../lib/library.js';
+import { assemble, libraryRoot, serializeKit } from '../lib/library.js';
 
 export function runAssemble(argv) {
   const { values, positionals } = parseArgs({
@@ -64,20 +64,9 @@ export function runAssemble(argv) {
       console.error(`\n${dest} existe déjà, --force pour remplacer.`);
       process.exitCode = 1; return;
     }
-    const fm = [
-      '---',
-      `id: ${res.descriptor.id}`,
-      `methodId: ${res.descriptor.methodId}`,
-      `teamId: ${res.descriptor.teamId}`,
-      `bindingId: ${res.descriptor.bindingId ?? ''}`,
-      `node: ${res.descriptor.node}`,
-      `emits: [${res.descriptor.emits.join(', ')}]`,
-      '---',
-      `# Kit ${res.descriptor.id}`,
-      '',
-      'Descripteur assemblé (méthode + team + binding). Généré par `iakaframe assemble --write`.',
-      '',
-    ].join('\n');
+    // Sortie alignee byte-a-byte sur @iakaframe/core (serializeKitMd) : quoting des listes,
+    // emits en globs, id <methodId>-<node>. Ancre de parite : cli/test/parity-kit.test.js.
+    const fm = serializeKit(res.descriptor);
     fs.mkdirSync(path.dirname(dest), { recursive: true });
     fs.writeFileSync(dest, fm);
     console.log(`\n+ kit écrit : ${dest}`);

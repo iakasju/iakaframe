@@ -2,6 +2,8 @@
 id: iakaframe-claude-default
 methodId: iakaframe
 teamId: iakaframe-8
+node: claude
+origin: forge-default
 assignments:
   - { personaId: odin,     runner: claude-code, model: "opus" }
   - { personaId: aragorn,  runner: claude-code, model: "opus" }

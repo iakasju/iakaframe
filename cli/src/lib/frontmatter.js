@@ -188,6 +188,50 @@ export function parseFrontmatter(text) {
   return { data: parseFrontmatterBody(raw), body };
 }
 
+// --- SERIALISEUR canonique (miroir ligne-a-ligne de @iakaframe/core src/frontmatter.ts) --------
+// Ecrit un frontmatter dans la MEME forme canonique que le coeur (byte-parite). Regles reprises
+// telles quelles : listes flow mono-ligne, quoting minimal des scalaires, quoting des items de
+// liste non « mot plein ». Verrouille par cli/test/parity-kit.test.js (golden partage core<->CLI).
+
+// Un item de liste flow doit-il etre quote ? On quote tout ce qui n'est PAS un « mot plein »
+// [A-Za-z0-9_-]+ : ids nus (odin), chemins/globs d'emits[] quotes (".claude/agents/*", "CLAUDE.md").
+export function needsListQuote(item) {
+  return !/^[A-Za-z0-9_-]+$/.test(item);
+}
+
+// Une valeur scalaire a-t-elle besoin de quotes ? Minimal (les fichiers reels n'en quotent aucune) :
+// vide, espace de bord, mot-cle, entier, ou caractere de tete ambigu YAML.
+export function needsScalarQuote(s) {
+  if (s === '') return true;
+  if (/^\s|\s$/.test(s)) return true;
+  if (s === 'true' || s === 'false' || s === 'null' || s === '~') return true;
+  if (/^-?\d+$/.test(s)) return true;
+  return /^[[{"'#&*!|>%@`,]/.test(s);
+}
+
+function renderScalar(v) {
+  if (typeof v === 'number' || typeof v === 'boolean') return String(v);
+  return needsScalarQuote(v) ? `"${v}"` : v;
+}
+
+function renderFlowList(items) {
+  const inner = items
+    .map((it) => (typeof it === 'string' && needsListQuote(it) ? `"${it}"` : String(it)))
+    .join(', ');
+  return `[${inner}]`;
+}
+
+// Assemble `---\n<frontmatter>\n---\n<body>`. `fields` : { key, kind:'scalar'|'list', value }.
+// Les entrees `undefined` (champs optionnels absents) sont ignorees. Miroir de buildDocument (core).
+export function buildDocument(fields, body = '') {
+  const lines = fields
+    .filter((f) => f !== undefined && f !== null)
+    .map((f) => (f.kind === 'list'
+      ? `${f.key}: ${renderFlowList(f.value)}`
+      : `${f.key}: ${renderScalar(f.value)}`));
+  return `---\n${lines.join('\n')}\n---\n${body}`;
+}
+
 // Rendu lisible d'une valeur de frontmatter (pour `show`).
 export function renderValue(v) {
   if (Array.isArray(v)) {

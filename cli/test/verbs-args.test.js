@@ -73,10 +73,12 @@ test('show <inconnu> : exitCode 1', () => {
 
 test('assemble --json : descripteur de kit (8/8 rôles)', () => {
   const d = JSON.parse(run(['assemble', 'iakaframe', 'iakaframe-8', '--json']));
+  assert.equal(d.id, 'iakaframe-claude');                 // convention coeur <methodId>-<node>
   assert.equal(d.methodId, 'iakaframe');
   assert.equal(d.teamId, 'iakaframe-8');
   assert.equal(d.node, 'claude');
-  assert.equal(d.emits.length, 8);
+  // emits = globs par noeud (semantique coeur), plus les chemins concrets par persona.
+  assert.deepEqual(d.emits, ['.claude/agents/*', '.claude/skills/*', '.claude/hooks/*', 'CLAUDE.md']);
 });
 
 test('commandes existantes : non-regression du dispatch (banner, root)', () => {
