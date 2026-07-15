@@ -4,9 +4,9 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { parseFrontmatter } from './frontmatter.js';
+import { parseFrontmatter, buildDocument } from './frontmatter.js';
 import { frameworkRoot } from './kit.js';
-import { RUNNER_KINDS } from './vocab.js';
+import { RUNNER_KINDS, contractFileForNode } from './vocab.js';
 
 // --- 4.1 Mapping collection -> dossier (table UNIQUE faisant autorite) -----------------------
 // kind='flat'  : un fichier <id>.md dans `dir`.
@@ -248,14 +248,17 @@ export function assemble(methodId, teamId, bindingId, root, { node = 'claude' } 
     if (candidates.length === 1) binding = candidates[0];
   }
 
-  const id = `${method.id}--${team.id}${binding ? '--' + binding.id : ''}`;
+  // Convention d'id du coeur (@iakaframe/core) : <methodId>-<node> (cf. kits/iakaframe-claude.md,
+  // packages/core/__tests__/fixtures/kit.iakaframe-claude.md). PAS <method>--<team>--<binding>.
+  const id = `${method.id}-${node}`;
   const descriptor = {
     id,
     methodId: method.id,
     teamId: team.id,
     bindingId: binding ? binding.id : null,
     node,
-    emits: toArray(team.data.personas).map(p => `.claude/agents/${p}.md`),
+    // emits = GLOBS de sortie par noeud (semantique coeur), pas les chemins concrets par persona.
+    emits: emitsForNode(node),
   };
 
   const ok = orphans.length === 0 && !bindingError;
@@ -270,4 +273,29 @@ export function assemble(methodId, teamId, bindingId, root, { node = 'claude' } 
 export function toArray(v) {
   if (v == null || v === '') return [];
   return Array.isArray(v) ? v : [v];
+}
+
+// Globs emis par un kit selon le noeud (semantique @iakaframe/core). Pour claude : subagents,
+// skills, hooks d'identite/perimetre + contrat CLAUDE.md (cf. adapters/claudeCode.ts). Pour les
+// autres noeuds, repli minimal sur le seul fichier-contrat (pas de golden au-dela de claude).
+export function emitsForNode(node) {
+  if (node === 'claude') {
+    return ['.claude/agents/*', '.claude/skills/*', '.claude/hooks/*', 'CLAUDE.md'];
+  }
+  return [contractFileForNode(node)];
+}
+
+// Serialise un descripteur de kit au format canonique du coeur (serializeKitMd @iakaframe/core) :
+// ordre id, methodId, teamId, bindingId (si present), node, emits ; listes quotees ; corps standard.
+// Verrouille byte-a-byte par cli/test/parity-kit.test.js (golden partage core<->CLI).
+export function serializeKit(d) {
+  const fields = [
+    { key: 'id', kind: 'scalar', value: d.id },
+    { key: 'methodId', kind: 'scalar', value: d.methodId },
+    { key: 'teamId', kind: 'scalar', value: d.teamId },
+    (d.bindingId ? { key: 'bindingId', kind: 'scalar', value: d.bindingId } : undefined),
+    { key: 'node', kind: 'scalar', value: d.node },
+    (d.emits !== undefined ? { key: 'emits', kind: 'list', value: d.emits } : undefined),
+  ];
+  return buildDocument(fields, `# Kit ${d.id}\n`);
 }

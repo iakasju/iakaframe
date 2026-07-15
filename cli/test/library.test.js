@@ -10,6 +10,8 @@ import {
   checkRefs, checkSchema, assemble, libraryRoot,
 } from '../src/lib/library.js';
 
+const CLAUDE_EMITS = ['.claude/agents/*', '.claude/skills/*', '.claude/hooks/*', 'CLAUDE.md'];
+
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIX = path.join(HERE, 'fixtures', 'library');
 const REPO = path.join(HERE, '..', '..'); // depot iakaframe (vraie bibliotheque)
@@ -97,7 +99,8 @@ test('assemble : compatible (casting couvre les roles de la methode)', () => {
   assert.deepEqual(r.orphans, []);
   assert.equal(r.binding.id, 'b_test');
   assert.equal(r.descriptor.methodId, 'm_test');
-  assert.equal(r.descriptor.emits.length, 2);
+  assert.equal(r.descriptor.id, 'm_test-claude');           // convention coeur <methodId>-<node>
+  assert.deepEqual(r.descriptor.emits, CLAUDE_EMITS);       // emits = globs par noeud (semantique coeur)
 });
 
 test('assemble : team amputee -> echec avec role orphelin', () => {
