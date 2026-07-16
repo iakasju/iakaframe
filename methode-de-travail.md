@@ -550,6 +550,72 @@ sur un dépôt déjà présent sur Forgejo bascule en `update`, et `update` sur 
 absent (ou sans git local) bascule en `init`. Une seule chose à retenir, donc — le bon
 comportement est choisi tout seul.
 
+## Communication externe du portefeuille — iakaHub ↔ Discord
+
+Le portefeuille dispose d'un **organe de communication externe unique** : **iakaHub**, un
+démon local qui relie les agents (au travail dans les projets) à Stéphane (au loin) via
+**Discord**. iakaHub est **à la fois un projet** de la famille (il a son code, son canal)
+**et l'infrastructure de com de tout le portefeuille** : un seul démon route **tous** les
+canaux de **tous** les projets. Le chemin nominal est **100 % local + Discord cloud** ;
+la box peut être éteinte.
+
+### Les deux sens de communication
+
+- **Sortant — « mode absence » (agent → Stéphane).** Un agent qui a besoin d'une décision
+  appelle `ask()`. Le **gate est en amont, chez Odin** : `ask()` consulte l'**état de
+  présence d'Odin** (autorité portefeuille) *avant tout*. **Présent → terminal, zéro
+  iakaHub.** **Absent → iakaHub → Discord** : la question remonte dans le **canal du
+  projet concerné**, postée **sous le persona de l'agent** (webhook). Stéphane répond
+  **dans un thread** ; la réponse repart vers **l'agent exact** qui attendait
+  (**corrélation par thread**). *Un appel vers iakaHub = preuve d'absence.*
+- **Entrant — « saisie directe d'Odin » (Stéphane → Odin).** Stéphane poste dans le canal
+  **`#odin`** ; iakaHub **démarre lui-même un runner Odin** (session headless), lui passe
+  le texte, récupère la réponse et la reposte **dans un thread** de `#odin`. C'est le
+  **premier flux où iakaHub cesse d'être un simple relais pour devenir lanceur d'agent**.
+  Ce sens est **indépendant du mode absence** : actif en permanence, sans consulter la
+  présence d'Odin.
+
+### Topologie des canaux (le serveur reflète la méthode)
+
+Serveur Discord privé `iaka-portefeuille`, calqué sur les étages de la méthode :
+
+```
+📁 PORTEFEUILLE           ← l'étage au-dessus des projets
+    #odin                 ← saisie directe d'Odin (Stéphane → runner)
+📁 <PROJET>               ← UNE catégorie par projet
+    #<projet>             ← canal unique du projet (mode absence : ses agents → Stéphane)
+```
+
+Un **canal = un projet**. Le canal ne porte **pas** l'agent émetteur : celui-ci est porté
+par le **persona du message** (webhook, sortant) et par le **registre** (retour). `#odin`
+n'est **pas** un projet (destinataire fixe = Odin, `cwd` = racine portefeuille) et **ne
+compte pas** dans le nombre de projets remonté par `/health`.
+
+### Règle d'or : ajouter un projet = zéro code
+
+**Brancher un projet sur la com externe = 1 catégorie + 1 canal + 1 webhook + 1 ligne**
+dans `config/routing.yaml` (iakaHub). Aucun code. Le YAML ne contient **que des alias**
+(`webhook_ref`) ; les URLs de webhook et le token du bot vivent dans **`.env`**
+(git-ignoré, **jamais commité**). L'alias `webhook_ref: <x>` se résout en variable
+`DISCORD_WEBHOOK_<X>`. Périmètre par défaut = les **projets réellement coworkés** (actifs),
+pas tout le portefeuille : on branche un canal quand le projet a un travail vivant.
+
+### Posture & sécurité
+
+- **Dégradation gracieuse** : iakaHub indisponible ou état « présent » → **repli terminal**
+  automatique. Tout tourne **box éteinte**.
+- **Cœur agnostique** : routeur/registre/`ask()` ne connaissent **aucun symbole Discord** ;
+  l'adaptateur (Discord au MVP, Mattermost = contrat seul) est **injecté**.
+- **Ports** : `:3041` = admin/health **local** (`127.0.0.1`) ; la face entrante Discord est
+  une **WebSocket sortante** (Gateway) → **aucun port entrant**.
+- **Runner d'agent = accès hôte au MVP** ; durcissement Docker = dette post-MVP assumée.
+- **Provisionnement Discord = geste humain** (serveur, canaux, webhooks, token bot) —
+  description de dépôt **ASCII** côté Forgejo.
+
+Référence d'implémentation : projet **iakaHub** (`docs/passerelle-discord.md`,
+`docs/provisionnement-discord.md`, `specs/instructions/passerelle-discord-agents.md` et
+`specs/instructions/saisie-directe-odin-canal.md`).
+
 ## Git par défaut : Forgejo (iakabox)
 
 Tout projet est versionné sur le **Forgejo auto-hébergé du homelab iakabox** —
