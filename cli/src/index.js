@@ -22,6 +22,7 @@ import { runOpen } from './commands/open.js';
 import { runRecall } from './commands/recall.js';
 import { runClose } from './commands/close.js';
 import { runReview } from './commands/review.js';
+import { runConsolidate } from './commands/consolidate.js';
 import { resolveRoot } from './lib/root.js';
 
 const VERSION = '0.1.0';
@@ -79,6 +80,9 @@ Commandes :
   review <action>     Revue du reservoir (garde de consentement) : list|show|apply|reject|auto
                         PROFIL en file, REGISTRE auto, STRUCTUREL toujours en file (jamais auto)
                         --status <s>  --library <dir>  --home <dir>  --json
+  consolidate         Consolidation initiale : fond les fiches memoire portefeuille en un APERCU
+                        capé PROFIL/REGISTRE (curation) pour revue sur DIFF ; N'APPLIQUE RIEN
+                        --source <dir>  --home <dir>  --json
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
@@ -119,6 +123,7 @@ async function main() {
     case 'recall':   runRecall(rest); break;
     case 'close':    runClose(rest); break;
     case 'review':   runReview(rest); break;
+    case 'consolidate': runConsolidate(rest); break;
     case 'root': {
       const i = rest.indexOf('--root');
       console.log(resolveRoot(i >= 0 ? rest[i + 1] : undefined));
