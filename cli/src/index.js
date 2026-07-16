@@ -17,6 +17,7 @@ import { runShow } from './commands/show.js';
 import { runAdd } from './commands/add.js';
 import { runAssemble } from './commands/assemble.js';
 import { runSwitch } from './commands/switch.js';
+import { runMemory } from './commands/memory.js';
 import { resolveRoot } from './lib/root.js';
 
 const VERSION = '0.1.0';
@@ -62,6 +63,8 @@ Commandes :
   add <kind> <fic>    Livre un assemblage : team|method|binding (valide refs I1)  (--force --json)
   assemble <m> <t>    Compose un kit (methode+team[+binding]) - dry-run  (--write --binding --json)
   switch|use <m> <t>  Bascule un projet vers methode/team  (--path --binding --rollback --json)
+  memory <action>     Canon du portefeuille : init|path|config|list|add|replace|remove
+                        <profil|registre>  (--home <dir>  --json ; defaut ~/.iaka/memory/)
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
@@ -97,6 +100,7 @@ async function main() {
     case 'assemble': runAssemble(rest); break;
     case 'switch':
     case 'use':      runSwitch(rest); break;
+    case 'memory':   runMemory(rest); break;
     case 'root': {
       const i = rest.indexOf('--root');
       console.log(resolveRoot(i >= 0 ? rest[i + 1] : undefined));
