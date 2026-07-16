@@ -3,6 +3,8 @@
 // vraie bibliotheque du depot.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
@@ -28,7 +30,7 @@ test('scan : compte correct sur le mini-pool + exclusions', () => {
   assert.equal(scan('personas', FIX).length, 2);
   assert.equal(scan('roles', FIX).length, 2);
   assert.equal(scan('skills', FIX).length, 1);            // s_cadrage (dossier + SKILL.md)
-  assert.equal(scan('teams', FIX).length, 2);             // t_full + t_amputee
+  assert.equal(scan('teams', FIX).length, 5);             // t_full, t_amputee, t_nocoord, t_badcoord, t_unknown
   assert.deepEqual(scan('personas', FIX).map(e => e.id), ['p_cadreur', 'p_dev']);
 });
 
@@ -103,10 +105,38 @@ test('assemble : compatible (casting couvre les roles de la methode)', () => {
   assert.deepEqual(r.descriptor.emits, CLAUDE_EMITS);       // emits = globs par noeud (semantique coeur)
 });
 
-test('assemble : team amputee -> echec avec role orphelin', () => {
+test('assemble : role sans persona dedie MAIS coordinateur present -> couvert (ok)', () => {
+  // Regle decideur 2026-07-16 : le rôle `dev` (sans persona dedie) est absorbe par le
+  // coordinateur p_cadreur -> plus d'orphelin bloquant, ok:true, info exposee.
   const r = assemble('m_test', 't_amputee', null, FIX);
+  assert.equal(r.ok, true);
+  assert.deepEqual(r.orphans, []);
+  assert.deepEqual(r.coveredByCoordinator, ['dev']);
+  assert.equal(r.coordinator, 'p_cadreur');
+  assert.equal(r.warnings.length, 1);
+  assert.match(r.warnings[0], /p_cadreur/);
+  assert.match(r.warnings[0], /dev/);
+});
+
+test('assemble : garde-fou -> role non couvert SANS coordinateur reste orphelin (ok:false)', () => {
+  const r = assemble('m_test', 't_nocoord', null, FIX);
   assert.equal(r.ok, false);
   assert.deepEqual(r.orphans, ['dev']);
+  assert.deepEqual(r.coveredByCoordinator, []);
+});
+
+test('assemble : garde-fou -> coordinateur introuvable dans les personas reste bloquant', () => {
+  const r = assemble('m_test', 't_badcoord', null, FIX);
+  assert.equal(r.ok, false);
+  assert.deepEqual(r.orphans, ['dev']);
+  assert.deepEqual(r.coveredByCoordinator, []);
+});
+
+test('assemble : unknownPersonas (persona inexistant) reste bloquant', () => {
+  const r = assemble('m_test', 't_unknown', null, FIX);
+  assert.equal(r.ok, false);
+  assert.deepEqual(r.unknownPersonas, ['p_fantome']);
+  assert.deepEqual(r.orphans, []);            // cadrage+dev couverts par personas dedies
 });
 
 test('assemble : binding incoherent -> echec', () => {
@@ -127,6 +157,35 @@ test('vraie bibliotheque : list personas = 8, assemble iakaframe/iakaframe-8 = 8
   assert.equal(r.ok, true);
   assert.deepEqual(r.orphans, []);
   assert.equal(r.methodRoleKeys.length, 8);
+});
+
+// --- Cas reel declencheur (2026-07-16) : team a 7 personas, helm retire ------------------
+// La vraie methode iakaframe requiert le role `deploiement` (persona helm). Une team ou helm
+// est retire mais qui garde un coordinateur (aragorn) doit desormais donner ok:true : aragorn
+// absorbe `deploiement`. On monte une racine temporaire qui reutilise la VRAIE bibliotheque du
+// depot (symlinks library/ + methods/) avec une team-fixture 7 personas (sans helm).
+test('vraie bibliotheque : team 7 personas (helm retire) + coordinator aragorn -> ok (aragorn absorbe deploiement)', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-helm-'));
+  try {
+    fs.symlinkSync(path.join(REPO, 'library'), path.join(tmp, 'library'));
+    fs.symlinkSync(path.join(REPO, 'methods'), path.join(tmp, 'methods'));
+    fs.mkdirSync(path.join(tmp, 'teams'));
+    fs.writeFileSync(path.join(tmp, 'teams', 'iakaframe-7-no-helm.md'),
+      '---\n' +
+      'id: iakaframe-7-no-helm\n' +
+      'name: Compagnie sans Helm\n' +
+      'personas: [odin, aragorn, gandalf, gimli, legolas, loki, nathalie]\n' +
+      'coordinator: aragorn\n' +
+      '---\n# team 7 personas (helm retire) : deploiement pris par le coordinateur\n');
+
+    const r = assemble('iakaframe', 'iakaframe-7-no-helm', null, tmp);
+    assert.equal(r.ok, true);
+    assert.deepEqual(r.orphans, []);
+    assert.deepEqual(r.coveredByCoordinator, ['deploiement']);
+    assert.equal(r.coordinator, 'aragorn');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
 });
 
 test('libraryRoot : --root prioritaire', () => {
