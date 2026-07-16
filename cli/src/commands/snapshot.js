@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { isRepo, out } from '../lib/git.js';
 import { now } from '../lib/date.js';
+import { runCadence, formatCadence } from '../lib/cadence.js';
 
 const REASONS = ['version', 'pause', 'reprise', 'manual'];
 
@@ -37,7 +38,9 @@ function countFiles(dir) {
 }
 
 // Coeur reutilisable par onboard/update.
-export function doSnapshot({ projectPath, reason = 'manual', version = '', note = '' }) {
+// `home` (optionnel) cible le canon de la boucle d'apprentissage pour la CADENCE (T6, § 6) ; sinon
+// IAKA_MEMORY_HOME, sinon ~/.iaka/memory/. `cadenceRun` est un point d'injection (defaut = runCadence).
+export function doSnapshot({ projectPath, reason = 'manual', version = '', note = '', home, cadenceRun = runCadence }) {
   const root = path.resolve(projectPath);
   const specs = path.join(root, 'specs');
   fs.mkdirSync(specs, { recursive: true });
@@ -146,7 +149,15 @@ ${rows}</table>
 </body></html>`;
   fs.writeFileSync(path.join(specs, 'etat-des-lieux.html'), html, 'utf8');
 
-  return { version, branch, fileCount, dirty };
+  // ---- CADENCE (T6, § 6) : brancher `close` sur le rituel APRES generation de l'etat des lieux ----
+  // Declenchee sur `pause`/`version` (pilote par cadence.close_on), JAMAIS sur `reprise`. Garantie
+  // NON-BLOQUANTE (double filet) : runCadence ne leve jamais, et on la ceinture ici aussi — meme une
+  // erreur inattendue de la cadence ne doit pas casser le rituel d'etat des lieux (deja ecrit ci-dessus).
+  let cadence;
+  try { cadence = cadenceRun({ reason, home }); }
+  catch (e) { cadence = { triggered: false, skipped: 'guarded', reason, error: e.message }; }
+
+  return { version, branch, fileCount, dirty, cadence };
 }
 
 export function runSnapshot(argv) {
@@ -157,12 +168,14 @@ export function runSnapshot(argv) {
       reason: { type: 'string', default: 'manual' },
       version: { type: 'string' },
       note: { type: 'string' },
+      home: { type: 'string' },
     },
   });
   if (!REASONS.includes(values.reason)) {
     console.error(`reason invalide : ${values.reason} (attendu: ${REASONS.join('|')})`); process.exitCode = 1; return;
   }
-  const r = doSnapshot({ projectPath: values.path || process.cwd(), reason: values.reason, version: values.version || '', note: values.note || '' });
+  const r = doSnapshot({ projectPath: values.path || process.cwd(), reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
   console.log(`Snapshot OK (${values.reason}) -> specs/etat-des-lieux.md + .html`);
   console.log(`  version=${r.version} branche=${r.branch} fichiers=${r.fileCount}${r.dirty ? ' [arbre sale]' : ''}`);
+  console.log(`  ${formatCadence(r.cadence)}`);
 }

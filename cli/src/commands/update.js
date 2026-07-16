@@ -4,6 +4,7 @@ import path from 'node:path';
 import { isRepo, run, hasChanges, currentBranch, hasRemoteOrigin } from '../lib/git.js';
 import { testRepo } from '../lib/forgejo.js';
 import { doSnapshot } from './snapshot.js';
+import { formatCadence } from '../lib/cadence.js';
 
 export async function runUpdate(argv) {
   const { values } = parseArgs({
@@ -12,6 +13,7 @@ export async function runUpdate(argv) {
       path: { type: 'string' }, reason: { type: 'string', default: 'manual' },
       version: { type: 'string' }, note: { type: 'string' }, message: { type: 'string' },
       repo: { type: 'string' }, 'no-push': { type: 'boolean', default: false },
+      home: { type: 'string' },
     },
   });
   const root = path.resolve(values.path || process.cwd());
@@ -29,8 +31,9 @@ export async function runUpdate(argv) {
 
   console.log(`==== update iakaframe : ${root} ====`);
   console.log(`\n[1/3] Etat des lieux (${values.reason})`);
-  const r = doSnapshot({ projectPath: root, reason: values.reason, version: values.version || '', note: values.note || '' });
+  const r = doSnapshot({ projectPath: root, reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
   console.log(`  snapshot version=${r.version} branche=${r.branch} fichiers=${r.fileCount}`);
+  console.log(`  ${formatCadence(r.cadence)}`);
 
   run(root, ['add', '-A']);
   if (!hasChanges(root)) { console.log('\n[2/3] Rien a committer (arbre propre).'); return; }
