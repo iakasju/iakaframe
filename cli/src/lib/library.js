@@ -230,7 +230,21 @@ export function assemble(methodId, teamId, bindingId, root, { node = 'claude' } 
     if (p.data.roleKey) teamRoleKeys.add(p.data.roleKey);
   }
   const methodRoleKeys = toArray(method.data.roleKeys);
-  const orphans = methodRoleKeys.filter(r => !teamRoleKeys.has(r));
+  const uncoveredRoles = methodRoleKeys.filter(r => !teamRoleKeys.has(r));
+
+  // Modele d'equipe (regle decideur 2026-07-16) : un role requis par la methode qui n'est
+  // couvert par AUCUN persona dedie du casting est pris en charge PAR DEFAUT par le
+  // COORDINATEUR de la team. Ce n'est donc PAS un orphelin bloquant tant qu'un coordinateur
+  // valide existe. Garde-fou : sans coordinateur (champ absent OU persona introuvable), un
+  // role non couvert reste un VRAI orphelin bloquant.
+  const coordinatorId = team.data.coordinator || null;
+  const hasCoordinator = !!coordinatorId && !!readEntry('personas', coordinatorId, root);
+  const coveredByCoordinator = hasCoordinator ? uncoveredRoles : [];
+  const orphans = hasCoordinator ? [] : uncoveredRoles;
+  const warnings = [];
+  if (coveredByCoordinator.length) {
+    warnings.push(`role(s) sans persona dedie, pris en charge par le coordinateur ${coordinatorId} : ${coveredByCoordinator.join(', ')}`);
+  }
 
   // Binding : explicite (verifie coherent) ou auto-selection d'un binding compatible.
   let binding = null;
@@ -261,12 +275,13 @@ export function assemble(methodId, teamId, bindingId, root, { node = 'claude' } 
     emits: emitsForNode(node),
   };
 
-  const ok = orphans.length === 0 && !bindingError;
+  // unknownPersonas (persona inexistant) reste bloquant, comme orphans et bindingError.
+  const ok = orphans.length === 0 && unknownPersonas.length === 0 && !bindingError;
   return {
     ok, error: bindingError,
     method, team, binding,
     methodRoleKeys, teamRoleKeys: [...teamRoleKeys].sort(),
-    orphans, unknownPersonas, descriptor,
+    orphans, unknownPersonas, coordinator: coordinatorId, coveredByCoordinator, warnings, descriptor,
   };
 }
 

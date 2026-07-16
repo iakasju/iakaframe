@@ -35,8 +35,10 @@ export function runAssemble(argv) {
     if (values.json) {
       console.log(JSON.stringify({ ok: false, orphans: res.orphans, unknownPersonas: res.unknownPersonas }, null, 2));
     } else {
-      console.error(`Incompatible : ${res.orphans.length} rôle(s) de la méthode non couvert(s) par le casting.`);
-      for (const r of res.orphans) console.error(`  - rôle orphelin : ${r}`);
+      if (res.orphans.length) {
+        console.error(`Incompatible : ${res.orphans.length} rôle(s) requis non couvert(s) et pas de coordinateur pour les absorber.`);
+        for (const r of res.orphans) console.error(`  - rôle orphelin : ${r}`);
+      }
       if (res.unknownPersonas.length) console.error(`  personas introuvables : ${res.unknownPersonas.join(', ')}`);
     }
     process.exitCode = 1; return;
@@ -53,7 +55,11 @@ export function runAssemble(argv) {
       ['node', res.descriptor.node],
       ['kit id', res.descriptor.id],
     ];
+    if (res.coveredByCoordinator.length) {
+      rows.push(['pris par coordinateur', `${res.coveredByCoordinator.join(', ')} (${res.coordinator})`]);
+    }
     console.log(table(['champ', 'valeur'], rows, { ascii: values.ascii }));
+    for (const w of res.warnings) console.log(`⚠ ${w}`);
     console.log('\nDescripteur de kit :');
     console.log(JSON.stringify(res.descriptor, null, 2));
   }
