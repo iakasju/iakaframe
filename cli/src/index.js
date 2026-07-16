@@ -19,6 +19,7 @@ import { runAssemble } from './commands/assemble.js';
 import { runSwitch } from './commands/switch.js';
 import { runMemory } from './commands/memory.js';
 import { runRecall } from './commands/recall.js';
+import { runClose } from './commands/close.js';
 import { resolveRoot } from './lib/root.js';
 
 const VERSION = '0.1.0';
@@ -68,6 +69,9 @@ Commandes :
                         <profil|registre>  (--home <dir>  --json ; defaut ~/.iaka/memory/)
   recall <requete>    Rappel plein-texte sur l'historique brut du canon (transcripts/)
                         moteur ripgrep, repli Node  (--home <dir>  --json)
+  close               Revue de cloture : rejoue transcripts/ -> propositions typees dans
+                        proposals/ (memory|skill|hook|config) ; N'APPLIQUE RIEN
+                        --session <fic>  --home <dir>  --json
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
@@ -105,6 +109,7 @@ async function main() {
     case 'use':      runSwitch(rest); break;
     case 'memory':   runMemory(rest); break;
     case 'recall':   runRecall(rest); break;
+    case 'close':    runClose(rest); break;
     case 'root': {
       const i = rest.indexOf('--root');
       console.log(resolveRoot(i >= 0 ? rest[i + 1] : undefined));
