@@ -18,6 +18,7 @@ import { runAdd } from './commands/add.js';
 import { runAssemble } from './commands/assemble.js';
 import { runSwitch } from './commands/switch.js';
 import { runMemory } from './commands/memory.js';
+import { runOpen } from './commands/open.js';
 import { runRecall } from './commands/recall.js';
 import { runClose } from './commands/close.js';
 import { runReview } from './commands/review.js';
@@ -68,6 +69,8 @@ Commandes :
   switch|use <m> <t>  Bascule un projet vers methode/team  (--path --binding --rollback --json)
   memory <action>     Canon du portefeuille : init|path|config|list|add|replace|remove
                         <profil|registre>  (--home <dir>  --json ; defaut ~/.iaka/memory/)
+  open                Charge le canon (PROFIL+REGISTRE) a l'ouverture, scope-agnostique,
+                        pret a injecter en session (lecture seule)  (--home <dir>  --json)
   recall <requete>    Rappel plein-texte sur l'historique brut du canon (transcripts/)
                         moteur ripgrep, repli Node  (--home <dir>  --json)
   close               Revue de cloture : rejoue transcripts/ -> propositions typees dans
@@ -112,6 +115,7 @@ async function main() {
     case 'switch':
     case 'use':      runSwitch(rest); break;
     case 'memory':   runMemory(rest); break;
+    case 'open':     runOpen(rest); break;
     case 'recall':   runRecall(rest); break;
     case 'close':    runClose(rest); break;
     case 'review':   runReview(rest); break;
