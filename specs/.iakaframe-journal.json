@@ -8,5 +8,15 @@
     "dirty": false,
     "files": 271,
     "note": "convergence CLI (GAP a/b/c) : racine partagee, schema binding E1, parite kit core"
+  },
+  {
+    "date": "2026-07-17 18:50",
+    "reason": "version",
+    "version": "v0.6.1",
+    "branch": "main",
+    "commit": "0c09312 feat(learning): la skill /learning pilote le retrait symetrique (detach/attach/remove) — S6",
+    "dirty": false,
+    "files": 308,
+    "note": "Boucle d'apprentissage + symetrie +/- livrees : canon amorce, gestes memory/open/recall/close/review/consolidate + cadence, 3 surfaces (CLI/skill/GUI), retrait symetrique"
   }
 ]
