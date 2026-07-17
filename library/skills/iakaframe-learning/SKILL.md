@@ -1,7 +1,7 @@
 ---
 id: iakaframe-learning
 name: iakaframe-learning
-description: Revoir ce que l'agent a appris et proposé — la boucle de revue du réservoir de propositions d'apprentissage. Utiliser cette skill quand l'utilisateur veut voir/valider/rejeter une proposition apprise, dit "/learning", "/iaka", "revoir mes apprentissages", "valider une proposition", "rejeter une proposition", "qu'as-tu appris", "propositions d'apprentissage", ou pilote la boucle d'apprentissage. Cette skill NE possède aucun stockage : elle PILOTE la commande `iakaframe review` (source unique de la revue et du garde de consentement).
+description: Revoir ce que l'agent a appris et proposé, ET retirer symétriquement ce qui a été ajouté (décomposabilité +/−) — la boucle de revue du réservoir de propositions d'apprentissage plus les gestes de retrait. Utiliser cette skill quand l'utilisateur veut voir/valider/rejeter une proposition apprise, dit "/learning", "/iaka", "revoir mes apprentissages", "valider une proposition", "rejeter une proposition", "qu'as-tu appris", "propositions d'apprentissage", OU veut RETIRER ce qui a été ajouté : "détacher un skill d'un persona", "detach", "attach", "attacher un skill", "retirer une team/method/binding", "remove", "dé-matérialiser un skill", "retirer une entrée mémoire", ou pilote la boucle d'apprentissage. Cette skill NE possède aucun stockage : elle PILOTE les commandes `iakaframe review` (revue + garde de consentement) et `iakaframe remove|attach|detach|memory remove` (retrait sûr, RESTRICT + corbeille) — sources uniques.
 ---
 
 # iakaframe — Surface conversationnelle d'apprentissage (`/learning` · `/iaka`)
@@ -63,9 +63,39 @@ contourne jamais :
 **Rejeter est un geste de premier plan**, aussi accessible que valider — jamais un simple recours.
 À chaque proposition présentée, offre **les deux** issues (valider *ou* rejeter) au même niveau.
 
-> Le retrait d'un élément **déjà matérialisé** (une entrée de REGISTRE/PROFIL, un skill promu)
-> n'est **pas** un `reject` (la proposition appliquée est terminale) — c'est un chantier de
-> décomposabilité **distinct**, hors périmètre de cette skill au MVP.
+> `reject` retire une proposition **en attente** (T5) ; il ne défait **pas** un élément **déjà
+> matérialisé**. Défaire un ajout déjà posé est le rôle des **verbes de retrait** ci-dessous.
+
+## Retrait symétrique — piloter les verbes `−` (detach / attach / remove / memory remove)
+
+Tout ce qu'un `+` a ajouté doit pouvoir être retiré par un `−` de **même accessibilité**
+(décomposabilité). Ces retraits **existent déjà** en CLI (1ʳᵉ tranche du chantier symétrie) : tu ne
+fais que les **piloter**. Tu ne réimplémentes **jamais** leur logique (RESTRICT / corbeille /
+cascade / consentement) : elle vit dans la CLI, **source unique**. Restitue la sortie **verbatim**.
+
+- **Détacher un skill d'un persona** (cas emblématique, ligne A) —
+  `iakaframe detach <skillId> --persona <personaId>`.
+  Retire l'id du **seul** `skills:[]` du frontmatter (Option 1 : le frontmatter est la source unique
+  de vérité ; le « titre du skill » est une **vue**, jamais une section écrite dans le corps).
+  Réversible d'un geste par l'attache symétrique **`iakaframe attach <skillId> --persona <personaId>`**.
+  Présente **détacher ET attacher au même niveau**.
+- **Retirer une team / method / binding / skill livré** (lignes E/B) —
+  `iakaframe remove <team|method|binding|skill> <id>`.
+  **RESTRICT par défaut** : si l'élément est encore **référencé** (un binding vise ce team, un
+  persona pointe ce skill…), la CLI **refuse** et **liste les référents** — restitue cette liste et
+  **oriente** vers le retrait du référent d'abord (pour un skill référencé : `detach` d'abord).
+  Ne force **jamais** la cascade toi-même : `--cascade --yes` est un **geste humain explicite** que
+  l'utilisateur doit demander (jamais de cascade silencieuse).
+- **Retirer une entrée mémoire** (ligne C) — `iakaframe memory remove <profil|registre> "<contenu>"`
+  (T1, réutilisé tel quel). Aucun backend neuf : c'est le `−` de `memory add`.
+
+**Non destructif (corbeille).** Tout retrait de fichier/dossier est **archivé** dans
+`<root>/.trash-<horodatage>/` (restaurable, tracé par `manifest.json`) — **jamais** de suppression
+sèche. Rappelle-le et explicite que le geste est **réversible**.
+
+**Confirmation proportionnée au risque.** Un `detach`/`attach` (réversible d'un geste) → friction
+légère. Un `remove` d'un élément **référencé** ou une **cascade** → **confirmation explicite** avant
+d'agir (message texte), jamais déclenché sans accord humain.
 
 ## Garde-fous
 
