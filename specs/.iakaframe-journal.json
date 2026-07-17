@@ -18,5 +18,15 @@
     "dirty": false,
     "files": 308,
     "note": "Boucle d'apprentissage + symetrie +/- livrees : canon amorce, gestes memory/open/recall/close/review/consolidate + cadence, 3 surfaces (CLI/skill/GUI), retrait symetrique"
+  },
+  {
+    "date": "2026-07-17 20:52",
+    "reason": "pause",
+    "version": "v0.6.1",
+    "branch": "main",
+    "commit": "9a18e73 chore(etat-des-lieux): journal du snapshot v0.6.1",
+    "dirty": false,
+    "files": 308,
+    "note": "Pause : boucle d'apprentissage + symetrie +/- livrees et poussees ; canon amorce ; T7 archivage #odin OK en reel. Reprise = extraire l'archiveur hors iakaHub (pub/sub maison) -> 'reprise T7'."
   }
 ]
