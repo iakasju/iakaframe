@@ -73,7 +73,7 @@ Remote par défaut de tout projet : **votre serveur git sur le LAN votre serveur
 `<GIT_REMOTE_URL>`, **HTTP + token** (SSH inutilisable).
 Token jamais en dur ni commité : `<GIT_TOKEN>`, ou intégré dans le `.git/config`
 local. Création de dépôt via l'API (description **ASCII uniquement**). Détails et
-usage : `<IAKAFRAME_HOME>\la doc de votre serveur git`.
+usage : `<IAKAFRAME_HOME>\docs\git-hosting.md`.
 
 ## Cycle de documentation (état des lieux)
 

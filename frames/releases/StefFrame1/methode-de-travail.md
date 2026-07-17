@@ -622,7 +622,7 @@ cohérent avec la préférence self-hosted. Pattern :
 `<GIT_REMOTE_URL>`, **HTTP + token** (le SSH de cette box
 est inutilisable). Le token n'est **jamais** écrit en dur ni commité : variable
 `<GIT_TOKEN>` ou `.git/config` local. Création de dépôt via l'API votre serveur git
-(description **ASCII uniquement**, sinon HTTP 422). Guide complet : `la doc de votre serveur git`.
+(description **ASCII uniquement**, sinon HTTP 422). Guide complet : `docs/git-hosting.md`.
 
 ## Cycle de documentation — version & reprise
 

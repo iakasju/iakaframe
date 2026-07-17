@@ -7,7 +7,7 @@ description: Logger un message de conversation dans la main courante <LOG_PREFIX
 # iakaframe — log-conversation
 
 Brique transverse : **n'importe quel agent** peut pousser un message dans la main
-courante centralisée `<LOG_PREFIX>` (stack déployée sur la VM2 d'votre serveur git). Le message part
+courante centralisée `<LOG_PREFIX>` (stack déployée sur votre serveur de logs). Le message part
 en broker, un pont le persiste dans une base de documents (base `conversations`).
 
 Le publisher `iakalog.mjs` est **Node pur, zéro dépendance** (le protocole broker 3.1.1 sur TCP) : pas de
@@ -48,6 +48,6 @@ code 1 avec un message clair — **sans bloquer** le travail de l'agent.
 ## Notes
 
 - Détails d'archi et déploiement de la stack : projet **<LOG_PREFIX>** (un broker + une base de documents
-  + pont) sur la VM2 d'votre serveur git.
+  + pont) sur votre serveur de logs.
 - Automatisation possible : un hook Claude Code (`Stop` / `UserPromptSubmit`) peut appeler
   ce script pour logger chaque tour sans intervention du modèle.

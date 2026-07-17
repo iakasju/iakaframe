@@ -24,7 +24,7 @@ Une **nouvelle charte** = un nouveau dossier `design-<nom>/` (même structure : 
 
 ## Charte par défaut : <charte-defaut> — NE PAS DIVERGER
 
-Le dossier `design-<charte-defaut>/` est canon (*dark premium · or*, dérivée d'votre serveur git). S'y référer,
+Le dossier `design-<charte-defaut>/` est canon (*dark premium · or*). S'y référer,
 jamais improviser une palette :
 
 - `<charte-defaut>.css` — **feuille de style canonique** (variables, composants, tables, notes,

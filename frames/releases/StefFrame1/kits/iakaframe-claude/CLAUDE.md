@@ -59,7 +59,7 @@ Stack : <!-- ex: React + TypeScript + Tauri/Rust + SQLite -->
 
 Remote par défaut : **votre serveur git LAN** `<GIT_REMOTE_URL>`,
 **HTTP + token** (SSH inutilisable). Token via `<GIT_TOKEN>` ou `.git/config`
-local — **jamais commité**. Voir `la doc de votre serveur git` (iakaframe) pour clone/push,
+local — **jamais commité**. Voir `docs/git-hosting.md` (iakaframe) pour clone/push,
 création de dépôt (API, description **ASCII**) et rotation de token.
 
 ## Cycle de documentation (état des lieux)
