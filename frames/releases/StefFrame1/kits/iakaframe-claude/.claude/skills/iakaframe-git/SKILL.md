@@ -69,4 +69,4 @@ et fait le premier push, **sans jamais exposer le token**.
 
 Brique appelée par l'amorçage (`iakaframe-onboard.ps1` = `iakaframe-init` +
 **`iakaframe-git`** + commit + `iakaframe-snapshot`). L'auto-détection init ↔ update
-repose sur l'étape 1 (présence du dépôt côté API). Guide complet : `docs/git-hosting.md`.
+repose sur l'étape 1 (présence du dépôt côté API). Guide complet : `../../../docs/git-hosting.md`.
