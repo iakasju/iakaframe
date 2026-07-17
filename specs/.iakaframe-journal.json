@@ -28,5 +28,15 @@
     "dirty": false,
     "files": 308,
     "note": "Pause : boucle d'apprentissage + symetrie +/- livrees et poussees ; canon amorce ; T7 archivage #odin OK en reel. Reprise = extraire l'archiveur hors iakaHub (pub/sub maison) -> 'reprise T7'."
+  },
+  {
+    "date": "2026-07-18 00:37",
+    "reason": "version",
+    "version": "v0.7.0",
+    "branch": "main",
+    "commit": "49afd91 chore(frames): build StefFrame2.zip — livrable portable executable standalone",
+    "dirty": true,
+    "files": 737,
+    "note": "Frames StefFrame1 (methode portable sans GUI) + StefFrame2 (frame executable : CLI + hooks + installeur collision-aware) livres, gates Legolas PASS ; guides MD+HTML et cadrages frame-stefframe1/2"
   }
 ]

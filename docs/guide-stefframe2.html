@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guide d'utilisation de StefFrame2</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48'%3E%3Cdefs%3E%3ClinearGradient id='c' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%23bd2f27'/%3E%3Cstop offset='1' stop-color='%239e211a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='3' y='3' width='42' height='42' rx='11' fill='url(%23c)'/%3E%3Cpath d='M18 15 L11 24 L18 33' fill='none' stroke='%23fff' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M30 15 L37 24 L30 33' fill='none' stroke='%23fff' stroke-width='4.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3Crect x='22.6' y='14' width='2.8' height='20' rx='1.4' fill='%23fff' opacity='.9'/%3E%3C/svg%3E">
+<style>
+/* ============================================================================
+   Cinabre — Design System (charte « conseil premium · rouge cinabre »)  — INLINÉ
+   Source canonique : ~/work/iakacharte/design-cinabre/cinabre.css
+   Base gris / noir / blanc ; le rouge cinabre en accent, mesuré (jamais criard).
+   Fichier STANDALONE : CSS inliné, aucune dépendance externe, aucune police bloquante
+   (fallbacks système ; l'ordre de familles reprend Inter · Spectral · JetBrains Mono).
+   ========================================================================== */
+:root{
+  --bg-primary:#e8e8eb; --bg-card:#ffffff; --bg-deep:#f3f3f6;
+  --line:#dcdce1; --line-soft:#e7e7ec;
+  --text-primary:#141417; --text-secondary:#4a4a52; --text-muted:#6f6f78;
+  --accent:#bd2f27; --accent-2:#9e211a; --accent-ink:#9e211a; --accent-rgb:189,47,39;
+  --gradient-accent:linear-gradient(135deg,var(--accent),var(--accent-2));
+  --red:#b3261e; --green:#2f7d43; --blue:#2b5f9e;
+  --orange:#9a5b17; --cyan:#1f7a6b; --purple:#6d4a86;
+  --radius-md:10px; --radius-lg:16px;
+  --shadow-soft:0 1px 2px rgba(20,20,25,.05),0 6px 18px rgba(20,20,25,.07);
+  --shadow-glow:0 1px 2px rgba(20,20,25,.06),0 14px 34px rgba(20,20,25,.12);
+  --font-sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  --font-serif:"Spectral",Georgia,"Times New Roman",serif;
+  --mono:"JetBrains Mono",ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-sans);background:var(--bg-primary);color:var(--text-primary);line-height:1.7;-webkit-font-smoothing:antialiased}
+code{font-family:var(--mono)}
+a{color:var(--accent-ink);text-decoration:none}
+a:hover{text-decoration:underline;text-underline-offset:2px}
+.accent{background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero h1,h1.t,h2,.slide h1,.slide h2{font-family:var(--font-serif)}
+
+/* — Hero — */
+.hero{position:relative;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:3.8rem 2rem 2.6rem;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:760px;height:760px;background:radial-gradient(circle,rgba(var(--accent-rgb),0.07) 0%,transparent 70%);pointer-events:none}
+.hero-logo{width:64px;height:64px;margin-bottom:1.3rem;filter:drop-shadow(0 6px 16px rgba(var(--accent-rgb),.28))}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:var(--bg-card);border:1px solid var(--line);border-radius:999px;padding:.42rem 1rem;font:600 .74rem var(--mono);color:var(--accent-ink);margin-bottom:1.5rem;letter-spacing:.12em;text-transform:uppercase;box-shadow:var(--shadow-soft)}
+.hero h1{font-size:clamp(2rem,5vw,3.3rem);font-weight:800;letter-spacing:-.015em;line-height:1.12;max-width:840px;color:var(--text-primary)}
+.hero-subtitle{color:var(--text-secondary);font-size:clamp(1rem,2vw,1.18rem);max-width:680px;margin-top:1.15rem}
+.hero-meta{font-family:var(--mono);font-size:.74rem;color:var(--text-muted);margin-top:1.1rem;letter-spacing:.05em}
+
+/* — Sommaire ancré (barre collante) — */
+.tabs{position:sticky;top:0;z-index:10;background:rgba(232,232,235,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding:.7rem 1rem;display:flex;gap:.5rem;flex-wrap:wrap;justify-content:center}
+.tab{appearance:none;border:1px solid var(--line);background:var(--bg-card);color:var(--text-secondary);font:600 .8rem var(--font-sans);padding:.42rem .85rem;border-radius:999px;cursor:pointer;transition:.18s;white-space:nowrap;text-decoration:none}
+.tab:hover{color:var(--text-primary);border-color:var(--accent);box-shadow:var(--shadow-soft);text-decoration:none}
+.tab.accent-tab{color:#fff;background:var(--gradient-accent);border-color:transparent;font-weight:700}
+
+/* — Structure de contenu — */
+main{max-width:74rem;margin:0 auto;padding:2.6rem 2rem 5rem}
+section[id]{scroll-margin-top:70px}
+.section-label{display:inline-flex;align-items:center;gap:.5rem;font:600 .74rem var(--mono);text-transform:uppercase;letter-spacing:.14em;color:var(--accent-ink);margin-bottom:1rem}
+.section-label::before{content:'';display:inline-block;width:24px;height:2px;background:var(--gradient-accent)}
+h1.t{font-family:var(--font-serif);font-size:clamp(1.55rem,3vw,2.25rem);font-weight:800;letter-spacing:-.01em;margin-bottom:1rem;line-height:1.2;color:var(--text-primary)}
+h1.t .num-lead{font-family:var(--mono);color:var(--accent-ink);font-size:.6em;font-weight:700;margin-right:.5rem;vertical-align:.12em}
+h2{font-size:clamp(1.28rem,2.4vw,1.62rem);font-weight:700;letter-spacing:-.005em;margin:2.4rem 0 .9rem;color:var(--text-primary)}
+h3{font-family:var(--font-sans);font-size:1.08rem;font-weight:700;margin:1.4rem 0 .5rem;color:var(--text-primary);letter-spacing:-.005em}
+p{color:var(--text-secondary);font-size:1.02rem;max-width:78ch;margin:.55rem 0}
+.lead{color:var(--text-primary);font-size:1.1rem}
+strong{color:var(--text-primary);font-weight:600}
+ul{margin:.5rem 0 1rem;padding-left:1.2rem}
+li{margin:.3rem 0;color:var(--text-secondary)}li strong{color:var(--text-primary)}
+p code,li code,td code{background:rgba(var(--accent-rgb),0.08);color:var(--accent-ink);padding:.12rem .42rem;border-radius:5px;font-size:.85rem;word-break:break-word}
+.divider{border:0;border-top:1px solid var(--line);margin:3rem 0 0}
+
+/* — Cartes & grilles — */
+.card{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.5rem 1.7rem;margin:1.1rem 0;box-shadow:var(--shadow-soft)}
+.card.glow{box-shadow:var(--shadow-glow);border-color:rgba(var(--accent-rgb),.28)}
+.card h3:first-child{margin-top:0}
+.grid{display:grid;gap:1.1rem}
+@media(min-width:780px){.grid.two{grid-template-columns:1fr 1fr}.grid.three{grid-template-columns:repeat(3,1fr)}}
+
+/* — Badges / tags — */
+.tag{display:inline-block;font:600 .68rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:.14rem .6rem;border-radius:999px;margin-right:.4rem}
+.t-go{background:rgba(var(--accent-rgb),.13);color:var(--accent-ink)}
+.t-on{background:rgba(47,125,67,.14);color:var(--green)}
+.t-wait{background:rgba(154,91,23,.14);color:var(--orange)}
+.t-keep{background:rgba(109,74,134,.14);color:var(--purple)}
+.t-info{background:rgba(43,95,158,.14);color:var(--blue)}
+
+/* — Code — */
+pre{background:var(--bg-deep);border:1px solid var(--line);border-radius:var(--radius-md);padding:1.1rem 1.4rem;margin:1rem 0;overflow-x:auto;font-size:.85rem;line-height:1.6}
+pre code{color:#242428;background:none;padding:0}
+.cmt{color:var(--text-muted)}.tok{color:var(--accent-ink)}.kw{color:var(--blue)}.str{color:var(--green)}
+
+/* — Tables — */
+.scroll{overflow-x:auto;border-radius:var(--radius-md);margin:1.2rem 0;box-shadow:var(--shadow-soft)}
+table{width:100%;border-collapse:separate;border-spacing:0;border-radius:var(--radius-md);overflow:hidden;border:1px solid var(--line);font-size:.88rem;background:var(--bg-card)}
+th{background:var(--bg-deep);font:700 .7rem var(--mono);text-transform:uppercase;letter-spacing:.07em;color:var(--text-muted);padding:.72rem .9rem;text-align:left;white-space:nowrap}
+td{padding:.68rem .9rem;border-top:1px solid var(--line-soft);color:var(--text-secondary);vertical-align:top}
+tr:hover td{background:#f6f6f8}
+td strong,td.name{color:var(--text-primary)}
+td.name{white-space:nowrap}
+.num{font-family:var(--mono);font-size:.8rem;color:var(--accent-ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pill{font-family:var(--mono);font-size:.72rem;white-space:nowrap}
+tr.grp td{background:rgba(var(--accent-rgb),.07);font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--accent-ink);font-weight:700}
+.legend{font-size:.82rem;color:var(--text-muted);margin:.5rem .2rem}
+.emoji{font-size:1.1rem;line-height:1}
+
+/* — Encarts (callouts) — */
+.note{display:flex;gap:.9rem;border-radius:var(--radius-md);padding:1rem 1.3rem;margin:1.3rem 0;font-size:.92rem;background:var(--bg-card);border:1px solid var(--line);border-left:3px solid var(--line)}
+.note p{color:var(--text-secondary);margin:0;max-width:none}
+.note.warn{background:#faeceb;border-color:rgba(179,38,30,.28);border-left-color:var(--red)}.note.warn b{color:var(--red)}
+.note.tip{background:#ecf4ee;border-color:rgba(47,125,67,.28);border-left-color:var(--green)}.note.tip b{color:var(--green)}
+.note.info{background:#eaf1f8;border-color:rgba(43,95,158,.28);border-left-color:var(--blue)}.note.info b{color:var(--blue)}
+
+/* — Liste séquence numérotée — */
+.seq{counter-reset:s;list-style:none;padding:0}
+.seq li{counter-increment:s;padding:.5rem 0 .5rem 2.6rem;position:relative;color:var(--text-secondary)}
+.seq li::before{content:counter(s);position:absolute;left:0;top:.45rem;width:26px;height:26px;border-radius:50%;background:var(--gradient-accent);color:#fff;font:700 .82rem var(--mono);display:flex;align-items:center;justify-content:center}
+
+/* — Encadré « jalon » (reproduit le cadre du CLI) — */
+.jalon{background:var(--bg-card);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--radius-md);padding:1.1rem 1.4rem;margin:1.2rem 0;box-shadow:var(--shadow-soft)}
+.jalon .jrow{display:flex;flex-wrap:wrap;gap:.4rem .8rem;font-family:var(--mono);font-size:.82rem;align-items:baseline}
+.jalon .jk{color:var(--accent-ink);text-transform:uppercase;letter-spacing:.1em;font-size:.68rem;font-weight:700}
+
+/* — Pied — */
+.footer{text-align:center;padding:2.8rem 2rem;border-top:1px solid var(--line);margin-top:1rem}
+.footer .accent-line{width:60px;height:3px;background:var(--gradient-accent);border-radius:999px;margin:0 auto 1.2rem}
+.footer p{color:var(--text-muted);font-size:.82rem;max-width:none;margin:.2rem auto}
+.footer .toplink{display:inline-block;margin-top:.8rem;font-family:var(--mono);font-size:.72rem}
+
+/* — Wordmark — "iaka" encre + "frame" cinabre — */
+.ne-wordmark{font-weight:800;letter-spacing:-.01em;color:var(--text-primary)}
+.ne-wordmark b{font-weight:800}
+.ne-wordmark .edge{font-weight:800;background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#c7c7cf;border-radius:999px}::-webkit-scrollbar-thumb:hover{background:#b0b0b8}
+@media(max-width:768px){main{padding:1.8rem 1.2rem 4rem}.tabs{gap:.35rem;padding:.55rem .6rem}.tab{font-size:.72rem;padding:.35rem .65rem}}
+</style>
+</head>
+<body>
+
+<!-- ============================ HERO ============================ -->
+<section class="hero">
+  <svg class="hero-logo" viewBox="0 0 48 48" width="64" height="64" aria-hidden="true">
+    <defs><linearGradient id="hc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#bd2f27"/><stop offset="1" stop-color="#9e211a"/></linearGradient></defs>
+    <rect x="3" y="3" width="42" height="42" rx="11" fill="url(#hc)"/>
+    <path d="M18 15 L11 24 L18 33" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M30 15 L37 24 L30 33" fill="none" stroke="#fff" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="22.6" y="14" width="2.8" height="20" rx="1.4" fill="#fff" opacity=".9"/>
+  </svg>
+  <div class="hero-badge">Guide utilisateur · iakaframe</div>
+  <h1>Guide d'utilisation de <span class="accent">StefFrame2</span></h1>
+  <p class="hero-subtitle">Installation, prise en main et inventaire de tout ce que contient l'archive <strong>StefFrame2</strong> — la méthode iakaframe rendue exécutable. Écrit pour qui reçoit le zip et veut s'en servir.</p>
+  <div class="hero-meta">Guide · méthode iakaframe · document autonome (hors-ligne)</div>
+</section>
+
+<!-- ============================ SOMMAIRE ANCRÉ ============================ -->
+<nav class="tabs" aria-label="Sommaire">
+  <a class="tab" href="#s0">⏱ Démarrage rapide</a>
+  <a class="tab" href="#s1">1 · Présentation</a>
+  <a class="tab" href="#s2">2 · Prérequis</a>
+  <a class="tab" href="#s3">3 · Installation</a>
+  <a class="tab" href="#s4">4 · Prise en main</a>
+  <a class="tab" href="#s5">5 · Listing</a>
+  <a class="tab accent-tab" href="#cat">★ Catalogues</a>
+  <a class="tab" href="#s6">6 · Skills no-op</a>
+  <a class="tab" href="#s7">7 · Dépannage</a>
+  <a class="tab" href="#s8">8 · Exclusions</a>
+</nav>
+
+<main>
+
+<!-- ============================ 0. DÉMARRAGE RAPIDE ============================ -->
+<section id="s0">
+  <div class="section-label">Démarrage rapide</div>
+  <h1 class="t"><span class="num-lead">00</span>Quick start — l'essentiel</h1>
+  <div class="note tip"><p><b>⏱️ En 5 minutes :</b> le TL;DR pour installer StefFrame2 et réveiller l'équipe. Les explications, notes Windows et cas particuliers sont détaillés au <a href="#s2">§2 Prérequis</a> et au <a href="#s3">§3 Installation</a>.</p></div>
+
+  <h2>Prérequis (en une ligne)</h2>
+  <p><strong>Claude Code</strong> (le runner IA, abonnement) + <strong>Node.js ≥ 20</strong> (moteur du CLI et des hooks) + <strong>git</strong> — les trois s'installent séparément, ils ne sont pas dans le zip. Vérifie qu'ils répondent :</p>
+  <pre><code>node -v          <span class="cmt"># v20.x.x ou plus récent</span>
+git --version    <span class="cmt"># git version 2.x.x</span>
+claude --version <span class="cmt"># une version de Claude Code</span></code></pre>
+
+  <h2>Installer en 4 étapes</h2>
+  <p>Depuis un terminal, à l'emplacement où tu veux garder l'archive (les commandes sont détaillées au <a href="#s3">§3</a>) :</p>
+  <ol class="seq">
+    <li><strong>Décompresser et entrer dans le dossier</strong><pre><code>unzip StefFrame2.zip &amp;&amp; cd StefFrame2</code></pre></li>
+    <li><strong>Installer le CLI</strong> (hors-ligne, zéro dépendance)<pre><code>npm install -g ./cli</code></pre></li>
+    <li><strong>Poser la config globale de Claude Code</strong> avec l'installeur (vois d'abord le plan, puis pose)<pre><code>node install.mjs --dry-run   <span class="cmt"># plan par catégorie, n'écrit rien</span>
+node install.mjs             <span class="cmt"># fusionne, garde l'existant, sauvegarde horodatée</span></code></pre></li>
+    <li><strong>Pointer le « foyer » du frame</strong><pre><code>export IAKAFRAME_ROOT=$(pwd)</code></pre></li>
+  </ol>
+  <div class="note warn"><p><b>Déjà un <code>~/.claude/</code> ?</b> Aucun souci : <code>install.mjs</code> <strong>détecte l'existant et ne l'écrase jamais</strong> (fusion par défaut, sauvegarde avant écriture). Détail des modes, du repli manuel et du câblage au <a href="#s3">§3, étape C</a>.</p></div>
+
+  <h2>Vérif express</h2>
+  <pre><code>iakaframe banner IAKAFRAME        <span class="cmt"># grand titre ASCII (FIGlet) sur plusieurs lignes</span>
+iakaframe list personas --root .  <span class="cmt"># doit lister 8 personas</span></code></pre>
+
+  <h2>Premier geste</h2>
+  <p>Lance <strong>Claude Code</strong> dans un dossier de projet, puis écris simplement :</p>
+  <pre><code>iakastart</code></pre>
+  <p>→ le <strong>bandeau IAKAFRAME</strong> s'affiche avec le <strong>roster des 8 agents</strong>, prêts à être sollicités. Rien n'est lancé automatiquement : ensuite, tu demandes ce que tu veux. Prise en main pas-à-pas au <a href="#s4">§4</a>.</p>
+
+  <div class="note info"><p><b>Détails et cas particuliers :</b> installation Windows, alternative sans install globale (<code>node cli/src/index.js …</code>), câblage des hooks et activation des skills « no-op » → voir <a href="#s2">§2</a> et <a href="#s3">§3</a>.</p></div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================ 1. PRÉSENTATION ============================ -->
+<section id="s1">
+  <div class="section-label">Présentation</div>
+  <h1 class="t"><span class="num-lead">01</span>Qu'est-ce que StefFrame2</h1>
+  <p class="lead"><strong>StefFrame2, c'est la méthode de travail « iakaframe » rendue exécutable.</strong></p>
+  <p>La méthode iakaframe organise le travail comme une <strong>équipe d'experts</strong> pilotée par un <strong>décideur</strong> (toi). Chaque expert a un rôle borné (cadrage, réalisation, qualité, documentation…) et ces rôles sont incarnés par des <strong>personas</strong> (Odin, Aragorn, Gandalf, Gimli, Legolas, Helm, Loki, Nathalie). L'idée : on cadre par écrit <strong>avant</strong> de coder, on avance par petites étapes, et l'humain valide aux points clés.</p>
+  <p>Il a existé une première version, <strong>StefFrame1</strong>, qui était un simple <strong>corpus de documentation et de kits</strong> : tout était écrit, mais rien ne « tournait » vraiment. On avait le mode d'emploi de la méthode, mais pas l'outil.</p>
+
+  <div class="card glow">
+    <h3>StefFrame2 = tout StefFrame1 + ce qu'il faut pour que ça FONCTIONNE</h3>
+    <ul>
+      <li>un <strong>CLI</strong> (un programme en ligne de commande) qui exécute réellement les rituels de la méthode : afficher un bandeau de démarrage, poser un jalon, lister les personas, gérer une bibliothèque d'éléments réutilisables, etc. ;</li>
+      <li>les <strong>hooks</strong> (petits scripts de garde-fou) qui rappellent leur identité et leur périmètre aux agents, réellement câblés ;</li>
+      <li>un fichier de <strong>réglages d'exemple</strong> qui branche ces hooks ;</li>
+      <li>une <strong>charte graphique de démarrage</strong> neutre pour habiller d'éventuels documents ;</li>
+      <li>ce <strong>guide</strong> et un <code>GUIDE-INSTALLATION.md</code> court fourni dans l'archive.</li>
+    </ul>
+  </div>
+
+  <h2>Ce que ça permet concrètement</h2>
+  <p>Une fois installé, tu peux :</p>
+  <ul>
+    <li>lancer <strong>Claude Code</strong> (l'assistant qui joue les personas) et dire « iakastart » pour réveiller l'équipe ;</li>
+    <li>utiliser la commande <strong><code>iakaframe</code></strong> pour les rituels outillés (bandeaux, jalons, bibliothèque d'atomes, mémoire de session…) ;</li>
+    <li>suivre le <strong>cycle d'une feature</strong> : besoin → cadrage écrit → réalisation → qualité → documentation, avec des garde-fous automatiques.</li>
+  </ul>
+
+  <div class="note info"><p><b>Important :</b> StefFrame2 est la méthode <strong>sans interface graphique</strong>. Il n'y a pas d'application avec des fenêtres et des boutons : tout se passe dans le <strong>terminal</strong> (la console) et dans <strong>Claude Code</strong>. C'est un choix assumé (voir §8). C'est plus austère au premier regard, mais tout est là et tout fonctionne.</p></div>
+</section>
+
+<!-- ============================ 2. PRÉREQUIS ============================ -->
+<section id="s2">
+  <div class="section-label">Prérequis</div>
+  <h1 class="t"><span class="num-lead">02</span>Prérequis</h1>
+  <p>StefFrame2 a besoin de <strong>trois choses qui ne sont PAS dans le zip</strong> et que tu dois installer toi-même. Elles sont volontairement séparées : le zip contient la <strong>méthode et son outil</strong>, pas le moteur qui les fait tourner.</p>
+
+  <div class="scroll"><table>
+    <thead><tr><th>À installer</th><th>À quoi ça sert</th><th>Fourni&nbsp;?</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Claude Code</td><td>Le <strong>runner</strong> : l'assistant IA qui incarne les personas et exécute la méthode. Nécessite un abonnement.</td><td><span class="tag t-wait">Non</span></td></tr>
+      <tr><td class="name">Node.js ≥ 20</td><td>Le moteur qui fait tourner le <strong>CLI</strong> et les <strong>hooks</strong> (écrits en JavaScript).</td><td><span class="tag t-wait">Non</span></td></tr>
+      <tr><td class="name">git</td><td>Le versionnement du code (historique, sauvegardes, envoi vers un serveur).</td><td><span class="tag t-wait">Non</span></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Bien distinguer les deux « outils »</h2>
+  <p>C'est le point qui prête le plus à confusion, donc prenons le temps :</p>
+  <div class="grid two">
+    <div class="card"><h3>Le runner = Claude Code</h3><p>C'est le programme dans lequel tu <strong>discutes</strong> avec l'assistant. C'est lui qui « joue » Odin, Gandalf, etc. <strong>Il s'installe à part</strong> (et demande un abonnement). Rien à voir avec le zip.</p></div>
+    <div class="card"><h3>Le CLI = <code>iakaframe</code></h3><p>C'est le <strong>petit outil de la méthode</strong>, <strong>fourni dans le zip</strong> (dossier <code>cli/</code>). Il ne parle pas, il <strong>exécute</strong> des commandes précises (afficher un bandeau, lister des éléments…). C'est du code que tu installes depuis l'archive.</p></div>
+  </div>
+  <p>Les deux travaillent ensemble mais s'installent séparément.</p>
+
+  <h2>Vérifier que les prérequis sont là</h2>
+  <p>Ouvre un terminal et lance ces commandes. Chacune doit répondre par une version ou un chemin, <strong>pas</strong> par une erreur « command not found » :</p>
+  <pre><code>node -v          <span class="cmt"># doit afficher v20.x.x ou plus récent</span>
+git --version    <span class="cmt"># doit afficher git version 2.x.x</span>
+claude --version <span class="cmt"># doit afficher une version de Claude Code</span></code></pre>
+  <ul>
+    <li>Si <code>node -v</code> affiche une version <strong>inférieure à 20</strong> (ex. <code>v18.x</code>), mets Node à jour : StefFrame2 vise <strong>Node 20 ou plus</strong> (le CLI s'appuie sur des fonctions natives de Node 20).</li>
+    <li>Si <code>claude</code> répond « command not found », c'est que Claude Code n'est pas installé ou pas dans le <code>PATH</code> : installe-le en suivant sa documentation officielle.</li>
+  </ul>
+  <div class="note info"><p><b>Où installer Node.js et git ?</b><br>
+    <strong>macOS</strong> : le plus simple est <a href="https://brew.sh">Homebrew</a> → <code>brew install node git</code>.<br>
+    <strong>Windows</strong> : les installeurs officiels de <a href="https://nodejs.org">nodejs.org</a> et <a href="https://git-scm.com">git-scm.com</a>, ou <code>winget install OpenJS.NodeJS Git.Git</code>.<br>
+    <strong>Linux</strong> : via le gestionnaire de paquets de ta distribution (ex. <code>sudo apt install nodejs git</code>, en veillant à obtenir Node ≥ 20).</p></div>
+</section>
+
+<!-- ============================ 3. INSTALLATION ============================ -->
+<section id="s3">
+  <div class="section-label">Installation</div>
+  <h1 class="t"><span class="num-lead">03</span>Installation pas-à-pas</h1>
+  <p>On va faire trois choses, dans l'ordre : <strong>(A)</strong> décompresser le zip, <strong>(B)</strong> installer le CLI, <strong>(C)</strong> poser la configuration de Claude Code dans ton dossier personnel <code>~/.claude</code>. Les exemples sont donnés pour <strong>macOS / Linux</strong> ; les notes Windows sont signalées.</p>
+
+  <h2>Étape A — Décompresser l'archive</h2>
+  <p>Choisis un emplacement stable où l'archive va <strong>rester</strong> (le CLI et Claude Code pointeront dessus). Par exemple un dossier <code>~/iakaframe</code> :</p>
+  <pre><code>mkdir -p ~/iakaframe
+cd ~/iakaframe
+unzip ~/Téléchargements/StefFrame2.zip</code></pre>
+  <p>Tu obtiens un dossier <code>StefFrame2/</code> contenant tout le corpus, le dossier <code>cli/</code>, les kits, etc. Place-toi dedans :</p>
+  <pre><code>cd ~/iakaframe/StefFrame2</code></pre>
+  <div class="note info"><p><b>Windows :</b> clic droit sur le zip → « Extraire tout… », puis ouvre un terminal (PowerShell) dans le dossier extrait.</p></div>
+
+  <h2>Étape B — Installer le CLI <code>iakaframe</code></h2>
+  <p>Le CLI est <strong>sans aucune dépendance</strong> : il n'a besoin d'aller chercher aucun paquet sur Internet. L'installation est donc <strong>hors-ligne</strong> et instantanée.</p>
+  <pre><code>npm install -g ./cli</code></pre>
+  <p>Cela installe la commande <strong><code>iakaframe</code></strong> sur ton système. Vérifie :</p>
+  <pre><code>iakaframe --version</code></pre>
+  <div class="note tip"><p><b>Alternative sans installation globale :</b> si tu ne veux rien installer, appelle le CLI directement depuis le dossier — <code>node cli/src/index.js --version</code>. Partout où ce guide écrit <code>iakaframe &lt;commande&gt;</code>, tu peux remplacer par <code>node cli/src/index.js &lt;commande&gt;</code>.</p></div>
+
+  <h2>Étape C — Poser la configuration globale de Claude Code (avec l'installeur)</h2>
+  <p>Claude Code lit sa configuration dans le dossier caché <strong><code>~/.claude</code></strong> de ton compte. Le zip fournit tout ce qu'il faut dans le <strong>kit Claude</strong> (<code>kits/iakaframe-claude/</code>) : instructions globales, skills, agents, hooks, et le fichier de réglages qui câble les hooks.</p>
+  <div class="note tip"><p><b>Ne copie pas ces fichiers à la main.</b> StefFrame2 embarque un <strong>installeur intelligent</strong> (<code>install.mjs</code>, à la racine de l'archive) qui <strong>détecte ce que tu as déjà</strong> dans <code>~/.claude</code> et <strong>ne l'écrase jamais aveuglément</strong>. C'est la voie normale — plus sûre, et rejouable sans risque.</p></div>
+
+  <h3>C.1 — Voir le plan sans rien écrire</h3>
+  <p>Commence toujours par un « essai à blanc » : il <strong>affiche ce qui serait fait</strong>, catégorie par catégorie, <strong>sans écrire un seul fichier</strong> et <strong>sans créer de sauvegarde</strong>.</p>
+  <pre><code>node install.mjs --dry-run</code></pre>
+  <p>Tu verras, pour chacune des <strong>5 catégories gérées</strong>, ce qui est <strong>absent</strong> (à ajouter) et ce qui est <strong>déjà présent</strong> (collision → l'action prévue) :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Catégorie</th><th>Ce que l'installeur apporte</th><th>Cible dans <code>~/.claude/</code></th></tr></thead>
+    <tbody>
+      <tr><td class="name">Contrat global</td><td><code>CLAUDE.md</code> (encadré par un bloc repérable)</td><td class="pill"><code>CLAUDE.md</code></td></tr>
+      <tr><td class="name">Réglages</td><td>la section <code>hooks</code> de <code>settings.example.json</code></td><td class="pill"><code>settings.json</code></td></tr>
+      <tr><td class="name">Hooks</td><td>les 5 fichiers <code>.mjs</code></td><td class="pill"><code>hooks/*.mjs</code></td></tr>
+      <tr><td class="name">Skills</td><td>les 16 skills</td><td class="pill"><code>skills/*</code></td></tr>
+      <tr><td class="name">Agents</td><td>les 8 agents</td><td class="pill"><code>agents/*</code></td></tr>
+    </tbody>
+  </table></div>
+  <div class="note info"><p><b>Rien d'autre n'est touché.</b> Tout le reste de <code>~/.claude</code> — ta mémoire par projet (<code>projects/</code>), tes <code>todos/</code>, ton <code>history</code>, tes <code>plugins/</code>… — n'est <strong>jamais lu en écriture, jamais sauvegardé, jamais écrasé</strong>. L'installeur n'agit <strong>que</strong> sur les 5 catégories ci-dessus, et <strong>uniquement en ajout</strong> par défaut.</p></div>
+
+  <h3>C.2 — Poser la configuration</h3>
+  <p>Quand le plan te convient, lance l'installeur pour de vrai :</p>
+  <pre><code>node install.mjs</code></pre>
+  <p>Par défaut (mode <strong><code>--merge</code></strong>), il <strong>fusionne intelligemment</strong> : il ajoute ce qui manque et, <strong>en cas de conflit, garde ce que tu as déjà</strong>. Avant la moindre écriture, il crée une <strong>sauvegarde horodatée</strong> dans <code>~/.claude/.iakaframe-backup-&lt;ts&gt;/</code> (<code>&lt;ts&gt;</code> = un horodatage) — tu peux toujours revenir en arrière.</p>
+  <p>En mode <strong>interactif</strong> (le défaut si tu ne passes pas <code>--yes</code>), pour chaque élément <strong>déjà présent</strong> il te propose, <strong>regroupé par catégorie</strong>, trois actions :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Choix</th><th>Effet</th></tr></thead>
+    <tbody>
+      <tr><td class="name">[f]usionner</td><td>Combine intelligemment (voir plus bas) sans rien perdre — <strong>le défaut</strong>.</td></tr>
+      <tr><td class="name">[e]craser</td><td>Remplace par la version du kit (après sauvegarde).</td></tr>
+      <tr><td class="name">[g]arder</td><td>Ne touche à rien, conserve ta version.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tip"><p><b>Astuce :</b> la <strong>majuscule</strong> (<code>[F]</code>, <code>[E]</code>, <code>[G]</code>) applique le même choix à <strong>toute la catégorie</strong> d'un coup. Les éléments <strong>absents</strong> sont simplement <strong>ajoutés</strong>, sans question.</p></div>
+  <p>Ce que « fusionner » veut dire concrètement, selon le type de fichier :</p>
+  <ul>
+    <li><strong><code>CLAUDE.md</code></strong> : le contenu de la méthode est inséré dans un <strong>bloc balisé</strong> <code>&lt;!-- iakaframe:start --&gt;</code> … <code>&lt;!-- iakaframe:end --&gt;</code>. S'il manque, il est ajouté en fin de fichier ; s'il existe déjà, seul <strong>son contenu</strong> est mis à jour. <strong>Rien hors du bloc n'est modifié</strong> — tes instructions personnelles restent intactes.</li>
+    <li><strong><code>settings.json</code></strong> : fusion en profondeur. Les <strong>entrées de hooks manquantes</strong> sont ajoutées (identifiées par leur trio événement + matcher + commande) ; <strong>aucune de tes entrées n'est retirée</strong> ; sur un réglage en conflit, <strong>ta valeur est conservée</strong>. (Si ton <code>settings.json</code> est un JSON invalide, l'installeur <strong>ne fusionne pas</strong> : il t'avertit et te laisse choisir.)</li>
+    <li><strong><code>skills/</code>, <code>agents/</code>, <code>hooks/</code></strong> : les éléments <strong>absents</strong> sont copiés ; un élément de même nom déjà présent est <strong>gardé tel quel</strong> par défaut (jamais écrasé sans que tu le demandes).</li>
+  </ul>
+
+  <h3>C.3 — Les options de l'installeur</h3>
+  <p>Tu peux piloter le comportement avec ces drapeaux :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Drapeau</th><th>Effet</th></tr></thead>
+    <tbody>
+      <tr><td class="name"><code>--merge</code></td><td><span class="tag t-on">défaut</span> Fusion sûre ; en cas de conflit, garde l'existant.</td></tr>
+      <tr><td class="name"><code>--overwrite</code></td><td>Sur collision, <strong>écrase</strong> (après sauvegarde). Non-interactif.</td></tr>
+      <tr><td class="name"><code>--keep</code></td><td>Sur collision, <strong>garde</strong> l'existant (ignore). Non-interactif.</td></tr>
+      <tr><td class="name"><code>--dry-run</code></td><td>Affiche le plan par catégorie, <strong>n'écrit rien</strong>, ne crée aucune sauvegarde.</td></tr>
+      <tr><td class="name"><code>--yes</code></td><td><strong>Non-interactif</strong> : applique le mode choisi sans poser de question.</td></tr>
+      <tr><td class="name"><code>--backup-dir &lt;chemin&gt;</code></td><td>Dossier de sauvegarde explicite (défaut <code>~/.claude/.iakaframe-backup-&lt;ts&gt;/</code>).</td></tr>
+      <tr><td class="name"><code>--target &lt;dossier&gt;</code></td><td>Cible alternative (défaut <code>~/.claude</code>).</td></tr>
+    </tbody>
+  </table></div>
+  <p>L'installeur est <strong>idempotent</strong> : le relancer en mode fusion <strong>ne produit aucun changement</strong> si tout est déjà en place (pas de doublon, pas de corruption). Tu peux donc le rejouer sans crainte après une mise à jour du frame.</p>
+  <div class="note info"><p><b>Windows / autres shells :</b> deux wrappers légers font exactement la même chose — <code>./install.sh [options]</code> (macOS/Linux) et <code>./install.ps1 [options]</code> (Windows PowerShell). Ils ne font qu'appeler <code>node install.mjs</code> avec tes arguments.</p></div>
+
+  <h3>Repli manuel (si tu préfères tout faire à la main)</h3>
+  <p>L'installeur est recommandé, mais rien ne t'empêche de poser la config manuellement. <strong>Dans ce cas, ne remplace jamais l'existant</strong> — procède par ajout, après sauvegarde :</p>
+  <ol class="seq">
+    <li><strong>Sauvegarde d'abord</strong> : <code>cp -R ~/.claude ~/.claude.bak-&lt;date&gt;</code> (ou un zip).</li>
+    <li><strong><code>CLAUDE.md</code></strong> : ouvre <code>kits/iakaframe-claude/global/CLAUDE.md</code>, copie son bloc <code>&lt;!-- iakaframe:start --&gt;</code> … <code>&lt;!-- iakaframe:end --&gt;</code> dans ton <code>~/.claude/CLAUDE.md</code> <strong>s'il manque</strong>. Ne supprime rien d'autre.</li>
+    <li><strong><code>settings.json</code></strong> : ajoute <strong>à la main</strong> les entrées <code>hooks</code> manquantes (événement + matcher + commande) depuis <code>kits/iakaframe-claude/global/settings.example.json</code> ; garde tes valeurs. Dépose les hooks dans <code>~/.claude/hooks/</code>.</li>
+    <li><strong>skills / agents / hooks</strong> : copie <strong>uniquement</strong> les éléments <strong>absents</strong> de ton <code>~/.claude/</code> ; n'écrase pas les tiens.</li>
+  </ol>
+  <p class="legend">Dossiers sources dans l'archive : <code>kits/iakaframe-claude/global/CLAUDE.md</code>, <code>.../global/hooks/*.mjs</code>, <code>.../global/settings.example.json</code>, <code>.claude/skills/*</code>, <code>.claude/agents/*</code>.</p>
+
+  <h3>Ce que câble le fichier de réglages</h3>
+  <p>Une fois la config posée, les garde-fous sont branchés ainsi (tu n'as rien à faire, c'est pour comprendre) — <a href="#cat-hooks">tableau détaillé au catalogue des hooks</a> :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Quand</th><th>Ce qui se déclenche</th><th>Rôle</th></tr></thead>
+    <tbody>
+      <tr><td>Fin de tour de l'assistant (<code>Stop</code>)</td><td class="name"><code>identity-guard.mjs</code></td><td>Vérifie que l'agent s'est bien identifié</td></tr>
+      <tr><td>Fin d'un sous-agent (<code>SubagentStop</code>)</td><td class="name"><code>identity-guard.mjs</code></td><td>Idem pour les agents délégués</td></tr>
+      <tr><td>Envoi d'un message (<code>UserPromptSubmit</code>)</td><td class="name"><code>identity-remind.mjs</code></td><td>Rappelle à l'agent son identité</td></tr>
+      <tr><td>Avant/après une délégation (<code>Task</code>)</td><td class="name"><code>delegation-guard.mjs</code></td><td>Garde le canal de délégation propre</td></tr>
+      <tr><td>Après une action de plan (<code>TodoWrite</code>/<code>Task</code>)</td><td class="name"><code>plan-courante.mjs</code></td><td>Tient le plan de travail à jour</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tip"><p><b>Bon à savoir :</b> ces hooks sont conçus pour <strong>échouer en silence</strong> (fail-open). S'ils ne sont pas configurés ou si un service qu'ils cherchent est absent, ils <strong>ne bloquent rien</strong> — ils se contentent de ne rien faire. Aucun risque de casser Claude Code.</p></div>
+
+  <h3>Pointer vers le « foyer » du frame</h3>
+  <p>Certaines commandes du CLI qui lisent la bibliothèque d'éléments ont besoin de savoir <strong>où est le frame</strong>. Deux façons :</p>
+  <ul>
+    <li><strong>Ponctuellement</strong> : ajoute <code>--root &lt;chemin-du-StefFrame2&gt;</code> à la commande, par ex. <code>iakaframe list personas --root ~/iakaframe/StefFrame2</code>. Depuis le dossier lui-même, <code>--root .</code> suffit.</li>
+    <li><strong>Une fois pour toutes</strong> : exporte une variable d'environnement — <code>export IAKAFRAME_ROOT=~/iakaframe/StefFrame2</code>. Pour rendre ça permanent, ajoute cette ligne à ton <code>~/.zshrc</code> (macOS) ou <code>~/.bashrc</code> (Linux).</li>
+  </ul>
+  <div class="note info"><p>Le terme <code>&lt;IAKAFRAME_HOME&gt;</code> que tu peux croiser dans la doc désigne exactement cet emplacement : le dossier décompressé du frame.</p></div>
+</section>
+
+<!-- ============================ 4. PRISE EN MAIN ============================ -->
+<section id="s4">
+  <div class="section-label">Prise en main</div>
+  <h1 class="t"><span class="num-lead">04</span>Premier lancement et prise en main</h1>
+
+  <h2>4.1 — Vérifier que le CLI répond</h2>
+  <p>Depuis le dossier <code>StefFrame2/</code> :</p>
+  <pre><code>iakaframe banner IAKAFRAME</code></pre>
+  <p>Tu dois voir un <strong>grand titre en lettres ASCII</strong> (dessiné avec le moteur FIGlet embarqué), sur plusieurs lignes. Si ça s'affiche, le CLI fonctionne.</p>
+  <pre><code>iakaframe list personas --root .</code></pre>
+  <p>Doit lister <strong>8 personas</strong> (Odin, Aragorn, Gandalf, Gimli, Legolas, Helm, Loki, Nathalie), lus depuis la bibliothèque embarquée dans le frame.</p>
+
+  <h2>4.2 — Réveiller l'équipe dans Claude Code</h2>
+  <p>Lance Claude Code dans un dossier de projet, puis écris simplement :</p>
+  <pre><code>iakastart</code></pre>
+  <p>Cela affiche le <strong>bandeau IAKAFRAME</strong> et le <strong>roster des 8 agents</strong>, et rend l'équipe prête à être sollicitée. (Les mots <code>iakaframe</code> et <code>odin</code> déclenchent la même chose.) <strong>Rien n'est lancé automatiquement</strong> : c'est juste la mise en place ; ensuite tu demandes ce que tu veux.</p>
+
+  <h2>4.3 — Poser un premier jalon</h2>
+  <p>Un <strong>jalon</strong> est un point de validation : un cadre qui dit « qui a produit quoi, pour qui ». Le CLI sait le dessiner (voir le <a href="#cat-jalons">catalogue des jalons</a>) :</p>
+  <pre><code>iakaframe jalon --name <span class="str">"Premier essai"</span> --from Gandalf --to Gimli --content <span class="str">"Ça tourne"</span></code></pre>
+  <p>Tu obtiens un encadré propre avec émetteur / contenu / récepteur. C'est l'outil qu'on utilise aux points de décision de la méthode.</p>
+
+  <h2>4.4 — Le cycle d'une feature</h2>
+  <p>Voici la boucle de travail que la méthode fait vivre (dans Claude Code, avec l'équipe) :</p>
+  <ol class="seq">
+    <li><strong>Besoin</strong> — tu exprimes ce que tu veux.</li>
+    <li><strong>Cadrage</strong> (Gandalf) — l'agent transforme le besoin en <strong>instruction écrite</strong> dans <code>specs/instructions/&lt;feature&gt;.md</code>. Aucun code à ce stade.</li>
+    <li><strong>Validation</strong> — tu relis et tu valides l'instruction (c'est un jalon).</li>
+    <li><strong>Réalisation</strong> (Gimli) — l'agent lit l'instruction, code, teste, commite par petits pas.</li>
+    <li><strong>Qualité</strong> (Legolas) — vérification, tests, gate automatique.</li>
+    <li><strong>Documentation</strong> (Nathalie) — le guide utilisateur de la feature, et la mémoire du projet.</li>
+    <li><strong>Boucle</strong> — feedback, ajustements, on recommence.</li>
+  </ol>
+  <p>Entre les étapes, les <strong>checkpoints</strong> (<code>iakaframe update</code> / <code>snapshot</code>) enregistrent l'état du projet et son historique.</p>
+</section>
+
+<!-- ============================ 5. LISTING ============================ -->
+<section id="s5">
+  <div class="section-label">Listing exhaustif</div>
+  <h1 class="t"><span class="num-lead">05</span>Listing exhaustif des éléments</h1>
+  <p>Tout ce que contient StefFrame2, catégorie par catégorie. StefFrame2 <strong>hérite intégralement</strong> de StefFrame1, puis <strong>ajoute</strong> le CLI, les hooks, les réglages, la charte de démarrage et les guides.</p>
+
+  <h2>5.1 — Les personas / agents (8)</h2>
+  <p>Ce sont les rôles de l'équipe. Chacun a un <strong>contrat</strong> (<code>personas/&lt;nom&gt;.md</code>, aussi déployé dans <code>~/.claude/agents/</code>) et, pour la plupart, une <strong>skill</strong> (son savoir-faire détaillé).</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Pastille</th><th>Persona</th><th>Rôle</th></tr></thead>
+    <tbody>
+      <tr><td class="emoji">🦅</td><td class="name">Odin</td><td>Super-agent portefeuille : démarrage de projet, changement d'équipe, création d'équipe. Le seul à toucher au « foyer » de la méthode.</td></tr>
+      <tr><td class="emoji">🛡️</td><td class="name">Aragorn</td><td>Coordination entre agents : orchestration en 3 phases, dispatch à la demande, interlocuteur par défaut d'un projet.</td></tr>
+      <tr><td class="emoji">🧙</td><td class="name">Gandalf</td><td>Cadrage (phase 1) : transforme un besoin en instruction fermée, écrite, sans code.</td></tr>
+      <tr><td class="emoji">⚒️</td><td class="name">Gimli</td><td>Développement + devops (phases 2→3) : lit l'instruction, code, teste, déploie. Pas de skill dédiée — son cadre vit dans le <code>CLAUDE.md</code> du projet.</td></tr>
+      <tr><td class="emoji">🏹</td><td class="name">Legolas</td><td>Qualité / test (phases 2/3) : vérification, tests, gate automatique.</td></tr>
+      <tr><td class="emoji">🌉</td><td class="name">Helm</td><td>Déploiement (squad prod) : mise en production, accès, rollback, surveillance, alertes.</td></tr>
+      <tr><td class="emoji">🎭</td><td class="name">Loki</td><td>Design : supports visuels « on-brand » à partir d'un catalogue de chartes.</td></tr>
+      <tr><td class="emoji">📖</td><td class="name">Nathalie</td><td>Documentation : guides utilisateurs et mémoire humaine du projet.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note info"><p>La bibliothèque contient aussi un fichier <code>_TEMPLATE.md</code> (gabarit pour créer un nouveau persona), ce qui fait <strong>9 fichiers</strong> dans <code>personas/</code> — mais <strong>8 agents réels</strong>.</p></div>
+
+  <h2>5.2 — La bibliothèque d'atomes (<code>library/</code>)</h2>
+  <p>Les « briques » réutilisables de la méthode, rangées par famille. Ce sont des fichiers Markdown que le CLI sait lister, montrer et assembler. <a href="#cat-briques">Détail par famille au catalogue des briques</a>.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Famille</th><th>Nb</th><th>Ce que c'est</th></tr></thead>
+    <tbody>
+      <tr><td class="name">principles/</td><td class="num">14</td><td>Les règles permanentes : cadrage-avant-code, commits &amp; versionnement, confirmation des actes destructifs, documentation, gestion du backlog, identité &amp; badges, isolation Docker, langue, mock en dev, MVP d'abord, périmètres étanches, qualité, réutilisation de l'existant, self-hosted d'abord.</td></tr>
+      <tr><td class="name">rituals/</td><td class="num">5</td><td>Les gestes récurrents : <code>iakastart</code>, <code>init</code>, <code>log-conversation</code>, <code>snapshot</code>, <code>update</code>.</td></tr>
+      <tr><td class="name">guardrails/</td><td class="num">3</td><td>Les garde-fous : délégation, identité, périmètre (matérialisés par les hooks).</td></tr>
+      <tr><td class="name">roles/</td><td class="num">8</td><td>Les définitions de rôle : cadrage, coordination, déploiement, design, dev, documentation, portefeuille, qualité.</td></tr>
+      <tr><td class="name">personas/</td><td class="num">9</td><td>Les incarnations des rôles (8 agents + 1 gabarit).</td></tr>
+      <tr><td class="name">scaffolds/</td><td class="num">2</td><td>Les squelettes de projet : <code>projet</code> (projet simple) et <code>portefeuille</code> (dossier chapeau).</td></tr>
+      <tr><td class="name">workflows/</td><td class="num">1</td><td>Le flux de référence : <code>iakaframe-3phases</code> (cadrage → réalisation → qualité).</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>5.3 — Les assemblages</h2>
+  <p>Au-dessus des atomes, les documents qui les combinent :</p>
+  <ul>
+    <li><strong><code>methode-de-travail.md</code></strong> — le document de référence complet de la méthode.</li>
+    <li><strong><code>methods/iakaframe.md</code></strong> — la méthode assemblée.</li>
+    <li><strong><code>teams/iakaframe-8.md</code></strong> — la composition de l'équipe des 8 agents.</li>
+    <li><strong><code>bindings/iakaframe-claude-default.md</code></strong> — le « branchement » par défaut de la méthode sur Claude Code.</li>
+    <li><strong><code>README.md</code></strong> — l'index du frame.</li>
+  </ul>
+
+  <h2>5.4 — Les 16 skills (savoir-faire des agents)</h2>
+  <p>Une skill est une méthode détaillée qui se <strong>déclenche</strong> quand le contexte s'y prête. Il y en a <strong>16</strong>. Sept sont attachées à un agent, neuf sont des briques transverses. Voir le <a href="#cat-skills">catalogue complet des skills</a>.</p>
+
+  <h2>5.5 — Le CLI <code>iakaframe</code> (l'outil exécutable)</h2>
+  <p>Le cœur de ce que StefFrame2 ajoute. C'est un paquet Node <strong>sans aucune dépendance</strong> (il tourne hors-ligne). Il expose <strong>~27 commandes</strong>, organisées en familles. Les commandes de la bibliothèque acceptent <code>--root &lt;frame&gt;</code> pour savoir où lire les atomes. Voir le <a href="#cat-cli">catalogue des commandes CLI</a>.</p>
+  <p><strong>Contenu technique du dossier <code>cli/</code> livré :</strong></p>
+  <ul>
+    <li><code>cli/package.json</code> — le manifeste du paquet (nettoyé : plus de registre privé, la commande <code>iakaframe</code> conservée). Exige <strong>Node ≥ 20</strong>.</li>
+    <li><code>cli/README.md</code> — la doc de référence du CLI.</li>
+    <li><code>cli/src/index.js</code> — le point d'entrée (dispatch des commandes, zéro dépendance).</li>
+    <li><code>cli/src/commands/*.js</code> — les fichiers de commandes.</li>
+    <li><code>cli/src/lib/*.js</code> — les fonctions internes (git, table, bibliothèque, mémoire…).</li>
+    <li><code>cli/src/lib/figfont/*.flf</code> — <strong>7 polices</strong> FIGlet embarquées (<code>ansi_shadow</code>, <code>standard</code>, <code>big</code>, <code>bloody</code>, <code>doom</code>, <code>slant</code>, <code>small</code>) + un fichier <code>CREDITS.txt</code>. C'est ce qui permet les titres ASCII <strong>sans rien télécharger</strong>.</li>
+  </ul>
+
+  <h2>5.6 — Les 5 kits (un par runner)</h2>
+  <p>Un « kit » adapte la méthode à un environnement d'IA donné. Il y en a <strong>5</strong>.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Kit</th><th>Pour quel outil</th></tr></thead>
+    <tbody>
+      <tr><td class="name">iakaframe-claude</td><td><strong>Claude Code</strong> — c'est celui que tu utilises (contient CLAUDE.md, skills, agents, hooks, réglages).</td></tr>
+      <tr><td class="name">iakaframe-codex</td><td>Codex CLI.</td></tr>
+      <tr><td class="name">iakaframe-ollama</td><td>Ollama (modèles locaux).</td></tr>
+      <tr><td class="name">iakaframe-openwebui</td><td>Open WebUI.</td></tr>
+      <tr><td class="name">iakaframe-anythingllm</td><td>AnythingLLM.</td></tr>
+    </tbody>
+  </table></div>
+  <p>Pour StefFrame2, <strong>seul le kit <code>iakaframe-claude</code> est nécessaire</strong> ; les autres sont fournis pour référence si un jour tu changes de runner.</p>
+
+  <h2>5.7 — Les hooks (garde-fous, dans le kit Claude)</h2>
+  <p>Dans <code>kits/iakaframe-claude/global/hooks/</code>, <strong>5 fichiers <code>.mjs</code></strong> — détail et câblage au <a href="#cat-hooks">catalogue des hooks</a>.</p>
+  <div class="note info"><p>Des équivalents <code>.ps1</code> (PowerShell, pour Windows) sont aussi présents pour la parité multi-OS, mais le fichier de réglages d'exemple ne branche <strong>que</strong> les <code>.mjs</code> (puisque tu installes Node).</p></div>
+
+  <h2>5.8 — La charte de démarrage <code>design-starter/</code></h2>
+  <p>Une charte graphique <strong>neuve et neutre</strong> (sans marque personnelle), fournie pour habiller d'éventuels documents produits par l'agent de design (Loki). <strong>6 fichiers :</strong></p>
+  <div class="scroll"><table>
+    <thead><tr><th>Fichier</th><th>Contenu</th></tr></thead>
+    <tbody>
+      <tr><td class="name">starter.css</td><td>Palette générique documentée (variables CSS), sobre.</td></tr>
+      <tr><td class="name">logo.svg</td><td>Un logo placeholder neutre.</td></tr>
+      <tr><td class="name">template-doc.html</td><td>Gabarit de document lié à <code>starter.css</code>.</td></tr>
+      <tr><td class="name">template-slides.html</td><td>Gabarit de présentation.</td></tr>
+      <tr><td class="name">template-flyer.svg</td><td>Gabarit d'affichette.</td></tr>
+      <tr><td class="name">charte.md</td><td>Mode d'emploi court : « charte par défaut ; duplique-la pour créer la tienne ».</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tip"><p><b>Note de Loki (design) :</b> ce présent guide, lui, est habillé avec la charte <strong>Cinabre</strong> (conseil premium · rouge cinabre) — la charte on-brand par défaut de la méthode, distincte de la <code>design-starter/</code> neutre livrée dans le zip.</p></div>
+
+  <h2>5.9 — La documentation fournie</h2>
+  <ul>
+    <li><strong><code>docs/git-hosting.md</code></strong> — mini-guide pour brancher un projet sur <strong>ton propre serveur git</strong> self-hosted (en HTTP + token), avec des placeholders <code>&lt;GIT_HOST&gt;</code>, <code>&lt;GIT_TOKEN&gt;</code>… à remplacer par tes valeurs. Aucun secret n'est jamais écrit en dur.</li>
+    <li><strong><code>GUIDE-INSTALLATION.md</code></strong> — le guide d'installation court, à la racine de l'archive.</li>
+    <li><strong><code>README.md</code></strong> — l'index du frame (mentionne le CLI, la charte, le guide).</li>
+  </ul>
+
+  <h2>5.10 — L'installeur <code>install.mjs</code> (+ wrappers)</h2>
+  <p>À la racine de l'archive, l'<strong>installeur collision-aware</strong> qui pose la config Claude Code sans jamais écraser l'existant (voir <a href="#s3">§3, étape C</a>). Node pur, zéro dépendance :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Fichier</th><th>Rôle</th></tr></thead>
+    <tbody>
+      <tr><td class="name"><code>install.mjs</code></td><td>L'installeur : détection par catégorie, fusion intelligente, sauvegarde horodatée, mode interactif ou drapeaux (<code>--dry-run</code>, <code>--merge</code>, <code>--overwrite</code>, <code>--keep</code>, <code>--yes</code>, <code>--backup-dir</code>, <code>--target</code>). Idempotent.</td></tr>
+      <tr><td class="name"><code>install.sh</code></td><td>Wrapper POSIX (macOS/Linux) qui appelle <code>node install.mjs</code> avec tes arguments.</td></tr>
+      <tr><td class="name"><code>install.ps1</code></td><td>Wrapper Windows (PowerShell), même rôle.</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================ CATALOGUES (AJOUT) ============================ -->
+<section id="cat">
+  <div class="section-label">Catalogues de référence</div>
+  <h1 class="t"><span class="num-lead">★</span>Catalogues explicites des éléments</h1>
+  <p class="lead">Des listes de référence, scannables, pour retrouver d'un coup d'œil chaque brique de StefFrame2 : <a href="#cat-skills">skills</a>, <a href="#cat-jalons">jalons</a>, <a href="#cat-delegations">délégations</a>, <a href="#cat-hooks">hooks</a>, et les <a href="#cat-briques">autres briques</a> (personas, atomes, commandes CLI, kits).</p>
+  <div class="note info"><p><b>Chiffres vérifiés :</b> tous les comptages ci-dessous ont été recoupés avec le cadrage (<code>specs/instructions/frame-stefframe2.md</code>) et la composition réelle de <code>frames/releases/StefFrame1/</code> — ils concordent avec le corps du guide.</p></div>
+
+  <!-- ---------- CATALOGUE 1 : SKILLS ---------- -->
+  <h2 id="cat-skills">1 · Skills (16)</h2>
+  <p>Une <strong>skill</strong> est un savoir-faire outillé qui se <strong>déclenche</strong> quand le contexte s'y prête (mots-clés, geste demandé). Sur les 16 skills, <strong>7 sont des skills de rôle</strong> (rattachées à un agent) et <strong>9 sont des briques transverses</strong> de méthode.</p>
+
+  <h3>Skills de rôle (7)</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Skill</th><th>Agent</th><th>Ce qu'elle fait</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="3">Rattachées à un persona</td></tr>
+      <tr><td class="name"><code>iakaframe-odin</code></td><td>🦅 Odin</td><td>Gestion du portefeuille : switch d'équipe, démarrage de projet, création d'équipe.</td></tr>
+      <tr><td class="name"><code>iakaframe-aragorn</code></td><td>🛡️ Aragorn</td><td>Coordination : orchestration 3 phases, dispatch, canal de discussion.</td></tr>
+      <tr><td class="name"><code>iakaframe-cadrage</code></td><td>🧙 Gandalf</td><td>Cadrage : du besoin à l'instruction fermée.</td></tr>
+      <tr><td class="name"><code>iakaframe-qualite</code></td><td>🏹 Legolas</td><td>Qualité / test avec gate automatique.</td></tr>
+      <tr><td class="name"><code>iakaframe-deploiement</code></td><td>🌉 Helm</td><td>Déploiement, accès, rollback, surveillance.</td></tr>
+      <tr><td class="name"><code>iakaframe-design</code></td><td>🎭 Loki</td><td>Production de supports on-brand à partir d'un catalogue de chartes.</td></tr>
+      <tr><td class="name"><code>iakaframe-nathalie</code></td><td>📖 Nathalie</td><td>Guides utilisateurs et documentation.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note info"><p><b>À noter :</b> <strong>Gimli</strong> (⚒️ dev/devops) n'a <strong>pas</strong> de skill dédiée — son cadre vit dans le <code>CLAUDE.md</code> du projet. D'où 7 skills de rôle pour 8 agents.</p></div>
+
+  <h3>Skills méthode &amp; briques transverses (9)</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Skill</th><th>Ce qu'elle fait</th></tr></thead>
+    <tbody>
+      <tr><td class="name"><code>iakastart</code></td><td>Bootstrap : affiche le roster et rend l'équipe prête (déclenchée par « iakastart / iakaframe / odin »).</td></tr>
+      <tr><td class="name"><code>iakaframe-init</code></td><td>Amorçage de la méthode sur un projet.</td></tr>
+      <tr><td class="name"><code>iakaframe-etat-des-lieux</code></td><td>Fait le point sur le projet (lecture de l'état des lieux, reprise).</td></tr>
+      <tr><td class="name"><code>iakaframe-update</code></td><td>Checkpoint : régénère l'état des lieux, commit global, push.</td></tr>
+      <tr><td class="name"><code>iakaframe-git</code></td><td>Branche le projet sur un serveur git self-hosted. <span class="tag t-wait">no-op sans infra</span></td></tr>
+      <tr><td class="name"><code>iakaframe-docker</code></td><td>Stack Docker isolée par projet (compose, ports).</td></tr>
+      <tr><td class="name"><code>iakaframe-log-conversation</code></td><td>Main courante des IA : pousse les échanges vers une base de documents. <span class="tag t-wait">no-op sans infra</span></td></tr>
+      <tr><td class="name"><code>iakaframe-humandoc</code></td><td>Mémoire humaine : publie les specs dans un outil de doc externe. <span class="tag t-wait">no-op sans infra</span></td></tr>
+      <tr><td class="name"><code>iakaframe-learning</code></td><td>Boucle d'apprentissage : capitalise un feedback dans la méthode.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="legend">Les skills marquées <span class="tag t-wait">no-op sans infra</span> restent dormantes tant que tu ne fournis pas les services requis (voir §6). <code>iakaframe-design</code> est aussi no-op tant qu'aucune charte au-delà de la charte de démarrage n'est fournie.</p>
+
+  <!-- ---------- CATALOGUE 2 : JALONS ---------- -->
+  <h2 id="cat-jalons">2 · Jalons — les points de validation</h2>
+  <p>Un <strong>jalon</strong> est un <strong>point de validation</strong> de la méthode : un cadre formel qui dit <strong>« qui a produit quoi, pour qui »</strong> — émetteur → contenu → récepteur. C'est là que le décideur (ou l'agent récepteur) reprend la main pour valider avant de continuer. Le CLI sait <strong>dessiner</strong> un jalon :</p>
+  <pre><code>iakaframe jalon --name <span class="str">"&lt;titre&gt;"</span> --from <span class="str">&lt;émetteur&gt;</span> --to <span class="str">&lt;récepteur&gt;</span> --content <span class="str">"&lt;ce qui est remis&gt;"</span></code></pre>
+  <p>Rendu (schéma d'un jalon) :</p>
+  <div class="jalon">
+    <div class="jrow"><span class="jk">Émetteur</span> 🧙 Gandalf (Cadrage, P1)</div>
+    <div class="jrow"><span class="jk">Contenu</span> Instruction fermée <code>&lt;feature&gt;.md</code> — prête à réaliser</div>
+    <div class="jrow"><span class="jk">Récepteur</span> 🟢 Le décideur → valide → dispatch Gimli</div>
+  </div>
+  <p>Ce sont des jalons <strong>de méthode</strong> (des <em>types</em> de points de validation), pas des instances figées. Catalogue des jalons TYPES du cycle :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Jalon type</th><th>Émetteur → Récepteur</th><th>Ce qui s'y valide</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Instruction cadrée validée</td><td>🧙 Gandalf → 🟢 Décideur</td><td>L'instruction écrite (<code>specs/instructions/&lt;feature&gt;.md</code>) est fermée, sans code : feu vert pour réaliser.</td></tr>
+      <tr><td class="name">Réalisation remise</td><td>⚒️ Gimli → 🏹 Legolas</td><td>Le code implémenté, testé et commité par petits pas passe à la qualité.</td></tr>
+      <tr><td class="name">Gate qualité PASS</td><td>🏹 Legolas → 🛡️ Aragorn / 🟢 Décideur</td><td>Vérifications, tests et gate automatique au vert : la feature est conforme.</td></tr>
+      <tr><td class="name">Doc livrée</td><td>📖 Nathalie → 🟢 Décideur</td><td>Guide utilisateur + mémoire du projet à jour : la feature est documentée.</td></tr>
+      <tr><td class="name">Feu vert prod</td><td>🌉 Helm → 🟢 Décideur</td><td>Mise en production validée : accès, rollback et surveillance en place.</td></tr>
+      <tr><td class="name">Checkpoint / état des lieux</td><td>🛡️ Aragorn → 🟢 Décideur</td><td>Snapshot d'avancement (<code>iakaframe update</code> / <code>snapshot</code>) : où on en est, ce qui reste.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tip"><p><b>À retenir :</b> un jalon n'est pas décoratif — c'est le moment où <strong>l'humain décide</strong>. La méthode multiplie les petits jalons plutôt qu'un gros passage tout-ou-rien.</p></div>
+
+  <!-- ---------- CATALOGUE 3 : DÉLÉGATIONS ---------- -->
+  <h2 id="cat-delegations">3 · Délégations — la chaîne de badges</h2>
+  <p>Quand un agent confie un travail à un autre, la méthode impose une <strong>chaîne de badges</strong> qui garde toujours visible <strong>qui parle</strong> et <strong>dans quelle phase</strong>. La règle :</p>
+  <ol class="seq">
+    <li><strong>A ouvre</strong> et annonce qu'il délègue (pastille AVANT le bloc).</li>
+    <li><strong>A clôt</strong> (pastille APRÈS le bloc).</li>
+    <li><strong>B ouvre</strong>, parle à la première personne, <strong>travaille</strong>, puis <strong>clôt</strong>.</li>
+    <li><strong>A rouvre</strong> pour restituer le travail de B — <strong>cité VERBATIM</strong>, jamais reformulé — puis commente sous son propre badge.</li>
+  </ol>
+  <p>Le garde-fou <strong><code>delegation-guard.mjs</code></strong> veille à ce que ce <strong>canal de délégation reste propre</strong> : il se déclenche avant et après chaque outil de délégation (<code>Task</code>). Deux interdits structurants : pas de <strong>ventriloquie</strong> (on n'écrit jamais le badge d'un agent pour lui faire dire des mots qu'il n'a pas produits) et pas d'<strong>interjection</strong> (entre l'ouverture et la clôture de B, A ne place aucune phrase dans sa voix).</p>
+  <p>Délégations typiques de l'équipe :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Délègue…</th><th>vers…</th><th>Pour</th></tr></thead>
+    <tbody>
+      <tr class="grp"><td colspan="3">Depuis Aragorn (coordination)</td></tr>
+      <tr><td class="name">🛡️ Aragorn</td><td>🧙 Gandalf</td><td>Cadrage — transformer un besoin en instruction fermée.</td></tr>
+      <tr><td class="name">🛡️ Aragorn</td><td>⚒️ Gimli</td><td>Réalisation — coder, tester, commiter d'après l'instruction.</td></tr>
+      <tr><td class="name">🛡️ Aragorn</td><td>🏹 Legolas</td><td>Qualité — vérification, tests, gate automatique.</td></tr>
+      <tr><td class="name">🛡️ Aragorn</td><td>🎭 Loki</td><td>Design — produire des supports visuels on-brand.</td></tr>
+      <tr><td class="name">🛡️ Aragorn</td><td>📖 Nathalie</td><td>Documentation — guide utilisateur, mémoire du projet.</td></tr>
+      <tr><td class="name">🛡️ Aragorn</td><td>🌉 Helm</td><td>Production — déploiement, accès, rollback, surveillance.</td></tr>
+      <tr class="grp"><td colspan="3">Depuis Odin (portefeuille)</td></tr>
+      <tr><td class="name">🦅 Odin</td><td>🛡️ Aragorn</td><td>Coordination d'un projet — Aragorn devient l'interlocuteur par défaut, puis dispatche les experts.</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- ---------- CATALOGUE 4 : HOOKS ---------- -->
+  <h2 id="cat-hooks">4 · Hooks (5)</h2>
+  <p>Les <strong>hooks</strong> sont de petits scripts <code>.mjs</code> (Node) qui se déclenchent <strong>automatiquement</strong> à certains moments de Claude Code, pour faire respecter les garde-fous de la méthode (identité, périmètre, canal de délégation, plan vivant). Ils vivent dans <code>kits/iakaframe-claude/global/hooks/</code> et se copient dans <code>~/.claude/hooks/</code>. Tableau de câblage repris de <code>settings.example.json</code> :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Hook (.mjs)</th><th>Événement déclencheur</th><th>Matcher</th><th>Rôle</th></tr></thead>
+    <tbody>
+      <tr><td class="name"><code>identity-guard.mjs</code></td><td class="pill">Stop</td><td>—</td><td>Vérifie qu'un agent s'est bien identifié (badge) en fin de tour.</td></tr>
+      <tr><td class="name"><code>identity-guard.mjs</code></td><td class="pill">SubagentStop</td><td>—</td><td>Idem, pour un sous-agent délégué qui rend la main.</td></tr>
+      <tr><td class="name"><code>identity-remind.mjs</code></td><td class="pill">UserPromptSubmit</td><td>—</td><td>Rappelle son identité à l'agent à chaque message envoyé.</td></tr>
+      <tr><td class="name"><code>delegation-guard.mjs</code></td><td class="pill">PreToolUse</td><td><code>Task</code></td><td>Garde propre le canal de délégation, avant de déléguer.</td></tr>
+      <tr><td class="name"><code>delegation-guard.mjs</code></td><td class="pill">PostToolUse</td><td><code>Task</code></td><td>Idem, après le retour de la délégation.</td></tr>
+      <tr><td class="name"><code>plan-courante.mjs</code></td><td class="pill">PostToolUse</td><td><code>TodoWrite|Task</code></td><td>Tient à jour le plan de travail vivant.</td></tr>
+      <tr><td class="name"><code>perimeter-guard.mjs</code></td><td class="pill">(non câblé dans l'exemple)</td><td>—</td><td>Vérifie qu'un agent reste dans son périmètre — présent parmi les 5 <code>.mjs</code>, disponible pour câblage.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="legend"><strong>5 fichiers <code>.mjs</code></strong> au total : <code>identity-guard</code>, <code>perimeter-guard</code>, <code>identity-remind</code>, <code>delegation-guard</code>, <code>plan-courante</code>. Le <code>settings.example.json</code> câble 6 déclencheurs (<code>identity-guard</code> sert deux événements). Des équivalents <code>.ps1</code> (Windows) existent en parité, mais l'exemple ne branche que les <code>.mjs</code>.</p>
+  <div class="note tip"><p><b>Fail-open :</b> tous les hooks sont conçus pour <strong>échouer en silence</strong>. Sans configuration ou service, ils <strong>ne bloquent rien</strong> — aucun risque de casser Claude Code.</p></div>
+
+  <!-- ---------- CATALOGUE 5 : AUTRES BRIQUES ---------- -->
+  <h2 id="cat-briques">5 · Les autres briques (complétude)</h2>
+
+  <h3>5a · Les 8 personas / agents (avec pastille)</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Pastille</th><th>Agent</th><th>Phase / squad</th><th>Rôle en une ligne</th></tr></thead>
+    <tbody>
+      <tr><td class="emoji">🦅</td><td class="name">Odin</td><td>Portefeuille</td><td>Super-agent : démarrage projet, switch/création d'équipe, seul à toucher le « foyer ».</td></tr>
+      <tr><td class="emoji">🛡️</td><td class="name">Aragorn</td><td>Coordination</td><td>Orchestration 3 phases, dispatch à la demande, interlocuteur par défaut.</td></tr>
+      <tr><td class="emoji">🧙</td><td class="name">Gandalf</td><td>Phase 1 · Cadrage</td><td>Besoin → instruction fermée, écrite, sans code.</td></tr>
+      <tr><td class="emoji">⚒️</td><td class="name">Gimli</td><td>Phases 2→3 · Dev/DevOps</td><td>Lit l'instruction, code, teste, déploie. Pas de skill dédiée.</td></tr>
+      <tr><td class="emoji">🏹</td><td class="name">Legolas</td><td>Phases 2/3 · Qualité</td><td>Vérification, tests, gate automatique.</td></tr>
+      <tr><td class="emoji">🌉</td><td class="name">Helm</td><td>Squad prod</td><td>Mise en production, accès, rollback, surveillance, alertes.</td></tr>
+      <tr><td class="emoji">🎭</td><td class="name">Loki</td><td>Design</td><td>Supports visuels on-brand à partir d'un catalogue de chartes.</td></tr>
+      <tr><td class="emoji">📖</td><td class="name">Nathalie</td><td>Documentation</td><td>Guides utilisateurs et mémoire humaine du projet.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>5b · Les familles d'atomes de la bibliothèque</h3>
+  <div class="grid three">
+    <div class="card"><h3>principles <span class="num">14</span></h3><p>Règles permanentes : cadrage-avant-code, commits &amp; versionnement, confirmation des actes destructifs, documentation, backlog, identité &amp; badges, isolation Docker, langue, mock en dev, MVP d'abord, périmètres étanches, qualité, réutilisation, self-hosted d'abord.</p></div>
+    <div class="card"><h3>rituals <span class="num">5</span></h3><p><code>iakastart</code>, <code>init</code>, <code>log-conversation</code>, <code>snapshot</code>, <code>update</code>.</p></div>
+    <div class="card"><h3>guardrails <span class="num">3</span></h3><p>délégation, identité, périmètre — matérialisés par les hooks.</p></div>
+    <div class="card"><h3>roles <span class="num">8</span></h3><p>cadrage, coordination, déploiement, design, dev, documentation, portefeuille, qualité.</p></div>
+    <div class="card"><h3>personas <span class="num">9</span></h3><p>8 agents réels + 1 gabarit <code>_TEMPLATE.md</code>.</p></div>
+    <div class="card"><h3>scaffolds <span class="num">2</span></h3><p><code>projet</code> (projet simple) et <code>portefeuille</code> (dossier chapeau).</p></div>
+    <div class="card"><h3>workflows <span class="num">1</span></h3><p><code>iakaframe-3phases</code> : cadrage → réalisation → qualité.</p></div>
+  </div>
+
+  <h3 id="cat-cli">5c · Les ~27 commandes du CLI (par familles)</h3>
+  <p>Le CLI expose ~27 commandes (≈28 verbes exposés par <code>index.js</code>, pour 25 fichiers de commandes — <code>attach.js</code> sert aussi <code>detach</code>, <code>switch.js</code> sert aussi <code>use</code>). Les commandes de bibliothèque acceptent <code>--root &lt;frame&gt;</code>.</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Famille</th><th>Commandes</th><th>À quoi ça sert</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Rituels &amp; gates</td><td class="pill"><code>banner</code> · <code>jalon</code></td><td>Afficher un titre ASCII (FIGlet embarqué) ; dessiner le cadre d'un point de validation.</td></tr>
+      <tr><td class="name">Entrée / sortie de projet</td><td class="pill"><code>go</code> · <code>brief</code> · <code>recap</code> · <code>root</code></td><td>Entrer dans un projet et lancer son runner ; brief d'entrée ; récap de fermeture ; résoudre le dossier chapeau.</td></tr>
+      <tr><td class="name">Cycle de vie du projet</td><td class="pill"><code>onboard</code> · <code>init</code> · <code>snapshot</code> · <code>update</code></td><td>Créer/amorcer un projet ; déployer le kit ; générer l'état des lieux ; checkpoint (snapshot + commit + push).</td></tr>
+      <tr><td class="name">Diagnostic &amp; config</td><td class="pill"><code>services</code> · <code>config</code> · <code>agents</code></td><td>Sonder les services disponibles ; écrire la config du projet ; gérer l'équipe (list / fullteam / affect / status).</td></tr>
+      <tr><td class="name">Bibliothèque d'atomes</td><td class="pill"><code>list</code> · <code>show</code> · <code>add</code> · <code>remove</code> · <code>attach</code> · <code>detach</code> · <code>assemble</code> · <code>switch</code> (<code>use</code>)</td><td>Lister/afficher les atomes ; ajouter/retirer ; rattacher/détacher ; assembler un document ; changer d'équipe active.</td></tr>
+      <tr><td class="name">Mémoire &amp; apprentissage</td><td class="pill"><code>memory</code> · <code>open</code> · <code>recall</code> · <code>close</code> · <code>review</code> · <code>consolidate</code></td><td>Ouvrir/rappeler/fermer une mémoire de session ; passer en revue ; consolider un apprentissage.</td></tr>
+    </tbody>
+  </table></div>
+  <p class="legend">Aide générale : <code>iakaframe --help</code> ; aide d'une commande : <code>iakaframe &lt;commande&gt; --help</code>.</p>
+
+  <h3>5d · Les 5 kits (un par runner)</h3>
+  <div class="scroll"><table>
+    <thead><tr><th>Kit</th><th>Runner</th><th>Statut pour StefFrame2</th></tr></thead>
+    <tbody>
+      <tr><td class="name"><code>iakaframe-claude</code></td><td>Claude Code</td><td><span class="tag t-on">requis</span> celui que tu utilises</td></tr>
+      <tr><td class="name"><code>iakaframe-codex</code></td><td>Codex CLI</td><td><span class="tag t-keep">référence</span></td></tr>
+      <tr><td class="name"><code>iakaframe-ollama</code></td><td>Ollama (local)</td><td><span class="tag t-keep">référence</span></td></tr>
+      <tr><td class="name"><code>iakaframe-openwebui</code></td><td>Open WebUI</td><td><span class="tag t-keep">référence</span></td></tr>
+      <tr><td class="name"><code>iakaframe-anythingllm</code></td><td>AnythingLLM</td><td><span class="tag t-keep">référence</span></td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<hr class="divider">
+
+<!-- ============================ 6. SKILLS NO-OP ============================ -->
+<section id="s6">
+  <div class="section-label">Skills dormantes</div>
+  <h1 class="t"><span class="num-lead">06</span>Les skills qui « ne font rien » (no-op)</h1>
+  <p>C'est un point important à comprendre pour ne pas être surpris. Certaines skills supposent une <strong>infrastructure</strong> (des serveurs, des services réseau) que tu n'as <strong>pas</strong> en installant simplement le zip. <strong>Elles ne plantent pas</strong> : elles sont conçues pour se <strong>désactiver proprement</strong> (on dit « no-op » : elles ne font rien plutôt que d'échouer).</p>
+  <p>Les <strong>4 skills concernées</strong> :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Skill</th><th>Ce qu'elle voudrait faire</th><th>Ce qu'il lui faudrait</th></tr></thead>
+    <tbody>
+      <tr><td class="name"><code>iakaframe-git</code></td><td>Créer/pousser un dépôt sur un serveur git</td><td>Un <strong>serveur git self-hosted</strong> + un token</td></tr>
+      <tr><td class="name"><code>iakaframe-humandoc</code></td><td>Publier les specs dans un wiki / outil de doc</td><td>Un <strong>outil de documentation externe</strong> (wiki)</td></tr>
+      <tr><td class="name"><code>iakaframe-log-conversation</code></td><td>Tracer les échanges dans une base</td><td>Un <strong>broker de messages + une base de documents</strong></td></tr>
+      <tr><td class="name"><code>iakaframe-design</code></td><td>Produire des supports on-brand</td><td>Un <strong>catalogue de chartes</strong> (au-delà de la charte de démarrage)</td></tr>
+    </tbody>
+  </table></div>
+  <p>Tant que tu ne fournis pas ces éléments, ces skills restent <strong>dormantes</strong>. Le reste de la méthode fonctionne parfaitement sans elles.</p>
+
+  <h2>Comment les activer plus tard</h2>
+  <p>Ces skills utilisent des <strong>placeholders</strong> — des marqueurs <code>&lt;...&gt;</code> à remplacer par tes vraies valeurs quand tu seras prêt :</p>
+  <ul>
+    <li><strong>git</strong> : renseigne <code>&lt;GIT_HOST&gt;</code>, <code>&lt;GIT_REMOTE_URL&gt;</code>, <code>&lt;GIT_TOKEN&gt;</code>, <code>&lt;vous&gt;</code>, <code>&lt;repo&gt;</code> en suivant <code>docs/git-hosting.md</code>. Le token passe par une variable d'environnement ou le <code>.git/config</code> local — <strong>jamais</strong> écrit en dur ni commité.</li>
+    <li><strong>main courante / logs</strong> : renseigne <code>&lt;MQTT_BROKER&gt;</code> (le broker) et l'URL de ta base de documents (<code>&lt;COUCHDB_URL&gt;</code> ou équivalent), via variables d'environnement.</li>
+    <li><strong>mémoire humaine</strong> : renseigne l'URL de ton outil de doc (<code>&lt;APPFLOWY_URL&gt;</code> ou équivalent).</li>
+    <li><strong>design</strong> : pour de nouvelles chartes, <strong>duplique</strong> le dossier <code>design-starter/</code> et pointe la charte par défaut (<code>&lt;CHARTES_DIR&gt;</code> / <code>&lt;charte-defaut&gt;</code>) vers ta copie. La charte de démarrage sert de base neutre à personnaliser.</li>
+  </ul>
+  <div class="note info"><p><b>En résumé :</b> à l'installation « nue », ces 4 skills sont silencieuses et inoffensives. Tu les allumes une par une, plus tard, en remplaçant leurs placeholders — sans jamais mettre de secret dans un fichier suivi par git.</p></div>
+</section>
+
+<!-- ============================ 7. DÉPANNAGE ============================ -->
+<section id="s7">
+  <div class="section-label">Dépannage</div>
+  <h1 class="t"><span class="num-lead">07</span>Dépannage</h1>
+  <div class="scroll"><table>
+    <thead><tr><th>Symptôme</th><th>Cause probable</th><th>Solution</th></tr></thead>
+    <tbody>
+      <tr><td><code>node : command not found</code></td><td>Node.js n'est pas installé</td><td>Installe Node ≥ 20 (§2), puis vérifie avec <code>node -v</code>.</td></tr>
+      <tr><td><code>node -v</code> affiche <code>v18.x</code> ou moins</td><td>Version trop ancienne</td><td>Mets Node à jour vers <strong>20+</strong> : le CLI utilise des fonctions natives de Node 20.</td></tr>
+      <tr><td><code>iakaframe : command not found</code></td><td>Le CLI n'a pas été installé globalement</td><td>Refais <code>npm install -g ./cli</code> depuis <code>StefFrame2/</code>, <strong>ou</strong> utilise <code>node cli/src/index.js &lt;cmd&gt;</code>.</td></tr>
+      <tr><td><code>list personas</code> renvoie une liste vide ou une erreur de chemin</td><td>Le CLI ne sait pas où est le frame</td><td>Ajoute <code>--root .</code> (depuis le dossier) ou définis <code>IAKAFRAME_ROOT</code> (§3, étape C).</td></tr>
+      <tr><td><code>claude : command not found</code></td><td>Claude Code n'est pas installé</td><td>Installe Claude Code séparément (§2) ; il n'est pas dans le zip.</td></tr>
+      <tr><td>« iakastart » n'affiche pas le roster</td><td>Config globale non posée</td><td>Relance l'installeur : <code>node install.mjs --dry-run</code> pour voir ce qui manque, puis <code>node install.mjs</code>. Vérifie que <code>~/.claude/CLAUDE.md</code>, <code>~/.claude/skills/</code> et <code>~/.claude/agents/</code> sont bien en place (§3, étape C).</td></tr>
+      <tr><td>Les garde-fous (badges, plan) ne se déclenchent pas</td><td>Hooks non câblés</td><td>Vérifie que la section <code>hooks</code> a bien été fusionnée dans ton <code>~/.claude/settings.json</code> et que les <code>.mjs</code> sont dans <code>~/.claude/hooks/</code>. Au besoin, rejoue <code>node install.mjs</code> (idempotent).</td></tr>
+      <tr><td>L'installeur a modifié un fichier que tu voulais garder</td><td>Choix « écraser » retenu par erreur</td><td>Restaure depuis la sauvegarde : le contenu d'avant est dans <code>~/.claude/.iakaframe-backup-&lt;ts&gt;/</code> (arborescence préservée). Recopie le fichier voulu, puis relance en <code>--keep</code> si besoin.</td></tr>
+      <tr><td>Une skill git / doc / logs « ne fait rien »</td><td>Placeholders non renseignés (comportement normal)</td><td>C'est voulu : voir §6. Renseigne les <code>&lt;...&gt;</code> correspondants pour l'activer.</td></tr>
+      <tr><td>Le bandeau ASCII s'affiche « cassé » ou en simple texte</td><td>Terminal non-UTF8</td><td>Normal : le CLI <strong>replie</strong> automatiquement sur la police <code>Standard</code> (ASCII pur). Rien à corriger.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note tip"><p><b>Le CLI est hors-ligne :</b> si <code>npm install -g ./cli</code> semble « chercher » sur Internet, ce n'est pas le CLI qui en a besoin (il a zéro dépendance) — vérifie juste que tu es bien dans le dossier <code>StefFrame2/</code> et que tu vises <code>./cli</code>.</p></div>
+</section>
+
+<!-- ============================ 8. EXCLUSIONS ============================ -->
+<section id="s8">
+  <div class="section-label">Hors périmètre</div>
+  <h1 class="t"><span class="num-lead">08</span>Ce qui n'est PAS inclus (et pourquoi)</h1>
+  <p>Pour éviter les mauvaises surprises, voici ce que StefFrame2 <strong>ne contient volontairement pas</strong> :</p>
+  <div class="scroll"><table>
+    <thead><tr><th>Non inclus</th><th>Pourquoi</th></tr></thead>
+    <tbody>
+      <tr><td class="name">Une interface graphique (GUI)</td><td>Par conception. StefFrame2 est la méthode <strong>exécutable en ligne de commande</strong>. L'application graphique « iakaFrameGUI » est un autre produit, hors périmètre.</td></tr>
+      <tr><td class="name">Claude Code, Node.js, git</td><td>Ce sont les prérequis à installer soi-même (§2). Le zip fournit la méthode et son outil, pas leur moteur.</td></tr>
+      <tr><td class="name">Le moindre secret ou token</td><td>Aucun mot de passe, jeton ou clé n'est présent. Tout ce qui touche à ton infra passe par des placeholders <code>&lt;...&gt;</code> renseignés par variable d'environnement.</td></tr>
+      <tr><td class="name">Le registre npm privé</td><td>Le CLI est livré <strong>en direct</strong> (dossier <code>cli/</code>) et s'installe hors-ligne. Aucun besoin d'un serveur de paquets privé — la configuration correspondante a été retirée.</td></tr>
+      <tr><td class="name">Les tests du CLI (<code>cli/test/</code>)</td><td>Ils dépendaient de composants internes non livrés ; les retirer ne change rien à l'exécution.</td></tr>
+      <tr><td class="name">Les artefacts personnels de réglages</td><td>Barre d'état sur mesure, démon de fond, serveur de langage (LSP), places de marché d'extensions, mode « permissions désactivées » : tout ce qui était spécifique à la machine d'origine a été exclu du fichier de réglages d'exemple.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn"><p><b>Un mot sur Node ≥ 18 vs ≥ 20 :</b> le guide d'installation court de l'archive (<code>GUIDE-INSTALLATION.md</code>) mentionne « Node ≥ 18 », mais le manifeste du CLI (<code>cli/package.json</code>) exige <strong>Node ≥ 20</strong> et le smoke test de fabrication cible Node 20. <strong>Installe donc Node 20 ou plus</strong> — c'est la valeur qui fait foi. (Point de détail signalé plutôt que masqué.)</p></div>
+
+  <p style="margin-top:2rem">Ce guide décrit StefFrame2 tel que défini par son cadrage et par les fichiers réellement présents dans l'archive. Si tu bloques sur une étape, reviens au §7 (dépannage) ou relis le <code>GUIDE-INSTALLATION.md</code> fourni à la racine du zip. Bonne exploration.</p>
+</section>
+
+</main>
+
+<!-- ============================ FOOTER ============================ -->
+<footer class="footer">
+  <div class="accent-line"></div>
+  <p>Guide d'utilisation de <span class="ne-wordmark"><b>Stef</b><span class="edge">Frame2</span></span> · méthode iakaframe</p>
+  <p>Contenu : Nathalie (documentation) · Mise en forme : Loki (design Cinabre — conseil premium · rouge cinabre)</p>
+  <p class="toplink"><a href="#s1">↑ Retour au sommaire</a></p>
+</footer>
+
+</body>
+</html>
