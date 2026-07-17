@@ -15,6 +15,8 @@ import { runJalon } from './commands/jalon.js';
 import { runList } from './commands/list.js';
 import { runShow } from './commands/show.js';
 import { runAdd } from './commands/add.js';
+import { runRemove } from './commands/remove.js';
+import { runAttach, runDetach } from './commands/attach.js';
 import { runAssemble } from './commands/assemble.js';
 import { runSwitch } from './commands/switch.js';
 import { runMemory } from './commands/memory.js';
@@ -66,6 +68,13 @@ Commandes :
                         scaffolds|teams|methods|bindings|kits  (--json --ascii --root)
   show <id>           Contrat d'un atome/assemblage : frontmatter + corps  (--type --json --root)
   add <kind> <fic>    Livre un assemblage : team|method|binding (valide refs I1)  (--force --json)
+  remove <kind> <id>  Retire l'assemblage/skill : team|method|binding|skill (le - de add).
+                        RESTRICT par defaut si reference ; --cascade --yes pour forcer ;
+                        archive en corbeille <root>/.trash-<ts>/ (restaurable)  (--json)
+  attach <skill>      Attache un skill a un persona : mute skills:[] du persona
+                        --persona <id>  (--force --json)
+  detach <skill>      Detache un skill d'un persona : retire de skills:[] (le - de attach)
+                        --persona <id>  (--json)
   assemble <m> <t>    Compose un kit (methode+team[+binding]) - dry-run  (--write --binding --json)
   switch|use <m> <t>  Bascule un projet vers methode/team  (--path --binding --rollback --json)
   memory <action>     Canon du portefeuille : init|path|config|list|add|replace|remove
@@ -115,6 +124,9 @@ async function main() {
     case 'list':     runList(rest); break;
     case 'show':     runShow(rest); break;
     case 'add':      runAdd(rest); break;
+    case 'remove':   runRemove(rest); break;
+    case 'attach':   runAttach(rest); break;
+    case 'detach':   runDetach(rest); break;
     case 'assemble': runAssemble(rest); break;
     case 'switch':
     case 'use':      runSwitch(rest); break;
