@@ -8,9 +8,9 @@
 
 | Élément | Valeur |
 |---|---|
-| Dernière mise à jour | 2026-07-16 |
+| Dernière mise à jour | 2026-07-17 |
 | Version CLI documentée | `@naonedge/iakaframe` **v0.1.0** (source : `cli/package.json`) |
-| Commandes CLI couvertes | **23 / 23** (une par `case` de `cli/src/index.js`, alias `use` inclus) |
+| Commandes CLI couvertes | **26 / 26** (une par `case` de `cli/src/index.js`, alias `use` inclus) |
 | Sources de vérité | `~/.claude/CLAUDE.md` (déclencheurs), `cli/src/index.js` (bloc `HELP` + `switch`), `cli/src/commands/*.js` |
 
 ## Règle de maintenance (à respecter)
@@ -92,7 +92,7 @@ skills-rôles : `iakaframe-odin`, `iakaframe-nathalie`, `iakaframe-appflowy-doc`
 
 `@naonedge/iakaframe` — CLI multi-OS (Windows / macOS / Linux), **zéro dépendance runtime**.
 Source de vérité = le bloc `HELP` de `cli/src/index.js` + un fichier par commande dans
-`cli/src/commands/`. **23 commandes** (alias `use` inclus), regroupées par thème.
+`cli/src/commands/`. **26 commandes** (alias `use` inclus), regroupées par thème.
 
 **Options globales** : `-h`/`--help`, `-v`/`--version`.
 **Environnement** : `FORGEJO_TOKEN` (Forgejo), `IAKAFRAME_ROOT`/`--root` (dossier chapeau,
@@ -136,6 +136,9 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 | `list [type]` | `type : personas\|skills\|principles\|rituals\|guardrails\|roles\|workflows\|scaffolds\|teams\|methods\|bindings\|kits` · `--json --ascii --root` | Inventaire de la bibliothèque (pool + assemblages) par scan. |
 | `show <id>` | `--type --json --root` | Contrat d'un atome/assemblage : frontmatter + corps. |
 | `add <kind> <fic>` | `kind : team\|method\|binding` · `--force --json` | Livre un assemblage (valide les réfs I1). |
+| `remove <kind> <id>` | `kind : team\|method\|binding\|skill` · `--cascade --yes --root --json` | Le **`−` de `add`** + la **dé-matérialisation d'un skill**. **RESTRICT** par défaut : refuse si l'élément est encore référencé (liste les référents via `findReferrers`) ; **cascade explicite** (`--cascade --yes`, jamais silencieuse) archive aussi les référents (ou, pour un skill, le détache de tous les personas) ; retrait **non destructif** → corbeille horodatée `<root>/.trash-<ts>/` **restaurable** + trace `manifest.json`. |
+| `attach <skill>` | `--persona <id>` · `--force --json` | Attache un skill à un persona : **mute le seul `skills:[]`** du frontmatter (source unique de vérité) ; refuse un skill absent de la bibliothèque (I1) sauf `--force`. Le `+` symétrique de `detach`. |
+| `detach <skill>` | `--persona <id>` · `--json` | Détache un skill d'un persona : retire l'id de `skills:[]` (idempotent, réversible par `attach`). Le **`−` au « titre du skill »** — affordance rendue par la vue, jamais écrite dans le corps du persona. |
 | `assemble <m> <t>` | `--write --binding --json` | Compose un kit (méthode + team [+ binding]) — dry-run par défaut. |
 | `switch` \| `use <m> <t>` | `--path --binding --rollback --json` | Bascule un projet vers une méthode/team. (`use` = alias de `switch`.) |
 
