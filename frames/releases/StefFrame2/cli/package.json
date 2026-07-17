@@ -1,0 +1,20 @@
+{
+  "name": "iakaframe",
+  "version": "0.1.0",
+  "description": "iakaframe - methode de travail outillee, CLI multi-OS (Windows/macOS/Linux)",
+  "type": "module",
+  "bin": {
+    "iakaframe": "src/index.js"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "start": "node src/index.js"
+  },
+  "license": "UNLICENSED"
+}

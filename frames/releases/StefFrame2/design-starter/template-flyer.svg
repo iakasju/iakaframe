@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="595" height="842" viewBox="0 0 595 842" role="img" aria-label="flyer une page — charte starter">
+  <!-- Gabarit flyer A4 (portrait) de la charte de démarrage. Palette = starter.css. -->
+  <rect width="595" height="842" fill="#ffffff"/>
+  <rect x="0" y="0" width="595" height="180" fill="#f4f5f7"/>
+  <rect x="0" y="178" width="595" height="4" fill="#2f6df0"/>
+
+  <!-- logo -->
+  <rect x="48" y="56" width="46" height="46" rx="10" fill="none" stroke="#2f6df0" stroke-width="2"/>
+  <rect x="60" y="68" width="22" height="22" rx="4" fill="#2f6df0"/>
+
+  <text x="110" y="92" font-family="Segoe UI, system-ui, sans-serif" font-size="30" font-weight="700" fill="#1c1e21">Titre du flyer</text>
+  <text x="48" y="150" font-family="system-ui, sans-serif" font-size="16" fill="#5b616b">Sous-titre — une accroche courte.</text>
+
+  <!-- corps -->
+  <text x="48" y="250" font-family="Segoe UI, system-ui, sans-serif" font-size="20" font-weight="700" fill="#1c1e21">Message principal</text>
+  <text x="48" y="286" font-family="system-ui, sans-serif" font-size="15" fill="#1c1e21">Une ligne de contenu.</text>
+  <text x="48" y="310" font-family="system-ui, sans-serif" font-size="15" fill="#1c1e21">Une autre ligne de contenu.</text>
+
+  <!-- pied -->
+  <rect x="0" y="778" width="595" height="64" fill="#f4f5f7"/>
+  <text x="48" y="816" font-family="ui-monospace, monospace" font-size="13" fill="#5b616b">contact · site · date</text>
+</svg>

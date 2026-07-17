@@ -1,0 +1,113 @@
+/* ============================================================================
+   starter.css — charte de démarrage NEUTRE de la méthode iakaframe.
+   Palette sobre et générique, sans marque. Dupliquez ce dossier pour créer
+   la vôtre : copiez design-starter/ -> design-<votre-charte>/ puis adaptez
+   les variables ci-dessous et renommez les fichiers.
+   ========================================================================= */
+
+:root {
+  /* Couleurs — neutres, contrastées, accessibles */
+  --bg:        #ffffff;   /* fond de page          */
+  --surface:   #f4f5f7;   /* cartes, panneaux      */
+  --border:    #d9dce1;   /* filets, séparateurs   */
+  --text:      #1c1e21;   /* texte principal       */
+  --muted:     #5b616b;   /* texte secondaire      */
+  --accent:    #2f6df0;   /* accent (liens, focus) */
+  --accent-ink:#ffffff;   /* texte sur accent      */
+
+  /* Sémantiques (badges, notes) */
+  --ok:   #1f9d55;
+  --warn: #d97706;
+  --stop: #d64545;
+  --info: #2f6df0;
+
+  /* Typographie — piles système, aucune dépendance externe */
+  --font-title: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+  --font-body:  system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --font-mono:  ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, monospace;
+
+  /* Rythme */
+  --radius: 10px;
+  --gap: 1rem;
+  --maxw: 900px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+.wrap { max-width: var(--maxw); margin: 0 auto; padding: 2rem 1.25rem; }
+
+h1, h2, h3 { font-family: var(--font-title); line-height: 1.25; }
+h1 { font-size: 2rem; margin: 0 0 .25rem; }
+h2 { font-size: 1.4rem; margin: 2rem 0 .5rem; }
+a { color: var(--accent); }
+
+.hero {
+  padding: 2rem 1.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.hero .sub { color: var(--muted); margin: 0; }
+
+.section-label {
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  font-size: .75rem;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.grid { display: grid; gap: var(--gap); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1rem 1.1rem;
+}
+
+.tag {
+  display: inline-block;
+  font: 600 .72rem/1 var(--font-mono);
+  padding: .3em .6em;
+  border-radius: 999px;
+  color: var(--accent-ink);
+  background: var(--muted);
+}
+.tag.ok   { background: var(--ok); }
+.tag.warn { background: var(--warn); }
+.tag.stop { background: var(--stop); }
+.tag.info { background: var(--info); }
+
+.note {
+  border-left: 4px solid var(--info);
+  background: var(--surface);
+  padding: .75rem 1rem;
+  border-radius: 0 var(--radius) var(--radius) 0;
+}
+.note.warn { border-left-color: var(--warn); }
+.note.stop { border-left-color: var(--stop); }
+
+code, pre { font-family: var(--font-mono); }
+pre { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; overflow: auto; }
+
+table { border-collapse: collapse; width: 100%; }
+th, td { border: 1px solid var(--border); padding: .5rem .7rem; text-align: left; }
+th { background: var(--surface); }
+
+/* Slides : une section = un écran (scroll-snap) */
+.slides { scroll-snap-type: y mandatory; }
+.slide {
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  scroll-snap-align: start;
+  padding: 3rem 1.5rem;
+  border-bottom: 1px solid var(--border);
+}

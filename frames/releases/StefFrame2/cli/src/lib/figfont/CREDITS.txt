@@ -1,0 +1,16 @@
+Polices FIGlet (.flf) embarquees pour le titre ASCII de la CLI iakaframe.
+
+Ce sont des polices FIGlet standard, librement distribuables, issues de la
+collection FIGlet / pyfiglet. Le format .flf est le standard FIGfont.
+
+Polices incluses :
+  ansi_shadow.flf   (defaut)
+  standard.flf      (repli ASCII)
+  slant.flf  small.flf  big.flf  doom.flf  bloody.flf   (bonus)
+
+FIGlet : http://www.figlet.org/  -  fonts: https://github.com/pwaller/pyfiglet
+Police "Standard" : Glenn Chappell & Ian Chai. Autres : voir l'en-tete (commentaire)
+de chaque fichier .flf pour l'auteur et la licence.
+
+Le moteur de rendu (src/lib/banner.js) est une implementation maison, JS pur,
+sans aucune dependance runtime (ni figlet ni commander).
