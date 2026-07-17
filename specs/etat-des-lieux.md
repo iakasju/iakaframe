@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-15 20:13 (motif: reprise).
+> Genere par iakaframe (CLI) le 2026-07-17 18:50 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -8,26 +8,26 @@
 | Champ | Valeur |
 |---|---|
 | Version | v0.6.1 |
-| Branche | feat/cli-convergence |
-| Dernier commit | 38d74a6 feat(cli): assemble --write aligne sur @iakaframe/core + golden de parite |
+| Branche | main |
+| Dernier commit | 0c09312 feat(learning): la skill /learning pilote le retrait symetrique (detach/attach/remove) — S6 |
 | Arbre | propre |
-| Fichiers (hors .git/node_modules) | 271 |
-| Note | convergence CLI (GAP a/b/c) : racine partagee, schema binding E1, parite kit core |
+| Fichiers (hors .git/node_modules) | 308 |
+| Note | Boucle d'apprentissage + symetrie +/- livrees : canon amorce, gestes memory/open/recall/close/review/consolidate + cadence, 3 surfaces (CLI/skill/GUI), retrait symetrique |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `38d74a6` | 2026-07-15 | feat(cli): assemble --write aligne sur @iakaframe/core + golden de parite |
-| `ddbe0d9` | 2026-07-15 | feat(cli): schema binding converge E1 (node/origin + alias bindings) |
-| `c9b260b` | 2026-07-15 | feat(cli): sonde racine partagee <chapeau>/iakaframe (parite GUI) |
-| `2d481bf` | 2026-07-15 | merge(cli): couche CLI bibliotheque (gate Legolas PASS) |
-| `aa844c7` | 2026-07-15 | test(cli): verbes bibliotheque (frontmatter, library/scan/refs/assemble, dispatch+json) + fixtures mini-pool |
-| `bc4796e` | 2026-07-15 | feat(cli): verbes bibliotheque list/show/assemble/add/switch(use) + dispatch et aide |
-| `2f8abdd` | 2026-07-15 | feat(cli): lib/library (collections, racine Q-2, scan, refs, assemble) + fix(cli) frameworkRoot marqueur post-rangement (Q-1) |
-| `b943d2a` | 2026-07-15 | feat(cli): mini-parseur frontmatter maison zero-dep (scalaires, listes flow multi-lignes, maps inline) |
-| `1b8aa5a` | 2026-07-15 | docs(cadrage): couche CLI bibliotheque (list/show/add/assemble/switch) |
-| `2befa8a` | 2026-07-15 | merge(library): rangement pool + assemblages (gate Legolas PASS) |
+| `0c09312` | 2026-07-17 | feat(learning): la skill /learning pilote le retrait symetrique (detach/attach/remove) — S6 |
+| `ad48bd9` | 2026-07-17 | docs(commandes): documente remove/attach/detach (symetrie +/-) + compteurs 26/26 |
+| `a3c7d03` | 2026-07-17 | test(remove): couverture socle + remove/attach/detach + memory remove (S7) |
+| `1b65088` | 2026-07-17 | feat(cli): socle retrait sur + verbes remove/attach/detach (symetrie +/-) |
+| `4aba4ff` | 2026-07-17 | docs(specs): instruction symetrie +/- (VALIDE) |
+| `e4ce25a` | 2026-07-16 | test(learning): verrou skill + alias iakaframe-learning (pilotes de review) |
+| `befa880` | 2026-07-16 | feat(learning): skill iakaframe-learning + alias /learning et /iaka (pilotes de review) |
+| `f19c2da` | 2026-07-16 | docs(specs): instruction surface apprentissage GUI+CLI (VALIDE) |
+| `bbd6792` | 2026-07-16 | test(consolidate): couverture T8 (routage type->cible, plafond dur, canon reel non muté) |
+| `b72700b` | 2026-07-16 | feat(consolidate): consolidation initiale des fiches memoire en apercu capé PROFIL/REGISTRE (T8) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,4 +40,5 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-17 18:50 | version | v0.6.1 | main | Boucle d'apprentissage + symetrie +/- livrees : canon amorce, gestes memory/open/recall/close/review/consolidate + cadence, 3 surfaces (CLI/skill/GUI), retrait symetrique |
 | 2026-07-15 20:13 | reprise | v0.6.1 | feat/cli-convergence | convergence CLI (GAP a/b/c) : racine partagee, schema binding E1, parite kit core |
