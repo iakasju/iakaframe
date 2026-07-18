@@ -1,0 +1,5 @@
+{
+  "hook_event_name": "Stop",
+  "session_id": "codex-fixture-4",
+  "note": "aucun transcript exploitable -> fail-open (exit 0)"
+}

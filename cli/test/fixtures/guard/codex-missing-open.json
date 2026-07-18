@@ -1,0 +1,8 @@
+{
+  "hook_event_name": "Stop",
+  "session_id": "codex-fixture-3",
+  "transcript": [
+    { "role": "user", "content": "fais le boulot" },
+    { "role": "assistant", "content": "Voici mon travail, j'attaque directement sans badge d'ouverture.\n\nDetail du travail effectue.\n\nC'est termine [PORTEFEUILLE][Odin] 🟡" }
+  ]
+}
