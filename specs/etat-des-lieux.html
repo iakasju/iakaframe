@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-07-18 15:06 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-07-18 15:16 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
-  <div class="k">Version</div><div>v0.14.0</div>
+  <div class="k">Version</div><div>v0.15.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>0e97a70 merge(codex): Lot A1 — Codex perimetre + delegation (adaptateurs guard-core)</code></div>
+  <div class="k">Dernier commit</div><div><code>b2c3b7f merge(openwebui): Lot A2 — Filter d'identite (port Python fidele de guard-core.verdictIdentity)</code></div>
   <div class="k">Arbre</div><div><span class='ok'>propre</span></div>
-  <div class="k">Fichiers</div><div>785 (hors .git / node_modules)</div>
-  <div class='k'>Note</div><div>Multi-runner Lot A1 : host Codex complet — adaptateurs codex-perimeter-guard + codex-delegation-guard consommant guard-core (parite verdict Claude&lt;-&gt;Codex prouvee), cablage 3 gardes, doc. e2e Codex reel = gate humain differe.</div>
+  <div class="k">Fichiers</div><div>788 (hors .git / node_modules)</div>
+  <div class='k'>Note</div><div>Multi-runner Lot A2 : host OpenWebUI — Filter Function Python d'identite (outlet leve/inlet rappelle), port fidele de guard-core.verdictIdentity verrouille par parite Python&lt;-&gt;Node cas-par-cas ; doc import webui.db ; identite seule (perimetre/delegation N/A). e2e OWUI reel = gate humain differe.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>0e97a70</code></td><td>2026-07-18</td><td>merge(codex): Lot A1 — Codex perimetre + delegation (adaptateurs guard-core)</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>b2c3b7f</code></td><td>2026-07-18</td><td>merge(openwebui): Lot A2 — Filter d'identite (port Python fidele de guard-core.verdictIdentity)</td></tr>
+<tr><td><code>26a560c</code></td><td>2026-07-18</td><td>docs(openwebui-guard): doc d'import admin/API + limites honnetes ; manifest emits functions/*.py</td></tr>
+<tr><td><code>94a69a4</code></td><td>2026-07-18</td><td>feat(openwebui-guard): Filter identite OWUI (outlet/inlet) + parite Python&lt;-&gt;guard-core — Lot A2</td></tr>
+<tr><td><code>573d48c</code></td><td>2026-07-18</td><td>chore(iakaframe): update etat des lieux + commit global (version v0.14.0)</td></tr>
+<tr><td><code>0e97a70</code></td><td>2026-07-18</td><td>merge(codex): Lot A1 — Codex perimetre + delegation (adaptateurs guard-core)</td></tr>
 <tr><td><code>694ae34</code></td><td>2026-07-18</td><td>docs(codex-guard): README couvre desormais perimetre + delegation (Lot A1)</td></tr>
 <tr><td><code>497f482</code></td><td>2026-07-18</td><td>test(codex-guard): parite perimetre + delegation core&lt;-&gt;runner + refus e2e (Lot A1)</td></tr>
 <tr><td><code>a507204</code></td><td>2026-07-18</td><td>feat(codex-guard): cable perimetre (PreToolUse) + delegation (Pre/PostToolUse)</td></tr>
 <tr><td><code>56c1d3b</code></td><td>2026-07-18</td><td>feat(codex-guard): adaptateurs perimetre + delegation via guard-core (Lot A1)</td></tr>
 <tr><td><code>a53442f</code></td><td>2026-07-18</td><td>chore(iakaframe): update etat des lieux + commit global (version v0.13.0)</td></tr>
-<tr><td><code>a0f91c9</code></td><td>2026-07-18</td><td>merge(vocab): Lot B2 — split host&lt;-&gt;runner + chatgpt/litellm + alias legacy (miroir CLI)</td></tr>
-<tr><td><code>85d7b91</code></td><td>2026-07-18</td><td>test(vocab-parity): couvre HOST_KINDS/TOOL_KINDS + attentes de renommage (B2)</td></tr>
-<tr><td><code>1d74266</code></td><td>2026-07-18</td><td>fix(library): validation runner alias-aware (accepte les renommages legacy §6.1)</td></tr>
-<tr><td><code>4105867</code></td><td>2026-07-18</td><td>feat(vocab): miroir CLI host&lt;-&gt;runner + tools + alias legacy (parite core, B2)</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-07-18 15:16</td><td><span class='r r-version'>version</span></td><td>v0.15.0</td><td>main</td><td>Multi-runner Lot A2 : host OpenWebUI — Filter Function Python d'identite (outlet leve/inlet rappelle), port fidele de guard-core.verdictIdentity verrouille par parite Python&lt;-&gt;Node cas-par-cas ; doc import webui.db ; identite seule (perimetre/delegation N/A). e2e OWUI reel = gate humain differe.</td></tr>
 <tr><td>2026-07-18 15:06</td><td><span class='r r-version'>version</span></td><td>v0.14.0</td><td>main</td><td>Multi-runner Lot A1 : host Codex complet — adaptateurs codex-perimeter-guard + codex-delegation-guard consommant guard-core (parite verdict Claude&lt;-&gt;Codex prouvee), cablage 3 gardes, doc. e2e Codex reel = gate humain differe.</td></tr>
 <tr><td>2026-07-18 14:53</td><td><span class='r r-version'>version</span></td><td>v0.13.0</td><td>main</td><td>Multi-runner Lot B2 : vocab split host{claude,codex,openwebui} &lt;-&gt; runner{claude,chatgpt,ollama-local,ollama-distant,litellm} ; chatgpt (pas openai), litellm plein droit, anythingllm hors modele ; alias legacy ; checkRefs alias-aware ; parite miroir verte.</td></tr>
 <tr><td>2026-07-18 13:31</td><td><span class='r r-version'>version</span></td><td>v0.12.0</td><td>main</td><td>Reconciliation kit source claude &lt;-&gt; frame : rapatrie en source delegation-guard (refactore guard-core) + identity-remind + plan-courante + settings.example.json (5 hooks) ; de-tokenise LOG_PREFIX ; agents/skills laisses en materialisation frame (voulu). + backlog item chemin machine perimeter-guard.</td></tr>

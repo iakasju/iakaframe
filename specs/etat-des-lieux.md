@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-18 15:06 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-18 15:16 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.14.0 |
+| Version | v0.15.0 |
 | Branche | main |
-| Dernier commit | 0e97a70 merge(codex): Lot A1 — Codex perimetre + delegation (adaptateurs guard-core) |
+| Dernier commit | b2c3b7f merge(openwebui): Lot A2 — Filter d'identite (port Python fidele de guard-core.verdictIdentity) |
 | Arbre | propre |
-| Fichiers (hors .git/node_modules) | 785 |
-| Note | Multi-runner Lot A1 : host Codex complet — adaptateurs codex-perimeter-guard + codex-delegation-guard consommant guard-core (parite verdict Claude<->Codex prouvee), cablage 3 gardes, doc. e2e Codex reel = gate humain differe. |
+| Fichiers (hors .git/node_modules) | 788 |
+| Note | Multi-runner Lot A2 : host OpenWebUI — Filter Function Python d'identite (outlet leve/inlet rappelle), port fidele de guard-core.verdictIdentity verrouille par parite Python<->Node cas-par-cas ; doc import webui.db ; identite seule (perimetre/delegation N/A). e2e OWUI reel = gate humain differe. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `b2c3b7f` | 2026-07-18 | merge(openwebui): Lot A2 — Filter d'identite (port Python fidele de guard-core.verdictIdentity) |
+| `26a560c` | 2026-07-18 | docs(openwebui-guard): doc d'import admin/API + limites honnetes ; manifest emits functions/*.py |
+| `94a69a4` | 2026-07-18 | feat(openwebui-guard): Filter identite OWUI (outlet/inlet) + parite Python<->guard-core — Lot A2 |
+| `573d48c` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.14.0) |
 | `0e97a70` | 2026-07-18 | merge(codex): Lot A1 — Codex perimetre + delegation (adaptateurs guard-core) |
 | `694ae34` | 2026-07-18 | docs(codex-guard): README couvre desormais perimetre + delegation (Lot A1) |
 | `497f482` | 2026-07-18 | test(codex-guard): parite perimetre + delegation core<->runner + refus e2e (Lot A1) |
 | `a507204` | 2026-07-18 | feat(codex-guard): cable perimetre (PreToolUse) + delegation (Pre/PostToolUse) |
 | `56c1d3b` | 2026-07-18 | feat(codex-guard): adaptateurs perimetre + delegation via guard-core (Lot A1) |
 | `a53442f` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.13.0) |
-| `a0f91c9` | 2026-07-18 | merge(vocab): Lot B2 — split host<->runner + chatgpt/litellm + alias legacy (miroir CLI) |
-| `85d7b91` | 2026-07-18 | test(vocab-parity): couvre HOST_KINDS/TOOL_KINDS + attentes de renommage (B2) |
-| `1d74266` | 2026-07-18 | fix(library): validation runner alias-aware (accepte les renommages legacy §6.1) |
-| `4105867` | 2026-07-18 | feat(vocab): miroir CLI host<->runner + tools + alias legacy (parite core, B2) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-18 15:16 | version | v0.15.0 | main | Multi-runner Lot A2 : host OpenWebUI — Filter Function Python d'identite (outlet leve/inlet rappelle), port fidele de guard-core.verdictIdentity verrouille par parite Python<->Node cas-par-cas ; doc import webui.db ; identite seule (perimetre/delegation N/A). e2e OWUI reel = gate humain differe. |
 | 2026-07-18 15:06 | version | v0.14.0 | main | Multi-runner Lot A1 : host Codex complet — adaptateurs codex-perimeter-guard + codex-delegation-guard consommant guard-core (parite verdict Claude<->Codex prouvee), cablage 3 gardes, doc. e2e Codex reel = gate humain differe. |
 | 2026-07-18 14:53 | version | v0.13.0 | main | Multi-runner Lot B2 : vocab split host{claude,codex,openwebui} <-> runner{claude,chatgpt,ollama-local,ollama-distant,litellm} ; chatgpt (pas openai), litellm plein droit, anythingllm hors modele ; alias legacy ; checkRefs alias-aware ; parite miroir verte. |
 | 2026-07-18 13:31 | version | v0.12.0 | main | Reconciliation kit source claude <-> frame : rapatrie en source delegation-guard (refactore guard-core) + identity-remind + plan-courante + settings.example.json (5 hooks) ; de-tokenise LOG_PREFIX ; agents/skills laisses en materialisation frame (voulu). + backlog item chemin machine perimeter-guard. |
