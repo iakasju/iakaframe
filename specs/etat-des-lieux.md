@@ -1,23 +1,26 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-18 18:32 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-18 19:14 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.17.0 |
+| Version | v0.17.1 |
 | Branche | main |
-| Dernier commit | 938ff91 test(cli): garde anti-derive C-JSON + balayage du contrat de sortie |
+| Dernier commit | 82c7fec chore(kit-owui): anonymise l'author_url Forgejo (sjupin -> <user>) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 796 |
-| Note | Backlog vide en marche forcee : (1) harmonisation surface --json du CLI autour de la convention C-JSON (racine objet, ok en tete, collections pluriel+count, erreurs {ok:false,error} sur stdout+exit1) — source unique lib/output.js, extraction inline portfolio/list vers lib/, garde anti-derive, 3 ruptures assumees (list/assemble/services), gate Legolas PASS ; (2) nettoyage chemins machine perso dans les kits (perimeter-guard.mjs + README), iso-comportement, gate Legolas PASS. 2 items ouverts au backlog (reconciliation services.json CLI vs ps1 ; anonymisation URL Forgejo kits). |
+| Fichiers (hors .git/node_modules) | 799 |
+| Note | Suite marche forcee (2 items issus des gates) : (1) reconciliation services.json — le producteur ps1 emet desormais l'enveloppe C-JSON { ok, generated, count, services }, verrous Node V1 (forme fichier CLI --out) + V2 (garde statique source ps1), runtime ps1 = gate humain differe faute de pwsh, gate Legolas PASS (515fe05) ; (2) anonymisation author_url Forgejo du kit OpenWebUI occurrence #3 (sjupin -> <user>), py_compile OK + test 15/15, gate Legolas PASS (82c7fec). GELE en attente d'arbitrage decideur : anonymisation des 2 CLAUDE.md (#1/#2), classes LAISSER-DIVERGER par reconcilier-kit-source-frame.md §4 — conflit de decision non renverse en marche forcee. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `82c7fec` | 2026-07-18 | chore(kit-owui): anonymise l'author_url Forgejo (sjupin -> <user>) |
+| `515fe05` | 2026-07-18 | fix(services): le ps1 emet l'enveloppe C-JSON { ok, generated, count, services } |
+| `cb1efb0` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.0) |
 | `938ff91` | 2026-07-18 | test(cli): garde anti-derive C-JSON + balayage du contrat de sortie |
 | `a8ec920` | 2026-07-18 | refactor(cli): harmonise la surface --json de tout le parc autour de C-JSON |
 | `1356c2e` | 2026-07-18 | feat(cli): source unique de sortie machine C-JSON (lib/output.js) |
@@ -25,9 +28,6 @@
 | `e9cec6e` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.16.0) |
 | `1c8c2ff` | 2026-07-18 | merge(install): Lot C1 — installeur multi-host fan-out (detection hosts + copie collision-aware par host) |
 | `8e9879b` | 2026-07-18 | test(install): fan-out multi-host (Lot C1) — 2 hosts presents + 1 absent |
-| `49f9af9` | 2026-07-18 | feat(install): installeur multi-host fan-out (Lot C1, §5bis) |
-| `a1fc59a` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.15.0) |
-| `b2c3b7f` | 2026-07-18 | merge(openwebui): Lot A2 — Filter d'identite (port Python fidele de guard-core.verdictIdentity) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-18 19:14 | version | v0.17.1 | main | Suite marche forcee (2 items issus des gates) : (1) reconciliation services.json — le producteur ps1 emet desormais l'enveloppe C-JSON { ok, generated, count, services }, verrous Node V1 (forme fichier CLI --out) + V2 (garde statique source ps1), runtime ps1 = gate humain differe faute de pwsh, gate Legolas PASS (515fe05) ; (2) anonymisation author_url Forgejo du kit OpenWebUI occurrence #3 (sjupin -> <user>), py_compile OK + test 15/15, gate Legolas PASS (82c7fec). GELE en attente d'arbitrage decideur : anonymisation des 2 CLAUDE.md (#1/#2), classes LAISSER-DIVERGER par reconcilier-kit-source-frame.md §4 — conflit de decision non renverse en marche forcee. |
 | 2026-07-18 18:32 | version | v0.17.0 | main | Backlog vide en marche forcee : (1) harmonisation surface --json du CLI autour de la convention C-JSON (racine objet, ok en tete, collections pluriel+count, erreurs {ok:false,error} sur stdout+exit1) — source unique lib/output.js, extraction inline portfolio/list vers lib/, garde anti-derive, 3 ruptures assumees (list/assemble/services), gate Legolas PASS ; (2) nettoyage chemins machine perso dans les kits (perimeter-guard.mjs + README), iso-comportement, gate Legolas PASS. 2 items ouverts au backlog (reconciliation services.json CLI vs ps1 ; anonymisation URL Forgejo kits). |
 | 2026-07-18 17:21 | version | v0.16.0 | main | Multi-runner Lot C1 (dernier) : installeur multi-host fan-out (install.mjs racine) — detecte les hosts presents {claude,codex,openwebui}, pose le kit de chacun dans son dir (copie collision-aware, backup par host, merge bloc/JSON, dry-run, idempotence), OWUI=bundle import admin/API, ollama/anythingllm refuses ; --link opt-in. MULTI-RUNNER 5/5 (B2 vocab, A1 Codex, A2 OpenWebUI, B1 binding tools/runners, C1 installeur). |
 | 2026-07-18 15:16 | version | v0.15.0 | main | Multi-runner Lot A2 : host OpenWebUI — Filter Function Python d'identite (outlet leve/inlet rappelle), port fidele de guard-core.verdictIdentity verrouille par parite Python<->Node cas-par-cas ; doc import webui.db ; identite seule (perimetre/delegation N/A). e2e OWUI reel = gate humain differe. |

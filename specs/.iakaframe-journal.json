@@ -138,5 +138,15 @@
     "dirty": true,
     "files": 796,
     "note": "Backlog vide en marche forcee : (1) harmonisation surface --json du CLI autour de la convention C-JSON (racine objet, ok en tete, collections pluriel+count, erreurs {ok:false,error} sur stdout+exit1) — source unique lib/output.js, extraction inline portfolio/list vers lib/, garde anti-derive, 3 ruptures assumees (list/assemble/services), gate Legolas PASS ; (2) nettoyage chemins machine perso dans les kits (perimeter-guard.mjs + README), iso-comportement, gate Legolas PASS. 2 items ouverts au backlog (reconciliation services.json CLI vs ps1 ; anonymisation URL Forgejo kits)."
+  },
+  {
+    "date": "2026-07-18 19:14",
+    "reason": "version",
+    "version": "v0.17.1",
+    "branch": "main",
+    "commit": "82c7fec chore(kit-owui): anonymise l'author_url Forgejo (sjupin -> <user>)",
+    "dirty": true,
+    "files": 799,
+    "note": "Suite marche forcee (2 items issus des gates) : (1) reconciliation services.json — le producteur ps1 emet desormais l'enveloppe C-JSON { ok, generated, count, services }, verrous Node V1 (forme fichier CLI --out) + V2 (garde statique source ps1), runtime ps1 = gate humain differe faute de pwsh, gate Legolas PASS (515fe05) ; (2) anonymisation author_url Forgejo du kit OpenWebUI occurrence #3 (sjupin -> <user>), py_compile OK + test 15/15, gate Legolas PASS (82c7fec). GELE en attente d'arbitrage decideur : anonymisation des 2 CLAUDE.md (#1/#2), classes LAISSER-DIVERGER par reconcilier-kit-source-frame.md §4 — conflit de decision non renverse en marche forcee."
   }
 ]
