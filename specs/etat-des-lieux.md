@@ -1,23 +1,25 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-18 12:52 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-18 13:01 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.10.0 |
+| Version | v0.11.0 |
 | Branche | main |
-| Dernier commit | dfe7e89 merge(guard): guard-core runner-agnostique + pilote Codex x identite (Lot 0+1) |
+| Dernier commit | 25a43e4 feat(principle): merge-versionnement — regle 'merge => versionnement' comme element dedie |
 | Arbre | propre |
-| Fichiers (hors .git/node_modules) | 771 |
-| Note | Multi-runner Lot 0 (guard-core runner-agnostique : 3 verdicts purs, hooks Claude refactores non-regressifs, test de parite) + Lot 1 pilote Codex x identite. e2e Codex reel = gate humain differe. Kit source claude en retard sur la frame (delegation-guard/settings) a reconcilier. |
+| Fichiers (hors .git/node_modules) | 772 |
+| Note | Regle 'merge => versionnement' promue en element dedie : principe library/principles/merge-versionnement.md, cable dans methods (principleIds=16), reference par aragorn.md + commits-versionnement. Vaut pour tout coordinateur (Aragorn/Odin). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `25a43e4` | 2026-07-18 | feat(principle): merge-versionnement — regle 'merge => versionnement' comme element dedie |
+| `2829bf6` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.10.0) |
 | `dfe7e89` | 2026-07-18 | merge(guard): guard-core runner-agnostique + pilote Codex x identite (Lot 0+1) |
 | `bde22a2` | 2026-07-18 | test(guard): non-regression perimeter-guard (baseline pre-refactor == refactor) |
 | `466b12d` | 2026-07-18 | test(guard): non-regression Claude + parite core<->runner + unite des verdicts purs |
@@ -26,8 +28,6 @@
 | `b99a302` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.9.0) |
 | `27e48db` | 2026-07-18 | merge(learning): scinde iakaframe-learning en REVUE + iakaframe-retrait (symetrie +/-) |
 | `652dc80` | 2026-07-18 | test(skills): scinder le verrou learning/retrait (bloc S6 -> retrait-skill.test.js) |
-| `f115557` | 2026-07-18 | feat(retrait): nouvelle skill iakaframe-retrait + alias /retrait (symetrie +/-) |
-| `f9ee9a1` | 2026-07-18 | refactor(learning): alleger la skill REVUE — retrait demenage vers iakaframe-retrait |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-18 13:01 | version | v0.11.0 | main | Regle 'merge => versionnement' promue en element dedie : principe library/principles/merge-versionnement.md, cable dans methods (principleIds=16), reference par aragorn.md + commits-versionnement. Vaut pour tout coordinateur (Aragorn/Odin). |
 | 2026-07-18 12:52 | version | v0.10.0 | main | Multi-runner Lot 0 (guard-core runner-agnostique : 3 verdicts purs, hooks Claude refactores non-regressifs, test de parite) + Lot 1 pilote Codex x identite. e2e Codex reel = gate humain differe. Kit source claude en retard sur la frame (delegation-guard/settings) a reconcilier. |
 | 2026-07-18 12:14 | version | v0.9.0 | main | Scission iakaframe-learning -> REVUE (iakaframe-learning) + RETRAIT (iakaframe-retrait, alias /retrait, badge Retrait) ; triggers repartis sans recouvrement ; CLI intact ; frames figees |
 | 2026-07-18 11:50 | version | v0.8.0 | main | Quick wins P0 (grue, casting Helm 8, Odin/Aragorn bornes) + charte CTO d'Odin + starter set Odin-CTO (STRATEGIE.md decl., observe silencieux, portfolio, skill+principe interruption-minimale) + audit du frame + cadrages (binding GUI, split learning, multi-runner, odin-cto) |

@@ -68,5 +68,15 @@
     "dirty": false,
     "files": 771,
     "note": "Multi-runner Lot 0 (guard-core runner-agnostique : 3 verdicts purs, hooks Claude refactores non-regressifs, test de parite) + Lot 1 pilote Codex x identite. e2e Codex reel = gate humain differe. Kit source claude en retard sur la frame (delegation-guard/settings) a reconcilier."
+  },
+  {
+    "date": "2026-07-18 13:01",
+    "reason": "version",
+    "version": "v0.11.0",
+    "branch": "main",
+    "commit": "25a43e4 feat(principle): merge-versionnement — regle 'merge => versionnement' comme element dedie",
+    "dirty": false,
+    "files": 772,
+    "note": "Regle 'merge => versionnement' promue en element dedie : principe library/principles/merge-versionnement.md, cable dans methods (principleIds=16), reference par aragorn.md + commits-versionnement. Vaut pour tout coordinateur (Aragorn/Odin)."
   }
 ]
