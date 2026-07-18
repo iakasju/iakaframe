@@ -12,10 +12,17 @@
 // ANCRAGE : $CLAUDE_PROJECT_DIR (stable), PAS le cwd du payload (qui derive). Variable absente
 // -> SKIP (fail-open, exit 0).
 // FAIL-OPEN partout : tout bug interne => exit 0. Journal : ~/.claude/iakaframe-perimeter.log
+//
+// ARCHITECTURE (Lot 0, parite multirunner) : ce fichier est l'ADAPTATEUR CLAUDE de la garde de
+// perimetre. La LOGIQUE DE DECISION pure (classement d'un chemin absolu contre le perimetre) vit
+// dans ./guard-core.mjs (verdictPerimeter/isPerimeterBlocking), partagee avec les autres runners.
+// Ici on ne garde que le specifique-Claude : ancrage $CLAUDE_PROJECT_DIR, resolution des chemins
+// (cwd/tilde), reperes du foyer ~/.claude, journal, exit code. Comportement STRICTEMENT inchange.
 
 import { appendFileSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
+import { verdictPerimeter, isPerimeterBlocking } from "./guard-core.mjs";
 
 const LOG = join(homedir(), ".claude", "iakaframe-perimeter.log");
 const CLAUDE_DIR = join(homedir(), ".claude");
@@ -25,14 +32,6 @@ const allow = () => process.exit(0);
 const ts = () => new Date().toISOString();
 const write = (rec) => {
   try { appendFileSync(LOG, JSON.stringify(rec) + "\n", "utf8"); } catch { /* fail-open */ }
-};
-
-// Appartenance : target est SOUS base si relative(base, target) ne sort pas (pas de "..",
-// pas un chemin absolu). relative("/a", "/a") === "" -> dans la base (la racine elle-meme).
-const isUnder = (base, target) => {
-  if (!base || !target) return false;
-  const rel = relative(base, target);
-  return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
 };
 
 // Resout le mode EFFECTIF pour un outil donne, a partir de la valeur brute de la variable.
@@ -45,18 +44,16 @@ const effectiveMode = (modeEnv, tool) => {
   return tool === "Bash" ? "warn" : "deny";
 };
 
-// Classe un chemin absolu resolu contre perimetre + listes blanches.
-// Renvoie un verdict : ALLOW_PROJECT | ALLOW_PORTFOLIO | DENY_HARNESS | HORS
-const classifyPath = (absPath, projectDir) => {
-  // DENY harnais prime sur tout (settings.json sous ~/.claude/).
-  if (absPath === HARNESS_SETTINGS) return "DENY_HARNESS";
-  if (projectDir && isUnder(projectDir, absPath)) return "ALLOW_PROJECT";
-  // ALLOW portefeuille : ~/.claude/ (hors settings.json deja capte ci-dessus).
-  if (isUnder(CLAUDE_DIR, absPath)) return "ALLOW_PORTFOLIO";
-  return "HORS";
-};
+// Adaptateur Claude : classe un chemin absolu contre le perimetre, en injectant les reperes du
+// foyer ~/.claude et l'implementation de path. Delegue le verdict pur a guard-core.
+const classifyPath = (absPath, projectDir) => verdictPerimeter(absPath, projectDir, {
+  portfolioDir: CLAUDE_DIR,
+  harnessSettings: HARNESS_SETTINGS,
+  relativeFn: relative,
+  isAbsoluteFn: isAbsolute,
+});
 
-const isBlocking = (verdict) => verdict === "HORS" || verdict === "DENY_HARNESS";
+const isBlocking = (verdict) => isPerimeterBlocking(verdict);
 
 try {
   const raw = readAll();
