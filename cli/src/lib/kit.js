@@ -42,6 +42,30 @@ export function frameworkRoot() {
 export function kitNameForNode(node) { return _kitNameForNode(node); }
 export function contractFileForNode(node) { return _contractFileForNode(node); }
 
+// Basename DISQUE du dossier de kit deployable, derive du nom canonique par echange de
+// prefixe `kit-` -> `iakaframe-` (kit-claude -> iakaframe-claude). Le nom canonique est un
+// jeton d'IDENTITE (cf. vocab.js, verrouille par parite core) ; le basename disque est un
+// concept distinct porte ici, dans la couche de resolution de chemin.
+function kitBasenameForNode(node) {
+  const canonical = _kitNameForNode(node);              // ex. 'kit-claude'
+  return canonical.replace(/^kit-/, 'iakaframe-');       // ex. 'iakaframe-claude'
+}
+
+// Resout le CHEMIN ABSOLU du dossier de kit deployable pour un nœud, sous une racine `root`.
+// Reproduit la convention de install.mjs (kits/iakaframe-<famille>) avec fallback legacy vers
+// l'ancien rangement <root>/kit-<famille> (depots non ranges / anciens bundles). Si aucun des
+// deux candidats n'existe, retourne le candidat PRIMAIRE (kits/iakaframe-<famille>) pour que le
+// message d'erreur d'init pointe le chemin ATTENDU.
+export function kitDirForNode(root, node) {
+  const basename = kitBasenameForNode(node);
+  const primary = path.join(root, 'kits', basename);     // rangement courant (aligne install.mjs)
+  const legacy = path.join(root, _kitNameForNode(node));  // fallback legacy <root>/kit-<famille>
+  for (const cand of [primary, legacy]) {
+    if (fs.existsSync(cand)) return cand;
+  }
+  return primary;
+}
+
 // --- Alias DEPRECIES (retro-compat, conserves >= 1 version mineure - P2 Q-3) ---
 // Ancienne signature basee sur "target" (claude|codex|ollama) : normalise le target legacy
 // en nœud canonique (ollama -> ollama-localhost) puis delegue. Les appelants valident deja

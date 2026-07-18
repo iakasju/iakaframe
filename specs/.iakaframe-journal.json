@@ -168,5 +168,15 @@
     "dirty": true,
     "files": 811,
     "note": "Palette de 10 slash-commands /iaka-* (raccourcis skills + carte dynamique /iaka-help + read-only CLI), source unique du kit deployee par le mecanisme existant ; canoniques iaka/learning/retrait intacts. Gate Legolas PASS (322 tests verts)."
+  },
+  {
+    "date": "2026-07-18 21:06",
+    "reason": "version",
+    "version": "v0.17.4",
+    "branch": "main",
+    "commit": "d355120 chore(iakaframe): update etat des lieux + commit global (version v0.17.3)",
+    "dirty": true,
+    "files": 813,
+    "note": "Fix resolution de kit pour init/onboard/bundle : nouveau resolveur kitDirForNode (kits/iakaframe-<famille> + fallback legacy kit-<famille>) ; init reparé pour claude/codex/openwebui, + test de non-regression. Gate Legolas PASS (328 tests verts)."
   }
 ]

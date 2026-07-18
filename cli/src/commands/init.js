@@ -3,7 +3,7 @@
 import { parseArgs } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
-import { frameworkRoot, kitNameForNode, contractFileForNode, frameworkVersion, copyKit } from '../lib/kit.js';
+import { frameworkRoot, kitDirForNode, contractFileForNode, frameworkVersion, copyKit } from '../lib/kit.js';
 import { NODE_KINDS, normalizeNode, legacyTargetForNode } from '../lib/vocab.js';
 import { now } from '../lib/date.js';
 
@@ -41,7 +41,7 @@ export function runInit(argv) {
   const root = frameworkRoot();
   if (!root) { console.error('Racine iakaframe introuvable (dossier kit-claude/ absent).'); process.exitCode = 1; return false; }
 
-  const kit = path.join(root, kitNameForNode(node));
+  const kit = kitDirForNode(root, node);
   const contract = contractFileForNode(node);
   const version = frameworkVersion(root);
   if (!fs.existsSync(kit)) { console.error(`Kit introuvable : ${kit}`); process.exitCode = 1; return false; }

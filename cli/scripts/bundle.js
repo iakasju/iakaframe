@@ -8,7 +8,11 @@ const cliDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const repoRoot = path.resolve(cliDir, '..');
 const bundled = path.join(cliDir, '_bundled');
 
-const ASSETS = ['kit-claude', 'kit-codex', 'kit-ollama', 'kit-anythingllm', 'kit-openwebui', 'agents', 'skills', 'design-naonedge'];
+// Rangement courant : les kits deployables vivent sous kits/iakaframe-<famille>, et la racine
+// du framework est reconnue par le double marqueur library/ + methods/ (cf. kit.js
+// hasFrameworkMarker). On embarque donc kits/ + library/ + methods/ (requis par le detecteur de
+// racine cote paquet publie) plus les assets annexes (agents/skills absents => ignores).
+const ASSETS = ['kits', 'library', 'methods', 'agents', 'skills', 'design-naonedge'];
 
 function copyDir(src, dst) {
   fs.mkdirSync(dst, { recursive: true });
