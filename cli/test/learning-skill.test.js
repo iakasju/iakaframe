@@ -61,39 +61,36 @@ test('les deux alias /learning et /iaka existent et routent vers le parcours rev
   }
 });
 
-// --- S6 (2e tranche, symetrie +/-) : la skill pilote AUSSI les verbes de RETRAIT ---
+// --- Scission (A3.4) : le RETRAIT a demenage vers iakaframe-retrait ---
+// La skill REVUE ne doit PLUS citer les verbes de retrait ni leur logique de surete :
+// ce domaine est desormais couvert par library/skills/iakaframe-retrait (cf. retrait-skill.test.js).
 
-test('S6 : la skill pilote les verbes de retrait (detach/attach/remove/memory remove)', () => {
+test('la skill learning NE cite PLUS les verbes de retrait (detach/attach/remove/memory remove)', () => {
   const body = fs.readFileSync(skillPath, 'utf8');
-  assert.match(body, /iakaframe detach <skillId> --persona <personaId>/);
-  assert.match(body, /iakaframe attach <skillId> --persona <personaId>/);
-  assert.match(body, /iakaframe remove <team\|method\|binding\|skill> <id>/);
-  assert.match(body, /iakaframe memory remove/);
+  assert.doesNotMatch(body, /iakaframe detach /, 'detach a demenage vers iakaframe-retrait');
+  assert.doesNotMatch(body, /iakaframe attach /, 'attach a demenage vers iakaframe-retrait');
+  assert.doesNotMatch(body, /iakaframe remove /, 'remove a demenage vers iakaframe-retrait');
+  assert.doesNotMatch(body, /iakaframe memory remove/, 'memory remove a demenage vers iakaframe-retrait');
 });
 
-test('S6 : la skill explicite RESTRICT, la corbeille non destructive et la cascade explicite', () => {
+test('la skill learning NE cite PLUS RESTRICT / corbeille / cascade (logique de retrait)', () => {
   const body = fs.readFileSync(skillPath, 'utf8');
-  assert.match(body, /RESTRICT/);
-  assert.match(body, /r[ée]f[ée]rent/i);          // liste des referents restituee
-  assert.match(body, /\.trash-/);                  // corbeille horodatee
-  assert.match(body, /--cascade --yes/);           // cascade = geste humain explicite
-  assert.match(body, /Option 1/);                  // frontmatter = source unique, titre = vue
+  assert.doesNotMatch(body, /RESTRICT/, 'RESTRICT releve de iakaframe-retrait');
+  assert.doesNotMatch(body, /\.trash-/, 'la corbeille releve de iakaframe-retrait');
+  assert.doesNotMatch(body, /--cascade --yes/, 'la cascade releve de iakaframe-retrait');
 });
 
-test('S6 : le retrait reste un PILOTAGE (aucune reimplementation de RESTRICT/corbeille/cascade)', () => {
+test('la skill learning renvoie vers iakaframe-retrait pour defaire un ajout deja materialise (pointeur, pas duplication)', () => {
   const body = fs.readFileSync(skillPath, 'utf8');
-  // Elle se declare pilote des verbes CLI et rappelle la source unique cote CLI.
-  assert.match(body, /pilot\w+ les verbes/i);
-  assert.match(body, /r[ée]implément\w*/i);
+  assert.match(body, /iakaframe-retrait/, 'pointeur d\'une ligne vers la skill de retrait');
 });
 
-test('S6 : les deux alias /learning et /iaka exposent le retrait symetrique', () => {
+test('les deux alias /learning et /iaka NE parlent PLUS du retrait, mais renvoient vers /retrait', () => {
   for (const [file, label] of [[learningCmd, 'learning'], [iakaCmd, 'iaka']]) {
     const txt = fs.readFileSync(file, 'utf8');
-    assert.match(txt, /iakaframe detach <skillId> --persona <id>/, `${label} : detach`);
-    assert.match(txt, /iakaframe attach <skillId> --persona <id>/, `${label} : attach`);
-    assert.match(txt, /iakaframe remove <team\|method\|binding\|skill> <id>/, `${label} : remove`);
-    assert.match(txt, /RESTRICT/, `${label} : RESTRICT`);
-    assert.match(txt, /--cascade --yes/, `${label} : cascade explicite`);
+    assert.doesNotMatch(txt, /iakaframe detach /, `${label} : detach a demenage`);
+    assert.doesNotMatch(txt, /iakaframe remove /, `${label} : remove a demenage`);
+    assert.doesNotMatch(txt, /RESTRICT/, `${label} : RESTRICT a demenage`);
+    assert.match(txt, /\/retrait/, `${label} : renvoi vers /retrait`);
   }
 });
