@@ -92,6 +92,12 @@ source) · **LAISSER-DIVERGER** (divergence intentionnelle documentée) · **INC
 | `global/settings.example.json` | **absent** | présent (4 hooks) | **RAPATRIER** (version source, §5.3) | Vraie dette, mais **pas** une copie : la version source **câble les 5 hooks présents en source** — dont `perimeter-guard` (absent du câblage frame) et `delegation-guard` une fois rapatrié. |
 | `CLAUDE.md` | valeurs réelles | déparamétré `<…>` | **LAISSER-DIVERGER** | La source est le kit **réel** de Stéphane (Forgejo LAN, `FORGEJO_TOKEN`, `iakabox-usage.html`) ; la frame est la release **diffusable** déparamétrée. Régimes distincts et voulus. |
 | `global/CLAUDE.md` | valeurs réelles | déparamétré `<…>` | **LAISSER-DIVERGER** | Idem `CLAUDE.md`. |
+
+> **Note 2026-07-18 (arbitrage décideur, session marche forcée)** : les **URL Forgejo** de
+> `CLAUDE.md` et `global/CLAUDE.md` sont **retirées du régime laisser-diverger** et anonymisées
+> (`sjupin` → `<user>`), pour cause de **fuite d'identifiant personnel**. Le host/IP
+> `192.168.2.11:3001` est conservé. Le **reste du régime §4** (autres valeurs réelles de ces
+> fichiers) **demeure** inchangé.
 | `global/README.md` | valeurs réelles | déparamétré `<…>` | **LAISSER-DIVERGER** | Idem `CLAUDE.md`. |
 | `docs/git-hosting.md` | absent | présent | **LAISSER-DIVERGER** | Doc **générique** créée par la génération de frame (remplace la réf. réelle `iakabox-usage.html` de la source). Artefact de déparamétrage, pas une dette source. |
 | `.claude/agents/*.md` (8) | absent | présent (matérialisé, déparamétré) | **LAISSER-DIVERGER** | **Matérialisation VOULUE** : la frame est auto-contenue (son installeur pose agents/skills depuis `.claude/`). En source, la vérité vit dans `library/personas/` (déployée par `affectPersona`) ; dupliquer dans le kit recréerait la dérive qu'on combat, et importerait la forme **déparamétrée**. |

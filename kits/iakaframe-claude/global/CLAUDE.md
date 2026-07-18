@@ -70,7 +70,7 @@ dispatch — sans en spawner aucun**.
 ## Dépôt git par défaut : Forgejo (iakabox)
 
 Remote par défaut de tout projet : **Forgejo sur le LAN iakabox**,
-`http://192.168.2.11:3001/sjupin/<repo>.git`, **HTTP + token** (SSH inutilisable).
+`http://192.168.2.11:3001/<user>/<repo>.git`, **HTTP + token** (SSH inutilisable).
 Token jamais en dur ni commité : `$env:FORGEJO_TOKEN`, ou intégré dans le `.git/config`
 local. Création de dépôt via l'API (description **ASCII uniquement**). Détails et
 usage : `C:\work\iakaframe\iakabox-usage.html`.

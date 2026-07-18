@@ -57,7 +57,7 @@ Stack : <!-- ex: React + TypeScript + Tauri/Rust + SQLite -->
 
 ## Dépôt git : Forgejo (iakabox)
 
-Remote par défaut : **Forgejo LAN** `http://192.168.2.11:3001/sjupin/<repo>.git`,
+Remote par défaut : **Forgejo LAN** `http://192.168.2.11:3001/<user>/<repo>.git`,
 **HTTP + token** (SSH inutilisable). Token via `$env:FORGEJO_TOKEN` ou `.git/config`
 local — **jamais commité**. Voir `iakabox-usage.html` (iakaframe) pour clone/push,
 création de dépôt (API, description **ASCII**) et rotation de token.
