@@ -158,5 +158,15 @@
     "dirty": true,
     "files": 799,
     "note": "Cloture item anonymisation Forgejo (3/3) : apres arbitrage decideur levant le regime §4 laisser-diverger, anonymisation des 2 CLAUDE.md restants (sjupin -> <user>, host/IP conserve), levee consignee en note additive dans reconcilier-kit-source-frame.md ; grep sjupin kits/ = 0 sur tout kits/ ; gate Legolas PASS (5acdbd0). Backlog projet VIDE (0 item ouvert). Gates humains differes en attente de materiel/pwsh : e2e reels Codex + OpenWebUI + runtime iakaframe-services.ps1."
+  },
+  {
+    "date": "2026-07-18 20:47",
+    "reason": "version",
+    "version": "v0.17.3",
+    "branch": "main",
+    "commit": "6a43b12 chore(iakaframe): update etat des lieux + commit global (version v0.17.2)",
+    "dirty": true,
+    "files": 811,
+    "note": "Palette de 10 slash-commands /iaka-* (raccourcis skills + carte dynamique /iaka-help + read-only CLI), source unique du kit deployee par le mecanisme existant ; canoniques iaka/learning/retrait intacts. Gate Legolas PASS (322 tests verts)."
   }
 ]
