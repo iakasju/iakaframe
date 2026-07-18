@@ -1,24 +1,41 @@
-# Exemple iakaframe — cable la garde d'IDENTITE (pilote Lot 1) sur les hooks Codex CLI.
-# A FUSIONNER dans ~/.codex/config.toml (ne pas clobber le reste de ta config).
-# Deposer les scripts dans ~/.codex/hooks/ : codex-identity-guard.mjs + guard-core.mjs (les DEUX,
-# guard-core.mjs est importe par l'adaptateur).
+# Exemple iakaframe — cable les gardes iakaframe (IDENTITE + PERIMETRE + DELEGATION) sur les hooks
+# Codex CLI. A FUSIONNER dans ~/.codex/config.toml (ne pas clobber le reste de ta config).
+# Deposer les scripts dans ~/.codex/hooks/ : les trois adaptateurs + guard-core.mjs (importe par
+# chaque adaptateur) :
+#   codex-identity-guard.mjs, codex-perimeter-guard.mjs, codex-delegation-guard.mjs, guard-core.mjs
 #
-# PRE-REQUIS (limites upstream, cf. instruction parite-enforcement-multirunner §4.1) :
-#   - Codex CLI >= v0.114 (hooks lifecycle, EXPERIMENTAL) ;
+# PRE-REQUIS (limites upstream, cf. instruction parite-enforcement-multirunner §3.1) :
+#   - Codex CLI recent (hooks lifecycle, EXPERIMENTAL) ;
 #   - hooks DESACTIVES par defaut -> les activer (flag experimental de ta version) ;
 #   - INDISPONIBLE sur Windows (macOS / Linux uniquement).
 #
-# Equivalent Codex du settings.example.json de kit-claude. Meme verdict que Claude : l'adaptateur
-# appelle guard-core.verdictIdentity (coeur partage, byte-identique entre kits).
+# Equivalent Codex du settings.example.json de kit-claude. Meme verdict que Claude : chaque
+# adaptateur appelle guard-core (coeur partage, byte-identique entre kits).
 
 [hooks]
 
-# Fin d'un tour de conversation (equivalent du hook Stop de Claude).
+# --- IDENTITE : badges d'ouverture/cloture (equivalent Stop/SubagentStop de Claude) ---
+
 [[hooks.Stop]]
 type = "command"
 command = "node ~/.codex/hooks/codex-identity-guard.mjs"
 
-# Fin d'un sous-agent (equivalent du hook SubagentStop de Claude).
 [[hooks.SubagentStop]]
 type = "command"
 command = "node ~/.codex/hooks/codex-identity-guard.mjs"
+
+# --- PERIMETRE : refus d'un geste (ecriture/commande) qui SORT du projet (PreToolUse bloquant) ---
+
+[[hooks.PreToolUse]]
+type = "command"
+command = "node ~/.codex/hooks/codex-perimeter-guard.mjs"
+
+# --- DELEGATION : refus d'un agent cible hors roster (PreToolUse) + audit du retour (PostToolUse) ---
+
+[[hooks.PreToolUse]]
+type = "command"
+command = "node ~/.codex/hooks/codex-delegation-guard.mjs"
+
+[[hooks.PostToolUse]]
+type = "command"
+command = "node ~/.codex/hooks/codex-delegation-guard.mjs"
