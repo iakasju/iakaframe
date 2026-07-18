@@ -1,0 +1,19 @@
+{
+  "//": "Exemple iakaframe — variante hooks.json (au lieu du [hooks] inline dans config.toml). Cable la garde d'IDENTITE (pilote Lot 1) sur Codex CLI >= v0.114 (experimental, non-Windows). Deposer codex-identity-guard.mjs ET guard-core.mjs dans ~/.codex/hooks/. Meme verdict que Claude (coeur guard-core partage).",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node ~/.codex/hooks/codex-identity-guard.mjs" }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node ~/.codex/hooks/codex-identity-guard.mjs" }
+        ]
+      }
+    ]
+  }
+}
