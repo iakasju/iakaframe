@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-18 14:53 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-18 15:06 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.13.0 |
+| Version | v0.14.0 |
 | Branche | main |
-| Dernier commit | a0f91c9 merge(vocab): Lot B2 — split host<->runner + chatgpt/litellm + alias legacy (miroir CLI) |
-| Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 778 |
-| Note | Multi-runner Lot B2 : vocab split host{claude,codex,openwebui} <-> runner{claude,chatgpt,ollama-local,ollama-distant,litellm} ; chatgpt (pas openai), litellm plein droit, anythingllm hors modele ; alias legacy ; checkRefs alias-aware ; parite miroir verte. |
+| Dernier commit | 0e97a70 merge(codex): Lot A1 — Codex perimetre + delegation (adaptateurs guard-core) |
+| Arbre | propre |
+| Fichiers (hors .git/node_modules) | 785 |
+| Note | Multi-runner Lot A1 : host Codex complet — adaptateurs codex-perimeter-guard + codex-delegation-guard consommant guard-core (parite verdict Claude<->Codex prouvee), cablage 3 gardes, doc. e2e Codex reel = gate humain differe. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `0e97a70` | 2026-07-18 | merge(codex): Lot A1 — Codex perimetre + delegation (adaptateurs guard-core) |
+| `694ae34` | 2026-07-18 | docs(codex-guard): README couvre desormais perimetre + delegation (Lot A1) |
+| `497f482` | 2026-07-18 | test(codex-guard): parite perimetre + delegation core<->runner + refus e2e (Lot A1) |
+| `a507204` | 2026-07-18 | feat(codex-guard): cable perimetre (PreToolUse) + delegation (Pre/PostToolUse) |
+| `56c1d3b` | 2026-07-18 | feat(codex-guard): adaptateurs perimetre + delegation via guard-core (Lot A1) |
+| `a53442f` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.13.0) |
 | `a0f91c9` | 2026-07-18 | merge(vocab): Lot B2 — split host<->runner + chatgpt/litellm + alias legacy (miroir CLI) |
 | `85d7b91` | 2026-07-18 | test(vocab-parity): couvre HOST_KINDS/TOOL_KINDS + attentes de renommage (B2) |
 | `1d74266` | 2026-07-18 | fix(library): validation runner alias-aware (accepte les renommages legacy §6.1) |
 | `4105867` | 2026-07-18 | feat(vocab): miroir CLI host<->runner + tools + alias legacy (parite core, B2) |
-| `1e2e741` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.12.0) |
-| `d6798c4` | 2026-07-18 | merge(kit): reconcilie le kit source claude avec la frame (rapatrie delegation-guard refactore/identity-remind/plan-courante/settings, de-tokenise) |
-| `d3f928b` | 2026-07-18 | fix(kit-claude): de-tokenise LOG_PREFIX dans les hooks source (§8 anti-placeholder) |
-| `c91bdbf` | 2026-07-18 | feat(kit-claude): rapatrie delegation-guard(refactore guard-core)/identity-remind/plan-courante + settings.example (reconciliation frame) |
-| `5eda405` | 2026-07-18 | docs(instructions): instruction validee reconcilier-kit-source-frame (Gandalf P1) |
-| `7643e36` | 2026-07-18 | chore(backlog): ouvre BACKLOG.md + item 'structure API & commandes du CLI' |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-18 15:06 | version | v0.14.0 | main | Multi-runner Lot A1 : host Codex complet — adaptateurs codex-perimeter-guard + codex-delegation-guard consommant guard-core (parite verdict Claude<->Codex prouvee), cablage 3 gardes, doc. e2e Codex reel = gate humain differe. |
 | 2026-07-18 14:53 | version | v0.13.0 | main | Multi-runner Lot B2 : vocab split host{claude,codex,openwebui} <-> runner{claude,chatgpt,ollama-local,ollama-distant,litellm} ; chatgpt (pas openai), litellm plein droit, anythingllm hors modele ; alias legacy ; checkRefs alias-aware ; parite miroir verte. |
 | 2026-07-18 13:31 | version | v0.12.0 | main | Reconciliation kit source claude <-> frame : rapatrie en source delegation-guard (refactore guard-core) + identity-remind + plan-courante + settings.example.json (5 hooks) ; de-tokenise LOG_PREFIX ; agents/skills laisses en materialisation frame (voulu). + backlog item chemin machine perimeter-guard. |
 | 2026-07-18 13:01 | version | v0.11.0 | main | Regle 'merge => versionnement' promue en element dedie : principe library/principles/merge-versionnement.md, cable dans methods (principleIds=16), reference par aragorn.md + commits-versionnement. Vaut pour tout coordinateur (Aragorn/Odin). |

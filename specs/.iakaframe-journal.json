@@ -98,5 +98,15 @@
     "dirty": true,
     "files": 778,
     "note": "Multi-runner Lot B2 : vocab split host{claude,codex,openwebui} <-> runner{claude,chatgpt,ollama-local,ollama-distant,litellm} ; chatgpt (pas openai), litellm plein droit, anythingllm hors modele ; alias legacy ; checkRefs alias-aware ; parite miroir verte."
+  },
+  {
+    "date": "2026-07-18 15:06",
+    "reason": "version",
+    "version": "v0.14.0",
+    "branch": "main",
+    "commit": "0e97a70 merge(codex): Lot A1 — Codex perimetre + delegation (adaptateurs guard-core)",
+    "dirty": false,
+    "files": 785,
+    "note": "Multi-runner Lot A1 : host Codex complet — adaptateurs codex-perimeter-guard + codex-delegation-guard consommant guard-core (parite verdict Claude<->Codex prouvee), cablage 3 gardes, doc. e2e Codex reel = gate humain differe."
   }
 ]
