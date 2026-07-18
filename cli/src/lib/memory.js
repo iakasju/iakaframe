@@ -6,6 +6,12 @@
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+// Primitive « puce datee » idempotente factorisee (source-unique, partagee avec observation.js).
+import { today, isEntryLine, entryContent, appendBullet, measure, serializeLines } from './bullet.js';
+
+// Re-export pour compat des consommateurs historiques (commande memory, tests) : la mesure du
+// plafond reste exposee par ce module bien que definie dans lib/bullet.js.
+export { measure };
 
 // --- Resolution du chemin du canon (§ 4.1, Q-1) ---------------------------------------------------
 // Priorite : opt (param) > IAKA_MEMORY_HOME (env) > defaut ~/.iaka/memory/. Le canon vit au niveau
@@ -122,25 +128,6 @@ const TARGETS = ['profil', 'registre'];
 
 export function isTarget(t) { return TARGETS.includes(t); }
 
-function today() {
-  const d = new Date();
-  const p = (n) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
-
-// Extrait le <contenu> d'une ligne de puce (strippe `- ` puis un prefixe date `YYYY-MM-DD — `).
-function entryContent(line) {
-  const body = line.replace(/^\s*-\s?/, '');
-  const m = body.match(/^\d{4}-\d{2}-\d{2}\s+—\s+([\s\S]*)$/);
-  return (m ? m[1] : body).trim();
-}
-
-function isEntryLine(line) { return /^\s*-\s/.test(line); }
-
-// Mesure agnostique du plafond : en CARACTERES (§ 4.3, approx tokens ≈ chars/4). On mesure le
-// FICHIER ENTIER (parite avec `wc` de l'invariant 1), header compris.
-export function measure(content) { return content.length; }
-
 // Rend le contenu du fichier a partir des lignes (header + entries), en preservant le header.
 function readFileLines(home, target) {
   const p = statePath(home, target);
@@ -150,7 +137,7 @@ function readFileLines(home, target) {
 
 // Ecrit le fichier a partir des lignes, avec un unique saut de ligne final.
 function writeFileLines(home, target, lines) {
-  fs.writeFileSync(statePath(home, target), lines.join('\n').replace(/\n+$/, '') + '\n', 'utf8');
+  fs.writeFileSync(statePath(home, target), serializeLines(lines), 'utf8');
 }
 
 // Evalue le plafond pour un contenu candidat. Retourne { length, cap, soft, overCap, consolidationNeeded }.
@@ -169,7 +156,7 @@ function apply(home, target, mutate, action) {
   const cfg = loadConfig(home);
   const before = readFileLines(home, target);
   const { lines, changed } = mutate(before);
-  const candidate = lines.join('\n').replace(/\n+$/, '') + '\n';
+  const candidate = serializeLines(lines);
   const cap = evalCap(cfg, target, candidate);
 
   // Plafond DUR : une croissance qui depasse le plafond est REFUSEE -> il faut consolider (T4/close).
@@ -191,10 +178,7 @@ function apply(home, target, mutate, action) {
 export function memoryAdd(home, target, content) {
   const text = String(content).trim();
   if (!text) throw new Error('Contenu vide : rien a ajouter.');
-  return apply(home, target, (lines) => {
-    if (lines.some((l) => isEntryLine(l) && entryContent(l) === text)) return { lines, changed: false };
-    return { lines: [...lines, `- ${today()} — ${text}`], changed: true };
-  }, 'add');
+  return apply(home, target, (lines) => appendBullet(lines, text), 'add');
 }
 
 // replace : remplace le contenu d'une entree existante (apparie sur l'ancien contenu). Erreur si absente.
