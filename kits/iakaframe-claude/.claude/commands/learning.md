@@ -19,23 +19,8 @@ explicitant le **garde de consentement** (structurel = geste humain requis, jama
 
 Ne lis/écris **jamais** le réservoir en direct : passe **toujours** par `iakaframe review`.
 
-## Retrait symétrique (décomposabilité +/−) — pilote les verbes `−`
-
-Défaire un ajout **déjà posé** ≠ `reject`. Pilote les verbes de retrait de la CLI (source unique ;
-RESTRICT / corbeille / cascade y vivent — **rien** de réimplémenté ici), sortie **verbatim** :
-
-- **Détacher / attacher un skill ↔ persona** (cas emblématique) —
-  `iakaframe detach <skillId> --persona <id>` et `iakaframe attach <skillId> --persona <id>` :
-  mute le **seul** `skills:[]` (Option 1, le « titre du skill » est une vue, jamais une section du
-  corps). Offre **détacher ET attacher au même niveau** ; réversible d'un geste.
-- **Retirer team/method/binding/skill** — `iakaframe remove <team|method|binding|skill> <id>` :
-  **RESTRICT par défaut** (refus + **liste des référents** si encore référencé ; oriente vers le
-  `detach` d'un skill référencé) ; **cascade = geste humain explicite** (`--cascade --yes`), jamais
-  silencieuse.
-- **Retirer une entrée mémoire** — `iakaframe memory remove <profil|registre> "<contenu>"` (réutilisé).
-
-**Non destructif** : tout retrait de fichier/dossier va en **corbeille** `<root>/.trash-<ts>/`
-(restaurable). **Confirmation** proportionnée : legère pour `detach`/`attach`, **explicite** pour un
-`remove` référencé ou une cascade.
+> **Frontière.** `reject` retire une proposition **en attente**. Défaire un ajout **déjà
+> matérialisé** (détacher un skill, retirer une team/method/binding/skill, `memory remove`) relève
+> de `/retrait` (skill `iakaframe-retrait`) — un renvoi, pas une duplication.
 
 $ARGUMENTS
