@@ -10,20 +10,21 @@
 //                   l'agent cible appartient au roster connu. Rend l'aller auditable.
 //   - PostToolUse : journalise le RETOUR verbatim. Rend "restitution verbatim" verifiable
 //                   au lieu de reposer sur la seule bonne foi de l'orchestrateur. EMET aussi
-//                   (L5) un document MACHINE de delegation sur le canal geste vers <LOG_PREFIX>.
+//                   (L5) un document MACHINE de delegation sur le canal geste vers la base de logs /
+//                   le broker configures par les variables d'environnement IAKALOG_* / DOCDB_*.
 //
 // MVP honnete : ce garde rend les gestes AUDITABLES (il ne pretend pas policer
 // semantiquement les frontieres de role, ce qui n'est pas fiable). FAIL-OPEN : ne bloque
 // jamais un travail reel pour un bug interne. Journal : ~/.claude/iakaframe-delegations.log
 //
-// L5 — Tracage MACHINE des delegations (canal geste -> <LOG_PREFIX>) :
+// L5 — Tracage MACHINE des delegations (canal geste -> base de logs / broker via IAKALOG_* / DOCDB_*) :
 //   A PostToolUse, si subagent_type est un agent du ROSTER iakaframe, on EMET un document
 //   { role:"system", content:"Delegation X -> Y : ...", meta:{canal:"geste", event:"delegation",
-//   from, to, verdict?} } vers <LOG_PREFIX>. Best-effort, NON BLOQUANT, fail-open total.
+//   from, to, verdict?} } vers la base de logs / le broker (IAKALOG_* / DOCDB_*). Best-effort, NON BLOQUANT, fail-open total.
 //   Transport selectionnable par IAKALOG_TRANSPORT : "broker" (defaut) | "docdb"
 //   (fallback recette offline, POST {DOCDB_URL}/{db} Basic auth, calque sur bridge/index.js).
 //   _id deterministe (idempotence ; 409 = succes). Sous-agents natifs -> AUCUNE emission.
-//   Borne iakaframe : identite <LOG_PREFIX> absente -> aucune emission, exit 0.
+//   Borne iakaframe : identite de log (IAKALOG_* / DOCDB_*) absente -> aucune emission, exit 0.
 
 import { appendFileSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
@@ -185,7 +186,7 @@ async function emitDelegation({ session, agent, description, response, atAller, 
     const from = process.env.IAKALOG_AGENT || "unknown";
     const royaume = process.env.IAKALOG_ROYAUME || "unknown";
 
-    // D6 — Borne iakaframe : sans identite <LOG_PREFIX> configuree, AUCUNE emission.
+    // D6 — Borne iakaframe : sans identite de log (IAKALOG_* / DOCDB_*) configuree, AUCUNE emission.
     const transport = (process.env.IAKALOG_TRANSPORT || "broker").toLowerCase();
     const hasBrokerId = !!(process.env.IAKALOG_USER && process.env.IAKALOG_PASS);
     const hasDocId = !!(process.env.DOCDB_URL &&
@@ -245,7 +246,7 @@ async function emitDocDB(doc) {
   }
 }
 
-// Transport broker : publie sur <LOG_PREFIX>/<royaume>/<agent>/<conv> (calque sur iakalog.mjs).
+// Transport broker : publie sur le topic IAKALOG_PREFIX/<royaume>/<agent>/<conv> (calque sur iakalog.mjs).
 // _id voyage dans le payload ; le bridge l'honore s'il est present. AWAITED + timeout court :
 // resout quand le PUBLISH est ecrit OU au timeout, jamais de reject (fail-open).
 function emitBroker({ royaume, agent, conv, doc }) {

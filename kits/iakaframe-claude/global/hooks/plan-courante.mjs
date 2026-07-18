@@ -2,7 +2,7 @@
 //
 // Généralise le hook L5 (delegation-guard) : ici on instrumente le PLAN de l'agent.
 // Câblé sur PostToolUse, matcher "TodoWrite" (et "Task"). À chaque écriture de todos,
-// on ÉMET un snapshot COMPLET (non tronqué) du plan vers <LOG_PREFIX> (base de documents/broker,
+// on ÉMET un snapshot COMPLET (non tronqué) du plan vers la base de documents / le broker (IAKALOG_* / DOCDB_*,
 // même schéma que L4/L5). Le cockpit lit la main courante et affiche la checklist
 // (dernier snapshot = plan courant).
 //
@@ -125,7 +125,7 @@ async function emitDocDb(doc) {
   }
 }
 
-// broker : publie sur <LOG_PREFIX>/<royaume>/<agent>/<conv> (calque iakalog.mjs). _id dans le payload.
+// broker : publie sur le topic IAKALOG_PREFIX/<royaume>/<agent>/<conv> (calque iakalog.mjs). _id dans le payload.
 function emitBroker(doc, royaume, agent, conv) {
   if (!(process.env.IAKALOG_USER && process.env.IAKALOG_PASS)) return Promise.resolve();
   const url = process.env.IAKALOG_BROKER_URL || "";
