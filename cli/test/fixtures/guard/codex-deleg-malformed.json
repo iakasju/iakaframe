@@ -1,0 +1,5 @@
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "codex-deleg-4",
+  "note": "pas d'agent cible exploitable -> rien a juger -> fail-open (exit 0)"
+}

@@ -1,0 +1,10 @@
+{
+  "hook_event_name": "PreToolUse",
+  "session_id": "codex-deleg-1",
+  "tool_name": "Task",
+  "tool_input": {
+    "subagent_type": "gimli",
+    "description": "coder le lot A1",
+    "prompt": "implemente les adaptateurs Codex"
+  }
+}
