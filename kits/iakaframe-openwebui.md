@@ -3,7 +3,7 @@ id: iakaframe-openwebui
 methodId: iakaframe
 teamId: iakaframe-8
 node: openwebui
-emits: ["models/*.json", "prompts/*", "tools/*"]
+emits: ["models/*.json", "prompts/*", "tools/*", "functions/*.py"]
 ---
 # Kit iakaframe-openwebui
 
