@@ -31,9 +31,11 @@ const skip = vocabPath ? false : 'core vocab.json introuvable (depot iakaFrameGU
 test('parite miroir CLI <-> core vocab.json (enums + alias)', { skip }, () => {
   const core = JSON.parse(fs.readFileSync(vocabPath, 'utf8'));
 
+  assert.deepEqual(mirror.HOST_KINDS, core.hostKinds, 'HOST_KINDS');
   assert.deepEqual(mirror.RUNNER_KINDS, core.runnerKinds, 'RUNNER_KINDS');
   assert.deepEqual(mirror.NODE_KINDS, core.nodeKinds, 'NODE_KINDS');
   assert.deepEqual(mirror.KIT_FORMATS, core.kitFormats, 'KIT_FORMATS');
+  assert.deepEqual(mirror.TOOL_KINDS, core.toolKinds, 'TOOL_KINDS');
   assert.deepEqual(mirror.RUNNER_ALIASES, core.runnerAliases, 'RUNNER_ALIASES');
   assert.deepEqual(mirror.DEPRECATED_RUNNER_ALIASES, core.deprecatedRunnerAliases, 'DEPRECATED_RUNNER_ALIASES');
   assert.deepEqual(mirror.LEGACY_RUNNER_LAUNCHERS, core.legacyRunnerLaunchers, 'LEGACY_RUNNER_LAUNCHERS');
@@ -45,12 +47,32 @@ test('parite miroir CLI <-> core vocab.json (enums + alias)', { skip }, () => {
 
 // Tests d'unite du miroir (independants du core, TOUJOURS actifs) : garantissent le comportement
 // des normaliseurs meme en CI isolee.
-test('normalizeRunner : ps/iakaide -> claude-code (deprecies) ; aider = launcher legacy', () => {
-  assert.deepEqual(mirror.normalizeRunner('ps'), { kind: 'claude-code', deprecated: true, legacyLauncher: null, raw: 'ps' });
-  assert.deepEqual(mirror.normalizeRunner('iakaide'), { kind: 'claude-code', deprecated: true, legacyLauncher: null, raw: 'iakaide' });
+test('normalizeRunner : renommages § 6.1 (claude-code/ps/iakaide -> claude) ; aider = launcher legacy', () => {
+  // Renommage § 6.1 : claude-code -> claude ; ps/iakaide (deprecies) -> claude ; ollama-* splits.
+  assert.deepEqual(mirror.normalizeRunner('ps'), { kind: 'claude', deprecated: true, legacyLauncher: null, raw: 'ps' });
+  assert.deepEqual(mirror.normalizeRunner('iakaide'), { kind: 'claude', deprecated: true, legacyLauncher: null, raw: 'iakaide' });
+  assert.deepEqual(mirror.normalizeRunner('claude-code'), { kind: 'claude', deprecated: false, legacyLauncher: null, raw: 'claude-code' });
+  assert.deepEqual(mirror.normalizeRunner('ollama-localhost'), { kind: 'ollama-local', deprecated: false, legacyLauncher: null, raw: 'ollama-localhost' });
+  assert.deepEqual(mirror.normalizeRunner('ollama-lan'), { kind: 'ollama-distant', deprecated: false, legacyLauncher: null, raw: 'ollama-lan' });
+  assert.deepEqual(mirror.normalizeRunner('chatgpt'), { kind: 'chatgpt', deprecated: false, legacyLauncher: null, raw: 'chatgpt' });
   assert.deepEqual(mirror.normalizeRunner('aider'), { kind: null, deprecated: false, legacyLauncher: 'aider', raw: 'aider' });
+  // codex : conserve en alias legacy (host dans le modele persona ; retro-compat launcher CLI).
   assert.deepEqual(mirror.normalizeRunner('codex'), { kind: 'codex', deprecated: false, legacyLauncher: null, raw: 'codex' });
   assert.equal(mirror.normalizeRunner('xxx').kind, null);
+});
+
+test('HOST_KINDS / RUNNER_KINDS / TOOL_KINDS : split host<->runner + notion tools (§ 5.2/6.1)', () => {
+  assert.deepEqual(mirror.HOST_KINDS, ['claude', 'codex', 'openwebui']);
+  assert.deepEqual(mirror.RUNNER_KINDS, ['claude', 'chatgpt', 'ollama-local', 'ollama-distant', 'litellm']);
+  // litellm = runner de plein droit, JAMAIS un host ; chatgpt (pas openai) = runner OpenAI-compatible.
+  assert.ok(mirror.RUNNER_KINDS.includes('litellm') && !mirror.HOST_KINDS.includes('litellm'));
+  assert.ok(mirror.RUNNER_KINDS.includes('chatgpt') && !mirror.RUNNER_KINDS.includes('openai'));
+  // anythingllm : hors modele, absent de toute enum.
+  for (const e of [mirror.HOST_KINDS, mirror.RUNNER_KINDS, mirror.NODE_KINDS]) {
+    assert.ok(!e.includes('anythingllm'), 'anythingllm doit etre absent des enums');
+  }
+  // notion de tools presente (registre MVP, ids libres).
+  assert.ok(Array.isArray(mirror.TOOL_KINDS));
 });
 
 test('normalizeNode : ollama -> ollama-localhost (deprecie) ; lan explicite', () => {
