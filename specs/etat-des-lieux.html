@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-07-18 12:14 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-07-18 12:52 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
-  <div class="k">Version</div><div>v0.9.0</div>
+  <div class="k">Version</div><div>v0.10.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>27e48db merge(learning): scinde iakaframe-learning en REVUE + iakaframe-retrait (symetrie +/-)</code></div>
+  <div class="k">Dernier commit</div><div><code>dfe7e89 merge(guard): guard-core runner-agnostique + pilote Codex x identite (Lot 0+1)</code></div>
   <div class="k">Arbre</div><div><span class='ok'>propre</span></div>
-  <div class="k">Fichiers</div><div>751 (hors .git / node_modules)</div>
-  <div class='k'>Note</div><div>Scission iakaframe-learning -&gt; REVUE (iakaframe-learning) + RETRAIT (iakaframe-retrait, alias /retrait, badge Retrait) ; triggers repartis sans recouvrement ; CLI intact ; frames figees</div>
+  <div class="k">Fichiers</div><div>771 (hors .git / node_modules)</div>
+  <div class='k'>Note</div><div>Multi-runner Lot 0 (guard-core runner-agnostique : 3 verdicts purs, hooks Claude refactores non-regressifs, test de parite) + Lot 1 pilote Codex x identite. e2e Codex reel = gate humain differe. Kit source claude en retard sur la frame (delegation-guard/settings) a reconcilier.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>27e48db</code></td><td>2026-07-18</td><td>merge(learning): scinde iakaframe-learning en REVUE + iakaframe-retrait (symetrie +/-)</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>dfe7e89</code></td><td>2026-07-18</td><td>merge(guard): guard-core runner-agnostique + pilote Codex x identite (Lot 0+1)</td></tr>
+<tr><td><code>bde22a2</code></td><td>2026-07-18</td><td>test(guard): non-regression perimeter-guard (baseline pre-refactor == refactor)</td></tr>
+<tr><td><code>466b12d</code></td><td>2026-07-18</td><td>test(guard): non-regression Claude + parite core&lt;-&gt;runner + unite des verdicts purs</td></tr>
+<tr><td><code>41de172</code></td><td>2026-07-18</td><td>feat(codex): adaptateur garde d'identite Codex sur guard-core partage (Lot 1, pilote)</td></tr>
+<tr><td><code>496747f</code></td><td>2026-07-18</td><td>feat(guard-core): extrait les 3 verdicts purs runner-agnostiques + refactor non-regressif des hooks Claude</td></tr>
+<tr><td><code>b99a302</code></td><td>2026-07-18</td><td>chore(iakaframe): update etat des lieux + commit global (version v0.9.0)</td></tr>
+<tr><td><code>27e48db</code></td><td>2026-07-18</td><td>merge(learning): scinde iakaframe-learning en REVUE + iakaframe-retrait (symetrie +/-)</td></tr>
 <tr><td><code>652dc80</code></td><td>2026-07-18</td><td>test(skills): scinder le verrou learning/retrait (bloc S6 -&gt; retrait-skill.test.js)</td></tr>
 <tr><td><code>f115557</code></td><td>2026-07-18</td><td>feat(retrait): nouvelle skill iakaframe-retrait + alias /retrait (symetrie +/-)</td></tr>
 <tr><td><code>f9ee9a1</code></td><td>2026-07-18</td><td>refactor(learning): alleger la skill REVUE — retrait demenage vers iakaframe-retrait</td></tr>
-<tr><td><code>6ee54dc</code></td><td>2026-07-18</td><td>chore(iakaframe): update etat des lieux + commit global (version v0.8.0)</td></tr>
-<tr><td><code>ebb9bb5</code></td><td>2026-07-18</td><td>merge(odin-cto): starter set Odin-CTO (STRATEGIE.md decl., observe, portfolio, skill+principe) + charte CTO</td></tr>
-<tr><td><code>6e13247</code></td><td>2026-07-18</td><td>docs(personas): charte CTO d'Odin — transverse, apprentissage silencieux, alerte seuil haut</td></tr>
-<tr><td><code>90300e7</code></td><td>2026-07-18</td><td>feat(skill): posture CTO + pilotage portfolio/observe/STRATEGIE.md pour Odin (SK1)</td></tr>
-<tr><td><code>3f78647</code></td><td>2026-07-18</td><td>feat(principle): interruption-minimale-odin + integrite ref dans methods/iakaframe</td></tr>
-<tr><td><code>a0dad5d</code></td><td>2026-07-18</td><td>feat(scaffold): entree STRATEGIE.md + structure imposee 7 sections (FE1)</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-07-18 12:52</td><td><span class='r r-version'>version</span></td><td>v0.10.0</td><td>main</td><td>Multi-runner Lot 0 (guard-core runner-agnostique : 3 verdicts purs, hooks Claude refactores non-regressifs, test de parite) + Lot 1 pilote Codex x identite. e2e Codex reel = gate humain differe. Kit source claude en retard sur la frame (delegation-guard/settings) a reconcilier.</td></tr>
 <tr><td>2026-07-18 12:14</td><td><span class='r r-version'>version</span></td><td>v0.9.0</td><td>main</td><td>Scission iakaframe-learning -&gt; REVUE (iakaframe-learning) + RETRAIT (iakaframe-retrait, alias /retrait, badge Retrait) ; triggers repartis sans recouvrement ; CLI intact ; frames figees</td></tr>
 <tr><td>2026-07-18 11:50</td><td><span class='r r-version'>version</span></td><td>v0.8.0</td><td>main</td><td>Quick wins P0 (grue, casting Helm 8, Odin/Aragorn bornes) + charte CTO d'Odin + starter set Odin-CTO (STRATEGIE.md decl., observe silencieux, portfolio, skill+principe interruption-minimale) + audit du frame + cadrages (binding GUI, split learning, multi-runner, odin-cto)</td></tr>
 <tr><td>2026-07-18 00:37</td><td><span class='r r-version'>version</span></td><td>v0.7.0</td><td>main</td><td>Frames StefFrame1 (methode portable sans GUI) + StefFrame2 (frame executable : CLI + hooks + installeur collision-aware) livres, gates Legolas PASS ; guides MD+HTML et cadrages frame-stefframe1/2</td></tr>

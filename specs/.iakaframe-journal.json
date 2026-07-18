@@ -58,5 +58,15 @@
     "dirty": false,
     "files": 751,
     "note": "Scission iakaframe-learning -> REVUE (iakaframe-learning) + RETRAIT (iakaframe-retrait, alias /retrait, badge Retrait) ; triggers repartis sans recouvrement ; CLI intact ; frames figees"
+  },
+  {
+    "date": "2026-07-18 12:52",
+    "reason": "version",
+    "version": "v0.10.0",
+    "branch": "main",
+    "commit": "dfe7e89 merge(guard): guard-core runner-agnostique + pilote Codex x identite (Lot 0+1)",
+    "dirty": false,
+    "files": 771,
+    "note": "Multi-runner Lot 0 (guard-core runner-agnostique : 3 verdicts purs, hooks Claude refactores non-regressifs, test de parite) + Lot 1 pilote Codex x identite. e2e Codex reel = gate humain differe. Kit source claude en retard sur la frame (delegation-guard/settings) a reconcilier."
   }
 ]
