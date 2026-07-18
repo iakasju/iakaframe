@@ -1,9 +1,12 @@
 // iakaframe services - sonde git(Forgejo)/Ollama/ComfyUI sur des hotes candidats.
-// Iso du iakaframe-services.ps1 (memes defauts, meme schema JSON).
+// Sortie machine C-JSON (§ 2) : `--json` est un BOOLEEN -> emet sur stdout
+//   { ok, generated, count, services:[...] }. L'ecriture fichier (ex-`--json <fichier>`) passe a
+//   `--out <fichier>` (rupture assumee § 8). Iso du iakaframe-services.ps1 (memes defauts/schema).
 import { parseArgs } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
 import { getJson } from '../lib/http.js';
+import { emit, ok } from '../lib/output.js';
 
 const DEFAULT_HOSTS = ['192.168.2.11', '192.168.2.12', 'localhost', '127.0.0.1'];
 
@@ -21,7 +24,8 @@ export async function runServices(argv) {
     args: argv,
     options: {
       hosts: { type: 'string' },           // CSV
-      json: { type: 'string' },            // chemin de sortie
+      json: { type: 'boolean', default: false }, // drapeau stdout (C-JSON)
+      out: { type: 'string' },             // [nouveau] chemin de sortie fichier (ex-`--json <fichier>`)
       timeout: { type: 'string', default: '3' },
     },
   });
@@ -44,24 +48,25 @@ export async function runServices(argv) {
     results.push(found);
   }
 
-  // Rapport lisible
-  console.log('\n=== iakaframe - services detectes ===');
-  for (const r of results) {
-    const mark = r.available ? '[OK]' : '[--]';
-    const where = r.available ? `${r.url}  ${r.detail}` : `introuvable (port ${r.port})`;
-    console.log(`  ${mark} ${r.service.padEnd(14)} ${where}`);
-  }
-  console.log('');
+  const generated = new Date().toISOString().slice(0, 16).replace('T', ' ');
+  const payload = ok({ generated, count: results.length, services: results });
 
-  if (values.json) {
-    const dir = path.dirname(values.json);
+  // Ecriture fichier optionnelle (ex-`--json <fichier>`, deplacee vers `--out`).
+  if (values.out) {
+    const dir = path.dirname(values.out);
     if (dir && !fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    const payload = {
-      generated: new Date().toISOString().slice(0, 16).replace('T', ' '),
-      services: results,
-    };
-    fs.writeFileSync(values.json, JSON.stringify(payload, null, 2), 'utf8');
-    console.log(`services.json ecrit -> ${values.json}`);
+    fs.writeFileSync(values.out, JSON.stringify(payload, null, 2), 'utf8');
   }
+
+  emit(values.json, payload, () => {
+    console.log('\n=== iakaframe - services detectes ===');
+    for (const r of results) {
+      const mark = r.available ? '[OK]' : '[--]';
+      const where = r.available ? `${r.url}  ${r.detail}` : `introuvable (port ${r.port})`;
+      console.log(`  ${mark} ${r.service.padEnd(14)} ${where}`);
+    }
+    console.log('');
+    if (values.out) console.log(`services.json ecrit -> ${values.out}`);
+  });
   return results;
 }

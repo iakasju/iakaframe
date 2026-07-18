@@ -3,6 +3,7 @@
 import { parseArgs } from 'node:util';
 import { renderValue } from '../lib/frontmatter.js';
 import { COLLECTION_TYPES, collectionOf, libraryRoot, readEntry, resolveId } from '../lib/library.js';
+import { emit, fail, ok } from '../lib/output.js';
 
 export function runShow(argv) {
   const { values, positionals } = parseArgs({
@@ -12,35 +13,36 @@ export function runShow(argv) {
       json: { type: 'boolean', default: false },
     },
   });
+  const json = values.json;
   const id = positionals[0];
-  if (!id) { console.error('Usage : iakaframe show <id> [--type <collection>]'); process.exitCode = 1; return; }
+  if (!id) return fail(json, 'Usage : iakaframe show <id> [--type <collection>]');
 
   const root = libraryRoot(values.root);
   if (values.type && !collectionOf(values.type)) {
-    console.error(`Type inconnu : ${values.type}`);
-    console.error(`Types valides : ${COLLECTION_TYPES.join(', ')}`);
-    process.exitCode = 1;
-    return;
+    return fail(json, `Type inconnu : ${values.type}`, { type: values.type, types: COLLECTION_TYPES }, () => {
+      console.error(`Type inconnu : ${values.type}`);
+      console.error(`Types valides : ${COLLECTION_TYPES.join(', ')}`);
+    });
   }
 
   const hits = resolveId(id, root, values.type);
   if (hits.length === 0) {
-    console.error(`Introuvable : ${id}${values.type ? ` (type ${values.type})` : ''}`);
-    console.error(`Astuce : iakaframe list ${values.type || '<type>'} pour lister les ids.`);
-    process.exitCode = 1;
-    return;
+    return fail(json, `Introuvable : ${id}${values.type ? ` (type ${values.type})` : ''}`, { id, type: values.type || null }, () => {
+      console.error(`Introuvable : ${id}${values.type ? ` (type ${values.type})` : ''}`);
+      console.error(`Astuce : iakaframe list ${values.type || '<type>'} pour lister les ids.`);
+    });
   }
   if (hits.length > 1) {
-    console.error(`Id ambigu : ${id} present dans plusieurs collections. Precisez --type.`);
-    for (const h of hits) console.error(`  - ${h.type}/${h.id}`);
-    process.exitCode = 1;
-    return;
+    return fail(json, `Id ambigu : ${id} present dans plusieurs collections. Precisez --type.`,
+      { id, ambiguous: hits.map((h) => `${h.type}/${h.id}`) }, () => {
+        console.error(`Id ambigu : ${id} present dans plusieurs collections. Precisez --type.`);
+        for (const h of hits) console.error(`  - ${h.type}/${h.id}`);
+      });
   }
 
   const entry = readEntry(hits[0].type, hits[0].id, root);
-  if (values.json) {
-    console.log(JSON.stringify({ collection: entry.collection, id: entry.id, path: entry.path, data: entry.data, body: entry.body }, null, 2));
-    return;
+  if (json) {
+    return emit(true, ok({ collection: entry.collection, id: entry.id, path: entry.path, data: entry.data, body: entry.body }));
   }
 
   console.log(`${entry.collection} · ${entry.id}`);

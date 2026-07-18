@@ -42,25 +42,34 @@ test('--help liste les 6 nouveaux verbes', () => {
   }
 });
 
-test('list --json : 12 collections avec comptes reels', () => {
+test('list --json : enveloppe C-JSON { ok, count, collections } (12 collections, plus de tableau nu)', () => {
   const data = JSON.parse(run(['list', '--json']));
-  assert.equal(data.length, 12);
-  const personas = data.find(d => d.collection === 'personas');
+  assert.equal(data.ok, true);
+  assert.ok(!Array.isArray(data), 'racine = objet, jamais un tableau nu');
+  assert.equal(data.count, 12);
+  assert.equal(data.collections.length, 12);
+  assert.equal(data.count, data.collections.length);
+  const personas = data.collections.find(d => d.collection === 'personas');
   assert.equal(personas.count, 8);
 });
 
-test('list <type> --json : tableau trie', () => {
+test('list <type> --json : enveloppe { ok, type, count, items } (plus de tableau nu)', () => {
   const data = JSON.parse(run(['list', 'personas', '--json']));
-  assert.equal(data.length, 8);
-  assert.equal(data[0].id, 'aragorn');
+  assert.equal(data.ok, true);
+  assert.ok(!Array.isArray(data));
+  assert.equal(data.type, 'personas');
+  assert.equal(data.count, 8);
+  assert.equal(data.items.length, 8);
+  assert.equal(data.items[0].id, 'aragorn');
 });
 
 test('list <type inconnu> : exitCode 1', () => {
   assert.throws(() => run(['list', 'bidon']), (e) => e.status === 1);
 });
 
-test('show --json : objet { collection, id, data, body }', () => {
+test('show --json : objet { ok, collection, id, data, body } (champs a plat)', () => {
   const o = JSON.parse(run(['show', 'gandalf', '--json']));
+  assert.equal(o.ok, true);
   assert.equal(o.collection, 'personas');
   assert.equal(o.data.roleKey, 'cadrage');
   assert.deepEqual(o.data.skills, ['iakaframe-cadrage']);
@@ -71,8 +80,10 @@ test('show <inconnu> : exitCode 1', () => {
   assert.throws(() => run(['show', 'zzznope']), (e) => e.status === 1);
 });
 
-test('assemble --json : descripteur de kit (8/8 rôles)', () => {
-  const d = JSON.parse(run(['assemble', 'iakaframe', 'iakaframe-8', '--json']));
+test('assemble --json : enveloppe { ok, descriptor } (8/8 rôles, rupture § 8)', () => {
+  const o = JSON.parse(run(['assemble', 'iakaframe', 'iakaframe-8', '--json']));
+  assert.equal(o.ok, true);
+  const d = o.descriptor;                                 // descripteur sous enveloppe, plus de nu
   assert.equal(d.id, 'iakaframe-claude');                 // convention coeur <methodId>-<node>
   assert.equal(d.methodId, 'iakaframe');
   assert.equal(d.teamId, 'iakaframe-8');

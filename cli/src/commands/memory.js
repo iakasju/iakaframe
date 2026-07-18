@@ -8,6 +8,7 @@ import {
   memoryAdd, memoryReplace, memoryRemove, memoryList, statePath, measure,
 } from '../lib/memory.js';
 import fs from 'node:fs';
+import { collection, emit, fail, ok } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe memory <action> [options]
 
@@ -34,71 +35,73 @@ export function runMemory(argv) {
 
   let home;
   try { home = resolveMemoryHome(values.home); }
-  catch (e) { fail(e.message, json); return; }
-
-  const out = (obj, human) => { if (json) console.log(JSON.stringify(obj, null, 2)); else console.log(human); };
+  catch (e) { fail(json, e.message); return; }
 
   switch (action) {
     case 'init': {
       const created = ensureLayout(home);
-      out({ ok: true, home, created }, `Canon prêt : ${home}${created.length ? `\n  + ${created.length} élément(s) créé(s)` : ' (déjà en place)'}`);
+      emit(json, collection('created', created, { home }),
+        () => console.log(`Canon prêt : ${home}${created.length ? `\n  + ${created.length} élément(s) créé(s)` : ' (déjà en place)'}`));
       break;
     }
     case 'path': {
-      out({ home }, home);
+      emit(json, ok({ home }), () => console.log(home));
       break;
     }
     case 'config': {
       ensureLayout(home);
       const cfg = loadConfig(home);
-      out({ home, config: cfg, configFile: configPath(home) },
+      emit(json, ok({ home, config: cfg, configFile: configPath(home) }), () => console.log(
         `Config du canon (${configPath(home)}) :\n` +
         `  plafonds        : PROFIL ≤ ${cfg.caps.profil} · REGISTRE ≤ ${cfg.caps.registre} (caractères)\n` +
         `  consolidation   : ${Math.round(cfg.consolidation_threshold * 100)} %\n` +
         `  seuil répété N  : ${cfg.repeat_threshold}\n` +
         `  write_approval  : ${cfg.write_approval}\n` +
         `  cadence close   : ${cfg.cadence.close_on.join(', ')}\n` +
-        `  provider        : ${cfg.provider.kind}`);
+        `  provider        : ${cfg.provider.kind}`));
       break;
     }
     case 'list': {
       const [target] = rest;
-      if (!target) return fail(USAGE, json);
-      try { out({ home, target, entries: memoryList(home, target) }, memoryList(home, target).map((e) => `- ${e}`).join('\n') || '(aucune entrée)'); }
-      catch (e) { fail(e.message, json); }
+      if (!target) return fail(json, USAGE);
+      try {
+        const entries = memoryList(home, target);
+        emit(json, collection('entries', entries, { home, target }),
+          () => console.log(entries.map((e) => `- ${e}`).join('\n') || '(aucune entrée)'));
+      } catch (e) { fail(json, e.message); }
       break;
     }
     case 'add': {
       const [target, ...txt] = rest;
-      if (!target || !txt.length) return fail(USAGE, json);
+      if (!target || !txt.length) return fail(json, USAGE);
       run(() => memoryAdd(home, target, txt.join(' ')), home, json);
       break;
     }
     case 'replace': {
       const [target, oldC, ...newC] = rest;
-      if (!target || !oldC || !newC.length) return fail(USAGE, json);
+      if (!target || !oldC || !newC.length) return fail(json, USAGE);
       run(() => memoryReplace(home, target, oldC, newC.join(' ')), home, json);
       break;
     }
     case 'remove': {
       const [target, ...txt] = rest;
-      if (!target || !txt.length) return fail(USAGE, json);
+      if (!target || !txt.length) return fail(json, USAGE);
       run(() => memoryRemove(home, target, txt.join(' ')), home, json);
       break;
     }
     default:
-      fail(USAGE, json);
+      fail(json, USAGE);
   }
 }
 
 // Execute une mutation memory et rend le rapport (humain ou JSON). Sort en erreur si refus (plafond/absence).
+// Le rapport porte deja `ok` (regle 2) : emis tel quel en mode --json ; rendu humain sinon.
 function run(fn, home, json) {
   let report;
   try { report = fn(); }
-  catch (e) { return fail(e.message, json); }
+  catch (e) { return fail(json, e.message); }
 
-  if (json) { console.log(JSON.stringify(report, null, 2)); }
-  else {
+  emit(json, report, () => {
     if (!report.ok && report.reason === 'cap-exceeded') {
       console.error(`Refus (plafond dépassé) : ${report.target} atteindrait ${report.length}/${report.cap} caractères.`);
       console.error('  → consolidation requise (fusion d\'entrées) avant d\'ajouter — geste `close` (T4).');
@@ -110,12 +113,6 @@ function run(fn, home, json) {
       const verb = report.action === 'add' ? 'ajout' : report.action === 'replace' ? 'remplacement' : 'retrait';
       console.log(`${report.changed ? 'OK' : 'no-op'} — ${verb} sur ${report.target} (${bytes}/${report.cap} car.)${flag}`);
     }
-  }
+  });
   if (!report.ok) process.exitCode = 1;
-}
-
-function fail(msg, json) {
-  if (json) console.log(JSON.stringify({ ok: false, error: msg }, null, 2));
-  else console.error(msg);
-  process.exitCode = 1;
 }

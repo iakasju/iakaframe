@@ -6,6 +6,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { table } from '../lib/table.js';
 import { assemble, libraryRoot, serializeKit } from '../lib/library.js';
+import { emit, fail, ok, printJson } from '../lib/output.js';
 
 export function runAssemble(argv) {
   const { values, positionals } = parseArgs({
@@ -16,36 +17,50 @@ export function runAssemble(argv) {
       ascii: { type: 'boolean', default: false }, json: { type: 'boolean', default: false },
     },
   });
+  const json = values.json;
   const [methodId, teamId, bindingPos] = positionals;
   if (!methodId || !teamId) {
-    console.error('Usage : iakaframe assemble <methodId> <teamId> [bindingId] [--write]');
-    process.exitCode = 1; return;
+    return fail(json, 'Usage : iakaframe assemble <methodId> <teamId> [bindingId] [--write]');
   }
   const root = libraryRoot(values.root);
   const bindingId = values.binding || bindingPos || null;
   const res = assemble(methodId, teamId, bindingId, root, { node: values.node || 'claude' });
 
   if (res.error) {
-    if (values.json) { console.log(JSON.stringify({ ok: false, error: res.error }, null, 2)); }
-    else console.error(`Echec : ${res.error}`);
-    process.exitCode = 1; return;
+    return fail(json, res.error, undefined, () => console.error(`Echec : ${res.error}`));
   }
 
   if (!res.ok) {
-    if (values.json) {
-      console.log(JSON.stringify({ ok: false, orphans: res.orphans, unknownPersonas: res.unknownPersonas }, null, 2));
-    } else {
+    // Incompatibilite casting : message d'erreur + diagnostic (orphans / personas introuvables).
+    const parts = [];
+    if (res.orphans.length) parts.push(`${res.orphans.length} rôle(s) requis non couvert(s) et pas de coordinateur pour les absorber`);
+    if (res.unknownPersonas.length) parts.push(`personas introuvables : ${res.unknownPersonas.join(', ')}`);
+    const message = `Incompatible : ${parts.join(' ; ') || 'casting incompatible'}`;
+    return fail(json, message, { orphans: res.orphans, unknownPersonas: res.unknownPersonas }, () => {
       if (res.orphans.length) {
         console.error(`Incompatible : ${res.orphans.length} rôle(s) requis non couvert(s) et pas de coordinateur pour les absorber.`);
         for (const r of res.orphans) console.error(`  - rôle orphelin : ${r}`);
       }
       if (res.unknownPersonas.length) console.error(`  personas introuvables : ${res.unknownPersonas.join(', ')}`);
-    }
-    process.exitCode = 1; return;
+    });
   }
 
-  if (values.json) { console.log(JSON.stringify(res.descriptor, null, 2)); }
-  else {
+  // Ecriture (--write) : materialisee AVANT l'emission du descripteur pour qu'un refus (cible
+  // existante sans --force) sorte proprement en erreur C-JSON, sans double impression sur stdout.
+  if (values.write) {
+    const dest = path.join(root, 'kits', `${res.descriptor.id}.md`);
+    if (fs.existsSync(dest) && !values.force) {
+      return fail(json, `${dest} existe déjà, --force pour remplacer.`, { dest },
+        () => console.error(`\n${dest} existe déjà, --force pour remplacer.`));
+    }
+    // Sortie alignee byte-a-byte sur @iakaframe/core (serializeKitMd) : quoting des listes,
+    // emits en globs, id <methodId>-<node>. Ancre de parite : cli/test/parity-kit.test.js.
+    fs.mkdirSync(path.dirname(dest), { recursive: true });
+    fs.writeFileSync(dest, serializeKit(res.descriptor));
+  }
+
+  // Succes (rupture § 8) : enveloppe { ok:true, descriptor:{...} } au lieu du descripteur nu.
+  emit(json, ok({ descriptor: res.descriptor }), () => {
     const covered = res.methodRoleKeys.filter(r => res.teamRoleKeys.includes(r)).length;
     const rows = [
       ['méthode', res.method.id],
@@ -61,20 +76,7 @@ export function runAssemble(argv) {
     console.log(table(['champ', 'valeur'], rows, { ascii: values.ascii }));
     for (const w of res.warnings) console.log(`⚠ ${w}`);
     console.log('\nDescripteur de kit :');
-    console.log(JSON.stringify(res.descriptor, null, 2));
-  }
-
-  if (values.write) {
-    const dest = path.join(root, 'kits', `${res.descriptor.id}.md`);
-    if (fs.existsSync(dest) && !values.force) {
-      console.error(`\n${dest} existe déjà, --force pour remplacer.`);
-      process.exitCode = 1; return;
-    }
-    // Sortie alignee byte-a-byte sur @iakaframe/core (serializeKitMd) : quoting des listes,
-    // emits en globs, id <methodId>-<node>. Ancre de parite : cli/test/parity-kit.test.js.
-    const fm = serializeKit(res.descriptor);
-    fs.mkdirSync(path.dirname(dest), { recursive: true });
-    fs.writeFileSync(dest, fm);
-    console.log(`\n+ kit écrit : ${dest}`);
-  }
+    printJson(res.descriptor);
+    if (values.write) console.log(`\n+ kit écrit : ${path.join(root, 'kits', `${res.descriptor.id}.md`)}`);
+  });
 }

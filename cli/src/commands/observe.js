@@ -4,6 +4,7 @@
 // portefeuille. DISTINCT du canon review-gate (memory/review). Zero dependance.
 import { parseArgs } from 'node:util';
 import { resolveObservationHome, observe, observeList } from '../lib/observation.js';
+import { collection, emit, fail } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe observe [action] [options]
 
@@ -31,35 +32,27 @@ export function runObserve(argv) {
     },
   });
   const json = values.json;
-  const out = (obj, human) => { if (json) console.log(JSON.stringify(obj, null, 2)); else console.log(human); };
 
   let home;
   try { home = resolveObservationHome(values.home, values.root); }
-  catch (e) { return fail(e.message, json); }
+  catch (e) { return fail(json, e.message); }
 
-  const [action, ...rest] = positionals;
-
-  if (action === 'list') {
+  if (positionals[0] === 'list') {
     const res = observeList(home, { project: values.project, portfolio: values.portfolio });
-    const human = res.length
-      ? res.map((f) => `${f.file}\n` + (f.entries.length ? f.entries.map((e) => `  - ${e}`).join('\n') : '  (aucune entree)')).join('\n')
-      : '(store vide)';
-    out({ ok: true, home, files: res }, human);
+    emit(json, collection('files', res, { home }), () => {
+      console.log(res.length
+        ? res.map((f) => `${f.file}\n` + (f.entries.length ? f.entries.map((e) => `  - ${e}`).join('\n') : '  (aucune entree)')).join('\n')
+        : '(store vide)');
+    });
     return;
   }
 
   const note = positionals.join(' ').trim();
-  if (!note) return fail(USAGE, json);
-  if (!values.portfolio && !values.project) return fail('Preciser --project <nom> ou --portfolio.', json);
+  if (!note) return fail(json, USAGE);
+  if (!values.portfolio && !values.project) return fail(json, 'Preciser --project <nom> ou --portfolio.');
 
   try {
     const rep = observe(home, { project: values.project, portfolio: values.portfolio }, note);
-    out(rep, `${rep.changed ? 'OK' : 'no-op'} — observation ${rep.scope} → ${rep.file}`);
-  } catch (e) { fail(e.message, json); }
-}
-
-function fail(msg, json) {
-  if (json) console.log(JSON.stringify({ ok: false, error: msg }, null, 2));
-  else console.error(msg);
-  process.exitCode = 1;
+    emit(json, rep, () => console.log(`${rep.changed ? 'OK' : 'no-op'} — observation ${rep.scope} → ${rep.file}`));
+  } catch (e) { fail(json, e.message); }
 }

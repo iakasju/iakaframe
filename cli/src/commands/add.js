@@ -6,6 +6,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import { ADD_DIR, checkRefs, checkSchema, libraryRoot } from '../lib/library.js';
+import { emit, fail } from '../lib/output.js';
 
 const KINDS = ['team', 'method', 'binding'];
 
@@ -17,17 +18,18 @@ export function runAdd(argv) {
       json: { type: 'boolean', default: false },
     },
   });
+  const json = values.json;
   const [kind, file] = positionals;
   if (!kind || !KINDS.includes(kind) || !file) {
-    console.error(`Usage : iakaframe add <${KINDS.join('|')}> <fichier.md>`);
-    process.exitCode = 1; return;
+    return fail(json, `Usage : iakaframe add <${KINDS.join('|')}> <fichier.md>`);
   }
-  if (!fs.existsSync(file)) { console.error(`Fichier introuvable : ${file}`); process.exitCode = 1; return; }
+  if (!fs.existsSync(file)) return fail(json, `Fichier introuvable : ${file}`);
 
   const root = libraryRoot(values.root);
   const { data } = parseFrontmatter(fs.readFileSync(file, 'utf8'));
 
-  const report = { kind, file, ok: false, errors: [], missing: [], badRunners: [] };
+  // `ok` en PREMIERE cle du rapport (C-JSON regle 2).
+  const report = { ok: false, kind, file, errors: [], missing: [], badRunners: [] };
 
   // 1) Schema (champs requis).
   const schema = checkSchema(kind, data);
@@ -46,13 +48,13 @@ export function runAdd(argv) {
   }
 
   if (report.errors.length) {
-    if (values.json) { console.log(JSON.stringify(report, null, 2)); }
-    else {
+    // Rapport d'echec de validation (ok:false, deja structure) : emis tel quel + exitCode 1.
+    emit(json, report, () => {
       console.error(`Refus (aucune écriture) : ${kind} ${data.id || base}`);
       for (const e of report.errors) console.error(`  - ${e}`);
       for (const m of report.missing) console.error(`  ! ref cassée : ${m.field} → ${m.id} (attendu dans ${m.collection})`);
       for (const b of report.badRunners) console.error(`  ! runner invalide : ${b.personaId} → ${b.runner}`);
-    }
+    });
     process.exitCode = 1; return;
   }
 
@@ -60,8 +62,7 @@ export function runAdd(argv) {
   const dest = path.join(root, ADD_DIR[kind], `${data.id}.md`);
   if (fs.existsSync(dest) && !values.force) {
     const msg = `existe déjà : ${dest} (--force pour remplacer)`;
-    if (values.json) console.log(JSON.stringify({ ...report, ok: false, error: msg }, null, 2));
-    else console.error(`Refus : ${msg}`);
+    emit(json, { ...report, ok: false, error: msg }, () => console.error(`Refus : ${msg}`));
     process.exitCode = 1; return;
   }
   fs.mkdirSync(path.dirname(dest), { recursive: true });
@@ -69,11 +70,10 @@ export function runAdd(argv) {
   report.ok = true; report.dest = dest;
 
   const refCount = countRefs(kind, data);
-  if (values.json) { console.log(JSON.stringify(report, null, 2)); }
-  else {
+  emit(json, report, () => {
     console.log(`+ ${kind} ${data.id} livré dans ${dest}`);
     console.log(`  références vérifiées : ${refCount} (toutes présentes)`);
-  }
+  });
 }
 
 function countRefs(kind, data) {

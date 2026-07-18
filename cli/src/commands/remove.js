@@ -17,6 +17,7 @@ import {
   findReferrers, makeTrash, moveToTrash, writeTrashManifest,
   readPersonaSkills, setPersonaSkills,
 } from '../lib/remove.js';
+import { emit, fail } from '../lib/output.js';
 
 const KIND_TO_TYPE = { team: 'teams', method: 'methods', binding: 'bindings', skill: 'skills' };
 const KINDS = Object.keys(KIND_TO_TYPE);
@@ -33,37 +34,37 @@ export function runRemove(argv) {
   const json = values.json;
 
   if (!kind || !KINDS.includes(kind) || !id) {
-    fail(`Usage : iakaframe remove <${KINDS.join('|')}> <id>  [--cascade --yes] [--json]`, json); return;
+    fail(json, `Usage : iakaframe remove <${KINDS.join('|')}> <id>  [--cascade --yes] [--json]`); return;
   }
 
   const root = libraryRoot(values.root);
   const type = KIND_TO_TYPE[kind];
   const entry = readEntry(type, id, root);
-  if (!entry) { fail(`${kind} introuvable : ${id}`, json); return; }
+  if (!entry) { fail(json, `${kind} introuvable : ${id}`); return; }
 
   const referrers = findReferrers(type, id, root);
 
   // RESTRICT : refuse par defaut si encore reference.
   if (referrers.length && !values.cascade) {
-    if (json) { console.log(JSON.stringify({ ok: false, reason: 'restrict', kind, id, referrers }, null, 2)); }
-    else {
-      console.error(`Refus (RESTRICT) : ${kind} ${id} est encore référencé — rien retiré.`);
-      for (const r of referrers) console.error(`  ! référent : ${r.type} ${r.id} (champ ${r.field})`);
-      if (kind === 'skill') console.error(`  → détache d'abord : iakaframe detach ${id} --persona <personaId>`);
-      else console.error(`  → --cascade --yes pour retirer aussi les référents (geste explicite).`);
-    }
-    process.exitCode = 1; return;
+    fail(json, `${kind} ${id} est encore référencé (RESTRICT) — rien retiré.`,
+      { reason: 'restrict', kind, id, referrers }, () => {
+        console.error(`Refus (RESTRICT) : ${kind} ${id} est encore référencé — rien retiré.`);
+        for (const r of referrers) console.error(`  ! référent : ${r.type} ${r.id} (champ ${r.field})`);
+        if (kind === 'skill') console.error(`  → détache d'abord : iakaframe detach ${id} --persona <personaId>`);
+        else console.error(`  → --cascade --yes pour retirer aussi les référents (geste explicite).`);
+      });
+    return;
   }
 
   // CASCADE demandee mais NON confirmee : on montre le plan et on exige --yes.
   if (referrers.length && values.cascade && !values.yes) {
-    if (json) { console.log(JSON.stringify({ ok: false, reason: 'confirm-required', kind, id, referrers }, null, 2)); }
-    else {
-      console.error(`Confirmation requise : la cascade va ${kind === 'skill' ? 'détacher' : 'archiver'} ${referrers.length} référent(s) :`);
-      for (const r of referrers) console.error(`  - ${r.type} ${r.id} (champ ${r.field})`);
-      console.error('  → relancez avec --yes pour confirmer.');
-    }
-    process.exitCode = 1; return;
+    fail(json, `Confirmation requise : la cascade va ${kind === 'skill' ? 'détacher' : 'archiver'} ${referrers.length} référent(s).`,
+      { reason: 'confirm-required', kind, id, referrers }, () => {
+        console.error(`Confirmation requise : la cascade va ${kind === 'skill' ? 'détacher' : 'archiver'} ${referrers.length} référent(s) :`);
+        for (const r of referrers) console.error(`  - ${r.type} ${r.id} (champ ${r.field})`);
+        console.error('  → relancez avec --yes pour confirmer.');
+      });
+    return;
   }
 
   // --- Retrait effectif (non destructif) ---
@@ -103,15 +104,10 @@ export function runRemove(argv) {
   });
 
   const report = { ok: true, kind, id, trash: trashDir, trashed, detached, manifest };
-  if (json) { console.log(JSON.stringify(report, null, 2)); return; }
-  console.log(`− ${kind} ${id} retiré (archivé dans ${trashDir})`);
-  for (const d of detached) console.log(`  ↳ détaché de ${d} (skills:[] mis à jour)`);
-  for (const t of trashed) if (!(t.type === type && t.id === id)) console.log(`  ↳ référent archivé : ${t.type} ${t.id}`);
-  console.log(`  trace : ${manifest}  (restaurable)`);
-}
-
-function fail(msg, json) {
-  if (json) console.log(JSON.stringify({ ok: false, error: msg }, null, 2));
-  else console.error(msg);
-  process.exitCode = 1;
+  emit(json, report, () => {
+    console.log(`− ${kind} ${id} retiré (archivé dans ${trashDir})`);
+    for (const d of detached) console.log(`  ↳ détaché de ${d} (skills:[] mis à jour)`);
+    for (const t of trashed) if (!(t.type === type && t.id === id)) console.log(`  ↳ référent archivé : ${t.type} ${t.id}`);
+    console.log(`  trace : ${manifest}  (restaurable)`);
+  });
 }

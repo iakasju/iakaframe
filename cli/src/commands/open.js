@@ -7,6 +7,7 @@
 import { parseArgs } from 'node:util';
 import { resolveMemoryHome } from '../lib/memory.js';
 import { loadCanon, renderCanon } from '../lib/open.js';
+import { emit, fail, ok } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe open [options]
 
@@ -26,21 +27,15 @@ export function runOpen(argv) {
       args: argv, allowPositionals: false,
       options: { home: { type: 'string' }, json: { type: 'boolean', default: false } },
     }));
-  } catch (e) { return fail(e.message, false); }
+  } catch (e) { return fail(false, e.message); }
   const json = values.json;
 
   let home;
   try { home = resolveMemoryHome(values.home); }
-  catch (e) { return fail(e.message, json); }
+  catch (e) { return fail(json, e.message); }
 
   const canon = loadCanon(home);
 
-  if (json) { console.log(JSON.stringify(canon, null, 2)); return; }
-  process.stdout.write(renderCanon(canon));
-}
-
-function fail(msg, json) {
-  if (json) console.log(JSON.stringify({ ok: false, error: msg }, null, 2));
-  else console.error(msg);
-  process.exitCode = 1;
+  // loadCanon renvoie deja { ok:true, home, empty, profil, registre, pending } (champs a plat).
+  emit(json, ok(canon), () => process.stdout.write(renderCanon(canon)));
 }

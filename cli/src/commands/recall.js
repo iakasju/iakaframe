@@ -6,6 +6,7 @@
 import { parseArgs } from 'node:util';
 import { resolveMemoryHome } from '../lib/memory.js';
 import { recall } from '../lib/recall.js';
+import { emit, fail, ok } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe recall <requête...> [options]
 
@@ -23,19 +24,21 @@ export function runRecall(argv) {
   });
   const json = values.json;
   const query = positionals.join(' ').trim();
-  if (!query) { fail(USAGE, json); return; }
+  if (!query) { fail(json, USAGE); return; }
 
   let home;
   try { home = resolveMemoryHome(values.home); }
-  catch (e) { fail(e.message, json); return; }
+  catch (e) { fail(json, e.message); return; }
 
   let report;
   try { report = recall(home, query); }
-  catch (e) { fail(e.message, json); return; }
+  catch (e) { fail(json, e.message); return; }
 
-  if (json) { console.log(JSON.stringify(report, null, 2)); return; }
+  // report = { degraded, count, dir, engine, results:[] } ; count = results.length (deja present).
+  emit(json, ok(report), () => renderHuman(report, query));
+}
 
-  // --- Sortie humaine -----------------------------------------------------------------------------
+function renderHuman(report, query) {
   if (report.degraded) {
     console.error('⚠ ripgrep (rg) introuvable — repli lecture-fichiers (littéral, insensible à la casse).');
     console.error('  → installez ripgrep pour un rappel plus rapide : https://github.com/BurntSushi/ripgrep');
@@ -53,9 +56,3 @@ export function runRecall(argv) {
 }
 
 function truncate(s, n) { return s.length > n ? `${s.slice(0, n - 1)}…` : s; }
-
-function fail(msg, json) {
-  if (json) console.log(JSON.stringify({ ok: false, error: msg }, null, 2));
-  else console.error(msg);
-  process.exitCode = 1;
-}

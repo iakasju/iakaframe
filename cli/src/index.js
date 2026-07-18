@@ -48,13 +48,13 @@ Commandes :
   update              Checkpoint : snapshot + commit global + push
                         --path <dir> --reason --version --note --message --no-push
   services            Sonde git(Forgejo) / Ollama / ComfyUI
-                        --hosts a,b,c  --json <fichier>  --timeout <sec>
+                        --hosts a,b,c  --json (stdout)  --out <fichier>  --timeout <sec>
   config              Ecrit/maj <projet>/iakaframe.json (runner + nœud)
-                        --path <dir> --runner claude-code|ollama|litellm|codex --node <n>
+                        --path <dir> --runner claude-code|ollama|litellm|codex --node <n>  --json
                         (alias legacy runner : ps, iakaide, aider - deprecies ; --target = alias de --node)
                         --aider-model <m>  (ex: ollama/llama3, pour le launcher legacy aider)
   agents              Equipe de personas : list | affect | fullteam | status
-                        --agent <nom> --project <dir> --global --force
+                        --agent <nom> --project <dir> --global --force  --json (list/status)
   go <projet>         Lance l'action du projet via son runner (claude-code|ollama|litellm|codex)
                         --path <dir> --runner <r> --do "tache"  (launchers legacy : aider, iakaide)
   banner <texte>      Titre ASCII (FIGlet embarque, zero dep)
@@ -106,6 +106,14 @@ Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
 Options globales :
   -v, --version       Version
   -h, --help          Aide
+
+Sortie machine (--json) : partout un BOOLEEN ; emet un objet JSON 2-indente sur stdout
+  (jamais de tableau nu), avec ok:true|false ; collection = clef au pluriel + count ;
+  erreur = { ok:false, error } sur stdout (exit 1, rien d'humain sur stderr). services
+  ecrit desormais son fichier via --out <fichier> (l'ancien --json <fichier> est retire).
+
+⚠ --root a DEUX sens selon la commande : dossier chapeau ~/work (portfolio, observe) vs
+  racine de bibliotheque (list, show, add, assemble, switch). Voir IAKAFRAME_ROOT / IAKAFRAME_HOME.
 
 Forgejo : token via FORGEJO_TOKEN. Dossier chapeau : IAKAFRAME_ROOT/--root, sinon ~/work.`;
 

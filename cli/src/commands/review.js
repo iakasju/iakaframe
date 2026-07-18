@@ -11,6 +11,7 @@ import {
   listProposals, resolveProposal, readProposalText,
   applyProposal, rejectProposal, autoApply, classify, STATUS,
 } from '../lib/review.js';
+import { collection, emit, fail, ok } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe review <action> [options]
 
@@ -49,7 +50,7 @@ export function runReview(argv) {
 
   let home;
   try { home = resolveMemoryHome(values.home); }
-  catch (e) { return fail(e.message, json); }
+  catch (e) { return fail(json, e.message); }
   ensureLayout(home);
 
   const opts = { libraryRoot: values.library };
@@ -69,53 +70,59 @@ function doList(home, status, json) {
   const items = listProposals(home, status ? { status } : {}).map((p) => ({
     ...p, policy: classify(p.type, p.target, cfg).auto ? 'auto' : 'file',
   }));
-  if (json) { console.log(JSON.stringify({ ok: true, home, count: items.length, proposals: items }, null, 2)); return; }
-  if (items.length === 0) { console.log('Aucune proposition dans le réservoir.'); return; }
-  console.log(`${items.length} proposition(s) — canon ${home}\n`);
-  for (const p of items) {
-    const tgt = p.target ? ` → ${p.target}` : '';
-    const pol = p.status === STATUS.PENDING ? `  [${p.policy}]` : '';
-    console.log(`  ${mark(p.status)} [${p.type}]${tgt}${pol}  ${p.id}`);
-  }
-  console.log('\napply/reject <id> pour trancher ; auto pour appliquer le auto-applicable.');
+  emit(json, collection('proposals', items, { home }), () => {
+    if (items.length === 0) { console.log('Aucune proposition dans le réservoir.'); return; }
+    console.log(`${items.length} proposition(s) — canon ${home}\n`);
+    for (const p of items) {
+      const tgt = p.target ? ` → ${p.target}` : '';
+      const pol = p.status === STATUS.PENDING ? `  [${p.policy}]` : '';
+      console.log(`  ${mark(p.status)} [${p.type}]${tgt}${pol}  ${p.id}`);
+    }
+    console.log('\napply/reject <id> pour trancher ; auto pour appliquer le auto-applicable.');
+  });
 }
 
 function doShow(home, id, json) {
   const res = resolveProposal(home, id);
-  if (!res.ok) return fail(resolveMsg(res), json);
+  if (!res.ok) return fail(json, resolveMsg(res));
   const text = readProposalText(res.proposal);
-  if (json) { console.log(JSON.stringify({ ok: true, proposal: res.proposal, text }, null, 2)); return; }
-  console.log(`# ${res.proposal.id}\n`);
-  console.log(text);
+  emit(json, ok({ proposal: res.proposal, text }), () => {
+    console.log(`# ${res.proposal.id}\n`);
+    console.log(text);
+  });
 }
 
 function doApply(home, id, opts, json) {
   const r = applyProposal(home, id, opts);
-  if (json) { console.log(JSON.stringify(r, null, 2)); if (!r.ok) process.exitCode = 1; return; }
-  if (r.ok) {
-    const where = r.materialize.kind === 'skill' ? r.materialize.dest
-      : `${r.materialize.target} (${r.materialize.length}/${r.materialize.cap} car.)`;
-    console.log(`Appliquée : [${r.type}] ${r.id} → ${where} (statut : applique).`);
-  } else {
-    console.error(`Refus : ${explain(r)}`);
-    process.exitCode = 1;
-  }
+  emit(json, r, () => {
+    if (r.ok) {
+      const where = r.materialize.kind === 'skill' ? r.materialize.dest
+        : `${r.materialize.target} (${r.materialize.length}/${r.materialize.cap} car.)`;
+      console.log(`Appliquée : [${r.type}] ${r.id} → ${where} (statut : applique).`);
+    } else {
+      console.error(`Refus : ${explain(r)}`);
+    }
+  });
+  if (!r.ok) process.exitCode = 1;
 }
 
 function doReject(home, id, json) {
   const r = rejectProposal(home, id);
-  if (json) { console.log(JSON.stringify(r, null, 2)); if (!r.ok) process.exitCode = 1; return; }
-  if (r.ok) console.log(`Rejetée : [${r.type}] ${r.id} (statut : rejete ; rien matérialisé).`);
-  else { console.error(`Refus : ${explain(r)}`); process.exitCode = 1; }
+  emit(json, r, () => {
+    if (r.ok) console.log(`Rejetée : [${r.type}] ${r.id} (statut : rejete ; rien matérialisé).`);
+    else console.error(`Refus : ${explain(r)}`);
+  });
+  if (!r.ok) process.exitCode = 1;
 }
 
 function doAuto(home, opts, json) {
   const r = autoApply(home, opts);
-  if (json) { console.log(JSON.stringify(r, null, 2)); return; }
-  console.log(`Passe automatique : ${r.applied.length} appliquée(s), ${r.kept.length} laissée(s) en file.`);
-  for (const a of r.applied) console.log(`  ✓ [${a.type} → ${a.target}] ${a.id}`);
-  for (const k of r.kept) console.log(`  · en file (${k.reason}) : [${k.type}${k.target ? ' → ' + k.target : ''}] ${k.id}`);
-  console.log('\nStructurel (skill/hook/config) et PROFIL restent toujours en file : geste humain requis (apply <id>).');
+  emit(json, r, () => {
+    console.log(`Passe automatique : ${r.applied.length} appliquée(s), ${r.kept.length} laissée(s) en file.`);
+    for (const a of r.applied) console.log(`  ✓ [${a.type} → ${a.target}] ${a.id}`);
+    for (const k of r.kept) console.log(`  · en file (${k.reason}) : [${k.type}${k.target ? ' → ' + k.target : ''}] ${k.id}`);
+    console.log('\nStructurel (skill/hook/config) et PROFIL restent toujours en file : geste humain requis (apply <id>).');
+  });
 }
 
 // --- Rendu -----------------------------------------------------------------------------------------
@@ -143,10 +150,4 @@ function explain(r) {
     return `matérialisation échouée (${m.reason || 'raison inconnue'}).`;
   }
   return r.reason || 'raison inconnue';
-}
-
-function fail(msg, json) {
-  if (json) console.log(JSON.stringify({ ok: false, error: msg }, null, 2));
-  else console.error(msg);
-  process.exitCode = 1;
 }

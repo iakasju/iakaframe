@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { assemble, libraryRoot, readEntry, toArray } from '../lib/library.js';
+import { emit, fail, ok } from '../lib/output.js';
 
 function copyDir(src, dst) {
   fs.mkdirSync(dst, { recursive: true });
@@ -34,33 +35,28 @@ export function runSwitch(argv) {
   // --rollback : restaure la derniere .claude.bak-* (aucune bascule).
   if (values.rollback) {
     const backups = listBackups(projectDir);
-    if (!backups.length) { console.error('Aucune sauvegarde .claude.bak-* à restaurer.'); process.exitCode = 1; return; }
+    if (!backups.length) return fail(values.json, 'Aucune sauvegarde .claude.bak-* à restaurer.');
     const last = backups[backups.length - 1];
     const claudeDir = path.join(projectDir, '.claude');
     if (fs.existsSync(claudeDir)) fs.rmSync(claudeDir, { recursive: true, force: true });
     copyDir(path.join(projectDir, last), claudeDir);
-    const out = { rollback: last, path: claudeDir };
-    if (values.json) console.log(JSON.stringify(out, null, 2));
-    else console.log(`Restauré : ${last} → .claude/`);
+    emit(values.json, ok({ rollback: last, path: claudeDir }), () => console.log(`Restauré : ${last} → .claude/`));
     return;
   }
 
   const [methodId, teamId] = positionals;
   if (!methodId || !teamId) {
-    console.error('Usage : iakaframe use <methodId> <teamId> [--binding <id>] [--path <projet>] [--rollback]');
-    process.exitCode = 1; return;
+    return fail(values.json, 'Usage : iakaframe use <methodId> <teamId> [--binding <id>] [--path <projet>] [--rollback]');
   }
-  if (!fs.existsSync(projectDir)) { console.error(`Projet introuvable : ${projectDir}`); process.exitCode = 1; return; }
+  if (!fs.existsSync(projectDir)) return fail(values.json, `Projet introuvable : ${projectDir}`);
 
   const node = values.node || 'claude';
   const res = assemble(methodId, teamId, values.binding || null, root, { node });
   if (res.error || !res.ok) {
-    if (values.json) console.log(JSON.stringify({ ok: false, error: res.error, orphans: res.orphans }, null, 2));
-    else {
+    return fail(values.json, res.error || 'casting incompatible', { orphans: res.orphans || [] }, () => {
       console.error(`Aucune écriture : ${res.error || 'casting incompatible'}`);
       for (const r of res.orphans || []) console.error(`  - rôle orphelin : ${r}`);
-    }
-    process.exitCode = 1; return;
+    });
   }
 
   // Sauvegarde non destructive si un .claude/ preexiste.
@@ -97,12 +93,13 @@ export function runSwitch(argv) {
   fs.writeFileSync(path.join(claudeDir, 'iakaframe-kit.json'), JSON.stringify(marker, null, 2) + '\n');
 
   const out = { ...marker, path: claudeDir, personas: deployed, skills: [...skillsDeployed], backup };
-  if (values.json) { console.log(JSON.stringify(out, null, 2)); return; }
-  console.log(`bascule ${projectDir} → méthode ${res.method.id} / team ${res.team.id} (node ${node})`);
-  console.log(`  personas déployées : ${deployed.join(', ')}`);
-  console.log(`  skills déployées   : ${[...skillsDeployed].join(', ') || '(aucune)'}`);
-  if (backup) console.log(`  sauvegarde : ${backup}  (rollback : iakaframe use --rollback --path ${projectDir})`);
-  console.log(`  marqueur : .claude/iakaframe-kit.json`);
+  emit(values.json, ok(out), () => {
+    console.log(`bascule ${projectDir} → méthode ${res.method.id} / team ${res.team.id} (node ${node})`);
+    console.log(`  personas déployées : ${deployed.join(', ')}`);
+    console.log(`  skills déployées   : ${[...skillsDeployed].join(', ') || '(aucune)'}`);
+    if (backup) console.log(`  sauvegarde : ${backup}  (rollback : iakaframe use --rollback --path ${projectDir})`);
+    console.log(`  marqueur : .claude/iakaframe-kit.json`);
+  });
 }
 
 function listBackups(projectDir) {

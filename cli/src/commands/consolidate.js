@@ -7,6 +7,7 @@
 import { parseArgs } from 'node:util';
 import { resolveMemoryHome } from '../lib/memory.js';
 import { consolidate, defaultSourceDir } from '../lib/consolidate.js';
+import { emit, fail } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe consolidate [options]
 
@@ -35,28 +36,28 @@ export function runConsolidate(argv) {
 
   let home;
   try { home = resolveMemoryHome(values.home); }
-  catch (e) { return fail(e.message, json); }
+  catch (e) { return fail(json, e.message); }
 
   let report;
   try { report = consolidate({ home, source: values.source }); }
-  catch (e) { return fail(e.message, json); }
+  catch (e) { return fail(json, e.message); }
 
-  if (json) {
-    // Sortie machine : on omet les longs corps `proposed`/`before` (disponibles sur disque).
-    const slim = (r) => ({
-      cap: r.cap, chars: r.chars, overCap: r.overCap, proposedPath: r.proposedPath,
-      kept: r.kept.map((e) => ({ source: e.source, type: e.type })),
-      dropped: r.dropped.map((e) => ({ source: e.source, type: e.type })),
-    });
-    console.log(JSON.stringify({
-      ok: report.ok, home: report.home, sourceDir: report.sourceDir, stagingDir: report.stagingDir,
-      fiches: report.fiches, skipped: report.skipped, missing: report.missing,
-      profil: slim(report.profil), registre: slim(report.registre),
-    }, null, 2));
-    return;
-  }
+  // Sortie machine : on omet les longs corps `proposed`/`before` (disponibles sur disque). `ok` en tete.
+  const slim = (r) => ({
+    cap: r.cap, chars: r.chars, overCap: r.overCap, proposedPath: r.proposedPath,
+    kept: r.kept.map((e) => ({ source: e.source, type: e.type })),
+    dropped: r.dropped.map((e) => ({ source: e.source, type: e.type })),
+  });
+  const payload = {
+    ok: report.ok, home: report.home, sourceDir: report.sourceDir, stagingDir: report.stagingDir,
+    fiches: report.fiches, skipped: report.skipped, missing: report.missing,
+    profil: slim(report.profil), registre: slim(report.registre),
+  };
 
-  // --- Sortie humaine -----------------------------------------------------------------------------
+  emit(json, payload, () => renderHuman(report, values, home));
+}
+
+function renderHuman(report, values, home) {
   const src = values.source || defaultSourceDir();
   console.log(`Consolidation initiale — source ${src}`);
   if (report.missing) console.log('  ⚠ source introuvable : aucun fiche lue.');
@@ -69,10 +70,4 @@ export function runConsolidate(argv) {
   console.log(`\nAperçu + diff dans : ${report.stagingDir}`);
   console.log('  PROFIL.proposed.md · REGISTRE.proposed.md · DIFF.md · RAPPORT.md');
   console.log('\nLe canon réel n\'est PAS muté. Revoir le DIFF puis appliquer à la main = geste humain gate (§ 8).');
-}
-
-function fail(msg, json) {
-  if (json) console.log(JSON.stringify({ ok: false, error: msg }, null, 2));
-  else console.error(msg);
-  process.exitCode = 1;
 }

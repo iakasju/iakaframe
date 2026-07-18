@@ -103,6 +103,15 @@ export function scan(type, root) {
   return out.sort((a, b) => a.id.localeCompare(b.id));
 }
 
+// Inventaire resume des 12 collections : [{ collection, count, ids }] (pour `list` sans type).
+// Extrait de commands/list.js (frontiere commands/ <-> lib/, § 4). Zero effet de bord.
+export function inventory(root) {
+  return COLLECTIONS.map((c) => {
+    const ids = scan(c.type, root).map((e) => e.id);
+    return { collection: c.type, count: ids.length, ids };
+  });
+}
+
 function entryFrom(type, id, file, labelField) {
   let label = id;
   try {

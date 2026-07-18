@@ -6,6 +6,7 @@
 import { parseArgs } from 'node:util';
 import { resolveMemoryHome, ensureLayout } from '../lib/memory.js';
 import { close } from '../lib/close.js';
+import { emit, fail, ok } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe close [options]
 
@@ -32,17 +33,19 @@ export function runClose(argv) {
 
   let home;
   try { home = resolveMemoryHome(values.home); }
-  catch (e) { return fail(e.message, json); }
+  catch (e) { return fail(json, e.message); }
 
   let report;
   try {
     ensureLayout(home);
     report = close(home, { session: values.session });
-  } catch (e) { return fail(e.message, json); }
+  } catch (e) { return fail(json, e.message); }
 
-  if (json) { console.log(JSON.stringify(report, null, 2)); return; }
+  // report = { ok:true, home, proposalsDir, analyzed, emitted:[], skipped:[] } (deja `ok`).
+  emit(json, ok(report), () => renderHuman(report, home));
+}
 
-  // --- Sortie humaine -----------------------------------------------------------------------------
+function renderHuman(report, home) {
   console.log(`Clôture : ${report.analyzed.files} transcript(s) rejoué(s) — canon ${home}`);
   console.log(`  corrections détectées : ${report.analyzed.corrections} · procédures : ${report.analyzed.procedures}`);
   if (report.emitted.length === 0) {
@@ -58,10 +61,4 @@ export function runClose(argv) {
     console.log(`\n${report.skipped.length} ignorée(s) (déjà en attente) : ${report.skipped.map((s) => `${s.type}/${s.slug}`).join(', ')}`);
   }
   console.log('\nRien n\'est appliqué : la revue (accepter/rejeter) est le geste humain de consentement (T5, § 8).');
-}
-
-function fail(msg, json) {
-  if (json) console.log(JSON.stringify({ ok: false, error: msg }, null, 2));
-  else console.error(msg);
-  process.exitCode = 1;
 }
