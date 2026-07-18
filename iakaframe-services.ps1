@@ -100,7 +100,9 @@ if ($Json) {
   $dir = Split-Path -Parent $Json
   if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
   $payload = [ordered]@{
+    ok        = $true
     generated = (Get-Date -Format "yyyy-MM-dd HH:mm")
+    count     = @($results).Count
     services  = $results
   }
   $enc = New-Object System.Text.UTF8Encoding($false)
