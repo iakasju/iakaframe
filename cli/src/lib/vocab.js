@@ -7,20 +7,44 @@
 //
 // ⚠️ Ne PAS editer une valeur ici sans mettre a jour packages/core/src/vocab.json (le test de
 // parite echouera sinon). NODE (destination de deploiement) != RUNNER (harnais d'execution).
+//
+// Modele persona (instruction parite-enforcement-multirunner § 1/5.2/6.1) : deux plans ORTHOGONAUX.
+//   - HOST = point d'entree {claude,codex,openwebui} : la ou vit l'enforcement, ou pointe le
+//     Binding, cible d'installation. Un host N'EST PAS un runner.
+//   - RUNNER = cible d'execution de persona {claude,chatgpt,ollama-local,ollama-distant,litellm}.
+//     Le runner OpenAI-compatible s'appelle `chatgpt` (JAMAIS `openai` = norme d'API) ; `codex`
+//     host != `chatgpt` runner. `litellm` = gateway, runner de PLEIN DROIT (jamais un host).
+// NODE_KINDS reste une enum TRANSITOIRE (alias historique de host, § 6.2). anythingllm = HORS
+// MODELE (ni host, ni runner, ni node) : ABSENT de toute enum (§ 0/§ 10).
 
 // --- Enums canoniques ---
-export const RUNNER_KINDS = ['claude-code', 'ollama', 'litellm', 'codex'];
+export const HOST_KINDS = ['claude', 'codex', 'openwebui'];
+export const RUNNER_KINDS = ['claude', 'chatgpt', 'ollama-local', 'ollama-distant', 'litellm'];
 export const NODE_KINDS = ['claude', 'codex', 'ollama-localhost', 'ollama-lan', 'openwebui'];
 export const KIT_FORMATS = ['claude-md', 'agents-md', 'openwebui-models'];
+// Registre (non exhaustif, MVP) des ids d'outils attachables a un persona (Binding.tools, § 6.3).
+// Les ids sont libres (validation = string non vide) ; ce registre acte la NOTION et amorce les
+// ids connus. tools (persona) != connectors (team, MCP) : deux axes distincts, sans couplage.
+export const TOOL_KINDS = ['comfyui-local'];
 
 // --- Tables d'alias / retro-compat ---
+// Renommages § 6.1 (aucun binding casse) : claude-code->claude, ollama-localhost->ollama-local,
+// ollama-lan->ollama-distant ; anciens noms CONSERVES en alias. `codex` reste resolvable en alias
+// legacy (-> codex) pour la retro-compat du launcher CLI `go` et des configs existantes : dans le
+// modele persona codex est un HOST, pas un runner canonique (promotion host-only = suivi B1/CLI).
 export const RUNNER_ALIASES = {
-  ps: 'claude-code',        // legacy (deprecie)
-  iakaide: 'claude-code',   // legacy anti-modele (deprecie)
-  'claude-code': 'claude-code',
-  ollama: 'ollama',
+  claude: 'claude',
+  chatgpt: 'chatgpt',
+  'ollama-local': 'ollama-local',
+  'ollama-distant': 'ollama-distant',
   litellm: 'litellm',
-  codex: 'codex',
+  'claude-code': 'claude',  // legacy rename (§ 6.1)
+  ps: 'claude',             // legacy (deprecie) -> claude
+  iakaide: 'claude',        // legacy anti-modele (deprecie) -> claude
+  ollama: 'ollama-local',   // legacy indistinct -> local par defaut
+  'ollama-localhost': 'ollama-local',  // legacy rename (§ 6.1)
+  'ollama-lan': 'ollama-distant',      // legacy rename (§ 6.1)
+  codex: 'codex',           // legacy : host dans le modele persona, retro-compat launcher CLI
 };
 export const DEPRECATED_RUNNER_ALIASES = ['ps', 'iakaide'];
 // Launchers legacy conserves HORS enum RunnerKind (pas de suppression, Q-5). aider reste
