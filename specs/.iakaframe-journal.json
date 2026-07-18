@@ -88,5 +88,15 @@
     "dirty": true,
     "files": 778,
     "note": "Reconciliation kit source claude <-> frame : rapatrie en source delegation-guard (refactore guard-core) + identity-remind + plan-courante + settings.example.json (5 hooks) ; de-tokenise LOG_PREFIX ; agents/skills laisses en materialisation frame (voulu). + backlog item chemin machine perimeter-guard."
+  },
+  {
+    "date": "2026-07-18 14:53",
+    "reason": "version",
+    "version": "v0.13.0",
+    "branch": "main",
+    "commit": "a0f91c9 merge(vocab): Lot B2 — split host<->runner + chatgpt/litellm + alias legacy (miroir CLI)",
+    "dirty": true,
+    "files": 778,
+    "note": "Multi-runner Lot B2 : vocab split host{claude,codex,openwebui} <-> runner{claude,chatgpt,ollama-local,ollama-distant,litellm} ; chatgpt (pas openai), litellm plein droit, anythingllm hors modele ; alias legacy ; checkRefs alias-aware ; parite miroir verte."
   }
 ]
