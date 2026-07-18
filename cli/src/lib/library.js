@@ -6,7 +6,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { parseFrontmatter, buildDocument } from './frontmatter.js';
 import { frameworkRoot } from './kit.js';
-import { RUNNER_KINDS, contractFileForNode } from './vocab.js';
+import { normalizeRunner, contractFileForNode } from './vocab.js';
 
 // --- 4.1 Mapping collection -> dossier (table UNIQUE faisant autorite) -----------------------
 // kind='flat'  : un fichier <id>.md dans `dir`.
@@ -176,7 +176,10 @@ export function checkRefs(kind, data, root) {
     need('teamId', data.teamId, 'teams');
     for (const a of bindingRows(data)) {          // schema converge E1 : assignments OU bindings
       need('assignments[].personaId', a && a.personaId, 'personas');
-      if (a && a.runner && !RUNNER_KINDS.includes(a.runner)) {
+      // Validation ALIAS-AWARE (renommage § 6.1) : un runner est valide s'il resout vers un
+      // kind canonique via la table d'alias (claude-code->claude, ollama-lan->ollama-distant...).
+      // Une valeur inconnue (ex. 'gpt') ne resout pas -> signalee.
+      if (a && a.runner && normalizeRunner(a.runner).kind === null) {
         badRunners.push({ personaId: a.personaId, runner: a.runner });
       }
     }
