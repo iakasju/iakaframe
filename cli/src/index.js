@@ -25,6 +25,8 @@ import { runRecall } from './commands/recall.js';
 import { runClose } from './commands/close.js';
 import { runReview } from './commands/review.js';
 import { runConsolidate } from './commands/consolidate.js';
+import { runObserve } from './commands/observe.js';
+import { runPortfolio } from './commands/portfolio.js';
 import { resolveRoot } from './lib/root.js';
 
 const VERSION = '0.1.0';
@@ -92,6 +94,11 @@ Commandes :
   consolidate         Consolidation initiale : fond les fiches memoire portefeuille en un APERCU
                         capé PROFIL/REGISTRE (curation) pour revue sur DIFF ; N'APPLIQUE RIEN
                         --source <dir>  --home <dir>  --json
+  observe             Observation SILENCIEUSE d'Odin (store non-gate, distinct du canon review) :
+                        --project <p> "note" | --portfolio "note" | list
+                        --home <dir> (defaut <IAKAFRAME_ROOT>/.iaka/observation/)  --root  --json
+  portfolio           Vue agregee du portefeuille (LECTURE SEULE) : def/version/arbre/commit/jalons
+                        --root <chapeau>  --json  --ascii
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
@@ -136,6 +143,8 @@ async function main() {
     case 'close':    runClose(rest); break;
     case 'review':   runReview(rest); break;
     case 'consolidate': runConsolidate(rest); break;
+    case 'observe':  runObserve(rest); break;
+    case 'portfolio': runPortfolio(rest); break;
     case 'root': {
       const i = rest.indexOf('--root');
       console.log(resolveRoot(i >= 0 ? rest[i + 1] : undefined));
