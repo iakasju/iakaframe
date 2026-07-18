@@ -32,7 +32,7 @@ jamais improviser une palette :
 - `<charte-defaut>-charte.md` — la charte écrite (marque, wordmark, ton, usages).
 - `template-doc.html`, `template-slides.html`, `template-flyer.svg` — **gabarits** de
   départ. Partir de l'un d'eux plutôt que d'une page vide.
-- logos SVG (`<charte-defaut>-logo.svg`, `<charte-defaut>-grue*.svg`).
+- logos SVG (`<charte-defaut>-logo.svg`).
 
 ## Règles de marque (rappels)
 
