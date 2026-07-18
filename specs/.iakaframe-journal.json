@@ -118,5 +118,15 @@
     "dirty": false,
     "files": 788,
     "note": "Multi-runner Lot A2 : host OpenWebUI — Filter Function Python d'identite (outlet leve/inlet rappelle), port fidele de guard-core.verdictIdentity verrouille par parite Python<->Node cas-par-cas ; doc import webui.db ; identite seule (perimetre/delegation N/A). e2e OWUI reel = gate humain differe."
+  },
+  {
+    "date": "2026-07-18 17:21",
+    "reason": "version",
+    "version": "v0.16.0",
+    "branch": "main",
+    "commit": "1c8c2ff merge(install): Lot C1 — installeur multi-host fan-out (detection hosts + copie collision-aware par host)",
+    "dirty": false,
+    "files": 790,
+    "note": "Multi-runner Lot C1 (dernier) : installeur multi-host fan-out (install.mjs racine) — detecte les hosts presents {claude,codex,openwebui}, pose le kit de chacun dans son dir (copie collision-aware, backup par host, merge bloc/JSON, dry-run, idempotence), OWUI=bundle import admin/API, ollama/anythingllm refuses ; --link opt-in. MULTI-RUNNER 5/5 (B2 vocab, A1 Codex, A2 OpenWebUI, B1 binding tools/runners, C1 installeur)."
   }
 ]
