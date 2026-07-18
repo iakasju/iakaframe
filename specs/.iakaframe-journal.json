@@ -128,5 +128,15 @@
     "dirty": false,
     "files": 790,
     "note": "Multi-runner Lot C1 (dernier) : installeur multi-host fan-out (install.mjs racine) — detecte les hosts presents {claude,codex,openwebui}, pose le kit de chacun dans son dir (copie collision-aware, backup par host, merge bloc/JSON, dry-run, idempotence), OWUI=bundle import admin/API, ollama/anythingllm refuses ; --link opt-in. MULTI-RUNNER 5/5 (B2 vocab, A1 Codex, A2 OpenWebUI, B1 binding tools/runners, C1 installeur)."
+  },
+  {
+    "date": "2026-07-18 18:32",
+    "reason": "version",
+    "version": "v0.17.0",
+    "branch": "main",
+    "commit": "938ff91 test(cli): garde anti-derive C-JSON + balayage du contrat de sortie",
+    "dirty": true,
+    "files": 796,
+    "note": "Backlog vide en marche forcee : (1) harmonisation surface --json du CLI autour de la convention C-JSON (racine objet, ok en tete, collections pluriel+count, erreurs {ok:false,error} sur stdout+exit1) — source unique lib/output.js, extraction inline portfolio/list vers lib/, garde anti-derive, 3 ruptures assumees (list/assemble/services), gate Legolas PASS ; (2) nettoyage chemins machine perso dans les kits (perimeter-guard.mjs + README), iso-comportement, gate Legolas PASS. 2 items ouverts au backlog (reconciliation services.json CLI vs ps1 ; anonymisation URL Forgejo kits)."
   }
 ]

@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-18 17:21 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-18 18:32 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.16.0 |
+| Version | v0.17.0 |
 | Branche | main |
-| Dernier commit | 1c8c2ff merge(install): Lot C1 — installeur multi-host fan-out (detection hosts + copie collision-aware par host) |
-| Arbre | propre |
-| Fichiers (hors .git/node_modules) | 790 |
-| Note | Multi-runner Lot C1 (dernier) : installeur multi-host fan-out (install.mjs racine) — detecte les hosts presents {claude,codex,openwebui}, pose le kit de chacun dans son dir (copie collision-aware, backup par host, merge bloc/JSON, dry-run, idempotence), OWUI=bundle import admin/API, ollama/anythingllm refuses ; --link opt-in. MULTI-RUNNER 5/5 (B2 vocab, A1 Codex, A2 OpenWebUI, B1 binding tools/runners, C1 installeur). |
+| Dernier commit | 938ff91 test(cli): garde anti-derive C-JSON + balayage du contrat de sortie |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (hors .git/node_modules) | 796 |
+| Note | Backlog vide en marche forcee : (1) harmonisation surface --json du CLI autour de la convention C-JSON (racine objet, ok en tete, collections pluriel+count, erreurs {ok:false,error} sur stdout+exit1) — source unique lib/output.js, extraction inline portfolio/list vers lib/, garde anti-derive, 3 ruptures assumees (list/assemble/services), gate Legolas PASS ; (2) nettoyage chemins machine perso dans les kits (perimeter-guard.mjs + README), iso-comportement, gate Legolas PASS. 2 items ouverts au backlog (reconciliation services.json CLI vs ps1 ; anonymisation URL Forgejo kits). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `938ff91` | 2026-07-18 | test(cli): garde anti-derive C-JSON + balayage du contrat de sortie |
+| `a8ec920` | 2026-07-18 | refactor(cli): harmonise la surface --json de tout le parc autour de C-JSON |
+| `1356c2e` | 2026-07-18 | feat(cli): source unique de sortie machine C-JSON (lib/output.js) |
+| `01fa061` | 2026-07-18 | chore(kits): retire les chemins machine perso des kits sources |
+| `e9cec6e` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.16.0) |
 | `1c8c2ff` | 2026-07-18 | merge(install): Lot C1 — installeur multi-host fan-out (detection hosts + copie collision-aware par host) |
 | `8e9879b` | 2026-07-18 | test(install): fan-out multi-host (Lot C1) — 2 hosts presents + 1 absent |
 | `49f9af9` | 2026-07-18 | feat(install): installeur multi-host fan-out (Lot C1, §5bis) |
 | `a1fc59a` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.15.0) |
 | `b2c3b7f` | 2026-07-18 | merge(openwebui): Lot A2 — Filter d'identite (port Python fidele de guard-core.verdictIdentity) |
-| `26a560c` | 2026-07-18 | docs(openwebui-guard): doc d'import admin/API + limites honnetes ; manifest emits functions/*.py |
-| `94a69a4` | 2026-07-18 | feat(openwebui-guard): Filter identite OWUI (outlet/inlet) + parite Python<->guard-core — Lot A2 |
-| `573d48c` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.14.0) |
-| `0e97a70` | 2026-07-18 | merge(codex): Lot A1 — Codex perimetre + delegation (adaptateurs guard-core) |
-| `694ae34` | 2026-07-18 | docs(codex-guard): README couvre desormais perimetre + delegation (Lot A1) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-18 18:32 | version | v0.17.0 | main | Backlog vide en marche forcee : (1) harmonisation surface --json du CLI autour de la convention C-JSON (racine objet, ok en tete, collections pluriel+count, erreurs {ok:false,error} sur stdout+exit1) — source unique lib/output.js, extraction inline portfolio/list vers lib/, garde anti-derive, 3 ruptures assumees (list/assemble/services), gate Legolas PASS ; (2) nettoyage chemins machine perso dans les kits (perimeter-guard.mjs + README), iso-comportement, gate Legolas PASS. 2 items ouverts au backlog (reconciliation services.json CLI vs ps1 ; anonymisation URL Forgejo kits). |
 | 2026-07-18 17:21 | version | v0.16.0 | main | Multi-runner Lot C1 (dernier) : installeur multi-host fan-out (install.mjs racine) — detecte les hosts presents {claude,codex,openwebui}, pose le kit de chacun dans son dir (copie collision-aware, backup par host, merge bloc/JSON, dry-run, idempotence), OWUI=bundle import admin/API, ollama/anythingllm refuses ; --link opt-in. MULTI-RUNNER 5/5 (B2 vocab, A1 Codex, A2 OpenWebUI, B1 binding tools/runners, C1 installeur). |
 | 2026-07-18 15:16 | version | v0.15.0 | main | Multi-runner Lot A2 : host OpenWebUI — Filter Function Python d'identite (outlet leve/inlet rappelle), port fidele de guard-core.verdictIdentity verrouille par parite Python<->Node cas-par-cas ; doc import webui.db ; identite seule (perimetre/delegation N/A). e2e OWUI reel = gate humain differe. |
 | 2026-07-18 15:06 | version | v0.14.0 | main | Multi-runner Lot A1 : host Codex complet — adaptateurs codex-perimeter-guard + codex-delegation-guard consommant guard-core (parite verdict Claude<->Codex prouvee), cablage 3 gardes, doc. e2e Codex reel = gate humain differe. |
