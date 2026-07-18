@@ -16,15 +16,8 @@
 //
 // LIMITE ASSUMEE : ce garde ne lit que le canal ADRESSE (blocs type:"text").
 // Les gestes (tool_use) lui sont invisibles -> voir delegation-guard.mjs.
-//
-// ARCHITECTURE (Lot 0, parite multirunner) : ce fichier est desormais l'ADAPTATEUR CLAUDE de la
-// garde d'identite. Il ne fait QUE (a) lire/parser le transcript Claude pour reconstruire le
-// `turn` canonique et (b) traduire le verdict en exit code. La LOGIQUE DE DECISION pure (regex
-// des badges, calcul startOk/stopOk) vit dans ./guard-core.mjs, partage avec les autres runners
-// (Codex...). Comportement Claude STRICTEMENT inchange (verrouille par fixtures + test de parite).
 
 import { readFileSync } from "node:fs";
-import { verdictIdentity } from "./guard-core.mjs";
 
 const allow = () => process.exit(0);
 const block = (msg) => { process.stderr.write(msg + "\n"); process.exit(2); };
@@ -35,12 +28,23 @@ const sleep = (ms) => {
   catch { /* SharedArrayBuffer indispo -> on n'attend pas, simple degradation */ }
 };
 
-// Reconstruit le `turn` canonique (messages-texte assistant du tour, anti-chrono) depuis le
-// transcript Claude. C'est la SEULE partie specifique-Claude ; le verdict est delegue au coeur.
-function claudeTurn(tp) {
+const PASTILLES = [0x1f7e1, 0x1f535, 0x1f534, 0x1f7e2, 0x1f7e3, 0x1f7e0]
+  .map((cp) => String.fromCodePoint(cp));
+const pastAlt = PASTILLES.map((p) => p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|");
+const bracket = "\\[[^\\]]+\\]\\s*`?\\s*\\[[^\\]]+\\]"; // [ROYAUME][Agent]
+const reOpen = new RegExp("^(?:" + pastAlt + ")\\s*`?\\s*" + bracket);
+const reClose = new RegExp(bracket + "\\s*`?\\s*(?:" + pastAlt + ")(?:\\s|$)");
+
+const linesOf = (txt) =>
+  txt.split("\n").map((l) => l.replace(/\s+$/, "")).filter((l) => l.trim() !== "");
+
+// Evalue l'etat courant du transcript. Renvoie :
+//   { skip: true }                      -> rien a juger (transcript illisible/vide) => allow
+//   { skip: false, startOk, stopOk }    -> verdict sur le tour courant
+function evaluate(tp) {
   let lines;
   try { lines = readFileSync(tp, "utf8").split(/\r?\n/); }
-  catch { return null; }
+  catch { return { skip: true }; }
 
   // Messages assistant-texte du TOUR courant, du plus recent au plus ancien.
   // Le tour s'arrete au dernier VRAI prompt user (un tool_result ne ferme pas le tour).
@@ -67,16 +71,34 @@ function claudeTurn(tp) {
       if (parts.length) turn.push(parts.join("\n").trim());
     }
   }
-  return turn;
-}
+  if (turn.length === 0) return { skip: true };
 
-// Evalue l'etat courant du transcript. Renvoie :
-//   { skip: true }                      -> rien a juger (transcript illisible/vide) => allow
-//   { skip: false, startOk, stopOk }    -> verdict sur le tour courant (via guard-core)
-function evaluate(tp) {
-  const turn = claudeTurn(tp);
-  if (turn === null) return { skip: true }; // transcript illisible
-  return verdictIdentity(turn);
+  // Ouverture : acceptee si N'IMPORTE QUEL message-texte du tour ouvre par un badge.
+  const opensWith = (txt) => {
+    const ne = linesOf(txt);
+    return ne.length > 0 && reOpen.test(ne[0].trim());
+  };
+  let startOk = turn.some(opensWith);
+
+  // Cloture : portee par le DERNIER message-texte du tour (turn[0]).
+  const nonEmpty = linesOf(turn[0]);
+  let stopOk;
+  if (nonEmpty.length === 1) {
+    const single = reOpen.test(nonEmpty[0].trim()) || reClose.test(nonEmpty[0].trim());
+    stopOk = single;
+    // Tour reduit a un unique one-liner : on tolere ouverture OU cloture pour les deux.
+    if (turn.length === 1) startOk = single;
+  } else {
+    stopOk = false;
+    const idxs = [nonEmpty.length - 1];
+    if (nonEmpty.length >= 3) idxs.push(nonEmpty.length - 2);
+    for (const idx of idxs) {
+      if (idx === 0) continue;
+      if (reClose.test(nonEmpty[idx].trim())) { stopOk = true; break; }
+    }
+  }
+
+  return { skip: false, startOk, stopOk };
 }
 
 try {
