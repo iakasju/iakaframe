@@ -148,5 +148,15 @@
     "dirty": true,
     "files": 799,
     "note": "Suite marche forcee (2 items issus des gates) : (1) reconciliation services.json — le producteur ps1 emet desormais l'enveloppe C-JSON { ok, generated, count, services }, verrous Node V1 (forme fichier CLI --out) + V2 (garde statique source ps1), runtime ps1 = gate humain differe faute de pwsh, gate Legolas PASS (515fe05) ; (2) anonymisation author_url Forgejo du kit OpenWebUI occurrence #3 (sjupin -> <user>), py_compile OK + test 15/15, gate Legolas PASS (82c7fec). GELE en attente d'arbitrage decideur : anonymisation des 2 CLAUDE.md (#1/#2), classes LAISSER-DIVERGER par reconcilier-kit-source-frame.md §4 — conflit de decision non renverse en marche forcee."
+  },
+  {
+    "date": "2026-07-18 19:25",
+    "reason": "version",
+    "version": "v0.17.2",
+    "branch": "main",
+    "commit": "5acdbd0 chore(kit-claude): anonymise les URL Forgejo des CLAUDE.md (levee §4, sjupin -> <user>)",
+    "dirty": true,
+    "files": 799,
+    "note": "Cloture item anonymisation Forgejo (3/3) : apres arbitrage decideur levant le regime §4 laisser-diverger, anonymisation des 2 CLAUDE.md restants (sjupin -> <user>, host/IP conserve), levee consignee en note additive dans reconcilier-kit-source-frame.md ; grep sjupin kits/ = 0 sur tout kits/ ; gate Legolas PASS (5acdbd0). Backlog projet VIDE (0 item ouvert). Gates humains differes en attente de materiel/pwsh : e2e reels Codex + OpenWebUI + runtime iakaframe-services.ps1."
   }
 ]
