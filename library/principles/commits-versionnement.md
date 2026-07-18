@@ -12,3 +12,6 @@ Principe transverse iakaframe extrait de `methode-de-travail.md` et du CLAUDE.md
 **Politique.** Commits atomiques et fréquents (feat/fix/chore/wip) comme filet de sécurité ; jamais de git reset --hard ni de git push --force côté IA.
 
 **Déclencheur.** chaque étape logique (toutes les 5-10 min de travail productif).
+
+> Cas particulier du **merge** : voir le principe dédié `merge-versionnement` (« Merge ⇒
+> versionnement couplés »).

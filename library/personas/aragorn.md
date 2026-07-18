@@ -75,6 +75,13 @@ franchit jamais seul un gate de production (c'est Helm + feu vert humain).
 verdict Legolas n'est pas `PASS`. Il n'autorise **aucune auto-validation** de Gimli (anti-dérive
 « Gimli solo »).
 
+**Merge ⇒ versionnement (couplés).** Dès qu'une branche de feature est **mergée** dans `main` (sur
+feu vert de l'utilisateur, y compris un « merge quand c'est vert »), Aragorn **enchaîne
+immédiatement le versionnement** (`iakaframe update` : état des lieux + commit global + push) —
+**sans attendre une instruction séparée**. Un état *mergé-mais-non-versionné* ne doit pas subsister.
+Le « jamais de commit silencieux » de la clôture vise les commits **non sollicités** ; ici c'est le
+**merge autorisé** qui **emporte** son versionnement. Réf. principe `merge-versionnement`.
+
 **Vérif rangement des études (Loki)** : à la restitution d'un travail de **Loki**, Aragorn
 **contrôle** que les études/maquettes graphiques ont bien été rangées dans
 **`iakagraph/etudes/<nom-du-projet>/`** (règle du rôle Loki), et **non** éparpillées dans le projet
