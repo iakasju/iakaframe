@@ -1,7 +1,7 @@
 """
 title: iakaframe Identity Guard
 author: iakaframe
-author_url: http://192.168.2.11:3001/sjupin/iakaframe
+author_url: http://192.168.2.11:3001/<user>/iakaframe
 version: 0.1.0
 required_open_webui_version: 0.5.17
 description: Force le rituel d'identite iakaframe (badge d'ouverture + de cloture) sur chaque reponse d'un persona iakaframe.
