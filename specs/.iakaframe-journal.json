@@ -48,5 +48,15 @@
     "dirty": true,
     "files": 748,
     "note": "Quick wins P0 (grue, casting Helm 8, Odin/Aragorn bornes) + charte CTO d'Odin + starter set Odin-CTO (STRATEGIE.md decl., observe silencieux, portfolio, skill+principe interruption-minimale) + audit du frame + cadrages (binding GUI, split learning, multi-runner, odin-cto)"
+  },
+  {
+    "date": "2026-07-18 12:14",
+    "reason": "version",
+    "version": "v0.9.0",
+    "branch": "main",
+    "commit": "27e48db merge(learning): scinde iakaframe-learning en REVUE + iakaframe-retrait (symetrie +/-)",
+    "dirty": false,
+    "files": 751,
+    "note": "Scission iakaframe-learning -> REVUE (iakaframe-learning) + RETRAIT (iakaframe-retrait, alias /retrait, badge Retrait) ; triggers repartis sans recouvrement ; CLI intact ; frames figees"
   }
 ]
