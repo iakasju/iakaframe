@@ -183,7 +183,7 @@ function readAll() {
 }
 
 // Extrait les chemins absolus "interessants" d'une chaine shell.
-// MVP honnete : on capte les chemins absolus du foyer (/Users/sjupin/...) et ~/.claude/...
+// MVP honnete : on capte les chemins absolus du foyer ($HOME/..., p.ex. /Users/<user>/...) et ~/.claude/...
 // On NE pretend PAS parser le shell ; au moindre doute on n'attrape rien (-> BASH_UNRESOLVED).
 function extractAbsPaths(command) {
   const out = new Set();

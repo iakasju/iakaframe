@@ -1,7 +1,7 @@
 # kit-claude/global — artefacts de déploiement niveau-utilisateur
 
 Sources **versionnées** des fichiers qui vivent au runtime dans `~/.claude/`
-(`C:\Users\sjupi\.claude\`).
+(p.ex. `C:\Users\<user>\.claude\` sous Windows).
 
 Copier dans `~/.claude/` :
 - `CLAUDE.md` → `~/.claude/CLAUDE.md` (instructions globales de la méthode).
