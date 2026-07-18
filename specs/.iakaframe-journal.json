@@ -78,5 +78,15 @@
     "dirty": false,
     "files": 772,
     "note": "Regle 'merge => versionnement' promue en element dedie : principe library/principles/merge-versionnement.md, cable dans methods (principleIds=16), reference par aragorn.md + commits-versionnement. Vaut pour tout coordinateur (Aragorn/Odin)."
+  },
+  {
+    "date": "2026-07-18 13:31",
+    "reason": "version",
+    "version": "v0.12.0",
+    "branch": "main",
+    "commit": "d6798c4 merge(kit): reconcilie le kit source claude avec la frame (rapatrie delegation-guard refactore/identity-remind/plan-courante/settings, de-tokenise)",
+    "dirty": true,
+    "files": 778,
+    "note": "Reconciliation kit source claude <-> frame : rapatrie en source delegation-guard (refactore guard-core) + identity-remind + plan-courante + settings.example.json (5 hooks) ; de-tokenise LOG_PREFIX ; agents/skills laisses en materialisation frame (voulu). + backlog item chemin machine perimeter-guard."
   }
 ]

@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-18 13:01 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-18 13:31 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.11.0 |
+| Version | v0.12.0 |
 | Branche | main |
-| Dernier commit | 25a43e4 feat(principle): merge-versionnement — regle 'merge => versionnement' comme element dedie |
-| Arbre | propre |
-| Fichiers (hors .git/node_modules) | 772 |
-| Note | Regle 'merge => versionnement' promue en element dedie : principe library/principles/merge-versionnement.md, cable dans methods (principleIds=16), reference par aragorn.md + commits-versionnement. Vaut pour tout coordinateur (Aragorn/Odin). |
+| Dernier commit | d6798c4 merge(kit): reconcilie le kit source claude avec la frame (rapatrie delegation-guard refactore/identity-remind/plan-courante/settings, de-tokenise) |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (hors .git/node_modules) | 778 |
+| Note | Reconciliation kit source claude <-> frame : rapatrie en source delegation-guard (refactore guard-core) + identity-remind + plan-courante + settings.example.json (5 hooks) ; de-tokenise LOG_PREFIX ; agents/skills laisses en materialisation frame (voulu). + backlog item chemin machine perimeter-guard. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `d6798c4` | 2026-07-18 | merge(kit): reconcilie le kit source claude avec la frame (rapatrie delegation-guard refactore/identity-remind/plan-courante/settings, de-tokenise) |
+| `d3f928b` | 2026-07-18 | fix(kit-claude): de-tokenise LOG_PREFIX dans les hooks source (§8 anti-placeholder) |
+| `c91bdbf` | 2026-07-18 | feat(kit-claude): rapatrie delegation-guard(refactore guard-core)/identity-remind/plan-courante + settings.example (reconciliation frame) |
+| `5eda405` | 2026-07-18 | docs(instructions): instruction validee reconcilier-kit-source-frame (Gandalf P1) |
+| `7643e36` | 2026-07-18 | chore(backlog): ouvre BACKLOG.md + item 'structure API & commandes du CLI' |
+| `a388ab8` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.11.0) |
 | `25a43e4` | 2026-07-18 | feat(principle): merge-versionnement — regle 'merge => versionnement' comme element dedie |
 | `2829bf6` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.10.0) |
 | `dfe7e89` | 2026-07-18 | merge(guard): guard-core runner-agnostique + pilote Codex x identite (Lot 0+1) |
 | `bde22a2` | 2026-07-18 | test(guard): non-regression perimeter-guard (baseline pre-refactor == refactor) |
-| `466b12d` | 2026-07-18 | test(guard): non-regression Claude + parite core<->runner + unite des verdicts purs |
-| `41de172` | 2026-07-18 | feat(codex): adaptateur garde d'identite Codex sur guard-core partage (Lot 1, pilote) |
-| `496747f` | 2026-07-18 | feat(guard-core): extrait les 3 verdicts purs runner-agnostiques + refactor non-regressif des hooks Claude |
-| `b99a302` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.9.0) |
-| `27e48db` | 2026-07-18 | merge(learning): scinde iakaframe-learning en REVUE + iakaframe-retrait (symetrie +/-) |
-| `652dc80` | 2026-07-18 | test(skills): scinder le verrou learning/retrait (bloc S6 -> retrait-skill.test.js) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-18 13:31 | version | v0.12.0 | main | Reconciliation kit source claude <-> frame : rapatrie en source delegation-guard (refactore guard-core) + identity-remind + plan-courante + settings.example.json (5 hooks) ; de-tokenise LOG_PREFIX ; agents/skills laisses en materialisation frame (voulu). + backlog item chemin machine perimeter-guard. |
 | 2026-07-18 13:01 | version | v0.11.0 | main | Regle 'merge => versionnement' promue en element dedie : principe library/principles/merge-versionnement.md, cable dans methods (principleIds=16), reference par aragorn.md + commits-versionnement. Vaut pour tout coordinateur (Aragorn/Odin). |
 | 2026-07-18 12:52 | version | v0.10.0 | main | Multi-runner Lot 0 (guard-core runner-agnostique : 3 verdicts purs, hooks Claude refactores non-regressifs, test de parite) + Lot 1 pilote Codex x identite. e2e Codex reel = gate humain differe. Kit source claude en retard sur la frame (delegation-guard/settings) a reconcilier. |
 | 2026-07-18 12:14 | version | v0.9.0 | main | Scission iakaframe-learning -> REVUE (iakaframe-learning) + RETRAIT (iakaframe-retrait, alias /retrait, badge Retrait) ; triggers repartis sans recouvrement ; CLI intact ; frames figees |
