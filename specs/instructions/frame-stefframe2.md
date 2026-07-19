@@ -22,8 +22,8 @@ où les hooks d'identité/périmètre/délégation sont **réellement câblés**
 ## 2. Périmètre — DANS / HORS
 
 **DANS**
-- **Tout `StefFrame1`** conservé à l'identique (atomes `library/`, assemblages, 16 skills, 5 kits,
-  `docs/git-hosting.md`, `README.md`).
+- **Tout `StefFrame1`** conservé à l'identique (atomes `library/`, assemblages, 16 skills SF1, 5 kits,
+  `docs/git-hosting.md`, `README.md`) — SF2 y ajoute la skill `retrait` (→ **17 skills** au total).
 - **Le CLI complet** `cli/` (scrubé) — le bloquant majeur.
 - **Les 3 hooks Node manquants** + settings d'exemple qui les câble.
 - **Une charte de démarrage neutre** `design-starter/`.
@@ -49,7 +49,7 @@ frames/releases/StefFrame2/
   GUIDE-INSTALLATION.md        # ➕ prérequis + lance install.mjs + repli manuel (§9)
   methode-de-travail.md
   principles/  rituals/  guardrails/  roles/  personas/  scaffolds/  workflows/
-  skills/      (16, inchangé)
+  skills/      (17 : 16 hérités de SF1 + retrait)
   methods/  teams/  bindings/
   docs/git-hosting.md
   design-starter/              # ➕ charte de démarrage NEUVE et neutre (§6)
@@ -240,7 +240,7 @@ l'existant, par catégorie :
 | Contrat global | `global/CLAUDE.md` | `CLAUDE.md` |
 | Réglages | `global/settings.example.json` | `settings.json` |
 | Hooks Node | `global/hooks/*.mjs` (5) | `hooks/*.mjs` |
-| Skills | `.claude/skills/*` (16) | `skills/*` |
+| Skills | `.claude/skills/*` (17) | `skills/*` |
 | Agents | `.claude/agents/*` (8) | `agents/*` |
 
 **Données JAMAIS touchées** (ni lues pour écriture, ni sauvegardées, ni écrasées) : tout le
@@ -306,8 +306,9 @@ en écriture. Règle absolue : **additif only** sur les catégories gérées, **
 
 ## 8. Ce qui reste de StefFrame1 (rappel — inchangé)
 
-Atomes `library/` ventilés, `methode-de-travail.md`, `methods/teams/bindings`, **16 skills**
-(dont 4 déparamétrées), **5 kits runner**, `docs/git-hosting.md`, `README.md`, et les règles de
+Atomes `library/` ventilés, `methode-de-travail.md`, `methods/teams/bindings`, **16 skills SF1**
+(dont 4 déparamétrées ; SF2 porte **17 skills** depuis l'ajout de `retrait` à la re-synchro),
+**5 kits runner**, `docs/git-hosting.md`, `README.md`, et les règles de
 déparamétrage §9 de SF1 (placeholders `<GIT_HOST>`, `<GIT_TOKEN>`, `<IAKAFRAME_HOME>`,
 `<CHARTES_DIR>`, `<MQTT_BROKER>`, `<APPFLOWY_URL>`, etc.). **Aucune régression** : les gates SF1
 restent verts sur le corpus (§12-A/B).
@@ -364,9 +365,12 @@ Créer un `GUIDE-INSTALLATION.md` **fonctionnel et bref** (installation, pas nar
 
 ## 12. Critères de complétude VÉRIFIABLES (pass/fail)
 
-**A. Conservation SF1** — tous les comptages SF1 tiennent dans SF2 : principles 14, rituals 5,
-guardrails 3, roles 8, personas 9, scaffolds 2, workflows 1, **skills 16**, **kits 5**,
-`docs/git-hosting.md`, `README.md` présents.
+**A. Conservation SF1 (mise à jour miroir live — re-synchro `resync-stefframe2-miroir-live.md`)** —
+les comptages tiennent dans SF2, mis à jour par la re-synchro sur le live : principles **16**
+(ajout de `interruption-minimale-odin` et `merge-versionnement`, anonymisés), rituals 5,
+guardrails 3, roles 8, personas 9, scaffolds 2, workflows 1, **skills 17** (ajout de
+`iakaframe-retrait` ; `iakaframe-learning` slim), **kits 5**, `docs/git-hosting.md`, `README.md`
+présents.
 
 **B. Ajouts présents** :
 - `cli/src/index.js` + `cli/src/commands/*.js` = **25** + `cli/src/lib/figfont/*.flf` = **7**

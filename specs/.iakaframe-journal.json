@@ -178,5 +178,15 @@
     "dirty": true,
     "files": 813,
     "note": "Fix resolution de kit pour init/onboard/bundle : nouveau resolveur kitDirForNode (kits/iakaframe-<famille> + fallback legacy kit-<famille>) ; init reparé pour claude/codex/openwebui, + test de non-regression. Gate Legolas PASS (328 tests verts)."
+  },
+  {
+    "date": "2026-07-19 02:37",
+    "reason": "version",
+    "version": "v0.17.5",
+    "branch": "main",
+    "commit": "8ecfbc1 chore(iakaframe): update etat des lieux + commit global (version v0.17.4)",
+    "dirty": true,
+    "files": 823,
+    "note": "Resync StefFrame2 (miroir du live, anonymisation preservee) : rapatrie 2 principes (interruption-minimale-odin, merge-versionnement anonymise) + skill retrait, principleIds 14->16, learning slim, roster team 8 (helm). Comptes doc alignes (16 SF1 -> 17 SF2). Gate Legolas PASS 8/8, live intact, 328 tests verts."
   }
 ]
