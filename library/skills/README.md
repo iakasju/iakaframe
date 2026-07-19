@@ -21,7 +21,7 @@ skills dans un projet. Chaque skill se déclenche quand le contexte correspond �
 | Skill | Agent | Rôle |
 |---|---|---|
 | `iakaframe-odin` | 🦅 Odin | Super-agent **portefeuille** : switch d'équipe, démarrage projet, création d'équipe (seul à `C:\work`) |
-| `iakaframe-aragorn` | 🛡️ Aragorn | Coordination entre agents, 3 phases + squad prod, dispatch à la demande, canal Slack |
+| `iakaframe-aragorn` | 🛡️ Aragorn | Coordination entre agents, 3 phases + squad prod, dispatch à la demande, canal iakaHub ↔ Discord |
 | `iakaframe-cadrage` | 🧙 Gandalf | P1 — cadrage : besoin → instruction fermée |
 | `iakaframe-qualite` | 🏹 Legolas | P2 / P3 — qualité / test, gate auto |
 | `iakaframe-deploiement` | 🌉 Helm | Squad prod — déploiement, accès, rollback, surveillance, alertes |
@@ -165,4 +165,4 @@ L'IA prépare et propose à l'intérieur d'un périmètre borné ; **l'humain d�
 `qualite` (gate automatique) et `deploiement` (gate humain) matérialisent cette règle. Aucune
 skill ne franchit seule un gate de mise en production. Et **tout agent peut solliciter
 l'utilisateur directement** ; Aragorn (par projet) et Odin (portefeuille) sont les interlocuteurs
-par défaut, joignables par voix / Slack.
+par défaut, joignables en terminal ou via **iakaHub ↔ Discord** (avec repli terminal gracieux).

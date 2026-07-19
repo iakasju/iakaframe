@@ -752,7 +752,7 @@ main {
     <thead><tr><th>Agent</th><th>Pastille</th><th>Rôle</th><th>Phase</th><th>Skill</th></tr></thead>
     <tbody>
       <tr><td>🦅 Odin</td><td>🟡</td><td>Super-agent <strong>portefeuille</strong> : switch d'équipe, démarrage projet, création d'équipe (seul à <code>C:\work</code>)</td><td>Portefeuille</td><td><code>iakaframe-odin</code></td></tr>
-      <tr><td>🛡️ Aragorn</td><td>🟠</td><td>Coordination entre agents, suivi des phases, dispatch à la demande, canal Slack</td><td>Transverse</td><td><code>iakaframe-aragorn</code></td></tr>
+      <tr><td>🛡️ Aragorn</td><td>🟠</td><td>Coordination entre agents, suivi des phases, dispatch à la demande, canal iakaHub ↔ Discord (avec repli terminal)</td><td>Transverse</td><td><code>iakaframe-aragorn</code></td></tr>
       <tr><td>🧙 Gandalf</td><td>🔵</td><td>Architecte-cadreur : besoin → instruction fermée</td><td>P1 Cadrage</td><td><code>iakaframe-cadrage</code></td></tr>
       <tr><td>⚒️ Gimli</td><td>🔴/🟢</td><td><strong>Dev + devops</strong> : code, build, commits, déploiement jusqu'au staging (×N)</td><td>P2 → P3</td><td>CLAUDE.md</td></tr>
       <tr><td>🏹 Legolas</td><td>🔴/🟢</td><td>Qualité / test : verdict PASS, gate auto (dev + validation stage)</td><td>P2 / P3</td><td><code>iakaframe-qualite</code></td></tr>
@@ -799,7 +799,7 @@ main {
   </div>
 
   <h3>Étanchéité · incarnation · communication</h3>
-  <p><strong>Étanchéité</strong> — l'image est mutualisée, le conteneur est étanche : définitions uniques, mais chaque projet instancie <strong>sa</strong> propre équipe scopée (jamais deux projets dans un même contexte). <strong>Incarnation</strong> — un subagent (<code>agents/</code>) + une skill-rôle (<code>skills/</code>) : le subagent est le contrat, la skill la méthode. <strong>Communication</strong> — Odin et Aragorn dialoguent avec l'utilisateur par <strong>voix / Slack</strong> (via n8n) ; Aragorn lance un travail sur un agent à la demande.</p>
+  <p><strong>Étanchéité</strong> — l'image est mutualisée, le conteneur est étanche : définitions uniques, mais chaque projet instancie <strong>sa</strong> propre équipe scopée (jamais deux projets dans un même contexte). <strong>Incarnation</strong> — un subagent (<code>agents/</code>) + une skill-rôle (<code>skills/</code>) : le subagent est le contrat, la skill la méthode. <strong>Communication</strong> — Odin et Aragorn dialoguent avec l'utilisateur <strong>en terminal</strong> si le décideur est présent, <strong>sinon via iakaHub → Discord</strong> (le canal du projet, aucun secret côté agent), avec <strong>repli terminal gracieux</strong> si la box est injoignable ; Aragorn lance un travail sur un agent à la demande.</p>
 
   <div class="rule">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>

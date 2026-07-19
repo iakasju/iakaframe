@@ -10,7 +10,7 @@
 |---|---|
 | Dernière mise à jour | 2026-07-19 |
 | Version CLI documentée | `@naonedge/iakaframe` **v0.1.0** (source : `cli/package.json`) |
-| Commandes CLI couvertes | **26 / 26** (une par `case` de `cli/src/index.js`, alias `use` inclus) |
+| Commandes CLI couvertes | **29 / 29** verbes distincts (un par `case` de `cli/src/index.js`), **+ 1 alias** (`use` → `switch`) = **30 `case`** au total |
 | Sources de vérité | `~/.claude/CLAUDE.md` (déclencheurs), `cli/src/index.js` (bloc `HELP` + `switch`), `cli/src/commands/*.js` |
 
 ## Règle de maintenance (à respecter)
@@ -25,7 +25,14 @@ Cette doc **porte sa propre discipline** :
 - **Vérifier la complétude (moyen léger)** : comparer la liste des `case` de
   `cli/src/index.js` avec les entrées de la partie B, p. ex.
   `grep -oE "case '\w+'" cli/src/index.js` vs les lignes de la table B — tout `case`
-  absent de la doc = un trou à combler.
+  absent de la doc = un trou à combler. **Attention au décompte** : ce `grep` rend **30**
+  `case` alors qu'il n'y a que **29 verbes distincts**, car `use` et `switch` partagent un
+  même traitement (`use` est un **alias**, documenté sur la ligne de `switch` — jamais
+  compté deux fois). `help`/`version` sont traités **avant** le `switch` (options globales)
+  et ne comptent pas comme verbes.
+- **Compteur = partie du contrat.** Si la ligne « Dernière mise à jour » est rafraîchie,
+  **tous** les compteurs de ce fichier doivent avoir été revérifiés dans le même geste :
+  une date fraîche sur un compteur faux produit un doc périmé qui **a l'air** vérifié.
 - Ne rien auto-générer pour l'instant : c'est une **discipline documentaire**, pas un script.
 
 ---
@@ -99,7 +106,7 @@ Certaines skills sont des **sous-skills partagés** : composés par plusieurs sk
 
 `@naonedge/iakaframe` — CLI multi-OS (Windows / macOS / Linux), **zéro dépendance runtime**.
 Source de vérité = le bloc `HELP` de `cli/src/index.js` + un fichier par commande dans
-`cli/src/commands/`. **26 commandes** (alias `use` inclus), regroupées par thème.
+`cli/src/commands/`. **29 verbes distincts** (+ 1 alias, `use` → `switch`), regroupés par thème.
 
 **Options globales** : `-h`/`--help`, `-v`/`--version`.
 **Environnement** : `FORGEJO_TOKEN` (Forgejo), `IAKAFRAME_ROOT`/`--root` (dossier chapeau,
@@ -151,11 +158,12 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 
 ## B.5 Canon du portefeuille — boucle d'apprentissage incrémentale
 
-Cinq commandes livrées ensemble (réf. d'architecture :
-`specs/instructions/boucle-apprentissage-incrementale.md`). Elles opèrent sur le **canon
+Six commandes de la même boucle (réf. d'architecture :
+`specs/instructions/boucle-apprentissage-incrementale.md`) — les cinq premières livrées
+ensemble, `consolidate` venant en amorçage (§ 9, critère 10). Elles opèrent sur le **canon
 UNIQUE** du portefeuille, un substrat de fichiers **neutre** (aucun runner privilégié).
 
-**Résolution du chemin du canon**, commune aux cinq : `--home <dir>` **>** `IAKA_MEMORY_HOME`
+**Résolution du chemin du canon**, commune aux six : `--home <dir>` **>** `IAKA_MEMORY_HOME`
 **>** `~/.iaka/memory/`. Toutes acceptent `--json` (sortie machine).
 
 | Commande | Usage / spécificités | Rôle |
@@ -165,6 +173,7 @@ UNIQUE** du portefeuille, un substrat de fichiers **neutre** (aucun runner privi
 | `recall <requête…>` | `--home --json` (objets `file/path/line/text/date`) | Rappel **plein-texte** sur l'historique brut (`transcripts/`) : retrouve un passage **sans le charger dans le prompt**. Moteur **ripgrep**, **repli Node** si `rg` absent (jamais de crash, mode dégradé signalé). |
 | `close` | `--session <fic> --home --json` | Revue de clôture **cadencée** : rejoue les `transcripts/` et **dépose des propositions typées** (`memory\|skill\|hook\|config`) dans `proposals/`. **N'APPLIQUE RIEN** (invariant Q-2) : rien n'est modifié sans consentement. |
 | `review <action>` | `list \| show <id> \| apply <id> \| reject <id> \| auto` · `--status <s> --library <dir> --home --json` | Revue du réservoir sous **garde de consentement** : applique/rejette les propositions de `close`. Politique par défaut : **PROFIL en file**, **REGISTRE auto** (si `write_approval:auto`), **STRUCTUREL toujours en file** (jamais auto). |
+| `consolidate` | `--source <dir> --home <dir> --json` | **Consolidation initiale** (amorçage du canon) : fond les fiches mémoire existantes du portefeuille en un **aperçu capé** de PROFIL / REGISTRE — **curation, pas copie**, sous **plafond dur**. **N'APPLIQUE RIEN** au canon réel : produit `consolidation/{PROFIL,REGISTRE}.proposed.md` + `DIFF.md` + `RAPPORT.md`, pour **revue humaine sur DIFF**. Recopier l'aperçu sur le canon reste un **geste humain gaté**. Utiliser un `--home` de staging pour ne pas toucher au canon réel. |
 
 ### Binding Claude Code (optionnel)
 
@@ -174,6 +183,16 @@ Le geste `open` est **agnostique** ; le seul morceau qui connaît Claude Code vi
 en remplacement. Il est **mince, optionnel, non bloquant**. Le canon fonctionne **sans** ce
 binding (`iakaframe open` à la main). **L'activation est un geste humain** : un agent ne
 modifie pas `~/.claude/settings.json` (voir `cli/bindings/claude-code/README.md`).
+
+## B.6 Portefeuille (dossier chapeau) — vue agrégée & observation
+
+Ces deux commandes opèrent au niveau du **dossier chapeau** (`~/work`), pas d'un projet.
+⚠️ `--root` y désigne le **chapeau** — et non la racine de bibliothèque comme en B.4.
+
+| Commande | Usage / options principales | Rôle |
+|---|---|---|
+| `portfolio` | `--root <chapeau> --json --ascii` | Vue agrégée du portefeuille, **strictement lecture seule** : par projet, définition / version / état de l'arbre / dernier commit / jalons. Sortie machine C-JSON `{ ok, count, projects, root }`. |
+| `observe` | `--project <p> "<note>"` \| `--portfolio "<note>"` \| `list` · `--home <dir> --root <dir> --json` | **Observation silencieuse d'Odin** : écrit une puce datée idempotente dans un store **non gaté**, `<IAKAFRAME_ROOT>/.iaka/observation/` (`<projet>.md` ou `_portefeuille.md`). **Sans consentement, sans réservoir** — **distinct** du canon review-gaté (`close`/`review`). `list` relit le store. |
 
 ---
 

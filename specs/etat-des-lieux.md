@@ -1,23 +1,24 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-19 22:35 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-19 23:10 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.17.14 |
+| Version | v0.17.15 |
 | Branche | main |
-| Dernier commit | 7c4d51b chore(iakaframe): update etat des lieux + commit global (version v0.17.13) |
+| Dernier commit | 3fc4c7d chore(iakaframe): update etat des lieux + commit global (version v0.17.14) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 851 |
-| Note | Audit + amelioration d'Aragorn (7 dimensions, cadrage Gandalf) : QW-1/2 purge scorie Slack -> canal iakaHub<->Discord (skill + roster methode) ; QW-3/4 geste 'iakaframe jalon' + obligation d'estimation dev au jalon P1->P2 dans la charte ; CH-1 arbitrage decideur option A = Task accorde (delegation-guard actif) ; CH-3 Write ciborne aux artefacts de pilotage (specs/PROJET.md), jamais de code ; CH-2 sous-skill partage iakaframe-jalon (Aragorn + Gandalf) ; CH-4 garde anti-auto-cast DIFFEREE par arbitrage (contractuel seul), consignee en note additive. Recompte 22->23 skills + docs/commandes.md. Parite 3 couches OK (canon->golden->deploye 8/8) + re-vendorage cross-repo des 17 fixtures iakaFrameGUI apres detection d'un contrat fantome (Task sans Write, sha-coherent, tests verts). Gate Legolas FAIL puis PASS apres correction. Dette cause racine ouverte : aucune garde contre la derive cohérente cross-repo. |
+| Fichiers (hors .git/node_modules) | 855 |
+| Note | Epuration des dettes mecaniques (gate Legolas PASS) + cadrage des 3 chantiers structurants. FAIT : scories Slack purgees (README, library/skills/README x2, iakaframe-skills.html, + les 2 lignes de PROSE de methode-de-travail.html apres arbitrage option (c)) ; docs/commandes.md remis exact (29 verbes distincts + 1 alias = 30 case ; consolidate/portfolio/observe documentes ; clause de maintenance date<->compteurs) ; serializeMethodMd (GUI) dote d'une capacite de preservation du wrapping, defaut INCHANGE et cablage volontairement NON fait (le CLI reflow a l'identique : cabler cote GUI seul aurait fabrique une divergence GUI!=CLI). CADRAGE (Gandalf, 3 instructions + 1 trace de decision) : garde vendor-check cross-repo (~1 j-h), parite/generateur/deploiement des skills (~2,75-3,25 j-h), audit du roster personas (~2,25-2,5 j-h) ; ordre 1->2->3, total ~6-6,75 j-h. Decouverte majeure : les skills sont STRUCTURELLEMENT INERTES pour les 8 personas (skills: non projete au contrat, aucun outil Skill au binding, table codee SKILL_OF mono-skill, subskills non resolu) - deployer des copies fraiches n'aurait rien active. ARBITRAGES DECIDEUR : Task pour Odin accorde ; Skill accorde aux 8 personas ; switch.js:79 integre au lot skills ; roleKey aligne canon->CLI+GUI (reserve consignee : plie la source a son implementation, ne cree pas de precedent) ; Helm promu role canonique 'deploiement' (lacune de modelisation, pas derive lexicale - le canon ne bouge pas pour lui) ; 8e vignette NON differee (couple hexadecimal ~0,1 j-h, pas un asset graphique ; supprime la collision 7%7=0 ou Helm s'affichait aux couleurs or du portefeuille), teinte a Loki. ETAT : gate Legolas sur les 3 instructions EN COURS au moment du checkpoint - cadrage non encore valide. Backlog : 3 dettes soldees inscrites en Fait ; 9 scories Slack orphelines rattrapees par un item dedie (trou de rangement de ma part) ; jalon --help casse et fixture wrapped tronquee ajoutes. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `3fc4c7d` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.14) |
 | `7c4d51b` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.13) |
 | `a23e393` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.12) |
 | `022f1a6` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.11) |
@@ -27,7 +28,6 @@
 | `afd049c` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.7) |
 | `e83bcaf` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.6) |
 | `9cd7bbb` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.5) |
-| `8ecfbc1` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.4) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-19 23:10 | pause | v0.17.15 | main | Epuration des dettes mecaniques (gate Legolas PASS) + cadrage des 3 chantiers structurants. FAIT : scories Slack purgees (README, library/skills/README x2, iakaframe-skills.html, + les 2 lignes de PROSE de methode-de-travail.html apres arbitrage option (c)) ; docs/commandes.md remis exact (29 verbes distincts + 1 alias = 30 case ; consolidate/portfolio/observe documentes ; clause de maintenance date<->compteurs) ; serializeMethodMd (GUI) dote d'une capacite de preservation du wrapping, defaut INCHANGE et cablage volontairement NON fait (le CLI reflow a l'identique : cabler cote GUI seul aurait fabrique une divergence GUI!=CLI). CADRAGE (Gandalf, 3 instructions + 1 trace de decision) : garde vendor-check cross-repo (~1 j-h), parite/generateur/deploiement des skills (~2,75-3,25 j-h), audit du roster personas (~2,25-2,5 j-h) ; ordre 1->2->3, total ~6-6,75 j-h. Decouverte majeure : les skills sont STRUCTURELLEMENT INERTES pour les 8 personas (skills: non projete au contrat, aucun outil Skill au binding, table codee SKILL_OF mono-skill, subskills non resolu) - deployer des copies fraiches n'aurait rien active. ARBITRAGES DECIDEUR : Task pour Odin accorde ; Skill accorde aux 8 personas ; switch.js:79 integre au lot skills ; roleKey aligne canon->CLI+GUI (reserve consignee : plie la source a son implementation, ne cree pas de precedent) ; Helm promu role canonique 'deploiement' (lacune de modelisation, pas derive lexicale - le canon ne bouge pas pour lui) ; 8e vignette NON differee (couple hexadecimal ~0,1 j-h, pas un asset graphique ; supprime la collision 7%7=0 ou Helm s'affichait aux couleurs or du portefeuille), teinte a Loki. ETAT : gate Legolas sur les 3 instructions EN COURS au moment du checkpoint - cadrage non encore valide. Backlog : 3 dettes soldees inscrites en Fait ; 9 scories Slack orphelines rattrapees par un item dedie (trou de rangement de ma part) ; jalon --help casse et fixture wrapped tronquee ajoutes. |
 | 2026-07-19 22:35 | version | v0.17.14 | main | Audit + amelioration d'Aragorn (7 dimensions, cadrage Gandalf) : QW-1/2 purge scorie Slack -> canal iakaHub<->Discord (skill + roster methode) ; QW-3/4 geste 'iakaframe jalon' + obligation d'estimation dev au jalon P1->P2 dans la charte ; CH-1 arbitrage decideur option A = Task accorde (delegation-guard actif) ; CH-3 Write ciborne aux artefacts de pilotage (specs/PROJET.md), jamais de code ; CH-2 sous-skill partage iakaframe-jalon (Aragorn + Gandalf) ; CH-4 garde anti-auto-cast DIFFEREE par arbitrage (contractuel seul), consignee en note additive. Recompte 22->23 skills + docs/commandes.md. Parite 3 couches OK (canon->golden->deploye 8/8) + re-vendorage cross-repo des 17 fixtures iakaFrameGUI apres detection d'un contrat fantome (Task sans Write, sha-coherent, tests verts). Gate Legolas FAIL puis PASS apres correction. Dette cause racine ouverte : aucune garde contre la derive cohérente cross-repo. |
 | 2026-07-19 21:01 | version | v0.17.13 | main | Parite des generateurs de contrat (CLI=reference) : golden fige des 8 contrats (gen-agents-golden.mjs) + sha256 + test de parite byte-a-byte ; cliquet bilateral (muter le golden casse les 2 depots). Miroir GUI v0.3.9. Gate Legolas PASS (346 tests). |
 | 2026-07-19 20:42 | version | v0.17.12 | main | Gouvernance methode : regle de restitution scindee en 2 invariants (DUR anti-ventriloquie inchange + SOUPLE cap ~15 lignes avec extrait fidele [...] + renvoi journal des gestes ; sous-agents jetables synthetisables) ; ligne pastille orange (transverse/hors phase) + collision rouge Gimli/Legolas documentee intentionnelle (pastille=phase pas agent) ; palette Aragorn completee. Canon odin/aragorn + methode-de-travail.md ; deployes regeneres par le generateur (agents generate --check EXIT 0, resync nathalie auto-corrigee). Pas de hook (arbitrage). Gate Legolas PASS. |

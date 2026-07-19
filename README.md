@@ -170,7 +170,7 @@ l'utilisateur → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par pro
 ```
 
 - 🦅 **Odin** — super-agent **portefeuille**, disponible en permanence, seul affecté à `C:\work` : switch d'équipe, démarrage projet, création d'équipe. **Au premier appel par session, il régénère et affiche le dashboard projets** (`naonedge-dashboard\scan.ps1` puis `index.html`) avant la synthèse.
-- 🛡️ **Aragorn** — coordination entre agents, **3 phases** (cadrage → réalisation → staging), dispatch à la demande, canal **Slack** (via n8n).
+- 🛡️ **Aragorn** — coordination entre agents, **3 phases** (cadrage → réalisation → staging), dispatch à la demande, canal **iakaHub ↔ Discord** (avec repli terminal).
 - 🧙 **Gandalf** (cadrage) · ⚒️ **Gimli** (dev + devops jusqu'au staging) · 🏹 **Legolas** (qualité) · 🌉 **Helm** (**squad prod** : déploiement + surveillance + alertes) · 🎭 **Loki** (design) · 📖 **Nathalie** (guides).
 
 **Modèle d'étanchéité** : définitions mutualisées (source unique), exécution étanche (chaque
