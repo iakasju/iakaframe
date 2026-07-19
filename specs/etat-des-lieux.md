@@ -1,23 +1,24 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-19 20:42 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-19 21:01 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.17.12 |
+| Version | v0.17.13 |
 | Branche | main |
-| Dernier commit | 022f1a6 chore(iakaframe): update etat des lieux + commit global (version v0.17.11) |
+| Dernier commit | a23e393 chore(iakaframe): update etat des lieux + commit global (version v0.17.12) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 839 |
-| Note | Gouvernance methode : regle de restitution scindee en 2 invariants (DUR anti-ventriloquie inchange + SOUPLE cap ~15 lignes avec extrait fidele [...] + renvoi journal des gestes ; sous-agents jetables synthetisables) ; ligne pastille orange (transverse/hors phase) + collision rouge Gimli/Legolas documentee intentionnelle (pastille=phase pas agent) ; palette Aragorn completee. Canon odin/aragorn + methode-de-travail.md ; deployes regeneres par le generateur (agents generate --check EXIT 0, resync nathalie auto-corrigee). Pas de hook (arbitrage). Gate Legolas PASS. |
+| Fichiers (hors .git/node_modules) | 849 |
+| Note | Parite des generateurs de contrat (CLI=reference) : golden fige des 8 contrats (gen-agents-golden.mjs) + sha256 + test de parite byte-a-byte ; cliquet bilateral (muter le golden casse les 2 depots). Miroir GUI v0.3.9. Gate Legolas PASS (346 tests). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `a23e393` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.12) |
 | `022f1a6` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.11) |
 | `f6fb39c` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.10) |
 | `2147100` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.9) |
@@ -27,7 +28,6 @@
 | `9cd7bbb` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.5) |
 | `8ecfbc1` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.4) |
 | `d355120` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.3) |
-| `6a43b12` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.2) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-19 21:01 | version | v0.17.13 | main | Parite des generateurs de contrat (CLI=reference) : golden fige des 8 contrats (gen-agents-golden.mjs) + sha256 + test de parite byte-a-byte ; cliquet bilateral (muter le golden casse les 2 depots). Miroir GUI v0.3.9. Gate Legolas PASS (346 tests). |
 | 2026-07-19 20:42 | version | v0.17.12 | main | Gouvernance methode : regle de restitution scindee en 2 invariants (DUR anti-ventriloquie inchange + SOUPLE cap ~15 lignes avec extrait fidele [...] + renvoi journal des gestes ; sous-agents jetables synthetisables) ; ligne pastille orange (transverse/hors phase) + collision rouge Gimli/Legolas documentee intentionnelle (pastille=phase pas agent) ; palette Aragorn completee. Canon odin/aragorn + methode-de-travail.md ; deployes regeneres par le generateur (agents generate --check EXIT 0, resync nathalie auto-corrigee). Pas de hook (arbitrage). Gate Legolas PASS. |
 | 2026-07-19 20:36 | version | v0.17.11 | main | Generalisation agnostique (axes restants) : 3 capacites (conteneurisation/memoire-humaine/journal-conversation) au-dessus des produits keep-id (docker/appflowy-doc/log-conversation, +layer:product) ; Nathalie repointee sur la capacite (ne nomme plus le produit) ; init->conteneurisation = prose conditionnelle (pas subskill) ; design = patron B documente. Recount README/HTML : pool reel = 22 skills. Gate Legolas PASS (342 tests verts). |
 | 2026-07-19 18:19 | version | v0.17.10 | main | Generateur persona->contrat (fix cause racine de la derive) : module generate-agents (renderAgentContract + toolsForPersona depuis le binding), rewiring affectPersona/listPersonas (fini la copie brute du dossier mort), verbe 'agents generate [--check]' (filet anti-derive CI), champ description seede dans les 8 personas (I3 preserve). Golden + 14 tests. Reconciliation du deploye odin (soft-wrap canon). Gate Legolas PASS (342 tests verts). Voie A + golden parite. |

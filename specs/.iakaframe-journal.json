@@ -258,5 +258,15 @@
     "dirty": true,
     "files": 839,
     "note": "Gouvernance methode : regle de restitution scindee en 2 invariants (DUR anti-ventriloquie inchange + SOUPLE cap ~15 lignes avec extrait fidele [...] + renvoi journal des gestes ; sous-agents jetables synthetisables) ; ligne pastille orange (transverse/hors phase) + collision rouge Gimli/Legolas documentee intentionnelle (pastille=phase pas agent) ; palette Aragorn completee. Canon odin/aragorn + methode-de-travail.md ; deployes regeneres par le generateur (agents generate --check EXIT 0, resync nathalie auto-corrigee). Pas de hook (arbitrage). Gate Legolas PASS."
+  },
+  {
+    "date": "2026-07-19 21:01",
+    "reason": "version",
+    "version": "v0.17.13",
+    "branch": "main",
+    "commit": "a23e393 chore(iakaframe): update etat des lieux + commit global (version v0.17.12)",
+    "dirty": true,
+    "files": 849,
+    "note": "Parite des generateurs de contrat (CLI=reference) : golden fige des 8 contrats (gen-agents-golden.mjs) + sha256 + test de parite byte-a-byte ; cliquet bilateral (muter le golden casse les 2 depots). Miroir GUI v0.3.9. Gate Legolas PASS (346 tests)."
   }
 ]
