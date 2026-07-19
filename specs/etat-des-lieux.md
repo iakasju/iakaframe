@@ -1,23 +1,24 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-19 20:36 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-19 20:42 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.17.11 |
+| Version | v0.17.12 |
 | Branche | main |
-| Dernier commit | f6fb39c chore(iakaframe): update etat des lieux + commit global (version v0.17.10) |
+| Dernier commit | 022f1a6 chore(iakaframe): update etat des lieux + commit global (version v0.17.11) |
 | Arbre | MODIFICATIONS NON COMMITEES |
 | Fichiers (hors .git/node_modules) | 839 |
-| Note | Generalisation agnostique (axes restants) : 3 capacites (conteneurisation/memoire-humaine/journal-conversation) au-dessus des produits keep-id (docker/appflowy-doc/log-conversation, +layer:product) ; Nathalie repointee sur la capacite (ne nomme plus le produit) ; init->conteneurisation = prose conditionnelle (pas subskill) ; design = patron B documente. Recount README/HTML : pool reel = 22 skills. Gate Legolas PASS (342 tests verts). |
+| Note | Gouvernance methode : regle de restitution scindee en 2 invariants (DUR anti-ventriloquie inchange + SOUPLE cap ~15 lignes avec extrait fidele [...] + renvoi journal des gestes ; sous-agents jetables synthetisables) ; ligne pastille orange (transverse/hors phase) + collision rouge Gimli/Legolas documentee intentionnelle (pastille=phase pas agent) ; palette Aragorn completee. Canon odin/aragorn + methode-de-travail.md ; deployes regeneres par le generateur (agents generate --check EXIT 0, resync nathalie auto-corrigee). Pas de hook (arbitrage). Gate Legolas PASS. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `022f1a6` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.11) |
 | `f6fb39c` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.10) |
 | `2147100` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.9) |
 | `c70314d` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.8) |
@@ -27,7 +28,6 @@
 | `8ecfbc1` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.4) |
 | `d355120` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.3) |
 | `6a43b12` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.2) |
-| `5acdbd0` | 2026-07-18 | chore(kit-claude): anonymise les URL Forgejo des CLAUDE.md (levee §4, sjupin -> <user>) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-19 20:42 | version | v0.17.12 | main | Gouvernance methode : regle de restitution scindee en 2 invariants (DUR anti-ventriloquie inchange + SOUPLE cap ~15 lignes avec extrait fidele [...] + renvoi journal des gestes ; sous-agents jetables synthetisables) ; ligne pastille orange (transverse/hors phase) + collision rouge Gimli/Legolas documentee intentionnelle (pastille=phase pas agent) ; palette Aragorn completee. Canon odin/aragorn + methode-de-travail.md ; deployes regeneres par le generateur (agents generate --check EXIT 0, resync nathalie auto-corrigee). Pas de hook (arbitrage). Gate Legolas PASS. |
 | 2026-07-19 20:36 | version | v0.17.11 | main | Generalisation agnostique (axes restants) : 3 capacites (conteneurisation/memoire-humaine/journal-conversation) au-dessus des produits keep-id (docker/appflowy-doc/log-conversation, +layer:product) ; Nathalie repointee sur la capacite (ne nomme plus le produit) ; init->conteneurisation = prose conditionnelle (pas subskill) ; design = patron B documente. Recount README/HTML : pool reel = 22 skills. Gate Legolas PASS (342 tests verts). |
 | 2026-07-19 18:19 | version | v0.17.10 | main | Generateur persona->contrat (fix cause racine de la derive) : module generate-agents (renderAgentContract + toolsForPersona depuis le binding), rewiring affectPersona/listPersonas (fini la copie brute du dossier mort), verbe 'agents generate [--check]' (filet anti-derive CI), champ description seede dans les 8 personas (I3 preserve). Golden + 14 tests. Reconciliation du deploye odin (soft-wrap canon). Gate Legolas PASS (342 tests verts). Voie A + golden parite. |
 | 2026-07-19 18:06 | version | v0.17.9 | main | Modele de composition : triplet {runner,model,tools} dans le binding (=contrats deployes), multi-skills (odin+iakastart, nathalie+appflowy), sous-skills + modele AGNOSTIQUE EN COUCHES (capacite gestion-de-source -> famille git -> produit forgejo ; init/update agnostises, docker retire de init) ; integrite T1/T5/T6+subskills. Gate Legolas PASS. Cote GUI (v0.3.8) : parseur triplet de-ampute, checkFrameRefs elargi, reservoir skill<-skills, projection tools. |

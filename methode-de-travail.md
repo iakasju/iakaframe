@@ -214,9 +214,18 @@ une simple restitution ou un compte rendu) :
   | Dev | 🔴 | rouge |
   | Staging | 🟢 | vert |
   | Prod | 🟣 | violet |
+  | **Transverse / coordination (défaut hors phase)** | **🟠** | **orange** |
   | Portefeuille (🦅 Odin) | 🟡 | or |
 
-  Agents transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la **phase servie**, 🟠 par défaut.
+  Agents transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la **phase servie**
+  (🔵/🔴/🟢/🟣) quand ils en servent une, **🟠 par défaut** (besoin transverse non rattaché à une
+  phase colorée : coordination, design, doc).
+
+- **Une pastille est PARTAGÉE entre agents d'une même phase — c'est le `[Agent]` du badge qui
+  disambigue, jamais la couleur seule.** Ainsi ⚒️ Gimli (dev) et 🏹 Legolas (qualité) sont **tous
+  deux 🔴 en P2** (et 🟢 en P3) : cette collision est **intentionnelle**, fidèle au principe
+  « pastille = phase, pas agent ». `🔴 [ROYAUME][Gimli]` et `🔴 [ROYAUME][Legolas]` se distinguent
+  par le **nom d'agent** du badge, jamais par la pastille.
 
 - **Périmètre STRICT** : seulement les **paroles adressées à l'utilisateur**. **Jamais** sur les
   **logs**, les **traces de réflexion**, la sortie d'outils. L'identité dit « un agent te
@@ -274,12 +283,26 @@ dispatche », « règle enregistrée », « voilà le retour »…). A ne repren
 clôture de B.
 
 **Citation verbatim — aucun agent ne parle sous le badge d'un autre.** Un badge `[ROYAUME][Agent]`
-n'introduit **QUE les mots propres de l'agent qu'il nomme**. Lors d'une restitution en relais,
-l'orchestrateur **cite VERBATIM** la sortie de l'émetteur sous le badge de celui-ci — **jamais** une
-reformulation, condensation, sélection ou synthèse. Tout commentaire/condensé est la **voix de
-l'orchestrateur** et apparaît **sous SON propre badge**. **Interdiction de ventriloquie** : on
-n'écrit jamais le badge d'un agent pour lui faire dire des mots qu'il n'a pas produits. (Portée des
-deux règles ci-dessus : **orchestrateurs uniquement** — 🦅 Odin / 🛡️ Aragorn / Claude principal.)
+n'introduit **QUE les mots propres de l'agent qu'il nomme**. Deux invariants distincts régissent la
+restitution en relais :
+
+- **Invariant DUR (jamais assoupli) — attribution / anti-ventriloquie.** Sous le badge d'un agent,
+  **seuls ses mots exacts** apparaissent : on n'écrit **jamais** le badge d'un agent pour lui faire
+  dire des mots qu'il n'a pas produits, on ne le paraphrase **jamais** « en je », on ne fond
+  **jamais** son travail dans la voix de l'orchestrateur. Tout commentaire/condensé est la **voix de
+  l'orchestrateur**, sous **SON propre badge**, séparé. **Cet invariant ne bouge pas.**
+- **Invariant SOUPLE (volume) — mode de restitution.** Si le rendu de l'émetteur tient en
+  **≤ ~15 lignes**, **verbatim intégral obligatoire**. **Au-delà**, l'orchestrateur peut citer un
+  **extrait fidèle** — des **mots exacts** de l'agent (donc l'invariant dur reste préservé), juste
+  **tronqué et signalé** par la marque `[…]` — sous le badge de l'émetteur, **plus un renvoi** au
+  **journal des gestes** qui archive l'intégral. L'extrait privilégie les passages porteurs
+  (ouverture/clôture, verdict, chiffres, fichiers).
+
+**Sous-agents jetables** (`Explore`/`Plan`/`general-purpose`, analyse) : pas de badge d'émetteur à
+protéger → leur matériau est **librement synthétisable** par l'orchestrateur **sous SON propre
+badge** (aucune ventriloquie possible). Le régime des deux invariants ci-dessus vaut pour les
+**agents du roster** uniquement. (Portée : **orchestrateurs uniquement** — 🦅 Odin / 🛡️ Aragorn /
+Claude principal.)
 
 ### Jalons (gates) & clôture de session
 

@@ -248,5 +248,15 @@
     "dirty": true,
     "files": 839,
     "note": "Generalisation agnostique (axes restants) : 3 capacites (conteneurisation/memoire-humaine/journal-conversation) au-dessus des produits keep-id (docker/appflowy-doc/log-conversation, +layer:product) ; Nathalie repointee sur la capacite (ne nomme plus le produit) ; init->conteneurisation = prose conditionnelle (pas subskill) ; design = patron B documente. Recount README/HTML : pool reel = 22 skills. Gate Legolas PASS (342 tests verts)."
+  },
+  {
+    "date": "2026-07-19 20:42",
+    "reason": "version",
+    "version": "v0.17.12",
+    "branch": "main",
+    "commit": "022f1a6 chore(iakaframe): update etat des lieux + commit global (version v0.17.11)",
+    "dirty": true,
+    "files": 839,
+    "note": "Gouvernance methode : regle de restitution scindee en 2 invariants (DUR anti-ventriloquie inchange + SOUPLE cap ~15 lignes avec extrait fidele [...] + renvoi journal des gestes ; sous-agents jetables synthetisables) ; ligne pastille orange (transverse/hors phase) + collision rouge Gimli/Legolas documentee intentionnelle (pastille=phase pas agent) ; palette Aragorn completee. Canon odin/aragorn + methode-de-travail.md ; deployes regeneres par le generateur (agents generate --check EXIT 0, resync nathalie auto-corrigee). Pas de hook (arbitrage). Gate Legolas PASS."
   }
 ]
