@@ -5,7 +5,7 @@ teamId: iakaframe-8
 node: claude
 origin: forge-default
 assignments:
-  - { personaId: odin,     runner: claude-code, model: "opus",   tools: [Read, Grep, Glob, Bash] }
+  - { personaId: odin,     runner: claude-code, model: "opus",   tools: [Read, Grep, Glob, Bash, Task] }
   - { personaId: aragorn,  runner: claude-code, model: "opus",   tools: [Read, Grep, Glob, Write, Bash, Task] }
   - { personaId: gandalf,  runner: claude-code, model: "opus",   tools: [Read, Grep, Glob, Write, Edit, WebSearch, WebFetch] }
   - { personaId: gimli,    runner: claude-code, model: "sonnet", tools: [Read, Edit, Write, Bash, Grep, Glob] }

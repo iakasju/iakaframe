@@ -80,7 +80,8 @@ test('toolsForPersona : renvoie le tools de l assignment homonyme du binding', (
   const binding = loadDefaultBinding(REPO);
   assert.deepEqual(toolsForPersona(binding, 'gandalf'), ['Read', 'Grep', 'Glob', 'Write', 'Edit', 'WebSearch', 'WebFetch']);
   assert.deepEqual(toolsForPersona(binding, 'gimli'), ['Read', 'Edit', 'Write', 'Bash', 'Grep', 'Glob']);
-  assert.deepEqual(toolsForPersona(binding, 'odin'), ['Read', 'Grep', 'Glob', 'Bash']);
+  // Task accorde a Odin (arbitrage CH-B, 2026-07-19) : rend actif son guardrail `delegation`.
+  assert.deepEqual(toolsForPersona(binding, 'odin'), ['Read', 'Grep', 'Glob', 'Bash', 'Task']);
 });
 
 test('toolsForPersona : persona absente du binding => [] (=> ligne omise en aval)', () => {
