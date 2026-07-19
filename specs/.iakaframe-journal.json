@@ -268,5 +268,15 @@
     "dirty": true,
     "files": 849,
     "note": "Parite des generateurs de contrat (CLI=reference) : golden fige des 8 contrats (gen-agents-golden.mjs) + sha256 + test de parite byte-a-byte ; cliquet bilateral (muter le golden casse les 2 depots). Miroir GUI v0.3.9. Gate Legolas PASS (346 tests)."
+  },
+  {
+    "date": "2026-07-19 22:35",
+    "reason": "version",
+    "version": "v0.17.14",
+    "branch": "main",
+    "commit": "7c4d51b chore(iakaframe): update etat des lieux + commit global (version v0.17.13)",
+    "dirty": true,
+    "files": 851,
+    "note": "Audit + amelioration d'Aragorn (7 dimensions, cadrage Gandalf) : QW-1/2 purge scorie Slack -> canal iakaHub<->Discord (skill + roster methode) ; QW-3/4 geste 'iakaframe jalon' + obligation d'estimation dev au jalon P1->P2 dans la charte ; CH-1 arbitrage decideur option A = Task accorde (delegation-guard actif) ; CH-3 Write ciborne aux artefacts de pilotage (specs/PROJET.md), jamais de code ; CH-2 sous-skill partage iakaframe-jalon (Aragorn + Gandalf) ; CH-4 garde anti-auto-cast DIFFEREE par arbitrage (contractuel seul), consignee en note additive. Recompte 22->23 skills + docs/commandes.md. Parite 3 couches OK (canon->golden->deploye 8/8) + re-vendorage cross-repo des 17 fixtures iakaFrameGUI apres detection d'un contrat fantome (Task sans Write, sha-coherent, tests verts). Gate Legolas FAIL puis PASS apres correction. Dette cause racine ouverte : aucune garde contre la derive cohérente cross-repo."
   }
 ]

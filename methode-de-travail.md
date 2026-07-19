@@ -186,11 +186,13 @@ nommant (« lance Gimli sur X ») ou en décrivant la tâche (Aragorn route). Ar
 **ordre de mission** (quoi, base, critère de fin), vérifie le **gate amont** de la phase, puis
 **dispatche le subagent** (outil Agent en session, ou n8n/Hermes en chaîne automatisée).
 
-**Canal de communication — Slack (bidirectionnel, via n8n).** Aragorn dialogue avec l'utilisateur
-sur **Slack**, piloté par n8n (qui porte les identifiants — aucun secret côté agent) :
-sortant (états des phases, blocages, **demandes de feu vert**) et entrant (arbitrages, ordres
-de dispatch, **feu vert prod** captés par un trigger n8n). Slack devient un **canal de
-pilotage à distance**. Équivalent self-hosted : Mattermost (même schéma).
+**Canal de communication — iakaHub ↔ Discord (bidirectionnel, avec repli terminal).** Aragorn
+dialogue avec l'utilisateur via `ask()` : **en terminal si le décideur est présent**, **sinon via
+iakaHub → Discord** (le canal du projet — aucun secret côté agent) : sortant (états des phases,
+blocages, **demandes de feu vert**) et entrant (arbitrages, ordres de dispatch, **feu vert prod**
+captés par iakaHub). iakaHub↔Discord est un **canal de pilotage à distance** ; si la box est
+injoignable, tout **dégrade proprement vers le terminal** (cf. § iakaHub plus bas). Ce n'est pas
+une dépendance dure.
 
 ### Identité des agents — qui te parle, et depuis quelle phase
 
@@ -240,7 +242,7 @@ une simple restitution ou un compte rendu) :
   sont **bannis** du texte des badges et des messages d'identité : ils sont **redondants** avec la
   position de la pastille. On dit « ouverture (pastille avant) » et « clôture (pastille après) ».
 
-**Rendu.** Pastille emoji **partout** (terminal, Slack, HTML) ; en session le libellé passe en
+**Rendu.** Pastille emoji **partout** (terminal, Discord, HTML) ; en session le libellé passe en
 `code inline` pour ressortir ; en **HTML** il prend la **vraie couleur** de la phase. Exemples :
 
 > 🔵 `[IAKABOX][Gandalf]` instruction prête à valider.

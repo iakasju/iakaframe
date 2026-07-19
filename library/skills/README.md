@@ -1,6 +1,6 @@
 # Skills iakaframe — Le savoir-faire de l'équipe d'agents
 
-**Vingt-deux skills Claude** qui rendent la méthode iakaframe exécutable. Depuis la formalisation
+**Vingt-trois skills Claude** qui rendent la méthode iakaframe exécutable. Depuis la formalisation
 de l'**équipe d'agents**, une skill = le **savoir-faire d'un agent** (sa méthode détaillée),
 ou une **brique de cycle de vie** transverse. Le subagent (`agents/<nom>.md`) est le
 *contrat* ; la skill est la *méthode*.
@@ -31,7 +31,7 @@ skills dans un projet. Chaque skill se déclenche quand le contexte correspond �
 > ⚒️ **Gimli** (développement + devops, P2 → P3) n'a **pas** de skill dédiée : il est porté par le
 > `CLAUDE.md` du projet et l'outillage.
 
-## Skills méthode & briques (15)
+## Skills méthode & briques (16)
 
 | Skill | Couche | Rôle / brique | Se déclenche quand… |
 |---|---|---|---|
@@ -39,6 +39,7 @@ skills dans un projet. Chaque skill se déclenche quand le contexte correspond �
 | `iakaframe-etat-des-lieux` | — | Cycle de doc (lecture) | « où en est le projet », « fais le point », reprise |
 | `iakaframe-update` | — | Cycle de doc (écriture) | « update iakaframe », « checkpoint », « commit global », « pousse tout » |
 | `iakastart` | — | Bootstrap team (banner + roster, sans spawn) | « iakastart », « iakaframe », « odin » |
+| `iakaframe-jalon` | — | Pose d'un jalon (gate visible : titre FIGlet + tableau émetteur/contenu/récepteur) | ouvrir/fermer un gate entre phases (cadrage→dev, dev→qualité, qualité→prod, clôture) |
 | `iakaframe-learning` | — | Surface `/learning` (revue du réservoir d'apprentissage) | « /learning », revoir les apprentissages |
 | `iakaframe-retrait` | — | Surface `/retrait` (détacher/retirer un élément matérialisé) | « /retrait », retirer un élément |
 | `iakaframe-gestion-de-source` | capacité | Source-control (agnostique du serveur) | « versionner le projet », « committer », init/update |
@@ -66,6 +67,8 @@ absent = skill **atomique** (le cas par défaut). Miroir, au niveau skill, de «
 | `iakaframe-init` | `iakaframe-gestion-de-source`, `iakaframe-etat-des-lieux` | amorçage : mise sous gestion de source (capacité), premier état des lieux |
 | `iakaframe-update` | `iakaframe-etat-des-lieux`, `iakaframe-gestion-de-source` | checkpoint : snapshot + versionnement via la capacité source-control |
 | `iakaframe-odin` | `iakastart` | le portefeuille lève d'abord la team (bootstrap) |
+| `iakaframe-aragorn` | `iakaframe-jalon` | la coordination pose les jalons de transition (geste partagé, DRY) |
+| `iakaframe-cadrage` | `iakaframe-jalon` | le cadrage pose le jalon P1→P2 (instruction prête + estimation) |
 | `iakaframe-gestion-de-source` | `iakaframe-git` | capacité source-control → famille protocole git |
 | `iakaframe-git` | `iakaframe-forgejo` | famille git → produit hébergeur (Forgejo par défaut) |
 | `iakaframe-conteneurisation` | `iakaframe-docker` | capacité isolation → produit moteur de conteneurs (Docker par défaut) |

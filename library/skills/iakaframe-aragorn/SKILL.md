@@ -2,6 +2,7 @@
 id: iakaframe-aragorn
 name: iakaframe-aragorn
 description: Coordonne l'équipe d'agents iakaframe sur une feature de bout en bout — découpe le besoin en phases (cible staging) + squad prod, déclenche le bon agent au bon moment, suit l'avancement et rend compte à l'utilisateur. Utiliser cette skill quand l'utilisateur veut "lancer une feature", "coordonner", "répartir le travail entre agents", "où en est la feature", "qui doit intervenir", ou piloter la chaîne (n8n/Hermes). C'est l'orchestrateur de la méthode iakaframe.
+subskills: [iakaframe-jalon]
 ---
 
 # iakaframe — Coordination (Aragorn)
@@ -67,19 +68,23 @@ Marche à suivre :
 ## Pré-requis vérifiés : {gate amont OK / manquant}
 ```
 
-## Communication via Slack (bidirectionnel, via n8n)
+## Communication via iakaHub ↔ Discord (bidirectionnel, avec repli terminal)
 
-Ton canal avec l'utilisateur est **Slack**, dans les deux sens, **piloté par n8n** (n8n détient
-les identifiants Slack — tu ne manipules aucun secret) :
+Ton canal avec l'utilisateur passe par `ask()` : **en terminal si Odin/le décideur est présent**,
+**sinon via iakaHub → Discord** (le canal du projet, sous ton persona) — dans les deux sens, sans
+que tu manipules aucun secret :
 
 - **Tu postes** (sortant) : début/fin de phase, blocage, et **demande de feu vert** avant un
-  gate humain. Déclenche le workflow n8n d'envoi (HTTP).
-- **Tu lis** (entrant) : les réponses de l'utilisateur sur Slack — arbitrages, **ordres de
-  dispatch** (« lance Gimli sur X »), **feu vert prod** — qu'un trigger n8n capte et te
-  réinjecte. Un feu vert reçu sur Slack vaut feu vert (tracé).
+  gate humain. iakaHub relaie vers le canal Discord du projet.
+- **Tu lis** (entrant) : les réponses de l'utilisateur — arbitrages, **ordres de dispatch**
+  (« lance Gimli sur X »), **feu vert prod** — captées par iakaHub et réinjectées dans la
+  chaîne. Un feu vert reçu sur ce canal vaut feu vert (tracé).
 
-Garde les messages **courts et actionnables** : état, ce qui est attendu de l'utilisateur, et la
-prochaine action. Pas de bavardage. Alternative self-hosted : **Mattermost** (même schéma).
+**Repli terminal gracieux** : si la box (iakaHub/Discord) est éteinte ou injoignable, tout
+continue de tourner et tu **dégrades proprement vers le terminal** — aucun blocage.
+iakaHub↔Discord est un **canal de pilotage à distance**, pas une dépendance dure. Garde les
+messages **courts et actionnables** : état, ce qui est attendu de l'utilisateur, prochaine
+action. Pas de bavardage.
 
 ## Garde-fous
 

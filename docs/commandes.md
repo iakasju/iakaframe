@@ -8,7 +8,7 @@
 
 | Élément | Valeur |
 |---|---|
-| Dernière mise à jour | 2026-07-17 |
+| Dernière mise à jour | 2026-07-19 |
 | Version CLI documentée | `@naonedge/iakaframe` **v0.1.0** (source : `cli/package.json`) |
 | Commandes CLI couvertes | **26 / 26** (une par `case` de `cli/src/index.js`, alias `use` inclus) |
 | Sources de vérité | `~/.claude/CLAUDE.md` (déclencheurs), `cli/src/index.js` (bloc `HELP` + `switch`), `cli/src/commands/*.js` |
@@ -85,6 +85,13 @@ est porté par la skill `iakastart`** ; rappel synthétique :
 Les skills s'invoquent par `/<skill>` (mécanisme natif de découverte/invocation). Exemples de
 skills-rôles : `iakaframe-odin`, `iakaframe-nathalie`, `iakaframe-appflowy-doc`. La skill
 `iakastart` est, elle, déclenchée par langage naturel (cf. A.1).
+
+Certaines skills sont des **sous-skills partagés** : composés par plusieurs skills-rôles via
+`subskills:`, ils restent invocables directement.
+
+| Skill | Composée par | Ce qu'elle fait |
+|---|---|---|
+| `iakaframe-jalon` | `iakaframe-aragorn`, `iakaframe-cadrage` | Pose un **jalon** (gate visible) à une transition de phase : titre ASCII FIGlet `<PROJET> - JALON : <nom>` + tableau à 3 zones **émetteur / contenu / récepteur**, fichiers en `chemin:ligne`. S'appuie sur le verbe CLI `jalon` (cf. B.3). |
 
 ---
 
