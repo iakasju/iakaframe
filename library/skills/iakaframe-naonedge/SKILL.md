@@ -1,7 +1,7 @@
 ---
 id: iakaframe-naonedge
 name: iakaframe-naonedge
-description: Produit un support visuel on-brand (document HTML, deck/slides, flyer, logo, page) en appliquant LA BONNE charte parmi toutes celles définies (catalogue design-*/), sans diverger de la charte canon. Il n'y a pas de charte par défaut unique : le défaut dépend du contexte de travail (projet de dev logiciel → Studio clair ; travaux NaonEdge → NaonEdge dark premium or ; conseil/pro → Cinabre, à confirmer). Utiliser cette skill quand l'utilisateur veut "faire une doc HTML", "un support", "une présentation", "un deck", "un flyer", "une page", "mettre au propre", "en style <charte>", ou présenter quelque chose de façon soignée. C'est l'agent Loki — la brique design de la méthode iakaframe.
+description: Produit un support visuel on-brand (document HTML, deck/slides, flyer, logo, page) en appliquant LA BONNE charte parmi toutes celles définies (catalogue design-*/), sans diverger de la charte canon. Il n'y a pas de charte par défaut unique : le défaut dépend du contexte de travail (projet de dev logiciel → Studio clair ; travaux NaonEdge → NaonEdge dark premium or ; conseil/pro → NaonEdge dark). Utiliser cette skill quand l'utilisateur veut "faire une doc HTML", "un support", "une présentation", "un deck", "un flyer", "une page", "mettre au propre", "en style <charte>", ou présenter quelque chose de façon soignée. C'est l'agent Loki — la brique design de la méthode iakaframe.
 ---
 
 # iakaframe — Studio de design (Loki)
@@ -32,7 +32,17 @@ Le défaut de charte dépend du **contexte de travail**. Loki **résout dynamiqu
 |---|---|---|---|
 | Projet de **dev logiciel** (iakaFrameGUI, iakaframe, apps) | **Studio clair** | `design-studio-clair/` | tranché |
 | **Travaux NaonEdge** (supports de l'entité NaonEdge) | **NaonEdge** (dark premium · or) | `design-naonedge/` | tranché |
-| **Conseil / pro** | **Cinabre** | `design-cinabre/` | **à confirmer** (point ouvert) |
+| **Conseil / pro** | *cf. règle `charte-defaut-conseil-pro`* | *(idem)* | tranché |
+
+> **Règle `charte-defaut-conseil-pro`** — la charte par défaut du contexte **conseil / pro** est
+> **NaonEdge dark**, dossier **`design-naonedge/`**. Tranché par le décideur (2026-07-19) : ce
+> n'est plus un point ouvert.
+>
+> Règle **nommée** et non valeur en cellule : quand la charte par défaut deviendra un **paramètre
+> du frame**, la reprise sera un **remplacement localisé**. Ce tableau est **dupliqué** depuis le
+> canon détenu par `library/personas/loki.md` (§ « Charte par défaut ») — la déduplication
+> charte↔skill est un sujet de **structure**, pas traité ici. En cas d'écart, **`loki.md` fait
+> foi**.
 
 Une **demande explicite** (« en style X ») **prime** toujours sur le défaut contextuel. Ne jamais
 improviser une palette : **lire la charte cible** avant de produire.
