@@ -38,11 +38,11 @@ est **`IAKAFRAME_HOME`** (`resolve_iakaframe_home()`), partagée avec le CLI.
 
 ### 2.2 Structure réelle de StefFrame2 (déjà DOUBLE, compatible)
 - **Pools à plat** à la racine : `<root>/{personas,roles,principles,rituals,guardrails,scaffolds,
-  workflows,methods,teams,bindings}/*.md` + `<root>/skills/` (16 dossiers).
+  workflows,methods,teams,bindings}/*.md` + `<root>/skills/` (17 dossiers).
 - **Miroir `library/`** : `<root>/library/{personas,principles,rituals,guardrails,roles,workflows,
   scaffolds,skills}/…` (les **8** types de pool ; skills en dossiers `<id>/SKILL.md`).
-- **Comptages réels** : personas **8** (+`_TEMPLATE` ignoré), roles **8**, principles **14**,
-  rituals **5**, guardrails **3**, scaffolds **2**, workflows **1**, skills **16**, methods **1**
+- **Comptages réels** : personas **8** (+`_TEMPLATE` ignoré), roles **8**, principles **16**,
+  rituals **5**, guardrails **3**, scaffolds **2**, workflows **1**, skills **17**, methods **1**
   (`methods/iakaframe.md`), teams **1** (`teams/iakaframe-8.md`), bindings **1**
   (`bindings/iakaframe-claude-default.md`).
 
@@ -169,12 +169,12 @@ lequel charger le frame comme un tout (É5).
 |---|---|---|---|---|---|
 | personas | pool | `library/personas/*.md` | `pool_read_all("personas")` ⟵ **G1** | `persona.ts` | **8** |
 | roles | pool | `library/roles/*.md` | `pool_read_all("roles")` ⟵ **G1** | `roles.ts` | **8** |
-| principles | pool | `library/principles/*.md` | `pool_read_all("principles")` ⟵ **G1** | `principle.ts` | **14** |
+| principles | pool | `library/principles/*.md` | `pool_read_all("principles")` ⟵ **G1** | `principle.ts` | **16** |
 | rituals | pool | `library/rituals/*.md` | `pool_read_all("rituals")` ⟵ **G1** | `ritual.ts` | **5** |
 | guardrails | pool | `library/guardrails/*.md` | `pool_read_all("guardrails")` ⟵ **G1** | `guardrail.ts` | **3** |
 | scaffolds | pool | `library/scaffolds/*.md` | `pool_read_all("scaffolds")` ⟵ **G1** | `scaffold.ts` | **2** |
 | workflows | pool | `library/workflows/*.md` | `pool_read_all("workflows")` ⟵ **G1** | `workflow.ts` | **1** |
-| skills | pool | `library/skills/<id>/SKILL.md` | `pool_read_all("skills")` ⟵ **G1** | `skill.ts` | **16** |
+| skills | pool | `library/skills/<id>/SKILL.md` | `pool_read_all("skills")` ⟵ **G1** | `skill.ts` | **17** |
 | teams | collection | `teams/*.md` (à plat) | `library_list("teams")` (existe) | `team.ts` | **1** |
 | methods | collection | `methods/*.md` (à plat) | `library_list("methods")` (existe) | `method.ts` | **1** |
 | bindings | collection | `bindings/*.md` (à plat) | `library_list("bindings")` ⟵ **G2** | `binding.ts` | **1** |
@@ -203,13 +203,13 @@ lequel charger le frame comme un tout (É5).
 
 **A. Chargement complet (comptes exacts).** « Open frame » pointé sur `frames/releases/StefFrame2/`
 → la GUI affiche :
-- personas **8**, roles **8**, principles **14**, rituals **5**, guardrails **3**, scaffolds **2**,
-  workflows **1**, skills **16**, methods **1**, teams **1**, bindings **1**. (`_TEMPLATE.md` et
+- personas **8**, roles **8**, principles **16**, rituals **5**, guardrails **3**, scaffolds **2**,
+  workflows **1**, skills **17**, methods **1**, teams **1**, bindings **1**. (`_TEMPLATE.md` et
   `README.md` **exclus** — cf. `library_store.rs:152`.)
 
 **B. Intégrité référentielle = zéro erreur.** Sur l'ensemble chargé, tous les ids référencés
 existent :
-- `methods/iakaframe.md` : `principleIds`(14) ⊆ principles, `ritualIds`(5) ⊆ rituals,
+- `methods/iakaframe.md` : `principleIds`(16) ⊆ principles, `ritualIds`(5) ⊆ rituals,
   `guardrailIds`(3) ⊆ guardrails, `roleKeys`(8) ⊆ roles, `scaffoldIds`(2) ⊆ scaffolds,
   `workflowId`(1) résolu.
 - `teams/iakaframe-8.md` : `personas[]` ⊆ personas ; `coordinator` ∈ personas.

@@ -1,23 +1,24 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-19 11:12 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-19 12:18 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.17.6 |
+| Version | v0.17.7 |
 | Branche | main |
-| Dernier commit | 9cd7bbb chore(iakaframe): update etat des lieux + commit global (version v0.17.5) |
+| Dernier commit | e83bcaf chore(iakaframe): update etat des lieux + commit global (version v0.17.6) |
 | Arbre | MODIFICATIONS NON COMMITEES |
 | Fichiers (hors .git/node_modules) | 824 |
-| Note | Place d'Odin dans le roster (These A) : marqueur 'niveau portefeuille' dans teams/iakaframe-8.md (live + frame) — odin reste au roster comme super-agent au-dessus, hors dispatch projet. Liste personas (8) et coordinator inchanges. Inclut instructions place-odin-roster + iaka-help-agents (cadrages). |
+| Note | Dette doc : comptes SF2 rafraichis dans open-frame-gui-stefframe2.md (principes 14->16, skills 16->17, principleIds(14)->(16)) suite au resync v0.17.5. Doc uniquement. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `e83bcaf` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.6) |
 | `9cd7bbb` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.5) |
 | `8ecfbc1` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.4) |
 | `d355120` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.3) |
@@ -27,7 +28,6 @@
 | `82c7fec` | 2026-07-18 | chore(kit-owui): anonymise l'author_url Forgejo (sjupin -> <user>) |
 | `515fe05` | 2026-07-18 | fix(services): le ps1 emet l'enveloppe C-JSON { ok, generated, count, services } |
 | `cb1efb0` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.0) |
-| `938ff91` | 2026-07-18 | test(cli): garde anti-derive C-JSON + balayage du contrat de sortie |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-19 12:18 | version | v0.17.7 | main | Dette doc : comptes SF2 rafraichis dans open-frame-gui-stefframe2.md (principes 14->16, skills 16->17, principleIds(14)->(16)) suite au resync v0.17.5. Doc uniquement. |
 | 2026-07-19 11:12 | version | v0.17.6 | main | Place d'Odin dans le roster (These A) : marqueur 'niveau portefeuille' dans teams/iakaframe-8.md (live + frame) — odin reste au roster comme super-agent au-dessus, hors dispatch projet. Liste personas (8) et coordinator inchanges. Inclut instructions place-odin-roster + iaka-help-agents (cadrages). |
 | 2026-07-19 02:37 | version | v0.17.5 | main | Resync StefFrame2 (miroir du live, anonymisation preservee) : rapatrie 2 principes (interruption-minimale-odin, merge-versionnement anonymise) + skill retrait, principleIds 14->16, learning slim, roster team 8 (helm). Comptes doc alignes (16 SF1 -> 17 SF2). Gate Legolas PASS 8/8, live intact, 328 tests verts. |
 | 2026-07-18 21:06 | version | v0.17.4 | main | Fix resolution de kit pour init/onboard/bundle : nouveau resolveur kitDirForNode (kits/iakaframe-<famille> + fallback legacy kit-<famille>) ; init reparé pour claude/codex/openwebui, + test de non-regression. Gate Legolas PASS (328 tests verts). |

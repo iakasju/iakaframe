@@ -198,5 +198,15 @@
     "dirty": true,
     "files": 824,
     "note": "Place d'Odin dans le roster (These A) : marqueur 'niveau portefeuille' dans teams/iakaframe-8.md (live + frame) — odin reste au roster comme super-agent au-dessus, hors dispatch projet. Liste personas (8) et coordinator inchanges. Inclut instructions place-odin-roster + iaka-help-agents (cadrages)."
+  },
+  {
+    "date": "2026-07-19 12:18",
+    "reason": "version",
+    "version": "v0.17.7",
+    "branch": "main",
+    "commit": "e83bcaf chore(iakaframe): update etat des lieux + commit global (version v0.17.6)",
+    "dirty": true,
+    "files": 824,
+    "note": "Dette doc : comptes SF2 rafraichis dans open-frame-gui-stefframe2.md (principes 14->16, skills 16->17, principleIds(14)->(16)) suite au resync v0.17.5. Doc uniquement."
   }
 ]
