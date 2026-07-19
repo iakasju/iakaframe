@@ -188,5 +188,15 @@
     "dirty": true,
     "files": 823,
     "note": "Resync StefFrame2 (miroir du live, anonymisation preservee) : rapatrie 2 principes (interruption-minimale-odin, merge-versionnement anonymise) + skill retrait, principleIds 14->16, learning slim, roster team 8 (helm). Comptes doc alignes (16 SF1 -> 17 SF2). Gate Legolas PASS 8/8, live intact, 328 tests verts."
+  },
+  {
+    "date": "2026-07-19 11:12",
+    "reason": "version",
+    "version": "v0.17.6",
+    "branch": "main",
+    "commit": "9cd7bbb chore(iakaframe): update etat des lieux + commit global (version v0.17.5)",
+    "dirty": true,
+    "files": 824,
+    "note": "Place d'Odin dans le roster (These A) : marqueur 'niveau portefeuille' dans teams/iakaframe-8.md (live + frame) — odin reste au roster comme super-agent au-dessus, hors dispatch projet. Liste personas (8) et coordinator inchanges. Inclut instructions place-odin-roster + iaka-help-agents (cadrages)."
   }
 ]
