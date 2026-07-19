@@ -10,7 +10,7 @@ assignments:
   - { personaId: gandalf,  runner: claude-code, model: "opus",   tools: [Read, Grep, Glob, Write, Edit, WebSearch, WebFetch] }
   - { personaId: gimli,    runner: claude-code, model: "sonnet", tools: [Read, Edit, Write, Bash, Grep, Glob] }
   - { personaId: legolas,  runner: claude-code, model: "sonnet", tools: [Read, Grep, Glob, Bash] }
-  - { personaId: helm,     runner: claude-code, model: "sonnet", tools: [Read, Grep, Glob, Bash] }
+  - { personaId: helm,     runner: claude-code, model: "sonnet", tools: [Read, Grep, Glob, Write, Bash] }
   - { personaId: loki,     runner: claude-code, model: "sonnet", tools: [Read, Write, Edit, Grep, Glob, Bash, WebFetch, WebSearch] }
   - { personaId: nathalie, runner: claude-code, model: "sonnet", tools: [Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch] }
 ---
