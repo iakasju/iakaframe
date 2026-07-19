@@ -1,7 +1,7 @@
 ---
 id: iakaframe-init
 name: iakaframe-init
-description: Amorce un projet avec la structure iakaframe complète — arborescence specs/, CLAUDE.md, les sept contrats d'agent, le cadrage du workflow et le script qualité. Utiliser cette skill quand l'utilisateur veut "démarrer un projet iakaframe", "mettre en place la méthode", "initialiser la structure", "déposer les contrats d'agent", "onboarder un dépôt", ou amorcer un nouveau projet (ou un projet existant) selon la méthode de l'équipe augmentée. À lancer une fois au début d'un projet.
+description: Amorce un projet avec la structure iakaframe complète — arborescence specs/, CLAUDE.md, les 8 personas d'agent (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie), le cadrage du workflow et le script qualité. Utiliser cette skill quand l'utilisateur veut "démarrer un projet iakaframe", "mettre en place la méthode", "initialiser la structure", "déposer les contrats d'agent", "onboarder un dépôt", ou amorcer un nouveau projet (ou un projet existant) selon la méthode de l'équipe augmentée. À lancer une fois au début d'un projet.
 ---
 
 # iakaframe — Amorçage de projet
@@ -10,62 +10,67 @@ Cette skill dépose la structure de travail de la méthode iakaframe sur un proj
 existant. Elle matérialise la séparation des rôles : la réflexion vit dans `specs/`, le
 code dans `src/`, l'outillage dans `scripts/`.
 
-## Ce que la skill installe
+## Voie canonique — déléguer au CLI (pas de scaffold recopié)
 
-Les fichiers sont bundlés dans `assets/`. Copie-les vers le projet en préservant
-l'arborescence :
+L'amorçage **délègue au CLI `iakaframe`**, qui fait déjà le bon travail et reste la **source de
+vérité** (les personas vivent dans `library/personas/`, jamais recopiées en dur dans cette skill).
+Deux verbes suffisent :
 
-```
-specs/
-├── instructions/
-│   ├── _AGENT_TEMPLATE.md        # gabarit pour composer un agent
-│   ├── _workflow.md              # cadrage des interactions (orchestration)
-│   ├── _arborescence.md          # carte de la structure
-│   ├── _univers-hermes.md        # mise en place avant-gardiste (Hermes)
-│   ├── agent-orchestrateur.md    # chef d'orchestre (transverse)
-│   ├── agent-0-cadrage.md        # architecte-analyste
-│   ├── agent-1-dev.md            # exécutant-codeur
-│   ├── agent-2-test.md           # vérificateur
-│   ├── agent-3-integration.md    # intégrateur
-│   ├── agent-4-deploiement.md    # opérateur
-│   └── agent-5-surveillance.md   # vigie
-├── mock/                         # (à créer) données figées pour dev/test
-CLAUDE.md                         # contrat de travail de l'agent de dev
-scripts/quality-report.sh         # gate qualité (à adapter à la stack)
-src/                              # (à créer) code de production
-```
+1. **Structure du projet** (arborescence `specs/`, `CLAUDE.md`, `scripts/`, remote Forgejo,
+   premier état des lieux) :
+   ```bash
+   iakaframe onboard --path <projet> [--node claude|codex|ollama-localhost|ollama-lan]
+   ```
+2. **Déposer l'équipe des 8 personas** dans `<projet>/.claude/agents/` :
+   ```bash
+   iakaframe agents fullteam --project <projet>
+   ```
+   (Odin est le rôle **portefeuille** — il s'affecte au dossier chapeau, pas au projet :
+   `iakaframe agents affect --agent odin --project <chapeau>`.)
+
+## L'équipe déposée — les 8 personas
+
+Le casting matérialisé est celui des **8 personas** actuelles (l'ancien roster numéroté est
+abandonné) :
+
+| Persona | Rôle |
+|---|---|
+| **odin** | CTO & super-agent portefeuille (transverse, au-dessus des équipes) |
+| **aragorn** | coordinateur intra-équipe (répartit, séquence les phases) |
+| **gandalf** | architecte-cadreur (P1 — écrit les instructions) |
+| **gimli** | développeur + devops (P2 réalisation → P3 staging) |
+| **legolas** | qualité / testeur (gate pass/fail + RQV à la version) |
+| **helm** | squad prod (promotion stage → prod, sur feu vert humain) |
+| **loki** | studio de design (supports on-brand, catalogue `design-*/`) |
+| **nathalie** | guides utilisateurs & mémoire humaine AppFlowy |
 
 ## Procédure
 
 1. **Détecter le contexte.** Projet neuf (dossier vide) ou existant (code déjà présent) ?
-   - Neuf : déposer toute la structure.
-   - Existant : déposer `specs/`, `CLAUDE.md`, `scripts/` **sans écraser** `src/` ni le
-     code en place. Si `CLAUDE.md` existe déjà, proposer une fusion plutôt qu'un écrasement.
-2. **Copier les assets** vers la racine du projet :
-   ```bash
-   mkdir -p specs/instructions specs/mock scripts src
-   cp assets/instructions/*.md specs/instructions/
-   cp assets/CLAUDE.md ./CLAUDE.md
-   cp assets/quality-report.sh scripts/quality-report.sh
-   chmod +x scripts/quality-report.sh
-   ```
-3. **Adapter `scripts/quality-report.sh`** à la stack réelle (les commandes lint/test/
-   typage sont en commentaires à décommenter selon le langage).
-4. **Générer un premier état des lieux** (voir la skill `iakaframe-etat-des-lieux`).
+   - Neuf : `iakaframe onboard --path <projet>` dépose toute la structure.
+   - Existant : `onboard` est **non destructif** — il pose `specs/`, `CLAUDE.md`, `scripts/`
+     **sans écraser** `src/` ni le code en place, et garde un `origin` existant. Si `CLAUDE.md`
+     existe déjà, **il prime** — compléter, ne pas écraser.
+2. **Déposer l'équipe** : `iakaframe agents fullteam --project <projet>` (puis affecter `odin`
+   au dossier chapeau si besoin).
+3. **Adapter `scripts/quality-report.sh`** à la stack réelle (commandes lint/test/typage à
+   décommenter selon le langage).
+4. **Générer un premier état des lieux** : `iakaframe snapshot --reason reprise` (ou `version`).
 5. **Confirmer à l'humain** ce qui a été déposé et ce qui reste à adapter.
 
 ## Garde-fous
 
 - **Ne jamais écraser du code existant** dans `src/` ni un `CLAUDE.md` déjà présent sans
-  confirmation explicite.
+  confirmation explicite (le CLI `onboard` est non destructif par construction).
 - Le script qualité est un **gabarit** : il faut l'adapter au projet avant de s'en servir
   comme gate.
-- Après l'amorçage, le cycle peut démarrer : première instruction via la skill
-  `iakaframe-cadrage`.
+- **Source de vérité unique** : les personas déposées viennent de `library/personas/` via le
+  CLI — ne pas les dupliquer ni les figer dans cette skill (sinon dérive).
 
 ## Après l'amorçage — la suite
 
-- Cadrer une tâche → skill `iakaframe-cadrage`
-- Vérifier la qualité → skill `iakaframe-qualite`
-- Déployer → skill `iakaframe-deploiement`
-- Faire le point → skill `iakaframe-etat-des-lieux`
+- Cadrer une tâche → agent **Gandalf** (P1) → `specs/instructions/<feature>.md`
+- Développer → agent **Gimli** (P2/P3)
+- Vérifier la qualité → agent **Legolas** (gate pass/fail)
+- Déployer en prod → squad **Helm** (feu vert humain)
+- Faire le point → `iakaframe snapshot` / `iakaframe recap`

@@ -50,6 +50,14 @@ Dans les deux cas le gate reste **obligatoire et indépendant** ; seule sa profo
 `Standard` + tableau émetteur/contenu/récepteur) ; en cas de `FAIL`, liste les échecs en
 `chemin:ligne` dans ton message. Réf. : `methode-de-travail.md` § Jalons & clôture.
 
+**Revue Qualité de Version (RQV) — gate HUMAIN à la mineure.** À **chaque version mineure** (pas à
+chaque livraison), Legolas produit — **avec 📖 Nathalie** — le **document d'évaluation complète** de
+la version (qualité consolidée, couverture, risques, écarts). Son verdict **go/no-go** est un **gate
+HUMAIN** : le décideur tranche la promotion de version. La RQV est **distincte** du gate automatique
+dev→stage (granularité **version**, pas livraison) et **ne le remplace pas** : le gate auto reste
+inchangé (tests verts = passage stage, sans humain). Réf. : `specs/equipe-agents.md:123-126`,
+`specs/instructions/revue-qualite-version.md`.
+
 ## Étanchéité
 Une instance par projet ; teste **ce projet** sur ses données figées (`specs/mock/`).
 

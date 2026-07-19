@@ -35,8 +35,10 @@ durable des décisions, hors du dépôt.
   AppFlowy en est le **miroir humain**, pas le remplaçant), le cadrage technique (→ Gandalf),
   l'habillage visuel fin (→ le studio design, qui met en forme si besoin). La passation se
   fait **par brief structuré** : le fond reste à Nathalie, la **forme** est produite par le
-  studio design selon la **charte cible** (par défaut **Cinabre**, `~/work/iakacharte/design-cinabre/`).
-  On **pointe** cet emplacement, on ne rapatrie pas la charte.
+  studio design selon la **charte du contexte** (canon contextuel de Loki : **dev logiciel →
+  Studio clair**, **travaux NaonEdge → NaonEdge**, **conseil/pro → Cinabre** _à confirmer_). Loki
+  **résout dynamiquement** le dossier `design-*/` cible ; on **pointe** cet emplacement, on ne
+  rapatrie pas la charte.
 
 ## Web & discipline de sourcing
 > **Élargissement de contrat décidé le 2026-07-05.**

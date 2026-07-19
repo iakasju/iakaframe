@@ -1,23 +1,24 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-19 12:18 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-19 16:50 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.17.7 |
+| Version | v0.17.8 |
 | Branche | main |
-| Dernier commit | e83bcaf chore(iakaframe): update etat des lieux + commit global (version v0.17.6) |
+| Dernier commit | afd049c chore(iakaframe): update etat des lieux + commit global (version v0.17.7) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 824 |
-| Note | Dette doc : comptes SF2 rafraichis dans open-frame-gui-stefframe2.md (principes 14->16, skills 16->17, principleIds(14)->(16)) suite au resync v0.17.5. Doc uniquement. |
+| Fichiers (hors .git/node_modules) | 825 |
+| Note | Lot 1 rafraichissement des contrats d'agents (chantier critique des agents, resync depuis library/personas canon) : rapatriement Loki (Expertise+Atelier) sans perte ; charte CONTEXTUELLE sur 5 sources (dev->Studio clair, NaonEdge->NaonEdge, conseil/pro->Cinabre a confirmer) ; portabilite C:\work->IAKAFRAME_ROOT + verbes CLI ; canal iakaHub/Discord+repli terminal (Aragorn/Odin) ; RQV ajoutee a Legolas ; posture CTO Odin, anti-fusion+merge Aragorn, web/studio Nathalie ; tools WebSearch/WebFetch + champ guardrails ; roster legacy iakaframe-init -> 8 personas. Gate Legolas PASS 10/10. Deployes ~/.claude (9 fichiers) appliques hors depot. Lot suivant : generateur persona->contrat (cause racine). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `afd049c` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.7) |
 | `e83bcaf` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.6) |
 | `9cd7bbb` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.5) |
 | `8ecfbc1` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.4) |
@@ -27,7 +28,6 @@
 | `3a4f0c9` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.1) |
 | `82c7fec` | 2026-07-18 | chore(kit-owui): anonymise l'author_url Forgejo (sjupin -> <user>) |
 | `515fe05` | 2026-07-18 | fix(services): le ps1 emet l'enveloppe C-JSON { ok, generated, count, services } |
-| `cb1efb0` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.0) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-19 16:50 | version | v0.17.8 | main | Lot 1 rafraichissement des contrats d'agents (chantier critique des agents, resync depuis library/personas canon) : rapatriement Loki (Expertise+Atelier) sans perte ; charte CONTEXTUELLE sur 5 sources (dev->Studio clair, NaonEdge->NaonEdge, conseil/pro->Cinabre a confirmer) ; portabilite C:\work->IAKAFRAME_ROOT + verbes CLI ; canal iakaHub/Discord+repli terminal (Aragorn/Odin) ; RQV ajoutee a Legolas ; posture CTO Odin, anti-fusion+merge Aragorn, web/studio Nathalie ; tools WebSearch/WebFetch + champ guardrails ; roster legacy iakaframe-init -> 8 personas. Gate Legolas PASS 10/10. Deployes ~/.claude (9 fichiers) appliques hors depot. Lot suivant : generateur persona->contrat (cause racine). |
 | 2026-07-19 12:18 | version | v0.17.7 | main | Dette doc : comptes SF2 rafraichis dans open-frame-gui-stefframe2.md (principes 14->16, skills 16->17, principleIds(14)->(16)) suite au resync v0.17.5. Doc uniquement. |
 | 2026-07-19 11:12 | version | v0.17.6 | main | Place d'Odin dans le roster (These A) : marqueur 'niveau portefeuille' dans teams/iakaframe-8.md (live + frame) — odin reste au roster comme super-agent au-dessus, hors dispatch projet. Liste personas (8) et coordinator inchanges. Inclut instructions place-odin-roster + iaka-help-agents (cadrages). |
 | 2026-07-19 02:37 | version | v0.17.5 | main | Resync StefFrame2 (miroir du live, anonymisation preservee) : rapatrie 2 principes (interruption-minimale-odin, merge-versionnement anonymise) + skill retrait, principleIds 14->16, learning slim, roster team 8 (helm). Comptes doc alignes (16 SF1 -> 17 SF2). Gate Legolas PASS 8/8, live intact, 328 tests verts. |

@@ -48,17 +48,18 @@ Aragorn produit alors un **ordre de mission** (quoi, sur quelle base, critère d
 n8n/Hermes dans une chaîne automatisée. Il **vérifie les pré-requis de la phase** avant de
 lancer (ex. pas de dev Gimli sans instruction validée) et **remonte** si un gate l'interdit.
 
-## Canal de communication : Slack (bidirectionnel, via n8n)
-Aragorn parle à l'utilisateur sur **Slack**, dans les deux sens, **via n8n** (qui détient les
-identifiants Slack — aucun secret côté agent) :
+## Canal de communication : iakaHub ↔ Discord (avec repli terminal gracieux)
+Aragorn parle à l'utilisateur via `ask()` : **en terminal si Odin/le décideur est présent**,
+**sinon via iakaHub → Discord** (le canal du projet, sous son persona) — dans les deux sens :
 - **Sortant** : Aragorn **poste** les états des phases, les blocages et les **demandes de feu
-  vert** (déclenche un workflow n8n → Slack).
-- **Entrant** : Aragorn **lit les réponses de l'utilisateur** sur Slack — arbitrages, ordres de
-  dispatch (« lance Gimli sur X »), **feu vert prod** — captées par un trigger n8n et
-  réinjectées dans la chaîne.
+  vert** sur le canal iakaHub du projet, relayé vers Discord.
+- **Entrant** : Aragorn **lit les réponses de l'utilisateur** — arbitrages, ordres de dispatch
+  (« lance Gimli sur X »), **feu vert prod** — captés par iakaHub et réinjectés dans la chaîne.
 
-Slack est ainsi un **canal de pilotage** : l'utilisateur peut suivre et commander à distance.
-Alternative self-hosted possible : **Mattermost** (même schéma via n8n).
+**Repli terminal gracieux** : si la box (iakaHub/Discord) est éteinte ou injoignable, tout
+continue de tourner et Aragorn **dégrade proprement vers le terminal** — aucun secret côté agent,
+aucun blocage. iakaHub↔Discord est un **canal de pilotage** (suivre et commander à distance),
+pas une dépendance dure.
 
 ## Entrées → Sorties
 - **Reçoit** : un besoin de l'utilisateur, **un ordre de dispatch de l'utilisateur**, ou l'achèvement

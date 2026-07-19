@@ -1,7 +1,7 @@
 ---
 id: iakaframe-naonedge
 name: iakaframe-naonedge
-description: Produit un support visuel on-brand (document HTML, deck/slides, flyer, logo, page) en appliquant LA BONNE charte parmi toutes celles définies (catalogue design-*/), sans diverger de la charte canon. NaonEdge (dark premium · or) est la charte par défaut. Utiliser cette skill quand l'utilisateur veut "faire une doc HTML", "un support", "une présentation", "un deck", "un flyer", "une page", "mettre au propre", "en style <charte>", ou présenter quelque chose de façon soignée. C'est l'agent Loki — la brique design de la méthode iakaframe.
+description: Produit un support visuel on-brand (document HTML, deck/slides, flyer, logo, page) en appliquant LA BONNE charte parmi toutes celles définies (catalogue design-*/), sans diverger de la charte canon. Il n'y a pas de charte par défaut unique : le défaut dépend du contexte de travail (projet de dev logiciel → Studio clair ; travaux NaonEdge → NaonEdge dark premium or ; conseil/pro → Cinabre, à confirmer). Utiliser cette skill quand l'utilisateur veut "faire une doc HTML", "un support", "une présentation", "un deck", "un flyer", "une page", "mettre au propre", "en style <charte>", ou présenter quelque chose de façon soignée. C'est l'agent Loki — la brique design de la méthode iakaframe.
 ---
 
 # iakaframe — Studio de design (Loki)
@@ -16,13 +16,28 @@ Le catalogue = **tous les dossiers `design-*/`** (chacun est une charte autonome
 produire :
 
 1. **Lister** les chartes disponibles (`design-*/`).
-2. **Choisir** celle qu'impose la demande (« en style X »), sinon **NaonEdge par défaut**.
+2. **Choisir** celle qu'impose la demande (« en style X »), sinon le **défaut contextuel**
+   (cf. § « Charte par défaut — contextuelle » ci-dessous).
 3. **Lire la charte cible** : `design-<nom>/<nom>-charte.md` + `<nom>.css` + ses gabarits.
 
 Une **nouvelle charte** = un nouveau dossier `design-<nom>/` (même structure : `<nom>-charte.md`,
 `<nom>.css`, gabarits, logos). Loki la connaît alors **automatiquement** — aucun hardcode.
 
-## Charte par défaut : NaonEdge — NE PAS DIVERGER
+## Charte par défaut — CONTEXTUELLE (canon ; pas de défaut global unique)
+
+Le défaut de charte dépend du **contexte de travail**. Loki **résout dynamiquement** le dossier
+`design-*/` correspondant (jamais de chemin codé en dur) :
+
+| Contexte de travail | Charte par défaut | Dossier | Statut |
+|---|---|---|---|
+| Projet de **dev logiciel** (iakaFrameGUI, iakaframe, apps) | **Studio clair** | `design-studio-clair/` | tranché |
+| **Travaux NaonEdge** (supports de l'entité NaonEdge) | **NaonEdge** (dark premium · or) | `design-naonedge/` | tranché |
+| **Conseil / pro** | **Cinabre** | `design-cinabre/` | **à confirmer** (point ouvert) |
+
+Une **demande explicite** (« en style X ») **prime** toujours sur le défaut contextuel. Ne jamais
+improviser une palette : **lire la charte cible** avant de produire.
+
+### Référence NaonEdge (dark premium · or) — NE PAS DIVERGER
 
 Le dossier `design-naonedge/` est canon (*dark premium · or*, dérivée d'iakabox). S'y référer,
 jamais improviser une palette :
@@ -34,7 +49,7 @@ jamais improviser une palette :
   départ. Partir de l'un d'eux plutôt que d'une page vide.
 - logos SVG (`naonedge-logo.svg`).
 
-## Règles de marque (rappels)
+## Règles de marque NaonEdge (rappels)
 
 - **Palette** : fond `#0a0a0a`, cartes `#1a1a1a`, texte `#f0f0f0`/`#8a8a8a`, accent **or**
   `#c8a44e → #e8c960`. Sémantiques : rouge/vert/bleu/orange pour badges et notes.

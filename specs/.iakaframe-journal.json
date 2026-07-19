@@ -208,5 +208,15 @@
     "dirty": true,
     "files": 824,
     "note": "Dette doc : comptes SF2 rafraichis dans open-frame-gui-stefframe2.md (principes 14->16, skills 16->17, principleIds(14)->(16)) suite au resync v0.17.5. Doc uniquement."
+  },
+  {
+    "date": "2026-07-19 16:50",
+    "reason": "version",
+    "version": "v0.17.8",
+    "branch": "main",
+    "commit": "afd049c chore(iakaframe): update etat des lieux + commit global (version v0.17.7)",
+    "dirty": true,
+    "files": 825,
+    "note": "Lot 1 rafraichissement des contrats d'agents (chantier critique des agents, resync depuis library/personas canon) : rapatriement Loki (Expertise+Atelier) sans perte ; charte CONTEXTUELLE sur 5 sources (dev->Studio clair, NaonEdge->NaonEdge, conseil/pro->Cinabre a confirmer) ; portabilite C:\\work->IAKAFRAME_ROOT + verbes CLI ; canal iakaHub/Discord+repli terminal (Aragorn/Odin) ; RQV ajoutee a Legolas ; posture CTO Odin, anti-fusion+merge Aragorn, web/studio Nathalie ; tools WebSearch/WebFetch + champ guardrails ; roster legacy iakaframe-init -> 8 personas. Gate Legolas PASS 10/10. Deployes ~/.claude (9 fichiers) appliques hors depot. Lot suivant : generateur persona->contrat (cause racine)."
   }
 ]
