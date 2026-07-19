@@ -1,23 +1,24 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-19 18:06 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-19 18:19 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.17.9 |
+| Version | v0.17.10 |
 | Branche | main |
-| Dernier commit | c70314d chore(iakaframe): update etat des lieux + commit global (version v0.17.8) |
+| Dernier commit | 2147100 chore(iakaframe): update etat des lieux + commit global (version v0.17.9) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 830 |
-| Note | Modele de composition : triplet {runner,model,tools} dans le binding (=contrats deployes), multi-skills (odin+iakastart, nathalie+appflowy), sous-skills + modele AGNOSTIQUE EN COUCHES (capacite gestion-de-source -> famille git -> produit forgejo ; init/update agnostises, docker retire de init) ; integrite T1/T5/T6+subskills. Gate Legolas PASS. Cote GUI (v0.3.8) : parseur triplet de-ampute, checkFrameRefs elargi, reservoir skill<-skills, projection tools. |
+| Fichiers (hors .git/node_modules) | 832 |
+| Note | Generateur persona->contrat (fix cause racine de la derive) : module generate-agents (renderAgentContract + toolsForPersona depuis le binding), rewiring affectPersona/listPersonas (fini la copie brute du dossier mort), verbe 'agents generate [--check]' (filet anti-derive CI), champ description seede dans les 8 personas (I3 preserve). Golden + 14 tests. Reconciliation du deploye odin (soft-wrap canon). Gate Legolas PASS (342 tests verts). Voie A + golden parite. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `2147100` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.9) |
 | `c70314d` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.8) |
 | `afd049c` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.7) |
 | `e83bcaf` | 2026-07-19 | chore(iakaframe): update etat des lieux + commit global (version v0.17.6) |
@@ -27,7 +28,6 @@
 | `6a43b12` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.2) |
 | `5acdbd0` | 2026-07-18 | chore(kit-claude): anonymise les URL Forgejo des CLAUDE.md (levee §4, sjupin -> <user>) |
 | `3a4f0c9` | 2026-07-18 | chore(iakaframe): update etat des lieux + commit global (version v0.17.1) |
-| `82c7fec` | 2026-07-18 | chore(kit-owui): anonymise l'author_url Forgejo (sjupin -> <user>) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-19 18:19 | version | v0.17.10 | main | Generateur persona->contrat (fix cause racine de la derive) : module generate-agents (renderAgentContract + toolsForPersona depuis le binding), rewiring affectPersona/listPersonas (fini la copie brute du dossier mort), verbe 'agents generate [--check]' (filet anti-derive CI), champ description seede dans les 8 personas (I3 preserve). Golden + 14 tests. Reconciliation du deploye odin (soft-wrap canon). Gate Legolas PASS (342 tests verts). Voie A + golden parite. |
 | 2026-07-19 18:06 | version | v0.17.9 | main | Modele de composition : triplet {runner,model,tools} dans le binding (=contrats deployes), multi-skills (odin+iakastart, nathalie+appflowy), sous-skills + modele AGNOSTIQUE EN COUCHES (capacite gestion-de-source -> famille git -> produit forgejo ; init/update agnostises, docker retire de init) ; integrite T1/T5/T6+subskills. Gate Legolas PASS. Cote GUI (v0.3.8) : parseur triplet de-ampute, checkFrameRefs elargi, reservoir skill<-skills, projection tools. |
 | 2026-07-19 16:50 | version | v0.17.8 | main | Lot 1 rafraichissement des contrats d'agents (chantier critique des agents, resync depuis library/personas canon) : rapatriement Loki (Expertise+Atelier) sans perte ; charte CONTEXTUELLE sur 5 sources (dev->Studio clair, NaonEdge->NaonEdge, conseil/pro->Cinabre a confirmer) ; portabilite C:\work->IAKAFRAME_ROOT + verbes CLI ; canal iakaHub/Discord+repli terminal (Aragorn/Odin) ; RQV ajoutee a Legolas ; posture CTO Odin, anti-fusion+merge Aragorn, web/studio Nathalie ; tools WebSearch/WebFetch + champ guardrails ; roster legacy iakaframe-init -> 8 personas. Gate Legolas PASS 10/10. Deployes ~/.claude (9 fichiers) appliques hors depot. Lot suivant : generateur persona->contrat (cause racine). |
 | 2026-07-19 12:18 | version | v0.17.7 | main | Dette doc : comptes SF2 rafraichis dans open-frame-gui-stefframe2.md (principes 14->16, skills 16->17, principleIds(14)->(16)) suite au resync v0.17.5. Doc uniquement. |

@@ -10,6 +10,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { frameworkRoot } from './kit.js';
+import { scan, libraryRoot } from './library.js';
+import { generateAgent, loadDefaultBinding } from './generate-agents.js';
 
 // Persona (code-nom) -> rôle canonique incarné (réf. CANONICAL_ROLES de @iakaframe/core).
 export const ROLE_OF = {
@@ -62,13 +64,13 @@ function copyDir(src, dst) {
   }
 }
 
-// Personas canon disponibles (fichiers agents/*.md du framework). Le dossier source `agents/`
-// et sa surface de deploiement `.claude/agents/` restent inchanges (surface Claude Code).
+// Personas canon disponibles. Source de verite = `library/personas/*.md` (rangement pluriel,
+// COLLECTIONS de library.js). L'ancien `<root>/agents/` etait MORT (dossier inexistant) : ce
+// scan repare `listPersonas` (renvoyait `[]`). La surface de deploiement `.claude/agents/`
+// (nom impose par Claude Code) reste inchangee.
 export function listPersonas() {
-  const root = frameworkRoot(); if (!root) return [];
-  const dir = path.join(root, 'agents');
-  if (!fs.existsSync(dir)) return [];
-  return fs.readdirSync(dir).filter(f => f.endsWith('.md') && f !== '_TEMPLATE.md').map(f => f.replace(/\.md$/, '')).sort();
+  const root = libraryRoot(); if (!root) return [];
+  return scan('personas', root).map(e => e.id).sort();
 }
 /** @deprecated alias retro-compat de listPersonas (conserve >= 1 version mineure). */
 export const listAgents = listPersonas;
@@ -77,17 +79,24 @@ function targetDir({ project, global }) {
   return global ? path.join(os.homedir(), '.claude') : path.join(path.resolve(project), '.claude');
 }
 
-export function affectPersona(name, { project, global = false, force = false } = {}) {
+export function affectPersona(name, { project, global = false, force = false, binding } = {}) {
   const root = frameworkRoot();
   if (!root) { console.error('Racine iakaframe introuvable.'); return false; }
-  const srcPersona = path.join(root, 'agents', `${name}.md`);
-  if (!fs.existsSync(srcPersona)) { console.log(`  ! persona inconnue : ${name}`); return false; }
+  // Source de verite = library/personas/ ; le rendu (transform frontmatter + corps verbatim)
+  // remplace l'ancienne COPIE BRUTE (qui recopiait un frontmatter persona invalide pour Claude
+  // Code). Le SCOPE (target/.claude/agents/) et la mecanique --global/--project sont inchanges :
+  // on ne change QUE le rendu (copie -> generation).
+  const libRoot = libraryRoot();
+  const b = binding || loadDefaultBinding(libRoot);
+  let contract;
+  try { contract = generateAgent(name, { root: libRoot, binding: b }); }
+  catch { console.log(`  ! persona inconnue : ${name}`); return false; }
   const target = targetDir({ project, global });
   const dstPersonaDir = path.join(target, 'agents'); // surface Claude Code : nom impose, inchange
   fs.mkdirSync(dstPersonaDir, { recursive: true });
   const dstPersona = path.join(dstPersonaDir, `${name}.md`);
   if (fs.existsSync(dstPersona) && !force) console.log(`  = ${name} (deja present, --force pour ecraser)`);
-  else { fs.copyFileSync(srcPersona, dstPersona); console.log(`  + persona  ${name}`); }
+  else { fs.writeFileSync(dstPersona, contract); console.log(`  + persona  ${name}`); }
 
   const skill = skillOfPersona(name);
   if (skill) {
@@ -123,8 +132,9 @@ export function assignedPersonas(projectDir) {
 export const assignedAgents = assignedPersonas;
 
 export function fullteam({ project, global = false, force = false } = {}) {
+  const binding = loadDefaultBinding(libraryRoot()); // charge une fois, reutilise par persona
   for (const name of listPersonas()) {
     if (PORTFOLIO_PERSONAS.includes(name)) continue;
-    affectPersona(name, { project, global, force });
+    affectPersona(name, { project, global, force, binding });
   }
 }

@@ -1,0 +1,98 @@
+// Generateur persona -> contrat Claude Code (fix de cause racine de la derive deploye<->source).
+//
+// Cause racine (cf. specs/instructions/generateur-persona-contrat.md) : AUCUN generateur ne
+// produisait les contrats deployes `~/.claude/agents/<id>.md` a partir du canon
+// `library/personas/<id>.md` ; les contrats etaient entretenus a la main -> derive garantie.
+//
+// Ce module est le SEUL rendu correct (transform frontmatter + corps verbatim) execute au
+// deploiement live. Il PROJETTE le canon : persona (couche 1) + tools du binding -> contrat
+// deploye (couche 2). Il ne CHOISIT rien (pas de table codee) : `description`/`guardrails`
+// viennent de la persona, `tools` vient du binding (I3 : facette d'execution hors persona).
+//
+// Pureté : `renderAgentContract` et `toolsForPersona` sont PURS (sans I/O), verrouillables par
+// golden. `generateAgent`/`generateAll` lisent le disque (persona + binding).
+import fs from 'node:fs';
+import { buildDocument, parseFrontmatter } from './frontmatter.js';
+import { scan, pathFor, readEntry, bindingRows, toArray, libraryRoot } from './library.js';
+
+// Id du binding defaut (MVP : un seul binding claude ; cf. bindings/iakaframe-claude-default.md).
+export const DEFAULT_BINDING_ID = 'iakaframe-claude-default';
+
+// --- Corps VERBATIM ---------------------------------------------------------------------------
+// Extrait le corps d'un fichier persona en preservant EXACTEMENT ce qui suit le delimiteur
+// fermant `---` (y compris la ligne blanche de tete et le `\n` final). On NE reutilise PAS
+// `parseFrontmatter().body` qui STRIPPE les `\n` de tete (`replace(/^\n+/, '')`) : le contrat
+// deploye conserve cette ligne blanche, la parite byte-a-byte l'exige.
+export function verbatimBody(text) {
+  const norm = String(text).replace(/^﻿/, '');
+  const lines = norm.split(/\r?\n/);
+  if (lines[0] !== '---') return norm;
+  let end = -1;
+  for (let i = 1; i < lines.length; i++) {
+    if (lines[i] === '---' || lines[i] === '...') { end = i; break; }
+  }
+  if (end < 0) return norm;
+  return lines.slice(end + 1).join('\n');
+}
+
+// --- tools : resolution DEPUIS LE BINDING (miroir de modelForPersona) --------------------------
+// Lit `bindingRows(binding.data)` (schema converge assignments|bindings) et renvoie le `tools`
+// de l'assignment homonyme, `[]` si absent. I3 : `tools` est une facette d'execution, elle vit
+// dans le binding, jamais dans la persona.
+export function toolsForPersona(binding, personaId) {
+  if (!binding || !binding.data) return [];
+  for (const row of bindingRows(binding.data)) {
+    if (row && row.personaId === personaId) return toArray(row.tools);
+  }
+  return [];
+}
+
+// --- Rendu PUR du contrat ---------------------------------------------------------------------
+// Assemble le contrat Claude Code : frontmatter ORDRE FIXE `name, description, tools?, guardrails`
+// + corps verbatim. `tools` non vide -> scalaire virgule `Read, Grep, Glob` (PAS une flow-list
+// `[...]`) ; `tools` vide -> ligne OMISE (heritage de tous les outils, docs Claude Code).
+export function renderAgentContract({ id, description, tools, guardrails, body }) {
+  const toolsList = toArray(tools);
+  const fields = [
+    { key: 'name', kind: 'scalar', value: id },
+    { key: 'description', kind: 'scalar', value: description == null ? '' : String(description) },
+    // Scalaire virgule : renderScalar ne quote pas `Read, Grep, Glob` (aucune regle de quoting
+    // ne s'y applique). Ligne omise si liste vide (undefined -> ignore par buildDocument).
+    (toolsList.length ? { key: 'tools', kind: 'scalar', value: toolsList.join(', ') } : undefined),
+    { key: 'guardrails', kind: 'list', value: toArray(guardrails) },
+  ];
+  return buildDocument(fields, body == null ? '' : String(body));
+}
+
+// --- Generation d'un contrat depuis persona + binding -----------------------------------------
+export function generateAgent(id, { root, binding }) {
+  const file = pathFor('personas', id, root);
+  if (!file || !fs.existsSync(file)) throw new Error(`persona introuvable : ${id}`);
+  const raw = fs.readFileSync(file, 'utf8');
+  const { data } = parseFrontmatter(raw);
+  return renderAgentContract({
+    id,
+    description: data.description,
+    tools: toolsForPersona(binding, id),
+    guardrails: data.guardrails,
+    body: verbatimBody(raw),
+  });
+}
+
+// Charge le binding defaut (id connu, repli sur l'unique binding scanne).
+export function loadDefaultBinding(root) {
+  const named = readEntry('bindings', DEFAULT_BINDING_ID, root);
+  if (named) return named;
+  const all = scan('bindings', root);
+  return all.length ? readEntry('bindings', all[0].id, root) : null;
+}
+
+// --- Generation de TOUS les contrats (Map<id, contenu>) ---------------------------------------
+export function generateAll({ root = libraryRoot(), binding } = {}) {
+  const b = binding || loadDefaultBinding(root);
+  const out = new Map();
+  for (const e of scan('personas', root)) {
+    out.set(e.id, generateAgent(e.id, { root, binding: b }));
+  }
+  return out;
+}

@@ -228,5 +228,15 @@
     "dirty": true,
     "files": 830,
     "note": "Modele de composition : triplet {runner,model,tools} dans le binding (=contrats deployes), multi-skills (odin+iakastart, nathalie+appflowy), sous-skills + modele AGNOSTIQUE EN COUCHES (capacite gestion-de-source -> famille git -> produit forgejo ; init/update agnostises, docker retire de init) ; integrite T1/T5/T6+subskills. Gate Legolas PASS. Cote GUI (v0.3.8) : parseur triplet de-ampute, checkFrameRefs elargi, reservoir skill<-skills, projection tools."
+  },
+  {
+    "date": "2026-07-19 18:19",
+    "reason": "version",
+    "version": "v0.17.10",
+    "branch": "main",
+    "commit": "2147100 chore(iakaframe): update etat des lieux + commit global (version v0.17.9)",
+    "dirty": true,
+    "files": 832,
+    "note": "Generateur persona->contrat (fix cause racine de la derive) : module generate-agents (renderAgentContract + toolsForPersona depuis le binding), rewiring affectPersona/listPersonas (fini la copie brute du dossier mort), verbe 'agents generate [--check]' (filet anti-derive CI), champ description seede dans les 8 personas (I3 preserve). Golden + 14 tests. Reconciliation du deploye odin (soft-wrap canon). Gate Legolas PASS (342 tests verts). Voie A + golden parite."
   }
 ]

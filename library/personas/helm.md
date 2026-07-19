@@ -1,6 +1,7 @@
 ---
 id: helm
 name: Helm
+description: Squad prod de la méthode iakaframe (équipe séparée, hors les 3 phases de dev qui ciblent le staging). À déclencher pour promouvoir une version recettée de stage vers la production (bascule d'alias, rollback prêt), gérer les accès (proxy inversé, SSO), surveiller la prod (health-checks, endpoints, charge) et émettre les alertes. Validation humaine OBLIGATOIRE avant toute bascule en prod.
 roleKey: deploiement
 royaume: IAKAFRAME
 pastille: "🟣"

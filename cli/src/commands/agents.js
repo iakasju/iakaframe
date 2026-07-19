@@ -11,6 +11,8 @@ import {
   listPersonas, affectPersona, fullteam, skillOfPersona,
   ROLE_OF, PORTFOLIO_PERSONAS,
 } from '../lib/agents.js';
+import { generateAll } from '../lib/generate-agents.js';
+import { libraryRoot } from '../lib/library.js';
 import { collection, emit, fail } from '../lib/output.js';
 
 export function runAgents(argv) {
@@ -20,6 +22,7 @@ export function runAgents(argv) {
       action: { type: 'string' }, agent: { type: 'string' },
       project: { type: 'string' }, global: { type: 'boolean', default: false },
       force: { type: 'boolean', default: false }, json: { type: 'boolean', default: false },
+      check: { type: 'boolean', default: false },
     },
   });
   const action = values.action || positionals[0] || 'list';
@@ -54,6 +57,48 @@ export function runAgents(argv) {
       fullteam({ project, global: values.global, force: values.force });
       console.log('Full team deployee. (Odin = portefeuille : agents affect --agent odin --project <chapeau>.)');
       break;
+    case 'generate': {
+      // Genere les contrats deployes DEPUIS le canon (library/personas/) + binding.
+      //  - sans --check : ECRIT les 8 contrats dans <target>/.claude/agents/ (rendu = meme
+      //    moteur que affectPersona).
+      //  - --check : n'ecrit RIEN, compare le rendu a l'existant, sort NON-ZERO si divergence
+      //    (filet anti-derive : garantit deploye == source-genere).
+      const target = values.global ? path.join(os.homedir(), '.claude') : path.join(path.resolve(project), '.claude');
+      const dir = path.join(target, 'agents');
+      const contracts = generateAll({ root: libraryRoot() });
+      const rows = [];
+      let drift = 0;
+      for (const [id, content] of contracts) {
+        const dst = path.join(dir, `${id}.md`);
+        const exists = fs.existsSync(dst);
+        const current = exists ? fs.readFileSync(dst, 'utf8') : null;
+        const same = exists && current === content;
+        if (values.check) {
+          const status = !exists ? 'absent' : (same ? 'ok' : 'drift');
+          if (status !== 'ok') drift++;
+          rows.push({ persona: id, status });
+        } else {
+          if (!same) { fs.mkdirSync(dir, { recursive: true }); fs.writeFileSync(dst, content); }
+          rows.push({ persona: id, status: same ? 'unchanged' : (exists ? 'updated' : 'written') });
+        }
+      }
+      if (values.check) {
+        emit(json, collection('personas', rows, { target, ok: drift === 0, drift }), () => {
+          console.log(`Verification des contrats deployes (${target}/agents) :`);
+          for (const r of rows) console.log(`  ${r.status === 'ok' ? '=' : '!'} ${r.persona.padEnd(9)} ${r.status}`);
+          console.log(drift === 0
+            ? 'OK : deploye == source-genere (aucune derive).'
+            : `DERIVE : ${drift} contrat(s) divergent(s) du canon. Regenerer via 'agents generate'.`);
+        });
+        if (drift !== 0) process.exitCode = 1;
+      } else {
+        emit(json, collection('personas', rows, { target }), () => {
+          console.log(`Generation des contrats -> ${target}/agents :`);
+          for (const r of rows) console.log(`  ${r.status === 'unchanged' ? '=' : '+'} ${r.persona.padEnd(9)} ${r.status}`);
+        });
+      }
+      break;
+    }
     case 'status': {
       const target = values.global ? path.join(os.homedir(), '.claude') : path.join(path.resolve(project), '.claude');
       const dir = path.join(target, 'agents');
@@ -68,6 +113,6 @@ export function runAgents(argv) {
       break;
     }
     default:
-      fail(json, `action inconnue : ${action} (list|affect|fullteam|status)`);
+      fail(json, `action inconnue : ${action} (list|affect|fullteam|generate|status)`);
   }
 }
