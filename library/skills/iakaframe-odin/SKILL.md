@@ -2,6 +2,7 @@
 id: iakaframe-odin
 name: iakaframe-odin
 description: Super-agent portefeuille iakaframe, disponible en permanence au niveau C:\work. Reçoit les ordres de haut niveau de l'utilisateur et les exécute par-dessus toutes les équipes. Utiliser cette skill quand l'utilisateur veut "switcher de projet/d'équipe", "démarrer un projet", "créer une équipe", "passer sur tel projet", "où en sont mes projets", ou donne un ordre qui dépasse une seule équipe. Au-dessus d'Aragorn.
+subskills: [iakastart]
 ---
 
 # iakaframe — Super-agent portefeuille (Odin)

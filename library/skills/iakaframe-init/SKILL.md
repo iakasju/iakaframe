@@ -2,6 +2,7 @@
 id: iakaframe-init
 name: iakaframe-init
 description: Amorce un projet avec la structure iakaframe complète — arborescence specs/, CLAUDE.md, les 8 personas d'agent (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie), le cadrage du workflow et le script qualité. Utiliser cette skill quand l'utilisateur veut "démarrer un projet iakaframe", "mettre en place la méthode", "initialiser la structure", "déposer les contrats d'agent", "onboarder un dépôt", ou amorcer un nouveau projet (ou un projet existant) selon la méthode de l'équipe augmentée. À lancer une fois au début d'un projet.
+subskills: [iakaframe-gestion-de-source, iakaframe-etat-des-lieux]
 ---
 
 # iakaframe — Amorçage de projet
@@ -16,8 +17,8 @@ L'amorçage **délègue au CLI `iakaframe`**, qui fait déjà le bon travail et 
 vérité** (les personas vivent dans `library/personas/`, jamais recopiées en dur dans cette skill).
 Deux verbes suffisent :
 
-1. **Structure du projet** (arborescence `specs/`, `CLAUDE.md`, `scripts/`, remote Forgejo,
-   premier état des lieux) :
+1. **Structure du projet** (arborescence `specs/`, `CLAUDE.md`, `scripts/`, remote du
+   gestionnaire de source, premier état des lieux) :
    ```bash
    iakaframe onboard --path <projet> [--node claude|codex|ollama-localhost|ollama-lan]
    ```

@@ -44,6 +44,82 @@ skills dans un projet. Chaque skill se déclenche quand le contexte correspond �
 
 > Référence visuelle : `../iakaframe-skills.html` (style NaonEdge).
 
+## Sous-skills — une skill peut en composer d'autres (`subskills`)
+
+Certaines skills sont des **orchestratrices** : elles pilotent d'autres skills plutôt que de tout
+refaire. Cette composition est structurée par le champ **`subskills:`** du frontmatter `SKILL.md`
+(liste d'**ids** de skills existantes — que des ids, aucun corps recopié). Champ **optionnel** :
+absent = skill **atomique** (le cas par défaut). Miroir, au niveau skill, de « method → ids » et
+« team → personas ».
+
+| Skill orchestratrice | `subskills` | Ce qu'elle pilote |
+|---|---|---|
+| `iakaframe-init` | `iakaframe-gestion-de-source`, `iakaframe-etat-des-lieux` | amorçage : mise sous gestion de source (capacité), premier état des lieux |
+| `iakaframe-update` | `iakaframe-etat-des-lieux`, `iakaframe-gestion-de-source` | checkpoint : snapshot + versionnement via la capacité source-control |
+| `iakaframe-odin` | `iakastart` | le portefeuille lève d'abord la team (bootstrap) |
+
+**Intégrité** (vérifiée côté forge, `@iakaframe/core` `checkFrameRefs`) : chaque id de `subskills`
+doit résoudre dans le pool `skills` (`subskills ⊆ skills`), et une skill ne se référence **pas
+elle-même** (anti-self-ref). Le corps `SKILL.md` reste la référence narrative ; `subskills`
+**structure** ce que la prose disait déjà. La détection de cycles profonds (A→B→A) est hors MVP.
+
+## Le modèle agnostique en couches (capacité → famille → produit)
+
+Les orchestrateurs de méthode ne référencent **jamais un produit** (un serveur, un logiciel
+particulier) : ils réfèrent une **capacité** — *ce qu'on veut faire*. Le concret (le *avec quoi*)
+descend dans une **chaîne de sous-skills à trois couches** :
+
+| Couche | Rôle | Nomme un produit ? | Champ `layer:` | Installée chez l'utilisateur |
+|---|---|---|---|---|
+| **Capacité** | ce qu'on veut faire (verbe métier) | **jamais** | `capacity` | **toujours** |
+| **Famille** | le protocole / standard | le **protocole** (git), pas le serveur | `family` | toujours (si la famille est choisie) |
+| **Produit** | l'implémentation concrète | **oui** (Forgejo, AppFlowy…) | `product` | **1 par famille, choisi à l'install** |
+
+**Champ `layer:`** (frontmatter `SKILL.md`, optionnel — absent = brique méthode/capacité) : marque
+explicitement la couche d'une skill (`capacity` \| `family` \| `product`). Il aide le GUI et l'install
+à distinguer une **feuille produit** (alternative sélectionnable) d'un sous-skill composé.
+
+**Résolution à l'install = « présence = sélection »** (MVP, zéro nouveau schéma) : **tous** les
+produits vivent dans la library (source de vérité), donc l'intégrité `subskills ⊆ skills` reste
+**verte** (library-scoped) ; l'install **déploie** dans `.claude/skills/` de l'utilisateur les couches
+capacité + famille **toujours**, plus le **produit sélectionné** pour son environnement. Le
+produit-skill présent **est** le produit actif. Les produits non choisis restent dans la library sans
+être déployés chez cet utilisateur. Le champ `products:` dans le kit/binding est l'incrément propre
+ultérieur.
+
+**Exemplaire de bout en bout — l'axe source-control :**
+
+```
+iakaframe-gestion-de-source   (capacité — 100 % agnostique, ne nomme aucun produit)
+  └─ subskills: [iakaframe-git]
+       iakaframe-git          (famille — protocole git, nomme git, pas le serveur)
+         └─ subskills: [iakaframe-forgejo]   (+ github, gitlab… candidats futurs)
+              iakaframe-forgejo (produit — nomme et opère Forgejo ; feuille, choisi à l'install)
+```
+
+Ainsi `iakaframe-init` et `iakaframe-update` réfèrent la **capacité** `iakaframe-gestion-de-source`
+(pas un serveur) ; le serveur concret (Forgejo, ou un autre) est le **produit installé**. La même
+capacité sert tous les environnements sans réécriture.
+
+### Autres axes — esquisses (non migrés ce tour)
+
+Le modèle est général ; seul l'axe **source-control** est livré de bout en bout ce tour. Les axes
+suivants sont **cadrés mais NON migrés** (implémentés en lots suivants — leur skill produit actuelle
+reste inchangée) :
+
+| Axe | Capacité (couche 1) | Famille (couche 2) | Produit(s) (couche 3) | Patron | Statut |
+|---|---|---|---|---|---|
+| Conteneurisation | `iakaframe-conteneurisation` | *(OCI/compose — différée)* | `iakaframe-docker` (+ podman futur) | A (leaf-swap) | **esquisse, non migré** |
+| Mémoire humaine | `iakaframe-memoire-humaine` | *(aucune utile)* | `iakaframe-appflowy` | A (leaf-swap) | **esquisse, non migré** |
+| Journal conversation | `iakaframe-journal-conversation` | *(pub-sub + doc-store)* | `iakaframe-mqtt-couchdb` (composite) | A (leaf-swap) | **esquisse, non migré** |
+| Design on-brand | `iakaframe-design` | — | chartes = **données** (`design-*/`) | **B (catalogue de données)** | **hors leaf-swap, non migré** |
+
+> **Patron A vs B.** *Patron A — remplacement de feuille* : la capacité délègue à un produit-skill
+> interchangeable choisi à l'install (source-control, conteneurisation, mémoire humaine, journal).
+> *Patron B — catalogue de données au runtime* : `iakaframe-naonedge`/design est **déjà** agnostique
+> par catalogue dynamique (la charte est **de la donnée**, `design-*/`, pas un skill) — il **n'a pas
+> besoin** de la chaîne de sous-skills et reste **hors** de ce modèle.
+
 ## Pourquoi une skill par agent (et pas seulement par étape)
 
 Une skill se déclenche sur des tâches **complexes et multi-étapes**. Depuis l'équipe d'agents,

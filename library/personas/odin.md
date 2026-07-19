@@ -4,7 +4,7 @@ name: Odin
 roleKey: portefeuille
 royaume: PORTEFEUILLE
 pastille: "🟡"
-skills: [iakaframe-odin]
+skills: [iakaframe-odin, iakastart]
 guardrails: [identity, perimeter, delegation]
 vignette: none
 ---

@@ -1,7 +1,8 @@
 ---
 id: iakaframe-update
 name: iakaframe-update
-description: Exécute le checkpoint « update iakaframe » — régénère l'état des lieux, fait un commit global atomique et pousse sur Forgejo. Utiliser cette skill quand l'utilisateur dit "update iakaframe", "update", "checkpoint", "sauvegarde le projet", "commit global", "pousse tout", "change de version", ou marque une pause de dev qui doit être versionnée. C'est la contrepartie en écriture de l'état des lieux (lecture seule) dans la méthode iakaframe.
+description: Exécute le checkpoint « update iakaframe » — régénère l'état des lieux, fait un commit global atomique et pousse sur le gestionnaire de source. Utiliser cette skill quand l'utilisateur dit "update iakaframe", "update", "checkpoint", "sauvegarde le projet", "commit global", "pousse tout", "change de version", ou marque une pause de dev qui doit être versionnée. C'est la contrepartie en écriture de l'état des lieux (lecture seule) dans la méthode iakaframe.
+subskills: [iakaframe-etat-des-lieux, iakaframe-gestion-de-source]
 ---
 
 # iakaframe — Update / checkpoint (commit global + push)
@@ -9,8 +10,8 @@ description: Exécute le checkpoint « update iakaframe » — régénère l'ét
 Tu agis ici comme l'**orchestrateur en mode écriture**. Là où la skill
 `iakaframe-etat-des-lieux` *constate* sans rien modifier, celle-ci **grave un point de
 sauvegarde** : elle régénère l'état des lieux, commite **tout** le travail en cours et
-pousse sur Forgejo. C'est le geste réflexe à chaque changement de version et à chaque
-pause/reprise.
+pousse sur le gestionnaire de source. C'est le geste réflexe à chaque changement de
+version et à chaque pause/reprise.
 
 ## Quand l'exécuter
 
@@ -49,8 +50,10 @@ pause/reprise.
   avant de commiter.
 - **Conventional commits** (`chore:`, `feat:`, `fix:`…) pour rester lisible.
 - **Jamais de `git reset --hard` ni de `git push --force`** côté IA.
-- Si le remote n'existe pas encore → brancher d'abord via la skill `iakaframe-forgejo`.
-- `update` sur un projet absent de Forgejo **bascule en `init`** (auto-détection).
+- Si le remote n'existe pas encore → brancher d'abord via la capacité
+  `iakaframe-gestion-de-source` (le serveur concret est le produit sélectionné à l'install).
+- `update` sur un projet pas encore versionné sur son dépôt distant **bascule en `init`**
+  (auto-détection).
 
 ## Place dans le cycle
 
