@@ -2,6 +2,7 @@
 id: iakaframe-appflowy-doc
 name: iakaframe-appflowy-doc
 description: Publier/rafraîchir la mémoire humaine d'un projet dans AppFlowy auto-hébergé — un espace par projet, une vue d'ensemble + une sous-page par doc structurant (CLAUDE.md, specs/PROJET.md, specs/instructions/*, specs/etat-des-lieux.md, docs/qualite/*). À utiliser quand il faut "documenter le projet dans AppFlowy", "mettre à jour la mémoire humaine", "publier les specs dans AppFlowy". Idempotent et non destructif.
+layer: product
 ---
 
 # iakaframe — appflowy-doc

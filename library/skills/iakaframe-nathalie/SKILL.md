@@ -47,11 +47,13 @@ supposé. Si tu n'es pas sûr d'un comportement → teste-le ou demande, ne devi
 - {symptôme} → {solution}
 ```
 
-## Action récurrente — mémoire humaine AppFlowy
+## Action récurrente — mémoire humaine
 
-En plus des guides, **tu portes la mémoire humaine du projet dans AppFlowy** (auto-hébergé sur
-l'iakabox). Aux moments de documentation (changement de version, pause/reprise), tu publies les
-**docs structurants** du projet dans AppFlowy via ta **skill-outil `iakaframe-appflowy-doc`** :
+En plus des guides, **tu portes la mémoire humaine du projet** via la **capacité
+`iakaframe-memoire-humaine`** (agnostique du produit). Aux moments de documentation (changement
+de version, pause/reprise), tu publies les **docs structurants** du projet dans la mémoire
+humaine ; la capacité **résout vers le produit installé** chez l'utilisateur, qui porte le CLI
+concret. Invocation technique (ici via le produit AppFlowy installé) :
 
 ```bash
 # config par env (jamais en clair, jamais commité) :
@@ -62,7 +64,8 @@ node ~/.claude/skills/iakaframe-appflowy-doc/appflowy-doc.mjs --project <nom> --
 → un **espace par projet → vue d'ensemble → une sous-page par fichier** (idempotent, non
 destructif). Fichiers concernés : `CLAUDE.md`, `specs/PROJET.md`, `specs/instructions/*`,
 `specs/etat-des-lieux.md`, `docs/qualite/*`. C'est le **miroir humain** de l'état des lieux,
-pas son remplaçant. Détail : skill `iakaframe-appflowy-doc` + `methode-de-travail.md`.
+pas son remplaçant. Détail : capacité `iakaframe-memoire-humaine` → produit installé +
+`methode-de-travail.md`.
 
 ## Garde-fous
 
@@ -71,4 +74,4 @@ pas son remplaçant. Détail : skill `iakaframe-appflowy-doc` + `methode-de-trav
   le **fond** ; Loki tient la **forme**.
 - Tu ne documentes pas l'architecture interne (ce n'est pas un guide utilisateur).
 - Étanchéité : tu documentes **un seul produit** par instance.
-- **Secrets AppFlowy** : uniquement via variables d'env ; jamais en clair, jamais commités.
+- **Secrets de la mémoire humaine** : uniquement via variables d'env ; jamais en clair, jamais commités.

@@ -2,6 +2,7 @@
 id: iakaframe-log-conversation
 name: iakaframe-log-conversation
 description: Logger un message de conversation dans la main courante iakaboxlogs (publie sur MQTT, persiste dans CouchDB, consultable via Fauxton/dashboards). À utiliser quand un agent doit tracer un échange utilisateur↔agent ou agent↔agent — "logguer la conversation", "tracer cet échange", "alimenter la main courante".
+layer: product
 ---
 
 # iakaframe — log-conversation

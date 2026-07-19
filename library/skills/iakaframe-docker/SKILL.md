@@ -2,6 +2,7 @@
 id: iakaframe-docker
 name: iakaframe-docker
 description: Scaffolde la stack Docker isolée d'un projet iakaframe — réseau, volumes et containers préfixés par projet, avec des ports hôte distincts qui n'entrent jamais en collision avec les autres projets de la famille. Utiliser cette skill quand l'utilisateur veut "mettre le projet sous Docker", "créer le docker-compose", "isoler la stack", "allouer les ports", "dockeriser", ou démarrer l'environnement de dev conteneurisé d'un projet. Matérialise la convention d'isolation Docker par projet de la méthode iakaframe.
+layer: product
 ---
 
 # iakaframe — Stack Docker isolée par projet

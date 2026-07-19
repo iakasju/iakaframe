@@ -238,5 +238,15 @@
     "dirty": true,
     "files": 832,
     "note": "Generateur persona->contrat (fix cause racine de la derive) : module generate-agents (renderAgentContract + toolsForPersona depuis le binding), rewiring affectPersona/listPersonas (fini la copie brute du dossier mort), verbe 'agents generate [--check]' (filet anti-derive CI), champ description seede dans les 8 personas (I3 preserve). Golden + 14 tests. Reconciliation du deploye odin (soft-wrap canon). Gate Legolas PASS (342 tests verts). Voie A + golden parite."
+  },
+  {
+    "date": "2026-07-19 20:36",
+    "reason": "version",
+    "version": "v0.17.11",
+    "branch": "main",
+    "commit": "f6fb39c chore(iakaframe): update etat des lieux + commit global (version v0.17.10)",
+    "dirty": true,
+    "files": 839,
+    "note": "Generalisation agnostique (axes restants) : 3 capacites (conteneurisation/memoire-humaine/journal-conversation) au-dessus des produits keep-id (docker/appflowy-doc/log-conversation, +layer:product) ; Nathalie repointee sur la capacite (ne nomme plus le produit) ; init->conteneurisation = prose conditionnelle (pas subskill) ; design = patron B documente. Recount README/HTML : pool reel = 22 skills. Gate Legolas PASS (342 tests verts)."
   }
 ]

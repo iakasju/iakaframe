@@ -89,16 +89,16 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
 <header class="hero">
   <span class="hero-badge">★ design NaonEdge</span>
   <h1>Les <span class="accent">skills</span> de la méthode iakaframe</h1>
-  <p class="hero-subtitle">Treize skills Claude qui rendent la méthode exécutable&nbsp;: depuis
+  <p class="hero-subtitle">Vingt-deux skills Claude qui rendent la méthode exécutable&nbsp;: depuis
   l'équipe d'agents, une skill = le <strong>savoir-faire d'un agent</strong> (sa méthode) ou une
   <strong>brique de cycle de vie</strong>. Le subagent est le contrat, la skill est la méthode.</p>
-  <p class="hero-meta">iakaframe · 7 skills de rôle + 6 briques · 2026-06-14</p>
+  <p class="hero-meta">iakaframe · 7 skills de rôle + 15 briques · 2026-06-14</p>
 </header>
 
 <main>
 
   <span class="section-label">Vue d'ensemble</span>
-  <h1 class="t">Les 13 skills, par famille</h1>
+  <h1 class="t">Les 22 skills, par famille</h1>
   <p class="lead">Depuis la formalisation de l'<strong>équipe d'agents</strong>, chaque rôle au
   périmètre fermé a sa skill — c'est le <strong>savoir-faire</strong> que charge le subagent.
   S'y ajoutent les <strong>briques de cycle de vie</strong> (amorçage, doc, git, Docker).
@@ -116,13 +116,22 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
       <tr><td class="name"><code>iakaframe-deploiement</code></td><td>🌉 Helm</td><td>Squad prod — déploiement, accès, rollback, surveillance, alertes</td><td><span class="tag t-wait">gate humain</span></td></tr>
       <tr><td class="name"><code>iakaframe-naonedge</code></td><td>🎭 Loki</td><td>Design — supports on-brand (catalogue de chartes)</td><td><span class="tag t-info">brique</span></td></tr>
       <tr><td class="name"><code>iakaframe-nathalie</code></td><td>📖 Nathalie</td><td>Guides utilisateurs / documentation</td><td><span class="tag t-info">brique</span></td></tr>
-      <tr class="grp"><td colspan="4">Skills méthode &amp; briques de cycle de vie (6)</td></tr>
+      <tr class="grp"><td colspan="4">Skills méthode &amp; briques de cycle de vie (15)</td></tr>
       <tr><td class="name"><code>iakaframe-init</code></td><td>—</td><td>Amorçage : « démarrer / mettre en place la méthode »</td><td><span class="tag t-info">cycle</span></td></tr>
       <tr><td class="name"><code>iakaframe-etat-des-lieux</code></td><td>—</td><td>Doc (lecture) : « où en est le projet », reprise</td><td><span class="tag t-info">cycle</span></td></tr>
       <tr><td class="name"><code>iakaframe-update</code></td><td>—</td><td>Doc (écriture) : « update iakaframe », checkpoint, push</td><td><span class="tag t-info">cycle</span></td></tr>
-      <tr><td class="name"><code>iakaframe-forgejo</code></td><td>—</td><td>Git par défaut (iakabox) : dépôt, remote, token</td><td><span class="tag t-keep">infra</span></td></tr>
-      <tr><td class="name"><code>iakaframe-docker</code></td><td>—</td><td>Stack isolée par projet : containers, ports décalés</td><td><span class="tag t-keep">infra</span></td></tr>
-      <tr><td class="name"><code>iakaframe-log-conversation</code></td><td>—</td><td>Main courante des IA : push MQTT → CouchDB, « logguer la conversation », « tracer cet échange »</td><td><span class="tag t-info">cycle</span></td></tr>
+      <tr><td class="name"><code>iakastart</code></td><td>—</td><td>Bootstrap team : banner + roster des agents, sans spawn</td><td><span class="tag t-go">team</span></td></tr>
+      <tr><td class="name"><code>iakaframe-learning</code></td><td>—</td><td>Surface <code>/learning</code> : revue du réservoir d'apprentissage</td><td><span class="tag t-info">surface</span></td></tr>
+      <tr><td class="name"><code>iakaframe-retrait</code></td><td>—</td><td>Surface <code>/retrait</code> : détacher/retirer un élément matérialisé</td><td><span class="tag t-info">surface</span></td></tr>
+      <tr><td class="name"><code>iakaframe-gestion-de-source</code></td><td>—</td><td>Capacité source-control (agnostique du serveur)</td><td><span class="tag t-info">capacité</span></td></tr>
+      <tr><td class="name"><code>iakaframe-git</code></td><td>—</td><td>Famille protocole git (nomme git, pas le serveur)</td><td><span class="tag t-info">famille</span></td></tr>
+      <tr><td class="name"><code>iakaframe-forgejo</code></td><td>—</td><td>Produit git par défaut (iakabox) : dépôt, remote, token</td><td><span class="tag t-keep">produit</span></td></tr>
+      <tr><td class="name"><code>iakaframe-conteneurisation</code></td><td>—</td><td>Capacité isolation d'environnement (agnostique du moteur)</td><td><span class="tag t-info">capacité</span></td></tr>
+      <tr><td class="name"><code>iakaframe-docker</code></td><td>—</td><td>Produit : stack isolée par projet, containers, ports décalés</td><td><span class="tag t-keep">produit</span></td></tr>
+      <tr><td class="name"><code>iakaframe-memoire-humaine</code></td><td>—</td><td>Capacité mémoire humaine (agnostique du produit)</td><td><span class="tag t-info">capacité</span></td></tr>
+      <tr><td class="name"><code>iakaframe-appflowy-doc</code></td><td>—</td><td>Produit mémoire humaine (AppFlowy) : espace, vue d'ensemble, sous-pages</td><td><span class="tag t-keep">produit</span></td></tr>
+      <tr><td class="name"><code>iakaframe-journal-conversation</code></td><td>—</td><td>Capacité main courante des IA (agnostique du transport)</td><td><span class="tag t-info">capacité</span></td></tr>
+      <tr><td class="name"><code>iakaframe-log-conversation</code></td><td>—</td><td>Produit main courante : push MQTT → CouchDB, « logguer la conversation »</td><td><span class="tag t-keep">produit</span></td></tr>
     </tbody>
   </table>
   </div>

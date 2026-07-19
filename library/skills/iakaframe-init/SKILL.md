@@ -59,6 +59,13 @@ abandonné) :
 4. **Générer un premier état des lieux** : `iakaframe snapshot --reason reprise` (ou `version`).
 5. **Confirmer à l'humain** ce qui a été déposé et ce qui reste à adapter.
 
+> **Étape conditionnelle — conteneurisation.** Si le projet a un **runtime** (services, base,
+> web) à faire tourner, isoler l'environnement **via la capacité `iakaframe-conteneurisation`**
+> (réseau/volumes/ports distincts par projet), **après l'amorçage, avant le dev**. Si le projet
+> n'a **pas** de runtime (library, dépôt de docs, CLI), **sauter** cette étape. C'est une étape
+> **conditionnelle, portée par la prose** — pas un sous-skill obligatoire : `subskills` reste
+> inchangé (voir `specs/instructions/generalisation-agnostique-axes.md` §2.2).
+
 ## Garde-fous
 
 - **Ne jamais écraser du code existant** dans `src/` ni un `CLAUDE.md` déjà présent sans
