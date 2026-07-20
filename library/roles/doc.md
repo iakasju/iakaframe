@@ -1,6 +1,6 @@
 ---
-id: documentation
-key: documentation
+id: doc
+key: doc
 label: Rédaction (guides & documentation utilisateur)
 roleIndex: 8
 scope: team

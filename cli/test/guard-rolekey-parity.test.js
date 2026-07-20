@@ -23,7 +23,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROLE_OF, SKILL_OF } from '../src/lib/agents.js';
-import { readEntry, assemble, toArray } from '../src/lib/library.js';
+import { readEntry, assemble, toArray, checkRefs, scan } from '../src/lib/library.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..'); // depot iakaframe (vraie bibliotheque)
@@ -110,6 +110,37 @@ test('C23 : assemble(iakaframe, iakaframe-8) -> coveredByCoordinator == [] et wa
   assert.deepEqual(r.coveredByCoordinator, [],
     `role(s) absorbe(s) par le coordinateur ${r.coordinator} au lieu d'etre incarne(s) : ${r.coveredByCoordinator.join(', ')} -- ECHEC du lot, pas un avertissement`);
   assert.deepEqual(r.warnings, [], `avertissement(s) d'assemblage : ${r.warnings.join(' | ')}`);
+});
+
+// --- C24 : la collection `library/roles/` est le SIXIEME porteur du vocabulaire -------------
+// Decouvert en cours de lot : ni le tableau des divergences, ni les fichiers de reference, ni
+// la note R.2 (qui croyait `methods/iakaframe.md` etre l'oubli le plus important) ne recensent
+// `library/roles/`. Or `checkRefs` valide `method.roleKeys` CONTRE cette collection
+// (`needEach('roleKeys', ..., 'roles')`) : renommer la methode sans renommer les fichiers de
+// roles casse l'integrite referentielle I1 -- et AUCUNE suite ne le voyait.
+test('C24 : integrite referentielle I1 de la methode reelle (roleKeys -> library/roles/)', () => {
+  const method = readEntry('methods', METHOD_ID, REPO);
+  const r = checkRefs('method', method.data, REPO);
+  const manquants = (r.missing || []).map(m => `${m.field}:${m.id} (collection ${m.collection})`);
+  assert.deepEqual(manquants, [],
+    `reference(s) cassee(s) depuis methods/${METHOD_ID}.md :\n  - ${manquants.join('\n  - ')}`);
+  assert.equal(r.ok, true);
+});
+
+test('C24-bis : les ids de library/roles/ portent le meme vocabulaire que ROLE_OF', () => {
+  const collection = scan('roles', REPO).map(e => e.id).sort();
+  const tableRoles = [...new Set(Object.values(ROLE_OF))].sort();
+  assert.deepEqual(collection, tableRoles,
+    'library/roles/ et ROLE_OF portent des vocabulaires differents');
+});
+
+test('C24-ter : chaque entree de library/roles/ a id == key (pas de derive interne)', () => {
+  const ecarts = [];
+  for (const e of scan('roles', REPO)) {
+    const entry = readEntry('roles', e.id, REPO);
+    if (entry?.data?.key !== e.id) ecarts.push(`${e.id} : key="${entry?.data?.key}"`);
+  }
+  assert.deepEqual(ecarts, [], `entree(s) de library/roles/ dont key != id :\n  - ${ecarts.join('\n  - ')}`);
 });
 
 // --- C1 (volet cross-repo) : canon <-> coeur GUI --------------------------------------------

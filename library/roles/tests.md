@@ -1,6 +1,6 @@
 ---
-id: qualite
-key: qualite
+id: tests
+key: tests
 label: Responsable qualité (test)
 roleIndex: 5
 scope: team

@@ -1,6 +1,6 @@
 ---
-id: cadrage
-key: cadrage
+id: architecture
+key: architecture
 label: Architecte-cadreur
 roleIndex: 3
 scope: team

@@ -1,6 +1,6 @@
 ---
-id: design
-key: design
+id: graphisme
+key: graphisme
 label: Studio design
 roleIndex: 7
 scope: team

@@ -1,6 +1,6 @@
 ---
-id: dev
-key: dev
+id: fabrication
+key: fabrication
 label: Développeur (dev + devops)
 roleIndex: 4
 scope: team
