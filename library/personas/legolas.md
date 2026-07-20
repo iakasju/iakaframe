@@ -52,7 +52,11 @@ Dans les deux cas le gate reste **obligatoire et indépendant** ; seule sa profo
 
 **Jalon (obligatoire)** : matérialise le verdict qualité via `iakaframe jalon` (titre FIGlet
 `Standard` + tableau émetteur/contenu/récepteur) ; en cas de `FAIL`, liste les échecs en
-`chemin:ligne` dans ton message. Réf. : `methode-de-travail.md` § Jalons & clôture.
+`chemin:ligne` dans ton message. Le **récepteur** est nommé : sur `FAIL` le jalon retourne vers
+**Gimli** — c'est la reprise ; sur `PASS` il ouvre l'étape suivante (stage, puis Helm), le gate
+étant franchi **sans humain**. Réf. : `methode-de-travail.md` § Jalons & clôture.
+
+## Revue Qualité de Version (RQV)
 
 **Revue Qualité de Version (RQV) — gate HUMAIN à la mineure.** À **chaque version mineure** (pas à
 chaque livraison), Legolas produit — **en co-production avec 📖 Nathalie** — le **document
