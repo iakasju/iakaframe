@@ -754,3 +754,38 @@ la même omission que celle qui fonde la levée B-2.
 
 **Hors chiffrage** : CH-D et CH-F (~0,5 à 1,25 j-h, toujours ouverts) et la **teinte définitive** de
 Loki (décision de charte, ~0 j-h de dev, non bloquante — § 13.6.5).
+
+---
+
+## Note additive — clôture de CH-F (2026-07-20)
+
+**CH-F est CLOS — sans travail, par vérification.** Le chantier posait la question d'un
+conflit entre une **pastille dynamique** (une persona employant une couleur variable selon la
+phase) et l'`identity-guard`, avec le risque de **faux positifs en P3**. La question était
+marquée « *(à vérifier)* » au tableau `:269` et « non audité ici » au `:383` : elle n'a jamais
+été instruite, seulement soupçonnée.
+
+**Le fait, établi au gate de fin de série de phase 1 puis revérifié à la source avant cette
+clôture** (`preuve-avant-declaration`) :
+
+- `kits/iakaframe-claude/global/hooks/guard-core.mjs:30` déclare une **liste blanche de six
+  pastilles** (`PASTILLES`), et le verdict d'identité travaille sur cette liste ;
+- le module ne référence **jamais** la persona ni son frontmatter — `grep -cE "roleKey|persona|frontmatter"`
+  sur le fichier rend **0** ;
+- ce que le garde contrôle est la **POSITION** de la pastille, qui porte le sens (avant le bloc =
+  ouverture, après = clôture), documenté en toutes lettres à `guard-core.mjs:25-27` — **pas sa
+  valeur** comparée à une couleur déclarée en charte.
+
+**Conséquence** : une persona qui déclare une pastille et en emploie une autre selon la phase
+**ne peut pas** déclencher de faux positif, puisque aucune comparaison au déclaré n'a lieu. La
+prémisse du chantier — « si validation stricte contre frontmatter » (`:269`) — est **fausse**.
+CH-F est sans objet, il n'appelle aucune modification de code ni de charte.
+
+**Réserve à connaître, pour ne pas relire cette clôture comme un blanc-seing** : l'absence de
+validation est ce qui *ferme* CH-F, mais c'est aussi une **garde plus faible qu'on ne le croyait**
+— rien n'empêche une persona d'employer une pastille hors de son royaume, tant qu'elle appartient
+à la liste blanche des six et qu'elle est bien positionnée. Ce n'est pas CH-F, ce n'est pas un
+défaut ouvert ici, et ce n'est pas chiffré : c'est une propriété du dispositif, à connaître si
+l'on venait un jour à vouloir un contrôle de cohérence pastille↔royaume.
+
+*Arbitrage du décideur, 2026-07-20 : fermer. Coût réel : nul.*
