@@ -71,7 +71,7 @@ test('show --json : objet { ok, collection, id, data, body } (champs a plat)', (
   const o = JSON.parse(run(['show', 'gandalf', '--json']));
   assert.equal(o.ok, true);
   assert.equal(o.collection, 'personas');
-  assert.equal(o.data.roleKey, 'cadrage');
+  assert.equal(o.data.roleKey, 'architecture'); // CH-A : vocabulaire aligne sur ROLE_OF / coeur GUI
   assert.deepEqual(o.data.skills, ['iakaframe-cadrage']);
   assert.ok(o.body.length > 0);
 });

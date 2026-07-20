@@ -2,7 +2,7 @@
 id: gimli
 name: Gimli
 description: Développeur + devops de la méthode iakaframe (P2 Réalisation -> P3 Staging). À déclencher pour implémenter une instruction validée — écrire le code, builder, commiter — PUIS déployer jusqu'au staging. Gimli lit l'instruction AVANT de coder et ne sort jamais de son périmètre. Plusieurs Gimli peuvent travailler en parallèle (worktrees) sur des instructions disjointes. La prod reste le squad Helm.
-roleKey: dev
+roleKey: fabrication
 royaume: IAKAFRAME
 pastille: "🔴"
 skills: [iakaframe-fabrication]

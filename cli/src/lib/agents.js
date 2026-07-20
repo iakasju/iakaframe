@@ -20,7 +20,7 @@ export const ROLE_OF = {
   gandalf: 'architecture',
   gimli: 'fabrication',
   legolas: 'tests',
-  helm: 'coordination',   // déploiement prod : rattaché à la coordination (cf. core skill.ts)
+  helm: 'deploiement',
   loki: 'graphisme',
   nathalie: 'doc',
 };
@@ -32,21 +32,16 @@ export const SKILL_OF = {
   architecture: 'iakaframe-cadrage',
   fabrication: '',                    // pas de skill : porté par le CLAUDE.md du projet
   tests: 'iakaframe-qualite',
+  deploiement: 'iakaframe-deploiement',
   graphisme: 'iakaframe-naonedge',
   doc: 'iakaframe-nathalie',
 };
 
-// Surcharge de skill au niveau PERSONA : quand une persona porte une skill differente de la
-// skill canonique de son rôle. Ex. helm partage le rôle "coordination" avec aragorn mais porte
-// sa propre skill de deploiement.
-export const SKILL_OVERRIDE_OF = {
-  helm: 'iakaframe-deploiement',
-};
-
-// Resout la skill d'une PERSONA : override persona > skill du rôle incarne. C'est la chaine
-// persona -> rôle -> skill (plus de conflation).
+// Resout la skill d'une PERSONA : skill du rôle incarne. C'est la chaine persona -> rôle ->
+// skill (plus de conflation), SANS exception codee : `deploiement` etant devenu un rôle
+// canonique de plein droit, l'ancienne table SKILL_OVERRIDE_OF (qui rattrapait le rangement
+// par defaut de helm en "coordination") n'a plus d'objet et a ete supprimee.
 export function skillOfPersona(name) {
-  if (Object.prototype.hasOwnProperty.call(SKILL_OVERRIDE_OF, name)) return SKILL_OVERRIDE_OF[name];
   const roleKey = ROLE_OF[name];
   return (roleKey && SKILL_OF[roleKey]) || '';
 }
