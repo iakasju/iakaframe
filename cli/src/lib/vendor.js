@@ -40,14 +40,27 @@ export function sha256(text) {
 // Calquee sur cli/test/vocab-parity.test.js : override d'environnement, puis depots voisins sous
 // le meme dossier chapeau, casse alternative comprise. Un candidat n'est retenu que si son
 // dossier de fixtures existe (evite de designer un dossier homonyme vide).
+// L'override d'environnement, S'IL EST POSE, est AUTORITAIRE : il n'est jamais suivi d'un repli.
+// L'instruction dit « premier chemin existant gagne » (§ 4.1) ET « IAKAFRAME_GUI_ROOT inexistant
+// => SKIP » (A8). Sur une machine de dev ou le frere reel est a cote, les deux sont incompatibles.
+// Tranche en faveur de l'override autoritaire, pour deux raisons :
+//   1. retomber en silence sur un AUTRE depot que celui explicitement designe ferait juger la
+//      garde sur un referentiel que l'operateur n'a pas choisi, et rendre un verdict confiant
+//      dessus — precisement la classe de defaut que ce lot ferme ;
+//   2. sinon le chemin « frere absent » serait INTESTABLE des qu'un frere existe, et la
+//      degradation gracieuse ne serait jamais eprouvee.
+// Le « premier existant gagne » garde tout son sens entre les deux candidats IMPLICITES.
 export function guiCandidates(root, env = process.env) {
+  const override = env.IAKAFRAME_GUI_ROOT;
+  if (override && String(override).trim() !== '') return [override];
   return [
-    env.IAKAFRAME_GUI_ROOT,
     path.resolve(root, '..', 'iakaFrameGUI'),
     path.resolve(root, '..', 'iakaframegui'),
-  ].filter(Boolean);
+  ];
 }
 
+// Un candidat n'est retenu que si son dossier de fixtures existe : un dossier homonyme vide ne
+// doit jamais etre pris pour le miroir.
 export function resolveGuiRoot(root, env = process.env) {
   for (const cand of guiCandidates(root, env)) {
     try {
