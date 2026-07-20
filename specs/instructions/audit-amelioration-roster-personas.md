@@ -4,6 +4,12 @@
 > artefact produit. Même grille à **7 dimensions** que `audit-amelioration-aragorn.md`, appliquée à
 > **Odin, Gandalf, Gimli, Legolas, Helm, Loki, Nathalie**. Aucun code : spec fermée pour un futur
 > lot d'exécution.
+>
+> ⚠️ **AVANT TOUTE EXÉCUTION — lire la « Note additive de RAFRAÎCHISSEMENT — phase 2 » en fin de
+> fichier.** Sept des huit items de cet audit sont **soldés** par la phase 1 ; **seul `CH-A`
+> (`roleKey`) reste ouvert**, et il s'est **élargi d'un consommateur** (`methods/iakaframe.md`) que
+> ni cet audit ni l'arbitrage n'avaient vu. Les §§ 2, 4 et 5 décrivent un roster **antérieur à la
+> phase 1** : ils valent comme trace d'audit, **pas comme plan de travail**.
 
 ## 0. Deux rectifications factuelles au préalable
 
@@ -190,14 +196,40 @@ Il n'a que `Bash` — même schéma que CH-3 chez Aragorn, tranché par le déci
 | Persona | `skills:` | Verdict |
 |---|---|---|
 | Odin | `[iakaframe-odin, iakastart]` | ⚠️ **`iakastart` n'est jamais déployée** par `affectPersona` : `SKILL_OF.portefeuille` ne rend qu'`iakaframe-odin` (`agents.js:29-37`). Cause traitée dans le lot skills. |
+| **Aragorn** *(ligne ajoutée le 2026-07-20, re-gate)* | `[iakaframe-aragorn]` | ✅ + `subskills: [iakaframe-jalon]` — **hors périmètre d'audit** (traité en v0.17.14), mais **la table auditait 7 lignes pour un roster de 8** : une omission de cette forme fait lire un inventaire comme complet alors qu'il ne l'est pas |
 | Gandalf | `[iakaframe-cadrage]` | ✅ + `subskills: [iakaframe-jalon]` |
-| **Gimli** | `[]` | ⚠️ **seul agent sans skill** — voir ci-dessous |
+| **Gimli** | ~~`[]`~~ → **`[iakaframe-fabrication]`** | ⛔ ~~⚠️ **seul agent sans skill**~~ — **FAIT PÉRIMÉ, rectifié le 2026-07-20 (gate Legolas, D5)**, cf. encadré sous la table |
 | Legolas | `[iakaframe-qualite]` | ✅ |
 | Helm | `[iakaframe-deploiement]` | ✅ (via `SKILL_OVERRIDE_OF`, `agents.js:42-44`) |
 | Loki | `[iakaframe-naonedge]` | ✅ |
 | Nathalie | `[iakaframe-nathalie, iakaframe-memoire-humaine]` | ✅ canon — mais 2ᵉ skill non déployée (même cause qu'Odin) |
 
-**Gimli `skills: []` — défaut ou choix ?** C'est un **choix assumé et documenté** :
+> ⛔ **RECTIFICATION DIRECTE (2026-07-20, gate Legolas — D5). Toute l'analyse qui suit porte sur un
+> état RÉVOLU.**
+>
+> **Mesuré sur disque à la rectification** (`preuve-avant-declaration`, pas repris d'un rapport) :
+> `library/personas/gimli.md` déclare **`skills: [iakaframe-fabrication]`**. CH-D a été **tranché et
+> livré** en phase 1 (lot Gimli, `c3d8ca4`) : la skill existe, elle est **composée**
+> (`layer: capacity`, `subskills: [iakaframe-gestion-de-source, iakaframe-conteneurisation,
+> iakaframe-jalon]`). **Gimli n'est plus l'agent sans skill ; il est celui qui en résout le plus (7).**
+>
+> **Pourquoi cette ligne devait être rectifiée DANS SON TEXTE et pas seulement par la note R.1.**
+> La note de rafraîchissement signalait déjà le fait en prose, mais la **ligne de tableau**, elle,
+> continuait d'affirmer `[]` — et un tableau de verdicts se lit en diagonale, sans remonter aux
+> notes de fin de fichier. Un exécutant y aurait lu que Gimli est sans skill, et en aurait tiré des
+> conséquences fausses **en cascade** : que `resolveSkills('gimli')` doit rendre `[]` (critère **B7**
+> de l'instruction skills), que le message « pas de skill » d'`agents.js` est légitime (**B29**), et
+> que l'union déployable ne contient ni `fabrication` ni sa chaîne — soit **6 des 17 skills de
+> l'union**. C'est précisément la faute que le principe **`canon-avant-citation`** interdit : un
+> canon périmé laissé lisible comme actif. Une clause de primauté en fin de fichier ne suffit pas
+> pour une **donnée**, seulement pour une doctrine.
+>
+> **Ce qui reste valide ci-dessous** : le raisonnement de conception (sortir en skill une procédure
+> stable plutôt qu'un fait de projet) — il a **fondé l'arbitrage** et a été **suivi**. Il se lit
+> désormais comme la **justification** de CH-D, non comme une question ouverte.
+
+**Gimli `skills: []` — défaut ou choix ?** *(analyse d'origine, état révolu — cf. encadré ci-dessus)*
+C'est un **choix assumé et documenté** :
 `gimli.md:16` (« Pas de skill dédiée : porté par le `CLAUDE.md` du projet »), `agents.js:33`
 (`fabrication: ''`), `agents.js:105-106` (message dédié), et le cœur GUI le confirme
 (`roster.ts:31` : `fabrication: []`). Les **quatre couches sont cohérentes** — ce n'est donc **pas
@@ -834,3 +866,147 @@ de **phase 2** par la ligne de partage contenu/structure. CH-E a été **absorb�
 de `deploiement` en rôle canonique, également renvoyée en phase 2.
 
 *Arbitrage du décideur, 2026-07-20 : fermer.*
+
+---
+
+## Note additive de RAFRAÎCHISSEMENT — phase 2 (2026-07-20)
+
+> Rédigée après la clôture de la **phase 1** (v0.18.0, merge `e79caee`). Cette note **réduit le
+> périmètre** de l'instruction, **corrige deux affirmations fausses** et **ajoute un consommateur
+> jamais listé**. En cas de contradiction avec les §§ antérieurs, **elle prime**. Tous les constats
+> ont été **revérifiés sur le disque** (`preuve-avant-declaration`).
+
+### R.1 Périmètre résiduel — il ne reste que **CH-A**
+
+L'instruction couvrait 2 quick wins et 6 chantiers. **Sept des huit sont soldés par la phase 1** :
+
+| Item | État | Preuve |
+|---|---|---|
+| QW-1 (RQV Nathalie) | **CLOS** | lot Nathalie (`d617775`) |
+| QW-2 (jalon Gimli) | **CLOS** | lot Gimli (`c3d8ca4`) |
+| QW-3 (jalon Odin) | **CLOS** | lot Odin (`a71c2dd`) |
+| QW-4 (skills non déployées) | **renvoyé** au lot skills | — |
+| **CH-A** (`roleKey`) | **OUVERT — seul reste** | `library/personas/*.md` portent toujours `cadrage`/`dev`/`qualite`/`design`/`documentation`, `ROLE_OF` toujours `architecture`/`fabrication`/`tests`/`graphisme`/`doc` — **vérifié, divergence intacte 6/8** |
+| CH-B (`Task` Odin) | **CLOS** | `bindings/iakaframe-claude-default.md`, assignation `odin` porte `Task` — vérifié |
+| CH-C (`Write` Helm) | **CLOS** | assignation `helm` porte `Write` — vérifié ; bornage dans `helm.md` |
+| CH-D (skill Gimli) | **CLOS** | `gimli.md` porte `skills: [iakaframe-fabrication]` — vérifié |
+| CH-E (Helm au roster GUI) | **absorbé** par CH-A | § 13.5 |
+| CH-F (pastille dynamique) | **CLOS sans travail** | note de clôture ci-dessus |
+
+> **Conséquence de cadrage : ce fichier n'est plus un audit à exécuter, c'est le porteur de CH-A.**
+> Le § 2 (tableau de synthèse), le § 4 (verdicts par dimension) et le § 5 (améliorations) décrivent
+> un **état du roster antérieur à la phase 1** et ne doivent plus servir de plan de travail. Ils
+> restent lisibles comme **trace d'audit**. Deux cellules sont désormais fausses si on les lit comme
+> actuelles : **Gimli n'a plus `skills: []`** (dimension 5) et **Odin a `Task`** (dimensions 4 et 6).
+
+### R.2 Consommateur JAMAIS listé — `methods/iakaframe.md` porte un **5ᵉ** vocabulaire de rôles
+
+**C'est l'ajout le plus important de cette note.** Le § 1 (« Portée & sources auditées ») recense
+canon, binding, golden, skills, table CLI, générateur, cœur GUI, méthode — mais **jamais le fait que
+`methods/iakaframe.md` déclare lui-même la liste des rôles** :
+
+```
+roleKeys: [portefeuille, coordination, cadrage, dev, qualite, deploiement, design, documentation]
+```
+
+Cette ligne porte le **vocabulaire du CANON** — celui que CH-A prévoit précisément d'abandonner. Elle
+n'apparaît ni dans la table du § 3, ni dans les fichiers de référence du § 11, ni dans
+`decision-rolekey-reconciliation.md`. **Aucun des deux documents d'arbitrage n'a vu ce fichier.**
+
+Or il n'est pas décoratif : `cli/src/commands/assemble.js` contrôle la compatibilité
+**`method.roleKeys` ⊆ union des `roleKey` de la team**, et `cli/test/library.test.js` exerce ce
+contrôle **sur la vraie bibliothèque du dépôt**.
+
+> **CH-A est donc plus large d'un fichier que ce que les deux instructions décrivent** — et ce
+> fichier est **lui-même vendoré** côté GUI (fixture `method.iakaframe.md`, **déjà en dérive**, cf.
+> `garde-vendor-check-cross-repo.md` § 12.2). Le renommage devra le traiter **et** le re-vendorer.
+
+| # | Critère ajouté | Vérification |
+|---|---|---|
+| **C21** | `methods/iakaframe.md` (`roleKeys`) porte **exactement** le même vocabulaire que les 8 `library/personas/*.md` après renommage | comparaison ensembliste, 8/8 |
+| **C22** | Une **garde** rend rouge toute divergence entre `method.roleKeys` et l'union des `roleKey` des personas de la team | modifier l'un sans l'autre ⇒ test rouge |
+
+### R.3 Correction d'une affirmation fausse — *pourquoi* les suites restent vertes
+
+Le § 6 et le § 13.2 affirment que les suites resteront vertes parce que **`roleKey` n'est projeté
+dans aucun golden**. C'est exact, mais **ce n'est pas la vraie raison**, et la vraie raison est bien
+plus dangereuse.
+
+**Fait vérifié dans `cli/src/lib/library.js`** : un rôle de la méthode non couvert par un `roleKey`
+de persona n'est **pas** un échec dès lors que la team déclare un **coordinateur** —
+`orphans = hasCoordinator ? [] : uncoveredRoles`. Or `teams/iakaframe-8.md` déclare
+`coordinator: aragorn`.
+
+**Donc**, si CH-A renomme les 5 personas **sans** toucher `methods/iakaframe.md` :
+
+- `cadrage`, `dev`, `qualite`, `design`, `documentation` deviennent **non couverts** ;
+- ils sont **silencieusement absorbés par Aragorn** (`coveredByCoordinator`), avec un simple
+  `warning` ;
+- `orphans` reste `[]`, `ok` reste `true`, `methodRoleKeys.length` reste `8` ;
+- **le test `library.test.js` (« vraie bibliothèque … assemble = 8/8 ») reste VERT.**
+
+> **Ce n'est pas l'absence de filet, c'est un filet qui MASQUE.** Le mécanisme de repli
+> — *un rôle non couvert est pris par le coordinateur* — est une règle **voulue et utile**, mais
+> ici elle transforme un renommage raté en **réattribution silencieuse de 5 rôles sur 8 à Aragorn**,
+> sous un test vert. C'est un résultat **pire** qu'une simple absence de garde, et **plus grave** que
+> ce que décrit le § 13.2.
+
+| # | Critère ajouté | Vérification |
+|---|---|---|
+| **C23** | Après CH-A, `assemble('iakaframe','iakaframe-8')` rend `coveredByCoordinator == []` et `warnings == []` | `--json` ; **un rôle absorbé par le coordinateur vaut ÉCHEC du lot**, pas un avertissement |
+
+> C23 est la garde qui manquait. Il ne suffit pas que `orphans` soit vide : sur cette team, `orphans`
+> est **structurellement** vide. C'est `coveredByCoordinator` qu'il faut regarder.
+
+### R.4 Correctif de forme — citer par **nom de section**
+
+La phase 1 a acté : **citer par nom de section, jamais par numéro de ligne** (tolérables T2/T3/T6),
+et le correctif a été appliqué aux **canons** mais **pas rétro-appliqué aux instructions**. Ce
+fichier porte à lui seul **~59 pointeurs `fichier.md:NN`**, dont une part visant les **7 personas
+modifiées en phase 1** — donc **périmés**.
+
+> **Règle en vigueur pour ce fichier** : tout pointeur `chemin:ligne` des §§ antérieurs est
+> **présumé faux** et doit être **revérifié avant usage**. La présente note et toute rédaction
+> ultérieure citent **par nom de section ou de symbole**. Aucune reprise en masse des anciens
+> pointeurs n'est demandée : elle coûterait plus qu'elle ne rapporte, et le sceau ci-dessus suffit à
+> empêcher qu'ils soient suivis de confiance.
+
+### R.5 Dépendances
+
+| Nature | Contenu |
+|---|---|
+| **Dépend de** | **`garde-vendor-check-cross-repo.md`** — CH-A modifie les 8 personas **et** `methods/iakaframe.md`, tous vendorés ; sans la garde, un re-vendorage incomplet est indétectable |
+| **Est prérequis de** | **`parite-skills-generateur-deploiement.md`** — `roster.ts` est touché par les deux lots (rôle `deploiement` ici, `DEFAULT_SKILLS` là-bas) ; **B27 est porté ici** |
+| **Ordre interne non négociable** | la **garde de parité** `roleKey` ↔ `ROLE_OF` (**C2**) et la garde `method.roleKeys` (**C22**) s'écrivent **AVANT** le renommage et sont **vues rouges** sur l'état actuel |
+
+### R.6 Estimation révisée du lot CH-A
+
+Le lot 3 ne contient **plus que CH-A** (les autres items sont clos) — mais CH-A s'est **élargi**.
+
+| Poste | **Charge** |
+|---|---|
+| 5 `roleKey` de personas + garde de parité C2 écrite d'abord | 0,5 j-h |
+| Promotion de `deploiement` en 8ᵉ rôle (CLI + `roles.ts` + `roster.ts`) + suppression de `SKILL_OVERRIDE_OF` | 0,5 j-h |
+| Points de rupture du § 13.8 (tests `roster.test.ts`, 8 commentaires « 7 rôles », inventaire des 4 consommateurs, `export` de `CASTING_GRADIENTS`, 8ᵉ vignette) | 0,75 j-h |
+| **`methods/iakaframe.md` + gardes C21/C22/C23** *(nouveau — § R.2/R.3)* | **+0,5 j-h** |
+| Rituel de « fini » : goldens → déployé → re-vendorage **21 fixtures** → 2 suites | 0,25 j-h |
+| **Total** | **~2,5 à 3 j-h** |
+
+- **Complexité** : **moyenne-haute**, inchangée.
+- **Risque** : **relevé de moyen-haut à haut.** Motif : § R.3. Le risque n'est plus « les suites ne
+  voient rien » mais « les suites **cautionnent** un état faux » — un renommage partiel produit un
+  dépôt vert dans lequel Aragorn a silencieusement absorbé 5 rôles. C23 est la **seule** parade.
+- **Inconnues** :
+  - **les 4 consommateurs GUI de `CANONICAL_ROLES`** (§ 13.8 c) — toujours **non audités**,
+    inventaire exigé en ouverture de lot, verdict consigné même s'il est « rien à faire » ;
+  - **l'ampleur réelle du renommage côté GUI** — les termes `tests` et `doc` restent quasi
+    impossibles à greper proprement (`decision-rolekey-reconciliation.md` § 3) ;
+  - **la teinte définitive de la 8ᵉ vignette** (Loki) — **arbitrée le 2026-07-20 : le repli
+    provisoire est RETENU** pour ce lot. La valeur provisoire spécifiée au § 13.6.5 (avec son
+    commentaire de marquage) est **suffisante pour livrer et gater** ; C19/C20 portent sur la
+    **distinction** et le **compte**, jamais sur les valeurs. **La teinte définitive reste ouverte
+    pour Loki**, hors lot, **non bloquante**, et sa substitution ultérieure ne touchera que deux
+    chaînes ;
+  - **existe-t-il d'autres porteurs de vocabulaire de rôles non recensés ?** `methods/iakaframe.md`
+    a échappé à deux passages d'audit et à un arbitrage : rien ne garantit qu'il soit le dernier.
+    **Un inventaire exhaustif est exigé en ouverture de lot**, avant tout renommage.

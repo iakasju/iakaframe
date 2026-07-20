@@ -1,6 +1,10 @@
 # Décision — réconciliation `roleKey` (CH-A)
 
 > ⚠️ **DÉCISION RENDUE le 2026-07-19 — direction retenue : § 2 (aligner le canon sur CLI+GUI).**
+> **Complétée le 2026-07-20 : lire le § 10 (rafraîchissement phase 2) AVANT d'exécuter** — un
+> **4ᵉ porteur** du vocabulaire de rôles (`methods/iakaframe.md`) a échappé à ce comparatif, ce qui
+> **affaiblit le motif factuel** de l'arbitrage sans en changer le coût ; et l'affirmation
+> « aucun filet n'existe » (§ 0) est **corrigée** : un filet existe et **masque** la panne.
 > Ce document n'est **plus** une question ouverte. Il est conservé comme **trace du raisonnement**
 > ayant précédé l'arbitrage. **Aller directement au § 9** (note additive) pour la décision, sa
 > réserve assumée, et la résolution du cas Helm. Les §§ 1-8 sont l'analyse d'origine, **inchangée**.
@@ -344,3 +348,130 @@ inchangé ; `SKILL_OVERRIDE_OF` est supprimée ; CH-E est absorbé dans le lot 3
 > **CH-A est intégralement tranché.** Les 6 dérives lexicales alignent le canon sur CLI+GUI ; la
 > lacune de modélisation (Helm) est comblée côté CLI+GUI. Ce document est **clos** — il ne reste
 > aucune question ouverte en son sein.
+
+---
+
+## 10. Note additive de RAFRAÎCHISSEMENT — phase 2 (2026-07-20)
+
+> ⚠️ **La clôture du § 9 est MAINTENUE quant à la DIRECTION** (aligner le canon sur CLI+GUI) : elle
+> n'est pas rouverte. Mais la clôture affirmait qu'*« il ne reste aucune question ouverte »* — **c'est
+> faux sur un point de fait** : le comparatif reposait sur un **inventaire incomplet des porteurs du
+> vocabulaire de rôles**. Cette note complète l'inventaire et corrige un raisonnement. Constats
+> **revérifiés sur le disque** (`preuve-avant-declaration`).
+
+### 10.1 L'inventaire des porteurs de vocabulaire était incomplet — il y en a **quatre**, pas trois
+
+Tout ce document raisonne sur un triplet : **canon** (`library/personas/*.md`) · **CLI**
+(`ROLE_OF`) · **cœur GUI** (`roles.ts`/`roster.ts`). Le § 1 le résume ainsi : *« Le canon est le seul
+en désaccord »*, et c'est **ce constat qui fonde l'arbitrage du § 9.1** (« la lecture la plus probable
+est que c'est le canon qui a dérivé »).
+
+**Un quatrième porteur existe, jamais cité dans ce document** : `methods/iakaframe.md` déclare
+
+```
+roleKeys: [portefeuille, coordination, cadrage, dev, qualite, deploiement, design, documentation]
+```
+
+— soit **le vocabulaire du canon**, à l'identique.
+
+> **Effet sur le raisonnement du § 9.1 — à mesurer honnêtement.** Le décompte n'est plus « 1 contre 2 »
+> mais **« 2 contre 2 »** : canon + méthode d'un côté, CLI + cœur GUI de l'autre. L'argument
+> « le canon est le seul en désaccord, donc c'est lui qui a dérivé » **perd sa force principale**.
+>
+> **Cela ne renverse pas mécaniquement la décision** — le second motif du § 9.1 (**coût moitié
+> moindre, un dépôt au lieu de deux**) reste entier et suffit à la défendre. Mais le décideur a
+> tranché sur un fait qui s'avère inexact, et il doit le savoir. **Je ne rouvre pas l'arbitrage de ma
+> propre initiative : je le signale, et je laisse le décideur juger s'il souhaite le reconsidérer**
+> (§ 10.4).
+
+**Dans la direction retenue, `methods/iakaframe.md` doit être renommé lui aussi** — sans quoi la
+méthode déclarerait des rôles qu'aucune persona n'incarne. Il est de surcroît **vendoré** côté GUI
+(fixture `method.iakaframe.md`) et **déjà en dérive** (cf. `garde-vendor-check-cross-repo.md`
+§ 12.2). Le coût de la direction retenue passe donc de **5 lignes** à **5 lignes + 1 fichier de
+méthode + son re-vendorage**.
+
+### 10.2 Correction — le § 0 se trompe sur la RAISON de l'absence de symptôme
+
+Le § 0 affirme : *« `roleKey` n'est projeté dans aucun contrat … Aucun filet n'existe aujourd'hui. »*
+La première proposition est **exacte** (revérifiée : `renderAgentContract` ne rend que `name`,
+`description`, `tools`, `guardrails`). La conclusion, elle, est **incomplète et rassurante à tort**.
+
+Un filet existe : `assemble` contrôle **`method.roleKeys` ⊆ union des `roleKey` de la team**, et
+`cli/test/library.test.js` l'exerce **sur la vraie bibliothèque**. Mais il **ne se déclenchera pas**,
+pour une raison que ce document n'a jamais examinée : `library.js` pose
+`orphans = hasCoordinator ? [] : uncoveredRoles`, et `teams/iakaframe-8.md` déclare
+`coordinator: aragorn`.
+
+> **Donc un renommage partiel ne produit pas « rien » : il produit une RÉATTRIBUTION SILENCIEUSE.**
+> Les 5 rôles renommés deviennent non couverts, sont **absorbés par Aragorn**, `orphans` reste vide,
+> le test reste **vert**. La méthode déclarerait alors qu'Aragorn porte `cadrage`, `dev`, `qualite`,
+> `design` et `documentation` — l'inverse exact du principe de **périmètres étanches**.
+>
+> Le § 0 disait « naviguer sans instrument ». La formulation exacte est pire : **l'instrument existe
+> et indique faussement que tout va bien.**
+
+**La contrainte du § 0 — écrire la garde AVANT le renommage — en sort donc RENFORCÉE**, et elle doit
+porter sur **deux** gardes, pas une :
+
+| Garde | Objet | Doit être vue ROUGE avant renommage |
+|---|---|---|
+| **G1** | parité `roleKey` (canon) ↔ `ROLE_OF` (CLI) | oui — 6/8 divergents aujourd'hui |
+| **G2** *(nouveau)* | `method.roleKeys` ↔ union des `roleKey` de la team, **`coveredByCoordinator` vide exigé** | oui — dès le premier renommage partiel |
+
+> **G2 est la garde qui manquait**, et elle ne peut pas se contenter de tester `orphans == []` : sur
+> cette team, `orphans` est **structurellement** vide. C'est **`coveredByCoordinator`** qu'elle doit
+> assertion-ner à vide.
+
+### 10.3 Ce que la phase 1 a changé sous ce document
+
+- **`SKILL_OVERRIDE_OF` est toujours là**, `ROLE_OF.helm` vaut toujours `coordination`, les 6
+  divergences sont **intactes** : le § 1 reste **exact** persona par persona. Rien n'a été exécuté.
+- **CH-B (`Task` pour Odin) est LIVRÉ** en phase 1 : le § 8 contrainte 4 et les recoupements avec le
+  binding **ne s'appliquent plus** — ce lot ne touchera plus le binding pour Odin.
+- **Le § 9.5 renvoie à `audit-amelioration-roster-personas.md` § 13.6** pour la 8ᵉ vignette : ce
+  renvoi reste **valide**.
+- **Pointeurs de ligne** : ce fichier en porte ~11, dont ceux visant `library/personas/*.md:5`. La
+  ligne `5` du frontmatter (`roleKey`) **n'a pas bougé** en phase 1 — vérifié sur les 8 personas —
+  donc ces pointeurs-ci **restent justes**. Les pointeurs vers le **corps** des personas
+  (`helm.md:13-18`, `gimli.md:16`…) sont en revanche **présumés faux** : citer par **nom de section**.
+
+### 10.4 Ce qui revient au DÉCIDEUR
+
+1. ~~**Le § 10.1 rouvre-t-il l'arbitrage ?**~~ — **TRANCHÉ (2026-07-20) : arbitrage MAINTENU.**
+   La direction du § 9.1 (aligner le canon sur CLI+GUI) **n'est pas rouverte**. Le § 10.1 ne la
+   remet pas en cause.
+2. ~~**La réserve du § 9.2 doit-elle être élargie ?**~~ — **TRANCHÉ : oui, à l'identique**, sans
+   changer la décision (cf. § 10.6).
+
+### 10.6 Décision maintenue — mais **son motif est corrigé** (2026-07-20)
+
+> **Ceci n'est pas une nuance de rédaction. C'est la partie de l'arbitrage qu'il ne faut pas
+> perdre.**
+
+Le § 9.1 fondait la décision sur **deux** motifs :
+
+| # | Motif d'origine | **Statut après vérification** |
+|---|---|---|
+| 1 | *« Le canon est le seul des trois en désaccord ⇒ la lecture la plus probable est que c'est le canon qui a dérivé »* | ❌ **FAUX** — il y a **quatre** porteurs, pas trois. `methods/iakaframe.md` porte le vocabulaire du canon (§ 10.1). Le décompte réel est **2 contre 2** : canon + méthode ↔ CLI + cœur GUI. **La présomption de dérive du canon ne tient plus.** |
+| 2 | *« Coût moitié moindre, sur un dépôt au lieu de deux, sans toucher un cœur GUI dépourvu de filet de compilation »* | ✅ **INTACT** — et **seul porteur de la décision** désormais |
+
+**La décision tient donc sur le SEUL motif de coût.** Le décideur la maintient **en connaissance du
+fait corrigé** (arbitrage du 2026-07-20).
+
+> **Pourquoi l'écrire noir sur blanc plutôt que laisser la décision se justifier toute seule :**
+> une décision juste appuyée sur un fait faux est une **dette**. Le fait faux survit à la décision,
+> se recite, et sert un jour à trancher autre chose. En le neutralisant ici, on garde la décision et
+> on **retire le faux argument de la circulation**.
+>
+> **Conséquence à assumer** : la direction retenue n'est plus « corriger un canon qui a dérivé »
+> (récit rassurant, désormais infondé) mais **« faire plier deux artefacts de canon devant leurs
+> consommateurs, parce que c'est moins cher »**. C'est un choix légitime et assumé — ce n'est pas
+> le même choix. **La réserve du § 9.2 est élargie en conséquence** : ce sont **`library/personas/*.md`
+> ET `methods/iakaframe.md`** qui plient, et cela **ne crée toujours pas de précédent** (§ 9.2).
+
+### 10.5 Dépendances
+
+Ce document n'est pas un lot : il est la **trace d'arbitrage** de CH-A, porté par
+`audit-amelioration-roster-personas.md`. Il **hérite intégralement** des dépendances déclarées à la
+§ R.5 de celui-ci — notamment : **`garde-vendor-check-cross-repo.md` d'abord**, et **les gardes G1/G2
+écrites et vues rouges avant tout renommage**.

@@ -78,9 +78,13 @@ Trois anomalies en découlent, toutes vérifiables :
   migré**. Régression latente, hors scope strict des skills mais dans le même code : à traiter ici
   ou à inscrire au backlog (§ 8).
 
-## 2. État mesuré de la dette
+## 2. ~~État mesuré de la dette~~ — ⛔ **CHIFFRES PÉRIMÉS, cf. § 14.1 et § 14.2**
 
-- **23 skills** au canon (`library/skills/*/SKILL.md`), dont `iakaframe-jalon`.
+> ⛔ **Le pool est passé de 23 à 24 skills** (création d'`iakaframe-fabrication` en phase 1) et
+> l'union déployable a été **entièrement recalculée**. Les comptes de ce § et ceux du § 13.3
+> (« union des 11 ») sont **caducs**. **Lire le § 14.2 avant d'exécuter.**
+
+- ~~**23 skills**~~ → **24 skills** au canon (`library/skills/*/SKILL.md`), dont `iakaframe-jalon`.
 - **15 skills** déployées (`~/.claude/skills/*/SKILL.md`) → **8 absentes**.
 - `iakaframe-jalon` : **absente** du déployé → le geste livré en v0.17.14 **n'est pas actif**.
 - Scorie canal : `Slack` subsiste dans le déployé —
@@ -418,7 +422,12 @@ le module voisin et que `switch.js` charge déjà la persona ; l'essentiel du su
 fait de la modification du format de contrat, et cette correction va dans le sens d'une
 **convergence** des deux chemins de déploiement, donc réduit la dette plutôt qu'elle ne l'augmente.
 
-### 13.3 Périmètre de déploiement : **l'UNION DES 11**, pas les 23 (levée B-1 du gate Legolas)
+### 13.3 ~~Périmètre de déploiement : l'UNION DES 11, pas les 23~~ — ⛔ **RECALCULÉ : l'union vaut 17 (transitive) ou 14 (profondeur 1), cf. § 14.2**
+
+> ⛔ **Chiffres et liste périmés, conservés pour trace.** La **règle** posée ici (« ensemble déployé
+> = union des `resolveSkills(p)` ») est **inchangée et toujours en vigueur** — seules ses **valeurs**
+> ont bougé, le canon ayant changé en phase 1. Le « 11 » de ce § ne désigne plus rien d'actuel :
+> **ne pas le citer sans lire le § 14.2.**
 
 > **Contradiction normative corrigée.** Le § 5.4 posait « ensemble déployé = union des
 > `resolveSkills(p)` » — c'est **la règle**, elle est juste. Mais B8 (§ 9) exigeait « déploie **23**
@@ -521,7 +530,13 @@ pas la même gravité opérationnelle. Deux traitements possibles :
 > lot 3, ou l'acter comme **critère différé** de ce lot. *Reco Gandalf : le porter au lot 3*, qui est
 > le lot propriétaire du rôle — et le signaler ici pour qu'il ne se perde pas.
 
-### 13.6 Profondeur des subskills — décision maintenue, **justification corrigée**
+### 13.6 ~~Profondeur des subskills — décision maintenue~~ — ⛔ **B28 SUSPENDU : son motif est mort avec le lot Gimli, cf. § 14.3**
+
+> ⛔ **Ne pas implémenter B28 tel qu'écrit ci-dessous.** Le motif de ce § — *« aucune chaîne
+> atteignable depuis une persona ne dépasse 1 niveau »* — était exact à sa rédaction et est
+> **factuellement faux depuis le lot Gimli** : `gimli → fabrication → gestion-de-source → git →
+> forgejo` est une chaîne de **profondeur 3 atteignable depuis le roster**. Appliqué tel quel, B28
+> **ferait échouer la résolution sur le canon en vigueur**. Ré-arbitrage requis : **§ 14.3**.
 
 Le § 5.1 (pt 4) limite la résolution à **un niveau** en affirmant qu'« aucun cas réel à 2 niveaux »
 n'existe. **C'est faux** : la bibliothèque porte une chaîne à **3 niveaux** —
@@ -564,3 +579,249 @@ déclenchent donc **deux fois** le même cycle complet (8 goldens + déployé + 
 les 4 assertions GUI ci-dessus). Embarquer l'ajout de `Task` pour Odin dans ce lot-ci **économiserait
 un cycle entier**. Ce n'est **pas** une demande de modification de l'ordre — le découpage actuel a
 l'avantage de garder un lot = un sujet. **À l'appréciation du coordinateur.**
+
+---
+
+## 14. Note additive de RAFRAÎCHISSEMENT — phase 2 (2026-07-20)
+
+> Rédigée après la clôture de la **phase 1** (v0.18.0, merge `e79caee`). Cette note **corrige des
+> faits périmés** et **invalide deux chiffrages** des §§ 1-13 ; en cas de contradiction, **elle
+> prime**. Tous les constats ont été **recalculés sur le disque** avant rédaction
+> (`preuve-avant-declaration`) — rien n'est repris des notes antérieures.
+
+### 14.1 Ce que la phase 1 a changé sous cette instruction
+
+| Fait | Avant | **Aujourd'hui (vérifié)** |
+|---|---|---|
+| Pool de skills | 23 | **24** — création d'`iakaframe-fabrication` (lot Gimli, `c3d8ca4`) |
+| `gimli.md` frontmatter | `skills: []` | **`skills: [iakaframe-fabrication]`** — Gimli n'est plus l'agent sans skill |
+| `iakaframe-fabrication` | n'existait pas | skill **composée**, `layer: capacity`, **`subskills: [iakaframe-gestion-de-source, iakaframe-conteneurisation, iakaframe-jalon]`** |
+| `iakaframe-odin` | pas de `subskills` | **`subskills: [iakastart]`** |
+| Binding | ni `Task` pour Odin, ni `Write` pour Helm | **`Task` accordé à Odin**, **`Write` accordé à Helm** (CH-B et CH-C soldés en phase 1) |
+
+**Ce qui n'a PAS changé — les trois faits qui fondent le lot restent vrais**, revérifiés :
+`renderAgentContract` ne projette toujours que `name`, `description`, `tools?`, `guardrails` (pas
+`skills:`) ; **aucune** assignation du binding ne porte `Skill` ; `switch` copie toujours la persona
+brute. **La couche skills demeure structurellement inerte.** Le § 0 est intégralement valide.
+
+> ⚠️ **Le lot Gimli a donc livré une skill que rien n'active.** C'était connu et assumé au gate
+> (réserve consignée), mais cela **augmente l'enjeu** de ce lot : il ne s'agit plus seulement de
+> réveiller `iakaframe-jalon`, mais aussi `iakaframe-fabrication` et ses trois briques.
+
+### 14.2 L'arbitrage « union des 11 » est **CADUC** — recalcul intégral
+
+> ⛔ **Le § 13.3 est périmé dans ses CHIFFRES et dans sa LISTE.** Sa **règle** (« ensemble déployé =
+> union des `resolveSkills(p)` ») reste juste et non discutée — c'est elle qui prime, exactement
+> comme au § 13.3. Ce sont les nombres qui ont bougé, parce que le canon a bougé.
+
+**Entrées du calcul (relevées au frontmatter, 2026-07-20) :**
+
+- personas → `skills:` — odin `[iakaframe-odin, iakastart]` · aragorn `[iakaframe-aragorn]` ·
+  gandalf `[iakaframe-cadrage]` · **gimli `[iakaframe-fabrication]`** · legolas `[iakaframe-qualite]` ·
+  helm `[iakaframe-deploiement]` · loki `[iakaframe-naonedge]` ·
+  nathalie `[iakaframe-nathalie, iakaframe-memoire-humaine]`
+- relations `subskills:` traversées — `odin→iakastart` · `aragorn→jalon` · `cadrage→jalon` ·
+  **`fabrication→{gestion-de-source, conteneurisation, jalon}`** · `memoire-humaine→appflowy-doc` ·
+  `gestion-de-source→git` · `git→forgejo` · `conteneurisation→docker`
+
+**Résultat — deux valeurs, selon la profondeur retenue :**
+
+| Profondeur | Taille de l'union | Skills |
+|---|---|---|
+| **1 niveau** (règle actuelle du § 5.1 pt 4) | **14** | odin · iakastart · aragorn · jalon · cadrage · fabrication · gestion-de-source · conteneurisation · qualite · deploiement · naonedge · nathalie · memoire-humaine · appflowy-doc |
+| **Transitive** | **17** | les 14 ci-dessus **+ git + forgejo + docker** |
+
+**Ni 11, ni 23.** L'union a **grossi de 3 à 6 entrées** du seul fait du lot Gimli.
+
+**Écarts réels contre les 15 skills actuellement déployées** (`~/.claude/skills/`, relevé direct) :
+
+| | Profondeur 1 (union 14) | **Transitive (union 17)** |
+|---|---|---|
+| **Manquantes** | **5** — jalon, fabrication, gestion-de-source, conteneurisation, memoire-humaine | **6** — les 5 mêmes **+ git** *(`forgejo` et `docker`, bien qu'entrant dans l'union transitive, sont **déjà déployées** : elles ne creusent pas l'écart)* |
+| **Orphelines** (déployées, hors union) | **6** — forgejo, docker, etat-des-lieux, log-conversation, update, init | **4** — etat-des-lieux, log-conversation, update, init |
+| Conformes | 9 | **11** |
+
+> **Coïncidence à ne pas relire de travers** : le « 11 » réapparaît, mais il ne désigne **plus du
+> tout** la même chose. Au § 13.3 il nommait **la taille de l'union** ; ici il nomme le **nombre de
+> skills déjà conformes**. Toute citation du « 11 » sans cette précision est un contresens.
+
+**Les 7 skills hors union (transitive)** — `etat-des-lieux`, `learning`, `retrait`, `update`,
+`init`, `journal-conversation`, `log-conversation` — **restent au canon et accessibles au CLI**,
+simplement non projetées dans le runtime des personas. La doctrine du § 13.3 (ne pas les déployer,
+les **signaler** sans jamais les supprimer) est **intégralement reconduite**.
+
+**B8 et B16 sont réécrits une seconde fois** (les versions du § 9 **et** celles du § 13.3 sont
+caduques) :
+
+| # | Critère (**version en vigueur**) | Vérification |
+|---|---|---|
+| **B8** | `skills deploy --global` déploie **exactement l'union résolue**, `iakaframe-jalon` **et** `iakaframe-fabrication` incluses. `count == 17` si profondeur transitive retenue, `== 14` si profondeur 1 | `--json` : `count` + liste identique à l'union recalculée |
+| **B16** | **0 manquante** sur l'union ; les orphelines (**4** en transitif, **6** en profondeur 1) sont **signalées** `orphan` et **conservées** | `skills deploy --check` sort **0** ; `--json` liste les `orphan` |
+
+> ⚠️ **B8/B16 sont volontairement paramétrés par l'arbitrage de profondeur (§ 14.3).** Ils ne
+> peuvent pas être figés avant lui. **Le calcul, lui, est figé** : c'est le tableau ci-dessus.
+
+### 14.3 Défaut DISQUALIFIANT hérité — **B28 rend le lot inexécutable en l'état**
+
+**C'est le point le plus grave de ce rafraîchissement.** Le § 13.6 a ajouté le critère **B28** :
+
+> *« Une chaîne `subskills` de profondeur **> 1** atteignable depuis une persona ⇒ **erreur
+> explicite**. »*
+
+Il était fondé sur un motif alors exact : *« aucune chaîne atteignable depuis une persona ne dépasse
+1 niveau ; la chaîne profonde part d'`iakaframe-init`, qui est orpheline »*.
+
+**Ce motif est mort avec le lot Gimli.** Gimli déclare `iakaframe-fabrication`, qui déclare
+`iakaframe-gestion-de-source`, qui déclare `iakaframe-git`, qui déclare `iakaframe-forgejo` : une
+chaîne de **profondeur 3 atteignable depuis une persona du roster**. Idem
+`fabrication → conteneurisation → docker` (profondeur 2).
+
+> **Conséquence mécanique : appliquer B28 tel quel ferait échouer `resolveSkills('gimli')` sur le
+> canon en vigueur.** Le critère n'attraperait pas un piège futur — il **rejetterait l'état actuel du
+> dépôt**. Un lot livré ainsi serait rouge à la première exécution, sur un canon pourtant valide.
+> **B28 est donc SUSPENDU** ; il ne doit pas être implémenté tel qu'écrit.
+
+**Deux issues, et une seule tient :**
+
+| Option | Conséquence | Verdict |
+|---|---|---|
+| **Garder la profondeur 1** + B28 | `resolveSkills('gimli')` **échoue** ⇒ lot inexécutable. Ou bien on tronque silencieusement `git`/`forgejo`/`docker` — soit exactement le défaut que B28 voulait interdire | **Écarté** |
+| **Passer en résolution TRANSITIVE** + **détection de cycles** | Résout la chaîne complète (union = 17). Le besoin que le § 7 pt 5 jugeait « inexistant » **existe désormais** | **Recommandé** |
+
+> **Le § 7 pt 5 et le § 5.1 pt 4 sont donc à ré-arbitrer** — c'est un **point décideur**, pas une
+> correction de forme : la profondeur de résolution était un arbitrage rendu, et le fait qui le
+> fondait a changé. La recommandation Gandalf s'**inverse** : *résolution transitive, avec détection
+> de cycles obligatoire*.
+
+> ✅ **TRANCHÉ PAR LE DÉCIDEUR (2026-07-20) — résolution TRANSITIVE avec détection de cycles.**
+> La recommandation Gandalf est retenue. **B28 est LEVÉ** ; **B28-a/b/c le remplacent
+> définitivement**. Le § 5.1 pt 4 (« UN SEUL niveau de subskills ») et le § 7 pt 5 sont **caducs**.
+>
+> **Motif du décideur, à conserver** : la profondeur 1 obligerait à **démonter la skill composée
+> `iakaframe-fabrication`** créée et gatée en phase 1 — soit détacher ses subskills, soit les
+> aplatir. **On ne plie pas le canon à une limite d'implémentation.** C'est le même principe que
+> celui invoqué au § 4.2 pour écarter les tables codées : la source de vérité commande, le mécanisme
+> s'y adapte.
+>
+> **L'union déployable est donc figée à 17** (colonne « Transitive » du § 14.2), avec **6 manquantes**
+> et **4 orphelines**. **B8 vaut `count == 17`** et **B16 porte sur 4 orphelines** — ils ne sont plus
+> paramétrés par un arbitrage en attente, ils sont **fermés**.
+
+**Critères révisés :**
+
+| # | Critère (**remplace B28**) | Vérification |
+|---|---|---|
+| **B28-a** | `resolveSkills('gimli')` résout la chaîne **complète** : `fabrication`, `gestion-de-source`, `git`, `forgejo`, `conteneurisation`, `docker`, `jalon` — **7 entrées**, aucune troncature | test unitaire |
+| **B28-b** | Un **cycle** dans le graphe `subskills` ⇒ **erreur explicite nommant le cycle**, jamais une boucle infinie ni une troncature | test : introduire temporairement `A→B→A` |
+| **B28-c** | L'ordre de résolution est **déterministe** (parcours en profondeur, ordre de déclaration, première occurrence conservée) — condition de stabilité du golden | test de stabilité : 2 résolutions successives identiques |
+
+> **Si le décideur maintient la profondeur 1**, alors B28-a devient inatteignable et la seule issue
+> cohérente est de **détacher `iakaframe-fabrication` de Gimli** ou d'**aplatir** ses subskills —
+> deux gestes qui défont le lot Gimli de la phase 1. **Je le déconseille formellement** : ce serait
+> plier un canon validé à une limite d'implémentation.
+
+### 14.4 `SKILL_OF` ne dit plus seulement « trop peu » — il dit **faux**
+
+L'anomalie A du § 1 s'est aggravée d'un cran, et il faut le nommer :
+`SKILL_OF.fabrication = ''` (avec le commentaire *« pas de skill : porté par le CLAUDE.md du
+projet »*) et la branche `else if (name === 'gimli')` qui affiche *« gimli : pas de skill — porté par
+le CLAUDE.md du projet »* **contredisent désormais le canon**, qui déclare
+`skills: [iakaframe-fabrication]`.
+
+> Ce n'était qu'une **omission** (une skill sur deux non déployée pour Odin et Nathalie) ; c'est
+> maintenant une **affirmation fausse imprimée à l'utilisateur**. Cela renforce la recommandation du
+> § 4.2 — **supprimer les tables codées**, pas les conserver en repli. **Critère ajouté :**
+
+| # | Critère | Vérification |
+|---|---|---|
+| **B29** | Aucun chemin ne prétend plus que Gimli est sans skill : le message dédié est **supprimé** avec la table, et `fullteam`/`switch` déploient bien `iakaframe-fabrication` pour Gimli | `grep -n "pas de skill" cli/src/` = 0 ; sortie de déploiement |
+
+### 14.5 Asymétrie `layer` — versée à ce lot
+
+`library/skills/iakaframe-jalon/SKILL.md` **ne déclare aucun champ `layer`**, alors que
+`iakaframe-gestion-de-source`, `iakaframe-conteneurisation`, `iakaframe-memoire-humaine`,
+`iakaframe-journal-conversation` et `iakaframe-fabrication` portent `layer: capacity`, et que
+`iakaframe-git` porte `layer: family`, `iakaframe-docker` / `-forgejo` / `-appflowy-doc` /
+`-log-conversation` portent `layer: product`.
+
+`iakaframe-fabrication` (une **capacité**) pointe donc `iakaframe-jalon`, une brique **non typée** —
+relevé en phase 1 comme observation hors périmètre, **versée ici** puisque ce lot est le propriétaire
+du modèle de résolution des skills.
+
+| # | Critère | Vérification |
+|---|---|---|
+| **B30** | Toute skill atteinte par une résolution porte un `layer` explicite, ou l'absence est **documentée comme intentionnelle** dans `library/skills/README.md` | inventaire des `layer` sur les 24 skills |
+
+> **Ce critère n'impose pas une valeur** pour `iakaframe-jalon` : `capacity` (geste transverse) se
+> défend, `product` non. **Le choix de la valeur est un point décideur** (§ 14.7) ; le critère exige
+> seulement que le silence cesse.
+
+### 14.6 Dépendances — ce lot vient en **DERNIER**
+
+| Nature | Contenu |
+|---|---|
+| **Dépend de** | **`garde-vendor-check-cross-repo.md`** (la garde doit exister **avant** que ce lot ne modifie le format du contrat) · **`audit-amelioration-roster-personas.md` / CH-A** (`roster.ts` est modifié par les deux lots — cf. B27 et § 13.5) |
+| **Est prérequis de** | rien |
+| **Ne doit PAS précéder** | les deux lots ci-dessus |
+
+**Motif — il est le plus destructeur des trois s'il part en premier :** c'est **le seul lot qui
+modifie le format du contrat d'agent** (ajout de `skills:`) **et** le binding (ajout de `Skill`). Il
+propage donc sur les 8 goldens, les 21 fixtures vendorées et 4 assertions en dur du test GUI. Le
+livrer **sans** `vendor-check` reviendrait à exécuter le changement le plus risqué **précisément
+pendant la fenêtre où rien ne détecte une dérive cohérente** — la mitigation était déjà nommée au
+§ 10, elle devient ici une **dépendance déclarée**.
+
+**B27 (`DEFAULT_SKILLS` couvre le rôle `deploiement`) reste porté au lot roster**, conformément à la
+reco du § 13.5 : ce lot le **signale**, ne l'implémente pas.
+
+### 14.7 Points que SEUL le décideur tranche — **liste en vigueur**
+
+> ✅ **AUCUN ARBITRAGE N'EST PLUS EN ATTENTE SUR CE LOT (2026-07-20).** Les points 1 à 4 du § 7
+> étaient tranchés au § 13 ; les deux points nouveaux relevés au rafraîchissement l'ont été le
+> 2026-07-20. **Le lot est exécutable sans autre décision.**
+
+1. ~~**Profondeur de résolution**~~ — **TRANCHÉ : résolution TRANSITIVE + détection de cycles**
+   (§ 14.3). B28 levé, B28-a/b/c en vigueur, union figée à **17**. *Motif : ne pas démonter
+   `iakaframe-fabrication` pour satisfaire une limite d'implémentation.*
+2. ~~**Valeur du `layer` d'`iakaframe-jalon`**~~ — **TRANCHÉ : `layer: capacity`** (§ 14.5). B30 est
+   **levé en conséquence** : la valeur n'est plus à inventorier ni à arbitrer, elle est **posée**.
+   Ce qui subsiste du critère est le geste d'écriture, reformulé en **B30-bis** ci-dessous.
+3. *(reconduit du § 13.8)* **Embarque-t-on d'autres changements de binding dans ce lot ?**
+   **CLOS — sans objet.** `Task` (Odin) et `Write` (Helm) sont **déjà livrés** en phase 1 :
+   l'économie de cycle invoquée alors **n'existe plus**. Le seul changement de binding restant est
+   **`Skill`**, porté par ce lot.
+
+| # | Critère (**remplace B30**) | Vérification |
+|---|---|---|
+| **B30-bis** | `library/skills/iakaframe-jalon/SKILL.md` déclare **`layer: capacity`**, au même rang que `gestion-de-source`, `conteneurisation`, `memoire-humaine`, `journal-conversation` et `fabrication` | `grep -n "^layer:" library/skills/iakaframe-jalon/SKILL.md` = `layer: capacity` |
+
+> **Pourquoi `capacity` et non `product`** *(motif du décideur, à conserver)* : le jalon est un
+> **geste de méthode transverse**, indépendant de tout outil ; il n'a pas de produit sous-jacent à
+> nommer. Il se range donc au même rang que les autres capacités — ce qui **supprime l'asymétrie**
+> relevée en phase 1, où `iakaframe-fabrication` (capacité) pointait une brique non typée.
+
+### 14.8 Estimation révisée
+
+| Poste | Avant | **Révisé** | Motif |
+|---|---|---|---|
+| Base (§ 10 + § 13.2) | ~2,75-3,25 j-h | **~2,75-3,25 j-h** | inchangé |
+| Résolution **transitive** + détection de cycles + déterminisme (B28-a/b/c) | — | **+0,25 j-h** | remplace une limite triviale par un vrai parcours de graphe |
+| Union passée de 11 à 17 déployables | — | **~0 j-h** | la boucle ne change pas de nature ; seul le `count` bouge |
+| Suppression du message « pas de skill » + retombées (B29) | — | **+0,1 j-h** | trivial, mais à ne pas oublier |
+| Inventaire et arbitrage `layer` (B30) | — | **+0,15 j-h** | inventaire des 24 skills + doc |
+| | **~2,75-3,25** | **~3,25 à 3,75 j-h** | |
+
+- **Complexité** : **moyenne-haute** *(relevée d'un cran)*. Le lot ne se contente plus d'aplatir une
+  liste : il parcourt un **graphe** avec cycles possibles, et il doit le faire de façon
+  **déterministe** puisqu'un golden en dépend.
+- **Risque** : **moyen-haut**, inchangé — et **entièrement concentré** sur la modification du format
+  du contrat. La mitigation reste la même et devient une dépendance : **`vendor-check` d'abord**.
+- **Inconnues** *(la principale est inchangée)* :
+  - **le `skills:` du contrat est-il réellement honoré** pour un subagent défini en
+    `~/.claude/agents/` ? Toujours **non vérifié en réel** — c'est l'objet de la recette **B21**, et
+    c'est ce qui décide si tout le lot atteint son but ;
+  - **coût en contexte du préchargement**, désormais **plus lourd qu'estimé** : Gimli précharge
+    **7 skills** (dont la chaîne git/forgejo/docker) là où le chiffrage d'origine en supposait 0 ou 1.
+    Si le volume injecté devient excessif, arbitrer **skill par skill** entre préchargement (A) et
+    invocation à la demande (B) — l'option A+B du § 4.1 le permet **sans rien redécouper** ;
+  - version minimale de Claude Code exigée par le champ `skills:` — toujours à confirmer.
