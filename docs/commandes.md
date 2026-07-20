@@ -155,6 +155,19 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 | `detach <skill>` | `--persona <id>` · `--json` | Détache un skill d'un persona : retire l'id de `skills:[]` (idempotent, réversible par `attach`). Le **`−` au « titre du skill »** — affordance rendue par la vue, jamais écrite dans le corps du persona. |
 | `assemble <m> <t>` | `--write --binding --json` | Compose un kit (méthode + team [+ binding]) — dry-run par défaut. |
 | `switch` \| `use <m> <t>` | `--path --binding --rollback --json` | Bascule un projet vers une méthode/team. (`use` = alias de `switch`.) |
+| `vendor-check` | `--strict --gui <dir> --root --json` | **Garde de vendorage cross-repo** : constate que les **21 fixtures** vendorées par `iakaFrameGUI` (**17 copies** + **4 dérivées**) sont fidèles au canon `iakaframe`. Seule garde capable de voir la dérive **mutuellement cohérente** (binding + golden + `sha256` recalculés ensemble), invisible de la suite GUI qui compare ses copies à elles-mêmes. **Gracieux par défaut** : dépôt frère absent → `ok:false` + `status:"skipped"` + **exit 0** (jamais de blocage d'un clone isolé) ; `--strict` en fait un échec. `IAKAFRAME_GUI_ROOT` est **autoritaire** (jamais de repli silencieux sur un autre dépôt). |
+
+> **Les deux gestes de remédiation** — `vendor-check` les nomme lui-même en cas de dérive, et ils
+> ne sont **jamais** interchangeables :
+>
+> 1. **les 17 copies** (8 goldens + 8 personas + 1 binding) → **re-vendorage par `cp`** ;
+> 2. **les 4 dérivées** (méthode, méthode *wrapped*, team, kit) → **régénération par le
+>    sérialiseur** — `node packages/core/scripts/gen-fixtures.mjs` (depuis `iakaFrameGUI`, pour les
+>    3 premières ; `--check` non mutant) et `iakaframe assemble iakaframe iakaframe-8 --write`
+>    (pour le kit).
+>
+> **Copier une dérivée la détruirait** : ce sont des formes canoniques sérialisées, pas des copies —
+> `methodMd.test.ts`, `teamMd.test.ts` et `kitMd.test.ts` sont bâtis sur cette forme.
 
 ## B.5 Canon du portefeuille — boucle d'apprentissage incrémentale
 
