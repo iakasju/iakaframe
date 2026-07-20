@@ -789,3 +789,48 @@ défaut ouvert ici, et ce n'est pas chiffré : c'est une propriété du disposit
 l'on venait un jour à vouloir un contrôle de cohérence pastille↔royaume.
 
 *Arbitrage du décideur, 2026-07-20 : fermer. Coût réel : nul.*
+
+---
+
+## Note additive — clôture de CH-C et CH-D (2026-07-20)
+
+Les deux derniers chantiers ouverts de cet audit sont **CLOS par la série de phase 1**. Constat
+revérifié sur le disque avant consignation (`preuve-avant-declaration`), pas repris des rapports
+de lot.
+
+**CH-C — canal d'écriture de `specs/PROJET.md` / `Write` borné : CLOS** *(lot Helm, `3d12e39`,
+gate Legolas PASS)*. Arbitrage du décideur : accorder `Write`. Livré en **deux volets
+indissociables dans le même commit**, conformément à la doctrine que cette instruction pose
+elle-même — accorder un droit d'écriture sans inscrire son bornage est un défaut :
+- `bindings/iakaframe-claude-default.md:13` — `tools: [Read, Grep, Glob, Write, Bash]` ;
+- `library/personas/helm.md:37` — section `## Obligation — bornage de l'écriture`, **dans le
+  corps** de la charte et non dans la `description` frontmatter (champ de routage). C'était
+  précisément le défaut relevé chez Gandalf (GD-3).
+Le gate a jugé le bornage « substantiel et restrictif » : artefacts autorisés nommés (rollback,
+config de bascule/alias, notes d'exploitation), exclusions nommées (code, tests, configs
+applicatives, scripts de build → Gimli), clause de doute → abstention. Le gate de production
+reste intact : écrire une procédure de rollback est une **préparation**, pas une bascule.
+
+**CH-D — skill pour Gimli : CLOS** *(lot Gimli, `c3d8ca4`, gate Legolas PASS)*. Arbitrage du
+décideur : **créer**, et structurer le savoir-faire dev **par fonction**. Livré :
+- `library/personas/gimli.md:8` — `skills: [iakaframe-fabrication]` (il était le seul agent du
+  roster avec `skills: []`) ;
+- `library/skills/iakaframe-fabrication/SKILL.md` — skill **composée**, `layer: capacity`,
+  `subskills: [iakaframe-gestion-de-source, iakaframe-conteneurisation, iakaframe-jalon]`.
+La demande « par fonction » a été honorée **sur le fond, pas seulement au frontmatter** : le gate
+a porté le critère anti-monolithe G-A5d en vérifiant que la coiffante **ne redécrit pas** ce que
+portent ses briques (aucune procédure de commit, de build d'image ni d'anatomie de jalon dans son
+corps). Ce qui reste en propre — conduite d'une exécution fermée, incrémentalité, hors-périmètre
+signalé sans être traité, escalade de l'ambiguïté, isolation par worktree, borne staging — n'est
+décrit dans aucune sous-skill.
+**Réserve connue, non imputable au lot** : cette skill **n'est pas active au runtime**. Le champ
+`skills:` n'est pas projeté au contrat, aucun binding n'accorde l'outil `Skill`, et `subskills`
+n'est résolu par aucun chemin. Le canon est juste, la mécanique se branche en phase 2
+(`parite-skills-generateur-deploiement.md`).
+
+**Les trois chantiers ouverts de cet audit (CH-C, CH-D, CH-F) sont donc soldés.** CH-A (`roleKey`)
+et CH-B (`Task` pour Odin) l'étaient déjà — CH-B au lot Odin (`a71c2dd`), CH-A restant un chantier
+de **phase 2** par la ligne de partage contenu/structure. CH-E a été **absorbé** par la promotion
+de `deploiement` en rôle canonique, également renvoyée en phase 2.
+
+*Arbitrage du décideur, 2026-07-20 : fermer.*
