@@ -13,6 +13,13 @@
 //      cp cli/test/fixtures/agents-golden/*.md \
 //         ../iakaFrameGUI/packages/core/__tests__/fixtures/agents-golden/
 //   3. les deux suites doivent repasser (CLI + GUI).
+//
+// ⚠️ CE RITUEL NE COUVRE QUE LES 8 GOLDENS — il ne suffit PAS a resynchroniser le vendorage.
+// La GUI vendore 21 fixtures sur 6 familles : 8 goldens, 8 personas, 1 binding (copies), plus 4
+// DERIVEES (methode, methode wrapped, team, kit) qui ne se copient JAMAIS — les copier detruirait
+// la forme canonique sur laquelle methodMd/teamMd/kitMd.test.ts sont batis. Ne jamais lire l'etape
+// 2 ci-dessus comme « le vendorage est a jour ».
+//   Etat reel du vendorage : `iakaframe vendor-check`  (donne les DEUX gestes de remediation).
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
