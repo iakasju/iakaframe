@@ -310,7 +310,29 @@ méthode**, pas des faits de projet — donc de bons candidats à une skill `iak
 6. **Ordre d'exécution.** Odin propose *Odin → Gimli → jalon Helm/Legolas*. **L'audit propose un
    autre ordre** (§ 8) : le 3ᵉ item est déjà fait (§ 0) et CH-A prime. **Arbitrage décideur.**
 
-## 8. Ordre d'exécution recommandé (contre-proposition argumentée)
+## 8. ~~Ordre d'exécution recommandé~~ — ⛔ **SUPERSÉDÉ par la série de phase 1** (2026-07-20)
+
+> ⛔ **CE § NE DOIT PLUS ÊTRE APPLIQUÉ TEL QUEL. Canon périmé, conservé pour trace.**
+>
+> **Ce qui l'a supersédé** : la stratégie a changé — l'amélioration des personas se fait désormais
+> **une persona à la fois**, dans la **série de phase 1** (7 instructions `persona-*-amelioration.md`),
+> dont **l'ordre a une source unique** : **`phase1-inventaire-bibliotheque.md` § 0.1 et § 0.2**.
+>
+> **Trois contradictions actives à neutraliser** si ce § était suivi :
+> 1. La ligne « rang 3 » **groupe** QW-1 (RQV Nathalie) et QW-2/3 (jalon Gimli, Odin) en **un seul
+>    lot** — cela contredit **« un commit par persona »**.
+> 2. Ce groupage **annulerait les trois dépendances** établies en phase 1
+>    (**Gimli→Legolas**, **Loki→Nathalie**, **Legolas→Nathalie**) : mettre Nathalie et Gimli dans le
+>    même commit rend l'ordre canon→citation **inexprimable**.
+> 3. Le **« principe de groupage »** énoncé plus bas (économiser des cycles de régénération) est
+>    **explicitement écarté** en phase 1, au profit de la traçabilité par persona.
+>
+> **Ce qui reste valide dans ce fichier** : l'**audit** (§§ 1-7) et les **arbitrages** (§ 13). Seul
+> **l'ordonnancement du § 8** est périmé.
+>
+> *(Mention ajoutée au gate 7 : un canon périmé resté lisible comme actif est précisément ce que le
+> principe `canon-avant-citation` interdit — une citation doit pouvoir être résolue vers un canon
+> **en vigueur**.)*
 
 | Rang | Lot | Justification |
 |---|---|---|
@@ -594,16 +616,35 @@ C13-C18 restent donc **obligatoires**.
 
 **Critères d'acceptation (révisés) :**
 
-| # | Critère | Statut | Vérification |
+> ⚠️ **Emplacement des tests — corrigé (gate Legolas).** Ces critères ne vivent **pas tous** dans
+> `packages/core`. `roleIndexOf`/`CANONICAL_ROLES` sont dans le **cœur** (`packages/core/src/roles.ts`)
+> mais `vignetteGradient`/`CASTING_GRADIENTS` sont dans l'**app** (`src/forge/casting.ts`) et
+> `Vignette` dans ses composants. La colonne ci-dessous indique le **paquet réel**.
+
+| # | Critère | Statut | Paquet & vérification |
 |---|---|---|---|
-| C13 | `roleIndexOf('deploiement') === 7` | **obligatoire** | test unitaire cœur GUI |
-| C14 | `vignetteGradient(7)` renvoie un **tuple valide de 2 chaînes**, sans exception ni `undefined` | **obligatoire** | test unitaire |
-| C15 | `vignetteGradient(n)` reste borné pour tout `n` (0, 7, 99, −1, `NaN`) | **obligatoire** | test de robustesse |
-| C16 | Le rendu d'une persona `roleIndex: 7` **n'émet ni erreur ni warning** | **obligatoire** | test de composant `Vignette` |
-| C17 | Adaptateurs **déterministes** avec 8 rôles ; Helm trie **en dernier** | **obligatoire** | goldens `claudeCode` / `agentsMd` |
-| C18 | `CANONICAL_ROLES` compte **8** entrées, `roleIndex` **0..7 sans trou ni doublon** | **obligatoire** | test d'invariant |
-| C19 | `vignetteGradient(7) !== vignetteGradient(0)` — **aucune collision Helm ↔ Odin** | **obligatoire** *(requalifié)* | test unitaire |
-| **C20** | **`CASTING_GRADIENTS.length >= CANONICAL_ROLES.length`** | **obligatoire** *(nouveau)* | test d'invariant |
+| C13 | `roleIndexOf('deploiement') === 7` | **obligatoire** | **core** — `packages/core/__tests__/roles.test.ts` |
+| C14 | `vignetteGradient(7)` renvoie un **tuple valide de 2 chaînes**, sans exception ni `undefined` | **obligatoire** | **app** — test unitaire `src/forge/` |
+| C15 | `vignetteGradient(n)` reste borné pour tout `n` (0, 7, 99, −1, `NaN`) | **obligatoire** | **app** — test de robustesse |
+| C16 | Le rendu d'une persona `roleIndex: 7` **n'émet ni erreur ni warning** | **obligatoire** | **app** — test de composant `Vignette` |
+| C17 | Adaptateurs **déterministes** avec 8 rôles ; Helm trie **en dernier** | **obligatoire** | **core** — goldens `claudeCode` / `agentsMd` |
+| C18 | `CANONICAL_ROLES` compte **8** entrées, `roleIndex` **0..7 sans trou ni doublon** | **obligatoire** | **core** — test d'invariant |
+| C19 | `vignetteGradient(7) !== vignetteGradient(0)` — **aucune collision Helm ↔ Odin** | **obligatoire** *(requalifié)* | **app** — test unitaire |
+| **C20** | **`CASTING_GRADIENTS.length >= CANONICAL_ROLES.length`** | **obligatoire** *(nouveau)* | **app**, **import inter-paquets** — cf. C20-bis |
+| **C20-bis** | **`CASTING_GRADIENTS` est `export`é** depuis `src/forge/casting.ts:8` | **obligatoire** *(nouveau)* | prérequis de C20 — cf. encadré |
+
+> ⚠️ **C20 exige un changement de code, à inscrire au périmètre du lot (gate Legolas).**
+> `CASTING_GRADIENTS` (`src/forge/casting.ts:8`) est aujourd'hui une **const privée du module**, non
+> exportée : **C20 n'est pas testable en l'état**. Le lot **doit** donc inclure l'ajout du mot-clé
+> `export` — modification triviale et sans effet de bord (aucun consommateur externe existant), mais
+> qui doit être **spécifiée** et non improvisée par l'exécutant.
+>
+> C20 confronte une donnée de l'**app** à une donnée du **cœur** : l'import
+> `@iakaframe/core → CANONICAL_ROLES` depuis un test de `src/forge/` doit être **validé** (il est
+> déjà pratiqué ailleurs dans l'app, mais à confirmer en ouverture de lot). **Repli acceptable si
+> l'import inter-paquets pose problème** : dupliquer l'attendu en constante littérale (`>= 8`) dans
+> le test, avec un commentaire pointant `roles.ts` — le critère perd sa généricité pour un 9ᵉ rôle
+> mais reste une garde ; **à n'utiliser qu'en dernier recours**, la version générique étant le legs.
 
 **Sort de C19 — tranché : il reste, requalifié.** Il ne devient pas sans objet, il **change de
 nature** : de *garde du repli* il devient **preuve que la 8ᵉ paire a bien été ajoutée**. Sans lui,
@@ -646,47 +687,6 @@ C19 verrouille *ce* lot ; **C20 verrouille tous les suivants** — c'est lui le 
 > **Principe appliqué** : une décision de charte ne doit jamais **bloquer** une livraison technique.
 > La valeur provisoire est le repli gracieux ; le commentaire garantit qu'elle ne se fossilise pas.
 
-#### 13.6.4 Le lot 3 est-il livrable et gate-able sans la vignette ? — **OUI**
-
-**Réponse ferme, donnée maintenant et non au gate**, comme demandé.
-
-Le rôle `deploiement` est **fonctionnellement complet** sans sa teinte : il existe dans le CLI, résout
-sa skill nativement (`SKILL_OF.deploiement`), supprime l'exception codée, est représentable au roster
-GUI, et n'introduit **aucun crash ni aucune indétermination**. La seule chose manquante est **une
-paire de couleurs**. C'est précisément le **principe iaka** : *dégradation gracieuse, pas de
-dépendance dure* — **une vignette manquante n'empêche pas un rôle d'exister**.
-
-**Critères d'acceptation du différé (testables, à ajouter au § 9) :**
-
-| # | Critère | Vérification |
-|---|---|---|
-| C13 | `roleIndexOf('deploiement') === 7` | test unitaire cœur GUI |
-| C14 | `vignetteGradient(7)` renvoie un **tuple valide de 2 chaînes**, sans exception ni `undefined` | test unitaire — **c'est le critère de non-régression du différé** |
-| C15 | `vignetteGradient(n)` reste borné pour tout `n` (0, 7, 99, −1, `NaN`) | test de robustesse (comportement déjà présent, à **verrouiller**) |
-| C16 | Le rendu d'une persona `roleIndex: 7` **n'émet ni erreur ni warning** | test de composant `Vignette` |
-| C17 | Les adaptateurs restent **déterministes** avec 8 rôles ; Helm trie **en dernier** | goldens `claudeCode` / `agentsMd` inchangés hors ajout |
-| C18 | `CANONICAL_ROLES` compte **8** entrées, `roleIndex` **0..7 sans trou ni doublon** | test d'invariant |
-| C19 | *(si § 13.6.3 retenu)* `vignetteGradient(7) !== vignetteGradient(0)` | test — **verrouille l'absence de collision** |
-
-> **Critère de « fini » du lot 3 dans cette configuration** : C13 à C18 **obligatoires** (C19 si le
-> repli est retenu). Le lot **n'est PAS conditionné** à la teinte définitive. En revanche, livrer le
-> rôle **sans** C14/C15/C16 reviendrait à livrer un rôle à moitié : ce sont eux qui **prouvent** la
-> dégradation gracieuse au lieu de la supposer.
-
-#### 13.6.5 Item de dette — formulation prête pour le backlog
-
-> - [ ] **Teinte de casting du rôle `deploiement` (8ᵉ dégradé)** — le rôle `deploiement` (Helm,
->   `roleIndex: 7`) a été promu rôle canonique au lot « roster personas » **sans teinte définitive**.
->   **Reste à faire** : arrêter le couple de couleurs et l'inscrire dans `CASTING_GRADIENTS`
->   (`~/work/iakaFrameGUI/src/forge/casting.ts:8-16`) — **~0,1 j-h de dev** ; l'essentiel est la
->   **décision de charte**. **Par qui** : **Loki** (choix de la teinte, cohérence avec la pastille
->   🟣 de Helm et distinction du violet `graphisme` `#7a3b86`) ; report en dev trivial.
->   **Ce qui se dégrade en attendant** : *(a)* si aucun repli n'a été posé, `7 % 7 = 0` renvoie le
->   dégradé **or du portefeuille** → **Helm s'affiche aux couleurs d'Odin** (collision peu exposée :
->   Odin est hors des équipes projet) ; *(b)* si le repli § 13.6.3 a été posé, la teinte d'attente
->   est simplement **non arbitrée par la charte**. **Aucun impact fonctionnel** : rôle, skill, tri
->   des adaptateurs et rendu sont corrects et testés (C13-C18). *Dette cosmétique, non bloquante.*
-
 ### 13.7 Points encore ouverts
 
 CH-C (`Write` borné pour Helm — *inclus au chiffrage lot 3, mais non formellement arbitré*), CH-D
@@ -698,8 +698,59 @@ bloquant** pour engager la réalisation.
 
 **Aucun item de dette n'est issu de cette instruction.**
 
-### 13.8 Estimation — inchangée
+### 13.8 Critère de « fini » du lot 3 — **COMPLÉTÉ** (levée B-2 du gate Legolas)
 
-La 8ᵉ paire (**~0,1 j-h**) est **absorbée** dans le lot 3 sans en changer la fourchette. Le total
-reste **~6 à 6,75 j-h** (lot 1 ~1 · lot 2 ~2,75-3,25 · lot 3 ~2,25-2,5). Le différé n'ayant jamais
-été chiffré comme une charge séparée, sa levée ne crée aucun écart.
+> **Le § 6 et le § 13.5 étaient incomplets.** Ils n'énuméraient pas les points de rupture réels de la
+> promotion de `deploiement` en 8ᵉ rôle. C'est **exactement la classe d'oubli qui a coûté un cycle en
+> v0.17.14** : un changement structurel dont on ne liste pas les consommateurs. La liste ci-dessous
+> **complète** le § 6 pour le lot 3 ; elle ne le remplace pas.
+
+**(a) Tests qui CASSENT mécaniquement — à mettre à jour, non négociable**
+
+| Fichier:ligne | Assertion | Action |
+|---|---|---|
+| `packages/core/__tests__/roster.test.ts:12` | `toHaveLength(7)` sur le roster canonique | → **8** |
+| `packages/core/__tests__/roster.test.ts:33` | `t.personas` `toHaveLength(7)` | → **8** |
+| `packages/core/__tests__/parite-generateurs.test.ts:147-156` | tools en dur (gandalf/gimli/odin) | cf. § 13.1 / lot 2 |
+
+**(b) Commentaires et doc affirmant « 7 rôles » — deviennent faux**
+
+`packages/core/src/roles.ts:2,6,26,37` · `packages/core/src/roster.ts:5,38,65` ·
+`packages/core/src/method.ts:55`.
+
+> Ce ne sont « que » des commentaires, mais `roles.ts:2` et `:26` **définissent le contrat de lecture**
+> du module (« LISTE CANONIQUE FERMÉE des 7 rôles », « Les 7 rôles canoniques »). Les laisser
+> produirait une doc qui **ment sur le code** — le défaut déjà relevé au backlog pour
+> `docs/commandes.md`. **À traiter dans le lot**, pas après.
+
+**(c) Consommateurs de `CANONICAL_ROLES` — inventaire à faire en ouverture de lot**
+
+`src/components/PersonaEditor.tsx` · `src/forge/llm/prompt.ts` ·
+`src/forge/ateliers/MethodeAtelier.tsx` · `src/forge/ateliers/WorkflowAtelier.tsx`.
+
+> **Aucun n'est présumé cassé** : ils itèrent probablement sur la liste et absorberont une 8ᵉ entrée
+> sans modification. Mais **aucun n'a été audité**, et l'absence de filet de compilation sur les clés
+> de rôle (§ 3 de la note `decision-rolekey-reconciliation.md`) interdit de le supposer. **Vérification
+> explicite exigée**, verdict consigné — y compris si le verdict est « rien à faire ».
+
+**(d) Rappel — le rituel du § 6 s'applique intégralement en plus** : goldens → déployé → re-vendorage
+GUI → les deux suites.
+
+### 13.9 Estimation révisée — **~7 à 7,5 j-h** (levée du gate Legolas)
+
+Le chiffrage précédent (**~6 à 6,75 j-h**) était **sous-estimé** : il ne provisionnait ni les points
+de rupture du § 13.8, ni la recette réelle du critère A5 du lot 1.
+
+| Lot | Avant | **Révisé** | Motif |
+|---|---|---|---|
+| **1** — `vendor-check` | ~1 j-h | **~1,25 j-h** | **+0,25** — volet de recette manuelle du drift réel (cf. `garde-vendor-check-cross-repo.md` § A5 révisé) |
+| **2** — Skills + `switch.js` | ~2,75-3,25 j-h | **~2,75-3,25 j-h** | inchangé — le périmètre « union des 11 » **réduit** le déploiement mais ajoute le traitement de `DEFAULT_SKILLS` : compensation |
+| **3** — Roster | ~2,25-2,5 j-h | **~2,75-3 j-h** | **+0,5** — tests `roster.test.ts`, 8 commentaires, inventaire des 4 consommateurs, `export` de `CASTING_GRADIENTS` |
+| | ~6-6,75 | **~6,75 à 7,5 j-h** | |
+
+**Total retenu : ~7 à 7,5 j-h**, en accord avec le chiffrage de Legolas. J'assume la sous-estimation
+initiale : elle venait de n'avoir pas inventorié les consommateurs GUI du roster avant de chiffrer —
+la même omission que celle qui fonde la levée B-2.
+
+**Hors chiffrage** : CH-D et CH-F (~0,5 à 1,25 j-h, toujours ouverts) et la **teinte définitive** de
+Loki (décision de charte, ~0 j-h de dev, non bloquante — § 13.6.5).
