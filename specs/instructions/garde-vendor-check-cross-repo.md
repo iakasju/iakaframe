@@ -260,3 +260,77 @@ dépôts »*. C'est le résultat visé, et c'est le maximum atteignable sans dé
 - `cli/src/lib/output.js` — convention C-JSON (`ok` en tête, collections + `count`)
 - `~/work/iakaFrameGUI/packages/core/__tests__/parite-generateurs.test.ts:24-41,130-135` — les 17
   imports vendorés + la garde sha256 qui ne prouve que la cohérence interne
+
+---
+
+## 11. Note additive — levées du gate Legolas (2026-07-19)
+
+> Ajout **postérieur** à l'analyse ci-dessus, qui reste inchangée sauf mention contraire.
+
+### 11.1 A5 — critère **scindé** : il était non rejouable en l'état (levée B-3)
+
+**Contradiction relevée, et fondée.** Le § 5 (A5) exige d'observer « **GUI verte MAIS `vendor-check`
+rouge** », tandis que le § 9 impose de **confiner** l'injection du drift au scratchpad pour ne jamais
+muter le dépôt GUI. Les deux sont **incompatibles** : la suite GUI importe ses fixtures par **chemin
+figé** (`parite-generateurs.test.ts:24-41`, imports `?raw` statiques). Un drift confiné dans le
+scratchpad est donc **invisible de vitest** — « GUI verte » deviendrait vrai **par construction**,
+et ne prouverait strictement **rien**.
+
+**Tranché : A5 est scindé en deux volets de nature différente.**
+
+**A5-a — volet AUTOMATISÉ (permanent, dans la suite)**
+
+Injection d'un drift *mutuellement cohérent* (binding + golden + sha256 recalculés ensemble) dans une
+**copie scratchpad** des 17 fixtures, `IAKAFRAME_GUI_ROOT` pointé dessus.
+
+| Attendu | Vérification |
+|---|---|
+| `vendor-check` sort **1** et nomme les fichiers dérivés | exit code + `--json` |
+| Le dépôt GUI réel n'est **jamais** muté | `git -C <GUI> status --porcelain` vide avant/après |
+
+> C'est **ce volet qui est rejoué à chaque exécution** : il verrouille la seule chose qui doit l'être
+> en permanence — **`vendor-check` détecte le drift cohérent**.
+
+**A5-b — volet RECETTE MANUELLE (one-shot, documenté)**
+
+Drift réel injecté dans le dépôt GUI, observation des **deux couleurs**, puis `git checkout` de
+revert. Exécuté **une fois**, à la livraison du lot ; **consigné** (date, commande, sortie des deux
+suites, confirmation du revert) dans l'instruction ou le rapport de gate.
+
+| Attendu | Vérification |
+|---|---|
+| Suite GUI **verte** malgré le drift | `npm run test` côté GUI |
+| `vendor-check` **rouge** sur le même état | exit 1 |
+| Arbre GUI **propre** après revert | `git status --porcelain` vide |
+
+**Pourquoi ce découpage plutôt que « copier le dépôt GUI entier »** — j'ai écarté l'option
+d'automatiser intégralement A5 en dupliquant tout `iakaFrameGUI` dans le scratchpad : elle exigerait
+d'y installer les dépendances pour exécuter vitest, soit un coût et une fragilité sans rapport avec
+le bénéfice. Et surtout : **le fait « un drift cohérent laisse la GUI verte » est déjà établi** —
+Legolas l'a démontré au gate v0.17.14 (475/475). Ce n'est pas un **risque de régression** à surveiller
+en continu, c'est un **constat de conception** ; le re-prouver à chaque run n'apporte rien. Ce qui
+doit être gardé en permanence, c'est l'**autre moitié** : que `vendor-check` reste rouge. D'où
+A5-a automatisé, A5-b en recette.
+
+> **Si un jour une CI héberge les deux dépôts**, A5-b pourra être automatisé sans changer A5-a.
+
+**Impact estimation : +0,25 j-h sur le lot 1** (~1 → **~1,25 j-h**) — rédaction du protocole A5-b et
+consignation de son exécution.
+
+### 11.2 § 4.4 — le rituel cité ne documente que 8 fichiers, pas 17 (levée non bloquante)
+
+Le § 4.4 renvoie à `cli/scripts/gen-agents-golden.mjs:10-15` comme documentant le re-vendorage. **Ce
+rituel ne couvre que les 8 goldens** (`:12-14` : `cp cli/test/fixtures/agents-golden/*.md → …`). Il
+**ne mentionne ni les 8 personas ni le binding**, alors que la garde en compare **17**.
+
+**Correction du § 4.4** : le message de remédiation de `vendor-check` doit énumérer les **trois**
+familles à re-vendorer — **goldens (8)**, **personas (8)**, **binding (1)** — et **ne pas se contenter
+de renvoyer** au commentaire de `gen-agents-golden.mjs`, qui est **incomplet pour cet usage**.
+
+| # | Critère ajouté | Vérification |
+|---|---|---|
+| **A14** | Le message de remédiation cite les **3 familles** (goldens, personas, binding) et le compte **17** | sortie humaine en cas de dérive |
+| **A15** | *(hygiène)* L'en-tête de `gen-agents-golden.mjs:10-15` est complété pour ne plus laisser croire que re-vendorer les 8 goldens suffit | relecture — **modification de commentaire uniquement** |
+
+> A15 sort littéralement du périmètre « garde », mais laisser un rituel **incomplet** dans le fichier
+> que tout exécutant lit en premier reviendrait à réinstaller la cause racine par la doc.

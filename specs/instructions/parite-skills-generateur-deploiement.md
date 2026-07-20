@@ -418,7 +418,145 @@ le module voisin et que `switch.js` charge déjà la persona ; l'essentiel du su
 fait de la modification du format de contrat, et cette correction va dans le sens d'une
 **convergence** des deux chemins de déploiement, donc réduit la dette plutôt qu'elle ne l'augmente.
 
-### 13.3 Opportunité d'ordonnancement (information, pas un ré-arbitrage)
+### 13.3 Périmètre de déploiement : **l'UNION DES 11**, pas les 23 (levée B-1 du gate Legolas)
+
+> **Contradiction normative corrigée.** Le § 5.4 posait « ensemble déployé = union des
+> `resolveSkills(p)` » — c'est **la règle**, elle est juste. Mais B8 (§ 9) exigeait « déploie **23**
+> skills » et B16 « 0/**23** », deux chiffres **incompatibles** avec elle. La règle prime ; les
+> chiffres étaient faux.
+
+**L'union réelle vaut 11** (vérifiée au gate) :
+
+`iakaframe-odin` · `iakastart` · `iakaframe-aragorn` · `iakaframe-jalon` · `iakaframe-cadrage` ·
+`iakaframe-nathalie` · `iakaframe-memoire-humaine` · `iakaframe-appflowy-doc` · `iakaframe-qualite` ·
+`iakaframe-deploiement` · `iakaframe-naonedge`
+
+**Écarts réels contre les 15 actuellement déployées** — la dette n'est pas « 8 absentes » :
+
+| Écart | Compte | Détail |
+|---|---|---|
+| **Manquantes** (dans l'union, non déployées) | **2** | `iakaframe-jalon`, `iakaframe-memoire-humaine` |
+| **Orphelines** (déployées, hors union) | **6** | `iakaframe-docker`, `-etat-des-lieux`, `-forgejo`, `-init`, `-log-conversation`, `-update` |
+| Conformes | 9 | — |
+
+**Arbitrage du décideur — les 6 orphelines ne seront PAS déployées.** Ce n'est **pas un oubli, c'est
+le périmètre** : aucune persona ne les déclare, donc `resolveSkills` ne les atteint pas.
+
+> **Conséquence à assumer explicitement** : ces 6 skills **restent présentes au canon**
+> (`library/skills/`) et **pleinement accessibles au CLI** — elles ne sont ni supprimées, ni
+> dépréciées. Elles ne sont simplement **pas projetées dans le runtime des personas**. Pour qu'une
+> d'elles le devienne, il faut **qu'une persona la déclare** dans son `skills:` (geste `attach`,
+> `cli/src/commands/attach.js`) — c'est le seul chemin, et c'est voulu : le frontmatter est la
+> source unique (§ 4.2).
+
+**B8 et B16 sont réécrits** (les versions du § 9 sont **caduques**) :
+
+| # | Critère révisé | Vérification |
+|---|---|---|
+| **B8** | `skills deploy --global` déploie **exactement les 11 skills de l'union**, `iakaframe-jalon` **incluse** | `--json` : `count == 11` ; la liste correspond à l'union |
+| **B16** | **Dette résorbée** : **0 manquante** sur les 11 ; les **6 orphelines** sont **signalées** (`orphan`) et **conservées** | `skills deploy --check` sort **0** ; `--json` liste 6 `orphan` |
+
+> **B13 (orphelines signalées, jamais supprimées) devient donc un critère central**, pas un cas
+> limite : il porte 6 skills réelles. Le comportement `--json` doit les distinguer sans ambiguïté
+> d'une erreur.
+
+### 13.4 B17 — restreint à Aragorn (levée B-5b du gate Legolas)
+
+B17 exigeait `grep -ri slack ~/.claude/skills/` **= 0**. **Non tenable** : le **canon d'Odin** porte
+encore Slack (`library/skills/iakaframe-odin/SKILL.md:55,64`) et le § 3 place explicitement la purge
+du **contenu** des skills **hors périmètre**. Déployer un canon non purgé produirait mécaniquement
+**2 occurrences** — B17 échouerait sur un défaut que le lot n'a pas le droit de corriger.
+
+**Tranché : B17 est restreint à Aragorn**, dont le canon **est** propre.
+
+| # | Critère révisé | Vérification |
+|---|---|---|
+| **B17** | Plus aucune occurrence « Slack » dans **`~/.claude/skills/iakaframe-aragorn/`** (les 5 occurrences déployées sont purgées par le redéploiement depuis un canon propre) | `grep -ri slack ~/.claude/skills/iakaframe-aragorn/` = **0** |
+
+> **Reliquat assumé et tracé** : les **2 occurrences** de `iakaframe-odin` subsisteront après le lot.
+> Elles relèvent de l'item de backlog **« Scories Slack résiduelles »** (`BACKLOG.md:10`), pas de
+> celui-ci. **Je ne tire pas la purge du canon d'Odin dans le lot 2** : elle appartient à un lot
+> rédactionnel qui touchera aussi `README.md`, `library/skills/README.md` et la vitrine HTML — les
+> disperser ferait perdre la cohérence de ce lot-là.
+
+### 13.5 Angle mort — `DEFAULT_SKILLS` est une **troisième** table (levée du gate Legolas)
+
+**Non vu par mes trois instructions.** Le § 4.2 condamne les tables codées concurrentes du
+frontmatter et prévoit la suppression de `SKILL_OF`/`SKILL_OVERRIDE_OF` côté CLI. Mais
+`~/work/iakaFrameGUI/packages/core/src/roster.ts:27-35` porte **`DEFAULT_SKILLS`**, une **troisième**
+table skill-par-rôle, **mono-skill**, côté GUI.
+
+> **Supprimer `SKILL_OF` sans la traiter reviendrait à déplacer la seconde source de vérité d'un
+> dépôt à l'autre** — exactement ce que le § 4.2 interdit. La levée est fondée.
+
+**Elle est DÉJÀ divergente du canon**, sur les deux personas multi-skills :
+
+| Rôle | `DEFAULT_SKILLS` (`roster.ts:27-35`) | Canon | Écart |
+|---|---|---|---|
+| `portefeuille` | `["iakaframe-odin"]` | `odin.md:8` = `[iakaframe-odin, iakastart]` | **`iakastart` manquante** |
+| `doc` | `["iakaframe-nathalie"]` | `nathalie.md:8` = `[iakaframe-nathalie, iakaframe-memoire-humaine]` | **`memoire-humaine` manquante** |
+
+C'est **la même cause racine** que l'anomalie A côté CLI (§ 1), dans l'autre dépôt.
+
+**Nuance de statut à respecter** : `DEFAULT_SKILLS` n'est **pas** un chemin de déploiement — c'est un
+**gabarit de départ éditable** pour une nouvelle team (`roster.ts:2-8`, AR-5). Sa divergence n'a donc
+pas la même gravité opérationnelle. Deux traitements possibles :
+
+| Option | Analyse | Reco |
+|---|---|---|
+| **A** — aligner sur le canon + **garde de parité** contre les personas vendorées | Supprime la divergence et **empêche** sa réapparition. Le vecteur existe déjà : les 8 personas sont vendorées côté GUI | **Retenu** |
+| B — documenter `DEFAULT_SKILLS` comme gabarit délibérément non exhaustif | Honnête, coût nul, mais laisse une table qui **dit faux** sur deux rôles | Écarté |
+
+**Critères ajoutés :**
+
+| # | Critère | Vérification |
+|---|---|---|
+| **B25** | `DEFAULT_SKILLS` est aligné sur le `skills:` des personas canon (multi-skills inclus) | `portefeuille` → 2 entrées ; `doc` → 2 entrées |
+| **B26** | Une **garde de parité** compare `DEFAULT_SKILLS` aux personas **vendorées** ; divergence ⇒ **test rouge** | modifier un `skills:` sans la table ⇒ rouge |
+| **B27** | `DEFAULT_SKILLS` couvre le rôle `deploiement` | **dépend du lot 3** — cf. encadré |
+
+> ⚠️ **Couplage lot 2 ↔ lot 3 sur le même fichier.** `roster.ts` est modifié par **les deux** lots :
+> ici pour `DEFAULT_SKILLS`, au lot 3 pour l'ajout du rôle `deploiement` (§ 13.5/13.8 de
+> l'instruction roster). **B27 n'est atteignable qu'après le lot 3.** Deux options : porter B27 au
+> lot 3, ou l'acter comme **critère différé** de ce lot. *Reco Gandalf : le porter au lot 3*, qui est
+> le lot propriétaire du rôle — et le signaler ici pour qu'il ne se perde pas.
+
+### 13.6 Profondeur des subskills — décision maintenue, **justification corrigée**
+
+Le § 5.1 (pt 4) limite la résolution à **un niveau** en affirmant qu'« aucun cas réel à 2 niveaux »
+n'existe. **C'est faux** : la bibliothèque porte une chaîne à **3 niveaux** —
+`iakaframe-init` → `iakaframe-gestion-de-source` → `iakaframe-git` → `iakaframe-forgejo`.
+
+**La décision reste bonne ; le motif était mauvais.** Le motif correct :
+
+> **Aucune chaîne atteignable depuis une persona ne dépasse 1 niveau.** Les trois seules relations
+> `subskills` traversées par l'union des 11 sont `aragorn→jalon`, `cadrage→jalon` et
+> `memoire-humaine→appflowy-doc` — toutes de profondeur 1. La chaîne profonde part de
+> `iakaframe-init`, qui est **une des 6 orphelines** (§ 13.3) : elle n'est **atteignable par aucune
+> persona**, donc jamais résolue.
+
+> ⚠️ **Mais cela rend la limite fragile** : le jour où une persona déclarerait `iakaframe-init`, la
+> résolution à profondeur 1 **tronquerait silencieusement** `git` et `forgejo`. **Critère ajouté :**
+
+| # | Critère | Vérification |
+|---|---|---|
+| **B28** | Une chaîne `subskills` de profondeur **> 1** atteignable depuis une persona ⇒ **erreur explicite**, jamais une troncature silencieuse | test : attacher temporairement `iakaframe-init` à une persona ⇒ `resolveSkills` **échoue** avec un message nommant la chaîne |
+
+> B28 transforme une limite implicite en **garde active**. Sans lui, la profondeur 1 est un piège
+> différé ; avec lui, c'est une contrainte tenue.
+
+### 13.7 § 5.1 — table de contrôle corrigée (nathalie a **trois** skills résolues)
+
+La table du § 5.1 sous-estimait Nathalie : `iakaframe-memoire-humaine/SKILL.md:6` déclare
+`subskills: [iakaframe-appflowy-doc]`. Résolution attendue **corrigée** :
+
+| Persona | `skills:` canon | Résolu attendu (**révisé**) |
+|---|---|---|
+| nathalie | `[iakaframe-nathalie, iakaframe-memoire-humaine]` | `iakaframe-nathalie`, `iakaframe-memoire-humaine`, **`iakaframe-appflowy-doc`** (**3**) |
+
+**Critère B3 révisé** : `resolveSkills('nathalie')` renvoie **3** entrées, dans cet ordre — et non 2.
+
+### 13.8 Opportunité d'ordonnancement (information, pas un ré-arbitrage)
 
 L'ordre **1 → 2 → 3** est retenu par le décideur. Je signale néanmoins un fait pour information :
 **ce lot (2) et CH-B du lot 3 modifient tous deux `bindings/iakaframe-claude-default.md`**, et

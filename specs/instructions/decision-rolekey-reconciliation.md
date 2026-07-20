@@ -134,6 +134,11 @@ pas technique.**
 
 ## 4. Le cas Helm — traité à part, et c'est lui qui discrimine
 
+> *Rectification de référence (gate Legolas)* : dans ce § 4, la liste fermée des rôles canoniques est
+> **`roles.ts:26-34`** (et non `roster.ts:26-34`, qui porte `cloneCanonicalRoster`). `roster.ts` est
+> concerné par `DEFAULT_NAMES`/`DEFAULT_SKILLS` (`:16-35`). Les deux fichiers sont touchés, mais la
+> **liste des rôles** vit dans `roles.ts`.
+
 **État actuel.** `ROLE_OF.helm = 'coordination'` (`cli/src/lib/agents.js:23`) — **le rôle d'Aragorn**.
 Le commentaire assume le rattachement. La conséquence (Helm hériterait de `iakaframe-aragorn`) est
 rattrapée par une **exception codée en dur** : `SKILL_OVERRIDE_OF = { helm: 'iakaframe-deploiement' }`
@@ -327,10 +332,14 @@ c'est écrire `coordination` dans `helm.md:5`.
 de plein droit** (`roleIndex: 7`) dans le CLI et le cœur GUI ; `library/personas/helm.md:5` reste
 inchangé ; `SKILL_OVERRIDE_OF` est supprimée ; CH-E est absorbé dans le lot 3.
 
-**La 8ᵉ vignette est DIFFÉRÉE**, avec repli spécifié et critères d'acceptation testables — voir
-`audit-amelioration-roster-personas.md` § 13.6. Point saillant relevé à cette occasion : une vignette
-est un **couple de couleurs**, pas un asset graphique (`casting.ts:2-4,8-16`) — la dette se lève pour
-**~0,1 j-h**, l'essentiel étant la décision de charte (Loki).
+**La 8ᵉ vignette est LIVRÉE DANS LE LOT 3** — voir `audit-amelioration-roster-personas.md` § 13.6.
+
+> *Rectification (gate Legolas)* : cette ligne portait « **DIFFÉRÉE** », état **caduc**. Le différé a
+> été **levé** le 2026-07-19, postérieurement à sa consignation, précisément parce qu'une vignette
+> s'est révélée être un **couple de couleurs** et non un asset graphique (`casting.ts:2-4,8-16`) —
+> ~0,1 j-h de dev. La 8ᵉ paire est donc **dans le périmètre du lot 3**, la collision
+> Helm ↔ Odin est supprimée à la livraison, et seule la **teinte définitive** relève de Loki
+> (décision de charte, non bloquante). **Aucun item de dette n'en découle.**
 
 > **CH-A est intégralement tranché.** Les 6 dérives lexicales alignent le canon sur CLI+GUI ; la
 > lacune de modélisation (Helm) est comblée côté CLI+GUI. Ce document est **clos** — il ne reste
