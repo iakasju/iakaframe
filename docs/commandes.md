@@ -157,17 +157,35 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 | `switch` \| `use <m> <t>` | `--path --binding --rollback --json` | Bascule un projet vers une méthode/team. (`use` = alias de `switch`.) |
 | `vendor-check` | `--strict --gui <dir> --root --json` | **Garde de vendorage cross-repo** : constate que les **21 fixtures** vendorées par `iakaFrameGUI` (**17 copies** + **4 dérivées**) sont fidèles au canon `iakaframe`. Seule garde capable de voir la dérive **mutuellement cohérente** (binding + golden + `sha256` recalculés ensemble), invisible de la suite GUI qui compare ses copies à elles-mêmes. **Gracieux par défaut** : dépôt frère absent → `ok:false` + `status:"skipped"` + **exit 0** (jamais de blocage d'un clone isolé) ; `--strict` en fait un échec. `IAKAFRAME_GUI_ROOT` est **autoritaire** (jamais de repli silencieux sur un autre dépôt). |
 
-> **Les deux gestes de remédiation** — `vendor-check` les nomme lui-même en cas de dérive, et ils
-> ne sont **jamais** interchangeables :
+> **Un geste par dérive constatée** — le remède est **dérivé de l'état mesuré**, jamais une liste
+> constante : `vendor-check` n'imprime que les gestes des fixtures **réellement** en dérive, avec des
+> chemins **nommés** (aucun joker `*`). Zéro dérive sur une famille → **aucune ligne** sur cette
+> famille. Quatre natures de gestes :
 >
-> 1. **les 17 copies** (8 goldens + 8 personas + 1 binding) → **re-vendorage par `cp`** ;
-> 2. **les 4 dérivées** (méthode, méthode *wrapped*, team, kit) → **régénération par le
->    sérialiseur** — `node packages/core/scripts/gen-fixtures.mjs` (depuis `iakaFrameGUI`, pour les
->    3 premières ; `--check` non mutant) et `iakaframe assemble iakaframe iakaframe-8 --write`
->    (pour le kit).
+> 1. **`copy`** — les 17 copies (8 goldens + 8 personas + 1 binding) : re-vendorage par `cp`, fichier
+>    par fichier ;
+> 2. **`run`** — les 3 dérivées **sérialisées** (méthode, méthode *wrapped*, team) :
+>    `node packages/core/scripts/gen-fixtures.mjs` depuis `iakaFrameGUI` (`--check` non mutant).
+>    Sur `niveau2-contrat-vivant-different`, c'est `node cli/scripts/gen-agents-golden.mjs`
+>    **puis** la copie — dans cet ordre, car cette raison signifie que le golden lui-même est périmé
+>    et que le copier tel quel propagerait le périmé ;
+> 3. **`delete`** — fixture surnuméraire : la **supprimer**. Aucune copie ne l'éteindrait ;
+> 4. **`investigate`** — anomalie côté **canon** (`source-introuvable`, en-tête illisible) : le
+>    miroir n'est pas en cause, aucun geste de copie ne s'applique.
 >
-> **Copier une dérivée la détruirait** : ce sont des formes canoniques sérialisées, pas des copies —
-> `methodMd.test.ts`, `teamMd.test.ts` et `kitMd.test.ts` sont bâtis sur cette forme.
+> Le **kit** est le seul geste qui **transforme** son contenu : sa référence est le golden CLI
+> `cli/test/fixtures/kit.iakaframe-claude.golden.md` **dépouillé de son en-tête** (`strip: true`).
+> Un `cp` nu y laisserait l'en-tête et produirait une nouvelle dérive.
+>
+> **Copier une dérivée sérialisée la détruirait** : ce sont des formes canoniques sérialisées, pas
+> des copies — `methodMd.test.ts`, `teamMd.test.ts` et `kitMd.test.ts` sont bâtis sur cette forme.
+> C'est un **invariant testé**, plus une consigne en prose.
+>
+> En `--json`, le remède est exposé sous `remediation[]`
+> (`{ action, reason, fixture, family, source?, dest?, strip?, command, note? }`) : `source` est
+> relatif à la racine `iakaframe`, `dest` à la racine du miroir — un agent consommateur peut
+> l'appliquer sans passer par un shell. `vendor-check` reste **strictement en lecture seule** : il
+> n'existe **pas** de `--fix`, le geste de réparation demeure conscient et explicite.
 
 ## B.5 Canon du portefeuille — boucle d'apprentissage incrémentale
 
