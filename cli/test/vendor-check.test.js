@@ -253,19 +253,48 @@ test('A1 : derive -> exit 1 et C-JSON valide (ok en premiere cle)', () => {
   assert.equal(Object.keys(JSON.parse(r.stdout))[0], 'ok', 'C-JSON : `ok` en premiere cle');
 });
 
-test('A14 : le message humain prescrit DEUX gestes et ne prescrit jamais de copier une derivee', () => {
+// A14 — AMENDE (specs/instructions/remede-vendor-check-derive-de-l-etat.md § 3.4).
+//
+// La version d'origine EXIGEAIT la chaine `iakaframe assemble iakaframe iakaframe-8 --write`, geste
+// qui vise `kits/<id>.md` — un fichier qu'aucune ligne de fixtureTable() ne lit, et que A21 designe
+// explicitement comme HORS-REFERENCE. Le test verrouillait donc le defaut. La doctrine « DEUX
+// gestes » cede la place a « UN GESTE PAR DERIVE CONSTATEE » : le dispositif compte quatre natures
+// de gestes (copie, regeneration de derivee, regeneration de golden PUIS copie, suppression).
+//
+// CE QUI EST CONSERVE, et qui etait le fond de l'invariant : jamais de `cp` sur une derivee
+// SERIALISEE, et `gen-fixtures.mjs` nomme QUAND une telle derivee est en cause.
+test('A14 (amende) : un geste par derive constatee ; jamais de `cp` sur une derivee serialisee', () => {
   const m = makeCleanMirror();
+  // Deux derives de natures DIFFERENTES en une passe : une copie (persona) et une derivee
+  // serialisee (frontmatter de team) — c'est le seul cas ou l'invariant est reellement mis a
+  // l'epreuve, puisqu'il faut que les deux gestes coexistent sans se contaminer.
   const p = fixturePath(m, path.join('personas', 'helm.md'));
   fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + ' ');
+  const t = fixturePath(m, 'team.iakaframe-8.md');
+  fs.writeFileSync(t, fs.readFileSync(t, 'utf8').replace('coordinator: aragorn', 'coordinator: gimli'));
+
   const r = spawnSync(process.execPath, [CLI, 'vendor-check', '--root', REPO], {
     encoding: 'utf8', env: { ...process.env, IAKAFRAME_GUI_ROOT: m.root },
   });
   const out = r.stdout;
-  assert.match(out, /RE-VENDORAGE PAR COPIE/, 'geste 1 (copies) absent');
-  assert.match(out, /REGENERATION PAR LE/, 'geste 2 (regeneration) absent');
-  // A24 : les DEUX commandes exactes doivent etre nommees.
+
+  // CONSERVE : la derivee serialisee est en cause -> sa commande de regeneration est nommee.
   assert.match(out, /node packages\/core\/scripts\/gen-fixtures\.mjs/, 'commande de regeneration absente');
-  assert.match(out, /iakaframe assemble iakaframe iakaframe-8 --write/, 'commande du kit absente');
+  // CONSERVE : et elle n'est JAMAIS copiee.
+  const copyLines = out.split('\n').filter((l) => /^\s+cp /.test(l));
+  assert.ok(copyLines.length > 0, 'la derive de persona doit produire une ligne de copie');
+  for (const l of copyLines) {
+    assert.ok(!l.includes('team.iakaframe-8.md'),
+      'une derivee serialisee ne doit JAMAIS etre prescrite en copie : ' + l);
+  }
+  // RETIRE : le geste qui visait un fichier jamais lu par la garde (§ 2.2).
+  assert.ok(!out.includes('iakaframe assemble'),
+    '`iakaframe assemble` vise kits/<id>.md, que la garde ne lit jamais (A21) : geste retire');
+  // AJOUTE : le remede ne parle que des derives constatees.
+  assert.match(out, /cp library\/personas\/helm\.md/, 'la persona derivee doit etre nommee');
+  assert.ok(!out.includes('binding/iakaframe-claude-default.md'),
+    'aucune derive du binding : il ne doit apparaitre dans aucun geste');
+  assert.ok(!/agents-golden/.test(out), 'aucune derive de golden : aucune ligne golden attendue');
 });
 
 test('A5-a (garde de non-mutation) : le depot GUI reel n\'est jamais mute par la suite', () => {
