@@ -1,11 +1,12 @@
 // Reconciliation de la forme de `services.json` (instruction reconciliation-services-json.md, § 7).
-// Deux volets, tous deux runnables en Node (sans `pwsh`) :
 //  (V1) VERROU DE LA REFERENCE CLI : `iakaframe services --out <tmp>` ecrit sur disque l'enveloppe
 //       C-JSON exacte { ok, generated, count, services } — ok en 1re cle, count === services.length,
-//       ordre des cles [ok, generated, count, services]. C'est la forme cible que le ps1 doit repliquer.
-//  (V2) GARDE STATIQUE DU SOURCE ps1 : le bloc `$payload = [ordered]@{ ... }` de iakaframe-services.ps1
-//       contient bien les cles `ok` ET `count`. Anti-regression : fige la source contre un retour au
-//       legacy `{ generated, services }`. Ne prouve pas le runtime ps1 (gate humain differe D1/D2).
+//       ordre des cles [ok, generated, count, services].
+//
+// NOTE (retrait-scripts-powershell.md, F4-a) : un second volet (V2) figeait ici le bloc `$payload`
+// du source `iakaframe-services.ps1` contre un retour au legacy `{ generated, services }`. Ce script
+// ayant ete retire du depot, la garde n'a plus de cible : on ne garde pas un fichier contre une
+// regression s'il n'existe plus. V1 reste le verrou de reference, et ne depend d'aucun `.ps1`.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -16,8 +17,7 @@ import { fileURLToPath } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, '..', 'src', 'index.js');
-const REPO = path.join(HERE, '..', '..');           // racine du depot (ou vit le ps1)
-const PS1 = path.join(REPO, 'iakaframe-services.ps1');
+const REPO = path.join(HERE, '..', '..');           // racine du depot
 
 // --- (V1) Forme fichier du CLI verrouillee ---------------------------------------------------------
 
@@ -48,18 +48,4 @@ test('V1 : `services --out <f>` ecrit l\'enveloppe C-JSON { ok, generated, count
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
-});
-
-// --- (V2) Source ps1 figee sur C-JSON --------------------------------------------------------------
-
-test('V2 : le bloc $payload de iakaframe-services.ps1 contient les cles ok ET count', () => {
-  const src = fs.readFileSync(PS1, 'utf8');
-  // Isole le bloc `$payload = [ordered]@{ ... }` pour eviter les faux positifs ailleurs dans le source.
-  const m = src.match(/\$payload\s*=\s*\[ordered\]@\{([\s\S]*?)\}/);
-  assert.ok(m, 'bloc `$payload = [ordered]@{ ... }` introuvable dans le source ps1');
-  const block = m[1];
-  assert.match(block, /(^|\s)ok\s*=/m, 'cle `ok` absente du bloc $payload (retour au legacy ?)');
-  assert.match(block, /(^|\s)count\s*=/m, 'cle `count` absente du bloc $payload (retour au legacy ?)');
-  assert.match(block, /(^|\s)generated\s*=/m, 'cle `generated` absente du bloc $payload');
-  assert.match(block, /(^|\s)services\s*=/m, 'cle `services` absente du bloc $payload');
 });
