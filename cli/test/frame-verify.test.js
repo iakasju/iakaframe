@@ -72,6 +72,21 @@ test('C6bis - G2 attrape un token de marque INVENTE, absent de toute liste', () 
   }
 });
 
+test('C6bis - PORTEE EXACTE : la forme SEPAREE passe, et c\'est un arbitrage DECLARE', () => {
+  // La propriete « attraper le nom suivant » ne vaut que pour la forme ACCOLEE. La forme separee
+  // se reduit a `iaka`, present dans l'allowlist (32 occurrences legitimes mesurees dans le
+  // miroir : l'en retirer desactiverait le gate). Ce test ne CELEBRE pas le trou, il l'EPINGLE :
+  // le contrat doit dire la verite sur la garde, donc la limite est verifiee comme le reste.
+  for (const tok of ['iaka-hub', 'iaka-graph', 'iaka.cloud', 'iaka_secret']) {
+    assert.equal(of(`la brique ${tok} ici`, 'library/a.md', 'G2').length, 0, `${tok} : trou connu`);
+  }
+  // ... et la limite correspondante est ECRITE dans le contrat, sans quoi le trou serait silencieux.
+  assert.ok(
+    LIMITS.some(l => /typographiques/i.test(l) && /iaka-hub/.test(l)),
+    'la limite 7 (variantes typographiques + forme separee) DOIT figurer dans LIMITS',
+  );
+});
+
 test('G2 negatif : la marque du frame passe, quelle que soit la casse', () => {
   for (const tok of ['iakaframe', 'iakastart', 'iaka', 'iakalog', 'IAKAFRAME', 'IakaFrame']) {
     assert.equal(of(`texte ${tok} texte`, 'library/a.md', 'G2').length, 0, tok);
@@ -141,11 +156,19 @@ test('G4 negatif : capacity/family + toutes references resolues -> aucun constat
 // --- G5 : ports d'infra ----------------------------------------------------------------------------
 test('G5 positif : port hors allowlist, INDEPENDAMMENT du separateur', () => {
   // Le defaut historique : la recette grepait le litteral `:3001` et ratait donc `port: 3001`.
+  // Ce test PORTAIT le nom « independamment du separateur » en ne mesurant que `:` et `=` — il
+  // affirmait donc une couverture qu'il ne verifiait pas. Les formes ESPACEES sont desormais
+  // mesurees, et la garde les couvre reellement.
   assert.equal(of("{ name: 'git (Forgejo)', port: 3001, path: '/x' }", 'a.js', 'G5').length, 1);
   assert.equal(of('port=3001', 'a.js', 'G5').length, 1);
   assert.equal(of('port : "3001"', 'a.md', 'G5').length, 1);
   assert.equal(of('http://<box>:4001/v1', 'a.md', 'G5').length, 1);
   assert.equal(of('`:3041` = admin/health', 'a.md', 'G5').length, 1);
+  // Separateur ESPACE / TABULATION / option de ligne de commande.
+  assert.equal(of('port 3001', 'a.md', 'G5').length, 1, 'espace simple');
+  assert.equal(of('--port 3001', 'a.js', 'G5').length, 1, 'option de CLI');
+  assert.equal(of('port\t3001', 'a.md', 'G5').length, 1, 'tabulation');
+  assert.equal(of('ecoute sur le port 4001 du serveur', 'a.md', 'G5').length, 1, 'en prose');
 });
 
 test('G5 negatif : ports de l\'allowlist, CSS minifiee, tags d\'image et refs fichier:ligne', () => {
@@ -168,6 +191,24 @@ test('G6 positif : CamelCase interne ET capitale en milieu de phrase', () => {
   assert.ok(of('le service Hermes tourne', 'a.md', 'G6').some(f => f.token === 'Hermes'));
   // ... y compris derriere un separateur, forme reelle du corpus (`n8n/Hermes`).
   assert.ok(of('pilote par n8n/Hermes en chaine', 'a.md', 'G6').some(f => f.token === 'Hermes'));
+  // SEPARATEUR ESPACE : la 1re version exigeait le separateur COLLE et ratait ces formes — soit
+  // 4 occurrences reelles sur 25. Le gate rapportait 17/25 en annoncant couvrir la classe.
+  assert.ok(of('pilote par n8n / Hermes en chaine', 'a.md', 'G6').some(f => f.token === 'Hermes'), 'separateur espace');
+  assert.ok(of('le pont applicatif (Hermes) relaie', 'a.md', 'G6').some(f => f.token === 'Hermes'), 'parenthese espacee');
+  assert.ok(of('la chaine n8n , Hermes et le reste', 'a.md', 'G6').some(f => f.token === 'Hermes'), 'virgule espacee');
+});
+
+test('G6 - PORTEE DECLAREE : .md-only, hors blocs et spans de code', () => {
+  // Les 4 `Hermes` non rapportes sur 25 tombent tous ici. La limite est TESTEE parce qu'elle est
+  // CONTRACTUELLE : une portee non tenue doit etre ecrite, jamais decouverte a l'usage.
+  assert.equal(of('// equivalent du analyze() de Hermes', 'cli/src/lib/close.js', 'G6').length, 0, 'code source .js');
+  const fence = '```\n│   ├── _univers-hermes.md   # mise en place (Hermes)\n```\n';
+  assert.equal(of(fence, 'a.md', 'G6').length, 0, 'bloc de code');
+  assert.equal(of('le service `Hermes` cite', 'a.md', 'G6').length, 0, 'span de code');
+  assert.ok(
+    LIMITS.some(l => /G6 ne lit que les fichiers `\.md`/.test(l)),
+    'la limite de portee de G6 DOIT figurer dans LIMITS',
+  );
 });
 
 test('G6 negatif : dictionnaire, code, debut de phrase, et .md uniquement', () => {
@@ -229,7 +270,9 @@ test('C1 - `frame verify --help` sort 0 et n\'exige aucune dependance externe', 
   // Les limites du gate sont AFFICHEES : le dispositif ne doit jamais etre presente comme
   // une garantie (§ 4.2, section contractuelle).
   assert.match(r.stdout, /Ce que le gate n'attrape PAS/);
-  assert.ok(LIMITS.length >= 6);
+  // Seuil releve : les limites 7 (variantes typographiques) et 8 (portee .md de G6) avaient ete
+  // PERDUES, laissant le contrat annoncer plus que la garde ne tenait. Le seuil les verrouille.
+  assert.ok(LIMITS.length >= 8, `contrat de limites incomplet : ${LIMITS.length}`);
 });
 
 test('exit 0 sur miroir conforme via le CLI', () => {
@@ -274,6 +317,13 @@ test('C6 - le miroir reel StefFrame2 est en FUITE et le gate le prouve', { skip:
 
   // G6 : Hermes, la fuite residuelle que seule la moitie « capitale en milieu de phrase » attrape.
   assert.ok(tok('G6').has('Hermes'), 'G6 doit voir Hermes');
+
+  // COUVERTURE MESUREE, pas declaree. Verite terrain : 25 occurrences de `Hermes` dans le miroir.
+  // Le gate en rapporte 21 ; les 4 autres tombent dans la portee `.md`-prose de G6 (LIMITS), soit
+  // 3 dans un arbre en bloc de code et 1 dans un commentaire `.js`. Ce test EXISTE parce que le
+  // gate a d'abord rapporte 17/25 en annoncant couvrir la classe : un chiffre annonce sans etre
+  // mesure est precisement le defaut que ce lot tue.
+  assert.equal(res.findings.filter(f => f.token === 'Hermes').length, 21, 'couverture Hermes = 21/25');
 
   // G1 : aucune fuite de secret/infra ne subsiste (0 mesure), et surtout AUCUN faux positif sur
   // le template d'URL de forgejo.js.
