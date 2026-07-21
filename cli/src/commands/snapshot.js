@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { isRepo, out } from '../lib/git.js';
 import { now } from '../lib/date.js';
-import { runCadence, formatCadence } from '../lib/cadence.js';
+import { runCadence, formatCadence, runProjectCadence, formatProjectCadence } from '../lib/cadence.js';
 
 const REASONS = ['version', 'pause', 'reprise', 'manual'];
 
@@ -40,7 +40,7 @@ function countFiles(dir) {
 // Coeur reutilisable par onboard/update.
 // `home` (optionnel) cible le canon de la boucle d'apprentissage pour la CADENCE (T6, § 6) ; sinon
 // IAKA_MEMORY_HOME, sinon ~/.iaka/memory/. `cadenceRun` est un point d'injection (defaut = runCadence).
-export function doSnapshot({ projectPath, reason = 'manual', version = '', note = '', home, cadenceRun = runCadence }) {
+export function doSnapshot({ projectPath, reason = 'manual', version = '', note = '', home, cadenceRun = runCadence, projectCadenceRun = runProjectCadence }) {
   const root = path.resolve(projectPath);
   const specs = path.join(root, 'specs');
   fs.mkdirSync(specs, { recursive: true });
@@ -157,7 +157,16 @@ ${rows}</table>
   try { cadence = cadenceRun({ reason, home }); }
   catch (e) { cadence = { triggered: false, skipped: 'guarded', reason, error: e.message }; }
 
-  return { version, branch, fileCount, dirty, cadence };
+  // ---- CANON PROJET (lot A) : la connaissance INCREMENTALE du produit, greffee sur le MEME rituel.
+  // Point d'appui : `doSnapshot` recoit DEJA `projectPath` ET `reason` — les deux seules entrees
+  // necessaires. Le canon projet se resout donc SANS NOUVELLE PLOMBERIE, ce qui rend le lot petit.
+  // Sur pause|version -> cloture ; sur reprise -> RATTRAPAGE d'une cloture manquee, et seulement
+  // s'il y a une dette. Meme double filet non-bloquant que la cadence globale.
+  let projectCadence;
+  try { projectCadence = projectCadenceRun({ projectPath: root, reason, home }); }
+  catch (e) { projectCadence = { triggered: false, skipped: 'guarded', reason, error: e.message }; }
+
+  return { version, branch, fileCount, dirty, cadence, projectCadence };
 }
 
 export function runSnapshot(argv) {
@@ -178,4 +187,5 @@ export function runSnapshot(argv) {
   console.log(`Snapshot OK (${values.reason}) -> specs/etat-des-lieux.md + .html`);
   console.log(`  version=${r.version} branche=${r.branch} fichiers=${r.fileCount}${r.dirty ? ' [arbre sale]' : ''}`);
   console.log(`  ${formatCadence(r.cadence)}`);
+  console.log(`  ${formatProjectCadence(r.projectCadence)}`);
 }
