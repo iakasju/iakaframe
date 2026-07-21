@@ -61,7 +61,7 @@ Précisions :
 | Déclencheur | Ce que ça fait |
 |---|---|
 | `init iakaframe` (aussi « initialise / lance iakaframe ») | Met la méthode en place dans le répertoire courant. **Répertoire vide → nouveau projet** (structure + dépôt Forgejo + 1er commit + état des lieux + push, nom de dépôt = nom du répertoire). **Répertoire avec du dev → reprise non destructive** (déploie la structure autour du code, branche Forgejo si pas de remote, génère l'état des lieux de reprise, en fait la synthèse et propose la prochaine étape). |
-| `update iakaframe` (ou « update » dans un projet de la méthode) | **Régénère l'état des lieux** puis fait un **commit global** (`git add -A` + commit) **et push**. Options usuelles : `-Reason version -Version vX.Y.Z -Note "..."`, `-NoPush`. |
+| `update iakaframe` (ou « update » dans un projet de la méthode) | **Régénère l'état des lieux** puis fait un **commit global** (`git add -A` + commit) **et push**. Options usuelles : `--reason version --version vX.Y.Z --note "..."`, `--no-push`. |
 
 **Auto-détection init ↔ update** (via l'API Forgejo) : `init iakaframe` sur un dépôt **déjà
 présent** sur Forgejo bascule en `update` ; `update iakaframe` sur un dépôt **absent** (ou
@@ -283,6 +283,7 @@ Ces deux commandes opèrent au niveau du **dossier chapeau** (`~/work`), pas d'u
 
 ---
 
-La CLI Node `@naonedge/iakaframe` (partie B : `onboard`, `snapshot`, `update`…) est la **voie
-unique et cross-OS**, équivalente sur Windows / macOS / Linux. Les scripts PowerShell qui ont
-historiquement porté la méthode sous Windows ont été retirés du dépôt.
+> **Note — voie unique cross-OS.**
+> La CLI Node `@naonedge/iakaframe` (partie B : `onboard`, `snapshot`, `update`…) est la **voie
+> unique et cross-OS**, équivalente sur Windows / macOS / Linux. Les scripts PowerShell qui ont
+> historiquement porté la méthode sous Windows ont été retirés du dépôt.

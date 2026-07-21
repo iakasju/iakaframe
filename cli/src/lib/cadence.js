@@ -1,6 +1,6 @@
 // T6 - « Cadence » : branche l'appel de `close` (T4) sur le RITUEL D'ETAT DES LIEUX existant
 // (instruction boucle-apprentissage-incrementale.md § 6, décision Q-2). La capture n'est PAS ad hoc :
-// elle est déclenchée automatiquement par le cycle d'état des lieux sur `-Reason pause|version`, et
+// elle est déclenchée automatiquement par le cycle d'état des lieux sur `--reason pause|version`, et
 // JAMAIS sur `reprise` (la reprise charge le canon, elle ne capture pas). Ce n'est PAS un démon /
 // scheduler / setInterval / cron (décision « pas de démon au MVP ») : c'est un simple BRANCHEMENT sur
 // le rituel que la méthode impose déjà.
