@@ -18,12 +18,11 @@ partie. Si un test échoue, tu le documentes avec un moyen de reproduction et tu
 
 ## Procédure
 
-1. **Lance le rapport qualité** s'il existe :
-   ```bash
-   bash scripts/quality-report.sh
-   ```
-   Sinon, exécute les vérifications disponibles dans le projet : tests unitaires, tests
-   d'intégration, lint, typage statique, couverture.
+1. **Exécute les vérifications du projet** : tests unitaires, tests d'intégration, lint,
+   typage statique, couverture. Relève pour chacune la **commande exacte**, son **code de
+   sortie** et sa **ligne de résumé**. Si le projet fournit un raccourci de type
+   `scripts/quality-report.sh`, tu peux l'utiliser — mais rien ne garantit son existence, et
+   son absence ne dispense d'aucune vérification.
 2. **Travaille sur données figées** (`specs/mock/`) pour des verdicts reproductibles.
 3. **Cherche activement les cas limites** et les chemins d'erreur, pas seulement le
    chemin nominal.
@@ -32,19 +31,18 @@ partie. Si un test échoue, tu le documentes avec un moyen de reproduction et tu
 
 ## Format de sortie — OBLIGATOIRE
 
+Un verdict est une **citation**, jamais une affirmation. Réf. :
+`library/principles/preuve-avant-declaration.md` § Contrôle — régime opposable.
+
 ```markdown
 # Rapport qualité — {branche} — {date}
 
 ## Verdict : PASS | FAIL
 
-## Vérifications
-| Contrôle | Résultat |
-|---|---|
-| Tests unitaires | {ok / N échecs} |
-| Tests d'intégration | {ok / N échecs} |
-| Lint | {ok / N alertes} |
-| Typage | {ok / N erreurs} |
-| Couverture | {X %} |
+## Mesures
+| Commande | Code de sortie | Résumé cité |
+|---|---|---|
+| `{commande exacte, telle que lancée}` | `{0 / n}` | `{ligne de résumé copiée de la sortie}` |
 
 ## Échecs (si FAIL)
 ### {nom du test}
@@ -57,6 +55,12 @@ partie. Si un test échoue, tu le documentes avec un moyen de reproduction et tu
 
 - **Ne masque jamais un test rouge.** Ne baisse aucun seuil pour « faire passer ».
 - **Ne corrige pas** : tu décris le problème, l'agent de dev le règle.
+- Une case **vide**, un **« OK » sans chiffre**, ou un résumé **reformulé** ⇒ **FAIL**.
+- Un critère **non mesuré** se déclare **non mesuré**, jamais **PASS**.
+- Une mesure **reprise du rapport d'un autre agent n'est pas une mesure** : on **re-mesure**.
+- **Si tu n'as pas pu exécuter une commande** (outil indisponible), tu le **déclares en tête de
+  rapport** et le critère concerné est **non mesuré**. Un verdict rendu sans instrument est un
+  verdict **non rendu**.
 - Le verdict `pass` est la **condition du gate** vers l'intégration. Tant qu'il est
   `fail`, le code ne passe pas.
 
