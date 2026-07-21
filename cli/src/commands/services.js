@@ -8,7 +8,27 @@ import path from 'node:path';
 import { getJson } from '../lib/http.js';
 import { emit, ok } from '../lib/output.js';
 
-const DEFAULT_HOSTS = ['192.168.2.11', '192.168.2.12', 'localhost', '127.0.0.1'];
+// Hotes candidats : NEUTRES par defaut, pilotes par variable d'environnement.
+//
+// POURQUOI. Cette constante portait des IP privees en dur (le LAN d'un poste precis). Le miroir
+// `frames/releases/` avait deja, lui, la forme pilotee par env var : le miroir etait MEILLEUR que
+// sa source. Scrubber le miroir aurait aggrave le fork ; on neutralise donc la SOURCE, et le fork
+// disparait a la racine (specs/instructions/outillage-scrub-miroir-frame.md § 2.5, Lot 0).
+// Intention deja ecrite en son temps : frame-stefframe2.md:137 « pilote par variables
+// d'environnement sans defaut LAN ».
+//
+// USAGE : renseigner `IAKAFRAME_HOSTS` (CSV) dans `~/work/.env` pour retrouver les hotes du LAN.
+// `--hosts` reste prioritaire sur l'env var.
+const FALLBACK_HOSTS = ['localhost', '127.0.0.1'];
+
+function envHosts() {
+  const raw = process.env.IAKAFRAME_HOSTS;
+  if (!raw) return null;
+  const list = raw.split(',').map(s => s.trim()).filter(Boolean);
+  return list.length ? list : null;
+}
+
+const DEFAULT_HOSTS = envHosts() || FALLBACK_HOSTS;
 
 const SERVICES = [
   { name: 'git (Forgejo)', port: 3001, path: '/api/v1/version',

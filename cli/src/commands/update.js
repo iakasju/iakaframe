@@ -1,10 +1,37 @@
 // iakaframe update - checkpoint : snapshot + commit global + push. Iso PS.
 import { parseArgs } from 'node:util';
 import path from 'node:path';
+import fs from 'node:fs';
+import { verifyFrame } from '../lib/frame.js';
 import { isRepo, run, hasChanges, currentBranch, hasRemoteOrigin } from '../lib/git.js';
 import { testRepo } from '../lib/forgejo.js';
 import { doSnapshot } from './snapshot.js';
 import { formatCadence } from '../lib/cadence.js';
+
+// Avertissement NON BLOQUANT sur l'etat du miroir (specs/instructions/outillage-scrub-miroir-frame.md
+// § 5 « Cadence », critere C8).
+//
+// POURQUOI NON BLOQUANT, ET POURQUOI C'EST DELIBERE. `update` est un CHECKPOINT — un filet de
+// securite (« commits atomiques et frequents »). Y placer un gate bloquant transformerait le geste
+// de sauvegarde en geste de publication, et la premiere fois qu'il empecherait de sauvegarder du
+// travail en cours, il serait contourne ou desactive. Le BLOCAGE vit dans la suite de tests
+// (cli/test/frame-verify.test.js) ; ici on se contente de rendre la fuite VISIBLE.
+//
+// Ne peut jamais faire echouer `update` : tout est capture.
+function warnFrameLeak(root) {
+  try {
+    const dir = path.join(root, 'frames', 'releases');
+    if (!fs.existsSync(dir)) return;
+    for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (!e.isDirectory()) continue;
+      const res = verifyFrame(path.join(dir, e.name));
+      if (res.ok) continue;
+      console.log(`  ! AVERTISSEMENT : le miroir ${e.name} porte ${res.blocking} fuite(s) bloquante(s).`);
+      console.log(`    detail : iakaframe frame verify --frame frames/releases/${e.name}`);
+      console.log('    (non bloquant : le checkpoint reste un filet de securite, pas une publication)');
+    }
+  } catch { /* le checkpoint ne doit JAMAIS echouer a cause du gate */ }
+}
 
 export async function runUpdate(argv) {
   const { values } = parseArgs({
@@ -34,6 +61,7 @@ export async function runUpdate(argv) {
   const r = doSnapshot({ projectPath: root, reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
   console.log(`  snapshot version=${r.version} branche=${r.branch} fichiers=${r.fileCount}`);
   console.log(`  ${formatCadence(r.cadence)}`);
+  warnFrameLeak(root);
 
   run(root, ['add', '-A']);
   if (!hasChanges(root)) { console.log('\n[2/3] Rien a committer (arbre propre).'); return; }

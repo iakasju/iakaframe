@@ -129,7 +129,7 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 
 | Commande | Usage / options principales | Rôle |
 |---|---|---|
-| `services` | `--hosts a,b,c --json <fichier> --timeout <sec>` | Sonde git (Forgejo) / Ollama / ComfyUI. |
+| `services` | `--hosts a,b,c --out <fichier> --json --timeout <sec>` | Sonde git (Forgejo) / Ollama / ComfyUI. **Hôtes neutres par défaut** (`localhost,127.0.0.1`) : renseigner `IAKAFRAME_HOSTS` (CSV) dans `~/work/.env` pour les hôtes du LAN. `--hosts` prime sur l'env var. |
 | `go <projet>` | `--path <dir> --runner <r> --do "tache"` | Lance l'action du projet via son runner (`claude-code\|ollama\|litellm\|codex` ; launchers legacy : `aider`, `iakaide`). |
 | `agents` | `list \| affect \| fullteam \| status` · `--agent <nom> --project <dir> --global --force` | Équipe de personas : inventaire / affectation / équipe complète / statut. |
 | `root` | `--root <dir>` | Affiche le dossier chapeau résolu (`~/work` \| `C:\work`). |
@@ -156,6 +156,7 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 | `assemble <m> <t>` | `--write --binding --json` | Compose un kit (méthode + team [+ binding]) — dry-run par défaut. |
 | `switch` \| `use <m> <t>` | `--path --binding --rollback --json` | Bascule un projet vers une méthode/team. (`use` = alias de `switch`.) |
 | `vendor-check` | `--strict --gui <dir> --root --json` | **Garde de vendorage cross-repo** : constate que les **21 fixtures** vendorées par `iakaFrameGUI` (**17 copies** + **4 dérivées**) sont fidèles au canon `iakaframe`. Seule garde capable de voir la dérive **mutuellement cohérente** (binding + golden + `sha256` recalculés ensemble), invisible de la suite GUI qui compare ses copies à elles-mêmes. **Gracieux par défaut** : dépôt frère absent → `ok:false` + `status:"skipped"` + **exit 0** (jamais de blocage d'un clone isolé) ; `--strict` en fait un échec. `IAKAFRAME_GUI_ROOT` est **autoritaire** (jamais de repli silencieux sur un autre dépôt). |
+| `frame verify` | `--frame <dir> --verbose --json` | **Garde d'anonymisation du miroir** `frames/releases/` : gates **G1→G6 par CLASSES**, jamais par énumération. Le gate central **G2 fonctionne par ALLOWLIST** de marque — tout `iaka*` hors liste blanche est refusé, **y compris un nom créé après l'écriture de la règle**, ce qu'une blacklist ne peut structurellement pas faire. Couvre aussi les secrets/infra, l'identité du décideur (**y compris en position de regex exécutée**), la couche `product` + références pendantes, et les ports **quel que soit le séparateur** (`port: 3001` comme `:3001`). **G6 est un avertissement**, jamais bloquant. **Constate, ne réécrit pas** (pas de `--fix` : réécrire automatiquement un livrable destiné à des tiers est un risque supérieur à celui qu'il prévient). Exit **1** si fuite bloquante. |
 
 > **Un geste par dérive constatée** — le remède est **dérivé de l'état mesuré**, jamais une liste
 > constante : `vendor-check` n'imprime que les gestes des fixtures **réellement** en dérive, avec des

@@ -18,6 +18,12 @@ Thumbs.db
 
 # Archives generees (bundles de kits, etc.)
 *.zip
+# Miroirs du frame : le DOSSIER est la source, jamais l'archive. Aucun geste du projet ne
+# regenere ces .zip (`update` n'a aucune reference a zip/frames) : une archive commitee est donc
+# PERIMEE par construction des le commit suivant. Elle est en outre la seule zone du depot que
+# `frame verify` ne peut pas certifier (binaire, hors de portee du gate). Une archive se genere
+# a la demande, au moment de la diffusion, APRES un `frame verify` vert.
+frames/releases/*.zip
 
 # Docs externes / exports (PDF importes hors depot)
 *.pdf

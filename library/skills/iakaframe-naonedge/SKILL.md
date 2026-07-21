@@ -2,6 +2,7 @@
 id: iakaframe-naonedge
 name: iakaframe-naonedge
 description: Produit un support visuel on-brand (document HTML, deck/slides, flyer, logo, page) en appliquant LA BONNE charte parmi toutes celles définies (catalogue design-*/), sans diverger de la charte canon. Il n'y a pas de charte par défaut unique : le défaut dépend du contexte de travail (projet de dev logiciel → Studio clair ; travaux NaonEdge → NaonEdge dark premium or ; conseil/pro → NaonEdge dark). Utiliser cette skill quand l'utilisateur veut "faire une doc HTML", "un support", "une présentation", "un deck", "un flyer", "une page", "mettre au propre", "en style <charte>", ou présenter quelque chose de façon soignée. C'est l'agent Loki — la brique design de la méthode iakaframe.
+layer: product
 ---
 
 # iakaframe — Studio de design (Loki)
