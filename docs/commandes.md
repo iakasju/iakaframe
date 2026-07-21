@@ -261,6 +261,16 @@ en remplacement. Il est **mince, optionnel, non bloquant**. Le canon fonctionne 
 binding (`iakaframe open` à la main). **L'activation est un geste humain** : un agent ne
 modifie pas `~/.claude/settings.json` (voir `cli/bindings/claude-code/README.md`).
 
+Le hook passe aussi `--project <racine>` : il **arme le marqueur de session**, ce qui permet de
+**rattraper la clôture** à la reprise si une session se ferme sans rituel. Le répertoire n'est pas
+*deviné* — le binding **relaie ce que le runner déclare** (`CLAUDE_PROJECT_DIR`, puis le `cwd` du
+payload `SessionStart`, puis le répertoire courant) ; le **jugement** « ce répertoire est-il un
+projet à canon ? » reste **dans le cœur** (`projectCanonExists`). C'est le sens précis de
+« **mince** » : le binding fournit le **contexte**, jamais la **logique** — il n'a le droit d'aucune
+heuristique de projet (ni remontée d'arborescence, ni sonde), interdiction **verrouillée par test**.
+Sans canon projet dans le répertoire, **rien n'est créé ni armé** : le canon portefeuille est injecté
+seul.
+
 ## B.6 Portefeuille (dossier chapeau) — vue agrégée & observation
 
 Ces deux commandes opèrent au niveau du **dossier chapeau** (`~/work`), pas d'un projet.

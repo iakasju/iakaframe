@@ -16,7 +16,8 @@ const USAGE = `Usage : iakaframe open [options]
 Charge le canon UNIQUE du portefeuille (PROFIL.md + REGISTRE.md) et l'emet, pret a
 etre injecte au demarrage d'une session — QUEL QUE SOIT le repertoire courant, EN PLUS
 de la memoire par scope du runner (§ 5.1). Scope-agnostique ; chargeable a la main sans
-aucun runner. Lecture seule : n'ecrit ni ne cree rien. Canon vide -> sortie gracieuse.
+aucun runner. Lecture seule SAUF l'armement du marqueur sous --project (voir plus
+bas) : sans --project, open n'ecrit ni ne cree rien. Canon vide -> sortie gracieuse.
 
 Avec --project, le canon PROJET (specs/canon/PRODUIT.md) S'AJOUTE au canon portefeuille
 (jamais a sa place), et le MARQUEUR de session est arme : c'est ce qui permet de rattraper
