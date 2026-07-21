@@ -15,6 +15,9 @@ import { spawnSync } from 'node:child_process';
 import { loadCanon, renderCanon } from '../src/lib/open.js';
 import { ensureLayout, memoryAdd } from '../src/lib/memory.js';
 import { runOpen } from '../src/commands/open.js';
+import { projectCanonHome, ensureProjectCanon, produitAdd } from '../src/lib/projectCanon.js';
+import { sessionPath } from '../src/lib/projectSession.js';
+import { runProjectCadence, formatProjectCadence } from '../src/lib/cadence.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, '..', 'src', 'index.js');
@@ -218,4 +221,184 @@ test('binding : CLI absente -> non bloquant (exit 0, aucune sortie)', () => {
   });
   assert.equal(res.status, 0);       // ne bloque jamais l'ouverture de session
   assert.equal(res.stdout.trim(), ''); // pas de contexte -> greffon silencieux
+});
+
+// ===================================================================================================
+// ARMEMENT DU MARQUEUR SUR LE CHEMIN REEL (instruction armement-marqueur-session-binding.md)
+//
+// LE DEFAUT FERME PAR CE LOT : `open --project` arme le marqueur de dette de cloture, mais le SEUL
+// appelant automatique d'`open` (ce binding) ne passait JAMAIS `--project`. Le rattrapage etait donc
+// correct mais INERTE. C-3 est le critere central : il verifie le chemin CABLE bout-en-bout, sans
+// jamais appeler `open --project` a la main.
+//
+// DOCTRINE (AR-1 option B) : le binding fournit le CONTEXTE (ce que le runner declare de lui-meme),
+// le coeur porte le JUGEMENT (« ce repertoire est-il un projet a canon ? » = projectCanonExists).
+// C-8 verrouille l'absence d'heuristique dans le binding ; C-9 (plus haut) verrouille l'agnosticisme
+// du coeur. Aucun test n'ecrit dans le vrai ~/.iaka/ : IAKA_MEMORY_HOME sur tmpdir.
+// ===================================================================================================
+
+// Projet FIXTURE : un vrai repertoire portant specs/canon/PRODUIT.md (le depot iakaframe lui-meme
+// n'en a pas — cf. M-7 de l'instruction).
+function tmpProject(entries = ['le canon projet apprend le PRODUIT']) {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-projet-'));
+  const home = projectCanonHome(dir);
+  ensureProjectCanon(home);
+  for (const c of entries) produitAdd(home, c);
+  return dir;
+}
+
+// Invoque le HOOK comme le ferait le runner. `env` est construit EXPLICITEMENT (jamais herite tel
+// quel) : une session Claude Code reelle peut deja poser CLAUDE_PROJECT_DIR dans l'environnement du
+// test, ce qui fausserait les cas ou cette variable doit etre ABSENTE (C-4).
+function runHook({ memoryHome, projectDir, input, stdio, bin } = {}) {
+  const env = { ...process.env, IAKAFRAME_BIN: bin || `${process.execPath} ${CLI}` };
+  delete env.CLAUDE_PROJECT_DIR;
+  if (memoryHome) env.IAKA_MEMORY_HOME = memoryHome; else delete env.IAKA_MEMORY_HOME;
+  if (projectDir !== undefined) env.CLAUDE_PROJECT_DIR = projectDir;
+  const opts = { encoding: 'utf8', env, timeout: 20000 };
+  if (stdio) opts.stdio = stdio; else opts.input = input === undefined ? '' : input;
+  return spawnSync(process.execPath, [HOOK], opts);
+}
+
+const ctxOf = (res) => {
+  if (!res.stdout || !res.stdout.trim()) return '';
+  return JSON.parse(res.stdout).hookSpecificOutput.additionalContext;
+};
+
+// --- C-1 : CLAUDE_PROJECT_DIR -> canon PORTEFEUILLE *ET* canon PROJET ------------------------------
+test('C-1 binding : CLAUDE_PROJECT_DIR -> additionalContext porte le portefeuille ET le PRODUIT', () => {
+  const home = tmpCanon({ profil: ['fait de portefeuille'] });
+  const projet = tmpProject(['le produit est une CLI multi-OS']);
+  try {
+    const res = runHook({ memoryHome: home, projectDir: projet });
+    assert.equal(res.status, 0);
+    const ctx = ctxOf(res);
+    assert.match(ctx, /fait de portefeuille/);          // le canon portefeuille n'est JAMAIS perdu
+    assert.match(ctx, /le produit est une CLI multi-OS/); // le canon projet S'AJOUTE
+  } finally { rm(home); rm(projet); }
+});
+
+// --- C-2 : le marqueur est arme SUR LE CHEMIN BINDING (plus seulement a la main) -------------------
+test('C-2 binding : le marqueur de session est arme (pending true) par le chemin cable', () => {
+  const home = tmpCanon({ profil: ['x'] });
+  const projet = tmpProject();
+  try {
+    const res = runHook({ memoryHome: home, projectDir: projet });
+    assert.equal(res.status, 0);
+    const marker = sessionPath(home, projet);
+    assert.equal(fs.existsSync(marker), true, 'marqueur arme -> 1 fichier(s) attendu');
+    assert.equal(JSON.parse(fs.readFileSync(marker, 'utf8')).pending, true);
+  } finally { rm(home); rm(projet); }
+});
+
+// --- C-3 : LE CRITERE CENTRAL, BOUT-EN-BOUT -------------------------------------------------------
+// Enchaine (1) le HOOK puis (2) une reprise. AUCUN `open --project` manuel n'intervient : c'est
+// exactement la chaine qui etait rompue. Ce test ECHOUE sur 48828a1 et PASSE apres le correctif.
+test('C-3 binding : hook puis reprise -> RATTRAPAGE declenche (bout-en-bout, sans open --project manuel)', () => {
+  const home = tmpCanon({ profil: ['x'] });
+  const projet = tmpProject();
+  try {
+    const res = runHook({ memoryHome: home, projectDir: projet });
+    assert.equal(res.status, 0);
+
+    const cadence = runProjectCadence({ projectPath: projet, reason: 'reprise', home });
+    assert.equal(cadence.triggered, true, 'le rattrapage doit se declencher apres le hook');
+    assert.equal(cadence.ok, true);
+    assert.equal(cadence.mode, 'rattrapage');
+    assert.match(formatProjectCadence(cadence), /rattrapage : clôture différée exécutée/);
+  } finally { rm(home); rm(projet); }
+});
+
+// --- C-4 : la 2e source (payload stdin) fonctionne SEULE -------------------------------------------
+test('C-4 binding : sans CLAUDE_PROJECT_DIR, le payload stdin {cwd} suffit (canon + marqueur)', () => {
+  const home = tmpCanon({ profil: ['fait de portefeuille'] });
+  const projet = tmpProject(['produit vu par le payload']);
+  try {
+    const payload = JSON.stringify({
+      session_id: 'abc', transcript_path: '/tmp/t.jsonl',
+      cwd: projet, hook_event_name: 'SessionStart', source: 'startup',
+    });
+    const res = runHook({ memoryHome: home, input: payload }); // CLAUDE_PROJECT_DIR absent
+    assert.equal(res.status, 0);
+    const ctx = ctxOf(res);
+    assert.match(ctx, /fait de portefeuille/);
+    assert.match(ctx, /produit vu par le payload/);
+    assert.equal(fs.existsSync(sessionPath(home, projet)), true);
+  } finally { rm(home); rm(projet); }
+});
+
+// --- C-5 : cwd HORS projet -> on ne seme RIEN ------------------------------------------------------
+// Tient C-11 du lot A sur le chemin cable : sans cette garde, une session ouverte n'importe ou
+// creerait un specs/canon/ par effet de bord — on en semerait partout.
+test('C-5 binding : cwd hors projet -> portefeuille injecte, AUCUN canon projet ni marqueur cree', () => {
+  const home = tmpCanon({ profil: ['fait de portefeuille'] });
+  const nu = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-hors-projet-'));
+  try {
+    const res = runHook({ memoryHome: home, projectDir: nu });
+    assert.equal(res.status, 0);
+    assert.match(ctxOf(res), /fait de portefeuille/); // degradation vers `open` NU, pas vers le silence
+    assert.equal(fs.existsSync(path.join(nu, 'specs')), false, 'aucun specs/canon/ seme hors projet');
+    assert.equal(fs.existsSync(sessionPath(home, nu)), false, 'aucun marqueur hors projet');
+    assert.deepEqual(fs.readdirSync(nu), [], 'le repertoire hors projet reste intact');
+  } finally { rm(home); rm(nu); }
+});
+
+// --- C-6 : reprise SANS dette -> strictement rien (comportement du lot A, INCHANGE) ----------------
+test('C-6 : reprise sans marqueur pendant -> skipped « aucune-dette » (inchange)', () => {
+  const home = tmpCanon({ profil: ['x'] });
+  const projet = tmpProject();
+  try {
+    const cadence = runProjectCadence({ projectPath: projet, reason: 'reprise', home });
+    assert.equal(cadence.triggered, false);
+    assert.equal(cadence.skipped, 'aucune-dette');
+  } finally { rm(home); rm(projet); }
+});
+
+// --- C-7 : NON-BLOCAGE quoi qu'il arrive ----------------------------------------------------------
+// Sept scenarios de defaillance. Dans (a)-(f) le canon PORTEFEUILLE reste injecte : on ne perd
+// JAMAIS le canon global a cause du canon projet (degradation vers `open` NU, pas vers le silence).
+test('C-7 binding : exit 0 et jamais de pendaison, sur les 7 modes de defaillance', () => {
+  const home = tmpCanon({ profil: ['fait de portefeuille'] });
+  const projet = tmpProject();
+  const inexistant = path.join(os.tmpdir(), 'iaka-nexiste-pas-' + Date.now());
+  try {
+    const cas = [
+      ['a stdin ferme (aucune entree)', { memoryHome: home, input: '' }, true],
+      ['b stdio ignore', { memoryHome: home, stdio: ['ignore', 'pipe', 'pipe'] }, true],
+      ['c stdin non-JSON', { memoryHome: home, input: 'pas du tout du json {{{' }, true],
+      ['d payload JSON sans cwd', { memoryHome: home, input: '{"session_id":"a"}' }, true],
+      ['e CLAUDE_PROJECT_DIR vide', { memoryHome: home, projectDir: '' }, true],
+      ['f CLAUDE_PROJECT_DIR inexistant', { memoryHome: home, projectDir: inexistant }, true],
+      ['g CLI absente', { memoryHome: home, bin: 'iakaframe_absent_zzz' }, false],
+    ];
+    for (const [label, opts, contexteAttendu] of cas) {
+      const res = runHook(opts);
+      assert.equal(res.status, 0, `${label} : doit sortir en 0`);
+      assert.equal(res.signal, null, `${label} : ne doit jamais pendre (aucun timeout)`);
+      if (contexteAttendu) {
+        assert.match(ctxOf(res), /fait de portefeuille/, `${label} : le canon portefeuille reste injecte`);
+      } else {
+        assert.equal(res.stdout.trim(), '', `${label} : greffon silencieux`);
+      }
+    }
+    // (f) ne doit rien creer sur un chemin inexistant.
+    assert.equal(fs.existsSync(inexistant), false);
+  } finally { rm(home); rm(projet); }
+});
+
+// --- C-8 : GARDE DE DOCTRINE (test de source) -----------------------------------------------------
+// « Mince » cesse d'etre declaratif et devient VERIFIABLE. Le binding relaie le contexte declare par
+// le runner ; il n'a le droit d'implementer AUCUNE heuristique de projet. Le seul juge du « est-ce un
+// projet ? » reste le coeur (projectCanonExists).
+test('C-8 binding : aucune heuristique de projet dans le binding (ni remontee, ni sonde)', () => {
+  const src = fs.readFileSync(HOOK, 'utf8');
+  assert.doesNotMatch(src, /\.\.[/\\]/, 'aucune remontee d\'arborescence');
+  assert.doesNotMatch(src, /readdirSync|existsSync|statSync/, 'aucune sonde de systeme de fichiers');
+  assert.doesNotMatch(src, /dirname|\bparse\s*\(\s*__|resolve\s*\([^)]*['"]\.\./, 'aucun parcours de chemins parents');
+  assert.doesNotMatch(src, /\.git\b/, 'aucune detection de depot');
+  assert.doesNotMatch(src, /specs/i, 'aucune connaissance du layout du canon projet');
+  // La doctrine arbitree (AR-1 option B) est GRAVEE dans l'en-tete, pour que le prochain lecteur ne
+  // re-pose pas la question.
+  assert.match(src, /CONTEXTE/);
+  assert.match(src, /JUGEMENT/);
 });

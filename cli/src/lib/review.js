@@ -22,6 +22,7 @@ import { parseFrontmatter } from './frontmatter.js';
 import { loadConfig, memoryAdd, memoryReplace, memoryRemove } from './memory.js';
 import { proposalsDir } from './close.js';
 import { libraryRoot } from './library.js';
+import { projectCanonHome, produitAdd, produitReplace, produitRemove } from './projectCanon.js';
 
 // Types d'amendements STRUCTURELS : gate humain par nature (jamais auto, § 8 / Q-4).
 export const STRUCTURAL_TYPES = new Set(['skill', 'hook', 'config']);
@@ -96,6 +97,13 @@ export function classify(type, target, cfg) {
   }
   if (type === 'memory') {
     if (target === 'profil') return { auto: false, reason: 'profil-en-file' };
+    // CANON PROJET (AR-4) : garde PLUS STRICTE que celle du canon global, et la difference est
+    // MATERIELLE, pas doctrinale. Le canon global est un fichier LOCAL dans ~/.iaka/ ; le canon
+    // projet est VERSIONNE ET POUSSE sur Forgejo. Une entree erronee n'y est pas une ligne a
+    // corriger, c'est une LIGNE D'HISTORIQUE PUBLIC. Donc TOUJOURS EN FILE, SANS EXCEPTION —
+    // `write_approval: auto` ne peut PAS la rendre automatique (verrouille par test, au meme titre
+    // que le garde-fou structurel). C'est ce qui rend l'exposition du depot tenable.
+    if (target === 'produit') return { auto: false, reason: 'produit-toujours-en-file' };
     if (target === 'registre') {
       return cfg.write_approval === 'auto'
         ? { auto: true, reason: 'registre-auto' }
@@ -119,12 +127,35 @@ function materializeMemory(home, proposal) {
   try { spec = JSON.parse(fs.readFileSync(jsonPath, 'utf8')); }
   catch { return { ok: false, reason: 'artefact-memory-illisible' }; }
   const { op, target, content } = spec;
+
+  // ROUTAGE VERS LE CANON PROJET : la cible `produit` n'ecrit PAS dans ~/.iaka/memory/ mais dans
+  // <projet>/specs/canon/PRODUIT.md. Le depot cible est porte par l'ARTEFACT (`projectPath`, pose a
+  // la cloture) : sans lui, on ne saurait pas quel depot amender, et deviner serait pire que refuser.
+  if (target === 'produit') return materializeProduit(spec, op, content);
+
   let r;
   if (op === 'add') r = memoryAdd(home, target, content);
   else if (op === 'replace') r = memoryReplace(home, target, spec.old ?? spec.oldContent, content);
   else if (op === 'remove') r = memoryRemove(home, target, content);
   else return { ok: false, reason: 'op-inconnue', op };
   return { ...r, kind: 'memory' };
+}
+
+// produit : rejoue l'op sur le canon PROJET (lib/projectCanon.js) — plafond DUR de ce canon-la,
+// AUCUNE reimplementation ici, et strictement AUCUNE ecriture hors <projet>/specs/canon/.
+// `replace` porte la promesse du lot : l'entree est corrigee EN PLACE, pas empilee.
+function materializeProduit(spec, op, content) {
+  const projectPath = spec.projectPath;
+  if (!projectPath) return { ok: false, reason: 'artefact-produit-sans-projet' };
+  let home;
+  try { home = projectCanonHome(projectPath); }
+  catch (e) { return { ok: false, reason: 'projet-non-resolu', detail: e.message }; }
+  let r;
+  if (op === 'add') r = produitAdd(home, content);
+  else if (op === 'replace') r = produitReplace(home, spec.old ?? spec.oldContent, content);
+  else if (op === 'remove') r = produitRemove(home, content);
+  else return { ok: false, reason: 'op-inconnue', op };
+  return { ...r, kind: 'produit', canonHome: home, projectPath };
 }
 
 // skill : materialise le SKILL.md de l'artefact a l'emplacement des skills de la bibliotheque

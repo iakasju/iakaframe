@@ -201,11 +201,57 @@ UNIQUE** du portefeuille, un substrat de fichiers **neutre** (aucun runner privi
 | Commande | Usage / spécificités | Rôle |
 |---|---|---|
 | `memory <action>` | `init \| path \| config \| list \| add \| replace \| remove` sur `<profil\|registre>` · `--home --json` | Outil du canon : crée le layout, expose le chemin/la config (plafonds, seuils, consentement, cadence), liste et **mute** PROFIL.md / REGISTRE.md. `add` est daté & idempotent et **refuse tout dépassement du plafond dur** (consolidation à ~80 %). |
-| `open` | `--home --json` | Charge le canon (PROFIL + REGISTRE + rappel du réservoir) à **l'ouverture de session**, **scope-agnostique**, prêt à injecter. **Lecture seule** : n'écrit ni ne crée rien ; canon vide → sortie gracieuse. |
+| `open` | `--home --project <dir> --json` | Charge le canon (PROFIL + REGISTRE + rappel du réservoir) à **l'ouverture de session**, **scope-agnostique**, prêt à injecter. **Lecture seule** sur le canon ; canon vide → sortie gracieuse. Avec `--project`, le **canon PROJET s'ajoute** (jamais à la place) et le **marqueur de session** est armé. |
 | `recall <requête…>` | `--home --json` (objets `file/path/line/text/date`) | Rappel **plein-texte** sur l'historique brut (`transcripts/`) : retrouve un passage **sans le charger dans le prompt**. Moteur **ripgrep**, **repli Node** si `rg` absent (jamais de crash, mode dégradé signalé). |
 | `close` | `--session <fic> --home --json` | Revue de clôture **cadencée** : rejoue les `transcripts/` et **dépose des propositions typées** (`memory\|skill\|hook\|config`) dans `proposals/`. **N'APPLIQUE RIEN** (invariant Q-2) : rien n'est modifié sans consentement. |
-| `review <action>` | `list \| show <id> \| apply <id> \| reject <id> \| auto` · `--status <s> --library <dir> --home --json` | Revue du réservoir sous **garde de consentement** : applique/rejette les propositions de `close`. Politique par défaut : **PROFIL en file**, **REGISTRE auto** (si `write_approval:auto`), **STRUCTUREL toujours en file** (jamais auto). |
+| `review <action>` | `list \| show <id> \| apply <id> \| reject <id> \| auto` · `--status <s> --library <dir> --home --json` | Revue du réservoir sous **garde de consentement** : applique/rejette les propositions de `close`. Politique par défaut : **PROFIL en file**, **REGISTRE auto** (si `write_approval:auto`), **PRODUIT toujours en file** (canon versionné, cf. B.5 bis), **STRUCTUREL toujours en file** (jamais auto). |
 | `consolidate` | `--source <dir> --home <dir> --json` | **Consolidation initiale** (amorçage du canon) : fond les fiches mémoire existantes du portefeuille en un **aperçu capé** de PROFIL / REGISTRE — **curation, pas copie**, sous **plafond dur**. **N'APPLIQUE RIEN** au canon réel : produit `consolidation/{PROFIL,REGISTRE}.proposed.md` + `DIFF.md` + `RAPPORT.md`, pour **revue humaine sur DIFF**. Recopier l'aperçu sur le canon reste un **geste humain gaté**. Utiliser un `--home` de staging pour ne pas toucher au canon réel. |
+
+## B.5 bis Canon PROJET — la connaissance incrémentale du produit
+
+Réf. d'architecture : `specs/instructions/canon-projet-connaissance-produit.md` (**lot A**).
+**Second axe du même moteur** : le canon du portefeuille (B.5) apprend *qui est le décideur*,
+le canon projet apprend *ce qu'on a appris **du produit***.
+
+**Ce n'est ni un instantané ni une main courante.** `specs/etat-des-lieux.md` **écrase** à
+chaque passage, un journal **empile** — **aucun des deux ne RÉVISE**. Le canon projet corrige
+ses entrées **en place** (`replace` re-date la ligne et **fait disparaître** la formulation
+antérieure) ; un **plafond dur** force la consolidation.
+
+**Où** : `<projet>/specs/canon/PRODUIT.md` — **versionné**, revu en diff, poussé. Le
+**marqueur de session** (dette de clôture), lui, est **local et NON versionné**
+(`~/.iaka/memory/sessions/`) : un fichier d'état versionné produirait conflits de merge et
+bruit de diff à perpétuité, pour une information qui ne concerne que la machine courante.
+
+| Commande | Usage / spécificités | Rôle |
+|---|---|---|
+| `produit <action>` | `init \| path \| config \| list \| add \| replace \| remove` · `--project <dir> --json` | Outil du canon projet. `add` daté & idempotent ; **`replace` RÉVISE EN PLACE** (le cœur du lot) ; `remove` est le `-` symétrique de `add`. **Refuse tout dépassement du plafond dur.** `init` crée `PRODUIT.md` **et rien d'autre** (aucune structure machine dans un dépôt versionné). |
+
+**Rituel** — greffé sur `snapshot` / `update`, **sans nouvelle plomberie** :
+
+- `--reason pause|version` → **clôture** du canon projet : dépose des **propositions** dans le
+  réservoir global, **n'écrit jamais** dans `PRODUIT.md` ; le marqueur passe à `pending:false`.
+- `--reason reprise` → **rattrapage** d'une clôture manquée, **et seulement s'il y a une dette**.
+  Sans dette : **strictement rien**. `cadence.close_on` reste `['pause','version']` et
+  **n'accueille jamais `reprise`** — « capturer à la reprise » (analyser la session qui commence)
+  serait absurde ; « rattraper une clôture manquée » exécute la clôture de la session
+  **précédente**. Deux gestes, deux objets.
+- **Dégradation gracieuse** : canon absent, dépôt en lecture seule, marqueur corrompu →
+  incident **journalisé**, rituel **réussi**. Une clôture en échec **ne solde pas** la dette.
+
+**Garde de consentement — plus stricte que celle du canon portefeuille.** La cible `produit`
+est **toujours en file** : `write_approval: auto` **ne peut pas** la rendre automatique. Motif
+**matériel** : le canon global est un fichier **local**, le canon projet est **versionné et
+poussé** — une entrée erronée n'y est pas une ligne à corriger, c'est une **ligne d'historique
+public**. Application via `iakaframe review apply` (geste humain).
+
+**Étanchéité.** Le canon projet ne parle **que du produit** : un fait sur le **décideur** va au
+canon **global**. Le canon global reste chargé **partout** ; le canon projet **s'ajoute**, il ne
+remplace jamais — entrer dans un projet n'aveugle donc pas sur la connaissance portefeuille. Il
+ne réécrit **jamais** `specs/PROJET.md` (intention) ni `etat-des-lieux.md` (situation).
+
+**Porteur** : le **coordinateur projet**, en symétrie avec le coordinateur portefeuille sur le
+canon global (contrat de rôle `library/personas/aragorn.md`).
 
 ### Binding Claude Code (optionnel)
 
@@ -215,6 +261,16 @@ Le geste `open` est **agnostique** ; le seul morceau qui connaît Claude Code vi
 en remplacement. Il est **mince, optionnel, non bloquant**. Le canon fonctionne **sans** ce
 binding (`iakaframe open` à la main). **L'activation est un geste humain** : un agent ne
 modifie pas `~/.claude/settings.json` (voir `cli/bindings/claude-code/README.md`).
+
+Le hook passe aussi `--project <racine>` : il **arme le marqueur de session**, ce qui permet de
+**rattraper la clôture** à la reprise si une session se ferme sans rituel. Le répertoire n'est pas
+*deviné* — le binding **relaie ce que le runner déclare** (`CLAUDE_PROJECT_DIR`, puis le `cwd` du
+payload `SessionStart`, puis le répertoire courant) ; le **jugement** « ce répertoire est-il un
+projet à canon ? » reste **dans le cœur** (`projectCanonExists`). C'est le sens précis de
+« **mince** » : le binding fournit le **contexte**, jamais la **logique** — il n'a le droit d'aucune
+heuristique de projet (ni remontée d'arborescence, ni sonde), interdiction **verrouillée par test**.
+Sans canon projet dans le répertoire, **rien n'est créé ni armé** : le canon portefeuille est injecté
+seul.
 
 ## B.6 Portefeuille (dossier chapeau) — vue agrégée & observation
 
