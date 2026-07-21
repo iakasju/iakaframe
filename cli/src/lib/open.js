@@ -9,6 +9,7 @@
 import fs from 'node:fs';
 import { statePath, loadConfig } from './memory.js';
 import { listProposals, STATUS } from './review.js';
+import { loadProjectCanon, renderProjectCanon } from './projectCanon.js';
 
 // Lit un etat plafonne (profil|registre) SANS le creer. Renvoie { path, content, chars, cap, empty }.
 // `empty` = aucune entree (puce) reelle : fichier absent, ou reduit a son en-tete de commentaire.
@@ -35,12 +36,23 @@ export function loadCanon(home, opts = {}) {
     } catch { pending = []; } // rappel du reservoir best-effort : jamais bloquant pour l'ouverture
   }
 
+  // CANON PROJET (lot A) : il S'AJOUTE, il ne REMPLACE JAMAIS. Le canon GLOBAL ci-dessus est charge
+  // INCONDITIONNELLEMENT du repertoire courant et le reste — c'est ce qui garantit qu'entrer dans un
+  // projet n'AVEUGLE jamais sur la connaissance portefeuille. Un canon projet est un SILO seulement
+  // s'il remplace et aveugle ; ici les deux se SUPERPOSENT (§ 3.1, § 4.3-2). Lecture seule.
+  let projet = null;
+  if (opts.projectPath) {
+    try { projet = loadProjectCanon(opts.projectPath); }
+    catch { projet = null; } // jamais bloquant pour l'ouverture
+  }
+
   return {
     ok: true,
     home,
     empty: profil.empty && registre.empty, // canon « vide » = aucun etat ne porte d'entree
     profil,
     registre,
+    projet,
     pending,
   };
 }
@@ -61,6 +73,9 @@ export function renderCanon(canon) {
   };
   section('PROFIL — qui est le decideur', canon.profil);
   section('REGISTRE — ce que l\'agent a appris', canon.registre);
+
+  // Le canon PROJET vient APRES le global, jamais a sa place : l'ordre de rendu porte la doctrine.
+  if (canon.projet && canon.projet.exists) lines.push(renderProjectCanon(canon.projet));
 
   if (canon.pending && canon.pending.length) {
     lines.push(`--- Reservoir : ${canon.pending.length} proposition(s) en attente de revue ---`);
