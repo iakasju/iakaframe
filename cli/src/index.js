@@ -19,6 +19,7 @@ import { runRemove } from './commands/remove.js';
 import { runAttach, runDetach } from './commands/attach.js';
 import { runAssemble } from './commands/assemble.js';
 import { runVendorCheck } from './commands/vendor-check.js';
+import { runFrame } from './commands/frame.js';
 import { runSwitch } from './commands/switch.js';
 import { runMemory } from './commands/memory.js';
 import { runOpen } from './commands/open.js';
@@ -82,6 +83,9 @@ Commandes :
   vendor-check        Constate que les 21 fixtures vendorees de iakaFrameGUI (17 copies +
                         4 derivees) sont fideles au canon. Gracieux si le frere est absent
                         (exit 0, ok:false)  (--strict --gui <dir> --root --json)
+  frame verify        Garde d'anonymisation du miroir frames/releases/ : gates G1-G6 par CLASSES
+                        (G2 = ALLOWLIST de marque, attrape le nom SUIVANT). Constate, ne reecrit
+                        pas  (--frame <dir> --verbose --json)
   switch|use <m> <t>  Bascule un projet vers methode/team  (--path --binding --rollback --json)
   memory <action>     Canon du portefeuille : init|path|config|list|add|replace|remove
                         <profil|registre>  (--home <dir>  --json ; defaut ~/.iaka/memory/)
@@ -148,6 +152,7 @@ async function main() {
     case 'detach':   runDetach(rest); break;
     case 'assemble': runAssemble(rest); break;
     case 'vendor-check': runVendorCheck(rest); break;
+    case 'frame':    runFrame(rest); break;
     case 'switch':
     case 'use':      runSwitch(rest); break;
     case 'memory':   runMemory(rest); break;
