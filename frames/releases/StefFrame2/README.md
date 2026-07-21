@@ -187,13 +187,20 @@ d'environnement, sans secret ni hôte en dur.
 Ce frame est vérifié par une garde outillée (`iakaframe frame verify`, côté canon). Elle
 travaille par **classes de motifs**, et non par liste de mots interdits — une liste de noms
 propres à bannir est structurellement incapable d'attraper le **nom suivant**. Le contrôle
-principal fonctionne donc par **liste blanche** : tout terme de marque hors liste est refusé,
-y compris un terme créé après l'écriture de la règle.
+principal fonctionne donc par **liste blanche** : tout terme de marque **accolé** hors liste est
+refusé — c'est-à-dire le radical `iaka` suivi **immédiatement** d'un mot, sans séparateur — y
+compris un terme créé après l'écriture de la règle. La forme **séparée** (`iaka-hub`,
+`iaka.cloud`) échappe à cette propriété : c'est un arbitrage assumé, détaillé au point 7.
+
+*(Ce README est lui-même scanné par la garde : les exemples de forme accolée y sont décrits
+plutôt que cités, sous peine d'être signalés comme de vraies fuites.)*
 
 Sont couverts : les secrets et l'infra (adresses privées, identifiants en URL, chemins
 personnels absolus, clés), le vocabulaire de marque, l'identité du décideur (y compris à
 l'intérieur d'une expression régulière exécutée), la couche « produit » et les références
-pendantes, et les ports d'infra (quel que soit le séparateur).
+pendantes, et les ports d'infra — quel que soit le séparateur qui suit le mot-clé `port`
+(deux-points, signe égal, espace, tabulation, option de ligne de commande), ainsi que la forme
+`hôte:port`.
 
 ### ⚠️ Ce que la garde n'attrape PAS
 
@@ -211,9 +218,24 @@ garantie.
    laquelle ce dépôt ne versionne plus d'archive — une archive se génère à la diffusion.
 6. **Une fuite entrée dans le canon** : la garde porte sur le miroir ; elle ne la verrait qu'à
    la propagation suivante.
-7. **Les avertissements de noms propres résiduels** sont non bloquants par construction : un
-   gate bruyant est un gate désactivé. Ils se lisent, ils n'arrêtent rien.
+7. **La casse et les variantes typographiques** au-delà du prévu. La détection de marque et
+   celle de l'identité sont insensibles à la casse, mais elles s'arrêtent aux **séparateurs** :
+   `iaka-hub`, `iaka-graph`, `iaka.cloud`, `iaka_secret` se réduisent à `iaka`, qui est dans la
+   liste blanche — et **passent donc**. C'est un **arbitrage assumé** : `iaka` seul compte 32
+   occurrences légitimes dans ce frame, l'en retirer produirait un bruit qui désactiverait la
+   garde. Le trou est **connu et écrit**, plutôt que silencieux.
+8. **Les noms propres résiduels ne sont cherchés que dans la prose des fichiers `.md`.** Un nom
+   propre situé dans du **code source** (`.js`, `.ps1`…), dans un **bloc de code** ou dans un
+   span `` `code` `` n'est pas signalé. Élargir noierait la sortie sous les identifiants de code
+   (3020 occurrences brutes mesurées).
+9. **Ces avertissements de noms propres sont non bloquants** par construction : un gate bruyant
+   est un gate désactivé. Ils se lisent, ils n'arrêtent rien.
 
-> **En clair** : la garde déplace le curseur de « aucune garantie » à « les classes *marque* et
-> *secrets* sont couvertes, y compris pour des noms futurs ». Elle **ne rend pas la relecture
-> humaine inutile avant une diffusion à des tiers.**
+**Portée mesurée, à titre d'illustration honnête.** Sur le nom propre le plus présent de ce
+frame, la garde en rapporte **21 sur 25**. Les 4 non rapportées relèvent du point 8 : 3 dans un
+arbre de fichiers en bloc de code, 1 dans un commentaire `.js`. Ce chiffre est donné pour que la
+portée de la garde soit **vérifiable**, et non déclarative.
+
+> **En clair** : la garde déplace le curseur de « aucune garantie » à « les classes *marque*
+> (forme accolée) et *secrets* sont couvertes, y compris pour des noms futurs ». Elle **ne rend
+> pas la relecture humaine inutile avant une diffusion à des tiers.**
