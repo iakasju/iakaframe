@@ -16,6 +16,7 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { checkVendor, resolveGuiRoot, stripHeader, IDS } from '../src/lib/vendor.js';
+import { remediationFor, KNOWN_REASONS } from '../src/commands/vendor-check.js';
 import { generateAgent, loadDefaultBinding, renderAgentContract, verbatimBody } from '../src/lib/generate-agents.js';
 import { parseFrontmatter } from '../src/lib/frontmatter.js';
 import { sha256 } from '../src/lib/vendor.js';
@@ -295,6 +296,243 @@ test('A14 (amende) : un geste par derive constatee ; jamais de `cp` sur une deri
   assert.ok(!out.includes('binding/iakaframe-claude-default.md'),
     'aucune derive du binding : il ne doit apparaitre dans aucun geste');
   assert.ok(!/agents-golden/.test(out), 'aucune derive de golden : aucune ligne golden attendue');
+});
+
+// ================================================================================================
+// Recette du REMEDE DERIVE (specs/instructions/remede-vendor-check-derive-de-l-etat.md § 4).
+//
+// Le defaut d'origine n'etait pas « deux lignes fausses » : c'etait un remede produit SANS regarder
+// ce que la mesure venait de dire. Ces criteres verrouillent la propriete inverse — et C-5, qui
+// APPLIQUE mecaniquement le remede produit, est exactement ce qui l'aurait attrape.
+// ================================================================================================
+
+// Lance la commande reelle et rend { exit, payload }. On passe par le CLI (et non par checkVendor
+// en direct) parce que C-5 doit eprouver la chaine COMPLETE : mesure -> derivation -> sortie
+// machine. C'est la sortie `--json` qui rend le bouclage mecanisable, sans shell (§ 3.5).
+function runCli(m) {
+  const r = spawnSync(process.execPath, [CLI, 'vendor-check', '--json', '--root', REPO], {
+    encoding: 'utf8', env: { ...process.env, IAKAFRAME_GUI_ROOT: m.root },
+  });
+  return { exit: r.status, payload: JSON.parse(r.stdout) };
+}
+
+function runCliHuman(m) {
+  return spawnSync(process.execPath, [CLI, 'vendor-check', '--root', REPO], {
+    encoding: 'utf8', env: { ...process.env, IAKAFRAME_GUI_ROOT: m.root },
+  }).stdout;
+}
+
+// Applique MECANIQUEMENT les entrees applicables du remede, via `fs` et SANS shell : c'est le coeur
+// de C-5. `source` est relatif a la racine iakaframe, `dest` a la racine du miroir. `strip` marque
+// le seul geste qui TRANSFORME son contenu (le kit).
+function applyRemediation(m, remediation) {
+  let applied = 0;
+  for (const e of remediation) {
+    if (e.action === 'copy') {
+      const dst = path.join(m.root, e.dest);
+      fs.mkdirSync(path.dirname(dst), { recursive: true });
+      const raw = fs.readFileSync(path.join(REPO, e.source), 'utf8');
+      fs.writeFileSync(dst, e.strip ? stripHeader(raw) : raw);
+      applied++;
+    } else if (e.action === 'delete') {
+      fs.rmSync(path.join(m.root, e.dest), { force: true });
+      applied++;
+    }
+  }
+  return applied;
+}
+
+test('C-1 : miroir conforme -> ok, exit 0, et AUCUN remede imprime', () => {
+  const m = makeCleanMirror();
+  const { exit, payload } = runCli(m);
+  assert.equal(payload.ok, true);
+  assert.equal(exit, 0);
+  assert.deepEqual(payload.remediation, [], 'un miroir conforme n\'a rien a reparer');
+  assert.ok(!runCliHuman(m).includes('REMEDE'), 'aucun bloc de remede sur un miroir vert');
+});
+
+test('C-2 : une seule persona alteree -> EXACTEMENT une ligne de copie, nommant cette persona', () => {
+  const m = makeCleanMirror();
+  const p = fixturePath(m, path.join('personas', 'gimli.md'));
+  fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + ' ');
+  const { payload } = runCli(m);
+
+  assert.equal(payload.remediation.length, 1, 'le remede doit etre proportionnel a la derive');
+  const [e] = payload.remediation;
+  assert.equal(e.action, 'copy');
+  assert.equal(e.source, 'library/personas/gimli.md');
+  assert.equal(e.dest, 'packages/core/__tests__/fixtures/personas/gimli.md');
+
+  const out = runCliHuman(m);
+  // Le defaut historique en une assertion : le glob embarquait _TEMPLATE.md et fabriquait la panne.
+  assert.ok(!out.includes('_TEMPLATE'), '_TEMPLATE.md ne doit JAMAIS etre prescrit en copie');
+  assert.ok(!out.includes('*'), 'aucun joker : les copies sont nommees');
+  // ... et le remede ne parle que de ce qui est casse.
+  for (const absent of ['agents-golden', 'binding/', 'method.iakaframe', 'team.iakaframe-8', 'kit.']) {
+    assert.ok(!out.includes(absent), `rien n'est derive sur ${absent} : aucun geste attendu`);
+  }
+});
+
+test('C-3 : sur TOUTE derive injectee, jamais `iakaframe assemble`, jamais de joker en copie', () => {
+  const scenarios = {
+    persona: (m) => { const p = fixturePath(m, path.join('personas', 'loki.md')); fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + ' '); },
+    binding: (m) => { const p = fixturePath(m, path.join('binding', 'iakaframe-claude-default.md')); fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + ' '); },
+    golden: (m) => { const p = fixturePath(m, path.join('agents-golden', 'odin.md')); fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + ' '); },
+    supprimee: (m) => fs.rmSync(fixturePath(m, path.join('personas', 'helm.md'))),
+    surnumeraire: (m) => fs.writeFileSync(fixturePath(m, path.join('personas', '_TEMPLATE.md')), '---\nname: x\n---\n'),
+    kit: (m) => { const p = fixturePath(m, 'kit.iakaframe-claude.md'); fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + ' '); },
+    derivee: (m) => { const p = fixturePath(m, 'team.iakaframe-8.md'); fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace('coordinator: aragorn', 'coordinator: gimli')); },
+  };
+  for (const [nom, injecte] of Object.entries(scenarios)) {
+    const m = makeCleanMirror();
+    injecte(m);
+    const out = runCliHuman(m);
+    assert.ok(!out.includes('iakaframe assemble'),
+      `[${nom}] \`iakaframe assemble\` vise un fichier que la garde ne lit jamais`);
+    for (const l of out.split('\n').filter((x) => /^\s+cp /.test(x))) {
+      assert.ok(!l.includes('*'), `[${nom}] joker dans une ligne de copie : ${l}`);
+    }
+  }
+});
+
+test('C-4 : derive de frontmatter d\'une derivee -> gen-fixtures.mjs, et AUCUN copy sur cette fixture', () => {
+  const m = makeCleanMirror();
+  const p = fixturePath(m, 'team.iakaframe-8.md');
+  fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace('coordinator: aragorn', 'coordinator: gimli'));
+  const { payload } = runCli(m);
+
+  const forTeam = payload.remediation.filter((e) => e.fixture === 'team.iakaframe-8.md');
+  assert.equal(forTeam.length, 1);
+  assert.equal(forTeam[0].action, 'run', 'une derivee serialisee se REGENERE, elle ne se copie pas');
+  assert.match(forTeam[0].command, /node packages\/core\/scripts\/gen-fixtures\.mjs/);
+  assert.ok(!payload.remediation.some((e) => e.action === 'copy' && e.fixture === 'team.iakaframe-8.md'),
+    'INVARIANT : copier une derivee detruirait sa forme canonique');
+});
+
+// --- C-5 : LE BOUCLAGE. Appliquer le remede produit doit mener a `clean`. -----------------------
+// C'est le critere decisif du lot : un remede qui laisse une derive, ou qui EN CREE UNE NOUVELLE
+// (le defaut d'origine, cf. `_TEMPLATE.md`), echoue ici.
+const SCENARIOS_C5 = {
+  '1. une persona alteree': (m) => {
+    const p = fixturePath(m, path.join('personas', 'gimli.md'));
+    fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + '\nderive\n');
+  },
+  '2. le binding altere': (m) => {
+    const p = fixturePath(m, path.join('binding', 'iakaframe-claude-default.md'));
+    fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + '\nderive\n');
+  },
+  '3. un golden altere': (m) => {
+    const p = fixturePath(m, path.join('agents-golden', 'odin.md'));
+    fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + '\nderive\n');
+  },
+  '4. une fixture supprimee': (m) => fs.rmSync(fixturePath(m, path.join('personas', 'loki.md'))),
+  // Exactement le fichier que l'ancien remede ajoutait lui-meme, en croyant reparer.
+  '5. une fixture surnumeraire (_TEMPLATE.md)': (m) => fs.copyFileSync(
+    path.join(REPO, 'library', 'personas', '_TEMPLATE.md'),
+    fixturePath(m, path.join('personas', '_TEMPLATE.md')),
+  ),
+  '6. la fixture kit alteree': (m) => {
+    const p = fixturePath(m, 'kit.iakaframe-claude.md');
+    fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + '\nderive\n');
+  },
+  '7. combinaison 1 + 3 + 5': (m) => {
+    const a = fixturePath(m, path.join('personas', 'gimli.md'));
+    fs.writeFileSync(a, fs.readFileSync(a, 'utf8') + '\nderive\n');
+    const b = fixturePath(m, path.join('agents-golden', 'helm.md'));
+    fs.writeFileSync(b, fs.readFileSync(b, 'utf8') + '\nderive\n');
+    fs.copyFileSync(path.join(REPO, 'library', 'personas', '_TEMPLATE.md'),
+      fixturePath(m, path.join('personas', '_TEMPLATE.md')));
+  },
+};
+
+for (const [nom, injecte] of Object.entries(SCENARIOS_C5)) {
+  test(`C-5 : bouclage - ${nom} -> appliquer le remede rend le miroir CLEAN`, () => {
+    const m = makeCleanMirror();
+    injecte(m);
+
+    const avant = runCli(m);
+    assert.equal(avant.payload.ok, false, 'la derive injectee doit etre detectee');
+    assert.equal(avant.exit, 1);
+    assert.ok(avant.payload.remediation.length > 0, 'une derive constatee ne laisse jamais sans geste');
+
+    const applied = applyRemediation(m, avant.payload.remediation);
+    assert.ok(applied > 0, 'le remede doit contenir au moins un geste applicable mecaniquement');
+
+    const apres = runCli(m);
+    assert.equal(apres.payload.ok, true,
+      'le remede applique doit eteindre la derive, pas en creer une nouvelle : '
+      + JSON.stringify(apres.payload.files, null, 2));
+    assert.equal(apres.payload.drift, 0);
+    assert.equal(apres.exit, 0);
+  });
+}
+
+test('C-6 : les entrees `run` sont verifiees STRUCTURELLEMENT (non executees) - commande + script sur disque', () => {
+  // Limite declaree (§ 7, I-2) : executer gen-fixtures.mjs supposerait un depot frere mutable, ce
+  // que la suite evite par construction (miroirs synthetiques). On verifie donc la commande exacte
+  // et la PRESENCE de sa cible, pas son effet.
+  const m = makeCleanMirror();
+  const p = fixturePath(m, 'team.iakaframe-8.md');
+  fs.writeFileSync(p, fs.readFileSync(p, 'utf8').replace('coordinator: aragorn', 'coordinator: gimli'));
+  const runs = runCli(m).payload.remediation.filter((e) => e.action === 'run');
+  assert.equal(runs.length, 1);
+  assert.match(runs[0].command, /^node packages\/core\/scripts\/gen-fixtures\.mjs\s+\(depuis <GUI>\)$/);
+
+  const real = resolveGuiRoot(REPO, { ...process.env, IAKAFRAME_GUI_ROOT: '' });
+  if (real) {
+    assert.ok(fs.existsSync(path.join(real, 'packages', 'core', 'scripts', 'gen-fixtures.mjs')),
+      'la commande prescrite doit designer un script qui EXISTE');
+  }
+  // Le second geste `run` du dispositif : regeneration du golden avant copie (niveau 2, § 2.4).
+  assert.ok(fs.existsSync(path.join(REPO, 'cli', 'scripts', 'gen-agents-golden.mjs')),
+    'gen-agents-golden.mjs, prescrit sur niveau2-contrat-vivant-different, doit exister');
+});
+
+test('C-7 : exhaustivite - toute raison emise par vendor.js a un geste (pilote par le SOURCE)', () => {
+  // Pilote par le source de vendor.js, et non par une liste tenue a la main : une raison ajoutee
+  // plus tard SANS remede fait rougir cette assertion, ce qui est tout l'objet du critere.
+  const src = fs.readFileSync(path.join(REPO, 'cli', 'src', 'lib', 'vendor.js'), 'utf8');
+  const emitted = new Set();
+  for (const mm of src.matchAll(/record\([^,]+,\s*'([a-z0-9-]+)'/g)) emitted.add(mm[1]);
+  for (const mm of src.matchAll(/reason:\s*'([a-z0-9-]+)'/g)) emitted.add(mm[1]);
+  assert.ok(emitted.size >= 10, `extraction des raisons suspecte : ${emitted.size} trouvee(s)`);
+
+  for (const reason of emitted) {
+    assert.ok(KNOWN_REASONS.has(reason),
+      `raison emise par vendor.js sans entree dans la table de remediation : ${reason}`);
+  }
+  for (const reason of KNOWN_REASONS) {
+    assert.ok(emitted.has(reason),
+      `KNOWN_REASONS declare une raison que vendor.js n'emet plus : ${reason}`);
+  }
+
+  // ... et aucune combinaison raison x famille ne doit retomber dans le filet « inconnu ».
+  const familles = ['personas', 'goldens', 'binding', 'methode', 'methode-wrapped', 'team', 'kit', 'inconnue'];
+  for (const reason of emitted) {
+    for (const family of familles) {
+      const rem = remediationFor({
+        status: 'drift',
+        files: [{
+          fixture: 'personas/gimli.md', family, kind: 'copy',
+          source: 'library/personas/gimli.md', reasons: [{ reason }],
+        }],
+      });
+      assert.ok(rem.length >= 1, `aucun geste pour ${reason} / ${family}`);
+      assert.ok(!rem.some((e) => e.unknown), `geste « inconnu » pour ${reason} / ${family}`);
+    }
+  }
+});
+
+test('C-9 : `remediation` est ADDITIF - `ok` reste en premiere cle, aucune cle existante perdue', () => {
+  const m = makeCleanMirror();
+  const p = fixturePath(m, path.join('personas', 'gimli.md'));
+  fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + ' ');
+  const { payload } = runCli(m);
+  assert.equal(Object.keys(payload)[0], 'ok', 'C-JSON : `ok` en premiere cle');
+  for (const k of ['status', 'guiRoot', 'checked', 'derived', 'expected', 'drift', 'count', 'files', 'derivedFixtures']) {
+    assert.ok(k in payload, `cle existante disparue de la sortie machine : ${k}`);
+  }
+  assert.ok(Array.isArray(payload.remediation));
 });
 
 test('A5-a (garde de non-mutation) : le depot GUI reel n\'est jamais mute par la suite', () => {

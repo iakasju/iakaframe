@@ -81,9 +81,10 @@ function kitEntry(base, source, dest) {
   return {
     ...base, action: 'copy', source, dest, strip: true,
     command: `copier ${source} DEPOUILLE de son en-tete vers <GUI>/${dest}`,
+    // NE JAMAIS citer ici l'ancien geste fautif, meme pour dire qu'il est retire : la note est
+    // lue par un operateur qui copie ce qu'il voit (C-3 verrouille l'absence de la chaine).
     note: 'retirer tout ce qui precede le premier `---` (en-tete <!-- ... -->). Un `cp` nu '
-      + 'laisserait l\'en-tete et produirait une nouvelle derive. Ce geste remplace l\'ancien '
-      + '`iakaframe assemble ... --write`, qui visait un fichier que la garde ne lit jamais.',
+      + 'laisserait l\'en-tete et produirait une nouvelle derive.',
   };
 }
 
