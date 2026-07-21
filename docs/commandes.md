@@ -129,7 +129,7 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 
 | Commande | Usage / options principales | Rôle |
 |---|---|---|
-| `services` | `--hosts a,b,c --json <fichier> --timeout <sec>` | Sonde git (Forgejo) / Ollama / ComfyUI. |
+| `services` | `--hosts a,b,c --out <fichier> --json --timeout <sec>` | Sonde git (Forgejo) / Ollama / ComfyUI. **Hôtes neutres par défaut** (`localhost,127.0.0.1`) : renseigner `IAKAFRAME_HOSTS` (CSV) dans `~/work/.env` pour les hôtes du LAN. `--hosts` prime sur l'env var. |
 | `go <projet>` | `--path <dir> --runner <r> --do "tache"` | Lance l'action du projet via son runner (`claude-code\|ollama\|litellm\|codex` ; launchers legacy : `aider`, `iakaide`). |
 | `agents` | `list \| affect \| fullteam \| status` · `--agent <nom> --project <dir> --global --force` | Équipe de personas : inventaire / affectation / équipe complète / statut. |
 | `root` | `--root <dir>` | Affiche le dossier chapeau résolu (`~/work` \| `C:\work`). |

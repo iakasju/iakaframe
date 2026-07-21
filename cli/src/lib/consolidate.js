@@ -31,7 +31,13 @@ import { parseFrontmatter } from './frontmatter.js';
 // --- Source des fiches (§ 9) ----------------------------------------------------------------------
 // Defaut : la memoire portefeuille du runner Claude Code au scope ~/work. PARAMETRABLE (--source)
 // pour les tests et pour tout autre scope. La source est LUE seulement (jamais mutée).
+// Surchargeable par `IAKAFRAME_MEMORY_SOURCE` (remontee du miroir vers le canon, Lot 0 —
+// specs/instructions/outillage-scrub-miroir-frame.md § 2.5). Le defaut est INCHANGE : le scope
+// portefeuille du poste courant reste resolu tel quel, l'env var n'est qu'une porte de sortie
+// pour tout autre scope (autre poste, autre runner, CI) sans forker le fichier.
 export function defaultSourceDir() {
+  const override = process.env.IAKAFRAME_MEMORY_SOURCE;
+  if (override) return path.resolve(override);
   return path.join(os.homedir(), '.claude', 'projects', '-Users-sjupin-work', 'memory');
 }
 
