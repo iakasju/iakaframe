@@ -9,9 +9,10 @@
 //
 // Une liste de noms propres a bannir est STRUCTURELLEMENT incapable d'attraper le nom propre
 // SUIVANT. D'ou G2 : une ALLOWLIST courte et stable (`iakaframe`, `iakastart`, `iaka`, `iakalog`)
-// qui refuse tout autre `iaka*` — y compris un nom cree APRES l'ecriture de cette regle. C'est la
-// seule forme qui satisfait le principe du decideur (« le frame est un miroir du canon » : la
-// propagation est repetee, donc une fuite non couverte est une fuite GARANTIE a terme).
+// qui refuse tout autre `iaka*` COLLE — y compris un nom cree APRES l'ecriture de cette regle.
+// C'est la seule forme qui satisfait le principe du decideur (« le frame est un miroir du canon » :
+// la propagation est repetee, donc une fuite non couverte est une fuite GARANTIE a terme).
+// PORTEE EXACTE : la forme SEPAREE (`iaka-hub`) echappe a cette propriete — cf. LIMITS, limite 7.
 //
 // LE GATE CONSTATE, IL NE REECRIT PAS. Pas de `--fix` : une reecriture automatique sur un livrable
 // destine a des tiers est un risque superieur a celui qu'elle previent (§ 5).
@@ -86,6 +87,11 @@ export const G6_DICT = new Set([
   'cadrage', 'chat', 'gestion', 'production', 'surveillance', 'sans', 'mono', 'access',
   'workspace', 'team', 'coverage', 'avanc', 'key', 'keys', 'index', 'ids', 'phase', 'hub',
   'absent', 'destructive', 'submit', 'claw', 'ver', 'use', 'shell', 'continue', 'vx', 'md', 'js',
+  // Vocabulaire generique revele par l'admission du separateur ESPACE dans RE_MIDCAP (reprise).
+  // `Personal Access Token` (terme git standard) et `Tools / Functions / Pipelines` (noms de
+  // fonctionnalites PUBLIQUES d'Open WebUI) : aucun n'est un nom propre du portefeuille. Sans ces
+  // entrees, l'elargissement qui rattrape 4 `Hermes` coute 8 faux positifs.
+  'personal', 'token', 'functions', 'tools', 'pipelines',
 ]);
 
 // Extensions de fichiers TEXTE inspectees. Le binaire est hors de portee du gate (LIMITS).
@@ -106,6 +112,13 @@ export const LIMITS = [
   'Un port de l\'allowlist, ou ecrit en variable/calcul (`PORT_BASE + 1`).',
   'Le contenu des archives `.zip` et de tout binaire : non inspectable.',
   'Une fuite entree dans le CANON : les gates portent sur le miroir, elle n\'est vue qu\'a la propagation suivante.',
+  // Limite 7 de l'instruction (§ 4.2), RESTAUREE : c'est elle qui porte les deux trous mesures
+  // ci-dessous. Elle avait ete perdue, si bien que le contrat annoncait une portee qu'il n'avait
+  // pas — exactement le defaut que ce lot existe pour tuer.
+  'La casse et les variantes TYPOGRAPHIQUES au-dela du prevu. G2/G3 sont casse-insensibles, mais la forme SEPAREE d\'un terme de marque (`iaka-hub`, `iaka.cloud`, `iaka_secret`) N\'EST PAS couverte : `RE_BRAND` s\'arrete au separateur et retombe sur `iaka`, qui est dans l\'allowlist. Arbitrage ASSUME : `iaka` nu compte 32 occurrences legitimes dans le miroir ; le retirer de l\'allowlist rendrait le gate inutilisable. La forme COLLEE (`iakaHub`, `iakabox`) reste, elle, bien attrapee.',
+  // Portee de G6, mesuree : 21 des 25 occurrences de `Hermes` sont rapportees. Les 4 restantes
+  // tombent dans les deux angles morts ci-dessous. Ils sont DECLARES, jamais silencieux.
+  'G6 ne lit que les fichiers `.md`, et seulement leur PROSE : un nom propre dans du code source (`.js`, `.ps1`…), dans un bloc de code ``` ou dans un span `code` n\'est pas signale. Mesure : 4 occurrences de `Hermes` sur 25 (3 dans un arbre en bloc de code, 1 dans un commentaire `.js`). Elargir noierait la sortie sous les identifiants de code (3020 occurrences brutes mesurees).',
   'Le gate ne rend PAS la relecture humaine inutile avant une diffusion a des tiers.',
 ];
 
@@ -133,6 +146,12 @@ const RE_JWT = /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g
 // Insensible a la casse (§ 4.2 limite 7 : le grep d'origine etait sensible a la casse et ratait
 // les variantes). `iaka[a-z0-9]*` s'arrete aux separateurs, donc `iakaframe-git` -> `iakaframe`
 // (autorise) et `IAKAFRAME_HOSTS` -> `IAKAFRAME` -> `iakaframe` (autorise).
+//
+// CONTREPARTIE ASSUMEE, ET DECLAREE (LIMITS limite 7) : cet arret au separateur fait AUSSI passer
+// toute la classe SEPAREE — `iaka-hub`, `iaka-graph`, `iaka.cloud`, `iaka_secret` se reduisent a
+// `iaka`, qui est dans l'allowlist. Ce n'est pas un oubli : `iaka` nu compte 32 occurrences
+// legitimes dans le miroir, et l'en retirer rendrait le gate inutilisable. On prefere donc un trou
+// CONNU et ecrit a un gate desactive — mais il ne doit jamais rester silencieux.
 const RE_BRAND = /\biaka[a-z0-9]*/gi;
 
 // --- G3 : identite du decideur ---------------------------------------------------------------
@@ -141,10 +160,14 @@ const RE_BRAND = /\biaka[a-z0-9]*/gi;
 const RE_IDENTITY = /\b(?:st[eé]phane|sjupin)\b/gi;
 
 // --- G5 : ports ------------------------------------------------------------------------------
-// (a) Forme MOT-CLE, independante du separateur : `port: 3001`, `port=3001`, `ports : "3001"`.
+// (a) Forme MOT-CLE, independante du separateur : `port: 3001`, `port=3001`, `ports : "3001"`,
+//     `port 3001`, `--port 3001`, `port<TAB>3001`.
 //     C'est la forme que l'ancien grep de recette ratait : il cherchait le litteral `:3001` et ne
 //     matchait donc PAS `port: 3001`.
-const RE_PORT_KEYWORD = /\bports?\b\s*[:=]\s*["']?(\d{2,5})\b/gi;
+//     SEPARATEUR OPTIONNEL (correctif de reprise) : `[:=]` etait EXIGE, si bien que la forme
+//     ESPACEE (`port 3001`, `--port 3001`, tabulation) passait — alors que le contrat annoncait
+//     « quel que soit le separateur ». Le separateur est desormais facultatif, l'espace suffit.
+const RE_PORT_KEYWORD = /\bports?\b[ \t]*(?:[:=][ \t]*)?["']?(\d{2,5})\b/gi;
 // (b) Forme HOTE:PORT collee, 4-5 chiffres. Le seuil de 4 chiffres est un CALIBRAGE mesure : il
 //     elimine les faux positifs `font-weight:800`, `postgres:16`, `width:100` (CSS minifiee et
 //     tags d'image) sans perdre de port prive reel. Les ports a 2-3 chiffres sont de toute facon
@@ -169,8 +192,13 @@ const RE_FILE_LINE = /\.(?:js|mjs|cjs|md|ps1|json|css|html|txt|sh|flf|ya?ml|toml
 //   - + dictionnaire                                ->  voir mesure finale
 // Le pas de trop aurait ete de s'arreter a la 2e ligne : le gate aurait eu l'air propre en
 // ratant la fuite principale.
+//
+// SEPARATEUR ESPACE (correctif de reprise). La 1re version exigeait le separateur COLLE au mot
+// precedent (`n8n/Hermes`). Mesure : la forme ESPACEE (`n8n / Hermes`, `le pont (Hermes)`) ratait
+// 4 occurrences reelles de `Hermes` sur 25 — le gate en rapportait 17 alors que le contrat en
+// promettait la couverture. Les espaces sont donc admis DES DEUX COTES du separateur.
 const RE_CAMEL = /\b[A-Za-z]*[a-z][A-Z][A-Za-z]*\b/g;
-const RE_MIDCAP = /[a-z0-9àéèêçùîô](?:[ ]+|[/,('’-][ ]*)([A-Z][a-z]{2,})\b/g;
+const RE_MIDCAP = /[a-z0-9àéèêçùîô](?:[ ]+|[ ]*[/,('’-][ ]*)([A-Z][a-z]{2,})\b/g;
 
 function finding(gate, file, line, token, detail) {
   const f = { gate, file, line, token };
