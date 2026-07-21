@@ -185,7 +185,11 @@ ${steps}
 // --- Ecriture d'une proposition dans le RESERVOIR (§ 4.2) ------------------------------------------
 // Structure : proposals/<horodatage>--<type>--<slug>/{ proposal.md, artifact/... }.
 // proposal.md porte quoi / ou / POURQUOI (preuves) + statut initial `en-attente`.
-function stamp(now) {
+// EXPORTE (lot A « canon projet ») : le canon PROJET depose ses propositions dans le MEME reservoir
+// (§ 4.2 — « le reservoir global accueille les propositions produit »). On EXPORTE la plomberie
+// d'ecriture plutot que de la dupliquer ; l'ANALYSEUR, lui, n'est pas reutilise (cf. § 7.1 :
+// `rulesAnalyzer` / `looksLikeCorrection` restent HORS du chemin d'execution du canon projet).
+export function stamp(now) {
   const p = (n) => String(n).padStart(2, '0');
   return `${now.getFullYear()}${p(now.getMonth() + 1)}${p(now.getDate())}` +
     `T${p(now.getHours())}${p(now.getMinutes())}${p(now.getSeconds())}`;
@@ -194,7 +198,9 @@ function stamp(now) {
 function proposalName(ts, type, slug) { return `${ts}--${type}--${slug}`; }
 
 // Vrai si une proposition EN-ATTENTE de meme type+slug existe deja (anti-doublon sur re-run).
-function pendingExists(home, type, slug) {
+// EXPORTE : c'est cette deduplication qui garantit qu'un rattrapage couvrant N sessions enchainees
+// n'emet pas N propositions redondantes sur le meme corpus (§ 6.1).
+export function pendingExists(home, type, slug) {
   const dir = proposalsDir(home);
   if (!fs.existsSync(dir)) return false;
   const suffix = `--${type}--${slug}`;
@@ -236,7 +242,7 @@ Voir \`artifact/\`. Application (geste humain gated, § 8) : \`${meta.applyHint}
 `;
 }
 
-function writeProposalDir(home, meta, artifact) {
+export function writeProposalDir(home, meta, artifact) {
   const dir = path.join(proposalsDir(home), proposalName(meta.ts, meta.type, meta.slug));
   fs.mkdirSync(path.join(dir, 'artifact'), { recursive: true });
   fs.writeFileSync(path.join(dir, 'proposal.md'), renderProposal(meta), 'utf8');
