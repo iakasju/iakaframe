@@ -1,7 +1,7 @@
 # MODELES.md — modèles locaux (Ollama) par agent
 
 > Quel modèle pour quel agent, en cible **ollama**. État réel (installés vs à installer) :
-> `iakaframe-alternatives.ps1`. Tags exacts (taille/quantization) à choisir selon ta VRAM/RAM.
+> `ollama list`. Tags exacts (taille/quantization) à choisir selon ta VRAM/RAM.
 
 | Agent | Rôle | Recommandé | Alternatives | `ollama pull` (exemple) |
 |---|---|---|---|---|

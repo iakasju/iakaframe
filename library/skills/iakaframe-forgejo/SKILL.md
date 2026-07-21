@@ -53,8 +53,10 @@ et fait le premier push, **sans jamais exposer le token**.
    Si une auth est demandée : utilisateur `sjupin`, mot de passe = le token. Préférer une
    credential injectée par l'environnement plutôt qu'écrite dans l'URL du remote.
 
-> Sous Windows/PowerShell, l'équivalent passe par `Invoke-RestMethod` et
-> `$env:FORGEJO_TOKEN`. La logique (détecter → créer → brancher → push) est identique.
+> Le CLI `iakaframe` est cross-OS (Node) : la même commande vaut sous Windows, macOS et
+> Linux. Seule change la façon de fournir le token (`$env:FORGEJO_TOKEN` sous PowerShell,
+> `$FORGEJO_TOKEN` sous bash/zsh). La logique (détecter → créer → brancher → push) est
+> identique.
 
 ## Garde-fous
 
@@ -68,6 +70,8 @@ et fait le premier push, **sans jamais exposer le token**.
 
 ## Place dans le cycle
 
-Brique appelée par l'amorçage (`iakaframe-onboard.ps1` = `iakaframe-init` +
-**`iakaframe-forgejo`** + commit + `iakaframe-snapshot`). L'auto-détection init ↔ update
+Brique appelée par l'amorçage (`iakaframe onboard` = `iakaframe init` + branchement
+Forgejo (lib `cli/src/lib/forgejo.js`) + commit + `iakaframe snapshot`). Il n'existe pas de
+verbe `iakaframe forgejo` : la logique n'est atteignable qu'à travers `onboard` / `init` /
+`update` (dette inscrite au backlog portefeuille). L'auto-détection init ↔ update
 repose sur l'étape 1 (présence du dépôt côté API). Guide complet : `iakabox-usage.html`.

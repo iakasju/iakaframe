@@ -14,4 +14,4 @@ side: forge
 Rituel iakaframe (geste outillé) extrait de `methode-de-travail.md` et du CLAUDE.md global
 (le narratif reste la référence, I5). Côté `forge`.
 
-Amorce la méthode sur un projet neuf comme existant. Orchestrateur : `iakaframe-onboard.ps1` (init + forgejo + commit + snapshot). Un `CLAUDE.md` projet déjà présent prime. C'est le geste de **forge** (création/onboarding d'un dépôt).
+Amorce la méthode sur un projet neuf comme existant. Orchestrateur : `iakaframe onboard` (init + forgejo + commit + snapshot). Un `CLAUDE.md` projet déjà présent prime. C'est le geste de **forge** (création/onboarding d'un dépôt).

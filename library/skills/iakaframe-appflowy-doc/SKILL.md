@@ -109,7 +109,7 @@ manuellement contre l'instance avec un projet de test, puis nettoyage.
 
 ## Hors périmètre (différé tracé)
 
-- Branchement auto dans `iakaframe-update.ps1` / snapshot (la skill est appelable ; le câblage
+- Branchement auto dans `iakaframe update` / snapshot (la skill est appelable ; le câblage
   aux moments version/pause/reprise est un lot suivant).
 - Rendu riche Markdown (titres, listes, code) au-delà du paragraphe.
 - Liens cliquables vue d'ensemble → sous-pages (MVP = inventaire texte).

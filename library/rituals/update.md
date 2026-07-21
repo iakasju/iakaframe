@@ -5,7 +5,7 @@ triggers: [update iakaframe, update, checkpoint]
 actions:
   - "Régénérer l'état des lieux (MD + HTML)"
   - "Commit global atomique (git add -A + commit)"
-  - "Push sur Forgejo (option -NoPush pour rester local)"
+  - "Push sur Forgejo (option --no-push pour rester local)"
 side: cockpit
 ---
 # Checkpoint (update iakaframe)

@@ -24,14 +24,14 @@ kit-codex/
 3. (Optionnel) configurer le **multi-modèle** : un profil Codex par persona pointé sur la box
    (LiteLLM → Ollama), cf. `MODELES.md`.
 4. (Optionnel) récupérer **`methode-de-travail.md`** pour la référence complète, et les
-   **scripts PowerShell** iakaframe (`iakaframe-snapshot.ps1` / `iakaframe-update.ps1` /
-   `iakaframe-forgejo.ps1`) — **agnostiques de l'agent** : ils gèrent git/Forgejo/états des
+   la **CLI** iakaframe (`iakaframe snapshot` / `iakaframe update` / `iakaframe onboard`)
+   — **agnostique de l'agent** : elle gère git/Forgejo/états des
    lieux quel que soit l'outil IA.
 
 ## Déploiement par l'onboard
 
-`powershell C:\work\iakaframe\iakaframe-init.ps1 -Path <projet> -Target codex`
-(ou via `iakaframe-onboard.ps1 -Target codex`). Copie ce kit (hors README) et pose le marqueur
+`iakaframe init --path <projet> --node codex`
+(ou via `iakaframe onboard --node codex`). Copie ce kit (hors README) et pose le marqueur
 `.iakaframe` (version + cible).
 
 ## Différences vs autres incarnations

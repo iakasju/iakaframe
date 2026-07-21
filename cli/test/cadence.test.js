@@ -154,7 +154,7 @@ test('runCadence : chemin sous ~/.claude/ refusé -> non bloquant (home-error)',
 
 // --- Integration : la cadence est branchee dans doSnapshot (rituel d'etat des lieux) --------------
 
-test('doSnapshot : -Reason pause invoque close ; -Reason reprise non', () => {
+test('doSnapshot : --reason pause invoque close ; --reason reprise non', () => {
   const proj = tmpProject();
   const home = tmpCanon(REPEATED);
   try {

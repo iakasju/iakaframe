@@ -60,7 +60,7 @@ AnythingLLM supporte des **variables dynamiques** dans le System Prompt (`{date}
 
 AnythingLLM est un **front de conversation**, pas un IDE qui écrit dans un repo. La discipline
 iakaframe (cadrage-avant-code, états des lieux, git/Forgejo) reste portée par le dossier
-`specs/` de ton projet réel et par les **scripts PowerShell** iakaframe (agnostiques de l'agent) :
+`specs/` de ton projet réel et par la **CLI** iakaframe (agnostique de l'agent) :
 
 1. Copier `specs/PROJET.md` et `specs/instructions/_TEMPLATE.md` à la racine de **ton** repo.
 2. Remplir `specs/PROJET.md` (vision) ; pour chaque feature, écrire

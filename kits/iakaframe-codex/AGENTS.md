@@ -113,7 +113,7 @@ plus tard.
 ## Cycle de documentation — état des lieux
 
 Régénérer `specs/etat-des-lieux.md` **à chaque version** et **à chaque pause/reprise** (scripts
-PowerShell fournis : `iakaframe-snapshot.ps1` / `iakaframe-update.ps1`, agnostiques de l'agent).
+CLI fournie : `iakaframe snapshot` / `iakaframe update`, agnostiques de l'agent).
 Le récit de reprise (ce qui vient d'être fait, ce qui reste, la prochaine étape) est complété
 par la phase **cadrage**.
 
@@ -134,7 +134,7 @@ mon-projet/
 ## How-to (Codex)
 
 1. Déposer `AGENTS.md` + `MODELES.md` + le dossier `specs/` (templates) à la racine du repo →
-   Codex lit `AGENTS.md` automatiquement. (Ou : `iakaframe-init.ps1 -Target codex`.)
+   Codex lit `AGENTS.md` automatiquement. (Ou : `iakaframe init --node codex`.)
 2. (Optionnel) configurer un **profil Codex par persona** pour le multi-modèle (cf. `MODELES.md`).
 3. Nouveau besoin → **persona Gandalf** : écrire l'instruction, la faire valider.
 4. Validée → **persona Gimli** (+ Legolas) : implémenter, tester, commiter par étapes.

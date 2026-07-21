@@ -80,8 +80,8 @@ Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
   projet (`init iakaframe`), **créer** une équipe (`fullteam`), **vue d'ensemble**.
 - **Disponible en permanence**, joignable par **voix / Slack**.
 - **Alternatives agents** : peut lancer **à la demande** un **état des lieux des alternatives**
-  (`iakaframe-alternatives.ps1`) — quel **modèle local (Ollama)** pour quel agent, dispo vs à
-  installer. Cf. `specs/instructions/cible-ollama-modeles-agents.md`.
+  (table dans les kits `MODELES.md`, état réel via `ollama list`) — quel **modèle local
+  (Ollama)** pour quel agent, dispo vs à installer. Cf. `specs/instructions/cible-ollama-modeles-agents.md`.
 - **Le seul agent affecté à `C:\work`** (racine des projets) ; les équipes vivent dans
   `<projet>/.claude/`. Hiérarchie : `Odin → Aragorn → agents`.
 - **Ne fait pas** : la coordination intra-équipe (→ Aragorn), ni le métier. Il n'écrit pas
@@ -193,8 +193,8 @@ Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
 - ✅ **Skills** : `iakaframe-odin`, `iakaframe-aragorn`, `iakaframe-cadrage`,
   `iakaframe-qualite`, `iakaframe-deploiement` (étendu surveillance), `iakaframe-naonedge`
   (catalogue de chartes), `iakaframe-nathalie`. Gimli reste porté par le `CLAUDE.md` du projet.
-- ✅ **Commande** : `iakaframe-agents.ps1` (`list` / `create` / `affect` / `fullteam` /
-  `status`, option `-Global`). `fullteam` **exclut Odin** (portefeuille) ; Odin s'affecte à
-  part : `-Action affect -Agent odin -Project C:\work`. Voir `methode-de-travail.md`.
+- ✅ **Commande** : `iakaframe agents` (`list` / `generate` / `affect` / `fullteam` /
+  `status`, option `--global`). `fullteam` **exclut Odin** (portefeuille) ; Odin s'affecte à
+  part : `--action affect --agent odin --project ~/work`. Voir `methode-de-travail.md`.
 - ✅ **Odin affecté** à `C:\work\.claude\` (agent + skill). Les équipes projet se déploient
   dans `<projet>/.claude/`.

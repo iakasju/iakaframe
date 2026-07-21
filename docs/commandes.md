@@ -61,15 +61,14 @@ Précisions :
 | Déclencheur | Ce que ça fait |
 |---|---|
 | `init iakaframe` (aussi « initialise / lance iakaframe ») | Met la méthode en place dans le répertoire courant. **Répertoire vide → nouveau projet** (structure + dépôt Forgejo + 1er commit + état des lieux + push, nom de dépôt = nom du répertoire). **Répertoire avec du dev → reprise non destructive** (déploie la structure autour du code, branche Forgejo si pas de remote, génère l'état des lieux de reprise, en fait la synthèse et propose la prochaine étape). |
-| `update iakaframe` (ou « update » dans un projet de la méthode) | **Régénère l'état des lieux** puis fait un **commit global** (`git add -A` + commit) **et push**. Options usuelles : `-Reason version -Version vX.Y.Z -Note "..."`, `-NoPush`. |
+| `update iakaframe` (ou « update » dans un projet de la méthode) | **Régénère l'état des lieux** puis fait un **commit global** (`git add -A` + commit) **et push**. Options usuelles : `--reason version --version vX.Y.Z --note "..."`, `--no-push`. |
 
 **Auto-détection init ↔ update** (via l'API Forgejo) : `init iakaframe` sur un dépôt **déjà
 présent** sur Forgejo bascule en `update` ; `update iakaframe` sur un dépôt **absent** (ou
 sans git local) bascule en `init`. On peut donc taper indifféremment l'une ou l'autre.
 
-> Note : ces déclencheurs conversationnels s'appuient historiquement sur les scripts
-> PowerShell (partie C). La **voie cross-OS équivalente** est la CLI `iakaframe onboard` /
-> `update` / `snapshot` (partie B).
+> Note : ces déclencheurs conversationnels s'appuient sur la CLI `iakaframe onboard` /
+> `update` / `snapshot` (partie B), cross-OS.
 
 ## A.3 Dispatch des agents par leur nom
 
@@ -284,14 +283,7 @@ Ces deux commandes opèrent au niveau du **dossier chapeau** (`~/work`), pas d'u
 
 ---
 
-# C. Scripts power-path Windows (voie historique)
-
-Sous Windows, la méthode s'est d'abord pilotée par des scripts PowerShell — **voie
-historique** conservée :
-
-- `iakaframe-onboard.ps1` — mise en place / onboarding projet.
-- `iakaframe-snapshot.ps1` — état des lieux (`-Reason version|pause|reprise -Note "..."`).
-- `iakaframe-update.ps1` — snapshot + commit global + push (`-Reason -Version -Note -NoPush`).
-
-La **voie recommandée et cross-OS** est désormais la CLI Node `@naonedge/iakaframe` (partie B :
-`onboard`, `snapshot`, `update`…), équivalente sur Windows / macOS / Linux.
+> **Note — voie unique cross-OS.**
+> La CLI Node `@naonedge/iakaframe` (partie B : `onboard`, `snapshot`, `update`…) est la **voie
+> unique et cross-OS**, équivalente sur Windows / macOS / Linux. Les scripts PowerShell qui ont
+> historiquement porté la méthode sous Windows ont été retirés du dépôt.

@@ -67,10 +67,10 @@ création de dépôt (API, description **ASCII**) et rotation de token.
 Régénérer l'état des lieux **à chaque changement de version** et **à chaque pause /
 préparation de reprise** :
 
-```powershell
-pwsh C:\iakaframe\iakaframe-snapshot.ps1 -Reason version -Version vX.Y.Z -Note "..."
-pwsh C:\iakaframe\iakaframe-snapshot.ps1 -Reason pause   -Note "où on s'arrête, quoi reprendre"
-pwsh C:\iakaframe\iakaframe-snapshot.ps1 -Reason reprise -Note "reprise"
+```bash
+iakaframe snapshot --reason version --version vX.Y.Z --note "..."
+iakaframe snapshot --reason pause   --note "où on s'arrête, quoi reprendre"
+iakaframe snapshot --reason reprise --note "reprise"
 ```
 
 Génère `specs/etat-des-lieux.md` + `.html` (faits git auto). **Compléter le récit de
