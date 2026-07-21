@@ -104,5 +104,5 @@ voix de l'orchestrateur, sous **son** badge.
 ## Cycle de documentation — état des lieux
 
 `specs/instructions/<feature>.md` avant chaque feature (gabarit `specs/instructions/_TEMPLATE.md`).
-La mécanique git/Forgejo/états des lieux reste portée par les **scripts PowerShell** iakaframe
-(agnostiques de l'agent), pas par Open WebUI (qui est un front de conversation).
+La mécanique git/Forgejo/états des lieux reste portée par la **CLI** iakaframe
+(agnostique de l'agent), pas par Open WebUI (qui est un front de conversation).

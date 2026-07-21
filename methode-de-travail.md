@@ -369,24 +369,27 @@ Comme pour l'isolation Docker par projet, on distingue **définition** et **exé
 
 ### Créer un agent
 
-1. **Partir du template** : `pwsh iakaframe-agents.ps1 -Action create -Agent <nom>` copie
-   `agents/_TEMPLATE.md` → `agents/<nom>.md`.
+1. **Partir du template** : copier `library/personas/_TEMPLATE.md` →
+   `library/personas/<nom>.md` (le canon des personas).
 2. **Remplir le frontmatter** (`name`, `description` précise pour le routage, `tools`) et le
    corps (mission, périmètre fermé, entrées→sorties, gate, étanchéité).
 3. **Savoir-faire** : si le rôle a une méthode détaillée, créer la skill
-   `skills/iakaframe-<nom>/SKILL.md` et l'associer dans `iakaframe-agents.ps1` (`$skillOf`).
-4. **Déployer** : `-Action affect -Agent <nom> -Project <chemin>` (ou `fullteam`).
+   `library/skills/iakaframe-<nom>/SKILL.md` et la déclarer dans le frontmatter de la persona.
+4. **Régénérer les contrats** depuis le canon : `iakaframe agents --action generate`
+   (`--check` compare sans écrire, et sort non-zéro en cas de dérive).
+5. **Déployer** : `iakaframe agents --action affect --agent <nom> --project <chemin>`
+   (ou `--action fullteam`).
 
-### Gérer et lancer l'équipe — `iakaframe-agents.ps1`
+### Gérer et lancer l'équipe — `iakaframe agents`
 
 | Commande | Effet |
 |---|---|
-| `-Action list` | liste les agents canon + leur skill |
-| `-Action create -Agent <nom>` | scaffold un nouvel agent depuis le template |
-| `-Action affect -Agent <nom> -Project <chemin>` | affecte **un** agent à un projet |
-| `-Action fullteam -Project <chemin>` | **déploie la full team** dans un projet |
-| `-Action status -Project <chemin>` | liste les agents déjà affectés |
-| `-Global` | cible l'installation utilisateur `~/.claude` (définitions mutualisées) |
+| `--action list` | liste les agents canon + leur skill |
+| `--action generate` | régénère les contrats déployés depuis le canon (`--check` = vérifie sans écrire) |
+| `--action affect --agent <nom> --project <chemin>` | affecte **un** agent à un projet |
+| `--action fullteam --project <chemin>` | **déploie la full team** dans un projet |
+| `--action status --project <chemin>` | liste les agents déjà affectés |
+| `--global` | cible l'installation utilisateur `~/.claude` (définitions mutualisées) |
 
 `affect`/`fullteam` copient le subagent + sa skill dans `<projet>/.claude/` (et le catalogue
 de chartes `design-*/` pour Loki) : le projet reçoit **sa** copie scopée.
@@ -567,8 +570,8 @@ Déclencheur : dire à Claude **« init iakaframe »** dans le répertoire.
   code existant (rien d'écrasé), on branche Forgejo si absent, on génère l'état des
   lieux de **reprise**, on en fait la synthèse et on propose la prochaine étape.
 
-Orchestrateur : `iakaframe-onboard.ps1` (= `iakaframe-init` + `iakaframe-forgejo` +
-commit + `iakaframe-snapshot`). Un projet déjà doté d'un `CLAUDE.md` : celui-ci prime.
+Orchestrateur : `iakaframe onboard` (= `iakaframe init` + branchement Forgejo +
+commit + `iakaframe snapshot`). Un projet déjà doté d'un `CLAUDE.md` : celui-ci prime.
 
 **Auto-détection init ↔ update.** Les deux commandes interrogent l'API Forgejo : `init`
 sur un dépôt déjà présent sur Forgejo bascule en `update`, et `update` sur un dépôt
@@ -653,22 +656,22 @@ est inutilisable). Le token n'est **jamais** écrit en dur ni commité : variabl
 ## Cycle de documentation — version & reprise
 
 La doc d'état n'est pas écrite « quand on y pense » : elle est régénérée **à deux
-moments précis**, par `iakaframe-snapshot.ps1` :
+moments précis**, par `iakaframe snapshot` :
 
-1. **À chaque changement de version** (`-Reason version -Version vX.Y.Z`).
-2. **À chaque pause de dev / préparation de reprise** (`-Reason pause` puis
-   `-Reason reprise`).
+1. **À chaque changement de version** (`--reason version --version vX.Y.Z`).
+2. **À chaque pause de dev / préparation de reprise** (`--reason pause` puis
+   `--reason reprise`).
 
-Le script produit `specs/etat-des-lieux.md` + `.html` à partir des faits git (version,
+La commande produit `specs/etat-des-lieux.md` + `.html` à partir des faits git (version,
 branche, derniers commits, arbre propre/sale, nb de fichiers) et tient un **journal
 append-only**. Les faits sont automatiques ; **le rôle de cadrage / réflexion complète le récit de reprise**
 (ce qui vient d'être fait, ce qui reste, la prochaine étape concrète). Ainsi, reprendre
 un projet après une pause = lire `etat-des-lieux.md`, pas fouiller sa mémoire.
 
-**Commande « update iakaframe »** — le checkpoint en une fois : `iakaframe-update.ps1`
+**Commande « update iakaframe »** — le checkpoint en une fois : `iakaframe update`
 régénère l'état des lieux **puis** fait un **commit global** (`git add -A` + commit) et
 **push**. C'est le geste à faire à chaque changement de version et à chaque pause/reprise
-(`-Reason version|pause|reprise`), ou comme simple point de sauvegarde.
+(`--reason version|pause|reprise`), ou comme simple point de sauvegarde.
 
 ### Version mineure — revue complète + doc qualité versionné
 

@@ -13,7 +13,7 @@ Dépose chaque dossier `iakaframe-*` dans ton répertoire de skills :
 - **Claude Code** : `~/.claude/skills/` (global) ou `.claude/skills/` (projet)
 - **Cowork** : via le panneau des skills
 
-Le plus simple : `iakaframe-agents.ps1 -Action fullteam -Project <chemin>` dépose agents +
+Le plus simple : `iakaframe agents --action fullteam --project <chemin>` dépose agents +
 skills dans un projet. Chaque skill se déclenche quand le contexte correspond à sa description.
 
 ## Skills de rôle — les agents (7)

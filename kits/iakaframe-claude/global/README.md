@@ -5,8 +5,8 @@ Sources **versionnées** des fichiers qui vivent au runtime dans `~/.claude/`
 
 Copier dans `~/.claude/` :
 - `CLAUDE.md` → `~/.claude/CLAUDE.md` (instructions globales de la méthode).
-- `hooks/identity-guard.ps1` → `~/.claude/identity-guard.ps1`.
-- `hooks/identity-remind.ps1` → `~/.claude/identity-remind.ps1`.
+- `hooks/*.mjs` → `~/.claude/hooks/` (gardes Node, cross-OS : `identity-guard`,
+  `identity-remind`, `perimeter-guard`, `delegation-guard`, `guard-core`, `plan-courante`).
 
 À **distinguer** du `kit-claude/CLAUDE.md` (template **par projet**, à copier à la racine
 d'un nouveau repo).

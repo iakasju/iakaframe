@@ -18,17 +18,17 @@ kit-ollama/
 
 ## Installation
 
-1. Avoir **Ollama** lancé (`iakaframe-services.ps1` pour vérifier) et un **outil agentique**
+1. Avoir **Ollama** lancé (`iakaframe services` pour vérifier) et un **outil agentique**
    pointé dessus.
 2. Copier `AGENTS.md` + `MODELES.md` + `specs/` à la racine du repo.
 3. `ollama pull` les modèles voulus (cf. `MODELES.md` ; état réel via
-   `iakaframe-alternatives.ps1`).
+   `ollama list`).
 4. Remplir `specs/PROJET.md` ; cadrer chaque feature dans `specs/instructions/` **avant** de coder.
 
 ## Déploiement par l'onboard
 
-`powershell C:\work\iakaframe\iakaframe-init.ps1 -Path <projet> -Target ollama`
-(ou via `iakaframe-onboard.ps1 -Target ollama`). Marqueur `.iakaframe` (version + cible) posé.
+`iakaframe init --path <projet> --node ollama-localhost`
+(ou via `iakaframe onboard --node ollama-localhost`). Marqueur `.iakaframe` (version + cible) posé.
 
 ## Différences
 

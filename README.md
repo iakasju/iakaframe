@@ -23,13 +23,6 @@ en place, au lieu de le réinventer à chaque fois.
 | [`specs/equipe-agents.md`](./specs/equipe-agents.md) | **Référence canonique de l'équipe d'agents** (roster, 3 phases + squad prod, identité, étanchéité, incarnation). |
 | [`kit-claude/`](./kit-claude/) | **Kit de démarrage** à copier dans tout nouveau projet. |
 | [`cli/`](./cli/) | **CLI Node multi-OS** `@naonedge/iakaframe` (Windows/macOS/Linux, **zéro dépendance** runtime) : 13 commandes de la méthode (`onboard`/`init`/`snapshot`/`update`/`services`/`config`/`agents`/`go`/`banner`/`brief`/`recap`/`jalon`/`root`). Voir [`cli/README.md`](./cli/README.md). |
-| [`iakaframe-init.ps1`](./iakaframe-init.ps1) | Déploie la structure du kit (sans rien écraser). |
-| [`iakaframe-forgejo.ps1`](./iakaframe-forgejo.ps1) | Crée le dépôt Forgejo + branche le remote (token via env). |
-| [`iakaframe-snapshot.ps1`](./iakaframe-snapshot.ps1) | Génère l'état des lieux (MD + HTML) à chaque version / pause / reprise. |
-| [`iakaframe-onboard.ps1`](./iakaframe-onboard.ps1) | **Orchestrateur** : structure + Forgejo + 1er commit + docs, sur projet neuf ou existant. |
-| [`iakaframe-update.ps1`](./iakaframe-update.ps1) | **« update iakaframe »** : régénère l'état des lieux + commit global + push. |
-| [`iakaframe-agents.ps1`](./iakaframe-agents.ps1) | **Gère l'équipe d'agents** : `list` / `create` / `affect` / `fullteam` / `status`. |
-| [`iakaframe-common.ps1`](./iakaframe-common.ps1) | Helper partagé (token + détection d'existence Forgejo) ; dot-sourcé par les autres. |
 | [`design-naonedge/`](./design-naonedge/) | **Design NaonEdge** (label figé) : `naonedge.css` (charte canon), `naonedge-charte.md`, gabarits doc/slides/flyer, logo. À réutiliser pour tous les supports. |
 | [`docs/`](./docs/) | Documents de référence (note de cadrage « Yakaframe Avancé », etc.). |
 
@@ -60,15 +53,15 @@ Deux mécanismes la rendent automatique :
    chose. Sur un projet qui a déjà son `CLAUDE.md`, celui-ci **prime** — pas
    d'écrasement.
 
-2. **`iakaframe-init.ps1`** — déploiement en une commande :
+2. **`iakaframe init`** — déploiement en une commande :
 
-   ```powershell
-   pwsh C:\work\iakaframe\iakaframe-init.ps1                 # dans le dossier courant
-   pwsh C:\work\iakaframe\iakaframe-init.ps1 -Path C:\mon-projet
-   pwsh C:\work\iakaframe\iakaframe-init.ps1 -Force           # autorise l'écrasement
+   ```bash
+   iakaframe init                            # dans le dossier courant
+   iakaframe init --path /chemin/mon-projet
+   iakaframe init --force                    # autorise l'écrasement
    ```
 
-   Le script ne remplace jamais un fichier existant (sauf `-Force`).
+   La commande ne remplace jamais un fichier existant (sauf `--force`).
 
 > Concrètement : dans un nouveau dossier, lancez `claude` et demandez « initialise
 > le projet » — la méthode se met en place toute seule.
@@ -87,13 +80,13 @@ Dans n'importe quel répertoire, dire à Claude **« init iakaframe »**. Selon 
 
 En une commande, sur un projet existant :
 
-```powershell
-$env:FORGEJO_TOKEN = "<token>"
-pwsh C:\work\iakaframe\iakaframe-onboard.ps1 -Path C:\mon-projet -Description "ASCII description"
+```bash
+export FORGEJO_TOKEN="<token>"
+iakaframe onboard --path /chemin/mon-projet --description "ASCII description"
 ```
 
-Options utiles : `-SkipForgejo` (structure + docs sans dépôt distant), `-NoPush`,
-`-Force` (réécrit la structure), `-Version vX.Y.Z`.
+Options utiles : `--skip-forgejo` (structure + docs sans dépôt distant), `--no-push`,
+`--force` (réécrit la structure), `--version vX.Y.Z`.
 
 > **Auto-détection (init ↔ update).** Les deux commandes vérifient l'existence du dépôt
 > sur Forgejo et basculent l'une vers l'autre : `init` sur un dépôt **déjà sur Forgejo**
@@ -115,9 +108,9 @@ pour le détail (clone, push, création de dépôt via l'API, rotation).
 L'état des lieux (`specs/etat-des-lieux.md` + `.html`) est régénéré **à chaque
 changement de version** et **à chaque pause de dev / préparation de reprise** :
 
-```powershell
-pwsh C:\work\iakaframe\iakaframe-snapshot.ps1 -Reason version -Version v0.2.0 -Note "feature X livrée"
-pwsh C:\work\iakaframe\iakaframe-snapshot.ps1 -Reason pause   -Note "WIP : reprendre par les tests"
+```bash
+iakaframe snapshot --reason version --version v0.2.0 --note "feature X livrée"
+iakaframe snapshot --reason pause   --note "WIP : reprendre par les tests"
 ```
 
 Le script capte les faits git (version, branche, commits, état de l'arbre) et tient un
@@ -127,10 +120,10 @@ journal append-only ; **Cowork complète le récit de reprise** dans le `.md`.
 
 Checkpoint en une commande : **régénère l'état des lieux + commit global + push**.
 
-```powershell
-pwsh C:\work\iakaframe\iakaframe-update.ps1                                  # checkpoint manuel
-pwsh C:\work\iakaframe\iakaframe-update.ps1 -Reason version -Version v0.3.0  # à un changement de version
-pwsh C:\work\iakaframe\iakaframe-update.ps1 -Reason pause -Note "..." -NoPush
+```bash
+iakaframe update                                       # checkpoint manuel
+iakaframe update --reason version --version v0.3.0     # à un changement de version
+iakaframe update --reason pause --note "..." --no-push
 ```
 
 ---
@@ -138,12 +131,12 @@ pwsh C:\work\iakaframe\iakaframe-update.ps1 -Reason pause -Note "..." -NoPush
 ## CLI & rituels de session
 
 La méthode est aussi outillée par la **CLI Node multi-OS** [`@naonedge/iakaframe`](./cli/)
-(zéro dépendance runtime), qui rejoue les `.ps1` de façon portable : `iakaframe <cmd>`.
+(zéro dépendance runtime) : `iakaframe <cmd>`, identique sous Windows / macOS / Linux.
 Au-delà du cycle de vie (`onboard`/`init`/`snapshot`/`update`), elle ajoute des **rituels
 de session** : les titres ASCII (`banner`), l'entrée de projet (`brief`), les gates
 (`jalon`) et la fermeture de session (`recap`).
 
-```powershell
+```bash
 iakaframe banner "IAKAFRAME"                 # titre ASCII (FIGlet embarqué, zéro dep)
 iakaframe go mon-projet                       # entre dans le projet : titre + brief, puis runner
 iakaframe brief mon-projet                    # dernière étape + backlog + agents assignés
@@ -177,9 +170,9 @@ l'utilisateur → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par pro
 projet instancie sa propre équipe scopée). **Incarnation** : un subagent (`agents/`) + une
 skill-rôle (`skills/`).
 
-```powershell
-pwsh C:\work\iakaframe\iakaframe-agents.ps1 -Action fullteam -Project C:\mon-projet   # deployer l'equipe
-pwsh C:\work\iakaframe\iakaframe-agents.ps1 -Action affect -Agent odin -Project C:\work  # Odin au portefeuille
+```bash
+iakaframe agents --action fullteam --project /chemin/mon-projet   # deployer l'equipe
+iakaframe agents --action affect --agent odin --project ~/work    # Odin au portefeuille
 ```
 
 ---

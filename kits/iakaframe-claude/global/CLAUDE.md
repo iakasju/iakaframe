@@ -34,18 +34,18 @@ répertoire, regarder le contenu du répertoire et choisir la branche :
 
 ### A. Répertoire VIDE → nouveau projet
 1. Créer le projet avec le **nom du répertoire** comme nom de dépôt :
-   `pwsh C:\work\iakaframe\iakaframe-onboard.ps1` (structure + dépôt Forgejo + 1er commit +
-   état des lieux v0.1.0 + push). Token via `$env:FORGEJO_TOKEN`.
+   `iakaframe onboard` (structure + dépôt Forgejo + 1er commit +
+   état des lieux v0.1.0 + push). Token via `$FORGEJO_TOKEN`.
 2. Remplir avec Stéphane `CLAUDE.md` (stack, commandes, backlog) et `specs/PROJET.md`
    (vision, décisions).
 3. Pour chaque feature : rédiger `specs/instructions/<feature>.md` avant de coder.
 
 ### B. Répertoire avec DÉJÀ du dev → reprise + lancement de la méthode
 1. **Ne rien écraser.** Déployer la structure autour du code existant + brancher
-   Forgejo si pas de remote : `pwsh C:\work\iakaframe\iakaframe-onboard.ps1` (init est
+   Forgejo si pas de remote : `iakaframe onboard` (init est
    non destructif ; si un `origin` existe déjà, garder celui-ci).
 2. Générer l'état des lieux de **reprise** :
-   `pwsh C:\work\iakaframe\iakaframe-snapshot.ps1 -Reason reprise`.
+   `iakaframe snapshot --reason reprise`.
 3. **Lire `specs/etat-des-lieux.md`**, en faire une synthèse à Stéphane (où on en est,
    commits récents, arbre propre/sale) et **proposer la prochaine étape concrète**.
 4. Poursuivre selon la méthode (instructions écrites avant code).
@@ -79,16 +79,16 @@ usage : `C:\work\iakaframe\iakabox-usage.html`.
 
 Régénérer l'état des lieux (MD + HTML) **à chaque changement de version** ET **à chaque
 pause de dev / préparation de reprise** :
-`pwsh C:\work\iakaframe\iakaframe-snapshot.ps1 -Reason version|pause|reprise -Note "..."`.
-Le script capte les faits git ; **le cadrage / réflexion complète le récit de reprise** dans
+`iakaframe snapshot --reason version|pause|reprise --note "..."`.
+La commande capte les faits git ; **le cadrage / réflexion complète le récit de reprise** dans
 `specs/etat-des-lieux.md` (ce qui vient d'être fait, ce qui reste, prochaine étape).
 
 ### Commande « update iakaframe »
 
 Quand Stéphane dit **« update iakaframe »** (ou « update » dans un projet de la
-méthode) : lancer `pwsh C:\work\iakaframe\iakaframe-update.ps1` dans le répertoire. Ça
+méthode) : lancer `iakaframe update` dans le répertoire. Ça
 **régénère l'état des lieux** puis fait un **commit global** (`git add -A` + commit)
-et **push**. Options : `-Reason version -Version vX.Y.Z -Note "..."`, `-NoPush`.
+et **push**. Options : `--reason version --version vX.Y.Z --note "..."`, `--no-push`.
 
 ## Conventions permanentes (tous projets)
 

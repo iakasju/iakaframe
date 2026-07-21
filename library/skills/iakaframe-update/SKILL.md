@@ -15,27 +15,27 @@ version et à chaque pause/reprise.
 
 ## Quand l'exécuter
 
-- À **chaque changement de version** (`-Reason version -Version vX.Y.Z`).
-- À **chaque pause de dev / reprise** (`-Reason pause` / `-Reason reprise`).
+- À **chaque changement de version** (`--reason version --version vX.Y.Z`).
+- À **chaque pause de dev / reprise** (`--reason pause` / `--reason reprise`).
 - Comme simple **point de sauvegarde** intermédiaire (filet de sécurité git).
 
 ## Procédure
 
-1. **Lancer le script** dans le répertoire du projet (il enchaîne snapshot + commit
+1. **Lancer la commande** dans le répertoire du projet (elle enchaîne snapshot + commit
    global + push) :
-   ```powershell
-   pwsh C:\iakaframe\iakaframe-update.ps1 -Reason version -Version v0.4.0 -Note "..."
+   ```bash
+   iakaframe update --reason version --version v0.4.0 --note "..."
    ```
-   Options : `-Reason version|pause|reprise`, `-Version vX.Y.Z`, `-Note "..."`, `-NoPush`.
-   > `pwsh` peut être absent du PATH d'un shell Bash : lancer via PowerShell.
-2. **Si le script n'est pas disponible**, reproduire sa séquence à la main :
+   Options : `--reason version|pause|reprise|manual`, `--version vX.Y.Z`, `--note "..."`,
+   `--no-push`.
+2. **Si la commande n'est pas disponible**, reproduire sa séquence à la main :
    ```bash
    # a) régénérer l'état des lieux (faits git)
-   pwsh C:\iakaframe\iakaframe-snapshot.ps1 -Reason version -Version v0.4.0
+   iakaframe snapshot --reason version --version v0.4.0
    # b) commit global atomique
    git add -A
    git commit -m "chore(<projet>): update etat des lieux + commit global (version v0.4.0)"
-   # c) push (sauf -NoPush)
+   # c) push (sauf --no-push)
    git push
    ```
 3. **Compléter le récit de reprise** dans `specs/etat-des-lieux.md` (rôle Cowork) si la

@@ -9,7 +9,7 @@
 
 ## Pré-requis
 
-- **Ollama** lancé et joignable (`http://<host>:11434`). Vérifier : `iakaframe-services.ps1`.
+- **Ollama** lancé et joignable (`http://<host>:11434`). Vérifier : `iakaframe services`.
 - Un **outil agentique** sur Ollama. Recommandé all-in-one : **OpenClaw** (openclaw.ai —
   open-source, local-first, exécution + orchestration + canal Slack + skills). Sinon un harnais
   de code : **Aider** `--model ollama/<modele>`, OpenHands, Continue/Cline/opencode. Détail et
@@ -24,7 +24,7 @@ Le **workflow** produit la qualité : un **décideur humain** pilote ; des **age
 ## Les rôles & les moteurs (modèle local par agent)
 
 Tu joues **un rôle à la fois**, en le déclarant, **avec le modèle adapté** (table dans
-`MODELES.md`, état réel via `iakaframe-alternatives.ps1`) :
+`MODELES.md`, état réel via `ollama list`) :
 
 | Rôle (persona) | Phase | Modèle local conseillé |
 |---|---|---|
@@ -36,7 +36,7 @@ Tu joues **un rôle à la fois**, en le déclarant, **avec le modèle adapté** 
 | 🎭 Loki — design | 🟠 | vision (`qwen2.5-vl`) |
 | 📖 Nathalie — guides | 🟠 | rédaction (`mistral` / `qwen3`) |
 
-> Adapter selon ce qui est **installé** (cf. `iakaframe-alternatives.ps1`). Changer de modèle
+> Adapter selon ce qui est **installé** (cf. `ollama list`). Changer de modèle
 > selon la tâche fait partie du rôle.
 
 ## Les 3 phases (cible staging) + squad prod
@@ -87,11 +87,11 @@ bloc = **ouverture** (`<pastille> [ROYAUME][Agent] — <annonce>`, 1ʳᵉ ligne)
 ## Git & état des lieux
 
 Forgejo (HTTP + token, jamais commité) ou git local. État des lieux régénéré à chaque
-version/pause via `iakaframe-snapshot.ps1` / `iakaframe-update.ps1` (agnostiques de l'agent).
+version/pause via `iakaframe snapshot` / `iakaframe update` (agnostiques de l'agent).
 
 ## How-to (ollama)
 
-1. Vérifier services (`iakaframe-services.ps1`) + alternatives (`iakaframe-alternatives.ps1`).
+1. Vérifier services (`iakaframe services`) + modèles installés (`ollama list`).
 2. `ollama pull` des modèles manquants (cf. `MODELES.md`).
 3. Lancer ton outil agentique sur le repo (il lit `AGENTS.md`), modèle = celui du rôle courant.
 4. Cycle : Gandalf cadre → Gimli/Legolas réalisent → staging → (Helm prod sur feu vert).
