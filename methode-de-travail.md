@@ -46,7 +46,8 @@ pas la réflexion — il délègue l'exécution. Il décide **à chaque gate**.
 - **MVP d'abord, puis on itère.** Pas de sur-ingénierie.
 - **Self-hosted / open-source d'abord** : pour tout choix de backend, proposer
   la version locale en option n°1 ; le cloud n'est qu'un *fallback* justifié.
-- Travaille sur **Windows + Docker Desktop + PowerShell**.
+- Travaille indifféremment sur **macOS / Linux / Windows** (Docker + le runner de
+  son choix) ; le CLI `iakaframe` et les scripts sont **cross-OS**.
 - **Isolation Docker par projet** : chaque projet tourne dans sa **propre stack
   Docker** — réseau, volumes et containers **nommés/préfixés par projet**
   (`<projet>-dev-*`) **et ports hôte distincts** (chaque projet décale ses ports
@@ -139,12 +140,14 @@ Odin n'entre jamais dans le métier d'un projet&nbsp;: il ouvre la bonne porte, 
 coordonne à l'intérieur. C'est la **répartition entre projets** matérialisée — celle qui,
 sinon, resterait un geste manuel de l'utilisateur.
 
-**Réveil d'Odin (par défaut).** Au **premier appel d'Odin dans `C:\work`** (par session), avant
-toute autre chose, il **régénère puis affiche le dashboard portefeuille** (NaonEdge dashboard)&nbsp;:
-`pwsh C:\work\naonedge-dashboard\scan.ps1` réécrit `data/projects.js` (métriques git/LOC/tokens/état
-des projets), puis il ouvre `C:\work\naonedge-dashboard\index.html`. Ensuite seulement il enchaîne
-sur la synthèse et l'ordre reçu. Aux appels suivants de la même session, le scan n'est relancé que si
-l'état a bougé ou si l'utilisateur le redemande.
+**Réveil d'Odin (par défaut).** Au **premier appel d'Odin dans le dossier chapeau** (par session),
+avant toute autre chose, il **régénère puis affiche le dashboard portefeuille** (NaonEdge dashboard)&nbsp;:
+`node <chapeau>/naonedge-dashboard/scan.js --root <chapeau>` (cross-OS ; `.ps1` en repli power-path
+Windows) réécrit `data/projects.js` (métriques git/LOC/tokens/état des projets), puis il ouvre
+`<chapeau>/naonedge-dashboard/index.html`. Le **dossier chapeau** est le canon résolu par le CLI
+(`~/work` sur macOS/Linux, `C:\work` sur Windows). Ensuite seulement il enchaîne sur la synthèse et
+l'ordre reçu. Aux appels suivants de la même session, le scan n'est relancé que si l'état a bougé ou
+si l'utilisateur le redemande.
 
 > **Lexique.** Une **équipe armée** (full team déployée dans `<projet>/.claude/`, prête à
 > démarrer mais pas encore lancée) se dit&nbsp;: **« la compagnie est à l'auberge »**.

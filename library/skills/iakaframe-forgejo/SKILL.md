@@ -71,7 +71,11 @@ et fait le premier push, **sans jamais exposer le token**.
 ## Place dans le cycle
 
 Brique appelée par l'amorçage (`iakaframe onboard` = `iakaframe init` + branchement
-Forgejo (lib `cli/src/lib/forgejo.js`) + commit + `iakaframe snapshot`). Il n'existe pas de
-verbe `iakaframe forgejo` : la logique n'est atteignable qu'à travers `onboard` / `init` /
-`update` (dette inscrite au backlog portefeuille). L'auto-détection init ↔ update
-repose sur l'étape 1 (présence du dépôt côté API). Guide complet : `iakabox-usage.html`.
+Forgejo (lib `cli/src/lib/forgejo.js`) + commit + `iakaframe snapshot`). Le geste
+« brancher/créer le dépôt distant **hors onboarding complet** » a son propre verbe CLI
+**provider-neutre** : `iakaframe repo [<nom>] --provider forgejo` (défaut) — `--create`
+**requis** pour créer, sinon test d'existence + remote **local** seulement (garde de sûreté).
+Forgejo n'est **jamais** un nom de geste : c'est la valeur par défaut de `--provider`, servie
+par l'adaptateur `cli/src/lib/forgejo.js` via le registre `cli/src/lib/providers.js` (point
+d'extension : gitlab/github demain = un `+`). L'auto-détection init ↔ update repose sur
+l'étape 1 (présence du dépôt côté API). Guide complet : `iakabox-usage.html`.
