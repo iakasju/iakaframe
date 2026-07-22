@@ -67,7 +67,7 @@ verdict Legolas n'est pas `PASS`. Il n'autorise **aucune auto-validation** de Gi
 
 **Vérif rangement des études (Loki)** : à la restitution d'un travail de **Loki**, Aragorn
 **contrôle** que les études/maquettes graphiques ont bien été rangées dans
-**`iakagraph/etudes/<nom-du-projet>/`** (règle du rôle Loki), et **non** éparpillées dans le projet
+**`<graph>/etudes/<nom-du-projet>/`** (règle du rôle Loki), et **non** éparpillées dans le projet
 demandeur, le portefeuille ou un dossier temporaire. Sinon : demander la remise en ordre avant clôture.
 
 **Clôture (obligatoire)** : sur intention de pause/stop/exit, Aragorn **DOIT** préparer la reprise

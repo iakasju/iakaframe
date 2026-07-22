@@ -137,6 +137,18 @@ persistée) est **recommandé en suivi** (§9), **non bloquant** pour cette inst
 | `AppFlowy`, `appflowy` | `<DOC_TOOL>` |
 | `mqtt://192.168.2.11:1883` | `<MQTT_BROKER>` |
 | « Forgé par iakaFrameGUI » | (retiré) |
+| `iakaHub` (organe de com externe du portefeuille — **nom valide au canon**) | `<hub>` (prose) |
+| `iakagraph` (dépôt d'études mutualisé — **nom valide au canon**) | `<graph>` (prose) |
+| `iakacockpit` (app desktop ; ex-`iakaIDE`, **nom périmé renommé au canon** avant tokenisation) | `<ide>` (prose) |
+| ports d'infra privée (`3001`, `3041`, `4001`…) | `<port>` (prose/URL) ; au canon : pilotés par env (`IAKAFRAME_GIT_PORT`…), neutres par défaut |
+
+> **Extension 2026-07-22 (lot `frame-stefframe2-fuites`)** : les 4 dernières lignes ci-dessus ont
+> été ajoutées après correction des 40 fuites bloquantes (rupture de parité source↔miroir). Deux
+> sous-classes à ne pas confondre : `iakaHub`/`iakagraph` restent **inchangés au canon** (noms
+> vivants) et sont **seulement** tokenisés au miroir ; `iakaIDE` était un **nom périmé** — il a
+> d'abord été **renommé `iakacockpit` au canon** (le nom corrigé est ensuite tokenisé `<ide>`).
+> ⚠️ L'alias de runner *legacy* `iakaide` sous `cli/` (identifiant de compatibilité, `vocab.js`…)
+> est **toléré** et **distinct** du nom de produit — il n'est PAS renommé ni tokenisé.
 
 > **Portée pour CETTE instruction** : seuls **3 atomes** sont rapatriés. Concrètement, la seule
 > substitution effective à faire est **`push Forgejo` → `push (serveur git self-hosted)`** dans

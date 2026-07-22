@@ -549,11 +549,11 @@ sur un dépôt déjà présent sur votre serveur git bascule en `update`, et `up
 absent (ou sans git local) bascule en `init`. Une seule chose à retenir, donc — le bon
 comportement est choisi tout seul.
 
-## Communication externe du portefeuille — iakaHub ↔ Discord
+## Communication externe du portefeuille — <hub> ↔ Discord
 
-Le portefeuille dispose d'un **organe de communication externe unique** : **iakaHub**, un
+Le portefeuille dispose d'un **organe de communication externe unique** : **<hub>**, un
 démon local qui relie les agents (au travail dans les projets) au décideur (au loin) via
-**Discord**. iakaHub est **à la fois un projet** de la famille (il a son code, son canal)
+**Discord**. <hub> est **à la fois un projet** de la famille (il a son code, son canal)
 **et l'infrastructure de com de tout le portefeuille** : un seul démon route **tous** les
 canaux de **tous** les projets. Le chemin nominal est **100 % local + Discord cloud** ;
 la box peut être éteinte.
@@ -563,14 +563,14 @@ la box peut être éteinte.
 - **Sortant — « mode absence » (agent → le décideur).** Un agent qui a besoin d'une décision
   appelle `ask()`. Le **gate est en amont, chez Odin** : `ask()` consulte l'**état de
   présence d'Odin** (autorité portefeuille) *avant tout*. **Présent → terminal, zéro
-  iakaHub.** **Absent → iakaHub → Discord** : la question remonte dans le **canal du
+  <hub>.** **Absent → <hub> → Discord** : la question remonte dans le **canal du
   projet concerné**, postée **sous le persona de l'agent** (webhook). le décideur répond
   **dans un thread** ; la réponse repart vers **l'agent exact** qui attendait
-  (**corrélation par thread**). *Un appel vers iakaHub = preuve d'absence.*
+  (**corrélation par thread**). *Un appel vers <hub> = preuve d'absence.*
 - **Entrant — « saisie directe d'Odin » (le décideur → Odin).** le décideur poste dans le canal
-  **`#odin`** ; iakaHub **démarre lui-même un runner Odin** (session headless), lui passe
+  **`#odin`** ; <hub> **démarre lui-même un runner Odin** (session headless), lui passe
   le texte, récupère la réponse et la reposte **dans un thread** de `#odin`. C'est le
-  **premier flux où iakaHub cesse d'être un simple relais pour devenir lanceur d'agent**.
+  **premier flux où <hub> cesse d'être un simple relais pour devenir lanceur d'agent**.
   Ce sens est **indépendant du mode absence** : actif en permanence, sans consulter la
   présence d'Odin.
 
@@ -593,7 +593,7 @@ compte pas** dans le nombre de projets remonté par `/health`.
 ### Règle d'or : ajouter un projet = zéro code
 
 **Brancher un projet sur la com externe = 1 catégorie + 1 canal + 1 webhook + 1 ligne**
-dans `config/routing.yaml` (iakaHub). Aucun code. Le YAML ne contient **que des alias**
+dans `config/routing.yaml` (<hub>). Aucun code. Le YAML ne contient **que des alias**
 (`webhook_ref`) ; les URLs de webhook et le token du bot vivent dans **`.env`**
 (git-ignoré, **jamais commité**). L'alias `webhook_ref: <x>` se résout en variable
 `DISCORD_WEBHOOK_<X>`. Périmètre par défaut = les **projets réellement coworkés** (actifs),
@@ -601,17 +601,17 @@ pas tout le portefeuille : on branche un canal quand le projet a un travail viva
 
 ### Posture & sécurité
 
-- **Dégradation gracieuse** : iakaHub indisponible ou état « présent » → **repli terminal**
+- **Dégradation gracieuse** : <hub> indisponible ou état « présent » → **repli terminal**
   automatique. Tout tourne **box éteinte**.
 - **Cœur agnostique** : routeur/registre/`ask()` ne connaissent **aucun symbole Discord** ;
   l'adaptateur (Discord au MVP, Mattermost = contrat seul) est **injecté**.
-- **Ports** : `:3041` = admin/health **local** (`127.0.0.1`) ; la face entrante Discord est
+- **Ports** : `:<port>` = admin/health **local** (`127.0.0.1`) ; la face entrante Discord est
   une **WebSocket sortante** (Gateway) → **aucun port entrant**.
 - **Runner d'agent = accès hôte au MVP** ; durcissement Docker = dette post-MVP assumée.
 - **Provisionnement Discord = geste humain** (serveur, canaux, webhooks, token bot) —
   description de dépôt **ASCII** côté votre serveur git.
 
-Référence d'implémentation : projet **iakaHub** (`docs/passerelle-discord.md`,
+Référence d'implémentation : projet **<hub>** (`docs/passerelle-discord.md`,
 `docs/provisionnement-discord.md`, `specs/instructions/passerelle-discord-agents.md` et
 `specs/instructions/saisie-directe-odin-canal.md`).
 

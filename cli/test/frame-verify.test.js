@@ -291,58 +291,37 @@ test('miroir introuvable -> erreur explicite, pas de crash', () => {
 });
 
 // =================================================================================================
-// C6 - LE TEST DU TEST : sur le miroir REEL non corrige, le gate doit ECHOUER et rapporter
-// precisement ce que l'ancien gate manquait. Ce lot livre le DETECTEUR, pas la correction :
-// ces 57 constats sont donc attendus, et leur disparition sans commit de correction signalerait
-// une REGRESSION du gate.
+// C5 - NON-REGRESSION DE LA CORRECTION : le miroir reel StefFrame2 a ete CORRIGE (instruction
+// frame-stefframe2-fuites.md — tokenisation <hub>/<graph>/<ide>/<port> + neutralisation au canon)
+// et rend desormais 0 fuite BLOQUANTE. Ces cas verrouillent l'acquis : toute reapparition d'un
+// iakaHub-like (rupture de parite source<->miroir) redevient un ECHEC DE TEST VISIBLE.
+// Les cas UNITAIRES du detecteur (G2 iakaIDE, G3 stephane, G5 3001 en entree SYNTHETIQUE) restent,
+// eux, ci-dessus : ils prouvent que le gate ATTRAPE TOUJOURS ces classes. Ici on mesure le MIROIR.
 // =================================================================================================
 
-test('C6 - le miroir reel StefFrame2 est en FUITE et le gate le prouve', { skip: !fs.existsSync(MIRROR) }, () => {
+test('C5 - le miroir reel StefFrame2 est PROPRE : 0 fuite bloquante', { skip: !fs.existsSync(MIRROR) }, () => {
   const res = verifyFrame(MIRROR);
-  assert.equal(res.ok, false, 'le miroir actuel fuit : le gate DOIT etre rouge');
-
-  const tok = (g) => new Set(res.findings.filter(f => f.gate === g).map(f => f.token));
-  const at = (g, file, line) => res.findings.some(f => f.gate === g && f.file === file && f.line === line);
-
-  // G2 : exactement les noms que l'ancien gate (par enumeration) n'enumerait pas.
-  for (const t of ['iakaHub', 'iakagraph', 'iakaIDE']) assert.ok(tok('G2').has(t), `G2 doit voir ${t}`);
-
-  // G3 : les DEUX lignes, dont celle ou le prenom est en position de REGEX EXECUTEE.
-  assert.ok(at('G3', 'cli/src/lib/consolidate.js', 111), 'G3 doit voir consolidate.js:111');
-  assert.ok(at('G3', 'cli/src/lib/consolidate.js', 115), 'G3 doit voir consolidate.js:115 (la regex)');
-
-  // G5 : le port dont le separateur n'est PAS `:` — le cas que la recette manuelle ratait.
-  assert.ok(at('G5', 'cli/src/commands/services.js', 11), 'G5 doit voir services.js:11 (`port: 3001`)');
-  assert.ok(tok('G5').has('3001'));
-
-  // G6 : Hermes, la fuite residuelle que seule la moitie « capitale en milieu de phrase » attrape.
-  assert.ok(tok('G6').has('Hermes'), 'G6 doit voir Hermes');
-
-  // COUVERTURE MESUREE, pas declaree. Verite terrain : 25 occurrences de `Hermes` dans le miroir.
-  // Le gate en rapporte 21 ; les 4 autres tombent dans la portee `.md`-prose de G6 (LIMITS), soit
-  // 3 dans un arbre en bloc de code et 1 dans un commentaire `.js`. Ce test EXISTE parce que le
-  // gate a d'abord rapporte 17/25 en annoncant couvrir la classe : un chiffre annonce sans etre
-  // mesure est precisement le defaut que ce lot tue.
-  assert.equal(res.findings.filter(f => f.token === 'Hermes').length, 21, 'couverture Hermes = 21/25');
-
-  // G1 : aucune fuite de secret/infra ne subsiste (0 mesure), et surtout AUCUN faux positif sur
-  // le template d'URL de forgejo.js.
-  assert.equal(res.byGate.G1, 0);
+  assert.equal(res.ok, true, 'le miroir corrige ne doit plus porter aucune fuite bloquante');
+  assert.equal(res.blocking, 0, `0 fuite bloquante attendue, obtenu ${res.blocking}`);
+  // G1..G5 (bloquants) tous a zero. G6 (avertissement) ne compte JAMAIS dans le verdict.
+  for (const g of ['G1', 'G2', 'G3', 'G4', 'G5']) {
+    assert.equal(res.byGate[g], 0, `${g} doit etre a 0 sur le miroir corrige`);
+  }
 });
 
-test('C6 - calibrage : aucun faux positif sur le miroir reel (tokens attendus, exhaustifs)', { skip: !fs.existsSync(MIRROR) }, () => {
-  // Verrou de CALIBRAGE. Le risque de ce lot n'est pas le code : c'est le bruit. Un gate trop
-  // bruyant finit desactive. On fige donc l'ENSEMBLE EXACT des tokens signales : toute nouvelle
-  // classe de bruit fait echouer ce test, et sera vue en revue.
+test('C5 - calibrage post-correction : plus AUCUN token bloquant, G6 Hermes seul residuel', { skip: !fs.existsSync(MIRROR) }, () => {
+  // Verrou de CALIBRAGE inverse : les noms de marque / identite / ports prives ont ete tokenises
+  // (<hub>/<graph>/<ide>/<port>) ou neutralises au canon — plus aucun ne subsiste en clair. Seul
+  // Hermes (G6, avertissement) reste : backlog assume (D5), hors des 40 fuites bloquantes.
   const res = verifyFrame(MIRROR);
   const distinct = (g) => [...new Set(res.findings.filter(f => f.gate === g).map(f => f.token))].sort();
 
   assert.deepEqual(distinct('G1'), []);
-  assert.deepEqual(distinct('G2'), ['iakaHub', 'iakaIDE', 'iakagraph', 'iakaide']);
-  assert.deepEqual(distinct('G3'), ['Stephane', 'stephane']);
+  assert.deepEqual(distinct('G2'), []);
+  assert.deepEqual(distinct('G3'), []);
   assert.deepEqual(distinct('G4'), []);
-  assert.deepEqual(distinct('G5'), ['3001', '3041', '4001']);
-  assert.deepEqual(distinct('G6'), ['Hermes'], 'G6 doit etre calibre a 0 faux positif');
+  assert.deepEqual(distinct('G5'), []);
+  assert.deepEqual(distinct('G6'), ['Hermes'], 'G6 Hermes reste en avertissement (backlog D5)');
 });
 
 // =================================================================================================

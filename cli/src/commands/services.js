@@ -30,8 +30,15 @@ function envHosts() {
 
 const DEFAULT_HOSTS = envHosts() || FALLBACK_HOSTS;
 
+// Port du service git (Forgejo) : NEUTRE par defaut, pilote par variable d'environnement — meme
+// doctrine que les hotes ci-dessus (Lot 0). Le defaut public 3000 (port par defaut de Forgejo/Gitea)
+// remplace l'ancien 3001 code en dur (port d'une instance privee precise).
+// USAGE : renseigner `IAKAFRAME_GIT_PORT` dans `~/work/.env` pour cibler un port prive (ex. 3001).
+const FALLBACK_GIT_PORT = 3000;
+const GIT_PORT = Number(process.env.IAKAFRAME_GIT_PORT) || FALLBACK_GIT_PORT;
+
 const SERVICES = [
-  { name: 'git (Forgejo)', port: 3001, path: '/api/v1/version',
+  { name: 'git (Forgejo)', port: GIT_PORT, path: '/api/v1/version',
     detail: b => (b && b.version) ? 'v' + b.version : '' },
   { name: 'Ollama', port: 11434, path: '/api/tags',
     detail: b => (b && Array.isArray(b.models)) ? `${b.models.length} modeles` : '' },

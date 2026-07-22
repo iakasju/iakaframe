@@ -202,6 +202,12 @@ pendantes, et les ports d'infra — quel que soit le séparateur qui suit le mot
 (deux-points, signe égal, espace, tabulation, option de ligne de commande), ainsi que la forme
 `hôte:port`.
 
+Les noms propres du portefeuille légitimes **au canon** sont par ailleurs **tokenisés au miroir**
+(placeholders génériques `<...>`) : le miroir ne les porte donc **jamais en clair**. La table de
+mapping correspondante (nom du portefeuille → token générique) est tenue **côté canon** — elle ne
+peut pas figurer ici sans être elle-même signalée comme fuite. Voir la doc de mapping du canon
+(`specs/instructions/resync-stefframe2-miroir-live.md` § 4.2).
+
 ### ⚠️ Ce que la garde n'attrape PAS
 
 Cette liste est **contractuelle**. Le dispositif ne doit jamais être présenté comme une

@@ -26,7 +26,7 @@
 
 1. **Connexion fournisseur** : *Admin Settings > Connections* → ajouter **Ollama**
    (`http://<box>:11434`) et/ou une connexion **OpenAI-compatible** (LiteLLM,
-   `http://<box>:4001/v1`). Les modèles `pull`és apparaissent alors comme **base models**.
+   `http://<box>:<port>/v1`). Les modèles `pull`és apparaissent alors comme **base models**.
 2. **Vérifier les ids** : *Admin Settings > Models* liste les base models disponibles avec leur
    id exact (c'est cet id qui doit figurer dans `base_model_id`).
 

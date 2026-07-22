@@ -37,7 +37,7 @@ Codex (`codex --help`) ; le principe ne change pas : *fournisseur = la box, prof
 # 1) Déclarer la box comme fournisseur "façon OpenAI" (via LiteLLM)
 [model_providers.iakabox]
 name = "iakabox (LiteLLM -> Ollama)"
-base_url = "http://<box>:4001/v1"
+base_url = "http://<box>:<port>/v1"
 env_key = "IAKABOX_API_KEY"   # clé bidon en local, mais exigée par le protocole
 
 # 2) Un profil par persona : modèle + fournisseur

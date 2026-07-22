@@ -21,7 +21,7 @@
 
 1. **Réglage global** : *Settings > AI Providers > LLM* → choisir le provider (Ollama,
    OpenAI-compatible/LiteLLM, OpenAI, etc.) et l'URL de base (ex. `http://<box>:11434` pour
-   Ollama, `http://<box>:4001/v1` pour LiteLLM). C'est le **défaut** appliqué aux nouveaux
+   Ollama, `http://<box>:<port>/v1` pour LiteLLM). C'est le **défaut** appliqué aux nouveaux
    workspaces.
 2. **Par workspace** : ouvrir le workspace du persona → *Settings (engrenage) > Chat Settings* →
    **Workspace Chat Provider / Model** → sélectionner le modèle voulu pour **ce** persona. C'est

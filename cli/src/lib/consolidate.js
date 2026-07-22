@@ -112,13 +112,25 @@ export function routeTarget(type) {
   return 'registre';
 }
 
+// --- Prefixe de fiche prioritaire pour PROFIL (CONFIG-DRIVEN, plus de prenom en dur) --------------
+// Le palier prioritaire du PROFIL cible les fiches « qui est le decideur ». Le prefixe qui les
+// designe est PILOTE PAR CONFIG (env `IAKAFRAME_PROFILE_PREFIX` ou `config.profilePrefix`) — plus
+// aucun prenom code en dur dans une regex (meme doctrine que IAKAFRAME_HOSTS, Lot 0 —
+// specs/instructions/outillage-scrub-miroir-frame.md § 2.5). NEUTRE par defaut : sans prefixe
+// renseigne, le palier est simplement inactif ; le decideur le renseigne dans `~/work/.env`.
+export function resolveProfilePrefix(cfg) {
+  const raw = process.env.IAKAFRAME_PROFILE_PREFIX || (cfg && cfg.profilePrefix) || '';
+  return String(raw).trim();
+}
+
 // --- Priorite de curation (selection sous plafond) ------------------------------------------------
 // Determine QUELLES entrees survivent quand la matiere depasse le plafond dur (« refus propre »).
-// PROFIL : les fiches explicitement « qui est Stephane » priment (stephane-* puis type user), puis
-// le reste des feedbacks. REGISTRE : les invariants durables (reference) avant les faits projet.
-export function fichePriority(fiche, target) {
+// PROFIL : les fiches explicitement « qui est le decideur » priment (prefixe configure puis type
+// user), puis le reste des feedbacks. REGISTRE : les invariants durables (reference) avant les faits
+// projet.
+export function fichePriority(fiche, target, prefix = resolveProfilePrefix()) {
   if (target === 'profil') {
-    if (/^stephane-/.test(fiche.name)) return 3;
+    if (prefix && new RegExp('^' + prefix.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '-').test(fiche.name)) return 3;
     if (fiche.type === 'user') return 2;
     return 1;
   }
@@ -137,7 +149,8 @@ function byPriority(a, b) {
 // Contrat : curate(fiches, cfg) -> { profil: entry[], registre: entry[] }
 //   entry = { text, source, type, mtime, priority }
 // MVP deterministe : essence = description de la fiche ; routage par type ; priorite calculee.
-export function rulesCurator(fiches) {
+export function rulesCurator(fiches, cfg) {
+  const prefix = resolveProfilePrefix(cfg);
   const buckets = { profil: [], registre: [] };
   for (const f of fiches) {
     if (!f.description) continue;
@@ -147,7 +160,7 @@ export function rulesCurator(fiches) {
       source: f.name,
       type: f.type,
       mtime: f.mtime,
-      priority: fichePriority(f, target),
+      priority: fichePriority(f, target, prefix),
     });
   }
   return buckets;

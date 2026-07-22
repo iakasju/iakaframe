@@ -39,7 +39,7 @@ kit-ollama/
 | Agents | subagents + skills | personas | **personas + modèle par rôle** |
 | Coût | abo Anthropic | abo/API OpenAI | **gratuit/local** (matériel) |
 
-## iakaIDE
+## <ide>
 
 Comme pour Codex : **annoncé pour plus tard** (orienté Claude aujourd'hui). Le kit donne la
 méthode complète tout de suite.
