@@ -10,24 +10,42 @@ import { affectPersona } from '../lib/agents.js';
 import { hasCmd } from '../lib/which.js';
 import { runInit, resolveNode } from './init.js';
 import { doSnapshot } from './snapshot.js';
+import readline from 'node:readline';
+
+// Confirmation interactive o/N, DEFAUT = non (seul 'o'/'oui' vaut oui). Jamais appelee en
+// non-interactif (le chemin sur reste le REFUS, cf. runOnboard).
+function askYesNo(question) {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    rl.question(question, (ans) => { rl.close(); resolve(/^o(ui)?$/i.test(String(ans).trim())); });
+  });
+}
 
 export async function runOnboard(argv) {
-  const { values } = parseArgs({
+  const { values, tokens } = parseArgs({
     args: argv,
+    tokens: true,
     options: {
       path: { type: 'string' },
       node: { type: 'string' },                 // claude|codex|ollama-localhost|ollama-lan
       target: { type: 'string' },               // alias DEPRECIE de --node
       repo: { type: 'string' }, description: { type: 'string', default: '' },
       version: { type: 'string', default: 'v0.1.0' },
+      home: { type: 'string' },                 // canon de cadence -> propage a doSnapshot
       'skip-forgejo': { type: 'boolean', default: false },
       'no-push': { type: 'boolean', default: false },
       force: { type: 'boolean', default: false },
       umbrella: { type: 'boolean', default: false },
       'init-projects': { type: 'boolean', default: false },
       'dashboard-source': { type: 'string' },
+      // Marqueur INTERNE pose par la bascule update->onboard (jamais un usage direct). Il fait de la
+      // creation de depot distant un acte a CONFIRMER (l'humain a demande un checkpoint, pas un onboard).
+      'from-update': { type: 'boolean', default: false },
+      // Echappatoire EXPLICITE : autorise la creation de depot malgre le marqueur de bascule.
+      'autoriser-creation-depot': { type: 'boolean', default: false },
     },
   });
+  const passed = new Set(tokens.filter(t => t.kind === 'option').map(t => t.name));
   const { node, error } = resolveNode(values);
   if (error) { console.error(error); process.exitCode = 1; return; }
   const root = path.resolve(values.path || process.cwd());
@@ -42,7 +60,34 @@ export async function runOnboard(argv) {
     if (exists === true && isRepo(root)) {
       console.log(`Le depot '${repo}' existe deja sur Forgejo (git local present) -> bascule en 'update'.`);
       const { runUpdate } = await import('./update.js');
-      return runUpdate(['--path', root, '--repo', repo]);
+      // Propagation CIBLEE (l'ancien argv nu '--path --repo' perdait --no-push/--version/--home).
+      const fwd = ['--path', root, '--repo', repo];
+      if (values['no-push']) fwd.push('--no-push');
+      if (passed.has('version')) fwd.push('--version', values.version);   // pas le defaut v0.1.0
+      if (passed.has('home')) fwd.push('--home', values.home);
+      return runUpdate(fwd);
+    }
+  }
+
+  // GARDE DE BASCULE (§ 4.2 / 4.6) : quand onboard est ATTEINT PAR BASCULE depuis update
+  // (--from-update), creer un depot distant DEPASSE ce que l'humain a demande (un checkpoint).
+  // -> refus par defaut. Echappatoire : --autoriser-creation-depot. En interactif : confirmation
+  //    o/N (defaut non). En NON-interactif (CI/agent) : REFUS, jamais passage (defaut = le sur).
+  //    Le refus reste LOCAL : structure + commits conserves, seule la creation distante + le push
+  //    sont supprimes. Onboard DIRECT (sans --from-update) n'est JAMAIS touche : batch intact.
+  let refuseCreation = false;
+  if (values['from-update'] && !values['skip-forgejo'] && !values['autoriser-creation-depot']) {
+    const interactive = Boolean(process.stdout.isTTY) && !process.env.CI && !process.env.IAKA_NON_INTERACTIF;
+    const confirmed = interactive
+      ? await askYesNo(`Creer le depot distant '${repo}' ? (bascule depuis 'update', non demande explicitement) [o/N] `)
+      : false;
+    if (!confirmed) {
+      refuseCreation = true;
+      process.exitCode = 1;
+      console.log(`REFUS : creation de depot distant non confirmee (bascule 'update' -> 'onboard').`);
+      console.log(`  Aucun depot distant cree, aucun push. Structure et commits locaux conserves.`);
+      console.log(`  Pour creer le depot explicitement : iakaframe onboard --path ${root}`);
+      console.log(`  (ou relancer en mode interactif, ou ajouter --autoriser-creation-depot).`);
     }
   }
 
@@ -54,7 +99,8 @@ export async function runOnboard(argv) {
   runInit(['--path', root, '--node', node, ...(values.force ? ['--force'] : [])]);
 
   // [2] Git + Forgejo
-  if (!values['skip-forgejo']) {
+  const doForgejo = !values['skip-forgejo'] && !refuseCreation;
+  if (doForgejo) {
     console.log('\n[2/5] Depot Forgejo + remote');
     const st = await createRepo(repo, values.description, true);
     console.log(st === 'exists' ? '  = depot deja existant (409) -> on continue.' : '  + depot cree.');
@@ -64,7 +110,7 @@ export async function runOnboard(argv) {
     else run(root, ['remote', 'add', 'origin', url]);
     console.log("  + remote 'origin' configure (token masque).");
   } else {
-    console.log('\n[2/5] Forgejo ignore (--skip-forgejo)');
+    console.log(refuseCreation ? '\n[2/5] Forgejo NON touche (creation refusee : bascule)' : '\n[2/5] Forgejo ignore (--skip-forgejo)');
     if (!isRepo(root)) { initRepoMain(root); console.log('  + git init local (branche main).'); }
   }
 
@@ -83,13 +129,13 @@ export async function runOnboard(argv) {
 
   // [4] Etat des lieux initial
   console.log('\n[4/5] Etat des lieux initial (MD + HTML)');
-  doSnapshot({ projectPath: root, reason: 'version', version: values.version, note: 'onboarding initial' });
+  doSnapshot({ projectPath: root, reason: 'version', version: values.version, note: 'onboarding initial', home: values.home });
   run(root, ['add', '-A']);
   if (hasChanges(root)) { run(root, ['commit', '-m', 'docs: etat des lieux initial (iakaframe snapshot)']); console.log('  + docs commitees.'); }
 
   // [5] Push
   console.log('\n[5/5] Push');
-  if (values['no-push'] || values['skip-forgejo']) { console.log('  push ignore.'); }
+  if (values['no-push'] || values['skip-forgejo'] || refuseCreation) { console.log('  push ignore.'); }
   else {
     const p = run(root, ['push', '-u', 'origin', 'main']);
     console.log(p.ok ? '  + pousse sur origin/main.' : `  ! push echoue : ${p.err || 'voir git'}`);

@@ -34,15 +34,21 @@ function warnFrameLeak(root) {
 }
 
 export async function runUpdate(argv) {
-  const { values } = parseArgs({
+  const { values, tokens } = parseArgs({
     args: argv,
+    tokens: true,
     options: {
       path: { type: 'string' }, reason: { type: 'string', default: 'manual' },
       version: { type: 'string' }, note: { type: 'string' }, message: { type: 'string' },
       repo: { type: 'string' }, 'no-push': { type: 'boolean', default: false },
       home: { type: 'string' },
+      // Autorisation EXPLICITE de creation de depot lors d'une bascule vers onboard (§ 4.2/4.6).
+      'autoriser-creation-depot': { type: 'boolean', default: false },
     },
   });
+  // Drapeaux REELLEMENT tapes par l'humain (distingue un defaut d'une valeur fournie) : c'est ce qui
+  // permet de ne propager/declarer que ce qu'il a demande, sans forcer un defaut a la bascule.
+  const passed = new Set(tokens.filter(t => t.kind === 'option').map(t => t.name));
   const root = path.resolve(values.path || process.cwd());
   const repo = values.repo || path.basename(root);
 
@@ -53,7 +59,17 @@ export async function runUpdate(argv) {
     const why = !gitExists ? 'pas de git local' : 'absent de Forgejo';
     console.log(`Le depot '${repo}' ${why} -> bascule en 'onboard'.`);
     const { runOnboard } = await import('./onboard.js');
-    return runOnboard(['--path', root, '--repo', repo]);
+    // Propagation CIBLEE de l'intention de l'humain (ne pas reconstruire un argv nu qui perd tout).
+    // --from-update = marqueur d'origine : la creation de depot distant devient un acte a confirmer.
+    const fwd = ['--path', root, '--repo', repo, '--from-update'];
+    if (values['no-push']) fwd.push('--no-push');
+    if (values.version) fwd.push('--version', values.version);
+    if (values.home) fwd.push('--home', values.home);
+    if (values['autoriser-creation-depot']) fwd.push('--autoriser-creation-depot');
+    // Drapeaux sans objet pour un onboarding : DECLARES, jamais jetes en silence (§ 4.3).
+    const ignored = ['reason', 'note', 'message'].filter(f => passed.has(f));
+    if (ignored.length) console.log(`  i options ${ignored.map(f => '--' + f).join(', ')} sans objet pour un onboarding -> ignorees.`);
+    return runOnboard(fwd);
   }
 
   console.log(`==== update iakaframe : ${root} ====`);

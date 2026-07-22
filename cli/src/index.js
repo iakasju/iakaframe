@@ -49,7 +49,9 @@ Commandes :
   snapshot            Etat des lieux (journal + MD + HTML)
                         --path <dir> --reason version|pause|reprise|manual --version --note
   update              Checkpoint : snapshot + commit global + push
-                        --path <dir> --reason --version --note --message --no-push
+                        --path <dir> --repo <nom> --reason --version --note --message --no-push --home
+                        (bascule onboarding : creation de depot distant REFUSEE par defaut ;
+                         --autoriser-creation-depot pour la forcer)
   services            Sonde git(Forgejo) / Ollama / ComfyUI
                         --hosts a,b,c  --json (stdout)  --out <fichier>  --timeout <sec>
   config              Ecrit/maj <projet>/iakaframe.json (runner + nœud)
