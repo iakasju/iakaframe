@@ -378,5 +378,15 @@
     "dirty": true,
     "files": 896,
     "note": "parite miroir StefFrame2 (40 fuites -> 0) + bump patch autorite"
+  },
+  {
+    "date": "2026-07-22 15:33",
+    "reason": "version",
+    "version": "v0.20.2",
+    "branch": "main",
+    "commit": "1bc1f14 merge(frame): StefFrame2 structurellement complet - retablit 18 principleIds (2 principes canon rapatries + anonymises) - gate Legolas PASS",
+    "dirty": true,
+    "files": 901,
+    "note": "etape 1/4 objectif GUI: frame StefFrame2 structurellement complet (18 principleIds)"
   }
 ]

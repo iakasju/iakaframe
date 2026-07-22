@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-22 14:44 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-22 15:33 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.20.1 |
+| Version | v0.20.2 |
 | Branche | main |
-| Dernier commit | 651c52b merge(frame): parite miroir StefFrame2 - 40 fuites -> 0 (tokenisation miroir + rename canon iakaIDE->iakacockpit + D3 neutralisation identite/ports) - gate Legolas PASS |
+| Dernier commit | 1bc1f14 merge(frame): StefFrame2 structurellement complet - retablit 18 principleIds (2 principes canon rapatries + anonymises) - gate Legolas PASS |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 896 |
-| Note | parite miroir StefFrame2 (40 fuites -> 0) + bump patch autorite |
+| Fichiers (hors .git/node_modules) | 901 |
+| Note | etape 1/4 objectif GUI: frame StefFrame2 structurellement complet (18 principleIds) |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `1bc1f14` | 2026-07-22 | merge(frame): StefFrame2 structurellement complet - retablit 18 principleIds (2 principes canon rapatries + anonymises) - gate Legolas PASS |
+| `86bba59` | 2026-07-22 | feat(frame): porter principleIds de la methode StefFrame2 de 16 a 18 |
+| `eb70a1e` | 2026-07-22 | feat(frame): rapatrier canon-avant-citation + preuve-avant-declaration anonymises |
+| `242319f` | 2026-07-22 | docs(instructions): cadrage frame-stefframe2-structure-canon (Gandalf P1) |
+| `746fde7` | 2026-07-22 | chore(iakaframe): update etat des lieux + commit global (version v0.20.1) |
 | `651c52b` | 2026-07-22 | merge(frame): parite miroir StefFrame2 - 40 fuites -> 0 (tokenisation miroir + rename canon iakaIDE->iakacockpit + D3 neutralisation identite/ports) - gate Legolas PASS |
 | `1545e0d` | 2026-07-22 | test(frame): verrouille le miroir StefFrame2 a 0 fuite + documente le mapping (D4/C5/C7) |
 | `29c167b` | 2026-07-22 | fix(frame): tokenise le miroir StefFrame2 pour eteindre les 40 fuites bloquantes |
 | `2f0c758` | 2026-07-22 | fix(canon): neutralise port git prive et prefixe d'identite en dur (D3) |
 | `05adb7e` | 2026-07-22 | refactor(canon): renomme le produit perime iakaIDE -> iakacockpit |
-| `787e485` | 2026-07-22 | chore(iakaframe): update etat des lieux + commit global (manual) |
-| `36ad8a7` | 2026-07-22 | merge(version): source unique de verite de version (autorite cli/package.json, v0.20.0, fin regression silencieuse) - gate Legolas PASS |
-| `a20417e` | 2026-07-22 | docs: etat des lieux v0.20.0 + cadrage dette version source unique |
-| `3eb072d` | 2026-07-22 | test(cli): garde anti-re-divergence version (source unique) |
-| `94b29b2` | 2026-07-22 | fix(cli): snapshot & bundle derivent de l'autorite (fin regression silencieuse) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-22 15:33 | version | v0.20.2 | main | etape 1/4 objectif GUI: frame StefFrame2 structurellement complet (18 principleIds) |
 | 2026-07-22 14:44 | version | v0.20.1 | main | parite miroir StefFrame2 (40 fuites -> 0) + bump patch autorite |
 | 2026-07-22 13:23 | manual | v0.20.0 | main |  |
 | 2026-07-22 13:13 | version | v0.20.0 | fix/dette-version-source-unique | Reconciliation version : source unique = cli/package.json (v0.20.0), fin de la regression silencieuse |
