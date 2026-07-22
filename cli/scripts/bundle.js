@@ -33,13 +33,22 @@ for (const a of ASSETS) {
   else console.log(`  = ${a} absent (ignore)`);
 }
 
-// Version figee (depuis l'etat des lieux iakaframe, sinon package.json).
+// Version figee, DERIVEE de l'autorite (cli/package.json), pas de l'etat des lieux.
+// Lire l'autorite en PREMIER garantit que le bundle ne peut jamais re-injecter une valeur
+// perimee, quel que soit l'ordre bundle/snapshot (cf. dette « source unique de version »).
+// L'etat des lieux reste un repli (projets sans package.json d'autorite).
 let version = '';
 try {
-  const md = fs.readFileSync(path.join(repoRoot, 'specs', 'etat-des-lieux.md'), 'utf8');
-  const m = md.match(/^\|\s*Version\s*\|\s*(.+?)\s*\|/m);
-  if (m) version = m[1].trim();
+  const pkg = JSON.parse(fs.readFileSync(path.join(cliDir, 'package.json'), 'utf8'));
+  if (pkg.version) version = 'v' + pkg.version;
 } catch { /* ignore */ }
+if (!version) {
+  try {
+    const md = fs.readFileSync(path.join(repoRoot, 'specs', 'etat-des-lieux.md'), 'utf8');
+    const m = md.match(/^\|\s*Version\s*\|\s*(.+?)\s*\|/m);
+    if (m) version = m[1].trim();
+  } catch { /* ignore */ }
+}
 if (version) fs.writeFileSync(path.join(bundled, 'VERSION'), version + '\n', 'utf8');
 
 console.log(`bundle OK : ${n} asset(s) -> _bundled/${version ? ` (version ${version})` : ''}`);
