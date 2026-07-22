@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-20 21:09 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-07-22 12:26 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,37 +9,78 @@
 |---|---|
 | Version | v0.6.1 |
 | Branche | main |
-| Dernier commit | 85e31c5 docs(specs): CH-A - D-1 tranche, inventaire des porteurs corrige (proposition) |
+| Dernier commit | 3663e4f merge(repo): verbe agnostique 'repo' + adaptateur forgejo + doc multi-OS (gate Legolas PASS) |
 | Arbre | propre |
-| Fichiers (hors .git/node_modules) | 873 |
-| Note | PAUSE fin de journee. ETAT : main v0.19.0 propre (85e31c5), 9 commits NON POUSSES ; iakaFrameGUI main 8ae5748, 2 commits non pousses. LIVRE AUJOURD HUI : lot 1/3 de la phase 2 (garde vendor-check + geste de regeneration), gate Legolas PASS, merge --no-ff. La garde nait ROUGE 18/21 comme exige ; recette A5-b rejouee par Legolas sur aragorn : drift mutuellement coherent injecte dans le depot GUI reel -> suite GUI 480/480 VERTE, vendor-check exit 1. La derive coherente cross-repo, indetectable depuis v0.17.14, est enfin detectee. EN COURS - LOT 2 (CH-A) SUSPENDU PAR LE DECIDEUR : le vocabulaire de la GUI doit etre agnostique de la frame et de la methode (on encadre mais on ne force pas) ; les roles sont des ELEMENTS DE LA METHODE ; unique obligation opposable a une methode chargee = qu un coordinateur soit assigne a un persona (structurel, jamais lexical). REPRISE - LIRE CECI AVANT TOUT : (1) L ENONCE FONDATEUR DE L AUDIT ETAIT A L ENVERS. Re-mesure sur main : la methode (personas + library/roles + methods/iakaframe.md) est en accord PARFAIT 8/8 ; les seules divergentes sont les 2 tables codees (ROLE_OF cote CLI, CANONICAL_ROLES cote coeur GUI). C etait 3 contre 2, la methode majoritaire. Le renommage suspendu n aurait pas corrige une derive, il aurait CASSE un accord 8/8 existant. Son abandon est un dommage evite, pas une economie. (2) Le travail suspendu de Gimli est PRESERVE sur feat/ch-a-reconciliation-rolekey (WIP fe230ab, marque NON MERGEABLE) dans les DEUX depots. Ne pas merger sans trancher D-5. (3) PIEGE QUI A EU 2 VICTIMES AUJOURD HUI (Odin ET Gandalf) : mesurer library/roles ou methods/iakaframe.md sans verifier la branche courante decrit le lot arrete, pas le canon. Les depots sont revenus sur main. TOUJOURS verifier la branche avant de mesurer. (4) Le defaut depasse les roles : principlesForMethod / ritualsForMethod / scaffoldsForMethod FILTRENT SILENCIEUSEMENT les ids inconnus - une methode etrangere y perdrait ses principes sans un mot. Violation de D-1 deja en production (D-7). (5) CANONICAL_ROLES n est pas un doublon code mais la VIOLATION d un modele deja arbitre le 2026-07-14 (Modele Methode elargi, constituant (f) referentiel de roles). Le lot devient une mise en conformite. PROCHAINE ETAPE CONCRETE : gate Legolas sur specs/instructions/vocabulaire-roles-agnostique.md (proposition, jalon P1->P2 NON pose), puis trancher D-4 (un lot ou deux, reco deux), D-5 (abandon du renommage, reco oui), D-6 (l integrite referentielle I1 reste-t-elle bloquante malgre la seule obligation), D-7 (extension de la mise en conformite aux 6 constituants). Estimation ~4,25 j-h, complexite haute, risque moyen. RESTE DES 3 LOTS : lot 2 CH-A refondu (~4,25 j-h), lot 3 skills (~3,25-3,75 j-h). DETTE : le remede kit du para 4.5 est INOPERANT et doit etre corrige AVANT le lot de re-vendorage (item Gandalf, echeance datee) ; vendor-check SATURE (compte des fichiers, pas des champs - aveugle aux derives nouvelles sur les 18 fixtures deja rouges). |
+| Fichiers (hors .git/node_modules) | 730 |
+| Note | PAUSE fin de session 2026-07-22. 9 lots livres+pousses aujourd'hui, tous gate Legolas PASS, main propre (3663e4f), suite CLI 377->476. REPRISE ASAP = LANCER CH-A (voir section Reprise). Detail complet dans la section Reprise du travail ci-dessous. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `85e31c5` | 2026-07-20 | docs(specs): CH-A - D-1 tranche, inventaire des porteurs corrige (proposition) |
-| `b783385` | 2026-07-20 | docs(specs): re-cadrage CH-A - vocabulaire de roles agnostique + item saturation vendor-check |
-| `4c65a6b` | 2026-07-20 | chore(iakaframe): etat des lieux v0.19.0 + 4 items de backlog issus du gate |
-| `9f7f0a7` | 2026-07-20 | merge(vendor-check): garde de parite cross-repo + geste de regeneration (gate Legolas PASS) |
-| `7301637` | 2026-07-20 | docs(commandes): A25 - verbe vendor-check et script gen-fixtures |
-| `8c28d32` | 2026-07-20 | docs(cli): A15 - le rituel des goldens ne couvre pas le vendorage (21 fixtures) |
-| `9d891ed` | 2026-07-20 | test(cli): recette de la garde vendor-check (A1-A21) |
-| `ab8d6b8` | 2026-07-20 | feat(cli): garde vendor-check cross-repo (17 copies byte-a-byte + 4 derivees) |
-| `c5a9bf1` | 2026-07-20 | docs(specs): rafraichissement + reecriture des 4 instructions de phase 2 (gate Legolas PASS) |
-| `6d3fd00` | 2026-07-20 | docs(specs): cloture de CH-C et CH-D - soldes par la serie de phase 1 |
+| `3663e4f` | 2026-07-22 | merge(repo): verbe agnostique 'repo' + adaptateur forgejo + doc multi-OS (gate Legolas PASS) |
+| `1dddacf` | 2026-07-22 | feat(cli): verbe d'hebergement agnostique (--provider forgejo, --create requis) |
+| `7948bff` | 2026-07-22 | docs: aligner methode-de-travail sur la realite multi-OS (scan.js, chapeau resolu) |
+| `c4ea74e` | 2026-07-22 | docs(instructions): verbe agnostique 'repo' + adaptateur forgejo + doc methode (cadrage Gandalf, VALIDE : repo / option b / providers.js / rectif skill) |
+| `cb2a9b9` | 2026-07-22 | merge(bascule): correctif update/onboard - propagation drapeaux + garde creation depot (gate Legolas PASS) |
+| `17b134b` | 2026-07-22 | test(cli): bascule update<->onboard, fausse forge locale + garde 127.0.0.1 (C1-C13) |
+| `cedcd6d` | 2026-07-22 | fix(cli): garde la creation de depot a la bascule update<->onboard + propage les drapeaux |
+| `a48566c` | 2026-07-22 | docs(instructions): correctif bascule update/onboard - propagation drapeaux + garde creation depot (cadrage Gandalf, VALIDE) |
+| `ce70ca1` | 2026-07-22 | merge(ps1): retrait des scripts PowerShell du canon (gate Legolas PASS) |
+| `0debae2` | 2026-07-21 | fix(docs): drapeaux PowerShell nus restes dans le perimetre vivant |
 
 ## Reprise du travail (a completer par Cowork)
 
-- **Ce qui vient d'etre fait** : <!-- ... -->
-- **En cours / a reprendre** : <!-- ... -->
-- **Prochaine etape concrete** : <!-- premiere action a faire en reprenant -->
-- **Pieges connus** : <!-- ... -->
+- **⚠️ PROCHAINE ETAPE CONCRETE — A LANCER ASAP (consigne du decideur, 2026-07-22) : le lot CH-A.**
+  Reprendre `specs/instructions/vocabulaire-roles-agnostique.md` (deja sur main, jalon P1->P2 NON pose).
+  C'est le seul gros morceau restant : **~4,25 j-h, complexite haute, risque moyen**. WIP de Gimli
+  preserve sur la branche `feat/ch-a-reconciliation-rolekey` (`fe230ab`), marquee **NON MERGEABLE** dans
+  les DEUX depots — ne pas merger sans trancher les decisions ci-dessous. **AVANT de coder, 4 arbitrages
+  du decideur** : D-4 (un lot ou deux, reco DEUX), D-5 (abandon du renommage, reco OUI), D-6 (l'integrite
+  referentielle I1 reste-t-elle bloquante malgre l'unique obligation « un coordinateur assigne a un
+  persona »), D-7 (extension de la mise en conformite aux 6 constituants du Modele Methode elargi).
+  **LIRE ABSOLUMENT avant de mesurer** : l'enonce fondateur de l'audit etait A L'ENVERS — la methode
+  (personas + library/roles + methods/iakaframe.md) est en accord PARFAIT 8/8 ; seules divergent les
+  2 tables codees (ROLE_OF cote CLI, CANONICAL_ROLES cote coeur GUI). Le renommage suspendu n'aurait pas
+  corrige une derive, il aurait CASSE un accord 8/8. Son abandon est un dommage evite, pas une economie.
+
+- **Ce qui vient d'etre fait (session 2026-07-22, 9 lots livres + pousses, tous gate Legolas PASS)** :
+  D-7 perte silencieuse a la resolution d'une Methode (cote GUI) · D-8 gate menteur + verdict opposable
+  (Q-3 : le gabarit `iakaframe-qualite` etait remplissable de memoire, `8ae5748` etait CONFORME au
+  gabarit — corrige) · D-9 re-vendorage canon->miroir · Q-2 remede `vendor-check` derive de l'etat ·
+  Canon PROJET (lot A + cablage du rattrapage) · Scrub par ALLOWLIST + retrait StefFrame1/.zip · retrait
+  des 14 `.ps1` du canon · correctif bascule `update<->onboard` (fermait le defaut a effet EXTERNE : 4
+  depots parasites crees sur la forge, tous supprimes) · verbe agnostique `repo` + adaptateur forgejo
+  (ferme la dette forgejo). Suite CLI **377 -> 476**. Fil rouge : aucun defaut n'etait un bug classique,
+  le code tournait ; ce qui etait faux, c'est **ce que le systeme disait de lui-meme**.
+
+- **En cours / a reprendre (apres CH-A)** : lot 3 skills (~3,25-3,75 j-h, depend de CH-A) · Lot B canon
+  projet (detection de contradiction specs<->memoire, prerequis : figer le format `@produit`) · faute
+  d'agnosticisme `iakaframe-naonedge` (produit orphelin sans capacite parente — reserve : la citation
+  README « ne pas renommer » est FAUSSE, le gel reel porte sur le dossier `design-naonedge/`, pas la
+  skill ; renommer rouvre la resync D-9) · filtrage silencieux CLI (D-7 a traite le GUI, le cœur peut
+  encore filtrer sans un mot — violation D-1) · `resorption-porteurs-gabarit-verdict-perime.md` (branche
+  `docs/cadrages-non-lances`, partiellement caduc depuis le scrub) · 3 « C-bis » persona-skills +
+  `log-conversation` (cosmetique de nommage).
+
+- **Gestes HUMAINS non delegables** : relecture A8 (7 prescriptions reecrites au lot `.ps1`, dont une ou
+  le SENS a bouge — `agents --action generate` regenere les 8 contrats la ou l'ancien `-Action create`
+  en scaffoldait UN) · recette du bandeau D-7 dans l'onglet Methode (`npm run tauri dev`) · vraie session
+  Claude Code dans un projet A CANON pour voir le marqueur s'armer.
+
+- **Pieges connus** : (1) TOUJOURS verifier la branche courante avant de mesurer `library/roles` /
+  `methods/iakaframe.md` — mesurer sur une branche de lot decrit le lot arrete, pas le canon (2 victimes
+  le 20/07 : Odin ET Gandalf). (2) NE JAMAIS lancer `iakaframe update`/`onboard` reels sans neutraliser
+  `FORGEJO_URL` vers `127.0.0.1` — le token vient de `~/work/.env` ; le correctif bascule est livre mais
+  4 depots parasites ont ete crees avant lui. (3) `vendor-check` est SATURE (compte des fichiers, pas des
+  champs — aveugle aux derives nouvelles sur des fixtures deja rouges). (4) `--root` de `vendor-check`
+  designe le CANON, pas le miroir (l'inverser rend un faux `22 fixture(s) / 0 verifiee(s)`).
 
 ## Journal (versions & pauses)
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-22 12:26 | pause | v0.6.1 | main | PAUSE fin de session 2026-07-22. 9 lots livres+pousses aujourd'hui, tous gate Legolas PASS, main propre (3663e4f), suite CLI 377->476. REPRISE ASAP = LANCER CH-A (voir section Reprise). Detail complet dans la section Reprise du travail ci-dessous. |
 | 2026-07-20 21:09 | pause | v0.6.1 | main | PAUSE fin de journee. ETAT : main v0.19.0 propre (85e31c5), 9 commits NON POUSSES ; iakaFrameGUI main 8ae5748, 2 commits non pousses. LIVRE AUJOURD HUI : lot 1/3 de la phase 2 (garde vendor-check + geste de regeneration), gate Legolas PASS, merge --no-ff. La garde nait ROUGE 18/21 comme exige ; recette A5-b rejouee par Legolas sur aragorn : drift mutuellement coherent injecte dans le depot GUI reel -> suite GUI 480/480 VERTE, vendor-check exit 1. La derive coherente cross-repo, indetectable depuis v0.17.14, est enfin detectee. EN COURS - LOT 2 (CH-A) SUSPENDU PAR LE DECIDEUR : le vocabulaire de la GUI doit etre agnostique de la frame et de la methode (on encadre mais on ne force pas) ; les roles sont des ELEMENTS DE LA METHODE ; unique obligation opposable a une methode chargee = qu un coordinateur soit assigne a un persona (structurel, jamais lexical). REPRISE - LIRE CECI AVANT TOUT : (1) L ENONCE FONDATEUR DE L AUDIT ETAIT A L ENVERS. Re-mesure sur main : la methode (personas + library/roles + methods/iakaframe.md) est en accord PARFAIT 8/8 ; les seules divergentes sont les 2 tables codees (ROLE_OF cote CLI, CANONICAL_ROLES cote coeur GUI). C etait 3 contre 2, la methode majoritaire. Le renommage suspendu n aurait pas corrige une derive, il aurait CASSE un accord 8/8 existant. Son abandon est un dommage evite, pas une economie. (2) Le travail suspendu de Gimli est PRESERVE sur feat/ch-a-reconciliation-rolekey (WIP fe230ab, marque NON MERGEABLE) dans les DEUX depots. Ne pas merger sans trancher D-5. (3) PIEGE QUI A EU 2 VICTIMES AUJOURD HUI (Odin ET Gandalf) : mesurer library/roles ou methods/iakaframe.md sans verifier la branche courante decrit le lot arrete, pas le canon. Les depots sont revenus sur main. TOUJOURS verifier la branche avant de mesurer. (4) Le defaut depasse les roles : principlesForMethod / ritualsForMethod / scaffoldsForMethod FILTRENT SILENCIEUSEMENT les ids inconnus - une methode etrangere y perdrait ses principes sans un mot. Violation de D-1 deja en production (D-7). (5) CANONICAL_ROLES n est pas un doublon code mais la VIOLATION d un modele deja arbitre le 2026-07-14 (Modele Methode elargi, constituant (f) referentiel de roles). Le lot devient une mise en conformite. PROCHAINE ETAPE CONCRETE : gate Legolas sur specs/instructions/vocabulaire-roles-agnostique.md (proposition, jalon P1->P2 NON pose), puis trancher D-4 (un lot ou deux, reco deux), D-5 (abandon du renommage, reco oui), D-6 (l integrite referentielle I1 reste-t-elle bloquante malgre la seule obligation), D-7 (extension de la mise en conformite aux 6 constituants). Estimation ~4,25 j-h, complexite haute, risque moyen. RESTE DES 3 LOTS : lot 2 CH-A refondu (~4,25 j-h), lot 3 skills (~3,25-3,75 j-h). DETTE : le remede kit du para 4.5 est INOPERANT et doit etre corrige AVANT le lot de re-vendorage (item Gandalf, echeance datee) ; vendor-check SATURE (compte des fichiers, pas des champs - aveugle aux derives nouvelles sur les 18 fixtures deja rouges). |
 | 2026-07-20 19:09 | version | v0.19.0 | main | LOT 1/3 DE LA PHASE 2 LIVRE : garde vendor-check cross-repo + geste de regeneration. Gate Legolas PASS sans reserve bloquante. La garde nait ROUGE 18/21 comme exige (A16) : 7 personas + 7 goldens + binding + 3 derivees ; aragorn, son golden et le kit sont les 3 seules fixtures conformes. Recette A5-b rejouee par Legolas sur aragorn : drift mutuellement coherent injecte dans le depot GUI reel -> suite GUI 480/480 VERTE, vendor-check exit 1. La derive cohérente cross-repo, indetectable depuis v0.17.14, est enfin detectee. CLI 362 pass / 1 skip / 0 fail, GUI 480/480, 17 tests neufs. iakaFrameGUI merge en parallele (gen-fixtures.mjs). AUCUNE FIXTURE REPAREE - le re-vendorage est le lot 2. PROCHAINE ETAPE : corriger le remede kit du para 4.5 (item Gandalf, ECHEANCE = avant le lot de re-vendorage, il devient bloquant a ce moment-la), puis lot 2 roster/CH-A (~2,5 a 3 j-h), puis lot 3 skills (~3,25 a 3,75 j-h). RIEN N EST POUSSE : main iakaframe est ahead de 3 commits sur origin (cadrage c5a9bf1 + merge 9f7f0a7), iakaFrameGUI ahead de 1. Journee : 4 gates de cadrage (5 defauts, puis 1, puis 3, puis PASS), une reecriture complete de l instruction (1072 -> 739 lignes, geste additif abandonne car devenu la cause), un agent coordinateur mort en vol, un defaut disqualifiant (D4) definitivement perdu avec son rapport et solde par un re-gate integral. Estimation du lot doublee en cours de cadrage : ~1,25 -> ~2,65 j-h reels. |
 | 2026-07-20 08:34 | pause | v0.6.1 | main | PAUSE fin de phase 1. ETAT : main v0.18.0 poussee, arbre propre ; branche feat/amelioration-personas fusionnee (--no-ff, trace conservee) et toujours presente locale+distante. iakaFrameGUI v0.3.11 poussee, arbre propre, JAMAIS touche de la serie. REPRISE - lire ceci avant tout : (1) Le frame que Stephane UTILISE est un HYBRIDE : les 8 contrats d'agents ~/.claude/agents/ sont a jour (parite canon->deploye verte), MAIS les skills ne le sont pas - 15 deployees sur 24, 9 absentes (dont iakaframe-fabrication et iakaframe-jalon creees/comptees en phase 1), et iakaframe-aragorn deployee contient encore 5 mentions de Slack alors que le canon n'en a plus aucune. Rien ne signale cet ecart. (2) Les skills sont STRUCTURELLEMENT INERTES, pas seulement mal deployees : renderAgentContract ne projette pas le champ skills:, aucun binding n'accorde l'outil Skill, aucun chemin ne resout subskills, et la table codee SKILL_OF (mono-skill) court-circuite le frontmatter. Deployer les 9 manquantes ne rendrait RIEN actif - ce serait cosmetique et masquerait le probleme. (3) NE PAS ENGAGER le lot skills en l'etat : les 4 instructions de phase 2 (parite-skills-generateur-deploiement, garde-vendor-check-cross-repo, audit-amelioration-roster-personas, decision-rolekey-reconciliation) ont recu 3 FAIL successifs et ont ete GELEES, jamais gatees PASS. Elles sont en outre PERIMEES par la phase 1 : l'instruction skills ne mentionne pas iakaframe-fabrication, le pool est passe de 23 a 24, des subskills ont ete declares, et l'arbitrage decideur 'union des 11' est probablement faux aujourd'hui - a recalculer. PROCHAINE ETAPE CONCRETE : rafraichir les 4 instructions gelees a la lumiere de la phase 1 (Gandalf), les faire regater, PUIS executer dans l'ordre recommande par le gate - garde vendor-check D'ABORD, re-vendorage ENSUITE (re-vendorer en premier effacerait la preuve sans traiter la cause : un drift mutuellement coherent laisse 475/475 tests GUI verts), puis le lot skills. PIEGES CONNUS : la parite cross-repo est rompue sur 15 fichiers imputables / 19 en absolu sur 21 fixtures vendorees, et rien ne la detecte ; methods/iakaframe.md est modifie par la serie mais ABSENT du compte imputable (divergeait deja avant) - le re-vendorage ne doit pas l'oublier ; ~234 pointeurs chemin:ligne dans specs/instructions/ visent les 7 personas modifiees, beaucoup sont perimes (correctif acte : citer par nom de section, applique aux canons, pas retro-applique aux instructions) ; CH-F peut etre ferme SANS TRAVAIL (verifie au gate : identity-guard controle la position, pas la valeur - aucun faux positif possible), il ne manque que l'acte. BACKLOG projet : registre T1-T6 des tolerables + 8 items ouverts. Demande en attente non cadree : Stephane veut une description lisible en tete de chaque element de library/ - constat fait, RIEN ENGAGE, il verra dans la GUI si le manque se voit (skills et personas ont une description ; principles/roles/rituals/guardrails n'ont qu'un label ; workflow et scaffolds n'ont rien). |
