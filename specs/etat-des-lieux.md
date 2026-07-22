@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-22 13:13 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-22 13:23 (motif: manual).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -8,26 +8,25 @@
 | Champ | Valeur |
 |---|---|
 | Version | v0.20.0 |
-| Branche | fix/dette-version-source-unique |
-| Dernier commit | 80bc806 chore(iakaframe): update etat des lieux + commit global (manual) |
+| Branche | main |
+| Dernier commit | 36ad8a7 merge(version): source unique de verite de version (autorite cli/package.json, v0.20.0, fin regression silencieuse) - gate Legolas PASS |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 894 |
-| Note | Reconciliation version : source unique = cli/package.json (v0.20.0), fin de la regression silencieuse |
+| Fichiers (hors .git/node_modules) | 895 |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `36ad8a7` | 2026-07-22 | merge(version): source unique de verite de version (autorite cli/package.json, v0.20.0, fin regression silencieuse) - gate Legolas PASS |
+| `a20417e` | 2026-07-22 | docs: etat des lieux v0.20.0 + cadrage dette version source unique |
+| `3eb072d` | 2026-07-22 | test(cli): garde anti-re-divergence version (source unique) |
+| `94b29b2` | 2026-07-22 | fix(cli): snapshot & bundle derivent de l'autorite (fin regression silencieuse) |
+| `9a767bf` | 2026-07-22 | fix(cli): cli/package.json seule autorite de version (v0.20.0) |
 | `80bc806` | 2026-07-22 | chore(iakaframe): update etat des lieux + commit global (manual) |
 | `b8c77e8` | 2026-07-22 | chore(iakaframe): etat des lieux (pause fin de session 2026-07-22) |
 | `3663e4f` | 2026-07-22 | merge(repo): verbe agnostique 'repo' + adaptateur forgejo + doc multi-OS (gate Legolas PASS) |
 | `1dddacf` | 2026-07-22 | feat(cli): verbe d'hebergement agnostique (--provider forgejo, --create requis) |
 | `7948bff` | 2026-07-22 | docs: aligner methode-de-travail sur la realite multi-OS (scan.js, chapeau resolu) |
-| `c4ea74e` | 2026-07-22 | docs(instructions): verbe agnostique 'repo' + adaptateur forgejo + doc methode (cadrage Gandalf, VALIDE : repo / option b / providers.js / rectif skill) |
-| `cb2a9b9` | 2026-07-22 | merge(bascule): correctif update/onboard - propagation drapeaux + garde creation depot (gate Legolas PASS) |
-| `17b134b` | 2026-07-22 | test(cli): bascule update<->onboard, fausse forge locale + garde 127.0.0.1 (C1-C13) |
-| `cedcd6d` | 2026-07-22 | fix(cli): garde la creation de depot a la bascule update<->onboard + propage les drapeaux |
-| `a48566c` | 2026-07-22 | docs(instructions): correctif bascule update/onboard - propagation drapeaux + garde creation depot (cadrage Gandalf, VALIDE) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +39,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-22 13:23 | manual | v0.20.0 | main |  |
 | 2026-07-22 13:13 | version | v0.20.0 | fix/dette-version-source-unique | Reconciliation version : source unique = cli/package.json (v0.20.0), fin de la regression silencieuse |
 | 2026-07-22 12:40 | manual | v0.6.1 | main |  |
 | 2026-07-22 12:26 | pause | v0.6.1 | main | PAUSE fin de session 2026-07-22. 9 lots livres+pousses aujourd'hui, tous gate Legolas PASS, main propre (3663e4f), suite CLI 377->476. REPRISE ASAP = LANCER CH-A (voir section Reprise). Detail complet dans la section Reprise du travail ci-dessous. |

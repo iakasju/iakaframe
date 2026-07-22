@@ -358,5 +358,15 @@
     "dirty": true,
     "files": 894,
     "note": "Reconciliation version : source unique = cli/package.json (v0.20.0), fin de la regression silencieuse"
+  },
+  {
+    "date": "2026-07-22 13:23",
+    "reason": "manual",
+    "version": "v0.20.0",
+    "branch": "main",
+    "commit": "36ad8a7 merge(version): source unique de verite de version (autorite cli/package.json, v0.20.0, fin regression silencieuse) - gate Legolas PASS",
+    "dirty": true,
+    "files": 895,
+    "note": ""
   }
 ]
