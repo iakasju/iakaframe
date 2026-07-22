@@ -6,6 +6,7 @@ import { runInit } from './commands/init.js';
 import { runSnapshot } from './commands/snapshot.js';
 import { runOnboard } from './commands/onboard.js';
 import { runUpdate } from './commands/update.js';
+import { runRepo } from './commands/repo.js';
 import { runAgents } from './commands/agents.js';
 import { runGo } from './commands/go.js';
 import { runBanner } from './commands/banner.js';
@@ -52,6 +53,10 @@ Commandes :
                         --path <dir> --repo <nom> --reason --version --note --message --no-push --home
                         (bascule onboarding : creation de depot distant REFUSEE par defaut ;
                          --autoriser-creation-depot pour la forcer)
+  repo [<nom>]        Branche le remote d'un depot git EXISTANT (geste provider-neutre)
+                        --path <dir> --repo <nom> --provider <nom> (defaut forgejo)
+                        --create (REQUIS pour creer le depot distant) --description "ascii"
+                        (sans --create : test + remote LOCAL seulement, jamais de creation)
   services            Sonde git(Forgejo) / Ollama / ComfyUI
                         --hosts a,b,c  --json (stdout)  --out <fichier>  --timeout <sec>
   config              Ecrit/maj <projet>/iakaframe.json (runner + nœud)
@@ -143,6 +148,7 @@ async function main() {
     case 'init':     runInit(rest); break;
     case 'snapshot': runSnapshot(rest); break;
     case 'update':   await runUpdate(rest); break;
+    case 'repo':     await runRepo(rest); break;
     case 'services': await runServices(rest); break;
     case 'config':   runConfig(rest); break;
     case 'agents':   runAgents(rest); break;
