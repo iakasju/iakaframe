@@ -153,24 +153,28 @@ test('consolidate respecte le plafond DUR : matiere abondante -> écarte proprem
 });
 
 // --- Priorite de selection sous plafond -----------------------------------------------------------
-test('fichePriority : stephane-* prime pour PROFIL ; reference prime pour REGISTRE', () => {
-  assert.ok(fichePriority({ name: 'stephane-x', type: 'feedback' }, 'profil')
-    > fichePriority({ name: 'autre', type: 'feedback' }, 'profil'));
+test('fichePriority : une fiche au prefixe de profil CONFIGURE prime pour PROFIL ; reference prime pour REGISTRE', () => {
+  // Le prefixe est desormais config-driven (plus de prenom en dur) : on le passe explicitement.
+  assert.ok(fichePriority({ name: 'decideur-x', type: 'feedback' }, 'profil', 'decideur')
+    > fichePriority({ name: 'autre', type: 'feedback' }, 'profil', 'decideur'));
+  // Sans prefixe configure, le palier prioritaire est INACTIF (neutre par defaut).
+  assert.equal(fichePriority({ name: 'decideur-x', type: 'feedback' }, 'profil', ''), 1);
   assert.ok(fichePriority({ name: 'r', type: 'reference' }, 'registre')
     > fichePriority({ name: 'p', type: 'project' }, 'registre'));
 });
 
-test('sous plafond, une fiche stephane-* est retenue avant un feedback generique concurrent', () => {
+test('sous plafond, une fiche au prefixe de profil configure est retenue avant un feedback generique', () => {
   // Descriptions calibrées pour qu'une seule des deux tienne sous un plafond profil reduit.
+  // Prefixe de profil CONFIGURE (config-driven, plus de prenom en dur).
   const longDesc = 'x'.repeat(1700);
   const src = tmpSource([
     { name: 'zzz-generique', description: longDesc, type: 'feedback', nodeType: 'memory' },
-    { name: 'stephane-clef', description: longDesc, type: 'feedback', nodeType: 'memory' },
+    { name: 'decideur-clef', description: longDesc, type: 'feedback', nodeType: 'memory' },
   ]);
   const home = tmpHome();
-  const cfg = { ...defaultConfig(), caps: { profil: 2000, registre: 3200 } };
+  const cfg = { ...defaultConfig(), profilePrefix: 'decideur', caps: { profil: 2000, registre: 3200 } };
   const report = consolidate({ home, source: src, config: cfg, now: FIXED_NOW });
-  assert.deepEqual(report.profil.kept.map((e) => e.source), ['stephane-clef']);
+  assert.deepEqual(report.profil.kept.map((e) => e.source), ['decideur-clef']);
   assert.deepEqual(report.profil.dropped.map((e) => e.source), ['zzz-generique']);
   rm(src); rm(home);
 });
