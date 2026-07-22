@@ -368,5 +368,15 @@
     "dirty": true,
     "files": 895,
     "note": ""
+  },
+  {
+    "date": "2026-07-22 14:44",
+    "reason": "version",
+    "version": "v0.20.1",
+    "branch": "main",
+    "commit": "651c52b merge(frame): parite miroir StefFrame2 - 40 fuites -> 0 (tokenisation miroir + rename canon iakaIDE->iakacockpit + D3 neutralisation identite/ports) - gate Legolas PASS",
+    "dirty": true,
+    "files": 896,
+    "note": "parite miroir StefFrame2 (40 fuites -> 0) + bump patch autorite"
   }
 ]
