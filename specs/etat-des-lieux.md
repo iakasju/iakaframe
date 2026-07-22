@@ -1,22 +1,24 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-22 12:40 (motif: manual).
+> Genere par iakaframe (CLI) le 2026-07-22 13:13 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.6.1 |
-| Branche | main |
-| Dernier commit | b8c77e8 chore(iakaframe): etat des lieux (pause fin de session 2026-07-22) |
+| Version | v0.20.0 |
+| Branche | fix/dette-version-source-unique |
+| Dernier commit | 80bc806 chore(iakaframe): update etat des lieux + commit global (manual) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 731 |
+| Fichiers (hors .git/node_modules) | 894 |
+| Note | Reconciliation version : source unique = cli/package.json (v0.20.0), fin de la regression silencieuse |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `80bc806` | 2026-07-22 | chore(iakaframe): update etat des lieux + commit global (manual) |
 | `b8c77e8` | 2026-07-22 | chore(iakaframe): etat des lieux (pause fin de session 2026-07-22) |
 | `3663e4f` | 2026-07-22 | merge(repo): verbe agnostique 'repo' + adaptateur forgejo + doc multi-OS (gate Legolas PASS) |
 | `1dddacf` | 2026-07-22 | feat(cli): verbe d'hebergement agnostique (--provider forgejo, --create requis) |
@@ -26,7 +28,6 @@
 | `17b134b` | 2026-07-22 | test(cli): bascule update<->onboard, fausse forge locale + garde 127.0.0.1 (C1-C13) |
 | `cedcd6d` | 2026-07-22 | fix(cli): garde la creation de depot a la bascule update<->onboard + propage les drapeaux |
 | `a48566c` | 2026-07-22 | docs(instructions): correctif bascule update/onboard - propagation drapeaux + garde creation depot (cadrage Gandalf, VALIDE) |
-| `ce70ca1` | 2026-07-22 | merge(ps1): retrait des scripts PowerShell du canon (gate Legolas PASS) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -39,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-22 13:13 | version | v0.20.0 | fix/dette-version-source-unique | Reconciliation version : source unique = cli/package.json (v0.20.0), fin de la regression silencieuse |
 | 2026-07-22 12:40 | manual | v0.6.1 | main |  |
 | 2026-07-22 12:26 | pause | v0.6.1 | main | PAUSE fin de session 2026-07-22. 9 lots livres+pousses aujourd'hui, tous gate Legolas PASS, main propre (3663e4f), suite CLI 377->476. REPRISE ASAP = LANCER CH-A (voir section Reprise). Detail complet dans la section Reprise du travail ci-dessous. |
 | 2026-07-20 21:09 | pause | v0.6.1 | main | PAUSE fin de journee. ETAT : main v0.19.0 propre (85e31c5), 9 commits NON POUSSES ; iakaFrameGUI main 8ae5748, 2 commits non pousses. LIVRE AUJOURD HUI : lot 1/3 de la phase 2 (garde vendor-check + geste de regeneration), gate Legolas PASS, merge --no-ff. La garde nait ROUGE 18/21 comme exige ; recette A5-b rejouee par Legolas sur aragorn : drift mutuellement coherent injecte dans le depot GUI reel -> suite GUI 480/480 VERTE, vendor-check exit 1. La derive coherente cross-repo, indetectable depuis v0.17.14, est enfin detectee. EN COURS - LOT 2 (CH-A) SUSPENDU PAR LE DECIDEUR : le vocabulaire de la GUI doit etre agnostique de la frame et de la methode (on encadre mais on ne force pas) ; les roles sont des ELEMENTS DE LA METHODE ; unique obligation opposable a une methode chargee = qu un coordinateur soit assigne a un persona (structurel, jamais lexical). REPRISE - LIRE CECI AVANT TOUT : (1) L ENONCE FONDATEUR DE L AUDIT ETAIT A L ENVERS. Re-mesure sur main : la methode (personas + library/roles + methods/iakaframe.md) est en accord PARFAIT 8/8 ; les seules divergentes sont les 2 tables codees (ROLE_OF cote CLI, CANONICAL_ROLES cote coeur GUI). C etait 3 contre 2, la methode majoritaire. Le renommage suspendu n aurait pas corrige une derive, il aurait CASSE un accord 8/8 existant. Son abandon est un dommage evite, pas une economie. (2) Le travail suspendu de Gimli est PRESERVE sur feat/ch-a-reconciliation-rolekey (WIP fe230ab, marque NON MERGEABLE) dans les DEUX depots. Ne pas merger sans trancher D-5. (3) PIEGE QUI A EU 2 VICTIMES AUJOURD HUI (Odin ET Gandalf) : mesurer library/roles ou methods/iakaframe.md sans verifier la branche courante decrit le lot arrete, pas le canon. Les depots sont revenus sur main. TOUJOURS verifier la branche avant de mesurer. (4) Le defaut depasse les roles : principlesForMethod / ritualsForMethod / scaffoldsForMethod FILTRENT SILENCIEUSEMENT les ids inconnus - une methode etrangere y perdrait ses principes sans un mot. Violation de D-1 deja en production (D-7). (5) CANONICAL_ROLES n est pas un doublon code mais la VIOLATION d un modele deja arbitre le 2026-07-14 (Modele Methode elargi, constituant (f) referentiel de roles). Le lot devient une mise en conformite. PROCHAINE ETAPE CONCRETE : gate Legolas sur specs/instructions/vocabulaire-roles-agnostique.md (proposition, jalon P1->P2 NON pose), puis trancher D-4 (un lot ou deux, reco deux), D-5 (abandon du renommage, reco oui), D-6 (l integrite referentielle I1 reste-t-elle bloquante malgre la seule obligation), D-7 (extension de la mise en conformite aux 6 constituants). Estimation ~4,25 j-h, complexite haute, risque moyen. RESTE DES 3 LOTS : lot 2 CH-A refondu (~4,25 j-h), lot 3 skills (~3,25-3,75 j-h). DETTE : le remede kit du para 4.5 est INOPERANT et doit etre corrige AVANT le lot de re-vendorage (item Gandalf, echeance datee) ; vendor-check SATURE (compte des fichiers, pas des champs - aveugle aux derives nouvelles sur les 18 fixtures deja rouges). |
