@@ -32,8 +32,10 @@ import { runConsolidate } from './commands/consolidate.js';
 import { runObserve } from './commands/observe.js';
 import { runPortfolio } from './commands/portfolio.js';
 import { resolveRoot } from './lib/root.js';
+import { packageVersion } from './lib/version.js';
 
-const VERSION = '0.1.0';
+// Source unique : lue depuis cli/package.json (cf. lib/version.js). Plus aucune copie codee en dur.
+const VERSION = packageVersion();
 
 const HELP = `iakaframe v${VERSION} - methode de travail outillee (CLI multi-OS)
 
