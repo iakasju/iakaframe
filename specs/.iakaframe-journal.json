@@ -348,5 +348,15 @@
     "dirty": true,
     "files": 731,
     "note": ""
+  },
+  {
+    "date": "2026-07-22 13:13",
+    "reason": "version",
+    "version": "v0.20.0",
+    "branch": "fix/dette-version-source-unique",
+    "commit": "80bc806 chore(iakaframe): update etat des lieux + commit global (manual)",
+    "dirty": true,
+    "files": 894,
+    "note": "Reconciliation version : source unique = cli/package.json (v0.20.0), fin de la regression silencieuse"
   }
 ]

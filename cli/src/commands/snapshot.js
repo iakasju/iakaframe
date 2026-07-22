@@ -23,6 +23,19 @@ function flattenEntries(node, acc) {
 
 function enc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
+// Source unique de verite du projet iakaframe lui-meme : cli/package.json (champ version).
+// On la lit AVANT de retomber sur `git describe` -> supprime la voie de la regression silencieuse
+// (une cloture sans --version ne peut plus faire retomber la version sur un vieux tag).
+// Pour tout AUTRE projet (pas de cli/package.json @naonedge/iakaframe), on rend '' et le flux
+// `git describe` d'origine s'applique tel quel : aucune regression pour les projets tiers.
+function authorityVersion(root) {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(root, 'cli', 'package.json'), 'utf8'));
+    if (pkg && pkg.name === '@naonedge/iakaframe' && pkg.version) return 'v' + pkg.version;
+  } catch { /* pas l'autorite iakaframe -> repli git describe */ }
+  return '';
+}
+
 function countFiles(dir) {
   let n = 0;
   const walk = (d) => {
@@ -48,6 +61,7 @@ export function doSnapshot({ projectPath, reason = 'manual', version = '', note 
 
   const git = isRepo(root);
   const branch = git ? (out(root, ['rev-parse', '--abbrev-ref', 'HEAD']) || '-') : '-';
+  if (!version) version = authorityVersion(root);
   if (!version) version = git ? (out(root, ['describe', '--tags', '--abbrev=0']) || '-') : '-';
   if (!version) version = '-';
   const lastCommit = git ? (out(root, ['log', '-1', '--pretty=format:%h %s']) || '-') : '-';
