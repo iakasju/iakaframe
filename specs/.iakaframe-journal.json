@@ -338,5 +338,15 @@
     "dirty": false,
     "files": 730,
     "note": "PAUSE fin de session 2026-07-22. 9 lots livres+pousses aujourd'hui, tous gate Legolas PASS, main propre (3663e4f), suite CLI 377->476. REPRISE ASAP = LANCER CH-A (voir section Reprise). Detail complet dans la section Reprise du travail ci-dessous."
+  },
+  {
+    "date": "2026-07-22 12:40",
+    "reason": "manual",
+    "version": "v0.6.1",
+    "branch": "main",
+    "commit": "b8c77e8 chore(iakaframe): etat des lieux (pause fin de session 2026-07-22)",
+    "dirty": true,
+    "files": 731,
+    "note": ""
   }
 ]
