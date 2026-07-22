@@ -44,12 +44,12 @@ livrable **final validé** est produit **dans le projet** qui le demande.
 
 ## Rangement des études graphiques (règle iakaframe — non négociable)
 Toute **étude / maquette / exploration** graphique (hypothèses H1/H2/H3…, planches de
-comparaison, pistes non retenues, itérations) se range dans le dépôt **mutualisé `iakagraph`**,
+comparaison, pistes non retenues, itérations) se range dans le dépôt **mutualisé `<graph>`**,
 sous **`etudes/<nom-du-projet>/`** — un sous-dossier par projet demandeur (ex.
-`iakagraph/etudes/portefeuille/widgets-igogo-H3.html`). **Jamais** éparpillées dans le projet
+`<graph>/etudes/portefeuille/widgets-igogo-H3.html`). **Jamais** éparpillées dans le projet
 demandeur, ni dans le portefeuille, ni dans un dossier de travail temporaire.
 - Les **livrables FINAUX validés** restent, eux, posés **dans le projet** qui les consomme
-  (cf. Étanchéité) ; l'étude qui y a mené vit dans `iakagraph/etudes/<projet>/`.
+  (cf. Étanchéité) ; l'étude qui y a mené vit dans `<graph>/etudes/<projet>/`.
 - Créer le sous-dossier `etudes/<projet>/` s'il n'existe pas ; y déposer chaque hypothèse.
 - **Vérification** : Aragorn (coordination projet) contrôle le respect de cette règle à la
   restitution d'un travail de Loki (cf. rôle Aragorn).

@@ -7,8 +7,12 @@ import { getJson } from '../lib/http.js';
 
 const DEFAULT_HOSTS = (process.env.IAKAFRAME_HOSTS && process.env.IAKAFRAME_HOSTS.split(",").map(s => s.trim()).filter(Boolean)) || ["localhost", "127.0.0.1"];
 
+// Port du service git : NEUTRE par defaut (3000 = defaut public Forgejo/Gitea), pilote par
+// IAKAFRAME_GIT_PORT — meme doctrine que IAKAFRAME_HOSTS.
+const GIT_PORT = Number(process.env.IAKAFRAME_GIT_PORT) || 3000;
+
 const SERVICES = [
-  { name: 'git (Forgejo)', port: 3001, path: '/api/v1/version',
+  { name: 'git (Forgejo)', port: GIT_PORT, path: '/api/v1/version',
     detail: b => (b && b.version) ? 'v' + b.version : '' },
   { name: 'Ollama', port: 11434, path: '/api/tags',
     detail: b => (b && Array.isArray(b.models)) ? `${b.models.length} modeles` : '' },
