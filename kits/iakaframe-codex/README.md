@@ -50,11 +50,11 @@ OpenAI (LiteLLM → Ollama) et tu crées **un profil par persona** (`codex --pro
 directrice : **local pour le volume de code, cloud pour le raisonnement critique**. Détail et
 exemple de `~/.codex/config.toml` dans `MODELES.md`.
 
-## iakaIDE — à venir pour Codex
+## iakacockpit — à venir pour Codex
 
-**iakaIDE** (l'app desktop portefeuille) est pour l'instant **orientée Claude** (elle lit
+**iakacockpit** (l'app desktop portefeuille) est pour l'instant **orientée Claude** (elle lit
 `.claude/agents`, etc.). Une incarnation **Codex** est **annoncée pour plus tard** : avec ce kit,
-ton ami a déjà la **méthode complète** ; iakaIDE viendra ensuite.
+ton ami a déjà la **méthode complète** ; iakacockpit viendra ensuite.
 
 ## Prérequis côté infra (à vérifier)
 

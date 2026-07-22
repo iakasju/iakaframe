@@ -30,7 +30,7 @@ Le publisher `iakalog.mjs` est **Node pur, zéro dépendance** (MQTT 3.1.1 sur T
 ```bash
 node iakalog.mjs --role user --content "question de l'utilisateur"
 node iakalog.mjs --role assistant --content "réponse de l'agent" --tokens 128
-node iakalog.mjs --role user --content "..." --royaume iakaide --agent Aragorn --conv conv-2026-06-21-001
+node iakalog.mjs --role user --content "..." --royaume iakacockpit --agent Aragorn --conv conv-2026-06-21-001
 ```
 
 `--royaume`, `--agent`, `--conv` retombent sur les variables `IAKALOG_*` si omis.
