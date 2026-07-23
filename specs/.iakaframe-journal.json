@@ -388,5 +388,15 @@
     "dirty": true,
     "files": 901,
     "note": "etape 1/4 objectif GUI: frame StefFrame2 structurellement complet (18 principleIds)"
+  },
+  {
+    "date": "2026-07-23 16:02",
+    "reason": "version",
+    "version": "v0.20.3",
+    "branch": "main",
+    "commit": "5a8f811 merge(vendor): vendor-check au vert par le vrai canon - golden kit regenere (parite CLI<->coeur) + fixtureTable famille workflow (drift 2->0, garde mordante) - gate Legolas PASS",
+    "dirty": true,
+    "files": 902,
+    "note": "lot canon: vendor-check au vert par le vrai canon (drift 2->0) - cloture objectif chargement frame GUI"
   }
 ]

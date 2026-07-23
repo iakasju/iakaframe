@@ -1,23 +1,26 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-22 15:33 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-23 16:02 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.20.2 |
+| Version | v0.20.3 |
 | Branche | main |
-| Dernier commit | 1bc1f14 merge(frame): StefFrame2 structurellement complet - retablit 18 principleIds (2 principes canon rapatries + anonymises) - gate Legolas PASS |
+| Dernier commit | 5a8f811 merge(vendor): vendor-check au vert par le vrai canon - golden kit regenere (parite CLI<->coeur) + fixtureTable famille workflow (drift 2->0, garde mordante) - gate Legolas PASS |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 901 |
-| Note | etape 1/4 objectif GUI: frame StefFrame2 structurellement complet (18 principleIds) |
+| Fichiers (hors .git/node_modules) | 902 |
+| Note | lot canon: vendor-check au vert par le vrai canon (drift 2->0) - cloture objectif chargement frame GUI |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `5a8f811` | 2026-07-23 | merge(vendor): vendor-check au vert par le vrai canon - golden kit regenere (parite CLI<->coeur) + fixtureTable famille workflow (drift 2->0, garde mordante) - gate Legolas PASS |
+| `a8953f5` | 2026-07-23 | fix(cli): vendor-check au vert par le vrai canon (golden threade + famille workflow) |
+| `fcdedca` | 2026-07-22 | chore(iakaframe): update etat des lieux + commit global (version v0.20.2) |
 | `1bc1f14` | 2026-07-22 | merge(frame): StefFrame2 structurellement complet - retablit 18 principleIds (2 principes canon rapatries + anonymises) - gate Legolas PASS |
 | `86bba59` | 2026-07-22 | feat(frame): porter principleIds de la methode StefFrame2 de 16 a 18 |
 | `eb70a1e` | 2026-07-22 | feat(frame): rapatrier canon-avant-citation + preuve-avant-declaration anonymises |
@@ -25,9 +28,6 @@
 | `746fde7` | 2026-07-22 | chore(iakaframe): update etat des lieux + commit global (version v0.20.1) |
 | `651c52b` | 2026-07-22 | merge(frame): parite miroir StefFrame2 - 40 fuites -> 0 (tokenisation miroir + rename canon iakaIDE->iakacockpit + D3 neutralisation identite/ports) - gate Legolas PASS |
 | `1545e0d` | 2026-07-22 | test(frame): verrouille le miroir StefFrame2 a 0 fuite + documente le mapping (D4/C5/C7) |
-| `29c167b` | 2026-07-22 | fix(frame): tokenise le miroir StefFrame2 pour eteindre les 40 fuites bloquantes |
-| `2f0c758` | 2026-07-22 | fix(canon): neutralise port git prive et prefixe d'identite en dur (D3) |
-| `05adb7e` | 2026-07-22 | refactor(canon): renomme le produit perime iakaIDE -> iakacockpit |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-23 16:02 | version | v0.20.3 | main | lot canon: vendor-check au vert par le vrai canon (drift 2->0) - cloture objectif chargement frame GUI |
 | 2026-07-22 15:33 | version | v0.20.2 | main | etape 1/4 objectif GUI: frame StefFrame2 structurellement complet (18 principleIds) |
 | 2026-07-22 14:44 | version | v0.20.1 | main | parite miroir StefFrame2 (40 fuites -> 0) + bump patch autorite |
 | 2026-07-22 13:23 | manual | v0.20.0 | main |  |
