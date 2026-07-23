@@ -408,5 +408,25 @@
     "dirty": true,
     "files": 902,
     "note": "sync doc compte fixtures (17->18 copies) - cloture collaterale objectif GUI"
+  },
+  {
+    "date": "2026-07-23 18:45",
+    "reason": "pause",
+    "version": "v0.20.4",
+    "branch": "main",
+    "commit": "70adeb0 chore(iakaframe): update etat des lieux + commit global (version v0.20.4)",
+    "dirty": false,
+    "files": 902,
+    "note": "Fin de session 2026-07-23: objectif 'charger le frame dans le GUI' livre (5 etapes + lot canon + doc + B2), 9 gates Legolas PASS, iakaframe v0.20.4 / GUI v0.1.4, vendor-check drift:0 deux depots, menage complet des branches mergees."
+  },
+  {
+    "date": "2026-07-23 18:51",
+    "reason": "pause",
+    "version": "v0.20.4",
+    "branch": "main",
+    "commit": "70adeb0 chore(iakaframe): update etat des lieux + commit global (version v0.20.4)",
+    "dirty": true,
+    "files": 902,
+    "note": "reprise de session 2026-07-23 : solde du snapshot de pause + purge du backlog"
   }
 ]

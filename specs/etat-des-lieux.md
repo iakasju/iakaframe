@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-23 16:04 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-23 18:51 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,15 +9,16 @@
 |---|---|
 | Version | v0.20.4 |
 | Branche | main |
-| Dernier commit | 00b03cb merge(docs): sync compte fixtures vendor-check 17->18 copies (famille workflow) - Nathalie |
+| Dernier commit | 70adeb0 chore(iakaframe): update etat des lieux + commit global (version v0.20.4) |
 | Arbre | MODIFICATIONS NON COMMITEES |
 | Fichiers (hors .git/node_modules) | 902 |
-| Note | sync doc compte fixtures (17->18 copies) - cloture collaterale objectif GUI |
+| Note | reprise de session 2026-07-23 : solde du snapshot de pause + purge du backlog |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `70adeb0` | 2026-07-23 | chore(iakaframe): update etat des lieux + commit global (version v0.20.4) |
 | `00b03cb` | 2026-07-23 | merge(docs): sync compte fixtures vendor-check 17->18 copies (famille workflow) - Nathalie |
 | `3ac27e2` | 2026-07-23 | docs(commandes): synchro compte vendor-check 17->18 copies (famille workflow) |
 | `058d9aa` | 2026-07-23 | chore(iakaframe): update etat des lieux + commit global (version v0.20.3) |
@@ -27,7 +28,6 @@
 | `1bc1f14` | 2026-07-22 | merge(frame): StefFrame2 structurellement complet - retablit 18 principleIds (2 principes canon rapatries + anonymises) - gate Legolas PASS |
 | `86bba59` | 2026-07-22 | feat(frame): porter principleIds de la methode StefFrame2 de 16 a 18 |
 | `eb70a1e` | 2026-07-22 | feat(frame): rapatrier canon-avant-citation + preuve-avant-declaration anonymises |
-| `242319f` | 2026-07-22 | docs(instructions): cadrage frame-stefframe2-structure-canon (Gandalf P1) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,8 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-23 18:51 | pause | v0.20.4 | main | reprise de session 2026-07-23 : solde du snapshot de pause + purge du backlog |
+| 2026-07-23 18:45 | pause | v0.20.4 | main | Fin de session 2026-07-23: objectif 'charger le frame dans le GUI' livre (5 etapes + lot canon + doc + B2), 9 gates Legolas PASS, iakaframe v0.20.4 / GUI v0.1.4, vendor-check drift:0 deux depots, menage complet des branches mergees. |
 | 2026-07-23 16:04 | version | v0.20.4 | main | sync doc compte fixtures (17->18 copies) - cloture collaterale objectif GUI |
 | 2026-07-23 16:02 | version | v0.20.3 | main | lot canon: vendor-check au vert par le vrai canon (drift 2->0) - cloture objectif chargement frame GUI |
 | 2026-07-22 15:33 | version | v0.20.2 | main | etape 1/4 objectif GUI: frame StefFrame2 structurellement complet (18 principleIds) |
