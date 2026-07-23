@@ -398,5 +398,15 @@
     "dirty": true,
     "files": 902,
     "note": "lot canon: vendor-check au vert par le vrai canon (drift 2->0) - cloture objectif chargement frame GUI"
+  },
+  {
+    "date": "2026-07-23 16:04",
+    "reason": "version",
+    "version": "v0.20.4",
+    "branch": "main",
+    "commit": "00b03cb merge(docs): sync compte fixtures vendor-check 17->18 copies (famille workflow) - Nathalie",
+    "dirty": true,
+    "files": 902,
+    "note": "sync doc compte fixtures (17->18 copies) - cloture collaterale objectif GUI"
   }
 ]
