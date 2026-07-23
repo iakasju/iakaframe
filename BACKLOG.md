@@ -42,6 +42,15 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 - [ ] **Commentaire trompeur `frameworkVersion()` (`cli/src/lib/kit.js:80`)** — **re-vérifié faux le 2026-07-23**. Le commentaire annonce `_bundled/VERSION (publie)` alors que le code lit `path.join(root, 'VERSION')`. Tolérable non bloquant relevé au gate du lot dette-version ; laissé intact par Gimli pour rester chirurgical. À solder dans un prochain lot de nettoyage. *Item Gimli, coût quasi nul.*
 
+### Réserves d'exécution — lot `frame-builder` (Fëanor), gate P1 PASS le 2026-07-23
+
+Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et gate de cadrage Legolas PASS**, 0 disqualifiant, 9 arbitrages décideur intégrés. Réserves **tolérables** relevées par Legolas, à porter à l'attention de Gimli à l'exécution (aucune ne justifie un retour cadrage) :
+
+- [ ] **T-1 — mesurabilité partielle de A24 (« corpus relu »)** : le « relu » du corpus mondial n'est pas machine-vérifiable — sa qualité repose sur la relecture au gate final, pas sur une suite verte. La part **structurelle** (6 frameworks + 2 contrastes, chaque affirmation sourcée + horodatée) reste, elle, objectivement constatable.
+- [ ] **T-2 — l'axe des degrés D0/D1/D3 (§ 5, § 7) peut se lire à la hâte comme un phasage** alors que le lot s'exécute **entièrement à D3** (les degrés inférieurs ne sont qu'une trace de raisonnement, § 4.2). Un bandeau « le lot s'exécute à D3 » en tête de § 5 lèverait tout doute. Cosmétique.
+- [ ] **T-3 — A4 porte les deux inventaires (`18+4 en D1` ; `20+4 en D3`)** : le lot étant D3, **seul `20+4` s'applique au gate** ; la valeur D1 est informative. N'asserter que `20+4` à l'exécution.
+- [ ] **T-4 — tension charte↔outillage (A26 « conçoit ET génère » vs R14 scaffolding d'un frame vierge hors périmètre)** : ce n'est **pas** une contradiction — l'instruction la nomme, la borne (réutilise l'existant, conseil+génération sur structure connue) et laisse R14 **ouverte** comme inconnue à éprouver tôt (conforme à l'arbitrage 9). À surveiller en réalisation.
+
 ## Fait
 
 ### Soldés et vérifiés à la purge du 2026-07-23
