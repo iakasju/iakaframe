@@ -313,9 +313,15 @@ export function emitsForNode(node) {
 }
 
 // Serialise un descripteur de kit au format canonique du coeur (serializeKitMd @iakaframe/core) :
-// ordre id, methodId, teamId, bindingId (si present), node, emits ; listes quotees ; corps standard.
+// ordre id, methodId, teamId, bindingId (si present), node, emits ; listes quotees.
 // Verrouille byte-a-byte par cli/test/parity-kit.test.js (golden partage core<->CLI).
-export function serializeKit(d) {
+//
+// LE CORPS EST THREADE, pas genere (parite exacte avec serializeKitMd(k, body = "") du coeur,
+// frontmatter.ts:677) : le corps authored de kits/<id>.md est une DONNEE qui traverse, jamais un
+// stub jete. Corps par defaut = `# Kit <id>\n` (kit assemble sans source, pas de regression) ;
+// corps passe explicitement = rendu tel quel. Ceci ferme la regression de parite CLI<->coeur qui
+// figeait un golden-stub et exposait `assemble --write --force` a ecraser le corps Manifeste.
+export function serializeKit(d, body = `# Kit ${d.id}\n`) {
   const fields = [
     { key: 'id', kind: 'scalar', value: d.id },
     { key: 'methodId', kind: 'scalar', value: d.methodId },
@@ -324,5 +330,5 @@ export function serializeKit(d) {
     { key: 'node', kind: 'scalar', value: d.node },
     (d.emits !== undefined ? { key: 'emits', kind: 'list', value: d.emits } : undefined),
   ];
-  return buildDocument(fields, `# Kit ${d.id}\n`);
+  return buildDocument(fields, body);
 }

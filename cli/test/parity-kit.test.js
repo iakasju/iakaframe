@@ -9,10 +9,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { assemble, serializeKit, emitsForNode } from '../src/lib/library.js';
+import { parseFrontmatter } from '../src/lib/frontmatter.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..'); // vraie bibliotheque du depot iakaframe
 const GOLDEN = path.join(HERE, 'fixtures', 'kit.iakaframe-claude.golden.md');
+const KIT_CANON = path.join(REPO, 'kits', 'iakaframe-claude.md');
 
 // Retire l'en-tete de documentation du golden (tout ce qui precede la 1re ligne `---`).
 function expectedFromGolden() {
@@ -25,7 +27,11 @@ function expectedFromGolden() {
 test('parite core<->CLI : assemble iakaframe/iakaframe-8 == golden (byte-a-byte)', () => {
   const res = assemble('iakaframe', 'iakaframe-8', null, REPO, { node: 'claude' });
   assert.equal(res.ok, true, res.error || 'assemblage attendu OK');
-  const out = serializeKit(res.descriptor);
+  // Le corps est THREADE depuis le canon (miroir de kitMd.test.ts:37-41 du coeur, qui injecte le
+  // corps parse de la fixture) : serializeKit ne genere plus un stub, il fait traverser le corps
+  // authored de kits/iakaframe-claude.md. Le golden = ce corps ; l'egalite byte reste verrouillee.
+  const body = parseFrontmatter(fs.readFileSync(KIT_CANON, 'utf8')).body;
+  const out = serializeKit(res.descriptor, body);
   assert.equal(out, expectedFromGolden());
 });
 

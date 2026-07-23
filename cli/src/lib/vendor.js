@@ -12,7 +12,7 @@
 // depots ». C'est le maximum atteignable sans depot tiers d'ancrage.
 //
 // DEUX NATURES DE FIXTURES, deux traitements (§ 3.3) — ne jamais les confondre :
-//   - 17 COPIES (8 personas + 8 goldens + 1 binding) -> comparaison BYTE-A-BYTE ;
+//   - 18 COPIES (8 personas + 8 goldens + 1 binding + 1 workflow) -> comparaison BYTE-A-BYTE ;
 //   - 4 DERIVEES (methode, methode wrapped, team, kit) -> ce sont des formes canoniques
 //     SERIALISEES, pas des copies. Comparaison de FRONTMATTER SEMANTIQUE, corps EXEMPTE.
 //     Exception : le kit, seul cas ou une egalite byte est definie, et elle l'est contre le
@@ -27,7 +27,7 @@ import { generateAgent, loadDefaultBinding } from './generate-agents.js';
 // Meme liste et meme ordre que le test d'inventaire de cli/test/parite-generateurs.test.js.
 export const IDS = ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
 
-export const EXPECTED_COPIES = 17;   // 8 personas + 8 goldens + 1 binding
+export const EXPECTED_COPIES = 18;   // 8 personas + 8 goldens + 1 binding + 1 workflow
 export const EXPECTED_DERIVED = 4;   // methode, methode wrapped, team, kit
 
 const FIXTURES_REL = path.join('packages', 'core', '__tests__', 'fixtures');
@@ -70,7 +70,7 @@ export function resolveGuiRoot(root, env = process.env) {
   return null;
 }
 
-// --- Table des 21 fixtures (§ 4.2, source de verite du lot) -----------------------------------
+// --- Table des 22 fixtures (§ 4.2, source de verite du lot) -----------------------------------
 // `kind` : 'copy' (byte-a-byte) | 'derived' (frontmatter semantique, corps exempte).
 // `mode` pour les derivees : 'frontmatter' | 'bytes' (le kit seul).
 export function fixtureTable() {
@@ -91,6 +91,13 @@ export function fixtureTable() {
     family: 'binding', kind: 'copy',
     fixture: path.join('binding', 'iakaframe-claude-default.md'),
     source: path.join('bindings', 'iakaframe-claude-default.md'),
+  });
+  // Workflow : COPIE byte-a-byte du canon (etape 3bis, reconciliation GUI <- frame). Le corps
+  // n'est PAS exempte : c'est une copie conforme, pas une derivee serialisee.
+  rows.push({
+    family: 'workflow', kind: 'copy',
+    fixture: 'workflow.iakaframe-3phases.md',
+    source: path.join('library', 'workflows', 'iakaframe-3phases.md'),
   });
   rows.push({
     family: 'methode', kind: 'derived', mode: 'frontmatter',
@@ -136,7 +143,7 @@ export function frontmatterDiff(a, b) {
 
 // --- Verification complete --------------------------------------------------------------------
 // Retourne un rapport C-JSON-able. `ok` ne vaut JAMAIS true sans verification reelle (A.1/A19) :
-// il implique status 'clean' ET checked == 17 ET derived == 4 — l'attendu EXACT, jamais un minimum.
+// il implique status 'clean' ET checked == 18 ET derived == 4 — l'attendu EXACT, jamais un minimum.
 export function checkVendor({ root, guiRoot = undefined, env = process.env } = {}) {
   const gui = guiRoot === undefined ? resolveGuiRoot(root, env) : guiRoot;
   if (!gui) {

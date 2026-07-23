@@ -6,6 +6,7 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { table } from '../lib/table.js';
 import { assemble, libraryRoot, serializeKit } from '../lib/library.js';
+import { parseFrontmatter } from '../lib/frontmatter.js';
 import { emit, fail, ok, printJson } from '../lib/output.js';
 
 export function runAssemble(argv) {
@@ -55,8 +56,18 @@ export function runAssemble(argv) {
     }
     // Sortie alignee byte-a-byte sur @iakaframe/core (serializeKitMd) : quoting des listes,
     // emits en globs, id <methodId>-<node>. Ancre de parite : cli/test/parity-kit.test.js.
+    // PRESERVATION DU CORPS AUTHORED : si la cible existe deja, on RETHREADE son corps (le
+    // frontmatter est reserialise depuis le descripteur, mais le corps Manifeste authored survit).
+    // Ceci neutralise le bug --force destructif (serializeKit ne rend plus un stub qui ecraserait
+    // le canon) : --write --force sur kits/<id>.md devient un no-op byte-exact. Cible absente ->
+    // corps par defaut (stub `# Kit <id>`), comportement inchange pour un kit tout neuf.
+    const body = fs.existsSync(dest)
+      ? parseFrontmatter(fs.readFileSync(dest, 'utf8')).body
+      : undefined;
     fs.mkdirSync(path.dirname(dest), { recursive: true });
-    fs.writeFileSync(dest, serializeKit(res.descriptor));
+    fs.writeFileSync(dest, body === undefined
+      ? serializeKit(res.descriptor)
+      : serializeKit(res.descriptor, body));
   }
 
   // Succes (rupture § 8) : enveloppe { ok:true, descriptor:{...} } au lieu du descripteur nu.
