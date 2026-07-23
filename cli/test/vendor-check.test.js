@@ -50,6 +50,9 @@ function makeCleanMirror() {
   }
   fs.copyFileSync(path.join(REPO, 'bindings', 'iakaframe-claude-default.md'),
     path.join(fx, 'binding', 'iakaframe-claude-default.md'));
+  // Workflow : copie byte-a-byte du canon (18e copie, etape 3bis). Le miroir conforme doit la porter.
+  fs.copyFileSync(path.join(REPO, 'library', 'workflows', 'iakaframe-3phases.md'),
+    path.join(fx, 'workflow.iakaframe-3phases.md'));
 
   const methodRaw = fs.readFileSync(path.join(REPO, 'methods', 'iakaframe.md'), 'utf8');
   fs.writeFileSync(path.join(fx, 'method.iakaframe.md'), methodRaw);
@@ -66,12 +69,12 @@ function makeCleanMirror() {
 const fixturePath = (m, rel) => path.join(m.fx, rel);
 const run = (m, extra = {}) => checkVendor({ root: REPO, guiRoot: m.root, ...extra });
 
-test('A2 : miroir conforme -> ok, checked == 17 et derived == 4 (attendu EXACT)', () => {
+test('A2 : miroir conforme -> ok, checked == 18 et derived == 4 (attendu EXACT)', () => {
   const m = makeCleanMirror();
   const res = run(m);
   assert.equal(res.ok, true, 'miroir synthetique conforme attendu vert : ' + JSON.stringify(res.files, null, 2));
   assert.equal(res.status, 'clean');
-  assert.equal(res.checked, 17);
+  assert.equal(res.checked, 18);
   assert.equal(res.derived, 4);
   assert.equal(res.drift, 0);
 });
@@ -167,11 +170,11 @@ test('A7 : fixture supprimee -> rouge (jamais un compte allege qui validerait un
   fs.rmSync(fixturePath(m, path.join('personas', 'loki.md')));
   const res = run(m);
   assert.equal(res.ok, false);
-  assert.equal(res.checked, 16, 'la fixture manquante ne doit pas etre comptee comme verifiee');
+  assert.equal(res.checked, 17, 'la fixture manquante ne doit pas etre comptee comme verifiee');
   assert.ok(res.files.some((f) => f.reasons.some((r) => r.reason === 'fixture-manquante')));
 });
 
-test('A19 : ok:true implique checked == 17 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
+test('A19 : ok:true implique checked == 18 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
   const m = makeCleanMirror();
   fs.rmSync(fixturePath(m, 'team.iakaframe-8.md'));
   const res = run(m);
@@ -196,17 +199,38 @@ test('A20 : derivee - frontmatter altere => rouge ; corps altere seul => vert', 
   assert.ok(f.reasons.some((r) => r.reason === 'frontmatter-different'));
 });
 
-test('A21 : la reference du kit est le golden CLI DEPOUILLE, jamais kits/iakaframe-claude.md', () => {
+// A21 — REFRAME (garde-vendor-check §1.5). L'ancienne assertion (« golden depouille != kits/ »)
+// est devenue mathematiquement fausse, et c'est INEVITABLE : la fixture GUI est byte-fidele au
+// canon kits/iakaframe-claude.md, le vert exige golden-depouille == fixture GUI, donc
+// golden-depouille == kits/. Prouver l'ancien rouge encoderait l'etat PERIME (golden stub != canon
+// riche). Le reframe ne fait PAS taire la garde : il remplace l'egalite fortuite par la propriete
+// MORDANTE qu'A21 protegeait — un drift kit -> rouge.
+test('A21 (reframe) : reference kit = golden CLI DEPOUILLE, qui vaut desormais kits/iakaframe-claude.md (corps threade) ; drift d 1 octet -> ROUGE', () => {
   const m = makeCleanMirror();
   const kitCanon = path.join(REPO, 'kits', 'iakaframe-claude.md');
   assert.ok(fs.existsSync(kitCanon), 'kits/iakaframe-claude.md attendu present');
+  // ANCRE INCHANGEE : la reference reste le golden CLI DEPOUILLE (fixtureTable, strip:true).
   // Le miroir conforme (golden depouille) est vert ...
   assert.equal(run(m).ok, true);
-  // ... et pointer la fixture sur kits/ la rend ROUGE : les deux ne sont PAS en relation d'egalite.
+
+  // INVARIANT NOUVEAU (consequence FORCEE du corps threade) : golden-depouille == kits/. Pointer
+  // la fixture sur le canon est donc VERT (coherent), non plus rouge : serializeKit thread le corps
+  // authored, le golden le reflete, la fixture GUI est byte-fidele au canon.
   fs.copyFileSync(kitCanon, fixturePath(m, 'kit.iakaframe-claude.md'));
+  assert.equal(run(m).ok, true,
+    'golden depouille == kits/iakaframe-claude.md : pointer la fixture sur le canon reste vert');
+
+  // MORSURE CONSERVEE : la garde n'est PAS neutralisee. Un drift d UN octet sur la fixture kit ->
+  // ROUGE (family kit, contenu-different-vs-golden-depouille) — la propriete qu'A21 protegeait,
+  // exprimee sur ce qui reste vrai et discriminant apres le reframe.
+  const p = fixturePath(m, 'kit.iakaframe-claude.md');
+  fs.writeFileSync(p, fs.readFileSync(p, 'utf8') + ' ');
   const res = run(m);
-  assert.equal(res.ok, false, 'kits/iakaframe-claude.md ne doit JAMAIS etre la reference du kit');
-  assert.ok(res.files.some((f) => f.family === 'kit'));
+  assert.equal(res.ok, false, 'un drift d 1 octet sur la fixture kit DOIT mordre');
+  const kit = res.files.find((f) => f.family === 'kit');
+  assert.ok(kit, 'la fixture kit driftee doit etre signalee');
+  assert.ok(kit.reasons.some((r) => r.reason === 'contenu-different-vs-golden-depouille'),
+    'le drift kit doit produire contenu-different-vs-golden-depouille');
 });
 
 test('A8/A10 : frere absent -> ok:false + status skipped + exit 0 ; IAKAFRAME_GUI_ROOT prioritaire', () => {
@@ -507,7 +531,7 @@ test('C-7 : exhaustivite - toute raison emise par vendor.js a un geste (pilote p
   }
 
   // ... et aucune combinaison raison x famille ne doit retomber dans le filet « inconnu ».
-  const familles = ['personas', 'goldens', 'binding', 'methode', 'methode-wrapped', 'team', 'kit', 'inconnue'];
+  const familles = ['personas', 'goldens', 'binding', 'workflow', 'methode', 'methode-wrapped', 'team', 'kit', 'inconnue'];
   for (const reason of emitted) {
     for (const family of familles) {
       const rem = remediationFor({
