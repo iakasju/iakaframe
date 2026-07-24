@@ -1,6 +1,6 @@
 // iakaframe list [type] - inventaire du pool + assemblages PAR SCAN (invariant I2). La commande =
 // parsing des args + delegation a lib/library.js (inventory/scan) + rendu via lib/output.js. Sans
-// type : resume des 12 collections. Avec type : ids + libelles tries. Sortie machine C-JSON (§ 2) :
+// type : resume des 13 collections. Avec type : ids + libelles tries. Sortie machine C-JSON (§ 2) :
 //   list --json        -> { ok, count, collections:[{collection,count,ids}], root }
 //   list <type> --json -> { ok, count, items:[{id,label,path}], root, type }
 import { parseArgs } from 'node:util';
