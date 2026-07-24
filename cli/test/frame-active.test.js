@@ -9,7 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   HARDWIRED_DEFAULT_FRAME, parseKeyValueFile, activeFrameId, activeTeamId,
-  readPortfolioDefaultFrame, resolveFrameForInit, frameVersionOf,
+  readPortfolioDefaultFrame, resolveFrameForInit, frameVersionOf, frameCoherence,
 } from '../src/lib/frame-active.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -90,6 +90,31 @@ test('resolveFrameForInit : repli cable iakaframe sans marqueur, herite avec mar
   const herite = resolveFrameForInit(proj, root, 'vTOOL');
   assert.equal(herite.frame, 'trio');
   assert.equal(herite.frameVersion, 'v9.9.9'); // AR-3 : version DU DESCRIPTEUR trio
+});
+
+test('frameCoherence : coherent / divergent / statuts neutres (A-coherence)', () => {
+  const root = synthRoot(); // frame trio -> methodId iakaframe / teamId trio
+  const proj = tmp();
+  // Pas de pointeur -> neutre
+  assert.equal(frameCoherence(proj, root).status, 'no-pointer');
+  // Pointeur present, pas de kit deploye -> neutre
+  fs.writeFileSync(path.join(proj, '.iakaframe'), 'frame=trio\n');
+  assert.equal(frameCoherence(proj, root).status, 'no-kit');
+  // kit deploye COHERENT (method iakaframe / team trio)
+  const claude = path.join(proj, '.claude');
+  fs.mkdirSync(claude, { recursive: true });
+  fs.writeFileSync(path.join(claude, 'iakaframe-kit.json'),
+    JSON.stringify({ methodId: 'iakaframe', teamId: 'trio', node: 'claude' }));
+  const okc = frameCoherence(proj, root);
+  assert.equal(okc.ok, true);
+  assert.equal(okc.status, 'coherent');
+  // kit deploye DIVERGENT (team iakaframe-8 alors que la frame trio veut trio)
+  fs.writeFileSync(path.join(claude, 'iakaframe-kit.json'),
+    JSON.stringify({ methodId: 'iakaframe', teamId: 'iakaframe-8', node: 'claude' }));
+  const div = frameCoherence(proj, root);
+  assert.equal(div.ok, false);
+  assert.equal(div.status, 'divergent');
+  assert.match(div.reason, /diverge/);
 });
 
 test('init : le marqueur .iakaframe porte frame= ET frameVersion= en plus des cles existantes (A4)', () => {

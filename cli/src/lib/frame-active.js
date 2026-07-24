@@ -89,6 +89,38 @@ export function activeFrameId(projectDir) {
   return id || HARDWIRED_DEFAULT_FRAME;
 }
 
+// Garde de COHERENCE (A-cohérence, § 7) : le pointeur d'INTENTION `.iakaframe`.frame et la
+// MATERIALISATION deployee `.claude/iakaframe-kit.json` (method/team) doivent designer la MEME
+// frame quand les DEUX existent. Le descripteur de la frame active porte (methodId, teamId) ; le
+// kit.json porte (methodId, teamId) de l'assemblage deploye. Divergence = SIGNALEE (jamais un jet).
+// Statuts : 'no-pointer' (pas de frame active) / 'no-kit' (jamais deploye) / 'no-descriptor'
+// (frame introuvable) / 'coherent' / 'divergent'. ok=false uniquement sur 'divergent'.
+export function frameCoherence(projectDir, root) {
+  if (!projectDir) return { ok: true, status: 'no-pointer' };
+  const proj = path.resolve(projectDir);
+  const kv = parseKeyValueFile(path.join(proj, '.iakaframe'));
+  const frameId = (kv.frame || '').trim();
+  if (!frameId) return { ok: true, status: 'no-pointer' };
+
+  let kit = null;
+  try { kit = JSON.parse(fs.readFileSync(path.join(proj, '.claude', 'iakaframe-kit.json'), 'utf8')); }
+  catch { return { ok: true, status: 'no-kit', frame: frameId }; }
+
+  const desc = frameDescriptor(frameId, root);
+  if (!desc || !desc.data) return { ok: true, status: 'no-descriptor', frame: frameId };
+
+  const want = { methodId: desc.data.methodId, teamId: desc.data.teamId };
+  const got = { methodId: kit.methodId, teamId: kit.teamId };
+  if (want.methodId === got.methodId && want.teamId === got.teamId) {
+    return { ok: true, status: 'coherent', frame: frameId, methodId: got.methodId, teamId: got.teamId };
+  }
+  return {
+    ok: false, status: 'divergent', frame: frameId,
+    reason: `.iakaframe.frame=${frameId} (method ${want.methodId}/team ${want.teamId}) diverge de .claude/iakaframe-kit.json (method ${got.methodId}/team ${got.teamId})`,
+    expected: want, actual: got,
+  };
+}
+
 // TeamId de la frame active d'un projet (D-E) : descripteur de la frame active -> `teamId`. Repli :
 // si le descripteur (ou son teamId) est introuvable, retombe sur la team du default, puis null.
 export function activeTeamId(projectDir, root) {
