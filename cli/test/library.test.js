@@ -18,11 +18,12 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIX = path.join(HERE, 'fixtures', 'library');
 const REPO = path.join(HERE, '..', '..'); // depot iakaframe (vraie bibliotheque)
 
-test('COLLECTIONS : 12 types, dont skills en mode dossier', () => {
-  assert.equal(COLLECTIONS.length, 12);
-  assert.equal(COLLECTION_TYPES.length, 12);
+test('COLLECTIONS : 13 types (dont frames, AR-1), skills en mode dossier', () => {
+  assert.equal(COLLECTIONS.length, 13);
+  assert.equal(COLLECTION_TYPES.length, 13);
   assert.equal(collectionOf('skills').kind, 'skill');
   assert.equal(collectionOf('personas').kind, 'flat');
+  assert.equal(collectionOf('frames').kind, 'flat');   // AR-1 : frames = collection plate
   assert.equal(collectionOf('bidon'), null);
 });
 
@@ -186,6 +187,35 @@ test('vraie bibliotheque : team 7 personas (helm retire) + coordinator aragorn -
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });
   }
+});
+
+// --- Reservoir de frames (AR-1) : type `frames` de 1re classe ----------------------------
+test('frames : le descripteur default iakaframe est resolu (A3)', () => {
+  const d = readEntry('frames', 'iakaframe', REPO);
+  assert.ok(d, 'frames/iakaframe.md doit exister');
+  assert.equal(d.data.methodId, 'iakaframe');
+  assert.equal(d.data.teamId, 'iakaframe-8');
+  assert.equal(d.data.default, true);
+  assert.ok(d.data.version, 'le descripteur porte une version (AR-3)');
+  // scan de la collection frames : le default present, le sous-dossier releases/ IGNORE (flat).
+  const ids = scan('frames', REPO).map(e => e.id);
+  assert.ok(ids.includes('iakaframe'));
+  assert.ok(!ids.includes('releases'), 'sous-dossier releases/ hors scan flat');
+});
+
+test('checkRefs/checkSchema : frame (methodId∈methods, teamId∈teams)', () => {
+  const ok = readEntry('frames', 'iakaframe', REPO);
+  assert.equal(checkRefs('frame', ok.data, REPO).ok, true);
+  assert.equal(checkSchema('frame', ok.data).ok, true);
+
+  const broken = { id: 'x', methodId: 'iakaframe', teamId: 't_fantome' };
+  const r = checkRefs('frame', broken, REPO);
+  assert.equal(r.ok, false);
+  assert.ok(r.missing.some(m => m.field === 'teamId' && m.id === 't_fantome'));
+
+  const incomplete = checkSchema('frame', { id: 'x' });
+  assert.equal(incomplete.ok, false);
+  assert.deepEqual(incomplete.missing, ['methodId', 'teamId']);
 });
 
 test('libraryRoot : --root prioritaire', () => {

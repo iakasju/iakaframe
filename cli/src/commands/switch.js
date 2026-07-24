@@ -6,6 +6,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { assemble, libraryRoot, readEntry, toArray } from '../lib/library.js';
+import { frameCoherence } from '../lib/frame-active.js';
 import { emit, fail, ok } from '../lib/output.js';
 
 function copyDir(src, dst) {
@@ -92,13 +93,20 @@ export function runSwitch(argv) {
   };
   fs.writeFileSync(path.join(claudeDir, 'iakaframe-kit.json'), JSON.stringify(marker, null, 2) + '\n');
 
-  const out = { ...marker, path: claudeDir, personas: deployed, skills: [...skillsDeployed], backup };
+  // Garde de COHERENCE (A-cohérence, reservoir-de-frames.md § 7) : cette bascule (backlog) n'ecrit
+  // PAS encore .iakaframe.frame (§ 9). Si un pointeur de frame active existe, on CONSTATE et SIGNALE
+  // une divergence entre l'INTENTION (.iakaframe.frame) et la MATERIALISATION qu'on vient d'ecrire
+  // (iakaframe-kit.json). Non bloquant : un simple avertissement (le geste user reste souverain).
+  const coherence = frameCoherence(projectDir, root);
+
+  const out = { ...marker, path: claudeDir, personas: deployed, skills: [...skillsDeployed], backup, coherence };
   emit(values.json, ok(out), () => {
     console.log(`bascule ${projectDir} → méthode ${res.method.id} / team ${res.team.id} (node ${node})`);
     console.log(`  personas déployées : ${deployed.join(', ')}`);
     console.log(`  skills déployées   : ${[...skillsDeployed].join(', ') || '(aucune)'}`);
     if (backup) console.log(`  sauvegarde : ${backup}  (rollback : iakaframe use --rollback --path ${projectDir})`);
     console.log(`  marqueur : .claude/iakaframe-kit.json`);
+    if (coherence.status === 'divergent') console.log(`  ⚠ cohérence : ${coherence.reason}`);
   });
 }
 

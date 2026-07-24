@@ -25,6 +25,11 @@ export const COLLECTIONS = [
   { type: 'methods',    dir: 'methods',            kind: 'flat',  label: 'name' },
   { type: 'bindings',   dir: 'bindings',           kind: 'flat',  label: 'id' },
   { type: 'kits',       dir: 'kits',               kind: 'flat',  label: 'id' },
+  // frames : assemblage NOMME (method + team) piochant dans la library partagee (AR-1, type de
+  // 1re classe). Collection PLATE a la racine, miroir de teams/methods/bindings. `dir: frames`
+  // co-existe avec le sous-dossier frames/releases/ (exports) : le scan `flat` ne lit que les
+  // *.md directs, jamais les sous-dossiers. Reservoir de frames (reservoir-de-frames.md).
+  { type: 'frames',     dir: 'frames',             kind: 'flat',  label: 'name' },
 ];
 
 export const COLLECTION_TYPES = COLLECTIONS.map(c => c.type);
@@ -103,7 +108,7 @@ export function scan(type, root) {
   return out.sort((a, b) => a.id.localeCompare(b.id));
 }
 
-// Inventaire resume des 12 collections : [{ collection, count, ids }] (pour `list` sans type).
+// Inventaire resume des 13 collections : [{ collection, count, ids }] (pour `list` sans type).
 // Extrait de commands/list.js (frontiere commands/ <-> lib/, § 4). Zero effet de bord.
 export function inventory(root) {
   return COLLECTIONS.map((c) => {
@@ -192,6 +197,11 @@ export function checkRefs(kind, data, root) {
         badRunners.push({ personaId: a.personaId, runner: a.runner });
       }
     }
+  } else if (kind === 'frame') {
+    // Frame (AR-1) : un descripteur ne porte QUE des ids (I1/E2) vers method + team. Integrite :
+    // methodId ∈ methods, teamId ∈ teams. Aucun corps recopie, aucune persona nommee.
+    need('methodId', data.methodId, 'methods');
+    need('teamId', data.teamId, 'teams');
   } else {
     throw new Error(`kind inconnu pour checkRefs : ${kind}`);
   }
@@ -213,6 +223,7 @@ const REQUIRED = {
   team:    ['id', 'personas', 'coordinator'],
   method:  ['id', 'workflowId', 'roleKeys'],
   binding: ['id', 'teamId'],
+  frame:   ['id', 'methodId', 'teamId'],   // AR-1 : descripteur de frame (ids seulement)
 };
 export function checkSchema(kind, data) {
   const req = REQUIRED[kind];
@@ -223,7 +234,7 @@ export function checkSchema(kind, data) {
   return { ok: missing.length === 0, missing };
 }
 
-export const ADD_DIR = { team: 'teams', method: 'methods', binding: 'bindings' };
+export const ADD_DIR = { team: 'teams', method: 'methods', binding: 'bindings', frame: 'frames' };
 
 // --- 3.4 assemble : compose un kit + controle de compatibilite (casting ⊇ roles) -------------
 // Retourne un descripteur + le diagnostic de compatibilite (ne fait AUCUNE ecriture).

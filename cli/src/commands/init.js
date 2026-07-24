@@ -5,6 +5,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { frameworkRoot, kitDirForNode, contractFileForNode, frameworkVersion, copyKit } from '../lib/kit.js';
 import { NODE_KINDS, normalizeNode, legacyTargetForNode } from '../lib/vocab.js';
+import { resolveFrameForInit } from '../lib/frame-active.js';
+import { libraryRoot } from '../lib/library.js';
 import { now } from '../lib/date.js';
 
 // Resout le nœud a partir de --node (canonique) ou --target (alias deprecie). Retourne
@@ -57,10 +59,18 @@ export function runInit(argv) {
 
   const { copied, skipped } = copyKit(kit, dest, { force: values.force });
 
+  // Pointeur de frame ACTIVE du projet (D-C/D-D, reservoir-de-frames.md) : herite du pointeur
+  // portefeuille (<hat>/.iakaframe-portefeuille) s'il existe, sinon repli cable `iakaframe` (jamais
+  // d'echec dur). frameVersion = version du DESCRIPTEUR (AR-3, source unique), repli version outil.
+  const { frame, frameVersion } = resolveFrameForInit(dest, libraryRoot(), version);
+
   // Marqueur .iakaframe : node= (canonique) ET target= (mirror legacy, non destructif) pour
   // que les lecteurs anciens continuent de lire 'target'. Lecture : node prioritaire, repli target.
+  // ADDITIF (invariant § 8) : frame=/frameVersion= s'ajoutent, aucune cle existante retiree.
   const stamp = [
     `iakaframe=${version}`,
+    `frame=${frame}`,
+    `frameVersion=${frameVersion || version}`,
     `node=${node}`,
     `target=${legacyTargetForNode(node)}`,
     `contract=${contract}`,
@@ -68,7 +78,7 @@ export function runInit(argv) {
   ].join('\n') + '\n';
   fs.writeFileSync(path.join(dest, '.iakaframe'), stamp, 'utf8');
 
-  console.log(`  + .iakaframe (version ${version}, nœud ${node})`);
+  console.log(`  + .iakaframe (version ${version}, frame ${frame} ${frameVersion || version}, nœud ${node})`);
   console.log(`\nTermine : ${copied} copie(s), ${skipped} ignore(s).`);
   return true;
 }

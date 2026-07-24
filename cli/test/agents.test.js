@@ -1,7 +1,35 @@
 // A-3 : une persona resout RÔLE puis SKILL (fin de la conflation code-nom = rôle = skill).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { ROLE_OF, SKILL_OF, SKILL_OVERRIDE_OF, skillOfPersona, PORTFOLIO_PERSONAS, PORTFOLIO_AGENTS, listAgents, listPersonas } from '../src/lib/agents.js';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { ROLE_OF, SKILL_OF, SKILL_OVERRIDE_OF, skillOfPersona, PORTFOLIO_PERSONAS, PORTFOLIO_AGENTS, listAgents, listPersonas, frameTeamPersonas, assignedPersonas } from '../src/lib/agents.js';
+
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const REPO = path.join(HERE, '..', '..');
+function tmp() { return fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-agents-')); }
+// Racine synthetique (library/methods reels + team reduite + frame trio) pour eprouver A7/A8.
+function synthRoot() {
+  const root = tmp();
+  fs.symlinkSync(path.join(REPO, 'library'), path.join(root, 'library'));
+  fs.symlinkSync(path.join(REPO, 'methods'), path.join(root, 'methods'));
+  fs.mkdirSync(path.join(root, 'teams'));
+  fs.mkdirSync(path.join(root, 'frames'));
+  fs.writeFileSync(path.join(root, 'teams', 'trio.md'),
+    '---\nid: trio\nname: Trio\npersonas: [odin, aragorn, gimli]\ncoordinator: aragorn\n---\n# trio\n');
+  fs.writeFileSync(path.join(root, 'frames', 'trio.md'),
+    '---\nid: trio\nname: Frame trio\nversion: v9.9.9\nmethodId: iakaframe\nteamId: trio\n---\n# frame\n');
+  fs.copyFileSync(path.join(REPO, 'frames', 'iakaframe.md'), path.join(root, 'frames', 'iakaframe.md'));
+  return root;
+}
+function withHome(root, fn) {
+  const old = process.env.IAKAFRAME_HOME;
+  process.env.IAKAFRAME_HOME = root;
+  try { return fn(); }
+  finally { if (old === undefined) delete process.env.IAKAFRAME_HOME; else process.env.IAKAFRAME_HOME = old; }
+}
 
 test('ROLE_OF mappe chaque persona vers un rôle canonique', () => {
   assert.equal(ROLE_OF.aragorn, 'coordination');
@@ -40,4 +68,36 @@ test('aliases retro-compat conserves (PORTFOLIO_AGENTS, listAgents)', () => {
   assert.deepEqual(PORTFOLIO_PERSONAS, ['odin']);
   assert.equal(PORTFOLIO_AGENTS, PORTFOLIO_PERSONAS);
   assert.equal(listAgents, listPersonas);
+});
+
+// --- Reservoir de frames : lecture de la team de la frame active (D-E) --------------------
+test('frameTeamPersonas : team de la frame active, MOINS le portefeuille (A7)', () => {
+  withHome(synthRoot(), () => {
+    const proj = tmp();
+    fs.writeFileSync(path.join(proj, '.iakaframe'), 'frame=trio\n');
+    // team trio = [odin, aragorn, gimli] -> odin (portefeuille) retire -> exactement 2, PAS les 8
+    assert.deepEqual(frameTeamPersonas(proj), ['aragorn', 'gimli']);
+  });
+});
+
+test('frameTeamPersonas : pointeur absent -> team du default (repli, zero regression A11)', () => {
+  withHome(synthRoot(), () => {
+    // hors projet -> frame default iakaframe -> team iakaframe-8 -> 7 (odin hors dispatch)
+    assert.deepEqual(frameTeamPersonas(tmp()),
+      ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
+  });
+});
+
+test('assignedPersonas : empreinte .claude/agents PRIORITAIRE, sinon team de la frame active (A8)', () => {
+  withHome(synthRoot(), () => {
+    const proj = tmp();
+    fs.writeFileSync(path.join(proj, '.iakaframe'), 'frame=trio\n');
+    // sans empreinte deployee -> repli = team de la frame active
+    assert.deepEqual(assignedPersonas(proj), ['aragorn', 'gimli']);
+    // avec empreinte deployee -> priorite a l'empreinte (ignore la frame)
+    const dep = path.join(proj, '.claude', 'agents');
+    fs.mkdirSync(dep, { recursive: true });
+    fs.writeFileSync(path.join(dep, 'gandalf.md'), '# gandalf\n');
+    assert.deepEqual(assignedPersonas(proj), ['gandalf']);
+  });
 });

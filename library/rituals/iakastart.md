@@ -4,7 +4,7 @@ label: Bootstrap team
 triggers: [iakastart, iakaframe, odin]
 actions:
   - "Afficher le banner ASCII IAKAFRAME (via le CLI existant)"
-  - "Afficher le roster des rôles (qui-fait-quoi)"
+  - "Afficher le roster de la frame active du projet (repli sur la frame default hors projet)"
   - "Rendre la team prête au dispatch — n'en spawner aucune"
 side: cockpit
 ---
