@@ -42,12 +42,12 @@ test('--help liste les 6 nouveaux verbes', () => {
   }
 });
 
-test('list --json : enveloppe C-JSON { ok, count, collections } (12 collections, plus de tableau nu)', () => {
+test('list --json : enveloppe C-JSON { ok, count, collections } (13 collections, plus de tableau nu)', () => {
   const data = JSON.parse(run(['list', '--json']));
   assert.equal(data.ok, true);
   assert.ok(!Array.isArray(data), 'racine = objet, jamais un tableau nu');
-  assert.equal(data.count, 12);
-  assert.equal(data.collections.length, 12);
+  assert.equal(data.count, 13);
+  assert.equal(data.collections.length, 13);
   assert.equal(data.count, data.collections.length);
   const personas = data.collections.find(d => d.collection === 'personas');
   assert.equal(personas.count, 8);
