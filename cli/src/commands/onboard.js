@@ -5,8 +5,10 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { isRepo, initRepoMain, run, hasChanges, hasRemoteOrigin } from '../lib/git.js';
 import { testRepo, createRepo, remoteUrl, token } from '../lib/forgejo.js';
-import { contractFileForNode, frameworkRoot } from '../lib/kit.js';
+import { contractFileForNode, frameworkRoot, frameworkVersion } from '../lib/kit.js';
 import { affectPersona } from '../lib/agents.js';
+import { libraryRoot } from '../lib/library.js';
+import { HARDWIRED_DEFAULT_FRAME, PORTFOLIO_MARKER, frameVersionOf, parseKeyValueFile } from '../lib/frame-active.js';
 import { hasCmd } from '../lib/which.js';
 import { runInit, resolveNode } from './init.js';
 import { doSnapshot } from './snapshot.js';
@@ -157,6 +159,18 @@ function copyDirExcept(src, dst, exclude = []) {
 // Mode chapeau : Odin (local + global) + dashboard NaonEdge + scan + projets en attente.
 function runUmbrella(root, values, node) {
   console.log(`==== iakaframe : onboarding UMBRELLA (dossier chapeau) : ${root} ====`);
+
+  // [0] Pointeur portefeuille (D-D, reservoir-de-frames.md) : marqueur au niveau chapeau portant
+  // la frame default heritee par les nouveaux projets. NON DESTRUCTIF (pose s'il manque, jamais
+  // ecrase). Lisible par le CLI (init) ET la GUI (source unique). Absent -> repli cable a l'init.
+  const marker = path.join(root, PORTFOLIO_MARKER);
+  if (!parseKeyValueFile(marker).defaultFrame) {
+    const dv = frameVersionOf(HARDWIRED_DEFAULT_FRAME, libraryRoot(), frameworkVersion(frameworkRoot()));
+    fs.writeFileSync(marker, `defaultFrame=${HARDWIRED_DEFAULT_FRAME}\ndefaultFrameVersion=${dv || ''}\n`, 'utf8');
+    console.log(`\n[0] Pointeur portefeuille : ${PORTFOLIO_MARKER} (frame ${HARDWIRED_DEFAULT_FRAME} ${dv || ''})`);
+  } else {
+    console.log(`\n[0] Pointeur portefeuille : ${PORTFOLIO_MARKER} deja present (conserve).`);
+  }
 
   // [1/3] Odin (portefeuille) : local + global
   console.log('\n[1/3] Odin (portefeuille) : local + global');
