@@ -27,6 +27,54 @@
 
 ---
 
+## 🔄 Amendement 2026-07-24 — ré-ancrage sur le **réservoir de frames** (v0.21.0, mergé dans `main`)
+
+**Ce lot avait été cadré (gate P1 PASS) AVANT que « iakaframe = réservoir de frames » ne soit mergé.**
+`reservoir-de-frames.md` (gate P1 PASS) l'avait prévu à son § 6 : voici l'amendement qu'il annonçait.
+**Amendement chirurgical, PAS une réécriture** : le degré **D3**, la persona **Fëanor**, l'**activation
+explicite**, l'**estimation** et la mécanique cross-repo restent **inchangés** ; seuls la **frontière**
+et la **boucle library** changent d'ancrage. Tout ce qui bouge est marqué **【AMENDÉ 2026-07-24】** dans
+le corps.
+
+**Ce qui a changé dans le socle (vérifié sur pièces le 2026-07-24, `preuve-avant-declaration`) :**
+- Les **frames sont désormais des objets de 1ʳᵉ classe DANS le réservoir iakaframe** — collection
+  `frames/` (`cli/src/lib/library.js` : `COLLECTIONS` compte **13**, `ADD_DIR.frame`), descripteur du
+  default `frames/iakaframe.md` (`default: true`). Une frame = un **assemblage nommé** (`methodId` +
+  `teamId`) piochant dans **la library partagée** ; elle n'a **pas** sa copie de briques.
+- **Pointeur `iakaframeactive` par projet** : `cli/src/lib/frame-active.js` (`activeFrameId`,
+  `activeTeamId`, `frameCoherence`, `HARDWIRED_DEFAULT_FRAME`) ; le marqueur `<projet>/.iakaframe` porte
+  `frame=`/`frameVersion=` ; repli sur le default câblé.
+- **`fullteam`/`assignedPersonas` (`agents.js`) lisent la team de la frame active** via
+  `frameTeamPersonas` — fin du roster figé (D-E de `reservoir-de-frames.md`, exécuté).
+- **Cœur GUI** : `resolveAssembly` **multi-frame**, `FRAME_TYPES` = **12** (`packages/core/src/frame.ts`),
+  renommage `reservoir.ts` → `element-pool.ts` (symboles `ElementPool*`), panneau `OpenFramePanel.tsx`.
+
+**Sections AMENDÉES (diff de fond, pour re-gate rapide) :**
+
+| Section | Ce qui change |
+|---|---|
+| § 2, point 3 + « boucle library » | la library **propre au frame tiers** → **le pot commun partagé** : Fëanor **pioche** et **enrichit**, il ne forke pas |
+| § 2 (note neuve) | Fëanor **résident iakaFrameGUI** confirmé sur le GUI réel (collection `frames`, `element-pool`, `OpenFramePanel`/`resolveAssembly`) |
+| § 2.1 (frontière) + N1/N2/N3 | frontière **« quel dépôt »** → **« CONTENU de frame vs INFRASTRUCTURE de réservoir »** (+ axe « quelle frame ») — les frames vivent DANS le réservoir |
+| D-G (note) + § 5.1 (6b) | `EXPLICIT_ACTIVATION_PERSONAS` se branche sur le **nouveau** `frameTeamPersonas`/`fullteam` (code mergé) |
+| A22 / A26 / A27 (§ 7) | reformulés sur CONTENU/INFRA + pot commun |
+| Invariant « frontière » (§ 8) | reformulé CONTENU/INFRA + frame |
+| R12 / R14 (§ 10) + § 9 | R14 = **chantier nommé backlogé** `frame new`/`frame lint` ; R12 = arbitrage 9 rouvert **puis TRANCHÉ 9-a** (décideur 2026-07-25) ; § 9 gagne 2 dépendances (chantier outillage + 3 biais du modèle) |
+| § 11.4 (note neuve) | estimation **inchangée** (~8,5 j-h) — le ré-ancrage de-risque, n'alourdit pas |
+
+**Sections INCHANGÉES :** § 0 (état des rôles), § 3 (D-A…D-F, D-H), § 4 (degré D3), § 5 (recensement,
+hors 6b), § 6 (périmètre, hors point library), § 12 (sources).
+
+**✅ L'arbitrage rouvert par le ré-ancrage est TRANCHÉ** (§ 2.1) : l'arbitrage 9 (« frontière
+contractuelle suffisante, aucun garde-fou exécutable ») reposait sur des **dépôts distincts** (Fëanor
+ailleurs, Gimli dans iakaframe) qui rendaient le recouvrement naturellement impossible. Ce socle ayant
+disparu (Fëanor et Gimli écrivent désormais **dans le même dépôt**, frontière **path-exprimable**), la
+question fut rouverte — puis **re-tranchée par le décideur le 2026-07-25 : 9-a, garde CONTRACTUELLE
+maintenue** malgré la prémisse changée. **Aucun arbitrage n'est ouvert.** (9-b, `perimeter` exécutable,
+en trace écartée.)
+
+---
+
 ## 0. État de référence — mesuré, pas présumé
 
 ### 0.1 Le référentiel de rôles
@@ -158,10 +206,15 @@ Il tient quatre choses, et rien d'autre :
    I3 (personas pures ; `runner`/`model`/`tools` uniquement dans `bindings/`), E2 (la méthode ne
    nomme aucune persona), le rangement pluriel de la bibliothèque, « le canon est l'autorité, ses
    copies sont dérivées ». Il les applique **au frame cible qu'il aide à construire**.
-3. **La conception ET la génération du frame cible** *(arbitrage 7 : conseil + fichiers)* — Fëanor
-   ne se limite pas au conseil : il va jusqu'à **scaffolder** `library/`, `bindings/`, `methods/`,
-   `teams/`, `kits/`… **du frame neuf du tiers**, en réutilisant l'outillage de forge existant
-   (`iakaframe assemble`/`add`/`onboard`) et sa connaissance du modèle.
+3. **La conception ET la génération du frame cible** *(arbitrage 7 : conseil + fichiers ;
+   【AMENDÉ 2026-07-24】)* — Fëanor ne se limite pas au conseil : il **compose** un **descripteur
+   `frames/<id>.md`** + son **assemblage** (`methods/`, `teams/`, `bindings/`, `kits/`) **piochant dans
+   la library PARTAGÉE**, et **enrichit le pot commun `library/`** des briques généralisées (id
+   neutralisé) que la frame neuve requiert. Il **ne forke pas** une library propre à la frame — dans le
+   modèle réservoir, **une frame n'a pas sa copie de briques, elle pioche** (cf. `reservoir-de-frames.md`
+   § 2.1). Il réutilise l'outillage de forge existant (`iakaframe assemble`/`add`/`onboard`) et sa
+   connaissance du modèle. *C'est exactement la « boucle library » du cadrage initial, désormais
+   **concrète** : le pot commun existe, forger une frame y ajoute des briques.*
 4. **Un verdict de conformité de modèle SUR LE FRAME CIBLE** — PASS/FAIL sur *« ce frame neuf est-il
    cohérent avec le modèle (invariants tenus, clôture complète, casting couvrant les rôles) ? »*,
    assorti d'une **matrice de clôture** transposable au frame du tiers.
@@ -176,57 +229,93 @@ conformité rendu **analytiquement** doit produire une **garde candidate** (un t
 une assertion) portée dans le frame cible. `vendor-check` est le prototype de ce geste — produit,
 sur *notre* frame, sans propriétaire ; Fëanor le porte **pour le frame qu'il aide à construire**.
 
-### 2.1 La frontière étanche — (d) : elle tient par la CIBLE, jamais par le type de fichier
+**Fëanor est un résident d'iakaFrameGUI 【AMENDÉ 2026-07-24】.** Le merge du réservoir l'a rendu concret :
+la forge GUI porte désormais les **frames comme collection de 1ʳᵉ classe** (`FRAME_TYPES` = 12,
+`packages/core/src/frame.ts`), un **`resolveAssembly` multi-frame** (pivot = la frame active, non plus
+`bindings[0]`), le panneau **`OpenFramePanel`** d'ouverture/sélection de frame, et l'**`element-pool`**
+(ex-`reservoir.ts`, symboles `ElementPool*`) qui compose les sous-éléments d'un élément en édition.
+**C'est là que Fëanor travaille** : il édite descripteurs et assemblages via ces surfaces, et son
+**véhicule reste le LLM interrogeable dont le modèle est défini dans les Settings d'iakaFrameGUI**
+(authoring ≠ exécution). Le § 5.2 (entrée 19) situe précisément la sélection/édition de la frame active
+dans le GUI.
 
-> **Arbitrage 7, gravé net.** Fëanor **génère des fichiers** — `library/roles/*.md`, `bindings/`,
-> `methods/`… — exactement comme Gimli. La frontière **ne peut donc pas** être « qui écrit quel
-> type de fichier ». Elle est, et elle seule : **QUEL FRAME**.
+### 2.1 La frontière étanche — (d) : **CONTENU de frame** vs **INFRASTRUCTURE de réservoir** 【AMENDÉ 2026-07-24】
 
-| Rôle | Objet (le frame) | Ce qu'il produit sur cet objet |
+> **Ré-ancrage réservoir 【AMENDÉ 2026-07-24】.** Le cadrage initial posait la frontière par le
+> **dépôt cible** (« Fëanor écrit dans le dépôt d'un frame tiers, jamais dans iakaframe »). **Ce socle
+> a disparu** : depuis le merge du réservoir (v0.21.0), **les frames vivent DANS le réservoir
+> iakaframe** — descripteurs `frames/<id>.md` de 1ʳᵉ classe + assemblages
+> (`methods/`/`teams/`/`bindings/`/`kits/`) piochant dans la library partagée. Fëanor et Gimli écrivent
+> donc **dans le même dépôt**. Fëanor **génère des fichiers** comme Gimli : la frontière ne peut être
+> ni « qui écrit quel type de fichier » ni « quel dépôt ». Elle se reformule sur **deux axes
+> disjoints** :
+> 1. **CONTENU vs INFRASTRUCTURE** — Fëanor produit du **contenu de frame** (descripteurs, assemblages,
+>    briques du pot commun) ; Gimli produit l'**infrastructure du réservoir** (le CODE : CLI, cœur/forge
+>    GUI, résolveurs, pointeur, gardes). *Gimli code la machinerie ; Fëanor compose des frames.*
+> 2. **QUELLE frame** — le **default `iakaframe`** (méthode `iakaframe` + team `iakaframe-8` +
+>    descripteur `frames/iakaframe.md`) reste à Gandalf (cadrage) + Gimli (dev) ; Fëanor forge des
+>    **frames AUTRES** (scrum, kanban…) qui piochent dans le **même** pot commun.
+
+| Rôle | Objet | Ce qu'il produit |
 |---|---|---|
-| `cadrage` (Gandalf) | **le frame iakaframe (CE dépôt)** + les projets | `specs/instructions/<feature>.md` — cadre le besoin |
-| `dev` (Gimli) | **le frame iakaframe (CE dépôt)** + les projets | les fichiers : code, atomes de `library/`, tests |
-| `qualite` (Legolas) | **le frame iakaframe (CE dépôt)** + les projets | verdict PASS/FAIL exécutable |
-| **`frame` (Fëanor)** | **un frame NEUF, ailleurs, appartenant au tiers assisté** | conseil de modèle **+** génération des fichiers de CE frame cible **+** verdict de conformité |
+| `cadrage` (Gandalf) | le **frame default iakaframe** + les projets | `specs/instructions/<feature>.md` — cadre le besoin |
+| `dev` (Gimli) | l'**INFRASTRUCTURE du réservoir** (code) + le **frame default** + les projets | le CODE (CLI/GUI, résolveurs `library.js`/`frame-active.js`/`resolveAssembly`), les atomes canon de `library/`, tests |
+| `qualite` (Legolas) | le réservoir + les projets | verdict PASS/FAIL exécutable |
+| **`frame` (Fëanor)** | une **frame AUTRE que le default**, DANS le réservoir | descripteur `frames/<id>.md` + assemblage (`methods/`/`teams/`/`bindings/`/`kits/`) + **briques généralisées enrichissant le pot commun `library/`** + verdict de conformité de modèle |
 
-**Trois tests de non-recouvrement, refondés sur la CIBLE :**
+**Trois tests de non-recouvrement, refondés sur CONTENU/INFRA + frame :**
 
-- **N1 — Fëanor n'agit jamais sur le frame iakaframe (CE dépôt) ni sur un projet iakaframe.** Il ne
-  cadre pas, ne code pas, ne teste pas iakaframe : cela reste Gandalf/Gimli/Legolas. Son terrain est
-  **le frame du tiers**. *Vérifiable : la cible de tout geste d'écriture de Fëanor est un dépôt de
-  frame tiers, jamais `~/work/iakaframe` ni un `<projet>/` iakaframe.*
-- **N2 — Gimli n'agit jamais sur le frame d'un tiers.** Gimli construit et maintient **iakaframe** ;
-  il ne scaffolde pas le frame neuf d'un utilisateur. *Vérifiable : la cible de tout geste de Gimli
-  est le dépôt iakaframe ou un projet iakaframe, jamais un frame tiers.*
-- **N3 — le recouvrement APPARENT (tous deux écrivent des `library/roles/*.md`) est levé par la
-  seule question « dans QUEL dépôt ? ».** Même geste, même type de fichier, **cibles disjointes**.
-  C'est la ligne étanche, et c'est la seule qui tienne une fois l'arbitrage 7 posé.
+- **N1 — Fëanor ne touche jamais l'INFRASTRUCTURE du réservoir.** Le CLI (`cli/`), le cœur/forge GUI
+  (`packages/core/`, `src/`), les résolveurs (`library.js` `COLLECTIONS`, `frame-active.js`,
+  `resolveAssembly`, `element-pool.ts`), le pointeur, les gardes : **c'est Gimli**. *Vérifiable : tout
+  geste d'écriture de Fëanor cible un descripteur de frame, un assemblage ou une brique de `library/`,
+  jamais un fichier de code ou de résolveur.*
+- **N2 — Fëanor ne forge ni n'altère jamais la frame DEFAULT `iakaframe`.** Le default reste à
+  Gandalf/Gimli. *Vérifiable : Fëanor n'écrit jamais `frames/iakaframe.md`, ni `methods/iakaframe.md`,
+  ni `teams/iakaframe-8.md`, ni `bindings/iakaframe-claude-default.md`.*
+- **N3 — le recouvrement APPARENT (les deux écrivent dans `~/work/iakaframe`, les deux touchent
+  `library/`) est levé par « CONTENU ou INFRA ? » puis, pour le contenu, « QUELLE frame ? ».** Même
+  dépôt, gestes de nature disjointe : Gimli code la machinerie et maintient le default ; Fëanor compose
+  des frames-pairs et **enrichit** (jamais ne forke) le pot commun partagé.
 
-> **Test de non-recouvrement Gimli ↔ Fëanor, fondé sur la cible (à graver comme critère, cf. A27) :**
-> aucun frame ne peut être écrit par les **deux**. Pour tout dépôt de frame, exactement un des deux
-> a la main — **Gimli si c'est iakaframe, Fëanor si c'est le frame d'un tiers**. La cible (le dépôt),
-> pas le chemin interne ni le type de fichier, décide qui écrit.
+> **Test de non-recouvrement Gimli ↔ Fëanor (à graver comme critère, cf. A27) :** aucune frame-pair et
+> aucun fichier d'infrastructure ne peut être écrit par les **deux**. **Gimli** = infrastructure du
+> réservoir + frame default ; **Fëanor** = frames autres que le default + briques du pot commun. Ce sont
+> **CONTENU/INFRA** puis **quelle frame** qui décident, jamais le dépôt (unique désormais).
 
-**Pourquoi la découpe par CHEMIN interne ne pouvait pas marcher** *(et pourquoi l'arbitrage 7 la
-tue)* : elle prétendrait que « `library/` appartient à Fëanor, `cli/` à Gimli ». Mais Fëanor écrit
-`library/` **du frame tiers** et Gimli écrit `library/` **d'iakaframe** — même sous-chemin, dépôts
-opposés. De plus, le garde-fou `perimeter` est une **garde de chemins ancrée sur le projet, aveugle
-aux personas** (`library/guardrails/perimeter.md`) : il **ne saurait pas** distinguer deux personas
-écrivant le même sous-chemin. La seule frontière opposable est **le dépôt cible**.
+**Ce que le réservoir CHANGE pour le garde-fou `perimeter` 【AMENDÉ 2026-07-24】.** Tant que les cibles
+étaient des **dépôts distincts**, aucune garde de chemins ne pouvait porter la frontière. Désormais,
+**dans un dépôt unique**, l'axe CONTENU/INFRA **est** exprimable par chemins : `frames/`, `library/`,
+`methods/`, `teams/`, `bindings/`, `kits/` (Fëanor) vs `cli/`, `packages/core/`, `src/`, résolveurs
+(Gimli). Le `perimeter` — garde de chemins ancrée sur le projet (`library/guardrails/perimeter.md`) —
+**pourrait donc, désormais, porter l'axe CONTENU/INFRA** (il ne portera jamais l'axe « quelle frame »,
+aveugle aux personas et au default). Le ré-ancrage réservoir avait **rouvert** l'arbitrage 9 sur ce
+motif ; **le décideur l'a re-tranché.**
 
-> **Cette frontière est CONTRACTUELLE, et c'est l'état FINAL retenu** *(arbitrage 9 du décideur,
-> 2026-07-23)*. Aucun garde-fou **exécutable** n'est exigé sur la cible : la ligne étanche vit dans
-> les chartes de Fëanor et de Gimli, exactement comme le bornage de Gandalf à `specs/instructions/`
-> vit dans sa charte sans qu'aucune mécanique ne le porte. **Ce n'est pas une dette à combler plus
-> tard : c'est une décision assumée.** Un garde-fou exécutable n'est **pas** un chantier ouvert.
+> ✅ **Arbitrage 9 — TRANCHÉ (décideur, 2026-07-25) : 9-a, garde CONTRACTUELLE (statu quo).** La
+> frontière CONTENU/INFRA vit dans les **seules chartes** de Fëanor et de Gimli — comme le bornage de
+> Gandalf à `specs/instructions/` — **sans** garde-fou `perimeter` exécutable. **Choix ré-affirmé sous
+> la NOUVELLE prémisse, pas un oubli** : le ré-ancrage réservoir avait changé la donne (dépôt unique,
+> frontière désormais **path-exprimable**, donc mécaniquement portable par `perimeter`) ; le décideur a
+> **maintenu le contractuel malgré ce motif disparu**. Un futur lecteur doit lire ceci comme une
+> décision consciente prise après le merge du réservoir, non comme un héritage non ré-examiné.
+>
+> *Option écartée (trace) :* **(9-b) `perimeter` exécutable sur l'axe CONTENU/INFRA** — borner Fëanor à
+> `frames/` + `library/` + assemblages, lui **interdire** `cli/`/`packages/core/`/`src/`. Mécaniquement
+> possible aujourd'hui (intra-dépôt), mais ne couvre **pas** l'axe « quelle frame » (le default resterait
+> protégé par contrat seul de toute façon), et coûterait +0,3 j-h (§ 11.4). **Écartée par le décideur.**
+>
+> **La frontière est donc contractuelle et c'est l'état FINAL retenu.** A27 et les chartes des deux
+> personas l'énoncent ; aucun garde exécutable n'est ajouté par ce lot. **Ce n'est pas une dette ni un
+> chantier ouvert.**
 
-> **L'objection honnête, et sa réponse.** *« Pourquoi ce ne serait pas simplement Gimli qui, sur
-> demande, scaffolde le frame d'un tiers ? »* Parce que scaffolder un frame neuf **exige l'érudition
-> des méthodes** (§ 2, point 1) — savoir quel modèle de rôle convient à ce que le tiers veut forger,
-> orienter entre un modèle façon BMAD, MetaGPT ou iakaframe. C'est une **expertise de conception de
-> méthode**, pas une exécution d'instruction fermée. Gimli exécute une instruction ; Fëanor **conçoit
-> avec le tiers** puis matérialise. Ce sont deux gestes de nature différente sur deux cibles
-> différentes.
+> **L'objection honnête, et sa réponse** 【AMENDÉ 2026-07-24】. *« Pourquoi ce ne serait pas simplement
+> Gimli qui, sur demande, compose une frame-pair ? »* Parce que composer une frame neuve **exige
+> l'érudition des méthodes** (§ 2, point 1) — savoir quel modèle de rôle convient à ce que l'utilisateur
+> veut forger, orienter entre un modèle façon BMAD, MetaGPT ou iakaframe. C'est une **expertise de
+> conception de méthode**, pas une exécution d'instruction fermée. Gimli **code l'infrastructure** et
+> exécute une instruction fermée ; Fëanor **conçoit** une frame avec l'utilisateur puis la matérialise
+> dans le pot commun. Ce sont deux gestes de nature différente — **infrastructure vs contenu de frame**.
 
 ### 2.2 Le rôle n'appartient à aucune phase du workflow
 
@@ -393,6 +482,17 @@ marqueur « niveau portefeuille » d'Odin — à **trois niveaux vérifiés sur 
 > **comportement** (exclusion du dispatch auto). Surcharger `PORTFOLIO_PERSONAS` serait le raccourci
 > qui recrée une dette de conflation.
 
+> **【AMENDÉ 2026-07-24】 — raccordement au code mergé.** Depuis le réservoir, `fullteam` et
+> `assignedPersonas` ne parcourent plus « toute la library moins portefeuille » mais **la team de la
+> frame active** via **`frameTeamPersonas(projectDir)`** (`agents.js`), qui filtre déjà
+> `PORTFOLIO_PERSONAS`. L'exclusion de `feanor` se branche **au même point** : `frameTeamPersonas` (et
+> donc `fullteam`) filtrent l'**union** `PORTFOLIO_PERSONAS ∪ EXPLICIT_ACTIVATION_PERSONAS`. Vérifié le
+> 2026-07-24 : `EXPLICIT_ACTIVATION_PERSONAS` **n'existe pas encore** (`agents.js` ne porte que
+> `PORTFOLIO_PERSONAS = ['odin']`) — sa création reste un livrable de CE lot, cohérent avec le code
+> mergé. **Nuance obligatoire** : comme `feanor` sera membre de `teams/iakaframe-8.md`, sans ce filtre
+> `frameTeamPersonas` le renverrait et `fullteam` le déploierait — le filtre d'union est donc
+> **obligatoire, pas optionnel**.
+
 ### D-H — forme du savoir : **corpus écrit versionné ET web live** *(arbitrage 6)*
 
 Les deux, jamais l'un seul (§ 2, « Deux sources de savoir ») :
@@ -478,11 +578,11 @@ Colonne **Degré** = degré d'incarnation à partir duquel l'entrée devient obl
 | 2 | `methods/iakaframe.md` — `roleKeys` | 8 → 9 clés. `checkRefs` reste vert (la fiche existe) | **D1** |
 | 3 | `cli/test/library.test.js` — test « vraie bibliothèque … 8/8 » | `methodRoleKeys.length` 8 → 9 (et `personas.length` 8 → 9 en D3) | **D1** |
 | 4 | `cli/test/library.test.js` — test « team 7 personas (helm retiré) » | `coveredByCoordinator` devient `['deploiement', 'frame']` en D1 (**non casté**) ; **inchangé** en D3 | **D1** |
-| 5 | `library/personas/feanor.md` | la 9ᵉ persona : `id: feanor`, `roleKey: frame`, `royaume: FRAME`, `pastille: "🟠"`, `skills: [iakaframe-frame]`, `guardrails: [identity, perimeter]`, `description` seedée ; **§ Étanchéité portant l'activation explicite** (D-G) et la **frontière par cible** (§ 2.1) | **D3** |
+| 5 | `library/personas/feanor.md` | la 9ᵉ persona : `id: feanor`, `roleKey: frame`, `royaume: FRAME`, `pastille: "🟠"`, `skills: [iakaframe-frame]`, `guardrails: [identity, perimeter]`, `description` seedée ; **§ Étanchéité portant l'activation explicite** (D-G) et la **frontière CONTENU/INFRA + frame** (§ 2.1, 【AMENDÉ 2026-07-24】) | **D3** |
 | 6 | `bindings/iakaframe-claude-default.md` — `assignments` | 1 ligne `{ personaId: feanor, runner: claude-code, model, tools }`. **`tools` inclut `WebSearch` + `WebFetch`** (D-H) **et** `Write`/`Edit`/`Bash` (génération du frame cible, arbitrage 7). **Copie vendorée byte-à-byte** → re-vendorage | **D3** |
-| 6b | `cli/src/lib/agents.js` — **liste d'exclusion du dispatch** | nouvelle constante `EXPLICIT_ACTIVATION_PERSONAS = ['feanor']` ; `fullteam`/`assignedPersonas` excluent **l'union** avec `PORTFOLIO_PERSONAS` (D-G). **Ne PAS surcharger `PORTFOLIO_PERSONAS`** | **D3** |
+| 6b | `cli/src/lib/agents.js` — **liste d'exclusion du dispatch** 【AMENDÉ 2026-07-24】 | nouvelle constante `EXPLICIT_ACTIVATION_PERSONAS = ['feanor']` ; le filtre s'applique désormais dans **`frameTeamPersonas`** (le point mergé lu par `fullteam` ET `assignedPersonas`) : exclure **l'union** `PORTFOLIO_PERSONAS ∪ EXPLICIT_ACTIVATION_PERSONAS`. **Ne PAS surcharger `PORTFOLIO_PERSONAS`** | **D3** |
 | 6c | `cli/test/agents.test.js` | assertion symétrique à celle d'Odin : `EXPLICIT_ACTIVATION_PERSONAS === ['feanor']` **et** `fullteam` ne déploie pas `feanor` | **D3** |
-| 6d | `library/personas/gimli.md` — § Périmètre | **réciproque de N2** (A27) : une phrase « Gimli n'agit jamais sur le frame d'un tiers (→ Fëanor) ». **Modifie une persona existante** → regénère le golden `gimli.md` + re-vendore sa fixture. Seul point où le lot touche une autre charte | **D3** |
+| 6d | `library/personas/gimli.md` — § Périmètre | **réciproque de la frontière** (A27) 【AMENDÉ 2026-07-24】 : une phrase « Gimli code l'INFRASTRUCTURE du réservoir + maintient la frame **default** ; il ne compose pas de frame-pair (→ Fëanor) ». **Modifie une persona existante** → regénère le golden `gimli.md` + re-vendore sa fixture. Seul point où le lot touche une autre charte | **D3** |
 | 7 | `teams/iakaframe-8.md` — `personas` + note | +1 id `feanor`. **Note « activation explicite »** sur le modèle de la note « niveau portefeuille » d'Odin (D-G). **Id de team non renommé** (D-F) + mention « `-8` = id opaque » | **D3** |
 | 8 | `cli/src/lib/vendor.js` — `IDS`, `EXPECTED_COPIES` | `IDS` 8 → 9 ; `EXPECTED_COPIES` **18 → 20** (9 personas + 9 goldens + 1 binding + 1 workflow) | **D3** |
 | 9 | `cli/test/fixtures/agents-golden/feanor.md` | nouveau golden, produit par `generateAgent` (jamais à la main) | **D3** |
@@ -537,7 +637,7 @@ tomberait dans la même zone non outillée.
   de génération), la **team** (avec la note d'activation explicite, D-G).
 - Le **marqueur d'activation explicite** aux trois niveaux + son test (D-G, § 5.1 entrées 6b/6c/7).
 - La **skill-rôle `iakaframe-frame`** : le geste d'assistance, la discipline web live, la frontière
-  par cible, **et le corpus mondial sourcé complet** (§ 2.4) — comparatif des 6 frameworks + les
+  CONTENU/INFRA + frame, **et le corpus mondial sourcé complet** (§ 2.4) — comparatif des 6 frameworks + les
   2 contrastes, daté et relu. **Pas de version socle intermédiaire** (arbitrage 8).
 - **Toutes** les conséquences mécaniques du § 5 (cross-repo), la **remise au vert** des gardes du
   § 0.5 après les avoir vues rouges, le **9ᵉ dégradé de casting** (D-E), le rafraîchissement **ou**
@@ -628,10 +728,11 @@ tomberait dans la même zone non outillée.
   (constaté par `vendor-check`, cf. A4).
 - **A21** — `grep -r "roster des 8 agents"` dans `library/` et `docs/` ⇒ **0** ; les comptes de
   `docs/commandes.md` et `docs/guide-stefframe2.{md,html}` sont à jour (§ 5.1, 15-16).
-- **A22** — La charte de `feanor.md` porte le **double badge** (ouverture/clôture, position de la
-  pastille) avec **🟠**, royaume **`FRAME`**, et déclare son périmètre par les **trois
-  non-recouvrements refondés sur la CIBLE** N1/N2/N3 (§ 2.1) — dont **N1 : Fëanor n'agit jamais
-  sur le frame iakaframe ni sur un projet iakaframe**.
+- **A22** 【AMENDÉ 2026-07-24】 — La charte de `feanor.md` porte le **double badge** (ouverture/clôture,
+  position de la pastille) avec **🟠**, royaume **`FRAME`**, et déclare son périmètre par les **trois
+  non-recouvrements refondés sur CONTENU/INFRA + frame** N1/N2/N3 (§ 2.1) — dont **N1 : Fëanor ne touche
+  jamais l'INFRASTRUCTURE du réservoir (code CLI/GUI, résolveurs, pointeur)** et **N2 : Fëanor ne forge
+  jamais la frame default `iakaframe`**.
 
 **D3 — activation explicite (D-G, arbitrage 5)**
 
@@ -652,17 +753,20 @@ tomberait dans la même zone non outillée.
   l'axe de comparaison déclaré. Chaque source est **horodatée** de sa date de vérification.
 - **A25** — Le binding de `feanor` porte `WebSearch` **et** `WebFetch` (A19) — la capacité web live
   est effective.
-- **A26** — La charte de Fëanor décrit explicitement qu'il **conçoit ET génère** les fichiers d'un
-  **frame cible tiers** (`library/`, `bindings/`, `methods/`…) en réutilisant l'outillage de forge
-  existant, et qu'il rend un **verdict de conformité de modèle** sur ce frame cible (§ 2, point 4).
-- **A27** *(non-recouvrement Gimli ↔ Fëanor, fondé sur la CIBLE)* — Les chartes de **Gimli** et de
-  **Fëanor** énoncent la même ligne étanche : pour tout dépôt de frame, **un seul** des deux a la
-  main — **Gimli si c'est iakaframe / un projet iakaframe, Fëanor si c'est le frame d'un tiers**.
-  La distinction est **la cible (le dépôt)**, jamais le type de fichier ni le sous-chemin (§ 2.1).
-  Cette frontière est **contractuelle et suffisante** (arbitrage 9, § 2.1) : aucun garde-fou
-  exécutable n'est exigé. *(La réciproque doit être ajoutée à `library/personas/gimli.md` — cf.
-  § 5.1 entrée 6d : seul point où le lot touche une autre charte ; il déclenche golden +
-  re-vendorage de Gimli.)*
+- **A26** 【AMENDÉ 2026-07-24】 — La charte de Fëanor décrit explicitement qu'il **conçoit ET génère**
+  un **descripteur de frame + son assemblage** (`methods/`/`teams/`/`bindings/`/`kits/`) **piochant dans
+  la library PARTAGÉE** et **enrichissant le pot commun** (jamais une library forkée), en réutilisant
+  l'outillage de forge existant, et qu'il rend un **verdict de conformité de modèle** sur cette frame
+  (§ 2, points 3-4).
+- **A27** 【AMENDÉ 2026-07-24】 *(non-recouvrement Gimli ↔ Fëanor, refondé CONTENU/INFRA + frame)* — Les
+  chartes de **Gimli** et de **Fëanor** énoncent la même ligne étanche : **Gimli produit
+  l'INFRASTRUCTURE du réservoir (code) et maintient la frame default ; Fëanor compose des frames AUTRES
+  que le default et enrichit le pot commun `library/`** (§ 2.1, N1/N2/N3). La distinction n'est plus
+  « quel dépôt » (dépôt unique désormais) mais **CONTENU vs INFRASTRUCTURE**, puis **quelle frame**.
+  Cette frontière est **contractuelle et suffisante** — **arbitrage 9 TRANCHÉ (décideur, 2026-07-25) :
+  9-a**, garde contractuelle maintenue malgré la prémisse changée (§ 2.1) ; aucun `perimeter` exécutable
+  (9-b écarté). *(La réciproque doit être ajoutée à `library/personas/gimli.md` — cf. § 5.1 entrée 6d :
+  seul point où le lot touche une autre charte ; golden + re-vendorage de Gimli.)*
 
 ---
 
@@ -678,9 +782,12 @@ tomberait dans la même zone non outillée.
 - **Activation explicite / hors dispatch automatique** *(nouvel invariant, D-G)* — Fëanor n'est
   **jamais** spawné par le dispatch d'équipe ; il ne s'active que sur demande explicite. Porté aux
   trois niveaux + testé (A23), par un mécanisme **distinct** de celui d'Odin (raisons différentes).
-- **Frontière par la CIBLE** *(nouvel invariant, arbitrage 7)* — Fëanor n'écrit **jamais** dans le
-  frame iakaframe (ce dépôt) ni dans un projet iakaframe ; Gimli n'écrit **jamais** dans le frame
-  d'un tiers. La ligne étanche est le **dépôt cible**, jamais le type de fichier (A27).
+- **Frontière CONTENU/INFRA + frame** *(invariant, arbitrage 7 ; 【AMENDÉ 2026-07-24】)* — Fëanor
+  n'écrit **jamais** l'INFRASTRUCTURE du réservoir (code CLI/GUI, résolveurs, pointeur) ni la frame
+  **default `iakaframe`** ; Gimli **code** la machinerie et **maintient le default**, il ne compose pas
+  de frame-pair. La ligne étanche est **CONTENU vs INFRASTRUCTURE**, puis **quelle frame** — jamais
+  « quel dépôt » (dépôt unique désormais). Cf. N1/N2/N3 (§ 2.1) et A27. Frontière **contractuelle**
+  (arbitrage 9 **TRANCHÉ 9-a**, décideur 2026-07-25, § 2.1) — état final assumé, sans garde exécutable.
 - **Le canon est l'autorité** — `library/roles/` est la source ; `CANONICAL_ROLES` et `ROLE_OF` en
   sont des consommateurs. Aucune valeur n'est écrite d'abord dans une table codée.
 - **Aucun `roleIndex` existant ne change** (A2).
@@ -725,6 +832,26 @@ tomberait dans la même zone non outillée.
    le corpus mondial sourcé complet est livré **dans ce lot**, sous **un seul gate Legolas**. Seule
    contrainte d'ordre interne à l'exécution : **le corpus (part éditoriale) n'a aucune dépendance
    vers l'agnosticisme** ni vers le reste du lot — il peut être mené en parallèle du structurel.
+7. **Chantier d'outillage de forge `frame new` / `frame lint` (backlogé, 2026-07-24)** 【AMENDÉ】 — R14
+   est désormais un **chantier nommé** (`BACKLOG.md`, item « Outiller le geste de forge d'un frame
+   vierge »), né de la démo Fëanor : `frame new <nom>` (ossature), `frame lint` (validation que les ids
+   `method→library` résolvent), scaffolds unitaires `add role|persona|ritual|guardrail`, génération du
+   kit depuis le binding. **Fëanor en dépend** pour matérialiser un frame sans geste manuel — mais le lot
+   Fëanor **n'attend pas** ce chantier : il borne au conseil+génération sur l'existant (§ 6). À cadrer à
+   part (item Gandalf→Gimli). **Non cadré ici.**
+8. **3 biais du MODÈLE de frame (findings du catalogue de 7 frames, démo Fëanor 2026-07-24)** 【AMENDÉ】 —
+   la démo (7 frames forgés, 251 fichiers, 0 id pendant) a révélé trois biais backlogés que Fëanor,
+   comme persona réelle, aura à **porter** — **contexte, non cadré ici** :
+   - **Finding 1 — biais de gouvernance/pipeline** : le format `workflow` (`phases` + `gates`)
+     présuppose un pipeline surplombant ; Scrum/Design Thinking ont dû le détourner (`kind: cycle`,
+     `loop`). Le vocabulaire de `workflow` n'est pas agnostique.
+   - **Finding 2 — biais de cardinalité N≥2** : le format présuppose une équipe (`team.personas`
+     pluriel, `coordinator`, casting) ; une méthode **solo** (GTD, N=1) fait dégénérer ces champs.
+     Piste : rôles-modes (`scope: mode`), team de cardinalité 1.
+   - **Finding 3 — pas de schéma ni de linter de frontmatter** : chaque forge a inventé ses champs par
+     imitation ; rien n'attrape une erreur de type. Carburant direct de `frame lint` (dépendance 7).
+   Ces biais **ne bloquent pas** le lot Fëanor (qui crée le RÔLE, pas le modèle de frame parfait) mais
+   **conditionnent l'érudition** qu'il portera. À connaître avant d'engager ; cadrage propre.
 
 ---
 
@@ -736,10 +863,10 @@ tomberait dans la même zone non outillée.
 | R2 | **Le miroir `frames/releases/StefFrame2/` reste à 8 rôles** sans qu'aucun test ne rougisse — `frame verify` ne contrôle que l'anonymisation, et le miroir **duplique** les rôles à deux endroits | `iakaframe` | A14 : trancher **et écrire** ; item de dette « pas de garde de parité miroir ↔ canon » |
 | R3 | **La formulation (b) du backlog inversait les coûts** (D2 = branche la plus chère) | décision | ✅ **résolu** — décideur a écarté D2, retenu D3 (§ 4) |
 | R4 | **D1 seul aurait gravé le problème** (absorption par le coordinateur) | méthode | ✅ **résolu** — décideur a retenu D3 (§ 4.3) |
-| R11 | **Confusion d'OBJET** : lire Fëanor comme « celui qui maintient le frame iakaframe » — c'est Gandalf/Gimli. Le risque est réel car son type d'artefact (`library/roles/*.md`) est identique au leur | méthode, doc | § 2.1 + A22/A27 : frontière **par cible** gravée dans les chartes des **deux** (Fëanor **et** Gimli) |
-| R12 | **Le garde-fou `perimeter` ne porte pas la frontière par cible** (ancré sur `$CLAUDE_PROJECT_DIR`, aveugle aux personas) | runtime | ✅ **état FINAL assumé** (arbitrage 9, § 2.1) : frontière **contractuelle suffisante**, comme le bornage de Gandalf à `specs/instructions/`. **Pas une dette, pas un chantier ouvert** — un garde-fou exécutable n'est **pas** demandé |
+| R11 | **Confusion d'OBJET** : lire Fëanor comme « celui qui maintient la frame default iakaframe » — c'est Gandalf/Gimli. 【AMENDÉ 2026-07-24】 Le risque **s'accroît** avec le réservoir : Fëanor écrit désormais dans le **même dépôt** que Gimli (frames-pairs + pot commun) | méthode, doc | § 2.1 + A22/A27 : frontière **CONTENU/INFRA + frame** gravée dans les chartes des **deux** (Fëanor **et** Gimli) |
+| R12 | **Le garde-fou `perimeter` et la frontière Gimli↔Fëanor** — 【AMENDÉ 2026-07-25】 le socle « dépôts distincts » qui fondait l'arbitrage 9 a disparu (réservoir = **dépôt unique**), rendant la frontière path-exprimable | runtime, décision | ✅ **Arbitrage 9 RE-TRANCHÉ (décideur, 2026-07-25) : 9-a, garde CONTRACTUELLE maintenue** malgré la prémisse changée (§ 2.1). **État FINAL assumé** — comme le bornage de Gandalf à `specs/instructions/`. **Pas une dette, pas un chantier ouvert.** 9-b (`perimeter` exécutable sur CONTENU/INFRA) **écarté** en trace |
 | R13 | **Mécanisme d'activation explicite surchargé** si on range `feanor` dans `PORTFOLIO_PERSONAS` : on perdrait la **raison** (portefeuille vs activation explicite) | CLI | D-G : constante **distincte** `EXPLICIT_ACTIVATION_PERSONAS`, union à l'exclusion `fullteam` ; A23 |
-| R14 | **Le scaffolding d'un frame VIERGE peut dépasser les verbes de forge existants** (`assemble`/`add`/`onboard` visent des projets/kits, pas un frame from scratch) — outillage net-neuf possible | dev | **inconnue RÉELLE, restée ouverte** (arbitrage 9 ne la referme pas) ; le lot **réutilise l'existant** et **borne** au conseil+génération sur structure connue ; à **éprouver tôt en exécution** ; tout outillage neuf est hors périmètre (§ 6) |
+| R14 | **Le scaffolding d'un frame VIERGE dépasse les verbes de forge existants** — 【AMENDÉ 2026-07-24】 **confirmé par la démo Fëanor (2026-07-24)** : les 7 frames du catalogue ont été forgés **à la main** (`mkdir`, gabarits, grep maison), aucun verbe ne scaffolde un frame neuf | dev | **R14 n'est plus une inconnue isolée : c'est un CHANTIER NOMMÉ et backlogé** (`frame new` / `frame lint` / scaffolds d'atomes, item « Outiller le geste de forge d'un frame vierge », `BACKLOG.md`). Fëanor **dépend** de ce chantier (§ 9.7) ; **non cadré ici**. En attendant, le lot **réutilise l'existant** et **borne** au conseil+génération sur structure connue (§ 6) |
 | R5 | **Table `ROLE_OF` à deux vocabulaires** après D3 | CLI | § 9.2 — commentaire obligatoire dans le code |
 | R6 | **Le lot paie une taxe que l'agnosticisme supprimerait** (entrées 19, 21, 22, 24, 25) | ordonnancement | § 9.1 — trois options, reco *(iii)* |
 | R7 | **19 consommateurs de `CANONICAL_ROLES` jamais audités un par un** — c'est l'inconnue n° 1 de `vocabulaire-roles-agnostique.md`, toujours non levée | GUI | **Inventaire exigé en ouverture de lot** ; peut faire glisser le chiffre |
@@ -782,7 +909,7 @@ tomberait dans la même zone non outillée.
 | Raccordement / audit des 19 consommateurs GUI (R7) | 0,3 |
 | Persona `feanor` + binding (web + génération) + golden + `agents generate --check` | 0,5 |
 | **Activation explicite** : `EXPLICIT_ACTIVATION_PERSONAS` + `fullteam` + test + notes team/persona (D-G) | 0,25 |
-| **Frontière par cible** : chartes Fëanor **et** Gimli (A27) + golden/vendorage Gimli (6d) | 0,3 |
+| **Frontière CONTENU/INFRA + frame** : chartes Fëanor **et** Gimli (A27) + golden/vendorage Gimli (6d) | 0,3 |
 | Skill-rôle `iakaframe-frame` : geste, discipline web, structure du corpus (A24) | 0,4 |
 | **Corpus mondial sourcé complet** : cadre d'analyse + étude des 6 frameworks (~0,4 chacun) + 2 contrastes + rédaction/synthèse/relecture/horodatage (A24) | 3,25 |
 | `vendor.js` (`IDS`, `EXPECTED_COPIES` 18→20) + fixtures GUI persona/golden | 0,4 |
@@ -809,7 +936,7 @@ devenant un acquis durable au lieu d'une rustine.*
 
 **Ce qui a alourdi le chiffre depuis le premier cadrage (~3,7 → ~8,5 j-h) :** l'érudition écrite
 (entièrement neuve, ~3,25 j-h à elle seule), la génération de frame cible (charte + tools élargis),
-le marqueur d'activation explicite (+ son test), la frontière par cible (qui touche **aussi**
+le marqueur d'activation explicite (+ son test), la frontière CONTENU/INFRA + frame (qui touche **aussi**
 Gimli), et la skill-rôle (là où le premier cadrage la mettait *hors* périmètre).
 
 **Inconnues susceptibles de faire glisser le chiffre**
@@ -826,6 +953,22 @@ Gimli), et la skill-rôle (là où le premier cadrage la mettait *hors* périmè
 5. **Neutralité et fraîcheur du corpus** : les frameworks évoluent (AutoGen en maintenance,
    Microsoft Agent Framework qui l'absorbe) — le corpus devra porter sa **date de péremption
    implicite**, et le web live est ce qui la compense entre deux relectures.
+
+### 11.4 Effet de l'amendement réservoir sur l'estimation 【AMENDÉ 2026-07-24】
+
+**Le chiffre ne bouge pas : ~8,5 j-h** (fourchette 7,5 – 10,5). Le ré-ancrage réservoir est **éditorial**
+(frontière, boucle library) et **de-risque** légèrement :
+
+- **R14** passe d'inconnue ouverte à **chantier nommé et backlogé** (`frame new`/`frame lint`) : la charge
+  d'outillage sort explicitement du lot, elle ne pèse plus comme aléa.
+- L'exclusion `feanor` se **branche** sur `frameTeamPersonas`, déjà mergé, plutôt que sur une réécriture
+  de `fullteam` — poste `agents.js` inchangé, mais mieux ancré.
+- La « boucle library » n'ajoute pas de coût : enrichir le pot commun partagé remplace le scaffolding
+  d'une library forkée, à charge de charte égale.
+
+**Aucun poste n'augmente.** L'arbitrage 9 a été **tranché 9-a** (décideur, 2026-07-25, § 2.1) : garde
+**contractuelle**, coût nul. L'option 9-b (perimeter exécutable, +~0,3 j-h) est **écartée** — elle
+n'entre pas dans le chiffre. **Estimation figée : ~8,5 j-h.**
 
 ---
 
