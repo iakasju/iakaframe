@@ -428,5 +428,15 @@
     "dirty": true,
     "files": 902,
     "note": "reprise de session 2026-07-23 : solde du snapshot de pause + purge du backlog"
+  },
+  {
+    "date": "2026-07-24 23:48",
+    "reason": "version",
+    "version": "v0.21.0",
+    "branch": "main",
+    "commit": "7407321 merge(frame): iakaframe devient le reservoir de frames - pointeur iakaframeactive par projet - gate P2->P3 Legolas PASS",
+    "dirty": true,
+    "files": 907,
+    "note": "iakaframe devient le RESERVOIR de frames : nouvelle collection frames/ (descripteur de 1re classe) + pointeur iakaframeactive par projet (frame active = propriete du lieu, repli default = 0 regression) ; iakastart/fullteam lisent la frame active ; miroir GUI (resolveAssembly mono->multi, renommage element-pool). Gate P1 + P2->P3 Legolas PASS. En parallele : catalogue de 7 frames forges par Feanor (251 fichiers, 0 id pendant) + 3 biais d'architecture backlogges."
   }
 ]

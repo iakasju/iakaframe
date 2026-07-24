@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-23 18:51 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-07-24 23:48 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.20.4 |
+| Version | v0.21.0 |
 | Branche | main |
-| Dernier commit | 70adeb0 chore(iakaframe): update etat des lieux + commit global (version v0.20.4) |
+| Dernier commit | 7407321 merge(frame): iakaframe devient le reservoir de frames - pointeur iakaframeactive par projet - gate P2->P3 Legolas PASS |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 902 |
-| Note | reprise de session 2026-07-23 : solde du snapshot de pause + purge du backlog |
+| Fichiers (hors .git/node_modules) | 907 |
+| Note | iakaframe devient le RESERVOIR de frames : nouvelle collection frames/ (descripteur de 1re classe) + pointeur iakaframeactive par projet (frame active = propriete du lieu, repli default = 0 regression) ; iakastart/fullteam lisent la frame active ; miroir GUI (resolveAssembly mono->multi, renommage element-pool). Gate P1 + P2->P3 Legolas PASS. En parallele : catalogue de 7 frames forges par Feanor (251 fichiers, 0 id pendant) + 3 biais d'architecture backlogges. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `70adeb0` | 2026-07-23 | chore(iakaframe): update etat des lieux + commit global (version v0.20.4) |
-| `00b03cb` | 2026-07-23 | merge(docs): sync compte fixtures vendor-check 17->18 copies (famille workflow) - Nathalie |
-| `3ac27e2` | 2026-07-23 | docs(commandes): synchro compte vendor-check 17->18 copies (famille workflow) |
-| `058d9aa` | 2026-07-23 | chore(iakaframe): update etat des lieux + commit global (version v0.20.3) |
-| `5a8f811` | 2026-07-23 | merge(vendor): vendor-check au vert par le vrai canon - golden kit regenere (parite CLI<->coeur) + fixtureTable famille workflow (drift 2->0, garde mordante) - gate Legolas PASS |
-| `a8953f5` | 2026-07-23 | fix(cli): vendor-check au vert par le vrai canon (golden threade + famille workflow) |
-| `fcdedca` | 2026-07-22 | chore(iakaframe): update etat des lieux + commit global (version v0.20.2) |
-| `1bc1f14` | 2026-07-22 | merge(frame): StefFrame2 structurellement complet - retablit 18 principleIds (2 principes canon rapatries + anonymises) - gate Legolas PASS |
-| `86bba59` | 2026-07-22 | feat(frame): porter principleIds de la methode StefFrame2 de 16 a 18 |
-| `eb70a1e` | 2026-07-22 | feat(frame): rapatrier canon-avant-citation + preuve-avant-declaration anonymises |
+| `7407321` | 2026-07-24 | merge(frame): iakaframe devient le reservoir de frames - pointeur iakaframeactive par projet - gate P2->P3 Legolas PASS |
+| `ad265c4` | 2026-07-24 | docs(backlog): reservoir implemente + gate P2->P3 Legolas PASS - reserve UI a solder |
+| `aa7cc4e` | 2026-07-24 | feat(switch): garde de coherence .iakaframe.frame <-> iakaframe-kit.json |
+| `6870364` | 2026-07-24 | docs(backlog): catalogue 7 frames + 3 biais d'architecture (demo Feanor) |
+| `92b825d` | 2026-07-24 | docs(list): compte de collections 12->13 (frames, AR-1) |
+| `502d8cc` | 2026-07-24 | feat(iakastart): fin du roster fige - lecture de la frame active + repli default |
+| `28fbeb6` | 2026-07-24 | feat(agents): fullteam/assignedPersonas lisent la team de la frame active |
+| `c9e9dc0` | 2026-07-24 | feat(init): pointeur de frame active dans .iakaframe + heritage portefeuille |
+| `43e560b` | 2026-07-24 | feat(library): type frames de 1re classe (AR-1) + descripteur default |
+| `73b6e32` | 2026-07-24 | docs(backlog): findings catalogue de frames Feanor (4 frames) + biais de format |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-24 23:48 | version | v0.21.0 | main | iakaframe devient le RESERVOIR de frames : nouvelle collection frames/ (descripteur de 1re classe) + pointeur iakaframeactive par projet (frame active = propriete du lieu, repli default = 0 regression) ; iakastart/fullteam lisent la frame active ; miroir GUI (resolveAssembly mono->multi, renommage element-pool). Gate P1 + P2->P3 Legolas PASS. En parallele : catalogue de 7 frames forges par Feanor (251 fichiers, 0 id pendant) + 3 biais d'architecture backlogges. |
 | 2026-07-23 18:51 | pause | v0.20.4 | main | reprise de session 2026-07-23 : solde du snapshot de pause + purge du backlog |
 | 2026-07-23 18:45 | pause | v0.20.4 | main | Fin de session 2026-07-23: objectif 'charger le frame dans le GUI' livre (5 etapes + lot canon + doc + B2), 9 gates Legolas PASS, iakaframe v0.20.4 / GUI v0.1.4, vendor-check drift:0 deux depots, menage complet des branches mergees. |
 | 2026-07-23 16:04 | version | v0.20.4 | main | sync doc compte fixtures (17->18 copies) - cloture collaterale objectif GUI |
