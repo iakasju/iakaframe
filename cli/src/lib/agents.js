@@ -10,7 +10,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { frameworkRoot } from './kit.js';
-import { scan, libraryRoot } from './library.js';
+import { scan, libraryRoot, readEntry, toArray } from './library.js';
+import { activeTeamId } from './frame-active.js';
 import { generateAgent, loadDefaultBinding } from './generate-agents.js';
 
 // Persona (code-nom) -> rôle canonique incarné (réf. CANONICAL_ROLES de @iakaframe/core).
@@ -119,21 +120,42 @@ export function affectPersona(name, { project, global = false, force = false, bi
 /** @deprecated alias retro-compat de affectPersona (conserve >= 1 version mineure). */
 export const affectAgent = affectPersona;
 
-// Personas reellement assignees a un projet (<projet>/.claude/agents), sinon team complete canon.
+// Personas de la TEAM de la frame active d'un projet (D-E, reservoir-de-frames.md) : pointeur
+// <projet>/.iakaframe -> frame active -> descripteur -> teamId -> personas de la team, MOINS le
+// portefeuille (odin reste hors dispatch projet). Repli TOUJOURS defini : team introuvable /
+// vide -> library entiere moins portefeuille (comportement historique, zero regression). Ce
+// repli garantit qu'un projet SANS pointeur (usage courant) se comporte comme avant.
+export function frameTeamPersonas(projectDir) {
+  const root = libraryRoot();
+  const teamId = activeTeamId(projectDir, root);
+  if (teamId) {
+    const team = readEntry('teams', teamId, root);
+    const personas = team ? toArray(team.data.personas).filter(p => !PORTFOLIO_PERSONAS.includes(p)) : [];
+    if (personas.length) return personas.sort();
+  }
+  return listPersonas().filter(a => !PORTFOLIO_PERSONAS.includes(a));
+}
+
+// Personas reellement assignees a un projet (<projet>/.claude/agents), sinon la TEAM de la frame
+// active (D-E). L'empreinte deployee garde la PRIORITE (deja correct) ; seul le repli change :
+// team de la frame active au lieu de la library entiere.
 export function assignedPersonas(projectDir) {
   try {
     const dep = path.join(path.resolve(projectDir), '.claude', 'agents');
     const f = fs.readdirSync(dep).filter(x => x.endsWith('.md')).map(x => x.replace(/\.md$/, '')).sort();
     if (f.length) return f;
   } catch { /* pas encore deploye */ }
-  return listPersonas().filter(a => !PORTFOLIO_PERSONAS.includes(a));
+  return frameTeamPersonas(projectDir);
 }
 /** @deprecated alias retro-compat de assignedPersonas (conserve >= 1 version mineure). */
 export const assignedAgents = assignedPersonas;
 
+// Deploie EXACTEMENT les personas de la TEAM de la frame active (D-E) au lieu de « toute la
+// library moins portefeuille ». Un projet pointant une frame a team reduite ne recoit PAS les 8
+// par defaut (A7). Sans projet (global) : repli sur la team du default (roster iakaframe).
 export function fullteam({ project, global = false, force = false } = {}) {
   const binding = loadDefaultBinding(libraryRoot()); // charge une fois, reutilise par persona
-  for (const name of listPersonas()) {
+  for (const name of frameTeamPersonas(project)) {
     if (PORTFOLIO_PERSONAS.includes(name)) continue;
     affectPersona(name, { project, global, force, binding });
   }
