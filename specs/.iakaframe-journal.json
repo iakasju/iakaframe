@@ -468,5 +468,15 @@
     "dirty": true,
     "files": 957,
     "note": "Pilote de rangement : 1re frame tierce (Scrum) rangee dans le reservoir (descripteur + assemblage sur library partagee, dedup conservatrice). Le pilote a revele un defaut latent - repli frameTeamPersonas non frame-scope (fuite inter-frames) - corrige (repli sur team du default + test anti-fuite). Default byte-inchange. Chantier 3 en cours (1/7 frames rangees) ; suite = les 6 autres en batch."
+  },
+  {
+    "date": "2026-07-26 00:27",
+    "reason": "version",
+    "version": "v0.25.0",
+    "branch": "main",
+    "commit": "984f268 merge(frame): rangement des 6 frames restantes - catalogue complet dans le reservoir",
+    "dirty": true,
+    "files": 1174,
+    "note": "CLOTURE sequence 1+2+3. Chantier 3 acheve : les 7 frames du catalogue (scrum/kanban/lean-startup/shapeup/design-thinking/waterfall/gtd) rangees dans le reservoir - le pot commun de briques partage prend vie (neutres time-box/definition-of-done/retrospective ; mvp->mvp-first canon). 8 frames lint-valides. Invariant : default iakaframe byte-inchange tout du long. Findings modele : biais de cardinalite (GTD solo, dette declaree), collision de personas inter-frames (nouvel axe, resolu par qualification), dette de schema de frontmatter (Finding 3). 7 brouillons archives (reversible). Toute la session : reservoir de frames (v0.21) + outillage de forge frame lint/new (v0.22) + 9e persona Feanor (v0.23) + rangement pilote (v0.24) + catalogue complet (v0.25)."
   }
 ]
