@@ -36,3 +36,9 @@ traverse les cinq étapes, en **changeant de mode** (`gtd-collector`, `gtd-clari
 > tient pas pour une méthode **mono-acteur**. La boucle n'est pas rythmée par des **événements
 > d'équipe** mais par deux **cadences personnelles** : le re-capture **continu** (Engage → Capture)
 > et la **revue hebdomadaire** qui restaure la confiance du système entier.
+>
+> **Depuis la correction du modèle (lot agnostique).** Ce n'est plus un détour : `kind: flow` est un
+> cas de **première classe** (l'absence de `gates` est légitime, pas une anomalie à déclarer), et le
+> champ d'acteurs `actorsRoleKeys` est **le nom canonique unifié** — désormais **réellement vérifié
+> par `frame lint`** (les cinq `actorsRoleKeys` sont contrôlés contre le pool de rôles). Le
+> mono-acteur reste marqué par `soleActor`.

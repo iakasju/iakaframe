@@ -36,3 +36,10 @@ l'unique rôle `gtd-practitioner`. Le narratif de référence est *Getting Thing
 > **s'effondre** à N = 1. Ce qui, chez un praticien, tient lieu de « coordination » n'est pas de la
 > répartition mais de l'**auto-discipline** (les garde-fous) et de la **revue hebdomadaire** —
 > le praticien s'articule **avec lui-même dans le temps**, pas avec des pairs dans l'espace.
+>
+> **Depuis la correction du modèle (lot agnostique, A-4).** `coordinator` n'est **plus un champ
+> requis** : une team de cardinalité 1 est désormais **légitime sans coordinateur**. Ce descripteur
+> **conserve** `coordinator: lee` (aucune des frames rangées n'est migrée), mais ce n'est plus une
+> **conformité de schéma imposée** — c'est un choix. Une team solo peut désormais **l'omettre** et
+> assembler sans orphelin dès lors que l'unique persona couvre le rôle. N = 1 n'est plus une équipe
+> dégénérée : c'est un cas de **première classe**.

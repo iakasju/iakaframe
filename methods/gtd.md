@@ -39,3 +39,9 @@ confiance).
 > exit 0), mais plusieurs champs **dégénèrent** (coordinateur sans coordonnés, périmètres sans
 > frontière). C'est le **biais de cardinalité d'équipe** (N ≥ 2 présupposé), à remonter au réservoir
 > — dette déclarée assumée (arbitrage 8-2), à solder avec la correction du modèle, pas ici.
+>
+> **Soldé (lot agnostique, A-4).** Le biais est **corrigé** : `coordinator` n'est **plus requis**
+> (`REQUIRED.team = ['id', 'personas']`), la **cardinalité 1 est un cas de première classe**. Une
+> team solo dont l'unique persona **couvre** le rôle assemble **sans orphelin ni coordinateur-repli**
+> ; la marque mono-acteur est portée par `soleActor` côté workflow. Le champ ne **dégénère** plus —
+> il est simplement **absent** quand il n'y a personne à coordonner.
