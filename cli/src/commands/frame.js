@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import { verifyFrame, GATES, LIMITS } from '../lib/frame.js';
 import { libraryRoot } from '../lib/library.js';
 import { lintFrame, lintAllFrames } from '../lib/frame-lint.js';
+import { scaffoldFrameNew } from '../lib/scaffold.js';
 import { emit, fail } from '../lib/output.js';
 
 const DEFAULT_FRAME = path.join('frames', 'releases', 'StefFrame2');
@@ -77,9 +78,12 @@ export function runFrame(argv) {
   // `frame lint --help` montre l'aide du lint (AC1.10 : ne pas rejouer le bug `jalon --help`).
   if (action === 'lint') { runLint(values, positionals); return; }
 
+  // Sous-verbe `new` (Lot 2) : ossature d'un frame neuf, lint-clean par construction (ARB-3).
+  if (action === 'new') { runNew(values, positionals); return; }
+
   if (values.help || action === 'help') { console.log(HELP); return; }
   if (action !== 'verify') {
-    fail(values.json, `action inconnue : ${action} (attendu : verify, lint)`);
+    fail(values.json, `action inconnue : ${action} (attendu : verify, lint, new)`);
     return;
   }
 
@@ -130,6 +134,42 @@ function runLint(values, positionals) {
   const payload = { ok: res.ok, frame: res.frame, checked: res.checked, count: res.findings.length, findings: res.findings };
   emit(values.json, payload, () => renderLint(res));
   if (!res.ok) process.exitCode = 1;
+}
+
+// --- Sous-verbe `new` : ossature d'un frame neuf (Lot 2). Ecrit descripteur + 4 fichiers
+//     d'assemblage, lint-clean par construction (ARB-3, AC2.2). Non destructif (--force). ---------
+const NEW_HELP = `iakaframe frame new <id> - ossature d'un frame neuf (lint-clean par construction)
+
+Usage : iakaframe frame new <id> [--force] [--json] [--root <dir>]
+
+Cree, sans forker la library, un assemblage neuf pointant le pool partage :
+  frames/<id>.md  methods/<id>.md  teams/<id>-team.md  bindings/<id>-default.md  kits/<id>-claude.md
+Chacun au frontmatter typé requis ; l'ossature passe \`frame lint <id>\` a exit 0 (ARB-3).
+
+Options :
+  <id>            Id du frame a ossaturer.
+  --force         Remplace les cibles existantes (defaut : refus non destructif).
+  --json          Sortie machine : { ok, frame, written:[...] }.
+  --root <dir>    Racine bibliotheque (defaut : resolution auto).
+  --help          Cette aide.`;
+
+function runNew(values, positionals) {
+  if (values.help) { console.log(NEW_HELP); return; }
+  const id = positionals[1];
+  if (!id) return fail(values.json, 'Usage : iakaframe frame new <id> [--force]');
+  const root = libraryRoot(values.root);
+  const res = scaffoldFrameNew(id, root, { force: values.force });
+  if (!res.ok) {
+    emit(values.json, { ok: false, error: res.error, ...(res.existing ? { existing: res.existing } : {}) },
+      () => console.error(`frame new : refus - ${res.error}`));
+    process.exitCode = 1; return;
+  }
+  emit(values.json, { ok: true, frame: res.frame, count: res.written.length, written: res.written, coordinator: res.coordinator, roleKey: res.roleKey, workflowId: res.workflowId }, () => {
+    console.log(`+ frame ${res.frame} ossaturee (${res.written.length} fichiers) :`);
+    for (const w of res.written) console.log(`    ${w}`);
+    console.log(`  casting : coordinateur ${res.coordinator} (role ${res.roleKey}) ; workflow ${res.workflowId}`);
+    console.log(`  verifier : iakaframe frame lint ${res.frame}`);
+  });
 }
 
 function lintLine(f) {
