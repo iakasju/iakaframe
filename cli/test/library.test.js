@@ -152,12 +152,12 @@ test('assemble : auto-selection du binding par defaut (m_test+t_full)', () => {
 });
 
 // --- Controle sur la VRAIE bibliotheque du depot ---
-test('vraie bibliotheque : list personas = 8, assemble iakaframe/iakaframe-8 = 8/8', () => {
-  assert.equal(scan('personas', REPO).length, 8);
+test('vraie bibliotheque : list personas = 9, assemble iakaframe/iakaframe-8 = 9/9', () => {
+  assert.equal(scan('personas', REPO).length, 9); // + feanor (9e persona, roleKey frame)
   const r = assemble('iakaframe', 'iakaframe-8', null, REPO);
   assert.equal(r.ok, true);
   assert.deepEqual(r.orphans, []);
-  assert.equal(r.methodRoleKeys.length, 8);
+  assert.equal(r.methodRoleKeys.length, 9); // + frame (9e role, en queue)
 });
 
 // --- Cas reel declencheur (2026-07-16) : team a 7 personas, helm retire ------------------
@@ -182,7 +182,9 @@ test('vraie bibliotheque : team 7 personas (helm retire) + coordinator aragorn -
     const r = assemble('iakaframe', 'iakaframe-7-no-helm', null, tmp);
     assert.equal(r.ok, true);
     assert.deepEqual(r.orphans, []);
-    assert.deepEqual(r.coveredByCoordinator, ['deploiement']);
+    // Cette fixture n'a NI helm NI feanor : deploiement ET frame (9e role) sont donc absorbes par
+    // le coordinateur aragorn. La garde teste le meme mecanisme (role sans persona dediee -> ok:true).
+    assert.deepEqual(r.coveredByCoordinator, ['deploiement', 'frame']);
     assert.equal(r.coordinator, 'aragorn');
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });

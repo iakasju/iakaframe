@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ROLE_OF, SKILL_OF, SKILL_OVERRIDE_OF, skillOfPersona, PORTFOLIO_PERSONAS, PORTFOLIO_AGENTS, listAgents, listPersonas, frameTeamPersonas, assignedPersonas } from '../src/lib/agents.js';
+import { ROLE_OF, SKILL_OF, SKILL_OVERRIDE_OF, skillOfPersona, PORTFOLIO_PERSONAS, PORTFOLIO_AGENTS, EXPLICIT_ACTIVATION_PERSONAS, NON_DISPATCH_PERSONAS, listAgents, listPersonas, frameTeamPersonas, assignedPersonas, fullteam } from '../src/lib/agents.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..');
@@ -68,6 +68,36 @@ test('aliases retro-compat conserves (PORTFOLIO_AGENTS, listAgents)', () => {
   assert.deepEqual(PORTFOLIO_PERSONAS, ['odin']);
   assert.equal(PORTFOLIO_AGENTS, PORTFOLIO_PERSONAS);
   assert.equal(listAgents, listPersonas);
+});
+
+// --- Activation explicite (D-G / A23) : feanor est MEMBRE du roster mais hors dispatch auto -----
+test('activation explicite : EXPLICIT_ACTIVATION_PERSONAS === [feanor], DISTINCTE de PORTFOLIO', () => {
+  assert.deepEqual(EXPLICIT_ACTIVATION_PERSONAS, ['feanor']);
+  // Constante DISTINCTE : meme comportement (exclusion dispatch), raison differente (R13).
+  assert.ok(!PORTFOLIO_PERSONAS.includes('feanor'), 'feanor ne doit PAS etre dans PORTFOLIO_PERSONAS');
+  assert.deepEqual(NON_DISPATCH_PERSONAS, ['odin', 'feanor']); // union exclue du dispatch auto
+});
+
+test('activation explicite : feanor caste dans iakaframe-8 mais EXCLU de frameTeamPersonas (A23-ii)', () => {
+  withHome(synthRoot(), () => {
+    // Sans pointeur -> team du default iakaframe (roster 9 dont feanor). L'union portefeuille +
+    // activation explicite est retiree : ni odin ni feanor ne sont dispatches automatiquement.
+    const team = frameTeamPersonas(tmp());
+    assert.ok(!team.includes('feanor'), 'feanor ne doit PAS etre dispatche automatiquement');
+    assert.ok(!team.includes('odin'), 'odin (portefeuille) reste hors dispatch');
+    assert.deepEqual(team, ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
+  });
+});
+
+test('activation explicite : fullteam ne DEPLOIE pas feanor (A23-ii, test dedie)', () => {
+  withHome(synthRoot(), () => {
+    const proj = tmp();
+    fullteam({ project: proj });
+    const deployed = fs.readdirSync(path.join(proj, '.claude', 'agents'))
+      .filter((f) => f.endsWith('.md')).map((f) => f.replace(/\.md$/, '')).sort();
+    assert.ok(!deployed.includes('feanor'), 'fullteam ne doit jamais deployer feanor');
+    assert.ok(!deployed.includes('odin'), 'fullteam ne deploie pas le portefeuille');
+  });
 });
 
 // --- Reservoir de frames : lecture de la team de la frame active (D-E) --------------------

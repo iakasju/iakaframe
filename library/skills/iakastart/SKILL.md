@@ -63,6 +63,10 @@ l'agent n'a pas de pastille fixe (elle varie selon la phase servie).
 | helm      | Production               | 🟣       | Gate de prod, déploiement, surveillance, feu vert humain requis |
 | loki      | Design                   | 🟠       | Conception visuelle / UX, supports on-brand selon charte |
 | nathalie  | Doc utilisateur          | 🟠       | Documentation destinée à l'utilisateur final (guides, FAQ, tutos) |
+| feanor    | Constructeur de frame    | 🟠       | Assiste un tiers à forger une frame neuve — **activation explicite seulement** (hors dispatch auto) |
+
+> **feanor est doublement hors spawn auto.** iakastart ne spawne jamais aucun agent ; de plus
+> **feanor ne s'active QUE sur demande explicite** de l'utilisateur (jamais par `fullteam`, D-G).
 
 ### 4. Rappeler comment dispatcher (sans lancer)
 
@@ -77,6 +81,7 @@ noms ci-dessous sont ceux de la frame default ; adapte-les à la team de la fram
 - **helm** → promotion en production (feu vert humain).
 - **loki** → support visuel on-brand.
 - **nathalie** → guide / doc utilisateur final.
+- **feanor** → forger une frame neuve (conseil + génération + verdict de conformité) — **sur demande explicite seulement**.
 
 Le dispatch réel se fait **à la demande de l'utilisateur** (ou via Aragorn). Tu te contentes
 de **rendre les agents prêts** ; tu n'en lances aucun.
