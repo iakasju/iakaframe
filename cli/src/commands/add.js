@@ -6,9 +6,15 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import { ADD_DIR, checkRefs, checkSchema, libraryRoot } from '../lib/library.js';
+import { scaffoldPoolAtom, POOL_KINDS } from '../lib/scaffold.js';
 import { emit, fail } from '../lib/output.js';
 
-const KINDS = ['team', 'method', 'binding'];
+// Kinds d'ASSEMBLAGE (livraison d'un fichier deja redige) : `frame` est desormais EXPOSE (le
+// cablage lib ADD_DIR/checkSchema/checkRefs le supportait deja, § 0.4 / AC2.5).
+const ASSEMBLY_KINDS = ['team', 'method', 'binding', 'frame'];
+// POOL_KINDS (persona/role/principle/ritual/guardrail/skill/workflow/scaffold) : SCAFFOLD d'un
+// atome typé neuf par id (Lot 2, § 4.2) - mode distinct de la livraison de fichier.
+const KINDS = [...ASSEMBLY_KINDS, ...POOL_KINDS];
 
 export function runAdd(argv) {
   const { values, positionals } = parseArgs({
@@ -19,10 +25,22 @@ export function runAdd(argv) {
     },
   });
   const json = values.json;
-  const [kind, file] = positionals;
-  if (!kind || !KINDS.includes(kind) || !file) {
-    return fail(json, `Usage : iakaframe add <${KINDS.join('|')}> <fichier.md>`);
+  const [kind, arg] = positionals;
+  if (!kind || !KINDS.includes(kind) || !arg) {
+    return fail(json, `Usage : iakaframe add <${ASSEMBLY_KINDS.join('|')}> <fichier.md>\n        iakaframe add <${POOL_KINDS.join('|')}> <id>`);
   }
+
+  // --- Mode SCAFFOLD d'atome de pool : `add <type-de-pool> <id>` (pose un atome typé neuf). -----
+  if (POOL_KINDS.includes(kind)) {
+    const root = libraryRoot(values.root);
+    const res = scaffoldPoolAtom(kind, arg, root, { force: values.force });
+    if (!res.ok) { emit(json, { ok: false, error: res.error }, () => console.error(`Refus : ${res.error}`)); process.exitCode = 1; return; }
+    emit(json, { ok: true, kind: res.kind, id: res.id, dest: res.dest }, () => console.log(`+ ${res.kind} ${res.id} scaffolde dans ${res.dest}`));
+    return;
+  }
+
+  // --- Mode LIVRAISON d'assemblage : `add <team|method|binding|frame> <fichier.md>`. ------------
+  const file = arg;
   if (!fs.existsSync(file)) return fail(json, `Fichier introuvable : ${file}`);
 
   const root = libraryRoot(values.root);
