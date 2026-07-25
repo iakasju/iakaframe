@@ -152,11 +152,16 @@ test('assemble : auto-selection du binding par defaut (m_test+t_full)', () => {
 });
 
 // --- Controle sur la VRAIE bibliotheque du depot ---
-test('vraie bibliotheque : list personas = library PARTAGEE (12), assemble iakaframe/iakaframe-8 = 9/9', () => {
-  // La library est PARTAGEE entre toutes les frames du reservoir : elle grossit legitimement.
-  // 9 (roster iakaframe) + 3 (carter/gregan/meads, frame scrum rangee dans la library) = 12.
-  // `scan` compte la REALITE du reservoir, pas une frame. Le frame-scoping vit dans la team.
-  assert.equal(scan('personas', REPO).length, 12);
+test('vraie bibliotheque : scan personas = reservoir PARTAGE (roster 9 present, trie, sans doublon), assemble iakaframe/iakaframe-8 = 9/9', () => {
+  // La library est PARTAGEE entre toutes les frames du reservoir : elle grossit legitimement a
+  // chaque frame rangee. On n'assert donc AUCUN total fige (12/34... derive a chaque frame) mais
+  // des INVARIANTS stables du scan (invariant I2 : index par scan, trie, sans doublon) + une borne
+  // de sous-ensemble : le roster iakaframe (les 9 personas casties dans teams/iakaframe-8.md).
+  const ids = scan('personas', REPO).map(e => e.id);
+  const ROSTER_IAKAFRAME = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
+  for (const id of ROSTER_IAKAFRAME) assert.ok(ids.includes(id), `roster iakaframe manquant : ${id}`);
+  assert.deepEqual([...ids].sort((a, b) => a.localeCompare(b)), ids, 'scan trie (invariant I2)');
+  assert.equal(new Set(ids).size, ids.length, 'pas de doublon d id (invariant I2)');
   // L'assemblage reste FRAME-SCOPE : la team iakaframe-8 = 9 personas couvrant 9 roles, inchange.
   const r = assemble('iakaframe', 'iakaframe-8', null, REPO);
   assert.equal(r.ok, true);

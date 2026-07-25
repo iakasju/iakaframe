@@ -11,10 +11,18 @@ import { runShow } from '../src/commands/show.js';
 import { runAdd } from '../src/commands/add.js';
 import { runAssemble } from '../src/commands/assemble.js';
 import { runSwitch } from '../src/commands/switch.js';
+import { scan } from '../src/lib/library.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, '..', 'src', 'index.js');
 const REPO = path.join(HERE, '..', '..');
+
+// La library est PARTAGEE entre toutes les frames du reservoir : le compte de personas GROSSIT
+// legitimement a chaque frame rangee. Les tests de `list` ne figent donc AUCUN total (qui deriverait
+// a chaque frame) : ils asserent la COHERENCE avec le scan reel + une BORNE de sous-ensemble stable,
+// le roster iakaframe (les 9 personas casties dans teams/iakaframe-8.md). Mord toujours : desync
+// list<->scan, ou disparition d'une persona du roster -> rouge.
+const ROSTER_IAKAFRAME = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
 
 function run(args, opts = {}) {
   return execFileSync('node', [CLI, ...args], { cwd: REPO, encoding: 'utf8', ...opts });
@@ -42,7 +50,7 @@ test('--help liste les 6 nouveaux verbes', () => {
   }
 });
 
-test('list --json : enveloppe C-JSON { ok, count, collections } (13 collections, plus de tableau nu)', () => {
+test('list --json : enveloppe C-JSON { ok, count, collections } (13 collections, personas = scan reel)', () => {
   const data = JSON.parse(run(['list', '--json']));
   assert.equal(data.ok, true);
   assert.ok(!Array.isArray(data), 'racine = objet, jamais un tableau nu');
@@ -50,9 +58,12 @@ test('list --json : enveloppe C-JSON { ok, count, collections } (13 collections,
   assert.equal(data.collections.length, 13);
   assert.equal(data.count, data.collections.length);
   const personas = data.collections.find(d => d.collection === 'personas');
-  // `list` reflete la REALITE du reservoir : la library PARTAGEE contient les briques de TOUTES les
-  // frames (9 iakaframe + 3 scrum = 12). Le frame-scoping vit dans la team/le dispatch, pas ici.
-  assert.equal(personas.count, 12);
+  // `list` reflete la REALITE du reservoir PARTAGE (grossit par frame rangee) : on n'assert PAS un
+  // total fige, mais la COHERENCE avec le scan reel (count == ids.length == scan) + la borne roster.
+  const scanned = scan('personas', REPO);
+  assert.equal(personas.count, scanned.length, 'list count == scan reel');
+  assert.equal(personas.ids.length, scanned.length, 'list ids == scan reel');
+  for (const id of ROSTER_IAKAFRAME) assert.ok(personas.ids.includes(id), `roster iakaframe manquant : ${id}`);
 });
 
 test('list <type> --json : enveloppe { ok, type, count, items } (plus de tableau nu)', () => {
@@ -60,10 +71,14 @@ test('list <type> --json : enveloppe { ok, type, count, items } (plus de tableau
   assert.equal(data.ok, true);
   assert.ok(!Array.isArray(data));
   assert.equal(data.type, 'personas');
-  // library PARTAGEE = 12 (9 iakaframe + 3 scrum) : `list <type>` compte le reservoir, pas la frame.
-  assert.equal(data.count, 12);
-  assert.equal(data.items.length, 12);
+  // `list <type>` compte le reservoir PARTAGE (grossit par frame rangee), pas une frame : coherence
+  // count == items == scan reel (meme ensemble, meme tri) + tete de liste + presence du roster.
+  const scanned = scan('personas', REPO);
+  assert.equal(data.count, scanned.length, 'count == scan reel');
+  assert.equal(data.items.length, scanned.length, 'items == scan reel');
+  assert.deepEqual(data.items.map(i => i.id), scanned.map(e => e.id)); // meme ensemble, meme tri (I2)
   assert.equal(data.items[0].id, 'aragorn');
+  for (const id of ROSTER_IAKAFRAME) assert.ok(data.items.some(i => i.id === id), `roster iakaframe manquant : ${id}`);
 });
 
 test('list <type inconnu> : exitCode 1', () => {
