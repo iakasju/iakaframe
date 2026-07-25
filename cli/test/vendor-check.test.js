@@ -50,7 +50,7 @@ function makeCleanMirror() {
   }
   fs.copyFileSync(path.join(REPO, 'bindings', 'iakaframe-claude-default.md'),
     path.join(fx, 'binding', 'iakaframe-claude-default.md'));
-  // Workflow : copie byte-a-byte du canon (18e copie, etape 3bis). Le miroir conforme doit la porter.
+  // Workflow : copie byte-a-byte du canon (20e copie, etape 3bis). Le miroir conforme doit la porter.
   fs.copyFileSync(path.join(REPO, 'library', 'workflows', 'iakaframe-3phases.md'),
     path.join(fx, 'workflow.iakaframe-3phases.md'));
 
@@ -69,12 +69,12 @@ function makeCleanMirror() {
 const fixturePath = (m, rel) => path.join(m.fx, rel);
 const run = (m, extra = {}) => checkVendor({ root: REPO, guiRoot: m.root, ...extra });
 
-test('A2 : miroir conforme -> ok, checked == 18 et derived == 4 (attendu EXACT)', () => {
+test('A2 : miroir conforme -> ok, checked == 20 et derived == 4 (attendu EXACT)', () => {
   const m = makeCleanMirror();
   const res = run(m);
   assert.equal(res.ok, true, 'miroir synthetique conforme attendu vert : ' + JSON.stringify(res.files, null, 2));
   assert.equal(res.status, 'clean');
-  assert.equal(res.checked, 18);
+  assert.equal(res.checked, 20); // 9 personas + 9 goldens + 1 binding + 1 workflow (+ feanor)
   assert.equal(res.derived, 4);
   assert.equal(res.drift, 0);
 });
@@ -170,11 +170,11 @@ test('A7 : fixture supprimee -> rouge (jamais un compte allege qui validerait un
   fs.rmSync(fixturePath(m, path.join('personas', 'loki.md')));
   const res = run(m);
   assert.equal(res.ok, false);
-  assert.equal(res.checked, 17, 'la fixture manquante ne doit pas etre comptee comme verifiee');
+  assert.equal(res.checked, 19, 'la fixture manquante ne doit pas etre comptee comme verifiee');
   assert.ok(res.files.some((f) => f.reasons.some((r) => r.reason === 'fixture-manquante')));
 });
 
-test('A19 : ok:true implique checked == 18 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
+test('A19 : ok:true implique checked == 20 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
   const m = makeCleanMirror();
   fs.rmSync(fixturePath(m, 'team.iakaframe-8.md'));
   const res = run(m);

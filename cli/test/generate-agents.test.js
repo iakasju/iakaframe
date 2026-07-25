@@ -15,7 +15,7 @@ import { parseFrontmatter } from '../src/lib/frontmatter.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..'); // depot iakaframe (vraie bibliotheque)
-const IDS = ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
+const IDS = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
 
 // --- 1. renderAgentContract : rendu PUR, ordre de champs, golden --------------------------------
 
@@ -92,7 +92,7 @@ test('toolsForPersona : persona absente du binding => [] (=> ligne omise en aval
 
 // --- 4. Anti-regression Lot 1 : projection fidele du canon reel ---------------------------------
 
-test('generateAll : produit un contrat par persona (8)', () => {
+test('generateAll : produit un contrat par persona (9)', () => {
   const m = generateAll({ root: REPO });
   assert.equal(m.size, IDS.length);
   for (const id of IDS) assert.ok(m.has(id), `manque ${id}`);
