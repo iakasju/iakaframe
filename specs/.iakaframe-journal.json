@@ -448,5 +448,15 @@
     "dirty": true,
     "files": 913,
     "note": "Outillage de forge livre et merge : frame lint (validateur de graphe frame, parite CLI de checkFrameRefs verrouillee par test vivant), frame new (ossature lint-clean par construction), add <pool>/add frame exposes. Zero dependance, coeur GUI intouche. Gate P2->P3 Legolas PASS (522 tests, drift 0). Chantier 1 de la sequence 1+2+3 ; suite = implementer Feanor (9e persona, deja cadre)."
+  },
+  {
+    "date": "2026-07-25 22:36",
+    "reason": "version",
+    "version": "v0.23.0",
+    "branch": "main",
+    "commit": "250fea0 merge(frame): naissance de Feanor - 9e persona (role frame, Constructeur de frame) + corpus mondial source",
+    "dirty": true,
+    "files": 922,
+    "note": "Naissance de Feanor, 9e persona du roster (role frame, Constructeur de frame) : resident iakaFrameGUI, activation explicite seule (jamais deploye en equipe), binding web, skill d'erudition + corpus mondial source. Roster 8->9, vignette flamme (fin du bug i%8). Cross-repo (iakaframe + iakaFrameGUI). Gate P2->P3 Legolas PASS. Chantier 2 de la sequence 1+2+3 ; reste chantier 3 (ranger les 7 brouillons)."
   }
 ]

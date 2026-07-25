@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-25 08:52 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-25 22:36 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.22.0 |
+| Version | v0.23.0 |
 | Branche | main |
-| Dernier commit | e298139 merge(frame): outillage de forge - frame lint (parite CLI de checkFrameRefs) + scaffolds |
+| Dernier commit | 250fea0 merge(frame): naissance de Feanor - 9e persona (role frame, Constructeur de frame) + corpus mondial source |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 913 |
-| Note | Outillage de forge livre et merge : frame lint (validateur de graphe frame, parite CLI de checkFrameRefs verrouillee par test vivant), frame new (ossature lint-clean par construction), add <pool>/add frame exposes. Zero dependance, coeur GUI intouche. Gate P2->P3 Legolas PASS (522 tests, drift 0). Chantier 1 de la sequence 1+2+3 ; suite = implementer Feanor (9e persona, deja cadre). |
+| Fichiers (hors .git/node_modules) | 922 |
+| Note | Naissance de Feanor, 9e persona du roster (role frame, Constructeur de frame) : resident iakaFrameGUI, activation explicite seule (jamais deploye en equipe), binding web, skill d'erudition + corpus mondial source. Roster 8->9, vignette flamme (fin du bug i%8). Cross-repo (iakaframe + iakaFrameGUI). Gate P2->P3 Legolas PASS. Chantier 2 de la sequence 1+2+3 ; reste chantier 3 (ranger les 7 brouillons). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `250fea0` | 2026-07-25 | merge(frame): naissance de Feanor - 9e persona (role frame, Constructeur de frame) + corpus mondial source |
+| `80ccdeb` | 2026-07-25 | docs(feanor): corpus mondial sourcé et horodaté 2026-07-25 (A24) |
+| `fce279e` | 2026-07-25 | fix(method): roleKeys sur une seule ligne (préserve le test de layout wrapped GUI) |
+| `533056a` | 2026-07-25 | docs(iakaframe): comptes 9 personas / 20 copies + solde item Fëanor + dettes |
+| `9c7f025` | 2026-07-25 | test(cli): A0 gardes 8->9 remises au vert + tests activation explicite |
+| `dd3e77f` | 2026-07-25 | feat(skill): skill-rôle iakaframe-frame + corpus mondial (squelette sourcé) |
+| `600524b` | 2026-07-25 | feat(cli): activation explicite feanor + ROLE_OF/SKILL_OF frame + vendor 18->20 |
+| `e915727` | 2026-07-25 | feat(library): rôle frame + persona Fëanor (9e persona, D3) |
+| `749abbd` | 2026-07-25 | chore(iakaframe): update etat des lieux + commit global (version v0.22.0) |
 | `e298139` | 2026-07-25 | merge(frame): outillage de forge - frame lint (parite CLI de checkFrameRefs) + scaffolds |
-| `f217626` | 2026-07-25 | feat(frame): frame new <id> + add <type-de-pool> + add frame - scaffolds de forge (Lot 2) |
-| `94cb886` | 2026-07-25 | feat(frame): frame lint <id> | --all - validateur de graphe frame (Lot 1) |
-| `c517fcb` | 2026-07-25 | docs(cadrage): outillage de forge (frame lint / frame new / scaffolds) - gate P1 PASS |
-| `aaf9db6` | 2026-07-25 | docs(cadrage): role-frame-builder re-ancre sur le reservoir (v0.21.0) - re-gate P1 PASS |
-| `636a651` | 2026-07-24 | chore(iakaframe): update etat des lieux + commit global (version v0.21.0) |
-| `7407321` | 2026-07-24 | merge(frame): iakaframe devient le reservoir de frames - pointeur iakaframeactive par projet - gate P2->P3 Legolas PASS |
-| `ad265c4` | 2026-07-24 | docs(backlog): reservoir implemente + gate P2->P3 Legolas PASS - reserve UI a solder |
-| `aa7cc4e` | 2026-07-24 | feat(switch): garde de coherence .iakaframe.frame <-> iakaframe-kit.json |
-| `6870364` | 2026-07-24 | docs(backlog): catalogue 7 frames + 3 biais d'architecture (demo Feanor) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-25 22:36 | version | v0.23.0 | main | Naissance de Feanor, 9e persona du roster (role frame, Constructeur de frame) : resident iakaFrameGUI, activation explicite seule (jamais deploye en equipe), binding web, skill d'erudition + corpus mondial source. Roster 8->9, vignette flamme (fin du bug i%8). Cross-repo (iakaframe + iakaFrameGUI). Gate P2->P3 Legolas PASS. Chantier 2 de la sequence 1+2+3 ; reste chantier 3 (ranger les 7 brouillons). |
 | 2026-07-25 08:52 | version | v0.22.0 | main | Outillage de forge livre et merge : frame lint (validateur de graphe frame, parite CLI de checkFrameRefs verrouillee par test vivant), frame new (ossature lint-clean par construction), add <pool>/add frame exposes. Zero dependance, coeur GUI intouche. Gate P2->P3 Legolas PASS (522 tests, drift 0). Chantier 1 de la sequence 1+2+3 ; suite = implementer Feanor (9e persona, deja cadre). |
 | 2026-07-24 23:48 | version | v0.21.0 | main | iakaframe devient le RESERVOIR de frames : nouvelle collection frames/ (descripteur de 1re classe) + pointeur iakaframeactive par projet (frame active = propriete du lieu, repli default = 0 regression) ; iakastart/fullteam lisent la frame active ; miroir GUI (resolveAssembly mono->multi, renommage element-pool). Gate P1 + P2->P3 Legolas PASS. En parallele : catalogue de 7 frames forges par Feanor (251 fichiers, 0 id pendant) + 3 biais d'architecture backlogges. |
 | 2026-07-23 18:51 | pause | v0.20.4 | main | reprise de session 2026-07-23 : solde du snapshot de pause + purge du backlog |
