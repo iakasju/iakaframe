@@ -140,22 +140,35 @@ export function affectPersona(name, { project, global = false, force = false, bi
 /** @deprecated alias retro-compat de affectPersona (conserve >= 1 version mineure). */
 export const affectAgent = affectPersona;
 
+// Personas DISPATCHABLES d'une team : personas de la team MOINS l'union portefeuille + activation
+// explicite (feanor est MEMBRE de la team mais hors dispatch auto ; sans ce filtre fullteam le
+// deploierait — filtre OBLIGATOIRE, D-G/A23). Team introuvable/vide -> [] (JAMAIS la library
+// entiere : ce serait une fuite de perimetre, cf. frameTeamPersonas).
+function teamDispatchPersonas(teamId, root) {
+  if (!teamId) return [];
+  const team = readEntry('teams', teamId, root);
+  if (!team) return [];
+  return toArray(team.data.personas).filter(p => !NON_DISPATCH_PERSONAS.includes(p)).sort();
+}
+
 // Personas de la TEAM de la frame active d'un projet (D-E, reservoir-de-frames.md) : pointeur
 // <projet>/.iakaframe -> frame active -> descripteur -> teamId -> personas de la team, MOINS le
-// portefeuille (odin reste hors dispatch projet). Repli TOUJOURS defini : team introuvable /
-// vide -> library entiere moins portefeuille (comportement historique, zero regression). Ce
-// repli garantit qu'un projet SANS pointeur (usage courant) se comporte comme avant.
+// portefeuille + activation explicite (odin/feanor hors dispatch projet).
+//
+// FRAME-SCOPING (correctif de fuite) : le repli n'est PLUS « toute la library moins portefeuille »
+// mais LA TEAM DU DEFAULT (`iakaframe` -> `iakaframe-8`), resolue explicitement. La library est
+// PARTAGEE entre toutes les frames du reservoir (elle grossit legitimement : scrum y range
+// carter/gregan/meads) ; retomber dessus ferait FUITER les personas d'autres frames vers un projet
+// iakaframe SANS pointeur. On retombe donc sur la team du default, jamais sur la library entiere.
+// Un projet SANS pointeur (usage courant) reste ainsi cable sur le roster iakaframe, comme avant.
 export function frameTeamPersonas(projectDir) {
   const root = libraryRoot();
-  const teamId = activeTeamId(projectDir, root);
-  if (teamId) {
-    const team = readEntry('teams', teamId, root);
-    // Exclusion de l'UNION portefeuille + activation explicite (feanor est MEMBRE de la team mais
-    // hors dispatch auto ; sans ce filtre fullteam le deploierait — filtre OBLIGATOIRE, D-G/A23).
-    const personas = team ? toArray(team.data.personas).filter(p => !NON_DISPATCH_PERSONAS.includes(p)) : [];
-    if (personas.length) return personas.sort();
-  }
-  return listPersonas().filter(a => !NON_DISPATCH_PERSONAS.includes(a));
+  // 1. Team de la frame active (activeTeamId retombe DEJA sur la team du default si la frame
+  //    active est introuvable, cf. frame-active.js).
+  const active = teamDispatchPersonas(activeTeamId(projectDir, root), root);
+  if (active.length) return active;
+  // 2. Repli ANTI-FUITE : team du DEFAULT resolue explicitement (jamais la library entiere).
+  return teamDispatchPersonas(activeTeamId(null, root), root);
 }
 
 // Personas reellement assignees a un projet (<projet>/.claude/agents), sinon la TEAM de la frame

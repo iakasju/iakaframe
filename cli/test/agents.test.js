@@ -22,6 +22,9 @@ function synthRoot() {
   fs.writeFileSync(path.join(root, 'frames', 'trio.md'),
     '---\nid: trio\nname: Frame trio\nversion: v9.9.9\nmethodId: iakaframe\nteamId: trio\n---\n# frame\n');
   fs.copyFileSync(path.join(REPO, 'frames', 'iakaframe.md'), path.join(root, 'frames', 'iakaframe.md'));
+  // Team du DEFAULT : indispensable au repli frame-scope (frameTeamPersonas retombe sur la team
+  // du default, JAMAIS sur la library entiere). On copie la vraie team iakaframe-8 (roster canon 9).
+  fs.copyFileSync(path.join(REPO, 'teams', 'iakaframe-8.md'), path.join(root, 'teams', 'iakaframe-8.md'));
   return root;
 }
 function withHome(root, fn) {
@@ -115,6 +118,21 @@ test('frameTeamPersonas : pointeur absent -> team du default (repli, zero regres
     // hors projet -> frame default iakaframe -> team iakaframe-8 -> 7 (odin hors dispatch)
     assert.deepEqual(frameTeamPersonas(tmp()),
       ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
+  });
+});
+
+// ANTI-FUITE (frame-scoping) : la library est PARTAGEE entre frames et contient les personas de
+// scrum (carter/gregan/meads). Un projet iakaframe SANS pointeur ne doit JAMAIS les recevoir : le
+// repli est la team du DEFAULT, pas la library entiere. Ce test garde la fuite de perimetre fermee.
+test('frameTeamPersonas : projet sans pointeur -> team du default, ZERO fuite d\'autres frames', () => {
+  withHome(synthRoot(), () => {
+    const team = frameTeamPersonas(tmp());
+    // exactement le roster dispatchable du default (9 - odin - feanor = 7)
+    assert.deepEqual(team, ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
+    // AUCUNE persona d'une autre frame (scrum) ne fuit, meme si elle existe dans la library partagee
+    for (const foreign of ['carter', 'gregan', 'meads']) {
+      assert.ok(!team.includes(foreign), `fuite : ${foreign} (frame scrum) ne doit PAS apparaitre`);
+    }
   });
 });
 
