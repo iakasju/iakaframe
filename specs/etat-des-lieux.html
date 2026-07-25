@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-07-25 22:36 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-07-25 23:48 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
-  <div class="k">Version</div><div>v0.23.0</div>
+  <div class="k">Version</div><div>v0.24.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>250fea0 merge(frame): naissance de Feanor - 9e persona (role frame, Constructeur de frame) + corpus mondial source</code></div>
+  <div class="k">Dernier commit</div><div><code>85e3cc1 merge(frame): pilote de rangement - Scrum dans le reservoir + fix du repli frame-scope</code></div>
   <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
-  <div class="k">Fichiers</div><div>922 (hors .git / node_modules)</div>
-  <div class='k'>Note</div><div>Naissance de Feanor, 9e persona du roster (role frame, Constructeur de frame) : resident iakaFrameGUI, activation explicite seule (jamais deploye en equipe), binding web, skill d'erudition + corpus mondial source. Roster 8-&gt;9, vignette flamme (fin du bug i%8). Cross-repo (iakaframe + iakaFrameGUI). Gate P2-&gt;P3 Legolas PASS. Chantier 2 de la sequence 1+2+3 ; reste chantier 3 (ranger les 7 brouillons).</div>
+  <div class="k">Fichiers</div><div>957 (hors .git / node_modules)</div>
+  <div class='k'>Note</div><div>Pilote de rangement : 1re frame tierce (Scrum) rangee dans le reservoir (descripteur + assemblage sur library partagee, dedup conservatrice). Le pilote a revele un defaut latent - repli frameTeamPersonas non frame-scope (fuite inter-frames) - corrige (repli sur team du default + test anti-fuite). Default byte-inchange. Chantier 3 en cours (1/7 frames rangees) ; suite = les 6 autres en batch.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>250fea0</code></td><td>2026-07-25</td><td>merge(frame): naissance de Feanor - 9e persona (role frame, Constructeur de frame) + corpus mondial source</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>85e3cc1</code></td><td>2026-07-25</td><td>merge(frame): pilote de rangement - Scrum dans le reservoir + fix du repli frame-scope</td></tr>
+<tr><td><code>3b84843</code></td><td>2026-07-25</td><td>test(list): aligner les comptes personas sur la realite du reservoir (library partagee = 12)</td></tr>
+<tr><td><code>f269f23</code></td><td>2026-07-25</td><td>fix(generate): frame-scope generateAll sur la team (default/projet), plus la library entiere</td></tr>
+<tr><td><code>3d299b2</code></td><td>2026-07-25</td><td>fix(agents): frame-scope le repli frameTeamPersonas (ferme la fuite inter-frames)</td></tr>
+<tr><td><code>2115970</code></td><td>2026-07-25</td><td>feat(frame): range la frame Scrum dans le reservoir (pilote, brique-&gt;library partagee)</td></tr>
+<tr><td><code>ec6a3e3</code></td><td>2026-07-25</td><td>docs(cadrage): rangement du catalogue de frames dans le reservoir - gate P1 PASS</td></tr>
+<tr><td><code>fc7d64f</code></td><td>2026-07-25</td><td>chore(iakaframe): update etat des lieux + commit global (version v0.23.0)</td></tr>
+<tr><td><code>250fea0</code></td><td>2026-07-25</td><td>merge(frame): naissance de Feanor - 9e persona (role frame, Constructeur de frame) + corpus mondial source</td></tr>
 <tr><td><code>80ccdeb</code></td><td>2026-07-25</td><td>docs(feanor): corpus mondial sourcé et horodaté 2026-07-25 (A24)</td></tr>
 <tr><td><code>fce279e</code></td><td>2026-07-25</td><td>fix(method): roleKeys sur une seule ligne (préserve le test de layout wrapped GUI)</td></tr>
-<tr><td><code>533056a</code></td><td>2026-07-25</td><td>docs(iakaframe): comptes 9 personas / 20 copies + solde item Fëanor + dettes</td></tr>
-<tr><td><code>9c7f025</code></td><td>2026-07-25</td><td>test(cli): A0 gardes 8-&gt;9 remises au vert + tests activation explicite</td></tr>
-<tr><td><code>dd3e77f</code></td><td>2026-07-25</td><td>feat(skill): skill-rôle iakaframe-frame + corpus mondial (squelette sourcé)</td></tr>
-<tr><td><code>600524b</code></td><td>2026-07-25</td><td>feat(cli): activation explicite feanor + ROLE_OF/SKILL_OF frame + vendor 18-&gt;20</td></tr>
-<tr><td><code>e915727</code></td><td>2026-07-25</td><td>feat(library): rôle frame + persona Fëanor (9e persona, D3)</td></tr>
-<tr><td><code>749abbd</code></td><td>2026-07-25</td><td>chore(iakaframe): update etat des lieux + commit global (version v0.22.0)</td></tr>
-<tr><td><code>e298139</code></td><td>2026-07-25</td><td>merge(frame): outillage de forge - frame lint (parite CLI de checkFrameRefs) + scaffolds</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-07-25 23:48</td><td><span class='r r-version'>version</span></td><td>v0.24.0</td><td>main</td><td>Pilote de rangement : 1re frame tierce (Scrum) rangee dans le reservoir (descripteur + assemblage sur library partagee, dedup conservatrice). Le pilote a revele un defaut latent - repli frameTeamPersonas non frame-scope (fuite inter-frames) - corrige (repli sur team du default + test anti-fuite). Default byte-inchange. Chantier 3 en cours (1/7 frames rangees) ; suite = les 6 autres en batch.</td></tr>
 <tr><td>2026-07-25 22:36</td><td><span class='r r-version'>version</span></td><td>v0.23.0</td><td>main</td><td>Naissance de Feanor, 9e persona du roster (role frame, Constructeur de frame) : resident iakaFrameGUI, activation explicite seule (jamais deploye en equipe), binding web, skill d'erudition + corpus mondial source. Roster 8-&gt;9, vignette flamme (fin du bug i%8). Cross-repo (iakaframe + iakaFrameGUI). Gate P2-&gt;P3 Legolas PASS. Chantier 2 de la sequence 1+2+3 ; reste chantier 3 (ranger les 7 brouillons).</td></tr>
 <tr><td>2026-07-25 08:52</td><td><span class='r r-version'>version</span></td><td>v0.22.0</td><td>main</td><td>Outillage de forge livre et merge : frame lint (validateur de graphe frame, parite CLI de checkFrameRefs verrouillee par test vivant), frame new (ossature lint-clean par construction), add &lt;pool&gt;/add frame exposes. Zero dependance, coeur GUI intouche. Gate P2-&gt;P3 Legolas PASS (522 tests, drift 0). Chantier 1 de la sequence 1+2+3 ; suite = implementer Feanor (9e persona, deja cadre).</td></tr>
 <tr><td>2026-07-24 23:48</td><td><span class='r r-version'>version</span></td><td>v0.21.0</td><td>main</td><td>iakaframe devient le RESERVOIR de frames : nouvelle collection frames/ (descripteur de 1re classe) + pointeur iakaframeactive par projet (frame active = propriete du lieu, repli default = 0 regression) ; iakastart/fullteam lisent la frame active ; miroir GUI (resolveAssembly mono-&gt;multi, renommage element-pool). Gate P1 + P2-&gt;P3 Legolas PASS. En parallele : catalogue de 7 frames forges par Feanor (251 fichiers, 0 id pendant) + 3 biais d'architecture backlogges.</td></tr>

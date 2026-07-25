@@ -458,5 +458,15 @@
     "dirty": true,
     "files": 922,
     "note": "Naissance de Feanor, 9e persona du roster (role frame, Constructeur de frame) : resident iakaFrameGUI, activation explicite seule (jamais deploye en equipe), binding web, skill d'erudition + corpus mondial source. Roster 8->9, vignette flamme (fin du bug i%8). Cross-repo (iakaframe + iakaFrameGUI). Gate P2->P3 Legolas PASS. Chantier 2 de la sequence 1+2+3 ; reste chantier 3 (ranger les 7 brouillons)."
+  },
+  {
+    "date": "2026-07-25 23:48",
+    "reason": "version",
+    "version": "v0.24.0",
+    "branch": "main",
+    "commit": "85e3cc1 merge(frame): pilote de rangement - Scrum dans le reservoir + fix du repli frame-scope",
+    "dirty": true,
+    "files": 957,
+    "note": "Pilote de rangement : 1re frame tierce (Scrum) rangee dans le reservoir (descripteur + assemblage sur library partagee, dedup conservatrice). Le pilote a revele un defaut latent - repli frameTeamPersonas non frame-scope (fuite inter-frames) - corrige (repli sur team du default + test anti-fuite). Default byte-inchange. Chantier 3 en cours (1/7 frames rangees) ; suite = les 6 autres en batch."
   }
 ]
