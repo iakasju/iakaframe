@@ -110,6 +110,33 @@ test('AC1.5 : workflow agentsRoleKeys pendant (T5) ; skill subskills pendant + s
   assert.ok(res.findings.find(x => x.source === 'skill:s1' && x.field === 'subskills' && x.id === 'skFantome' && x.severity === 'blocking'), 'T3 subskill pendant non bloque');
 });
 
+// AC4 (correction-biais-modele-frame.md § 3.1 / § 6) — REFERME LA VACUITE DU § 1.3. Avant ce lot,
+// `workflowRoleKeys` ne lisait QUE `phases[].agentsRoleKeys` : les refs d'acteurs des frames forges
+// (champ unifie `actorsRoleKeys`, et conteneur `stages` pour Kanban) echappaient au lint. La lecture
+// alias-aware les verifie DESORMAIS reellement : une roleKey pendante dans un `actorsRoleKeys` (ou
+// sous `stages`) DOIT rougir. Sans le fix, ces deux cas passeraient en silence (faux vert).
+test('AC4 : actorsRoleKeys (canon A-2) pendant -> bloquant (le champ unifie est ENFIN lu)', () => {
+  const root = makeReservoir();
+  W(path.join(root, 'library/workflows/wf.md'),
+    '---\nid: wf\nname: WF\nkind: pipeline\nphases:\n  - { id: p1, label: P1, actorsRoleKeys: [dev, roleFantome] }\n---\n# wf\n');
+  const res = lintFrame('f1', root);
+  assert.equal(res.ok, false, 'une roleKey pendante dans actorsRoleKeys doit rougir (AC4)');
+  assert.ok(res.findings.find(x => x.source === 'workflow:wf' && x.id === 'roleFantome' && x.severity === 'blocking'),
+    'la ref d\'acteur pendante (actorsRoleKeys) doit etre un finding bloquant');
+  // Non-regression : les roleKeys valides du meme champ ne rougissent pas.
+  assert.ok(!res.findings.some(x => x.id === 'dev' && x.severity === 'blocking'), 'dev valide ne doit pas rougir');
+});
+
+test('AC4 bis : stages[].actorsRoleKeys (alias conteneur Kanban) pendant -> bloquant', () => {
+  const root = makeReservoir();
+  W(path.join(root, 'library/workflows/wf.md'),
+    '---\nid: wf\nname: WF\nkind: flow\nstages:\n  - { id: s1, label: S1, actorsRoleKeys: [dev, stageFantome] }\n---\n# wf\n');
+  const res = lintFrame('f1', root);
+  assert.equal(res.ok, false, 'un stages[].actorsRoleKeys pendant doit rougir (conteneur unifie lu)');
+  assert.ok(res.findings.find(x => x.source === 'workflow:wf' && x.id === 'stageFantome' && x.severity === 'blocking'),
+    'la ref d\'acteur pendante sous stages doit etre bloquante');
+});
+
 test('AC1.6 : role requis non couvert + coordinateur retire -> orphelin bloquant ; couvert par coordinateur -> avertissement', () => {
   // Cas 1 : bob (roleKey qa) retire du casting ET pas de coordinateur => qa orphelin bloquant.
   const root = makeReservoir();

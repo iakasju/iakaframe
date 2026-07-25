@@ -23,13 +23,21 @@ export const POOL_TYPES = [
   'personas', 'skills', 'principles', 'rituals', 'guardrails', 'roles', 'workflows', 'scaffolds',
 ];
 
-// roleKeys sortantes d'un workflow : extraites de `phases[].agentsRoleKeys` (miroir exact de
-// parseWorkflowRefs du coeur - le champ REEL du canon, pas le roleKeys calibre).
+// roleKeys sortantes d'un workflow (modele AGNOSTIQUE, correction-biais-modele-frame.md § 3.1).
+// Lecture ALIAS-AWARE, miroir EXACT de parseWorkflowRefs du coeur (@iakaframe/core frame.ts) :
+//   - conteneur d'etapes unifie : `phases` (canon, A-1) OU `stages` (alias Kanban) ;
+//   - champ d'acteurs unifie : `actorsRoleKeys` (canon, A-2) OU `agentsRoleKeys` (alias retro-compat).
+// AVANT ce lot, seul `phases[].agentsRoleKeys` etait lu : les refs d'acteurs des 8 frames forges (qui
+// portent `actorsRoleKeys`, et `stages` pour Kanban) ECHAPPAIENT au lint (vacuite § 1.3). Ce
+// correctif de justesse ferme le trou : une roleKey pendante dans un `actorsRoleKeys` forge rougit
+// desormais reellement (AC4). Le libelle de finding reste `agentsRoleKeys` (stable, parite CLI<->GUI).
 function workflowRoleKeys(data) {
   const out = [];
-  for (const ph of toArray(data.phases)) {
+  const steps = data.phases != null ? data.phases : data.stages;
+  for (const ph of toArray(steps)) {
     if (ph && typeof ph === 'object') {
-      for (const k of toArray(ph.agentsRoleKeys)) if (!out.includes(k)) out.push(k);
+      const actors = ph.actorsRoleKeys != null ? ph.actorsRoleKeys : ph.agentsRoleKeys;
+      for (const k of toArray(actors)) if (!out.includes(k)) out.push(k);
     }
   }
   return out;
