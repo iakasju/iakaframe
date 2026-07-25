@@ -438,5 +438,15 @@
     "dirty": true,
     "files": 907,
     "note": "iakaframe devient le RESERVOIR de frames : nouvelle collection frames/ (descripteur de 1re classe) + pointeur iakaframeactive par projet (frame active = propriete du lieu, repli default = 0 regression) ; iakastart/fullteam lisent la frame active ; miroir GUI (resolveAssembly mono->multi, renommage element-pool). Gate P1 + P2->P3 Legolas PASS. En parallele : catalogue de 7 frames forges par Feanor (251 fichiers, 0 id pendant) + 3 biais d'architecture backlogges."
+  },
+  {
+    "date": "2026-07-25 08:52",
+    "reason": "version",
+    "version": "v0.22.0",
+    "branch": "main",
+    "commit": "e298139 merge(frame): outillage de forge - frame lint (parite CLI de checkFrameRefs) + scaffolds",
+    "dirty": true,
+    "files": 913,
+    "note": "Outillage de forge livre et merge : frame lint (validateur de graphe frame, parite CLI de checkFrameRefs verrouillee par test vivant), frame new (ossature lint-clean par construction), add <pool>/add frame exposes. Zero dependance, coeur GUI intouche. Gate P2->P3 Legolas PASS (522 tests, drift 0). Chantier 1 de la sequence 1+2+3 ; suite = implementer Feanor (9e persona, deja cadre)."
   }
 ]
