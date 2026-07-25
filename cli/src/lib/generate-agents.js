@@ -14,6 +14,7 @@
 import fs from 'node:fs';
 import { buildDocument, parseFrontmatter } from './frontmatter.js';
 import { scan, pathFor, readEntry, bindingRows, toArray, libraryRoot } from './library.js';
+import { activeTeamId } from './frame-active.js';
 
 // Id du binding defaut (MVP : un seul binding claude ; cf. bindings/iakaframe-claude-default.md).
 export const DEFAULT_BINDING_ID = 'iakaframe-claude-default';
@@ -87,12 +88,22 @@ export function loadDefaultBinding(root) {
   return all.length ? readEntry('bindings', all[0].id, root) : null;
 }
 
-// --- Generation de TOUS les contrats (Map<id, contenu>) ---------------------------------------
-export function generateAll({ root = libraryRoot(), binding } = {}) {
+// --- Generation des contrats de la TEAM D'UNE FRAME (Map<id, contenu>) -------------------------
+// FRAME-SCOPING (correctif de fuite) : on ne genere plus « tout ce qui traine dans la library »
+// (partagee entre frames, elle contient carter/gregan/meads de scrum) mais EXACTEMENT les personas
+// de la team d'une frame :
+//   - `project` fourni -> team de la frame ACTIVE de ce projet (repli: team du default) ;
+//   - sinon           -> team du DEFAULT (`iakaframe` -> `iakaframe-8`, roster canon 9).
+// Un id de team absent de la library est ignore silencieusement (team > library, garde defensive).
+export function generateAll({ root = libraryRoot(), binding, project } = {}) {
   const b = binding || loadDefaultBinding(root);
+  const teamId = activeTeamId(project == null ? null : project, root);
+  const team = teamId ? readEntry('teams', teamId, root) : null;
+  const ids = team ? toArray(team.data.personas) : [];
   const out = new Map();
-  for (const e of scan('personas', root)) {
-    out.set(e.id, generateAgent(e.id, { root, binding: b }));
+  for (const id of ids) {
+    const file = pathFor('personas', id, root);
+    if (file && fs.existsSync(file)) out.set(id, generateAgent(id, { root, binding: b }));
   }
   return out;
 }

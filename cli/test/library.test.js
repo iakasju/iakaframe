@@ -152,8 +152,12 @@ test('assemble : auto-selection du binding par defaut (m_test+t_full)', () => {
 });
 
 // --- Controle sur la VRAIE bibliotheque du depot ---
-test('vraie bibliotheque : list personas = 9, assemble iakaframe/iakaframe-8 = 9/9', () => {
-  assert.equal(scan('personas', REPO).length, 9); // + feanor (9e persona, roleKey frame)
+test('vraie bibliotheque : list personas = library PARTAGEE (12), assemble iakaframe/iakaframe-8 = 9/9', () => {
+  // La library est PARTAGEE entre toutes les frames du reservoir : elle grossit legitimement.
+  // 9 (roster iakaframe) + 3 (carter/gregan/meads, frame scrum rangee dans la library) = 12.
+  // `scan` compte la REALITE du reservoir, pas une frame. Le frame-scoping vit dans la team.
+  assert.equal(scan('personas', REPO).length, 12);
+  // L'assemblage reste FRAME-SCOPE : la team iakaframe-8 = 9 personas couvrant 9 roles, inchange.
   const r = assemble('iakaframe', 'iakaframe-8', null, REPO);
   assert.equal(r.ok, true);
   assert.deepEqual(r.orphans, []);
