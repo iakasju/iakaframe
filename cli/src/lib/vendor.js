@@ -12,7 +12,7 @@
 // depots ». C'est le maximum atteignable sans depot tiers d'ancrage.
 //
 // DEUX NATURES DE FIXTURES, deux traitements (§ 3.3) — ne jamais les confondre :
-//   - 18 COPIES (8 personas + 8 goldens + 1 binding + 1 workflow) -> comparaison BYTE-A-BYTE ;
+//   - 20 COPIES (9 personas + 9 goldens + 1 binding + 1 workflow) -> comparaison BYTE-A-BYTE ;
 //   - 4 DERIVEES (methode, methode wrapped, team, kit) -> ce sont des formes canoniques
 //     SERIALISEES, pas des copies. Comparaison de FRONTMATTER SEMANTIQUE, corps EXEMPTE.
 //     Exception : le kit, seul cas ou une egalite byte est definie, et elle l'est contre le
@@ -25,9 +25,9 @@ import { parseFrontmatter } from './frontmatter.js';
 import { generateAgent, loadDefaultBinding } from './generate-agents.js';
 
 // Meme liste et meme ordre que le test d'inventaire de cli/test/parite-generateurs.test.js.
-export const IDS = ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
+export const IDS = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
 
-export const EXPECTED_COPIES = 18;   // 8 personas + 8 goldens + 1 binding + 1 workflow
+export const EXPECTED_COPIES = 20;   // 9 personas + 9 goldens + 1 binding + 1 workflow (+ feanor)
 export const EXPECTED_DERIVED = 4;   // methode, methode wrapped, team, kit
 
 const FIXTURES_REL = path.join('packages', 'core', '__tests__', 'fixtures');

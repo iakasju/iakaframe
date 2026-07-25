@@ -15,6 +15,13 @@ import { activeTeamId } from './frame-active.js';
 import { generateAgent, loadDefaultBinding } from './generate-agents.js';
 
 // Persona (code-nom) -> rôle canonique incarné (réf. CANONICAL_ROLES de @iakaframe/core).
+//
+// ⚠️ DIVERGENCE LEXICALE ASSUMEE (R5, § 9.2 de role-frame-builder.md). Cette table porte encore
+// l'ANCIEN vocabulaire (architecture/fabrication/tests/graphisme/doc) — c'est le SEUL et dernier
+// porteur en divergence, la reconciliation `ROLE_OF` est HORS PERIMETRE (poste B3 de
+// vocabulaire-roles-agnostique.md). L'entree `feanor: 'frame'` est ecrite au vocabulaire CANON
+// (le role `frame` n'a pas d'ancien equivalent : il est net-neuf). La table est donc, a partir
+// d'ici, a DEUX vocabulaires. C'est DELIBERE et documente, pas une incoherence accidentelle.
 export const ROLE_OF = {
   odin: 'portefeuille',
   aragorn: 'coordination',
@@ -24,6 +31,7 @@ export const ROLE_OF = {
   helm: 'coordination',   // déploiement prod : rattaché à la coordination (cf. core skill.ts)
   loki: 'graphisme',
   nathalie: 'doc',
+  feanor: 'frame',        // vocabulaire CANON (role net-neuf, cf. avertissement ci-dessus)
 };
 
 // Rôle canonique -> skill de la méthode. La skill est portee par le RÔLE, pas la persona.
@@ -35,6 +43,7 @@ export const SKILL_OF = {
   tests: 'iakaframe-qualite',
   graphisme: 'iakaframe-naonedge',
   doc: 'iakaframe-nathalie',
+  frame: 'iakaframe-frame',           // skill-rôle de Fëanor (érudition + corpus, vocabulaire CANON)
 };
 
 // Surcharge de skill au niveau PERSONA : quand une persona porte une skill differente de la
@@ -56,6 +65,17 @@ export function skillOfPersona(name) {
 export const PORTFOLIO_PERSONAS = ['odin'];
 /** @deprecated alias retro-compat de PORTFOLIO_PERSONAS (conserve >= 1 version mineure). */
 export const PORTFOLIO_AGENTS = PORTFOLIO_PERSONAS;
+
+// Personas a ACTIVATION EXPLICITE (D-G de role-frame-builder.md, arbitrage 5). MEMBRES du roster
+// d'equipe (roleKey reel) mais JAMAIS spawnes par le dispatch automatique : ils ne s'activent que
+// sur demande explicite de l'utilisateur. Constante DISTINCTE de PORTFOLIO_PERSONAS : meme
+// COMPORTEMENT (exclusion de fullteam), RAISON differente (portefeuille au-dessus des equipes vs
+// membre d'equipe a activation explicite). Surcharger PORTFOLIO_PERSONAS mentirait sur la raison
+// (R13). L'exclusion du dispatch porte sur l'UNION des deux listes (cf. frameTeamPersonas).
+export const EXPLICIT_ACTIVATION_PERSONAS = ['feanor'];
+
+// Union exclue du dispatch automatique : portefeuille + activation explicite.
+export const NON_DISPATCH_PERSONAS = [...PORTFOLIO_PERSONAS, ...EXPLICIT_ACTIVATION_PERSONAS];
 
 function copyDir(src, dst) {
   fs.mkdirSync(dst, { recursive: true });
@@ -130,10 +150,12 @@ export function frameTeamPersonas(projectDir) {
   const teamId = activeTeamId(projectDir, root);
   if (teamId) {
     const team = readEntry('teams', teamId, root);
-    const personas = team ? toArray(team.data.personas).filter(p => !PORTFOLIO_PERSONAS.includes(p)) : [];
+    // Exclusion de l'UNION portefeuille + activation explicite (feanor est MEMBRE de la team mais
+    // hors dispatch auto ; sans ce filtre fullteam le deploierait — filtre OBLIGATOIRE, D-G/A23).
+    const personas = team ? toArray(team.data.personas).filter(p => !NON_DISPATCH_PERSONAS.includes(p)) : [];
     if (personas.length) return personas.sort();
   }
-  return listPersonas().filter(a => !PORTFOLIO_PERSONAS.includes(a));
+  return listPersonas().filter(a => !NON_DISPATCH_PERSONAS.includes(a));
 }
 
 // Personas reellement assignees a un projet (<projet>/.claude/agents), sinon la TEAM de la frame
@@ -156,7 +178,7 @@ export const assignedAgents = assignedPersonas;
 export function fullteam({ project, global = false, force = false } = {}) {
   const binding = loadDefaultBinding(libraryRoot()); // charge une fois, reutilise par persona
   for (const name of frameTeamPersonas(project)) {
-    if (PORTFOLIO_PERSONAS.includes(name)) continue;
+    if (NON_DISPATCH_PERSONAS.includes(name)) continue; // portefeuille + activation explicite (feanor)
     affectPersona(name, { project, global, force, binding });
   }
 }
