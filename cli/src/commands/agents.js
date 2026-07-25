@@ -65,7 +65,9 @@ export function runAgents(argv) {
       //    (filet anti-derive : garantit deploye == source-genere).
       const target = values.global ? path.join(os.homedir(), '.claude') : path.join(path.resolve(project), '.claude');
       const dir = path.join(target, 'agents');
-      const contracts = generateAll({ root: libraryRoot() });
+      // FRAME-SCOPING : deployer EXACTEMENT la team de la frame (global -> team du default ; projet
+      // -> team de la frame active du projet), jamais toute la library partagee (fuite inter-frames).
+      const contracts = generateAll({ root: libraryRoot(), project: values.global ? null : project });
       const rows = [];
       let drift = 0;
       for (const [id, content] of contracts) {
