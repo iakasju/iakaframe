@@ -2,7 +2,10 @@
 
 > Socle écrit (§ 2.4 de `role-frame-builder.md`). Structuré par l'axe unique : **(a)** forme du
 > modèle · **(b)** surface d'extension · **(c)** rapport à iakaframe. Sources : `sources.md`.
-> Passages `[WEB-À-VÉRIFIER]` = à re-vérifier/horodater par un agent web (Gimli n'a pas d'outils web).
+> Chaque affirmation notable porte sa source datée (**vérifié le 2026-07-25** contre la doc/dépôt
+> officiel). Les marqueurs `[WEB-À-VÉRIFIER]` du squelette Gimli ont tous été levés ; les évolutions
+> majeures repérées (BMAD v6 modules, AutoGen → Microsoft Agent Framework, ChatDev 2.0) sont
+> signalées en « Note d'actualité » ou « Correction du squelette ».
 
 ---
 
@@ -23,14 +26,31 @@
 
 ## 1. BMAD-METHOD — *le plus proche parent de Fëanor*
 
-- **(a) forme** — agents **markdown + YAML**. Roster de **livraison** (`analyst`, `pm`, `architect`,
-  `sm`, `dev`, `qa`, `ux-expert`) distinct d'agents **hors chaîne** (`bmad-orchestrator`,
-  `bmad-master`). [WEB-À-VÉRIFIER : composition exacte du roster à la version courante]
-- **(b) surface d'extension** — les **expansion packs** : dossiers modulaires portant leurs propres
-  agents et tâches, avec un **outillage de création dédié**. L'extension est une surface **séparée**.
+- **(a) forme** — agents **markdown + YAML**, chacun incarné par une **persona nommée**. À la
+  version courante **v6** (v6.8/v6.9, ~49k étoiles, MIT), le roster de **livraison** est composé de
+  personas nommées : **Mary (Analyst)**, **John (PM)**, **Sally (UX)**, **Winston (Architect)**,
+  **Amelia (Dev)**, **Paige (Tech Writer)** ; la QA est portée par un module dédié (**TEA**, Test
+  Architect) et le flux autonome par un worker **`bmad-dev-auto`** piloté par machine à états
+  (*draft → ready-for-dev → in-progress → in-review → done*). *Vérifié le 2026-07-25 (DeepWiki
+  architecture overview).*
+- **(b) surface d'extension** — un **système de modules** (déclaré dans `bmad-modules.yaml`) :
+  **BMM** (BMad Method Module, workflows cœur), **BMB** (BMad Builder, *« Create custom BMad agents
+  and workflows »*), **TEA** (Test Architect), **BMGD** (Game Dev Studio), **CIS** (Creative
+  Intelligence Suite). **BMB est la surface de forge dédiée** — c'est le module qui sert à créer de
+  nouveaux agents et workflows, séparé de l'équipe de livraison. *Vérifié le 2026-07-25 (README du
+  dépôt).*
 - **(c)** — **parent direct** du rôle `frame` : BMAD confirme, dans l'état de l'art, que « construire/
-  étendre le framework » est une surface distincte de l'équipe de livraison, avec son outillage.
-- **Sources** : docs `expansion-packs.md` + architecture (voir `sources.md`). [WEB-À-VÉRIFIER : horodatage]
+  étendre le framework » est une surface distincte de l'équipe de livraison, avec son outillage —
+  exactement ce que le module **BMB** incarne et ce que Fëanor porte côté iakaframe.
+- **⚠️ Correction du squelette** — le squelette Gimli décrivait le modèle **v4/v5** : roster
+  `analyst/pm/architect/sm/dev/qa/ux-expert`, agents hors chaîne `bmad-orchestrator`/`bmad-master`,
+  et **expansion packs** comme surface d'extension. **La v6 (2026) a réorganisé cela** : les
+  personas sont nommées, la surface d'extension est le **module BMB** (les *expansion packs*
+  v4/v5 ont été généralisés en modules), et l'architecture v6 ne décrit plus d'agents
+  `bmad-orchestrator`/`bmad-master` séparés (remplacés par `bmad-dev-auto` + « Party Mode »).
+  **L'invariant retenu par Fëanor tient malgré la refonte** : chez BMAD, forger le framework est
+  une surface distincte de l'équipe de livraison. *Vérifié le 2026-07-25.*
+- **Sources** : README du dépôt + DeepWiki architecture (voir `sources.md`). *Vérifié le 2026-07-25.*
 
 ---
 
@@ -43,19 +63,28 @@
 - **(c)** — **contraste** avec iakaframe : chez iakaframe le rôle est une **donnée** (markdown), pas
   une classe. Utile pour expliquer à un tiers pourquoi iakaframe n'exige pas de coder pour ajouter un
   rôle.
-- **Sources** : dépôt MetaGPT (voir `sources.md`). [WEB-À-VÉRIFIER : horodatage]
+- **Note d'actualité** — les rôles simulés au README sont *« product managers / architects / project
+  managers / engineers »*, avec le slogan exact **« Code = SOP(Team) »** (les SOP — Standard
+  Operating Procedures — sont matérialisées et appliquées à une équipe de LLM). Le dépôt canonique
+  a migré vers l'organisation **`FoundationAgents/MetaGPT`** (ex-`geekan/MetaGPT`). *Vérifié le
+  2026-07-25 (README du dépôt).*
+- **Sources** : dépôt MetaGPT (voir `sources.md`). *Vérifié le 2026-07-25.*
 
 ---
 
 ## 3. CrewAI — *modèle déclaratif léger*
 
-- **(a) forme** — agent = **role + goal + backstory + tools**, assemblé en **crew** de **tasks** ;
-  process **hiérarchique** ou séquentiel. Modèle déclaratif, orienté rôle.
-- **(b) surface d'extension** — composition déclarative de crews/tasks ; pas de « surface de forge »
-  séparée aussi nette que BMAD. [WEB-À-VÉRIFIER : outillage d'extension actuel]
-- **(c)** — proche d'iakaframe par le **déclaratif orienté rôle** ; le triplet CrewAI
+- **(a) forme** — un `Agent` a pour attributs déclarés **`role` + `goal` + `backstory` + `tools`**
+  (+ `llm`, `max_iter`, `allow_delegation`, `verbose`), assemblé en **crew** de **tasks** ; process
+  **hiérarchique** ou **séquentiel**. Modèle déclaratif, orienté rôle. *Vérifié le 2026-07-25 (doc
+  officielle « Agents »).*
+- **(b) surface d'extension** — composition déclarative de crews/tasks (agents référencés puis
+  tâches assignées) ; **pas de « surface de forge » séparée aussi nette que le module BMB de BMAD**.
+  L'extension se fait en composant de nouveaux crews/agents/tasks dans le même plan, pas via un
+  outillage de construction distinct. *Vérifié le 2026-07-25.*
+- **(c)** — proche d'iakaframe par le **déclaratif orienté rôle** ; le quadruplet CrewAI
   (role/goal/backstory/tools) est un bon point de comparaison avec (roleKey + persona + binding.tools).
-- **Sources** : comparatif CrewAI/LangGraph/AutoGen (voir `sources.md`). [WEB-À-VÉRIFIER : horodatage]
+- **Sources** : doc CrewAI officielle « Agents » (voir `sources.md`). *Vérifié le 2026-07-25.*
 
 ---
 
@@ -67,37 +96,58 @@
 - **(b) surface d'extension** — sous-classer des agents conversationnels / configurer des GroupChats.
 - **(c)** — **contraste fort** : montre qu'un framework peut ne PAS être orienté-rôle-déclaratif.
   Fëanor doit le savoir pour **ne pas plaquer le modèle iakaframe** sur un besoin conversationnel.
-- **Note d'actualité** — AutoGen est en **maintenance**, **absorbé par Microsoft Agent Framework**.
-  [WEB-À-VÉRIFIER : statut et nom exact du framework absorbant à jour — évolue vite]
-- **Sources** : voir `sources.md`. [WEB-À-VÉRIFIER : horodatage]
+- **Note d'actualité** — le nom exact est **Microsoft Agent Framework** (packages `agent-framework`
+  Python / `Microsoft.Agents.AI` .NET, + un runtime Go en public preview). La doc officielle le
+  présente comme *« the direct successor, created by the same teams »* et *« the next generation of
+  both Semantic Kernel and AutoGen »* : il **fusionne les abstractions d'agents d'AutoGen** avec les
+  fonctionnalités entreprise de **Semantic Kernel**, et **ajoute des workflows orientés graphe**
+  (type-safe, checkpointing, human-in-the-loop). Une **migration guide from AutoGen** existe. AutoGen
+  n'est donc plus le framework actif — c'est bien Microsoft Agent Framework qui prend la relève.
+  *Vérifié le 2026-07-25 (Microsoft Learn, doc datée du 2026-07-08).*
+- **Sources** : Microsoft Learn — Agent Framework Overview (voir `sources.md`). *Vérifié le 2026-07-25.*
 
 ---
 
 ## 5. ChatDev — *entreprise virtuelle par phases*
 
-- **(a) forme** — simule une **entreprise logicielle virtuelle** (CEO, CTO, CPO, programmer, designer,
-  tester, reviewer) partitionnée en **phases waterfall** (design, coding, testing, documenting),
-  reliée par une **chat-chain**.
+- **(a) forme** — simule une **entreprise logicielle virtuelle** dont les rôles sont **CEO, CPO, CTO,
+  programmer, reviewer, tester, art designer**, partitionnée en **phases waterfall** (*designing,
+  coding, testing, documenting*). Chaque phase est décomposée en sous-tâches atomiques traitées par
+  une **dyade d'agents** en dialogue multi-tours ; la **chat chain** est une **séquence dirigée
+  d'échanges d'agents**, complétée d'un **memory stream** qui archive l'historique cumulé. *Vérifié le
+  2026-07-25 (dépôt OpenBMB/ChatDev + article de revue du papier « Communicative Agents for Software
+  Development »).*
 - **(b) surface d'extension** — configuration des rôles/phases de l'entreprise virtuelle.
 - **(c)** — **proche d'iakaframe par la phase**, distinct par le casting (métaphore d'entreprise vs
   compagnie). Bon exemple pour un tiers qui veut un pipeline surplombant à phases.
-- **Sources** : voir `sources.md`. [WEB-À-VÉRIFIER : horodatage]
+- **Note d'actualité** — une **ChatDev 2.0 (« DevAll »)** existe désormais, décrite comme une
+  *« zero-code multi-agent orchestration platform »* débordant le seul dev logiciel (dataviz, 3D,
+  recherche). Le modèle « entreprise virtuelle à phases » décrit ici est celui de **ChatDev 1.0**
+  (legacy), qui reste la référence pour le contraste par phases. *Vérifié le 2026-07-25.*
+- **Sources** : dépôt OpenBMB/ChatDev (voir `sources.md`). *Vérifié le 2026-07-25.*
 
 ---
 
 ## Contrastes — frameworks NON orientés-rôle (à connaître pour ne pas sur-plaquer)
 
 ### LangGraph — *graphe d'états*
-- **(a) forme** — **graphe** de nœuds/arêtes (états + transitions), **non orienté-rôle**. L'unité
-  n'est pas un rôle mais un **nœud** de graphe.
+- **(a) forme** — un **`StateGraph`** de **nodes** (fonctions qui reçoivent l'état, calculent, et
+  renvoient un état mis à jour) et d'**edges** (fixes ou **conditionnels**, qui déterminent le nœud
+  suivant selon l'état), autour d'un **state** partagé (schéma + `reducer`). Modèle **état/graphe,
+  non orienté-rôle** : *« nodes do the work, edges tell what to do next »*, et *« nodes and edges are
+  nothing more than functions »* (message-passing à la Pregel, super-steps). L'unité n'est pas un
+  rôle mais un **nœud** de graphe. *Vérifié le 2026-07-25 (doc LangChain/LangGraph « Graph API »).*
 - **(c)** — contraste : un besoin qui est fondamentalement un **workflow d'états** ne se modélise pas
-  bien en rôles ; Fëanor doit savoir orienter hors iakaframe le cas échéant. [WEB-À-VÉRIFIER]
+  bien en rôles ; Fëanor doit savoir orienter hors iakaframe le cas échéant.
 
 ### OpenAI Agents SDK — *handoffs*
-- **(a) forme** — agents + **handoffs** (passages de main explicites), tools, guardrails. Orienté
-  délégation, pas référentiel de rôles typés.
+- **(a) forme** — **Agents** (*« LLMs equipped with instructions and tools »*), **Handoffs**
+  (*« allow agents to delegate to other agents for specific tasks »*) et **Guardrails**
+  (*« validation of agent inputs and outputs »*). Orienté **délégation/handoff** (approche
+  « Python-first »), **pas** un référentiel de rôles typés. *Vérifié le 2026-07-25 (doc officielle
+  openai-agents-python).*
 - **(c)** — contraste : le « handoff » ressemble à la chaîne de badges iakaframe, mais sans référentiel
-  de rôles ni méthode déclarative. [WEB-À-VÉRIFIER]
+  de rôles ni méthode déclarative.
 
 ---
 
