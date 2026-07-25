@@ -40,3 +40,9 @@ control**). Le **Project Manager** préside **chaque** gate et **signe** le pass
 > le PM, au-dessus de l'équipe) et **sans retour arrière prévu** ; iakaframe mêle gates humains et
 > auto (qualité indépendante) et **itère** (boucle besoin→feedback→boucle). Même squelette de
 > pipeline, gouvernance plus **rigide et descendante**.
+>
+> **Depuis la correction du modèle (lot agnostique).** Le format ne **penche** plus : `kind` est
+> **first-class** (`pipeline` ici, `cycle`/`flow`/`cycle-with-gate` ailleurs) et `gates` est
+> **optionnel** — un cycle ou un flux **n'a pas** à inventer un champ pour signaler l'absence de
+> porte. Waterfall n'est plus « le format tel quel » face à des exceptions bricolées : les quatre
+> familles sont **à égalité**, chacune un cas de première classe.

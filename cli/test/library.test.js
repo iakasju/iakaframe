@@ -93,7 +93,32 @@ test('checkSchema : champs requis par kind', () => {
   assert.equal(checkSchema('team', { id: 't', personas: ['a'], coordinator: 'a' }).ok, true);
   const miss = checkSchema('team', { id: 't' });
   assert.equal(miss.ok, false);
-  assert.deepEqual(miss.missing, ['personas', 'coordinator']);
+  // A-4 (correction-biais-modele-frame.md § 3.2) : `coordinator` n'est PLUS requis. Seul
+  // `personas` (avec `id`) manque ici. Le format ne presuppose plus N>=2.
+  assert.deepEqual(miss.missing, ['personas']);
+});
+
+// AC6 (§ 3.2 / A-4) — cardinalite 1 de PREMIERE CLASSE : une team solo SANS coordinateur passe
+// checkSchema (relaxation) ET assemble sans orphelin, DES LORS que l'unique persona couvre le role.
+test('AC6 : team solo sans coordinateur -> checkSchema ok (coordinator plus requis)', () => {
+  assert.equal(checkSchema('team', { id: 'solo', personas: ['lee'] }).ok, true,
+    'une team d\'un, sans coordinateur, doit passer le schema (N=1 legitime)');
+});
+
+test('AC6 : assemble solo sans coordinateur (persona couvre le role) -> ok, aucun orphelin', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'iakaframe-solo-'));
+  const W = (rel, content) => { fs.mkdirSync(path.dirname(path.join(root, rel)), { recursive: true }); fs.writeFileSync(path.join(root, rel), content); };
+  W('library/roles/practitioner.md', '---\nid: practitioner\nlabel: Praticien\n---\n# r\n');
+  W('library/workflows/wf_solo.md', '---\nid: wf_solo\nname: WF\nkind: flow\nsoleActor: true\nphases:\n  - { id: p1, label: P1, actorsRoleKeys: [practitioner] }\n---\n# wf\n');
+  W('library/personas/lee.md', '---\nid: lee\nname: Lee\nroleKey: practitioner\nskills: []\nguardrails: []\n---\n# Lee\n');
+  W('methods/m_solo.md', '---\nid: m_solo\nname: M\nworkflowId: wf_solo\nroleKeys: [practitioner]\n---\n# m\n');
+  // Team d'UN, SANS champ coordinator.
+  W('teams/t_solo.md', '---\nid: t_solo\nname: Solo\npersonas: [lee]\nguardrails: []\n---\n# t\n');
+  const r = assemble('m_solo', 't_solo', null, root);
+  assert.equal(r.ok, true, 'la team solo couvrant son role doit assembler sans erreur : ' + JSON.stringify(r));
+  assert.deepEqual(r.orphans, [], 'aucun orphelin : le casting couvre le role, pas besoin de coordinateur');
+  assert.deepEqual(r.coveredByCoordinator, [], 'aucun role delegue a un coordinateur (il n\'y en a pas)');
+  assert.equal(r.coordinator, null, 'pas de coordinateur, et c\'est legitime (N=1)');
 });
 
 test('assemble : compatible (casting couvre les roles de la methode)', () => {

@@ -219,8 +219,13 @@ export function bindingRows(data) {
 // Binding : schema converge E1 (id + teamId + au moins une affectation). `methodId` du pool reste
 // TOLERE mais non requis (les bindings E1 sont par-noeud et ne le portent pas) ; `node`/`origin`
 // sont additifs (non requis pour la retro-compat des bindings existants).
+// `coordinator` RETIRE des requis de team (correction-biais-modele-frame.md § 3.2 / A-4) : le
+// format ne presuppose plus N>=2. Une team de cardinalite 1 (ex. gtd-solo, dont l'unique persona
+// COUVRE deja le role) est un cas de PREMIERE CLASSE — elle n'a personne a coordonner. Relaxation
+// pure : checkRefs('team') ne verifiait deja le coordinateur que s'il etait PRESENT ; la seule
+// barriere etait ce schema. `coordinator` reste ACCEPTE et porteur quand N>=2 (non-interdit).
 const REQUIRED = {
-  team:    ['id', 'personas', 'coordinator'],
+  team:    ['id', 'personas'],
   method:  ['id', 'workflowId', 'roleKeys'],
   binding: ['id', 'teamId'],
   frame:   ['id', 'methodId', 'teamId'],   // AR-1 : descripteur de frame (ids seulement)
@@ -255,11 +260,13 @@ export function assemble(methodId, teamId, bindingId, root, { node = 'claude' } 
   const methodRoleKeys = toArray(method.data.roleKeys);
   const uncoveredRoles = methodRoleKeys.filter(r => !teamRoleKeys.has(r));
 
-  // Modele d'equipe (regle decideur 2026-07-16) : un role requis par la methode qui n'est
-  // couvert par AUCUN persona dedie du casting est pris en charge PAR DEFAUT par le
-  // COORDINATEUR de la team. Ce n'est donc PAS un orphelin bloquant tant qu'un coordinateur
-  // valide existe. Garde-fou : sans coordinateur (champ absent OU persona introuvable), un
-  // role non couvert reste un VRAI orphelin bloquant.
+  // Modele d'equipe (regle decideur 2026-07-16, affine A-4 correction-biais-modele-frame.md § 3.2) :
+  // un role requis par la methode non couvert par un persona dedie est pris en charge PAR DEFAUT
+  // par le COORDINATEUR — pas un orphelin tant qu'un coordinateur valide existe. Garde-fou N>=2
+  // CONSERVE : sans coordinateur (champ absent OU persona introuvable), un role NON couvert reste
+  // un VRAI orphelin bloquant. Cardinalite 1 legitime : quand l'unique persona COUVRE deja le role
+  // (uncoveredRoles vide), il n'y a NI orphelin NI besoin de coordinateur-repli — la couverture
+  // passe par le casting, la marque solo est portee cote workflow (soleActor). Aucune regression.
   const coordinatorId = team.data.coordinator || null;
   const hasCoordinator = !!coordinatorId && !!readEntry('personas', coordinatorId, root);
   const coveredByCoordinator = hasCoordinator ? uncoveredRoles : [];
