@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-07-26 15:05 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-07-26 16:37 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
-  <div class="k">Version</div><div>v0.28.0</div>
+  <div class="k">Version</div><div>v0.29.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>3dfeaf4 merge(skills): iakaframe-lecture-maquettes + cablage dans Gandalf</code></div>
-  <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
-  <div class="k">Fichiers</div><div>1427 (hors .git / node_modules)</div>
-  <div class='k'>Note</div><div>Alignement GUI - Lot 1 pilote + skill Gandalf. (1) Ecran d'assemblage GUI de 1er ordre : rend visible 'frame = methode + team (freres) + binding-mariage' (cale sur la maquette 03, Studio clair, read-only, fonction pure buildAssemblyModel ; contrats packages/core INTOUCHES, parite verte). (2) Skill iakaframe-lecture-maquettes cablee dans Gandalf (lire les maquettes par chemin exact, jamais Glob). Merges cross-repo propres (iakaframe + iakaFrameGUI) apres demelage d'un enchevetrement de branches maitrise. vendor-check drift 0, frame lint --all exit 0, suites GUI vertes (vitest 564). Note R8 : contrat deploye ~/.claude/agents/gandalf.md a redeployer pour effet runtime. Reste : Lots 2-6 de l'alignement GUI (nav 7 entrees, reservoir, Feanor-en-tete...) + arbitrages A-F au fil des lots.</div>
+  <div class="k">Dernier commit</div><div><code>f699fc6 merge(personas): champ mission dedie sur les 9 personas + schema (Lot 3b canon)</code></div>
+  <div class="k">Arbre</div><div><span class='ok'>propre</span></div>
+  <div class="k">Fichiers</div><div>1429 (hors .git / node_modules)</div>
+  <div class='k'>Note</div><div>Enrichissement du modele persona : champ mission dedie + surfacage frame.personas (fiches reservoir GUI derivees des .md reels : royaume IAKAFRAME, pastille, mission). Cloture le lot cross-repo 3b (canon + GUI, vendor-check --strict drift 0). Suite des lots d'alignement GUI (0 Studio clair, 2 nav 9, 3 reservoir persona).</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>3dfeaf4</code></td><td>2026-07-26</td><td>merge(skills): iakaframe-lecture-maquettes + cablage dans Gandalf</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>f699fc6</code></td><td>2026-07-26</td><td>merge(personas): champ mission dedie sur les 9 personas + schema (Lot 3b canon)</td></tr>
+<tr><td><code>bab5883</code></td><td>2026-07-26</td><td>feat(personas): champ mission optionnel sur les 9 personas iakaframe</td></tr>
+<tr><td><code>ea3d956</code></td><td>2026-07-26</td><td>docs(instructions): cadrage enrichissement modele persona (mission)</td></tr>
+<tr><td><code>04434d0</code></td><td>2026-07-26</td><td>docs(cadrage): fige A-F de l'alignement GUI (nav 9, models galerie, Studio clair, Feanor coquille)</td></tr>
+<tr><td><code>ac74307</code></td><td>2026-07-26</td><td>chore(iakaframe): update etat des lieux + commit global (version v0.28.0)</td></tr>
+<tr><td><code>3dfeaf4</code></td><td>2026-07-26</td><td>merge(skills): iakaframe-lecture-maquettes + cablage dans Gandalf</td></tr>
 <tr><td><code>b3c1b85</code></td><td>2026-07-26</td><td>feat(skills): ajoute iakaframe-lecture-maquettes et cable la skill dans Gandalf</td></tr>
 <tr><td><code>7ad441a</code></td><td>2026-07-26</td><td>docs(cadrage): alignement du GUI sur le modele de frame + maquettes</td></tr>
 <tr><td><code>d6810ee</code></td><td>2026-07-26</td><td>docs(mock): maquettes GUI Studio clair (source unique specs/mock/gui)</td></tr>
 <tr><td><code>242834f</code></td><td>2026-07-26</td><td>chore(iakaframe): update etat des lieux + commit global (pause)</td></tr>
-<tr><td><code>b225184</code></td><td>2026-07-26</td><td>docs(cadrage): constitution du modele de frame (Finding 4) - les 4 biais soldes</td></tr>
-<tr><td><code>5366be9</code></td><td>2026-07-26</td><td>chore(iakaframe): update etat des lieux + commit global (version v0.27.0)</td></tr>
-<tr><td><code>d8d965a</code></td><td>2026-07-26</td><td>merge(frame): schema de frontmatter type + frame lint strict (Finding 3)</td></tr>
-<tr><td><code>0fb4d31</code></td><td>2026-07-26</td><td>feat(frame-lint): drapeau --strict + soleActor promu et vérifié (Lot 2, Finding 3)</td></tr>
-<tr><td><code>14d56b1</code></td><td>2026-07-26</td><td>feat(frame-lint): schema de frontmatter typé + politique WARN sur l'inconnu (Lot 1, Finding 3)</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-07-26 16:37</td><td><span class='r r-version'>version</span></td><td>v0.29.0</td><td>main</td><td>Enrichissement du modele persona : champ mission dedie + surfacage frame.personas (fiches reservoir GUI derivees des .md reels : royaume IAKAFRAME, pastille, mission). Cloture le lot cross-repo 3b (canon + GUI, vendor-check --strict drift 0). Suite des lots d'alignement GUI (0 Studio clair, 2 nav 9, 3 reservoir persona).</td></tr>
 <tr><td>2026-07-26 15:05</td><td><span class='r r-version'>version</span></td><td>v0.28.0</td><td>main</td><td>Alignement GUI - Lot 1 pilote + skill Gandalf. (1) Ecran d'assemblage GUI de 1er ordre : rend visible 'frame = methode + team (freres) + binding-mariage' (cale sur la maquette 03, Studio clair, read-only, fonction pure buildAssemblyModel ; contrats packages/core INTOUCHES, parite verte). (2) Skill iakaframe-lecture-maquettes cablee dans Gandalf (lire les maquettes par chemin exact, jamais Glob). Merges cross-repo propres (iakaframe + iakaFrameGUI) apres demelage d'un enchevetrement de branches maitrise. vendor-check drift 0, frame lint --all exit 0, suites GUI vertes (vitest 564). Note R8 : contrat deploye ~/.claude/agents/gandalf.md a redeployer pour effet runtime. Reste : Lots 2-6 de l'alignement GUI (nav 7 entrees, reservoir, Feanor-en-tete...) + arbitrages A-F au fil des lots.</td></tr>
 <tr><td>2026-07-26 11:54</td><td><span class='r r-pause'>pause</span></td><td>v0.27.0</td><td>main</td><td>MODELE DE FRAME CLOS : les 4 biais soldes. (1) gouvernance + (2) cardinalite = modele agnostique v0.26.0 (kind first-class, gates optionnel, conteneur+acteurs unifies, coordinator optionnel/N=1 ; + fix d'un trou de lint reel). (3) schema strict v0.27.0 (table de schema type vendoree CLI+GUI, type-error bloquant, inconnu WARN+--strict ; 3 bugs latents fermes). (4) namespacing/partage = CONSTITUTION du modele (doc, b225184) : C-1..C-5 (library plate ids definitifs ; frame=methode+team FRERES ; construire=referencer/partage OU ecrire ; promotion=seul renommage ; personas/skills=elements de frame). Session complete : reservoir de frames (v0.21) + outillage frame lint/new/add (v0.22) + 9e persona Feanor (v0.23) + rangement pilote (v0.24) + catalogue 7 frames rangees (v0.25) + modele agnostique (v0.26) + schema strict (v0.27) + constitution. 8 frames dans le reservoir. Suites vertes, vendor-check drift 0. Suites backlog : alignement GUI (frame=methode+team) + reconciliation §3.3.</td></tr>
 <tr><td>2026-07-26 10:46</td><td><span class='r r-version'>version</span></td><td>v0.27.0</td><td>main</td><td>Finding 3 : schema de frontmatter type + frame lint strict. frame lint tolerait silencieusement tout champ inconnu -&gt; desormais table de schema en donnee (source unique vendoree CLI+GUI), type-error sur champ connu BLOQUANT, champ inconnu WARN + --strict opt-in. Ferme 3 bugs latents (shapeup kind hors-enum, soleActor non verifie, census). Retro-compat, zero migration, default byte-inchange. Gate P2-&gt;P3 PASS (CLI 539/0, GUI 551/0, 3 born-red verifies). Biais 1/2/3 des 4 corriges ; reste Finding 4 (namespacing personas inter-frames).</td></tr>

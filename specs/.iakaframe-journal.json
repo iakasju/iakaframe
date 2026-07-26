@@ -518,5 +518,15 @@
     "dirty": true,
     "files": 1427,
     "note": "Alignement GUI - Lot 1 pilote + skill Gandalf. (1) Ecran d'assemblage GUI de 1er ordre : rend visible 'frame = methode + team (freres) + binding-mariage' (cale sur la maquette 03, Studio clair, read-only, fonction pure buildAssemblyModel ; contrats packages/core INTOUCHES, parite verte). (2) Skill iakaframe-lecture-maquettes cablee dans Gandalf (lire les maquettes par chemin exact, jamais Glob). Merges cross-repo propres (iakaframe + iakaFrameGUI) apres demelage d'un enchevetrement de branches maitrise. vendor-check drift 0, frame lint --all exit 0, suites GUI vertes (vitest 564). Note R8 : contrat deploye ~/.claude/agents/gandalf.md a redeployer pour effet runtime. Reste : Lots 2-6 de l'alignement GUI (nav 7 entrees, reservoir, Feanor-en-tete...) + arbitrages A-F au fil des lots."
+  },
+  {
+    "date": "2026-07-26 16:37",
+    "reason": "version",
+    "version": "v0.29.0",
+    "branch": "main",
+    "commit": "f699fc6 merge(personas): champ mission dedie sur les 9 personas + schema (Lot 3b canon)",
+    "dirty": false,
+    "files": 1429,
+    "note": "Enrichissement du modele persona : champ mission dedie + surfacage frame.personas (fiches reservoir GUI derivees des .md reels : royaume IAKAFRAME, pastille, mission). Cloture le lot cross-repo 3b (canon + GUI, vendor-check --strict drift 0). Suite des lots d'alignement GUI (0 Studio clair, 2 nav 9, 3 reservoir persona)."
   }
 ]
