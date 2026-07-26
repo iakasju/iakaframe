@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { frameworkRoot, kitDirForNode, contractFileForNode, frameworkVersion, copyKit } from '../lib/kit.js';
 import { NODE_KINDS, normalizeNode, legacyTargetForNode } from '../lib/vocab.js';
-import { resolveFrameForInit } from '../lib/frame-active.js';
+import { resolveFrameForInit, writeActiveFramePointer } from '../lib/frame-active.js';
 import { libraryRoot } from '../lib/library.js';
 import { now } from '../lib/date.js';
 
@@ -77,6 +77,14 @@ export function runInit(argv) {
     `installed=${now()}`,
   ].join('\n') + '\n';
   fs.writeFileSync(path.join(dest, '.iakaframe'), stamp, 'utf8');
+
+  // Sème le pointeur de frame active dans le DOMICILE CANONIQUE go-forward : <projet>/iakaframe.json,
+  // cle `frame` (source unique CLI<->GUI, D-1/D-4). Fusion NON DESTRUCTIVE : ne touche que `frame`,
+  // preserve les cles du CLI si `iakaframe config` a deja ecrit le fichier. Le stamp .iakaframe
+  // ci-dessus reste (repli de transition). Un fichier illisible n'est jamais ecrase (garde R1).
+  const seed = writeActiveFramePointer(dest, frame);
+  if (seed.ok) console.log(`  + iakaframe.json (frame ${frame})`);
+  else console.error(`  ! iakaframe.json illisible : ${seed.path} — pointeur de frame non seme (cles preservees).`);
 
   console.log(`  + .iakaframe (version ${version}, frame ${frame} ${frameVersion || version}, nœud ${node})`);
   console.log(`\nTermine : ${copied} copie(s), ${skipped} ignore(s).`);
