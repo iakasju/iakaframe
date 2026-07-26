@@ -1,23 +1,24 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-26 16:37 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-26 17:13 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.29.0 |
+| Version | v0.28.0 |
 | Branche | main |
-| Dernier commit | f699fc6 merge(personas): champ mission dedie sur les 9 personas + schema (Lot 3b canon) |
+| Dernier commit | dfc4961 chore(iakaframe): update etat des lieux + commit global (version v0.29.0) |
 | Arbre | propre |
 | Fichiers (hors .git/node_modules) | 1429 |
-| Note | Enrichissement du modele persona : champ mission dedie + surfacage frame.personas (fiches reservoir GUI derivees des .md reels : royaume IAKAFRAME, pastille, mission). Cloture le lot cross-repo 3b (canon + GUI, vendor-check --strict drift 0). Suite des lots d'alignement GUI (0 Studio clair, 2 nav 9, 3 reservoir persona). |
+| Note | Alignement GUI au modele de frame CLOS : 6 lots livres, gate Legolas PASS a chacun, parite vendor-check --strict drift 0 tenue de bout en bout. GUI main iakaFrameGUI @ d18adaa. Lots : 0 Studio clair defaut, 2 nav 9 entrees + New + mode edition, 3 reservoir persona (fiches a vignettes), 3b enrichissement persona cross-repo (canon mission + surfacage frame.personas, v0.29.0), 4 galerie models (8 frames + marqueur actif), 5 workflow agnostique (selecteur kind + gates optionnels), 6 coquille Feanor-en-tete (inerte, sans LLM). Reste hors alignement : Feanor fonctionnel (LLM), changement de frame active, extension Feanor-en-tete aux autres pages-elements, gateless au niveau donnee (lots contrat separes si decides). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `dfc4961` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.29.0) |
 | `f699fc6` | 2026-07-26 | merge(personas): champ mission dedie sur les 9 personas + schema (Lot 3b canon) |
 | `bab5883` | 2026-07-26 | feat(personas): champ mission optionnel sur les 9 personas iakaframe |
 | `ea3d956` | 2026-07-26 | docs(instructions): cadrage enrichissement modele persona (mission) |
@@ -27,7 +28,6 @@
 | `b3c1b85` | 2026-07-26 | feat(skills): ajoute iakaframe-lecture-maquettes et cable la skill dans Gandalf |
 | `7ad441a` | 2026-07-26 | docs(cadrage): alignement du GUI sur le modele de frame + maquettes |
 | `d6810ee` | 2026-07-26 | docs(mock): maquettes GUI Studio clair (source unique specs/mock/gui) |
-| `242834f` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (pause) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-26 17:13 | pause | v0.28.0 | main | Alignement GUI au modele de frame CLOS : 6 lots livres, gate Legolas PASS a chacun, parite vendor-check --strict drift 0 tenue de bout en bout. GUI main iakaFrameGUI @ d18adaa. Lots : 0 Studio clair defaut, 2 nav 9 entrees + New + mode edition, 3 reservoir persona (fiches a vignettes), 3b enrichissement persona cross-repo (canon mission + surfacage frame.personas, v0.29.0), 4 galerie models (8 frames + marqueur actif), 5 workflow agnostique (selecteur kind + gates optionnels), 6 coquille Feanor-en-tete (inerte, sans LLM). Reste hors alignement : Feanor fonctionnel (LLM), changement de frame active, extension Feanor-en-tete aux autres pages-elements, gateless au niveau donnee (lots contrat separes si decides). |
 | 2026-07-26 16:37 | version | v0.29.0 | main | Enrichissement du modele persona : champ mission dedie + surfacage frame.personas (fiches reservoir GUI derivees des .md reels : royaume IAKAFRAME, pastille, mission). Cloture le lot cross-repo 3b (canon + GUI, vendor-check --strict drift 0). Suite des lots d'alignement GUI (0 Studio clair, 2 nav 9, 3 reservoir persona). |
 | 2026-07-26 15:05 | version | v0.28.0 | main | Alignement GUI - Lot 1 pilote + skill Gandalf. (1) Ecran d'assemblage GUI de 1er ordre : rend visible 'frame = methode + team (freres) + binding-mariage' (cale sur la maquette 03, Studio clair, read-only, fonction pure buildAssemblyModel ; contrats packages/core INTOUCHES, parite verte). (2) Skill iakaframe-lecture-maquettes cablee dans Gandalf (lire les maquettes par chemin exact, jamais Glob). Merges cross-repo propres (iakaframe + iakaFrameGUI) apres demelage d'un enchevetrement de branches maitrise. vendor-check drift 0, frame lint --all exit 0, suites GUI vertes (vitest 564). Note R8 : contrat deploye ~/.claude/agents/gandalf.md a redeployer pour effet runtime. Reste : Lots 2-6 de l'alignement GUI (nav 7 entrees, reservoir, Feanor-en-tete...) + arbitrages A-F au fil des lots. |
 | 2026-07-26 11:54 | pause | v0.27.0 | main | MODELE DE FRAME CLOS : les 4 biais soldes. (1) gouvernance + (2) cardinalite = modele agnostique v0.26.0 (kind first-class, gates optionnel, conteneur+acteurs unifies, coordinator optionnel/N=1 ; + fix d'un trou de lint reel). (3) schema strict v0.27.0 (table de schema type vendoree CLI+GUI, type-error bloquant, inconnu WARN+--strict ; 3 bugs latents fermes). (4) namespacing/partage = CONSTITUTION du modele (doc, b225184) : C-1..C-5 (library plate ids definitifs ; frame=methode+team FRERES ; construire=referencer/partage OU ecrire ; promotion=seul renommage ; personas/skills=elements de frame). Session complete : reservoir de frames (v0.21) + outillage frame lint/new/add (v0.22) + 9e persona Feanor (v0.23) + rangement pilote (v0.24) + catalogue 7 frames rangees (v0.25) + modele agnostique (v0.26) + schema strict (v0.27) + constitution. 8 frames dans le reservoir. Suites vertes, vendor-check drift 0. Suites backlog : alignement GUI (frame=methode+team) + reconciliation §3.3. |
