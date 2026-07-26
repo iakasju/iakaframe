@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iakaFrameGUI · Élément — Gandalf · édition (Fëanor en tête)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#fbfbfc;--bg-card:#ffffff;--bg-deep:#f0f1f4;
+  --line:#e7e8ec;--line-soft:#eef0f3;
+  --text-primary:#16181d;--text-secondary:#5b6270;--text-muted:#9aa0ad;
+  --accent:#5b5bd6;--accent-light:#7a78ff;--accent-rgb:91,91,214;
+  --grad:linear-gradient(135deg,#5b5bd6,#7a78ff);
+  --flame:linear-gradient(135deg,#c2410c,#7c2d12);--flame-rgb:194,64,12;--flame-ink:#9a3410;
+  --green:#30a46c;--radius:13px;--shadow:0 4px 14px rgba(20,22,28,.08);
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg-primary);color:var(--text-primary);line-height:1.55;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+
+.appbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:1.4rem;padding:.7rem 1.4rem;background:rgba(251,251,252,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.wordmark{font-weight:800;letter-spacing:-.02em;font-size:1.05rem}
+.wordmark .edge{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wordmark .kbd{font:600 .6rem var(--mono);color:var(--text-muted);border:1px solid var(--line);border-radius:6px;padding:.05rem .35rem;margin-left:.5rem;vertical-align:middle}
+.nav{display:flex;align-items:center;gap:.12rem;margin-left:.5rem;min-width:0;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{font-size:.83rem;font-weight:600;color:var(--text-secondary);padding:.35rem .5rem;border-radius:8px;white-space:nowrap}
+.nav a:hover{background:var(--bg-deep);color:var(--text-primary)}
+.nav a.on{background:var(--bg-deep);color:var(--accent)}
+.nav .sep{color:var(--text-muted);opacity:.45;font-size:.78rem;user-select:none}
+.spacer{flex:1}
+.feanor-btn{display:inline-flex;align-items:center;gap:.5rem;border:1px solid rgba(var(--flame-rgb),.3);background:rgba(var(--flame-rgb),.07);color:var(--flame-ink);font-weight:700;font-size:.82rem;padding:.4rem .8rem .4rem .5rem;border-radius:999px;cursor:pointer}
+.feanor-btn .flame{width:24px;height:24px;border-radius:7px;background:var(--flame);display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#fff;font-weight:800}
+.newb{display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--line);background:var(--bg-card);color:var(--text-primary);font-weight:700;font-size:.82rem;padding:.42rem .8rem;border-radius:9px;cursor:pointer;box-shadow:var(--shadow)}
+.newb:hover{border-color:rgba(var(--accent-rgb),.45);color:var(--accent)}
+.newb .plus{font-size:1.05rem;line-height:1;color:var(--accent);font-weight:800}
+.saveb{border:0;background:var(--grad);color:#fff;font-weight:700;font-size:.82rem;padding:.45rem 1rem;border-radius:9px;cursor:pointer;box-shadow:var(--shadow)}
+
+/* ===== Layout : library à gauche + éditeur ===== */
+.wrap{display:grid;grid-template-columns:250px 1fr;gap:0;min-height:calc(100vh - 55px)}
+
+/* — Library rail (sélection d'un élément existant) — */
+.libref{border-right:1px solid var(--line);padding:1rem .8rem;overflow:auto}
+.libref .lh{display:flex;align-items:center;gap:.4rem;font:700 .7rem var(--mono);text-transform:uppercase;letter-spacing:.08em;color:var(--text-muted);margin:.2rem .3rem .6rem}
+.lsearch{display:flex;align-items:center;gap:.45rem;background:var(--bg-card);border:1px solid var(--line);border-radius:9px;padding:.4rem .6rem;margin-bottom:.7rem;box-shadow:var(--shadow)}
+.lsearch input{border:0;outline:0;flex:1;font:500 .82rem var(--font);background:transparent;color:var(--text-primary)}
+.lgroup{font:600 .6rem var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin:.8rem .3rem .3rem}
+.litem{display:flex;align-items:center;gap:.55rem;padding:.38rem .45rem;border-radius:9px;cursor:pointer;color:var(--text-secondary);font-size:.85rem;font-weight:500;border-left:2px solid transparent}
+.litem:hover{background:var(--bg-deep);color:var(--text-primary)}
+.litem.sel{background:rgba(var(--accent-rgb),.08);color:var(--text-primary);border-left-color:var(--accent);font-weight:650}
+.litem .mvg{width:24px;height:24px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font:800 .56rem var(--mono);flex:none}
+.litem .dot{width:8px;height:8px;border-radius:50%;flex:none;margin:0 8px}
+.litem.sel .edit-badge{margin-left:auto;font:700 .56rem var(--mono);color:var(--flame-ink);background:rgba(var(--flame-rgb),.12);border-radius:5px;padding:.05rem .3rem}
+
+/* — Éditeur — */
+.editor{padding:1.4rem 1.8rem 4rem;max-width:900px}
+.crumb{font:600 .72rem var(--mono);letter-spacing:.04em;color:var(--text-muted);margin-bottom:.7rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap}
+.crumb a{color:var(--accent)}
+.mode-pill{font:700 .62rem var(--mono);text-transform:uppercase;letter-spacing:.05em;padding:.16rem .5rem;border-radius:999px}
+.mode-pill.on{color:var(--flame-ink);background:rgba(var(--flame-rgb),.1);border:1px solid rgba(var(--flame-rgb),.3)}
+
+/* ===== Fëanor EN TÊTE — composant partagé création / édition (ICI : édition) ===== */
+.feanor-head{display:flex;gap:1.1rem;align-items:stretch;border:1.5px solid rgba(var(--flame-rgb),.3);border-radius:var(--radius);background:linear-gradient(135deg,rgba(var(--flame-rgb),.06),rgba(var(--flame-rgb),.01));padding:1rem 1.1rem;box-shadow:0 6px 22px rgba(var(--flame-rgb),.09)}
+.fh-entity{display:flex;align-items:center;gap:.85rem;flex:none;max-width:250px}
+.fh-vg{width:64px;height:64px;border-radius:17px;display:flex;align-items:center;justify-content:center;color:#fff;font:800 1.5rem var(--mono);flex:none;box-shadow:0 5px 14px rgba(20,22,28,.2)}
+.fh-name{font-weight:750;font-size:1.1rem;letter-spacing:-.01em;display:flex;align-items:center;gap:.35rem}
+.fh-type{font:600 .64rem var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-top:.3rem}
+.fh-div{width:1px;background:rgba(var(--flame-rgb),.16);flex:none}
+.fh-feanor{flex:1;display:flex;flex-direction:column;min-width:0}
+.fh-flabel{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.86rem;color:var(--flame-ink)}
+.fh-badge{width:26px;height:26px;border-radius:8px;background:var(--flame);color:#fff;font:800 .62rem var(--mono);display:flex;align-items:center;justify-content:center;flex:none}
+.fh-mode{margin-left:auto;font:600 .6rem var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--flame-ink);background:rgba(var(--flame-rgb),.1);border:1px solid rgba(var(--flame-rgb),.25);border-radius:999px;padding:.14rem .5rem}
+.fh-field{display:flex;align-items:flex-end;gap:.5rem;border:1px solid rgba(var(--flame-rgb),.28);border-radius:11px;background:var(--bg-card);padding:.5rem .65rem;margin-top:.5rem;box-shadow:var(--shadow)}
+.fh-field:focus-within{border-color:rgba(var(--flame-rgb),.5);box-shadow:0 0 0 3px rgba(var(--flame-rgb),.1)}
+.fh-field textarea{border:0;outline:0;resize:none;flex:1;font:500 .9rem var(--font);color:var(--text-primary);background:transparent;line-height:1.45}
+.fh-field textarea::placeholder{color:var(--text-muted)}
+.fh-send{width:34px;height:34px;border:0;border-radius:9px;background:var(--flame);color:#fff;font-size:1rem;cursor:pointer;flex:none}
+.fh-sugg{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
+.fh-sugg .s{font:600 .72rem var(--font);color:var(--flame-ink);background:rgba(var(--flame-rgb),.06);border:1px solid rgba(var(--flame-rgb),.2);border-radius:999px;padding:.24rem .6rem;cursor:pointer}
+
+/* — pattern note (montre l'unicité du composant) — */
+.pattern{display:flex;align-items:flex-start;gap:.7rem;background:rgba(var(--accent-rgb),.05);border:1px solid rgba(var(--accent-rgb),.18);border-radius:var(--radius);padding:.7rem .9rem;margin:1rem 0 0;font-size:.82rem;color:var(--text-secondary)}
+.pattern b{color:var(--accent)}
+.states{display:flex;align-items:center;gap:.5rem;margin:1.3rem 0 .3rem;flex-wrap:wrap}
+.state{font:600 .72rem var(--font);color:var(--text-secondary);border:1px solid var(--line);border-radius:8px;padding:.3rem .6rem;background:var(--bg-card);display:inline-flex;align-items:center;gap:.35rem}
+.state.on{color:var(--flame-ink);border-color:rgba(var(--flame-rgb),.35);background:rgba(var(--flame-rgb),.05)}
+.state .d{font-size:.9rem}
+.arrowmini{color:var(--text-muted);font-size:.9rem}
+
+/* — Formulaire d'édition (la fiche devient éditable) — */
+.formcard{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:1.3rem 1.5rem;margin-top:.9rem}
+.formcard h3{font:600 .7rem var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--accent);margin:0 0 .9rem;display:flex;align-items:center;gap:.5rem}
+.formcard h3::before{content:'';width:20px;height:2px;background:var(--grad);border-radius:2px}
+.frow{display:grid;grid-template-columns:150px 1fr;gap:.6rem 1.1rem;align-items:start;padding:.55rem 0;border-top:1px solid var(--line-soft)}
+.frow:first-of-type{border-top:0}
+.frow .flab{font:600 .7rem var(--mono);text-transform:uppercase;letter-spacing:.04em;color:var(--text-muted);padding-top:.5rem}
+.inp{width:100%;border:1px solid var(--line);border-radius:9px;padding:.5rem .7rem;font:500 .9rem var(--font);color:var(--text-primary);background:var(--bg-primary);outline:0}
+.inp:focus{border-color:rgba(var(--accent-rgb),.45);box-shadow:0 0 0 3px rgba(var(--accent-rgb),.1)}
+.inp.locked{background:var(--bg-deep);color:var(--text-muted);cursor:not-allowed}
+textarea.inp{resize:vertical;line-height:1.5;min-height:60px}
+.lockhint{font:500 .66rem var(--mono);color:var(--text-muted);margin-top:.3rem;display:flex;align-items:center;gap:.3rem}
+.echips{display:flex;flex-wrap:wrap;gap:.4rem;align-items:center;padding-top:.15rem}
+.echip{display:inline-flex;align-items:center;gap:.35rem;font:600 .74rem var(--mono);padding:.24rem .3rem .24rem .55rem;border-radius:999px;background:rgba(var(--accent-rgb),.08);color:var(--accent)}
+.echip.gd{background:rgba(48,164,108,.11);color:#1f7a4d}
+.echip .x{width:16px;height:16px;border-radius:50%;background:rgba(20,22,28,.08);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;font-size:.7rem;cursor:pointer}
+.addchip{font:600 .74rem var(--mono);color:var(--text-muted);border:1px dashed var(--line);border-radius:999px;padding:.22rem .55rem;cursor:pointer}
+.pastille-opt{display:inline-flex;gap:.3rem;align-items:center}
+.pdot{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer}
+.pdot.sel{border-color:var(--text-primary);box-shadow:0 0 0 2px #fff inset}
+.form-actions{display:flex;gap:.6rem;margin-top:1.2rem}
+.form-actions .save{border:0;background:var(--grad);color:#fff;font-weight:700;font-size:.85rem;padding:.55rem 1.1rem;border-radius:9px;cursor:pointer;box-shadow:var(--shadow)}
+.form-actions .cancel{border:1px solid var(--line);background:var(--bg-card);color:var(--text-secondary);font-weight:600;font-size:.85rem;padding:.55rem 1.1rem;border-radius:9px;cursor:pointer}
+
+@media(max-width:820px){.wrap{grid-template-columns:1fr}.libref{border-right:0;border-bottom:1px solid var(--line);max-height:220px}.feanor-head{flex-direction:column}.fh-entity{max-width:none}.fh-div{display:none}.frow{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <span class="wordmark"><b>iaka</b><span class="edge">Frame</span>GUI <span class="kbd">élément</span></span>
+  <nav class="nav" aria-label="Architecture du produit">
+    <a href="#" title="Un frame = une méthode + une team, mariées par un binding">frame</a><span class="sep">·</span>
+    <a href="04-creation-workflow.html" title="La méthode : workflow, principes, rôles abstraits">méthode</a><span class="sep">·</span>
+    <a href="#" title="La team : le casting de personas">team</a><span class="sep">·</span>
+    <a href="02-feanor-prompt-element.html" class="on" title="Fiche d'une persona">persona</a><span class="sep">·</span>
+    <a href="01-library.html" title="Les 8 pools du réservoir partagé">éléments</a><span class="sep">·</span>
+    <a href="03-assemblage.html" title="Marier méthode + team (binding)">assemblage</a><span class="sep">·</span>
+    <a href="#" title="Catalogue des frames — les 8 modèles instanciables">models</a>
+  </nav>
+  <span class="spacer"></span>
+  <button class="newb" title="Créer une nouvelle persona"><span class="plus">+</span> New</button>
+  <button class="feanor-btn"><span class="flame">FË</span> Fëanor</button>
+</div>
+
+<div class="wrap">
+  <!-- ===== Library à gauche : sélectionner un élément existant ===== -->
+  <aside class="libref">
+    <div class="lh">⌗ Library</div>
+    <div class="lsearch"><span style="color:var(--text-muted)">⌕</span><input placeholder="Filtrer les éléments…"></div>
+
+    <div class="lgroup">personas · 34</div>
+    <div class="litem"><span class="mvg" style="background:linear-gradient(135deg,#2f7d43,#1f5c30)">AR</span>Aragorn</div>
+    <div class="litem sel"><span class="mvg" style="background:linear-gradient(135deg,#2b5f9e,#1d4372)">GA</span>Gandalf<span class="edit-badge">✎ édition</span></div>
+    <div class="litem"><span class="mvg" style="background:linear-gradient(135deg,#b3261e,#7d1a15)">GI</span>Gimli</div>
+    <div class="litem"><span class="mvg" style="background:linear-gradient(135deg,#7a3b86,#52285f)">LO</span>Loki</div>
+    <div class="litem"><span class="mvg" style="background:linear-gradient(135deg,#c2410c,#7c2d12)">FË</span>Fëanor</div>
+
+    <div class="lgroup">principles · 69</div>
+    <div class="litem"><span class="dot" style="background:var(--accent)"></span>cadrage-avant-code</div>
+    <div class="litem"><span class="dot" style="background:var(--accent)"></span>preuve-avant-declaration</div>
+
+    <div class="lgroup">guardrails · 30</div>
+    <div class="litem"><span class="dot" style="background:var(--green)"></span>identity</div>
+    <div class="litem"><span class="dot" style="background:var(--green)"></span>perimeter</div>
+  </aside>
+
+  <!-- ===== Éditeur : élément sélectionné → MODE ÉDITION, Fëanor monté EN TÊTE ===== -->
+  <section class="editor">
+    <div class="crumb"><a href="01-library.html">library</a> / <a href="01-library.html">personas</a> / <span style="color:var(--text-secondary)">gandalf</span> <span class="mode-pill on">✎ édition</span></div>
+
+    <!-- Fëanor a QUITTÉ le dock de droite et a GLISSÉ en tête, à côté de la vignette -->
+    <div class="feanor-head">
+      <div class="fh-entity">
+        <div class="fh-vg" style="background:linear-gradient(135deg,#2b5f9e,#1d4372)">GA</div>
+        <div>
+          <div class="fh-name">🔵 Gandalf</div>
+          <div class="fh-type">persona · en édition</div>
+        </div>
+      </div>
+      <div class="fh-div"></div>
+      <div class="fh-feanor">
+        <div class="fh-flabel"><span class="fh-badge">FË</span> Fëanor édite cet élément <span class="fh-mode">🔥 édition</span></div>
+        <div class="fh-field">
+          <textarea rows="1" placeholder="Demander à Fëanor de retravailler Gandalf…">Rends la mission plus courte et ajoute un garde-fou « pas de code avant instruction »</textarea>
+          <button class="fh-send">↥</button>
+        </div>
+        <div class="fh-sugg">
+          <span class="s">Réécris la mission</span>
+          <span class="s">Ajoute un garde-fou</span>
+          <span class="s">Génère une variante</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="pattern">🔥 <div><b>Pattern unique</b> — <b>créer</b> comme <b>éditer</b> montent Fëanor <b>en tête, à côté de la vignette</b> de l'entité (le même composant que sur l'écran de création de workflow). En mode édition, le dock Fëanor de droite <b>disparaît</b> : Fëanor n'est jamais à deux endroits.</div></div>
+
+    <div class="states">
+      <span class="state"><span class="d">👁</span> Vue simple<span style="color:var(--text-muted);font:500 .64rem var(--mono)">Fëanor en dock →</span></span>
+      <span class="arrowmini">──sélection──▸</span>
+      <span class="state on"><span class="d">✎</span> Édition<span style="color:var(--text-muted);font:500 .64rem var(--mono)">Fëanor en tête ▲</span></span>
+      <span class="arrowmini">◂──« New »──</span>
+      <span class="state"><span class="d">✚</span> Création<span style="color:var(--text-muted);font:500 .64rem var(--mono)">Fëanor en tête ▲</span></span>
+    </div>
+
+    <!-- La fiche devient éditable -->
+    <div class="formcard">
+      <h3>Fiche persona — éditable</h3>
+      <div class="frow">
+        <div class="flab">id</div>
+        <div><input class="inp locked" value="gandalf" disabled><div class="lockhint">🔒 id définitif — jamais renommé une fois créé (constitution C-1)</div></div>
+      </div>
+      <div class="frow">
+        <div class="flab">nom</div><div><input class="inp" value="Gandalf"></div>
+      </div>
+      <div class="frow">
+        <div class="flab">rôle · roleKey</div><div><input class="inp" value="cadrage"></div>
+      </div>
+      <div class="frow">
+        <div class="flab">pastille</div>
+        <div class="pastille-opt">
+          <span class="pdot sel" style="background:#3b82f6" title="🔵"></span>
+          <span class="pdot" style="background:#e5484d" title="🔴"></span>
+          <span class="pdot" style="background:#30a46c" title="🟢"></span>
+          <span class="pdot" style="background:#f5a623" title="🟠"></span>
+          <span class="pdot" style="background:#8e4ec6" title="🟣"></span>
+          <span style="font:500 .74rem var(--mono);color:var(--text-muted);margin-left:.3rem">🔵 sélectionnée</span>
+        </div>
+      </div>
+      <div class="frow">
+        <div class="flab">skills</div>
+        <div class="echips"><span class="echip">iakaframe-cadrage <span class="x">×</span></span><span class="addchip">+ ajouter</span></div>
+      </div>
+      <div class="frow">
+        <div class="flab">guardrails</div>
+        <div class="echips"><span class="echip gd">identity <span class="x">×</span></span><span class="echip gd">perimeter <span class="x">×</span></span><span class="addchip">+ ajouter</span></div>
+      </div>
+      <div class="frow">
+        <div class="flab">Mission</div>
+        <div><textarea class="inp">Transforme un besoin en instruction écrite, fermée et vérifiable, avant tout développement. Gandalf invente la solution ET ferme le périmètre.</textarea></div>
+      </div>
+      <div class="frow">
+        <div class="flab">Périmètre</div>
+        <div><textarea class="inp">Lecture seule sur le code ; s'appuie sur le web pour vérifier l'état de l'art ; n'écrit que dans specs/instructions/.</textarea></div>
+      </div>
+      <div class="form-actions">
+        <button class="save">Enregistrer</button>
+        <button class="cancel">Annuler</button>
+      </div>
+    </div>
+  </section>
+</div>
+</body>
+</html>

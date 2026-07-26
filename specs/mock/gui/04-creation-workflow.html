@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>iakaFrameGUI · Créer un workflow</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#fbfbfc;--bg-card:#ffffff;--bg-deep:#f0f1f4;
+  --line:#e7e8ec;--line-soft:#eef0f3;
+  --text-primary:#16181d;--text-secondary:#5b6270;--text-muted:#9aa0ad;
+  --accent:#5b5bd6;--accent-light:#7a78ff;--accent-rgb:91,91,214;
+  --grad:linear-gradient(135deg,#5b5bd6,#7a78ff);
+  --flame:linear-gradient(135deg,#c2410c,#7c2d12);--flame-rgb:194,64,12;--flame-ink:#9a3410;
+  --green:#30a46c;--blue:#3b82f6;--orange:#f5a623;--purple:#8e4ec6;--red:#e5484d;
+  --radius:13px;--shadow:0 4px 14px rgba(20,22,28,.08);
+  --font:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:var(--font);background:var(--bg-primary);color:var(--text-primary);line-height:1.5;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+
+.appbar{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:1.4rem;padding:.7rem 1.4rem;background:rgba(251,251,252,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.wordmark{font-weight:800;letter-spacing:-.02em;font-size:1.05rem}
+.wordmark .edge{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.wordmark .kbd{font:600 .6rem var(--mono);color:var(--text-muted);border:1px solid var(--line);border-radius:6px;padding:.05rem .35rem;margin-left:.5rem;vertical-align:middle}
+.nav{display:flex;align-items:center;gap:.12rem;margin-left:.5rem;min-width:0;overflow-x:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{font-size:.83rem;font-weight:600;color:var(--text-secondary);padding:.35rem .5rem;border-radius:8px;white-space:nowrap}
+.nav a:hover{background:var(--bg-deep);color:var(--text-primary)}
+.nav a.on{background:var(--bg-deep);color:var(--accent)}
+.nav .sep{color:var(--text-muted);opacity:.45;font-size:.78rem;user-select:none}
+.spacer{flex:1}
+.feanor-btn{display:inline-flex;align-items:center;gap:.5rem;border:1px solid rgba(var(--flame-rgb),.3);background:rgba(var(--flame-rgb),.07);color:var(--flame-ink);font-weight:700;font-size:.82rem;padding:.4rem .8rem .4rem .5rem;border-radius:999px;cursor:pointer}
+.feanor-btn .flame{width:24px;height:24px;border-radius:7px;background:var(--flame);display:flex;align-items:center;justify-content:center;font-size:.72rem;color:#fff;font-weight:800}
+.newb{display:inline-flex;align-items:center;gap:.35rem;border:1px solid var(--line);background:var(--bg-card);color:var(--text-primary);font-weight:700;font-size:.82rem;padding:.42rem .8rem;border-radius:9px;cursor:pointer;box-shadow:var(--shadow)}
+.newb:hover{border-color:rgba(var(--accent-rgb),.45);color:var(--accent)}
+.newb .plus{font-size:1.05rem;line-height:1;color:var(--accent);font-weight:800}
+.saveb{border:0;background:var(--grad);color:#fff;font-weight:700;font-size:.82rem;padding:.45rem 1rem;border-radius:9px;cursor:pointer;box-shadow:var(--shadow)}
+
+/* ===== Fëanor EN TÊTE — composant partagé création / édition ===== */
+.create-head{padding:1.3rem 1.8rem .3rem}
+.create-head .crumb{font:600 .72rem var(--mono);letter-spacing:.04em;color:var(--text-muted);margin-bottom:.6rem}
+.feanor-head{display:flex;gap:1.1rem;align-items:stretch;border:1.5px solid rgba(var(--flame-rgb),.3);border-radius:var(--radius);background:linear-gradient(135deg,rgba(var(--flame-rgb),.06),rgba(var(--flame-rgb),.01));padding:1rem 1.1rem;box-shadow:0 6px 22px rgba(var(--flame-rgb),.09)}
+.fh-entity{display:flex;align-items:center;gap:.85rem;flex:none;max-width:252px}
+.fh-vg{width:64px;height:64px;border-radius:17px;display:flex;align-items:center;justify-content:center;color:#fff;font:800 1.55rem var(--mono);flex:none;box-shadow:0 5px 14px rgba(20,22,28,.2)}
+.fh-vg.dashed{border:2px dashed rgba(255,255,255,.55)}
+.fh-name{font-weight:750;font-size:1.05rem;letter-spacing:-.01em}
+.fh-name input{font:750 1.02rem var(--font);border:0;border-bottom:2px solid rgba(var(--accent-rgb),.4);background:transparent;color:var(--text-primary);outline:0;width:100%;padding:.1rem 0}
+.fh-type{font:600 .64rem var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin-top:.3rem}
+.fh-div{width:1px;background:rgba(var(--flame-rgb),.16);flex:none}
+.fh-feanor{flex:1;display:flex;flex-direction:column;min-width:0}
+.fh-flabel{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:.86rem;color:var(--flame-ink)}
+.fh-badge{width:26px;height:26px;border-radius:8px;background:var(--flame);color:#fff;font:800 .62rem var(--mono);display:flex;align-items:center;justify-content:center;flex:none}
+.fh-mode{margin-left:auto;font:600 .6rem var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--flame-ink);background:rgba(var(--flame-rgb),.1);border:1px solid rgba(var(--flame-rgb),.25);border-radius:999px;padding:.14rem .5rem}
+.fh-field{display:flex;align-items:flex-end;gap:.5rem;border:1px solid rgba(var(--flame-rgb),.28);border-radius:11px;background:var(--bg-card);padding:.5rem .65rem;margin-top:.5rem;box-shadow:var(--shadow)}
+.fh-field:focus-within{border-color:rgba(var(--flame-rgb),.5);box-shadow:0 0 0 3px rgba(var(--flame-rgb),.1)}
+.fh-field textarea{border:0;outline:0;resize:none;flex:1;font:500 .9rem var(--font);color:var(--text-primary);background:transparent;line-height:1.45}
+.fh-field textarea::placeholder{color:var(--text-muted)}
+.fh-send{width:34px;height:34px;border:0;border-radius:9px;background:var(--flame);color:#fff;font-size:1rem;cursor:pointer;flex:none}
+.fh-sugg{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.55rem}
+.fh-sugg .s{font:600 .72rem var(--font);color:var(--flame-ink);background:rgba(var(--flame-rgb),.06);border:1px solid rgba(var(--flame-rgb),.2);border-radius:999px;padding:.24rem .6rem;cursor:pointer}
+@media(max-width:760px){.feanor-head{flex-direction:column}.fh-entity{max-width:none}.fh-div{display:none}}
+
+.layout{display:grid;grid-template-columns:376px 1fr;min-height:calc(100vh - 200px)}
+.config{border-right:1px solid var(--line);padding:1.2rem 1.3rem;overflow:auto}
+.canvas{padding:1.4rem 1.8rem 4rem;background:
+   radial-gradient(circle at 1px 1px, var(--line) 1px, transparent 0) 0 0/22px 22px;
+   background-color:var(--bg-primary)}
+
+.flabel{font:600 .66rem var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--text-muted);margin:1.3rem 0 .5rem;display:block}
+.flabel:first-child{margin-top:0}
+
+.kinds{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.kind{border:1.5px solid var(--line);border-radius:11px;background:var(--bg-card);padding:.7rem .75rem;cursor:pointer;transition:.15s}
+.kind:hover{border-color:rgba(var(--accent-rgb),.4)}
+.kind.sel{border-color:var(--accent);background:linear-gradient(135deg,rgba(var(--accent-rgb),.07),rgba(var(--accent-rgb),.01));box-shadow:0 0 0 3px rgba(var(--accent-rgb),.08)}
+.kind .kn{font-weight:700;font-size:.86rem;display:flex;align-items:center;justify-content:space-between}
+.kind .kn .rd{width:15px;height:15px;border-radius:50%;border:2px solid var(--line)}
+.kind.sel .kn .rd{border-color:var(--accent);background:var(--accent);box-shadow:inset 0 0 0 2.5px #fff}
+.kind .kd{font-size:.72rem;color:var(--text-secondary);margin-top:.3rem;line-height:1.35}
+.kind svg{margin-top:.5rem;display:block}
+.kind .code{font:600 .62rem var(--mono);color:var(--accent);margin-top:.4rem;display:inline-block}
+
+.toggle-row{display:flex;align-items:center;gap:.7rem;border:1px solid var(--line);border-radius:10px;padding:.6rem .8rem;background:var(--bg-card);box-shadow:var(--shadow);margin-top:.5rem}
+.toggle-row .tt{font-weight:650;font-size:.86rem}
+.toggle-row .ts{font-size:.72rem;color:var(--text-muted)}
+.tg{margin-left:auto;width:40px;height:23px;border-radius:999px;background:var(--accent);position:relative;flex:none;cursor:pointer}
+.tg::after{content:'';position:absolute;top:2.5px;right:2.5px;width:18px;height:18px;border-radius:50%;background:#fff}
+.tg.off{background:var(--line)}
+.tg.off::after{right:auto;left:2.5px}
+
+.mini-actor{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem}
+.pool-note{font-size:.72rem;color:var(--text-muted);margin-top:.9rem;border-top:1px dashed var(--line);padding-top:.8rem;line-height:1.5}
+.pool-note b{color:var(--accent)}
+
+.canvas-head{display:flex;align-items:center;gap:.7rem;margin-bottom:1.3rem}
+.canvas-head .badge{font:600 .66rem var(--mono);text-transform:uppercase;letter-spacing:.06em;color:var(--accent);background:rgba(var(--accent-rgb),.09);border-radius:7px;padding:.2rem .55rem}
+.canvas-head .lp{font:600 .66rem var(--mono);color:#b5730a;background:rgba(245,166,35,.14);border-radius:7px;padding:.2rem .55rem;display:inline-flex;align-items:center;gap:.3rem}
+
+.loopbar{position:relative;border:1.5px dashed rgba(245,166,35,.5);border-radius:12px;padding:.45rem .9rem;margin-bottom:1.1rem;background:rgba(245,166,35,.05);font-size:.76rem;color:#8a5807;display:inline-flex;align-items:center;gap:.5rem;font-weight:600}
+
+.flow{display:flex;align-items:stretch;gap:0;flex-wrap:wrap}
+.stage{background:var(--bg-card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);width:210px;padding:.8rem .9rem;position:relative}
+.stage .sidx{position:absolute;top:-11px;left:12px;width:22px;height:22px;border-radius:50%;background:var(--grad);color:#fff;font:800 .72rem var(--mono);display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow)}
+.stage .st{font-weight:700;font-size:.92rem;margin-top:.35rem}
+.stage .stype{font:600 .6rem var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted)}
+.stage .alab{font:600 .58rem var(--mono);text-transform:uppercase;letter-spacing:.05em;color:var(--text-muted);margin:.7rem 0 .35rem}
+.actors{display:flex;align-items:center;gap:.3rem;flex-wrap:wrap}
+.avg{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font:800 .6rem var(--mono);flex:none;box-shadow:0 2px 6px rgba(20,22,28,.18)}
+.addactor{width:28px;height:28px;border-radius:8px;border:1.5px dashed var(--line);color:var(--text-muted);display:flex;align-items:center;justify-content:center;font-size:.9rem;cursor:pointer}
+.gatechip{margin-top:.65rem;font:600 .62rem var(--mono);color:#1f7a4d;background:rgba(48,164,108,.1);border:1px solid rgba(48,164,108,.25);border-radius:7px;padding:.2rem .45rem;display:inline-flex;align-items:center;gap:.3rem}
+.gatechip.opt{color:var(--text-muted);background:var(--bg-deep);border-color:var(--line)}
+
+.conn{display:flex;align-items:center;justify-content:center;width:46px;color:var(--text-muted);font-size:1.3rem;flex:none;align-self:center}
+.gate{align-self:center;flex:none;width:78px;height:78px;margin:0 -4px;display:flex;align-items:center;justify-content:center;position:relative}
+.gate .dia{width:56px;height:56px;transform:rotate(45deg);background:var(--bg-card);border:1.5px solid var(--green);border-radius:10px;box-shadow:var(--shadow)}
+.gate .gl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font:800 .58rem var(--mono);color:#1f7a4d;text-align:center;line-height:1.1}
+.gate .gsub{position:absolute;bottom:-16px;left:50%;transform:translateX(-50%);font:600 .56rem var(--mono);color:var(--text-muted);white-space:nowrap}
+
+.addstage{width:210px;border:1.5px dashed var(--line);border-radius:var(--radius);background:transparent;color:var(--text-muted);font-weight:600;font-size:.84rem;display:flex;align-items:center;justify-content:center;gap:.4rem;cursor:pointer;min-height:118px}
+.addstage:hover{border-color:rgba(var(--accent-rgb),.45);color:var(--accent)}
+
+.legend{margin-top:2rem;display:flex;gap:1.4rem;flex-wrap:wrap;font-size:.76rem;color:var(--text-muted)}
+.legend b{color:var(--text-secondary)}
+.legend .sw{display:inline-block;width:12px;height:12px;border-radius:4px;vertical-align:-2px;margin-right:.3rem}
+
+@media(max-width:900px){.layout{grid-template-columns:1fr}.config{border-right:0;border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+
+<div class="appbar">
+  <span class="wordmark"><b>iaka</b><span class="edge">Frame</span>GUI <span class="kbd">workflow</span></span>
+  <nav class="nav" aria-label="Architecture du produit">
+    <a href="#" title="Un frame = une méthode + une team, mariées par un binding">frame</a><span class="sep">·</span>
+    <a href="04-creation-workflow.html" class="on" title="La méthode : workflow, principes, rôles abstraits">méthode</a><span class="sep">·</span>
+    <a href="#" title="La team : le casting de personas">team</a><span class="sep">·</span>
+    <a href="02-feanor-prompt-element.html" title="Fiche d'une persona">persona</a><span class="sep">·</span>
+    <a href="01-library.html" title="Les 8 pools du réservoir partagé">éléments</a><span class="sep">·</span>
+    <a href="03-assemblage.html" title="Marier méthode + team (binding)">assemblage</a><span class="sep">·</span>
+    <a href="#" title="Catalogue des frames — les 8 modèles instanciables">models</a>
+  </nav>
+  <span class="spacer"></span>
+  <button class="newb" title="Créer un nouveau workflow"><span class="plus">+</span> New</button>
+  <button class="feanor-btn"><span class="flame">FË</span> Fëanor</button>
+  <button class="saveb">Enregistrer dans la library</button>
+</div>
+
+<!-- ===== Fëanor EN TÊTE (création) — à côté de la vignette de l'entité ===== -->
+<div class="create-head">
+  <div class="crumb">WORKFLOWS / NOUVEAU — création</div>
+  <div class="feanor-head">
+    <div class="fh-entity">
+      <div class="fh-vg dashed" style="background:var(--grad)">🧭</div>
+      <div>
+        <div class="fh-name"><input value="mon-cycle-produit" aria-label="id du workflow"></div>
+        <div class="fh-type">workflow · création</div>
+      </div>
+    </div>
+    <div class="fh-div"></div>
+    <div class="fh-feanor">
+      <div class="fh-flabel"><span class="fh-badge">FË</span> Fëanor forge ce workflow <span class="fh-mode">🔥 création</span></div>
+      <div class="fh-field">
+        <textarea rows="1" placeholder="Décris le workflow à forger — étapes, acteurs, gate, boucle…">Un cycle de 6 semaines : cadrage, réalisation, gate qualité PASS/FAIL, puis staging, et on reboucle</textarea>
+        <button class="fh-send">↥</button>
+      </div>
+      <div class="fh-sugg">
+        <span class="s">Génère un cycle 6 semaines</span>
+        <span class="s">Ajoute un gate qualité</span>
+        <span class="s">Importe depuis iakaframe-3phases</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- ===== Config ===== -->
+  <aside class="config">
+    <label class="flabel">Type (kind) — le modèle n'impose plus le pipeline</label>
+    <div class="kinds">
+      <div class="kind">
+        <div class="kn">Pipeline <span class="rd"></span></div>
+        <div class="kd">Étapes linéaires, une seule passe.</div>
+        <svg width="130" height="26"><g fill="none" stroke="#9aa0ad" stroke-width="2"><circle cx="12" cy="13" r="6" fill="#e7e8ec" stroke="none"/><line x1="20" y1="13" x2="42" y2="13"/><circle cx="52" cy="13" r="6" fill="#e7e8ec" stroke="none"/><line x1="60" y1="13" x2="82" y2="13"/><circle cx="92" cy="13" r="6" fill="#e7e8ec" stroke="none"/><path d="M100 13 h16 M111 8 l6 5 -6 5" /></g></svg>
+        <span class="code">kind: pipeline</span>
+      </div>
+      <div class="kind">
+        <div class="kn">Cycle <span class="rd"></span></div>
+        <div class="kd">Boucle : on repasse par le début.</div>
+        <svg width="130" height="26"><g fill="none" stroke="#9aa0ad" stroke-width="2"><path d="M30 20 a20 11 0 1 1 70 0"/><path d="M100 20 l-2 -8 8 3" fill="#9aa0ad" stroke="none"/><circle cx="30" cy="16" r="5" fill="#e7e8ec"/><circle cx="65" cy="8" r="5" fill="#e7e8ec"/><circle cx="100" cy="16" r="5" fill="#e7e8ec"/></g></svg>
+        <span class="code">kind: cycle</span>
+      </div>
+      <div class="kind">
+        <div class="kn">Flow <span class="rd"></span></div>
+        <div class="kd">Étapes non contraintes, à la demande.</div>
+        <svg width="130" height="26"><g fill="none" stroke="#9aa0ad" stroke-width="2"><circle cx="14" cy="13" r="6" fill="#e7e8ec" stroke="none"/><path d="M20 13 h14"/><circle cx="42" cy="6" r="5" fill="#e7e8ec" stroke="none"/><circle cx="42" cy="20" r="5" fill="#e7e8ec" stroke="none"/><path d="M34 13 l6 -5 M34 13 l6 5"/><circle cx="78" cy="13" r="6" fill="#e7e8ec" stroke="none"/><path d="M47 6 h26 M47 20 h26"/></g></svg>
+        <span class="code">kind: flow</span>
+      </div>
+      <div class="kind sel">
+        <div class="kn">Cycle + gate <span class="rd"></span></div>
+        <div class="kd">Boucle avec point de contrôle PASS/FAIL.</div>
+        <svg width="130" height="26"><g fill="none" stroke="#5b5bd6" stroke-width="2"><circle cx="14" cy="13" r="6" fill="rgba(91,91,214,.15)" stroke="none"/><line x1="20" y1="13" x2="42" y2="13"/><rect x="46" y="7" width="12" height="12" transform="rotate(45 52 13)" fill="#fff" stroke="#30a46c"/><line x1="62" y1="13" x2="84" y2="13"/><circle cx="94" cy="13" r="6" fill="rgba(91,91,214,.15)" stroke="none"/><path d="M94 19 a26 12 0 0 1 -80 -6" stroke="#f5a623" stroke-dasharray="3 3"/></g></svg>
+        <span class="code">kind: cycle-with-gate</span>
+      </div>
+    </div>
+
+    <label class="flabel">Boucle (loop)</label>
+    <div class="toggle-row">
+      <div><div class="tt">Reboucler en fin de parcours</div><div class="ts">loop: true → retour à l'étape 1</div></div>
+      <div class="tg"></div>
+    </div>
+
+    <label class="flabel">Acteurs disponibles · roleKeys</label>
+    <div class="mini-actor" id="palette"></div>
+
+    <div class="pool-note">Les acteurs sont des <b>rôles abstraits</b> (roleKeys) tirés de la library. Ils seront castés par des <b>personas</b> au moment du binding. Un workflow ne nomme jamais une persona.</div>
+  </aside>
+
+  <!-- ===== Canvas ===== -->
+  <main class="canvas">
+    <div class="canvas-head">
+      <span class="badge">cycle-with-gate</span>
+      <span class="lp">↻ loop: true</span>
+      <span style="font-size:.8rem;color:var(--text-muted)">4 étapes · 1 gate</span>
+    </div>
+
+    <div class="loopbar">↻ loop — en fin de « Staging », le workflow reboucle vers l'étape 1 « Cadrage »</div>
+
+    <div class="flow" id="flow"></div>
+
+    <div class="legend">
+      <span><span class="sw" style="background:var(--grad)"></span><b>étape</b> (phase / stage)</span>
+      <span><span class="sw" style="background:var(--bg-card);border:1.5px solid var(--green)"></span><b>gate</b> optionnel (PASS/FAIL)</span>
+      <span><span class="sw" style="background:rgba(245,166,35,.5)"></span><b>loop</b> — reboucle</span>
+      <span>vignettes = <b>acteurs</b> (roleKeys castés)</span>
+    </div>
+  </main>
+</div>
+
+<script>
+const G={cadrage:['#2b5f9e','#1d4372'],dev:['#b3261e','#7d1a15'],qualite:['#1f7a6b','#124a40'],
+ deploiement:['#7a2b2b','#4f1a1a'],design:['#7a3b86','#52285f'],documentation:['#9a5b17','#6b3d0f'],
+ coordination:['#2f7d43','#1f5c30'],portefeuille:['#b8862b','#8a5e12'],frame:['#c2410c','#7c2d12']};
+const INI={cadrage:'CA',dev:'DE',qualite:'QU',deploiement:'DÉ',design:'DS',documentation:'DO',coordination:'CO',portefeuille:'PF',frame:'FR'};
+
+document.getElementById('palette').innerHTML=Object.keys(G).map(k=>
+ `<div class="avg" title="${k}" style="background:linear-gradient(135deg,${G[k][0]},${G[k][1]})">${INI[k]}</div>`).join('')
+ +`<div class="addactor">+</div>`;
+
+const STAGES=[
+ {name:'Cadrage',type:'stage',actors:['cadrage'],gate:null},
+ {name:'Réalisation',type:'stage',actors:['dev','qualite'],gate:null},
+ {name:'__GATE__',pass:'PASS / FAIL',by:'qualite'},
+ {name:'Staging',type:'stage',actors:['deploiement'],gate:'opt'},
+];
+function actorHTML(a){return a.map(k=>`<div class="avg" title="${k}" style="background:linear-gradient(135deg,${G[k][0]},${G[k][1]})">${INI[k]}</div>`).join('')+`<div class="addactor">+</div>`;}
+
+let idx=0,html='';
+STAGES.forEach((s,i)=>{
+ if(i>0) html+=`<div class="conn">${STAGES[i].name==='__GATE__'||STAGES[i-1].name==='__GATE__'?'›':'→'}</div>`;
+ if(s.name==='__GATE__'){
+   html+=`<div class="gate"><div class="dia"></div><div class="gl">GATE<br>${s.pass}</div><div class="gsub">acteur · ${s.by}</div></div>`;
+ } else {
+   idx++;
+   html+=`<div class="stage"><div class="sidx">${idx}</div>
+     <div class="st">${s.name}</div><div class="stype">${s.type}</div>
+     <div class="alab">acteurs · roleKeys</div>
+     <div class="actors">${actorHTML(s.actors)}</div>
+     ${s.gate==='opt'?`<div class="gatechip opt">◇ gate — optionnel (off)</div>`:``}
+   </div>`;
+ }
+});
+html+=`<div class="conn">→</div><button class="addstage">+ Ajouter une étape</button>`;
+document.getElementById('flow').innerHTML=html;
+</script>
+</body>
+</html>
