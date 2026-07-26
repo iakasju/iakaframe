@@ -578,5 +578,15 @@
     "dirty": true,
     "files": 1435,
     "note": "Persistance disque FERMEE (Lot 5 complet : 5a persona, 5b principes/rituels/scaffolds, 5c roles/guardrails/skills + unification workflow Option A - le pool library/workflows est la verite unique, chemin d'ecriture collection retire). Les 7 pools d'element ecrivent sur disque (round-trip byte-preservant prouve, vendor-check drift 0 checked 76). Correction du drift de version : cli/package.json (autorite) reamene de 0.28.0 a 0.32.0, etat des lieux redevient derive (plus de --version force). GUI main @ 9c63c7e. Reste : authoring des champs riches (UI), extensions Feanor."
+  },
+  {
+    "date": "2026-07-27 00:00",
+    "reason": "pause",
+    "version": "v0.32.0",
+    "branch": "main",
+    "commit": "14ebffc chore(iakaframe): update etat des lieux + commit global (version)",
+    "dirty": true,
+    "files": 1436,
+    "note": "Authoring des champs riches CLOS (Lots A+B+C, GUI-only). A : socle ListEditor reutilisable + persona mission/pastille + fix honnetete roleIndex. B : role.scope + guardrail.policy + verrous kind/hook, retrait scope fantome. C : skill riche (rebranchement SkillAtom, description garde-visible + subskills sur ListEditor, correctif persistSkill qui jetait l'edition). Principe : zero controle fantome (tout champ affiche editable EST persiste, le reste verrouille visiblement) ; round-trip byte-preservant prouve par pool. GUI main @ 544563b, vitest 889, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). Reste : extensions Feanor (passerelle vers materialisation d'element MVP-B, streaming = canal Rust cross-repo, web live) ; corps markdown SKILL.md differe."
   }
 ]
