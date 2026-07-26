@@ -1,7 +1,7 @@
 ---
 id: shapeup-cycle
 name: Shape Up — cycle façonner → parier → construire → refroidir (fixed time, variable scope)
-kind: cycle-with-betting-gate
+kind: cycle-with-gate
 container: six-week-cycle
 phases:
   - { id: shaping,    label: "Shaping (façonnage, hors calendrier)", ritual: shapeup-shaping, actorsRoleKeys: [shapeup-shaper], input: "raw ideas / problèmes bruts", output: "pitch façonnée (problème + appétit + solution esquissée + rabbit holes + no-gos)" }

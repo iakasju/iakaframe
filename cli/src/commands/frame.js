@@ -34,10 +34,12 @@ Options :
   --help          Cette aide.
 
 Severite : BLOQUANT (exit 1) = id pendant, casting orphelin sans coordinateur, binding
-incoherent, id != nom de fichier, self-ref de skill. AVERTISSEMENT (exit 0, liste) = role
-couvert par le coordinateur, workflow catalogue-connu mais pool-absent (ARB-2), id present
-dans plusieurs collections de pool (Finding 3). Les champs de frontmatter inconnus sont
-TOLERES sans avertissement (ARB-1 : MVP permissif, aucun schema strict grave).`;
+incoherent, id != nom de fichier, self-ref de skill, champ CONNU mal type (bad-type) ou requis
+manquant (missing-field). AVERTISSEMENT (exit 0, liste) = role couvert par le coordinateur,
+workflow catalogue-connu mais pool-absent (ARB-2), id present dans plusieurs collections de pool,
+et champ de frontmatter INCONNU (unknown-field). La passe de schema type les champs connus
+(table-donnee library/_schema/frontmatter.json, source unique CLI<->GUI) ; l'inconnu est SIGNALE
+sans bloquer (Fork A, Finding 3).`;
 
 const HELP = `iakaframe frame verify - garde d'anonymisation du miroir
 
