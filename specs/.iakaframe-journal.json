@@ -558,5 +558,15 @@
     "dirty": true,
     "files": 1432,
     "note": "Trois chantiers priorises 2->1->3 clos. #2 (v0.30.0) frame active actionnable + pointeur source unique CLI/GUI. #1 Feanor-en-tete FONCTIONNEL (conseil/chat branche sur le LLM existant, Ollama LAN, honnete, GUI-only). #3 extension authoring : les 7 types d'element (persona, principe, skill, rituel, garde-fou, role, scaffold, workflow) sont authorables dans l'entree elements avec Feanor-en-tete, via hote generique ElementReservoir + FeanorHead agnostique (facto Lot 1) puis remplissage (Lots 2-3). GUI main @ d12e166, vitest 716, vendor-check --strict drift 0 tenu partout. Reste differe : #3 Lot 5 persistance disque (cross-repo, edition en etat de session au MVP) ; authoring des champs riches garde-fou.rendering et scaffold.entries ; passerelle Feanor-en-tete -> materialisation d'element (MVP-B), streaming, web live. R8 : redeployer ~/.claude/agents/ pour le runtime."
+  },
+  {
+    "date": "2026-07-26 21:38",
+    "reason": "version",
+    "version": "v0.31.0",
+    "branch": "main",
+    "commit": "4177d54 merge(vendor): vendorage des pools principles/rituals/scaffolds (chantier #3 Lot 5b canon)",
+    "dirty": true,
+    "files": 1433,
+    "note": "Persistance disque authoring (Lot 5a+5b). 5a : infra pool_write (Rust) + patcheur non-destructif patchFrontmatter (preserve description/vignette/corps a l'octet) + persona persiste. 5b : cross-repo, principes/rituels/scaffolds vendorises (checked 20->45) + serialiseurs + derivees frame.<pool> + persistance disque. L'edition d'element ecrit desormais dans <IAKAFRAME_HOME>/library/<pool>/<id>.md (round-trip byte-preservant prouve sur 34 .md reels : 9 personas + 25 pools). GUI main @ 87eaa02. Reste : 5c (roles/guardrails/skills + dossier SKILL.md), authoring des champs riches (garde-fou rendering, scaffold entries), extensions Feanor (passerelle B, streaming, web live)."
   }
 ]
