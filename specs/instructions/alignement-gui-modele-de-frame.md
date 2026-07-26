@@ -8,7 +8,10 @@
 > **Suite déclarée de la constitution.** `constitution-modele-de-frame.md` § 8 nomme explicitement, en
 > item downstream, « aligner le GUI sur *frame = méthode + team (frères)* » comme **lot à part entière,
 > hors de son périmètre**. La présente instruction **est** ce lot, élargi à la direction des 4 maquettes
-> validées (nav à 7 entrées, réservoir, Fëanor-en-tête, workflow agnostique).
+> validées (nav de concept, réservoir, Fëanor-en-tête, workflow agnostique). **Arbitrages A→F tranchés
+> par le décideur le 2026-07-26** (§ 7) : nav réelle à **9 entrées** (Kit + Apprentissage conservés),
+> bascule globale Studio clair, `models` = écran galerie des 8 frames, persona = élément de 1er ordre,
+> Fëanor = coquille MVP, refonte d'IA progressive.
 >
 > **Constats mesurés sur le disque le 2026-07-26** — `preuve-avant-declaration`. Côté iakaframe :
 > `~/work/iakaframe` (réservoir, v0.27.0). Côté GUI : `~/work/iakaFrameGUI` (lecture seule, les DEUX
@@ -75,22 +78,29 @@ contrats de données.
 
 ### 2.2 La cible (4 maquettes validées, d'après le brief Aragorn — à confronter au pixel, A-CONF)
 
-Nav à **7 entrées** : `frame · méthode · team · persona · éléments · assemblage · models`. **library =
-réservoir** (fiches de persona à vignettes). Écran **assemblage** = frame → méthode + team (**frères**) +
-binding. **Création de workflow agnostique** (`kind` pipeline/cycle/flow/cycle-with-gate). **Fëanor
-en tête** (même composant en création ET édition, dock latéral en vue simple). Bouton **New**. Sélection
-d'un élément → **mode édition**. Charte **Studio clair**.
+Nav des maquettes = **7 entrées** : `frame · méthode · team · persona · éléments · assemblage · models`.
+**library = réservoir** (fiches de persona à vignettes). Écran **assemblage** = frame → méthode + team
+(**frères**) + binding. **Création de workflow agnostique** (`kind` pipeline/cycle/flow/cycle-with-gate).
+**Fëanor en tête** (même composant en création ET édition, dock latéral en vue simple). Bouton **New**.
+Sélection d'un élément → **mode édition**. Charte **Studio clair**.
+
+> **⚙️ Ajustement décideur (2026-07-26, Fork B) — la nav réelle porte 9 entrées, pas 7.** Kit et
+> Apprentissage sont **conservés** comme entrées de nav en plus :
+> `frame · méthode · team · persona · éléments · assemblage · models · kit · apprentissage`.
+> **Divergence assumée** avec les maquettes (7 entrées) : les maquettes restent la **référence de
+> STYLE/pattern** ; la nav réelle est à **9 entrées**. `models` est en outre redéfini (Fork D) comme un
+> **écran galerie des 8 frames du réservoir**, et non la facette binding. Détail : § 7.
 
 ### 2.3 Synthèse de l'écart — ce qui aligne facilement vs ce qui demande une refonte
 
 | Pan de la cible | Existe déjà (réutilisable) | Nature de l'écart |
 |---|---|---|
 | **Assemblage « frères »** | Données **prêtes** : `FrameAssembly = { frame, binding, method, team }`, `resolveAssembly`, `FrameDescriptor{methodId,teamId}` (`packages/core/src/frame.ts`) ; contenu déjà rendu (read-only) dans `OpenFramePanel` | **Purement présentationnel** — promouvoir le read-only enfoui en écran de 1er ordre qui montre méthode **à côté de** team, mariées par le binding. **Aucun contrat de données à toucher.** |
-| **models** (runner/model/tools) | `FrameAssignment{runner,model,tools}` + rendu read-only « Outils par persona » (`OpenFramePanel`) | Présentationnel — extraire en entrée dédiée. |
+| **models** (écran galerie des 8 frames — Fork D) | `frame.frames` (`FrameDescriptor[]`) + logique `selectFrame` (`OpenFramePanel`) | Présentationnel — page galerie dédiée (parcourir/choisir un frame). |
 | **éléments / réservoir** | `buildElementPool`, `ElementPoolPanel`, `FRAME_TYPE_LABELS` | Présentationnel — promouvoir « Briques » en entrée réservoir de 1er ordre. |
 | **persona (fiches à vignettes)** | `casting.ts` (vignettes), roster, `parsePersona` | Présentationnel + composant fiche neuf (léger). |
 | **workflow agnostique (`kind`)** | Données **prêtes** : `WorkflowKind`, `WORKFLOW_KINDS`, `parseWorkflow`, `WorkflowAtelier` | Surfacer un sélecteur `kind` — data déjà là. |
-| **Nav à 7 entrées + New + sélection→édition** | Le pattern onglet `useState<Tab>` + `useForgeDocument` (New/Open/Save) | **Refonte d'IA** — remplacer/reformer la coquille `ForgeShell`. Le plus structurant. |
+| **Nav à 9 entrées** (Fork B) **+ New + sélection→édition** | Le pattern onglet `useState<Tab>` + `useForgeDocument` (New/Open/Save) | **Refonte d'IA progressive** — reformer la coquille `ForgeShell`, ateliers conservés. Le plus structurant. |
 | **Fëanor-en-tête** | Persona Fëanor (donnée) ; **aucun** composant d'assistant | **Net neuf** — le plus ambitieux ; MVP = coquille de dock, pas d'IA fonctionnelle. |
 
 **Lecture d'ensemble : le modèle de données est bon ; c'est le récit visuel qui diverge.** La majorité
@@ -126,6 +136,13 @@ des lots sont des **coquilles de présentation neuves posées sur des fonctions 
 4. **Gate de sortie de tout lot** (récité en critère d'acceptation) : `vendor-check` (côté iakaframe)
    **drift 0**, suites GUI **`vitest` / `tsc` / `eslint` vertes**, **tests de parité verts**
    (`checkFrameRefs` CLI↔GUI, golden de contrats).
+5. **Règle anti-enchevêtrement (séquençage, DUR).** Un lot qui touche une **persona** ou une **fixture**
+   (ex. Lot 3, `persona` = élément de 1er ordre — Fork F) est **cross-repo** : il bouge **le canon
+   iakaframe ET le GUI ENSEMBLE**, en miroir, dans le **même chantier** — jamais l'un sans l'autre (sinon
+   la parité dérive en silence). Corollaire : **un seul chantier par dépôt à la fois** — on ne mène pas
+   deux lots concurrents sur `iakaframe` (ou sur `iakaFrameGUI`) en parallèle. Les lots **purement UI**
+   (`src/` du GUI seul, sans toucher persona/fixture/contrat) échappent au volet canon, mais restent
+   soumis à « un chantier à la fois » côté GUI.
 
 > Autrement dit : le découpage est **conçu** pour que la parité soit tenue **par construction** — les
 > lots vivent au-dessus de la ligne de flottaison des contrats. Le seul lot qui *frôle* un contrat
@@ -138,23 +155,30 @@ des lots sont des **coquilles de présentation neuves posées sur des fonctions 
 > Principe : **le plus de valeur pour le moins de casse**, la priorité n°1 en tête, le plus risqué en
 > queue. Chaque lot est **livrable et gaté seul** (parité verte à chaque fin de lot).
 
+> **Découpage figé après arbitrages décideur (§ 7).** Ajouts : **Lot 0** (bascule Studio clair, Fork E),
+> Lot 2 à **9 entrées** (Fork B), Lot 4 = **écran galerie des 8 frames** (Fork D).
+
 | # | Lot | Valeur | Réutilise | j-h | Complexité / risque |
 |---|---|---|---|---|---|
+| **0** | **Bascule GLOBALE Studio clair** (Fork E) — tout le GUI passe en Studio clair (défaut actuel = Cinabre) | Contexte visuel cible **avant** tout écran | `CharteSelector`/registre de chartes, tokens de thème | **0,5–1** | Faible / faible (thème `src/`, **zéro impact parité**) |
 | **1 — PILOTE** | **Écran d'assemblage « frame = méthode + team (frères) + binding »** | **Priorité n°1** — le récit « frères » | `FrameAssembly`, `resolveAssembly`, contenu de `OpenFramePanel` | **1,5–2,5** | Moyenne / **faible** (data prête) |
-| **2** | **Nav à 7 entrées** (`frame·méthode·team·persona·éléments·assemblage·models`) + bouton **New** + **sélection→édition** | Fondation d'IA cible | pattern `useState<Tab>` + `useForgeDocument` ; ateliers existants comme surfaces d'édition | **3–4** | **Haute** / moyen (cycle de doc, routage) |
-| **3** | **Sensation réservoir** : `persona` (fiches à vignettes) + `éléments` (réservoir de 1er ordre) | Le « réservoir » cible | `buildElementPool`, `ElementPoolPanel`, `casting.ts` | **2–3** | Moyenne / faible |
-| **4** | **Écran `models`** (runner/model/tools par persona) | Complète la nav | `FrameAssignment` + rendu read-only existant | **0,5–1** | Faible / faible |
+| **2** | **Nav à 9 entrées** (`frame·méthode·team·persona·éléments·assemblage·models·kit·apprentissage`) + bouton **New** + **sélection→édition** — **superposition PROGRESSIVE** (Fork A), ateliers conservés comme surfaces d'édition | Fondation d'IA cible | pattern `useState<Tab>` + `useForgeDocument` ; **ateliers Team/Méthode/Workflow/Kit/Apprentissage réutilisés** | **3–4** | **Haute** / moyen (cycle de doc, migration entrée par entrée) |
+| **3** | **Réservoir + persona 1er ordre** (Fork F) : `persona` = **élément de 1er ordre** (`library/personas/`, fiches à vignettes) + `éléments` (réservoir) | Le « réservoir » cible | `buildElementPool`, `ElementPoolPanel`, `casting.ts`, `parsePersona` | **2–3** | Moyenne / **moyen** (**cross-repo canon+GUI** — règle anti-enchevêtrement § 3.5) |
+| **4** | **Écran galerie `models`** (Fork D) — page dédiée qui **parcourt/choisit un des 8 frames** du réservoir | Sélection de frame de 1er ordre | `frame.frames` (`FrameDescriptor[]`), logique `selectFrame` | **1–2** | Moyenne / faible (data prête) |
 | **5** | **Workflow agnostique** — surfacer le sélecteur `kind` (pipeline/cycle/flow/cycle-with-gate) | Aligne la création de workflow | `WORKFLOW_KINDS`, `WorkflowAtelier` (data prête) | **0,5–1** | Faible / faible |
-| **6** | **Fëanor-en-tête** (assistant : même composant création+édition, dock latéral en vue simple) — **MVP = coquille de dock**, pas d'IA fonctionnelle | Le pattern signature des maquettes | persona Fëanor (donnée), `casting.ts` (flamme) | **2–4** | **Haute** / **inconnues** (voir § 7) |
+| **6** | **Fëanor-en-tête — COQUILLE MVP** (Fork C) : le composant + le pattern (même composant création/édition, dock latéral en vue simple), **sans IA fonctionnelle** | Le pattern signature des maquettes | persona Fëanor (donnée), `casting.ts` (flamme) | **2–4** | **Haute** / **inconnues** ; l'assistant fonctionnel = **chantier séparé** |
 
-**Ordre recommandé : 1 → 2 → 3 → 4 → 5 → 6.** Justification : (1) livre la valeur n°1 en isolé et
-prouve la tenue de parité sur un lot self-contained ; (2) pose l'IA cible une fois le récit central
-acquis ; (3–4–5) remplissent les entrées avec des data déjà prêtes ; (6) en dernier car net-neuf et
-porteur d'inconnues. **Total cible ≈ 9,5–15,5 j-h** ; **premier incrément de valeur (Lot 1) ≈ 1,5–2,5
-j-h**.
+**Ordre recommandé : 0 → 1 → 2 → 3 → 4 → 5 → 6.** Justification : (0) bascule Studio clair **d'abord**,
+pour que chaque écran suivant soit conçu et confronté au pixel directement dans la charte cible (pas de
+repasse de thème) ; (1) livre la valeur n°1 en isolé et prouve la tenue de parité sur un lot
+self-contained ; (2) pose l'IA cible (9 entrées, progressif) une fois le récit central acquis ; (3–4–5)
+remplissent les entrées (3 est **cross-repo** — canon+GUI ensemble, § 3.5) ; (6) en dernier, net-neuf et
+porteur d'inconnues. **Total cible ≈ 10,5–17,5 j-h** ; **premier incrément de valeur (Lot 0 puis Lot 1)
+≈ 2–3,5 j-h**.
 
-> Si le décideur veut plus court encore : **Lot 1 seul** est un livrable complet et défendable (le récit
-> « frères » rendu, parité verte), avant tout engagement sur la refonte d'IA (Lot 2).
+> Si le décideur veut le plus court chemin de valeur : **Lot 0 + Lot 1** est un livrable complet et
+> défendable (GUI en Studio clair + récit « frères » rendu, parité verte), avant tout engagement sur la
+> refonte d'IA (Lot 2).
 
 ---
 
@@ -181,7 +205,8 @@ active), `frame.assembly.binding.assignments` (le mariage persona→couple). Tou
 4. **read-only au MVP** (identifier/afficher, comme `OpenFramePanel`) — l'édition viendra avec la nav
    (Lot 2). Aucun nouvel I/O au-delà de `loadFrame`.
 
-**Hors périmètre du pilote :** l'édition inline, la nav à 7 entrées, Fëanor, la charte. (Lots suivants.)
+**Hors périmètre du pilote :** l'édition inline, la nav (9 entrées, Lot 2), Fëanor (Lot 6), la charte
+(Lot 0, faite avant le pilote). (Lots dédiés.)
 
 ---
 
@@ -193,39 +218,51 @@ active), `frame.assembly.binding.assignments` (le mariage persona→couple). Tou
 - **Cohérence méthode** : la règle *charte par défaut contextuelle* (mémoire projet) dit que le défaut
   doit être **Studio clair pour le dev logiciel** — donc la cible est **conforme à la doctrine**, et
   c'est le **registre actuel qui diverge** (défaut Cinabre).
-- **Conséquence** : petit lot d'UI (thème) = **adopter Studio clair comme charte par défaut du GUI**
-  (ajouter la charte si absente ; basculer le défaut). **Sans impact parité** (thème = `src/`/tokens,
-  hors contrats). À rattacher au Lot 2 (la nav) **ou** à traiter en quick-win isolé — **arbitrage
-  décideur** (§ 7, fork E). L'exécutant **ne bascule pas le défaut sans arbitrage**.
+- **✅ TRANCHÉ décideur (Fork E) → BASCULE GLOBALE.** Tout le GUI passe en **Studio clair** (ajouter la
+  charte si absente ; basculer le défaut Cinabre → Studio clair). **Sans impact parité** (thème =
+  `src/`/tokens, hors contrats). **Positionnement : Lot 0 dédié, avant le pilote** (reco Gandalf, § 4 /
+  § 7) — pour que chaque écran suivant soit conçu et confronté au pixel directement dans la charte cible.
 
 ---
 
-## 7. Arbitrages décideur (forks structurants — NON tranchés ici)
+## 7. Arbitrages décideur (forks structurants — ✅ TRANCHÉS le 2026-07-26)
 
-> Gandalf **propose**, le décideur **tranche**. Ces forks engagent l'ampleur et le coût.
+> Gandalf **proposait**, le décideur **a tranché** (2026-07-26). Les 6 forks sont **figés** ci-dessous et
+> reportés dans les lots (§ 4) et les critères (§ 8).
 
-- **Fork A — Ampleur de la refonte d'IA (Lot 2).** *(a)* Remplacer d'un coup la coquille à 5
-  onglets-documents par la nav à 7 entrées ; *(b)* **superposer progressivement** — garder les ateliers
-  existants comme **surfaces d'édition** derrière les nouvelles entrées, migration entrée par entrée.
-  **Reco Gandalf : (b)** (réutilise l'existant, MVP, casse minimale). *Décision décideur.*
-- **Fork B — Sort du « Kit » et de l'« Apprentissage ».** Les 7 entrées cibles ne comportent ni « Kit »
-  ni « Apprentissage ». Le **Kit** doit-il **fondre** dans l'entrée `assemblage` (recommandé — c'est le
-  même matériau) ou survivre ailleurs ? L'**Apprentissage** (pilote de `iakaframe review`, hors
-  document) doit-il rester **hors nav** (bouton dédié), migrer, ou être retiré du GUI ? *Décision
-  décideur.*
-- **Fork C — Fëanor-en-tête, jusqu'où maintenant (Lot 6).** *(a)* **Coquille de dock** MVP (présence
-  visuelle, même composant création/édition, aucun comportement d'IA) ; *(b)* assistant **fonctionnel**
-  (dépasse le MVP, ouvre la question du runner/binding de Fëanor et sort du périmètre « alignement
-  visuel »). **Reco Gandalf : (a)** au titre de ce chantier ; *(b)* = chantier séparé à cadrer.
-  *Décision décideur.*
-- **Fork D — `models` : entrée séparée ou facette de l'assemblage ?** Les maquettes montrent `models`
-  comme **7ᵉ entrée** ; le binding `{runner,model,tools}` est aussi une **facette de l'assemblage**.
-  Entrée dédiée (fidèle aux maquettes) **ou** onglet interne de l'écran assemblage ? *Décision décideur.*
-- **Fork E — Charte Studio clair : quick-win isolé ou dans le Lot 2 ?** (cf. § 6). *Décision décideur.*
-- **Fork F — `persona` vs `team`.** Deux entrées distinctes dans les maquettes. La **fiche persona**
-  éditable est-elle un **élément de 1er ordre** (`library/personas/`, édité hors team — cohérent avec la
-  constitution C-5 « personas = éléments de frame ») ou une **vue dérivée** de la team ? **Reco
-  Gandalf : élément de 1er ordre** (fidèle à la constitution + aux maquettes). *Décision décideur.*
+- **Fork A — Ampleur de la refonte d'IA (Lot 2). ✅ TRANCHÉ décideur → PROGRESSIF.** Le Lot 2 se fait par
+  **superposition progressive** — les ateliers existants sont **conservés comme surfaces d'édition**
+  derrière les nouvelles entrées, migration **entrée par entrée**. **Pas de big-bang.** (Conforme à la
+  reco Gandalf.)
+- **Fork B — Sort du « Kit » et de l'« Apprentissage ». ✅ TRANCHÉ décideur → GARDER LES DEUX comme
+  entrées de nav.** Conséquence structurante : **la nav n'est PAS 7 mais 9 entrées** —
+  `frame · méthode · team · persona · éléments · assemblage · models · kit · apprentissage`.
+  **Divergence assumée avec les maquettes** (qui montraient 7) : les maquettes restent la **référence de
+  STYLE/pattern**, mais la **nav réelle porte 9 entrées** (Kit et Apprentissage conservés). L'écran
+  `assemblage` montre **déjà** le kit (méthode + team + binding + kit) ; l'**entrée Kit dédiée est
+  néanmoins conservée** par choix décideur (elle ne fond pas dans `assemblage`).
+- **Fork C — Fëanor-en-tête (Lot 6). ✅ TRANCHÉ décideur → COQUILLE MVP.** Le Lot 6 livre une **coquille**
+  (le composant + le pattern « même composant création/édition, dock latéral en vue simple »), **sans
+  comportement d'IA**. L'assistant **fonctionnel (LLM branché) est un chantier SÉPARÉ**, hors ce lot.
+  (Conforme à la reco Gandalf.)
+- **Fork D — `models`. ✅ TRANCHÉ décideur → ÉCRAN GALERIE À PART.** `models` est une **page dédiée** qui
+  **parcourt et choisit un des 8 frames** du réservoir — **pas** une simple facette de l'assemblage, ni
+  la facette binding `{runner,model,tools}`. Réutilise `frame.frames` (`FrameDescriptor[]`) + la logique
+  `selectFrame`.
+- **Fork E — Charte Studio clair. ✅ TRANCHÉ décideur → BASCULE GLOBALE.** **Tout le GUI passe en Studio
+  clair** (charte contextuelle du contexte dev, cohérente avec les maquettes). C'est un **lot de bascule
+  de charte** (le défaut actuel est **Cinabre**, `CharteSelector.tsx`). **Positionnement — reco Gandalf :
+  lot dédié le PLUS TÔT (Lot 0), avant le pilote** — voir § 4 et la justification ci-dessous.
+- **Fork F — `persona`. ✅ TRANCHÉ décideur → ÉLÉMENT DE 1er ORDRE.** La fiche persona est un **élément de
+  frame de 1er ordre** (`library/personas/`, éditée hors team — fidèle à la constitution C-5 « personas =
+  éléments de frame »), **pas** une vue dérivée de la team. (Conforme à la reco Gandalf.)
+
+**Positionnement de la bascule Studio clair (reco Gandalf, motivée).** La placer en **Lot 0 dédié, avant
+le pilote** : (1) c'est une bascule **globale, à faible risque, sans impact parité** (thème = `src/`/tokens,
+hors contrats) ; (2) la faire **d'abord** garantit que **chaque écran suivant** (pilote inclus) est
+**conçu ET confronté au pixel (A-CONF) directement dans la charte cible** — pas de repasse de re-thématisation
+après coup. L'intégrer au Lot 2 mélangerait une bascule transverse à une refonte d'IA (deux natures de
+risque dans un même lot). **Reco : Lot 0.**
 
 ---
 
@@ -240,18 +277,26 @@ active), `frame.assembly.binding.assignments` (le mariage persona→couple). Tou
 - **A1 (Lot 1 — pilote)** : l'écran d'assemblage montre **méthode et team au même niveau** (deux frères),
   **jamais** la team imbriquée dans la méthode ; le **binding** est rendu comme le lien qui les marie ;
   un rôle non couvert (orphelin d'intégrité) est **signalé**. Conforme à la maquette d'assemblage.
-- **A2 (Lot 2)** : la coquille présente les **7 entrées** ; un bouton **New** ; **sélectionner un
-  élément → mode édition**. Les surfaces d'édition réutilisent les ateliers existants (Fork A(b)).
-- **A3 (Lot 3)** : l'entrée `persona` rend des **fiches à vignettes** (via `casting.ts`) ; l'entrée
-  `éléments` rend le **réservoir** typé (via `buildElementPool`), en 1er ordre.
-- **A4 (Lot 4)** : l'entrée `models` rend `{runner, model, tools}` par persona (via `FrameAssignment`).
+- **A0 (Lot 0)** : **tout le GUI** rend en **Studio clair** (défaut basculé Cinabre → Studio clair) ;
+  aucune régression des autres chartes du registre ; **zéro impact parité** (`git diff` sur
+  `packages/core/src/*` et fixtures = vide).
+- **A2 (Lot 2)** : la coquille présente les **9 entrées**
+  (`frame·méthode·team·persona·éléments·assemblage·models·kit·apprentissage`) ; un bouton **New** ;
+  **sélectionner un élément → mode édition**. Migration **progressive** (Fork A) : les surfaces d'édition
+  **réutilisent les ateliers existants** (Team/Méthode/Workflow/Kit/Apprentissage).
+- **A3 (Lot 3)** : `persona` est un **élément de 1er ordre** (`library/personas/`, éditable hors team,
+  fiches à vignettes via `casting.ts`) ; `éléments` rend le **réservoir** typé (via `buildElementPool`).
+  Lot **cross-repo** : canon iakaframe + GUI bougent **ensemble** (§ 3.5) — parité verte des deux côtés.
+- **A4 (Lot 4)** : l'entrée `models` est un **écran galerie** qui **liste les 8 frames** du réservoir et
+  permet d'en **choisir un** (via `frame.frames` + `selectFrame`).
 - **A5 (Lot 5)** : la création de workflow expose le choix de `kind` parmi
   `pipeline/cycle/flow/cycle-with-gate` (via `WORKFLOW_KINDS`) ; un workflow créé se relit à l'identique
   (round-trip `parseWorkflowMd`/sérialiseur inchangés).
 - **A6 (Lot 6)** : **Fëanor-en-tête** présent, **même composant** en création ET édition, **dock latéral**
-  en vue simple (MVP = coquille, Fork C(a)).
-- **A7 (charte, Fork E)** : si tranché, **Studio clair** est la charte **par défaut** du GUI ; aucune
-  régression des autres chartes du registre.
+  en vue simple — **coquille MVP** (aucune IA fonctionnelle ; l'assistant branché = chantier séparé, Fork C).
+- **A7 (anti-enchevêtrement, § 3.5)** : tout lot touchant une **persona/fixture** (Lot 3) a bougé
+  **canon + GUI ensemble** ; **un seul chantier par dépôt** à la fois. (La charte Studio clair est
+  couverte par **A0**.)
 
 ---
 
@@ -259,9 +304,9 @@ active), `frame.assembly.binding.assignments` (le mariage persona→couple). Tou
 
 | Composante | Valeur |
 |---|---|
-| **Équivalent jour-homme** | **Lot pilote (1) : 1,5–2,5 j-h.** Chantier cible complet (Lots 1→6) : **≈ 9,5–15,5 j-h**, à engager **par lots gatés** (pas un big-bang). |
-| **Complexité / risque** | **Faible** pour les lots présentationnels sur data prête (1, 3, 4, 5) — la parité est tenue **par construction** (§ 3). **Haute** pour la refonte d'IA (2) et Fëanor-en-tête (6). Risque de parité **maîtrisé** tant que les lots restent au-dessus de la ligne des contrats de `packages/core/src/*`. |
-| **Inconnues (susceptibles de faire glisser)** | (1) **Maquettes non lues à ce cadrage** — l'écart de détail au pixel est une inconnue jusqu'à A-CONF (noms de fichiers + contenus exacts à confirmer par Gimli). (2) **Ampleur du Lot 2** dépend du Fork A (progressif vs big-bang). (3) **Fëanor-en-tête** (Lot 6) : périmètre fonctionnel non figé (Fork C) — un assistant *fonctionnel* dépasse le MVP et n'est **pas** chiffré ici. (4) **Propreté du dépôt GUI** à vérifier avant de brancher (espace de dev du décideur). (5) **Sort du Kit/Apprentissage** (Fork B) peut ajouter du travail de migration. |
+| **Équivalent jour-homme** | **Premier chemin de valeur (Lot 0 + Lot 1) : 2–3,5 j-h.** Chantier cible complet (Lots 0→6) : **≈ 10,5–17,5 j-h**, à engager **par lots gatés** (pas un big-bang — Fork A tranché PROGRESSIF). |
+| **Complexité / risque** | **Faible** pour les lots présentationnels sur data prête (0, 1, 4, 5) — la parité est tenue **par construction** (§ 3). **Moyen** pour le Lot 3 (**cross-repo** canon+GUI, § 3.5). **Haute** pour la refonte d'IA progressive (2) et Fëanor-en-tête (6). Risque de parité **maîtrisé** tant que les lots restent au-dessus de la ligne des contrats de `packages/core/src/*`. |
+| **Inconnues (susceptibles de faire glisser)** | (1) **Maquettes non lues à ce cadrage** — l'écart de détail au pixel reste une inconnue jusqu'à A-CONF (noms de fichiers + contenus exacts à confirmer par Gimli) ; **la nav réelle diverge des maquettes (9 vs 7 entrées)** par choix décideur assumé (Fork B). (2) **Fëanor-en-tête** (Lot 6) : seul le périmètre **coquille** est chiffré ; l'assistant **fonctionnel (LLM)** est un **chantier séparé**, non chiffré ici (Fork C). (3) **Propreté du dépôt GUI** à vérifier avant de brancher (espace de dev du décideur — le coordinateur confirme iakaframe propre sur `main`). (4) **Lot 3 cross-repo** : le coût de mise en miroir canon↔GUI de la persona 1er ordre peut dépasser l'estimation si des fixtures nombreuses bougent. *(Forks A/B/D/E/F désormais tranchés → inconnues correspondantes levées.)* |
 
 > Rappel méthode : cette estimation est **rappelée à la clôture du lot**, confrontée au **temps réel**,
 > pour affiner les suivantes. Ce n'est **pas un engagement ferme**.
