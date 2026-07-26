@@ -12,6 +12,9 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ### Chantiers
 
+- [ ] **Aligner le GUI : `frame = méthode + team` (frères sous le frame)** *(décideur 2026-07-26)*. Rendre **visuellement clair** dans iakaFrameGUI que le frame possède **deux frères de même niveau** (une méthode **et** une team), et **pas** « méthode ⊃ team ». Cross-repo `iakaFrameGUI` — à cadrer/coordonner **avec le décideur** (son espace de travail GUI est actif). Réf. constitution `specs/instructions/constitution-modele-de-frame.md` C-2.
+- [ ] **Réconcilier `rangement-catalogue-frames-reservoir.md §3.3` avec la constitution** *(doc, mineur)* : la formulation « QUALIFIER les deux » doit se relire « ranger sous ids distincts, **sans dédup forcée ni renommage du personnage** » (constitution C-5). Réf. `constitution-modele-de-frame.md`.
+
 - [ ] **🏛️ Modèle réservoir + pointeur `iakaframeactive` par projet** *(DÉCIDÉ par le décideur le 2026-07-24 — à cadrer Gandalf ; FONDATION qui reconditionne le lot Fëanor ci-dessous)*. **`iakaframe` n'est plus « une frame » mais le RÉSERVOIR de toutes les frames iaka.** Deux niveaux : une **`library/` partagée = pot commun de briques** (roles/personas/principles/rituals/guardrails/skills/scaffolds/workflows) pour **toutes** les frames ; et **N frames de même niveau**, chacune = un **assemblage** (`method` + `team` + `binding` + `kit`) qui pioche dans la library partagée. **Décisions actées :**
   - la frame actuelle **« iakaframe » devient le *default***.
   - **pointeur `iakaframeactive` au niveau du PROJET** : la frame active est une propriété du **lieu** (le projet), pas un état global mutable. `iakastart`/commandes lèvent la team **du projet où elles tournent** — plus de pointeur global, plus d'aiguillage à construire.
