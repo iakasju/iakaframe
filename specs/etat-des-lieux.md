@@ -1,23 +1,24 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-26 17:50 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-26 20:33 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.30.0 |
+| Version | v0.28.0 |
 | Branche | main |
-| Dernier commit | af69dd3 merge(cli): pointeur frame active source unique iakaframe.json + verbe frame use (chantier #2 Lot 2) |
-| Arbre | propre |
-| Fichiers (hors .git/node_modules) | 1430 |
-| Note | Chantier #2 clos : la galerie models devient actionnable (cartes cliquables, hook partage useFrameSwitch, no-op/dangling) ET le pointeur de frame active devient source unique CLI<->GUI (iakaframe.json cle frame, lecteur CLI re-adresse, verbe iakaframe frame use <id>, correctif R1, semis init). Ferme I-1 : une frame posee depuis le GUI gouverne aussi iakastart/Odin. Cross-repo sans fixture, vendor-check --strict drift 0. GUI main @ fbc7569. Reste : R7 (frameVersion/re-sync) chantier separe. Prochains chantiers priorises : #1 Feanor fonctionnel (LLM), #3 extension Feanor-en-tete. |
+| Dernier commit | 7a5450e chore(iakaframe): update etat des lieux + commit global (version v0.30.0) |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (hors .git/node_modules) | 1432 |
+| Note | Trois chantiers priorises 2->1->3 clos. #2 (v0.30.0) frame active actionnable + pointeur source unique CLI/GUI. #1 Feanor-en-tete FONCTIONNEL (conseil/chat branche sur le LLM existant, Ollama LAN, honnete, GUI-only). #3 extension authoring : les 7 types d'element (persona, principe, skill, rituel, garde-fou, role, scaffold, workflow) sont authorables dans l'entree elements avec Feanor-en-tete, via hote generique ElementReservoir + FeanorHead agnostique (facto Lot 1) puis remplissage (Lots 2-3). GUI main @ d12e166, vitest 716, vendor-check --strict drift 0 tenu partout. Reste differe : #3 Lot 5 persistance disque (cross-repo, edition en etat de session au MVP) ; authoring des champs riches garde-fou.rendering et scaffold.entries ; passerelle Feanor-en-tete -> materialisation d'element (MVP-B), streaming, web live. R8 : redeployer ~/.claude/agents/ pour le runtime. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `7a5450e` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.30.0) |
 | `af69dd3` | 2026-07-26 | merge(cli): pointeur frame active source unique iakaframe.json + verbe frame use (chantier #2 Lot 2) |
 | `a2a34c2` | 2026-07-26 | test(frame-active): pointeur JSON prioritaire, verbe frame use, R1, semis init |
 | `981c06a` | 2026-07-26 | feat(frame): verbe `iakaframe frame use <id>` — ecrivain canon du pointeur |
@@ -27,7 +28,6 @@
 | `c53d64a` | 2026-07-26 | docs(instructions): cadrage galerie models actionnable (Gandalf P1) |
 | `25d577c` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `dfc4961` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.29.0) |
-| `f699fc6` | 2026-07-26 | merge(personas): champ mission dedie sur les 9 personas + schema (Lot 3b canon) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-26 20:33 | pause | v0.28.0 | main | Trois chantiers priorises 2->1->3 clos. #2 (v0.30.0) frame active actionnable + pointeur source unique CLI/GUI. #1 Feanor-en-tete FONCTIONNEL (conseil/chat branche sur le LLM existant, Ollama LAN, honnete, GUI-only). #3 extension authoring : les 7 types d'element (persona, principe, skill, rituel, garde-fou, role, scaffold, workflow) sont authorables dans l'entree elements avec Feanor-en-tete, via hote generique ElementReservoir + FeanorHead agnostique (facto Lot 1) puis remplissage (Lots 2-3). GUI main @ d12e166, vitest 716, vendor-check --strict drift 0 tenu partout. Reste differe : #3 Lot 5 persistance disque (cross-repo, edition en etat de session au MVP) ; authoring des champs riches garde-fou.rendering et scaffold.entries ; passerelle Feanor-en-tete -> materialisation d'element (MVP-B), streaming, web live. R8 : redeployer ~/.claude/agents/ pour le runtime. |
 | 2026-07-26 17:50 | version | v0.30.0 | main | Chantier #2 clos : la galerie models devient actionnable (cartes cliquables, hook partage useFrameSwitch, no-op/dangling) ET le pointeur de frame active devient source unique CLI<->GUI (iakaframe.json cle frame, lecteur CLI re-adresse, verbe iakaframe frame use <id>, correctif R1, semis init). Ferme I-1 : une frame posee depuis le GUI gouverne aussi iakastart/Odin. Cross-repo sans fixture, vendor-check --strict drift 0. GUI main @ fbc7569. Reste : R7 (frameVersion/re-sync) chantier separe. Prochains chantiers priorises : #1 Feanor fonctionnel (LLM), #3 extension Feanor-en-tete. |
 | 2026-07-26 17:13 | pause | v0.28.0 | main | Alignement GUI au modele de frame CLOS : 6 lots livres, gate Legolas PASS a chacun, parite vendor-check --strict drift 0 tenue de bout en bout. GUI main iakaFrameGUI @ d18adaa. Lots : 0 Studio clair defaut, 2 nav 9 entrees + New + mode edition, 3 reservoir persona (fiches a vignettes), 3b enrichissement persona cross-repo (canon mission + surfacage frame.personas, v0.29.0), 4 galerie models (8 frames + marqueur actif), 5 workflow agnostique (selecteur kind + gates optionnels), 6 coquille Feanor-en-tete (inerte, sans LLM). Reste hors alignement : Feanor fonctionnel (LLM), changement de frame active, extension Feanor-en-tete aux autres pages-elements, gateless au niveau donnee (lots contrat separes si decides). |
 | 2026-07-26 16:37 | version | v0.29.0 | main | Enrichissement du modele persona : champ mission dedie + surfacage frame.personas (fiches reservoir GUI derivees des .md reels : royaume IAKAFRAME, pastille, mission). Cloture le lot cross-repo 3b (canon + GUI, vendor-check --strict drift 0). Suite des lots d'alignement GUI (0 Studio clair, 2 nav 9, 3 reservoir persona). |
