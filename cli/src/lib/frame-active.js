@@ -24,6 +24,56 @@ function hatRoot() {
   return home ? path.join(home, 'work') : 'work';
 }
 
+// Nom du fichier de conf PROJET, domicile CANONIQUE du pointeur de frame active (cle `frame`).
+// Source unique CLI<->GUI (la GUI y ecrit via project_conf.rs::write_active_frame). Le marqueur
+// texte .iakaframe (frame=) devient legacy, lu en REPLI de transition (D-4).
+export const PROJECT_CONF = 'iakaframe.json';
+
+// Parse un fichier JSON (iakaframe.json) en objet, defensif : absent / illisible / JSON invalide /
+// non-objet -> {} (jamais de jet, calque de parseKeyValueFile). Ne CREE rien.
+export function parseJsonFile(file) {
+  let raw;
+  try { raw = fs.readFileSync(file, 'utf8'); } catch { return {}; }
+  let obj;
+  try { obj = JSON.parse(raw); } catch { return {}; }
+  return (obj && typeof obj === 'object' && !Array.isArray(obj)) ? obj : {};
+}
+
+// Pointeur de frame ACTIVE brut d'un projet (chaine, '' si aucun). SOURCE UNIQUE CLI<->GUI, ordre :
+//   (1) <projet>/iakaframe.json cle `frame` (canon go-forward, ecrit par GUI / `frame use`) ;
+//   (2) <projet>/.iakaframe `frame=` (REPLI de transition, projets deja init) ;
+//   (3) '' (l'appelant retombe sur HARDWIRED_DEFAULT_FRAME).
+// Jamais de jet ; jamais de repli DUR ici (le cablage default est chez l'appelant).
+export function readActiveFramePointer(projectDir) {
+  if (!projectDir) return '';
+  const proj = path.resolve(projectDir);
+  const json = parseJsonFile(path.join(proj, PROJECT_CONF));
+  const fromJson = (typeof json.frame === 'string' ? json.frame : '').trim();
+  if (fromJson) return fromJson;
+  const kv = parseKeyValueFile(path.join(proj, '.iakaframe'));
+  return (kv.frame || '').trim();
+}
+
+// Ecriture NON DESTRUCTIVE de la cle `frame` dans <projet>/iakaframe.json (miroir exact du
+// write_active_frame Rust cote GUI). Relit le JSON, ne touche QUE la cle `frame`, preserve les
+// cles du CLI (runner/node/target/note/aiderModel...). REFUSE d'ecrire si le fichier existe mais
+// est ILLISIBLE (l'ecraser perdrait les cles du CLI) -> { ok:false, reason:'unreadable' }.
+// frameId vide/absent -> RETRAIT de la cle `frame` (repli default). Retourne { ok, path, frame }.
+export function writeActiveFramePointer(projectDir, frameId) {
+  const file = path.join(path.resolve(projectDir), PROJECT_CONF);
+  let cfg = {};
+  if (fs.existsSync(file)) {
+    let raw;
+    try { raw = fs.readFileSync(file, 'utf8'); } catch { return { ok: false, reason: 'unreadable', path: file }; }
+    try { cfg = JSON.parse(raw); } catch { return { ok: false, reason: 'unreadable', path: file }; }
+    if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) return { ok: false, reason: 'unreadable', path: file };
+  }
+  const id = (frameId || '').trim();
+  if (id) cfg.frame = id; else delete cfg.frame;
+  fs.writeFileSync(file, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
+  return { ok: true, path: file, frame: id || null };
+}
+
 // Parse un fichier texte `cle=valeur` (patron du marqueur .iakaframe) en objet. Lignes vides et
 // `#` ignorees ; la 1re occurrence d'une cle gagne. Fichier absent/illisible -> {} (jamais de jet).
 export function parseKeyValueFile(file) {
@@ -80,13 +130,11 @@ export function resolveFrameForInit(projectDir, root, fallbackVersion) {
   return { frame, frameVersion };
 }
 
-// Frame ACTIVE d'un projet (D-E) : cle `frame=` du marqueur <projet>/.iakaframe. Absente ->
-// HARDWIRED_DEFAULT_FRAME (repli, zero regression). Hors projet (dir sans .iakaframe) -> default.
+// Frame ACTIVE d'un projet (D-E) : pointeur source unique CLI<->GUI (iakaframe.json cle `frame` en
+// PRIORITE, repli .iakaframe `frame=`). Absent -> HARDWIRED_DEFAULT_FRAME (repli, zero regression).
+// Hors projet (dir sans pointeur) -> default.
 export function activeFrameId(projectDir) {
-  if (!projectDir) return HARDWIRED_DEFAULT_FRAME;
-  const kv = parseKeyValueFile(path.join(path.resolve(projectDir), '.iakaframe'));
-  const id = (kv.frame || '').trim();
-  return id || HARDWIRED_DEFAULT_FRAME;
+  return readActiveFramePointer(projectDir) || HARDWIRED_DEFAULT_FRAME;
 }
 
 // Garde de COHERENCE (A-cohérence, § 7) : le pointeur d'INTENTION `.iakaframe`.frame et la
@@ -98,8 +146,7 @@ export function activeFrameId(projectDir) {
 export function frameCoherence(projectDir, root) {
   if (!projectDir) return { ok: true, status: 'no-pointer' };
   const proj = path.resolve(projectDir);
-  const kv = parseKeyValueFile(path.join(proj, '.iakaframe'));
-  const frameId = (kv.frame || '').trim();
+  const frameId = readActiveFramePointer(proj); // iakaframe.json `frame` prioritaire, repli .iakaframe
   if (!frameId) return { ok: true, status: 'no-pointer' };
 
   let kit = null;
@@ -116,7 +163,7 @@ export function frameCoherence(projectDir, root) {
   }
   return {
     ok: false, status: 'divergent', frame: frameId,
-    reason: `.iakaframe.frame=${frameId} (method ${want.methodId}/team ${want.teamId}) diverge de .claude/iakaframe-kit.json (method ${got.methodId}/team ${got.teamId})`,
+    reason: `pointeur de frame active=${frameId} (method ${want.methodId}/team ${want.teamId}) diverge de .claude/iakaframe-kit.json (method ${got.methodId}/team ${got.teamId})`,
     expected: want, actual: got,
   };
 }

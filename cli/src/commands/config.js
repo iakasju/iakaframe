@@ -86,7 +86,19 @@ export function runConfig(argv) {
   // Ecrire/fusionner iakaframe.json : runner canonique ; node= (canonique) ET target= (mirror legacy).
   const cfgPath = path.join(projDir, 'iakaframe.json');
   let cfg = {};
-  if (fs.existsSync(cfgPath)) { try { cfg = JSON.parse(fs.readFileSync(cfgPath, 'utf8')); } catch { /* repart a vide */ } }
+  if (fs.existsSync(cfgPath)) {
+    // Correctif R1 : sur un iakaframe.json ILLISIBLE, NE PAS reecrire a vide (le pointeur de frame
+    // active `frame` y vit desormais — l'ecraser l'effacerait en silence). On S'ABSTIENT (miroir de
+    // la garde write_active_frame Rust), plutot que de perdre des cles.
+    let raw;
+    try { raw = fs.readFileSync(cfgPath, 'utf8'); }
+    catch { return fail(json, `iakaframe.json illisible (lecture refusee) : ${cfgPath} — abandon pour ne pas ecraser les cles existantes (frame, ...).`, { path: cfgPath }); }
+    try { cfg = JSON.parse(raw); }
+    catch { return fail(json, `iakaframe.json invalide (JSON illisible) : ${cfgPath} — abandon pour ne pas ecraser les cles existantes (frame, ...).`, { path: cfgPath }); }
+    if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) {
+      return fail(json, `iakaframe.json inattendu (objet JSON attendu) : ${cfgPath} — abandon pour preserver la cle frame.`, { path: cfgPath });
+    }
+  }
   cfg.runner = runner;
   cfg.node = node;
   cfg.target = legacyTargetForNode(node);

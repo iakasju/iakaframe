@@ -12,7 +12,8 @@ import { verifyFrame, GATES, LIMITS } from '../lib/frame.js';
 import { libraryRoot } from '../lib/library.js';
 import { lintFrame, lintAllFrames } from '../lib/frame-lint.js';
 import { scaffoldFrameNew } from '../lib/scaffold.js';
-import { emit, fail } from '../lib/output.js';
+import { frameDescriptor, writeActiveFramePointer } from '../lib/frame-active.js';
+import { emit, fail, ok } from '../lib/output.js';
 
 const DEFAULT_FRAME = path.join('frames', 'releases', 'StefFrame2');
 
@@ -68,6 +69,7 @@ export function runFrame(argv) {
     options: {
       frame: { type: 'string' },
       root: { type: 'string' },
+      path: { type: 'string' },
       all: { type: 'boolean', default: false },
       strict: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
@@ -85,9 +87,14 @@ export function runFrame(argv) {
   // Sous-verbe `new` (Lot 2) : ossature d'un frame neuf, lint-clean par construction (ARB-3).
   if (action === 'new') { runNew(values, positionals); return; }
 
+  // Sous-verbe `use` (galerie-models-actionnable.md, D-5) : ecrit le POINTEUR de frame active du
+  // projet (<projet>/iakaframe.json cle `frame`) — l'ecrivain canon pour « l'ordre a Odin », miroir
+  // du set_active_frame_id GUI. Distinct de `switch|use <m> <t>` (matérialisation kit) de l'index.
+  if (action === 'use') { runUse(values, positionals); return; }
+
   if (values.help || action === 'help') { console.log(HELP); return; }
   if (action !== 'verify') {
-    fail(values.json, `action inconnue : ${action} (attendu : verify, lint, new)`);
+    fail(values.json, `action inconnue : ${action} (attendu : verify, lint, new, use)`);
     return;
   }
 
@@ -173,6 +180,61 @@ function runNew(values, positionals) {
     for (const w of res.written) console.log(`    ${w}`);
     console.log(`  casting : coordinateur ${res.coordinator} (role ${res.roleKey}) ; workflow ${res.workflowId}`);
     console.log(`  verifier : iakaframe frame lint ${res.frame}`);
+  });
+}
+
+// --- Sous-verbe `use` : pose le POINTEUR de frame active du projet (galerie-models-actionnable.md,
+//     D-5). Ecrit <projet>/iakaframe.json cle `frame` (fusion NON DESTRUCTIVE, miroir exact du
+//     write_active_frame Rust). Valide que <frameId> existe dans le reservoir (sinon refus, jamais
+//     d'ecriture d'un dangling). Valeur vide -> RETRAIT de la cle (repli default). -------------------
+const USE_HELP = `iakaframe frame use <frameId> - pose la frame active du projet (pointeur)
+
+Usage : iakaframe frame use <frameId> [--path <projet>] [--json] [--root <dir>]
+
+Ecrit la cle \`frame\` de <projet>/iakaframe.json (source unique CLI<->GUI, non destructif : les
+cles runner/node/target/note sont preservees). C'est l'ecrivain canon de « l'ordre a Odin »,
+miroir du geste de la galerie iakaFrameGUI. Distinct de \`iakaframe use <m> <t>\` (materialisation
+du kit). <frameId> DOIT exister dans le reservoir (frames/<id>.md) sinon refus (jamais de dangling).
+
+Options :
+  <frameId>       Id de la frame a activer. Valeur vide ("") -> RETRAIT de la cle (repli default).
+  --path <projet> Dossier projet (defaut : cwd).
+  --root <dir>    Racine bibliotheque ou chercher le descripteur (defaut : resolution auto).
+  --json          Sortie machine : { ok, path, frame }.
+  --help          Cette aide.`;
+
+function runUse(values, positionals) {
+  if (values.help) { console.log(USE_HELP); return; }
+  const id = positionals[1];
+  if (id === undefined) return fail(values.json, 'Usage : iakaframe frame use <frameId> [--path <projet>]');
+
+  const projDir = path.resolve(values.path || process.cwd());
+  if (!fs.existsSync(projDir) || !fs.statSync(projDir).isDirectory()) {
+    return fail(values.json, `Dossier projet introuvable : ${projDir}`, { path: projDir });
+  }
+
+  const trimmed = id.trim();
+  // Valeur vide -> retrait de la cle (repli default), pas de validation de reservoir.
+  if (trimmed) {
+    const root = libraryRoot(values.root);
+    if (!frameDescriptor(trimmed, root)) {
+      return fail(values.json,
+        `frame inconnue : ${trimmed} (aucun descripteur frames/${trimmed}.md dans le reservoir) — pointeur NON ecrit (jamais de dangling).`,
+        { frame: trimmed });
+    }
+  }
+
+  const res = writeActiveFramePointer(projDir, trimmed);
+  if (!res.ok) {
+    return fail(values.json,
+      `iakaframe.json illisible : ${res.path} — ecriture refusee (preservation des cles du CLI, garde R1).`,
+      { path: res.path });
+  }
+
+  emit(values.json, ok({ path: res.path, frame: res.frame }), () => {
+    console.log(res.frame
+      ? `OK - frame active du projet : ${res.frame}  (${res.path})`
+      : `OK - pointeur de frame retire, repli sur le default  (${res.path})`);
   });
 }
 

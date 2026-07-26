@@ -96,6 +96,9 @@ Commandes :
   frame verify        Garde d'anonymisation du miroir frames/releases/ : gates G1-G6 par CLASSES
                         (G2 = ALLOWLIST de marque, attrape le nom SUIVANT). Constate, ne reecrit
                         pas  (--frame <dir> --verbose --json)
+  frame use <id>      Pose la frame active du projet : ecrit iakaframe.json cle \`frame\` (source
+                        unique CLI<->GUI, non destructif). "" retire la cle (repli default).
+                        Distinct de \`use <m> <t>\` (materialisation)  (--path <projet> --json)
   switch|use <m> <t>  Bascule un projet vers methode/team  (--path --binding --rollback --json)
   memory <action>     Canon du portefeuille : init|path|config|list|add|replace|remove
                         <profil|registre>  (--home <dir>  --json ; defaut ~/.iaka/memory/)
