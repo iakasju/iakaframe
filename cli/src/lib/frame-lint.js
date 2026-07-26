@@ -172,6 +172,11 @@ export function lintFrame(frameId, root, { strict = false } = {}) {
     if (wf) {
       pushDoc(`workflow:${wf.id}`, wf);
       for (const rk of workflowRoleKeys(wf.data)) if (!pools.roles.has(rk)) add('blocking', `workflow:${wf.id}`, 'agentsRoleKeys', rk, 'missing-ref');
+      // D-6 : `soleActor` promu first-class ET verifie comme ref persona (meme classe que le trou
+      // d'acteurs de v0.26.0). Sa cible doit resoudre dans le pool des personas ; sinon bloquant.
+      if (wf.data.soleActor && !pools.personas.has(wf.data.soleActor)) {
+        add('blocking', `workflow:${wf.id}`, 'soleActor', wf.data.soleActor, 'missing-ref');
+      }
     }
   }
 

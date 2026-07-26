@@ -58,12 +58,23 @@ test('missing-field (AC2) : requis absent (persona sans name) -> BLOQUANT missin
   assert.equal(b.length, 1, 'un champ requis manquant doit rougir');
 });
 
-test('unknown-field (AC3, Fork A) : WARN par defaut, ne bloque pas', () => {
+test('unknown-field (AC3, Fork A) : WARN par defaut, BLOQUANT sous --strict', () => {
   const bad = makeReservoir({ wf: '---\nid: wf\nname: WF\nkind: pipeline\nfranchement: inconnu\nphases:\n  - { id: p1, label: P1, actorsRoleKeys: [dev] }\n---\n# wf\n' });
   // Defaut : avertissement, non bloquant (exit 0).
   const def = lintFrame('f1', bad);
   assert.equal(def.ok, true, 'un champ inconnu ne doit PAS bloquer par defaut (Fork A)');
   assert.equal(warnings(bad).filter(f => f.kind === 'unknown-field' && f.field === 'franchement').length, 1);
+  // --strict : le meme champ inconnu devient bloquant.
+  const strict = lintFrame('f1', bad, { strict: true });
+  assert.equal(strict.ok, false, 'sous --strict, l\'inconnu bloque');
+  assert.equal(strict.findings.filter(f => f.kind === 'unknown-field' && f.severity === 'blocking').length, 1);
+});
+
+test('soleActor (D-6) : ref persona pendante -> BLOQUANT missing-ref ; resolue -> vert', () => {
+  const bad = makeReservoir({ wf: '---\nid: wf\nname: WF\nkind: pipeline\nsoleActor: fantome\nphases:\n  - { id: p1, label: P1, actorsRoleKeys: [dev] }\n---\n# wf\n' });
+  const b = blocking(bad).filter(f => f.field === 'soleActor' && f.kind === 'missing-ref');
+  assert.equal(b.length, 1, 'un soleActor pendant doit rougir (meme classe que le trou d\'acteurs v0.26.0)');
+  assert.equal(lintFrame('f1', makeReservoir()).ok, true, 'soleActor: alice (persona castee) -> vert');
 });
 
 test('step-field (D-2) : wipLimited en scalaire -> BLOQUANT bad-type', () => {

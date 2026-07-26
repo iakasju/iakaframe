@@ -60,7 +60,7 @@ function guiInputs(root) {
   const teams = scan('teams', root).map(e => { const d = readEntry('teams', e.id, root).data; return { id: e.id, personas: toArray(d.personas), coordinator: d.coordinator, guardrails: toArray(d.guardrails) }; });
   const bindings = scan('bindings', root).map(e => { const d = readEntry('bindings', e.id, root).data; return { id: e.id, methodId: d.methodId, teamId: d.teamId, personaIds: bindingRows(d).map(r => r && r.personaId).filter(Boolean) }; });
   const personaList = scan('personas', root).map(e => { const d = readEntry('personas', e.id, root).data; return { id: e.id, roleKey: d.roleKey, skills: toArray(d.skills), guardrails: toArray(d.guardrails) }; });
-  const workflowRefs = scan('workflows', root).map(e => { const d = readEntry('workflows', e.id, root).data; return { id: e.id, roleKeys: wfRoleKeys(d) }; });
+  const workflowRefs = scan('workflows', root).map(e => { const d = readEntry('workflows', e.id, root).data; return { id: e.id, roleKeys: wfRoleKeys(d), soleActor: d.soleActor != null && d.soleActor !== '' ? d.soleActor : null }; });
   const skillRefs = scan('skills', root).map(e => { const d = readEntry('skills', e.id, root).data; return { id: e.id, subskills: toArray(d.subskills) }; });
   return [poolIds, methods, teams, bindings, personaList, workflowRefs, skillRefs];
 }
@@ -106,7 +106,7 @@ test('AC1.11 : COUVERTURE - toute ref manquante du coeur GUI a un finding BLOQUA
   const root = makeReservoir();
   // Injecte une palette de cassures couvrant le noyau + T1/T5/T3 (memes fichiers pour les 2 moteurs).
   W(path.join(root, 'library/personas/alice.md'), '---\nid: alice\nname: Alice\nroleKey: roleFantome\nskills: [s1, skFantome]\nguardrails: [gFantome]\n---\n# Alice\n');
-  W(path.join(root, 'library/workflows/wf.md'), '---\nid: wf\nname: WF\nphases:\n  - { id: p1, label: P1, agentsRoleKeys: [dev, roleFantome2] }\n---\n# wf\n');
+  W(path.join(root, 'library/workflows/wf.md'), '---\nid: wf\nname: WF\nsoleActor: personaFantome\nphases:\n  - { id: p1, label: P1, agentsRoleKeys: [dev, roleFantome2] }\n---\n# wf\n');
   W(path.join(root, 'library/skills/s1/SKILL.md'), '---\nid: s1\nname: s1\nsubskills: [s1, subFantome]\n---\n# s1\n');
   W(path.join(root, 'methods/m1.md'), '---\nid: m1\nname: M1\nworkflowId: wf\nprincipleIds: [p1, prinFantome]\nroleKeys: [dev, qa, roleFantome3]\nguardrailIds: [g1]\n---\n# m1\n');
   W(path.join(root, 'teams/t1.md'), '---\nid: t1\nname: T1\npersonas: [alice, bob]\ncoordinator: bob\nguardrails: [g1, guardTeamFantome]\n---\n# t1\n');
