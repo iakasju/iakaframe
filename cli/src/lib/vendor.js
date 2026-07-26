@@ -12,11 +12,13 @@
 // depots ». C'est le maximum atteignable sans depot tiers d'ancrage.
 //
 // DEUX NATURES DE FIXTURES, deux traitements (§ 3.3) — ne jamais les confondre :
-//   - 45 COPIES (9 personas + 9 goldens + 1 binding + 1 workflow + 18 principles + 5 rituals +
-//     2 scaffolds) -> comparaison BYTE-A-BYTE. Les 3 pools plats a parseur (principles/rituals/
-//     scaffolds) sont vendorises au Lot 5b (persistance-disque-authoring-elements.md § 5b) sur
-//     l'ENSEMBLE REFERENCE par la methode canonique iakaframe (principleIds/ritualIds/scaffoldIds),
-//     exactement comme les 9 personas vendorisent le casting de la team active (jamais tout le pool) ;
+//   - 76 COPIES (9 personas + 9 goldens + 1 binding + 1 workflow + 18 principles + 5 rituals +
+//     2 scaffolds + 9 roles + 3 guardrails + 19 skills) -> comparaison BYTE-A-BYTE. Les 3 pools
+//     plats a parseur (principles/rituals/scaffolds) sont vendorises au Lot 5b ; les 3 pools SANS
+//     parseur (roles/guardrails/skills) au Lot 5c (persistance-5c-roles-guardrails-skills.md § 6),
+//     tous sur l'ENSEMBLE REFERENCE par la methode canonique iakaframe (principleIds/ritualIds/
+//     scaffoldIds/roleKeys/guardrailIds + union persona.skills fermee sur subskills), exactement
+//     comme les 9 personas vendorisent le casting de la team active (jamais tout le pool) ;
 //   - 4 DERIVEES (methode, methode wrapped, team, kit) -> ce sont des formes canoniques
 //     SERIALISEES, pas des copies. Comparaison de FRONTMATTER SEMANTIQUE, corps EXEMPTE.
 //     Exception : le kit, seul cas ou une egalite byte est definie, et elle l'est contre le
@@ -43,8 +45,32 @@ export const PRINCIPLE_IDS = [
 export const RITUAL_IDS = ['iakastart', 'init', 'update', 'snapshot', 'log-conversation'];
 export const SCAFFOLD_IDS = ['portefeuille', 'projet'];
 
-// 20 (9 personas + 9 goldens + 1 binding + 1 workflow) + 18 principles + 5 rituals + 2 scaffolds.
-export const EXPECTED_COPIES = 45;
+// Pools SANS parseur vendorises au Lot 5c (persistance-5c-roles-guardrails-skills.md § 6) : le meme
+// principe que ci-dessus — l'ENSEMBLE REFERENCE par la methode canonique iakaframe, pas tout le pool.
+//   - roles     : les 9 `roleKeys` de methods/iakaframe.md (identite = `key`, fichier `<key>.md`) ;
+//   - guardrails: les 3 `guardrailIds` de la methode (identite = `id`, fichier `<id>.md`) ;
+//   - skills    : l'union des `persona.skills` des 9 personas de la team active + la FERMETURE des
+//     `subskills` (mesuree sur le disque) — stockees en DOSSIER `<id>/SKILL.md` (le walk recursif de
+//     `listFixtureFiles` la supporte nativement ; chaque `skills/<id>/SKILL.md` est une copie valide).
+export const ROLE_KEYS = [
+  'portefeuille', 'coordination', 'cadrage', 'dev', 'qualite', 'deploiement', 'design',
+  'documentation', 'frame',
+];
+export const GUARDRAIL_IDS = ['identity', 'perimeter', 'delegation'];
+export const SKILL_IDS = [
+  // Union des `persona.skills` du casting (9 personas de teams/iakaframe-8.md) ...
+  'iakaframe-aragorn', 'iakaframe-frame', 'iakaframe-cadrage', 'iakaframe-lecture-maquettes',
+  'iakaframe-fabrication', 'iakaframe-deploiement', 'iakaframe-qualite', 'iakaframe-naonedge',
+  'iakaframe-nathalie', 'iakaframe-memoire-humaine', 'iakaframe-odin', 'iakastart',
+  // ... + fermeture des `subskills` (mesuree) : jalon, gestion-de-source->git->forgejo,
+  // conteneurisation->docker, appflowy-doc.
+  'iakaframe-jalon', 'iakaframe-gestion-de-source', 'iakaframe-conteneurisation',
+  'iakaframe-appflowy-doc', 'iakaframe-git', 'iakaframe-docker', 'iakaframe-forgejo',
+];
+
+// 20 (9 personas + 9 goldens + 1 binding + 1 workflow) + 18 principles + 5 rituals + 2 scaffolds
+// + 9 roles + 3 guardrails + 19 skills (Lot 5c) = 76.
+export const EXPECTED_COPIES = 76;
 export const EXPECTED_DERIVED = 4;   // methode, methode wrapped, team, kit
 
 const FIXTURES_REL = path.join('packages', 'core', '__tests__', 'fixtures');
@@ -155,6 +181,28 @@ export function fixtureTable() {
       source: path.join('library', 'scaffolds', `${id}.md`), id,
     });
   }
+  // Pools SANS parseur (Lot 5c) : COPIES byte-a-byte du canon. roles/guardrails sont plats
+  // (`library/<pool>/<id>.md`) ; skills est un DOSSIER (`library/skills/<id>/SKILL.md`). Le corps
+  // n'est PAS exempte : le round-trip non-destructif cote GUI (patchFrontmatter) preserve
+  // frontmatter + corps a l'octet (cf. parse{Role,Guardrail,Skill} + <pool>FrontmatterPatch).
+  for (const key of ROLE_KEYS) {
+    rows.push({
+      family: 'roles', kind: 'copy', fixture: path.join('roles', `${key}.md`),
+      source: path.join('library', 'roles', `${key}.md`), id: key,
+    });
+  }
+  for (const id of GUARDRAIL_IDS) {
+    rows.push({
+      family: 'guardrails', kind: 'copy', fixture: path.join('guardrails', `${id}.md`),
+      source: path.join('library', 'guardrails', `${id}.md`), id,
+    });
+  }
+  for (const id of SKILL_IDS) {
+    rows.push({
+      family: 'skills', kind: 'copy', fixture: path.join('skills', id, 'SKILL.md'),
+      source: path.join('library', 'skills', id, 'SKILL.md'), id,
+    });
+  }
   return rows;
 }
 
@@ -181,7 +229,8 @@ export function frontmatterDiff(a, b) {
 
 // --- Verification complete --------------------------------------------------------------------
 // Retourne un rapport C-JSON-able. `ok` ne vaut JAMAIS true sans verification reelle (A.1/A19) :
-// il implique status 'clean' ET checked == 18 ET derived == 4 — l'attendu EXACT, jamais un minimum.
+// il implique status 'clean' ET checked == EXPECTED_COPIES ET derived == EXPECTED_DERIVED —
+// l'attendu EXACT, jamais un minimum.
 export function checkVendor({ root, guiRoot = undefined, env = process.env } = {}) {
   const gui = guiRoot === undefined ? resolveGuiRoot(root, env) : guiRoot;
   if (!gui) {
