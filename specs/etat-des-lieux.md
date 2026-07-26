@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-26 21:38 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-26 22:59 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.31.0 |
+| Version | v0.32.0 |
 | Branche | main |
-| Dernier commit | 4177d54 merge(vendor): vendorage des pools principles/rituals/scaffolds (chantier #3 Lot 5b canon) |
+| Dernier commit | a297942 merge(vendor): vendorage roles/guardrails/skills (chantier #3 Lot 5c canon) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 1433 |
-| Note | Persistance disque authoring (Lot 5a+5b). 5a : infra pool_write (Rust) + patcheur non-destructif patchFrontmatter (preserve description/vignette/corps a l'octet) + persona persiste. 5b : cross-repo, principes/rituels/scaffolds vendorises (checked 20->45) + serialiseurs + derivees frame.<pool> + persistance disque. L'edition d'element ecrit desormais dans <IAKAFRAME_HOME>/library/<pool>/<id>.md (round-trip byte-preservant prouve sur 34 .md reels : 9 personas + 25 pools). GUI main @ 87eaa02. Reste : 5c (roles/guardrails/skills + dossier SKILL.md), authoring des champs riches (garde-fou rendering, scaffold entries), extensions Feanor (passerelle B, streaming, web live). |
+| Fichiers (hors .git/node_modules) | 1435 |
+| Note | Persistance disque FERMEE (Lot 5 complet : 5a persona, 5b principes/rituels/scaffolds, 5c roles/guardrails/skills + unification workflow Option A - le pool library/workflows est la verite unique, chemin d'ecriture collection retire). Les 7 pools d'element ecrivent sur disque (round-trip byte-preservant prouve, vendor-check drift 0 checked 76). Correction du drift de version : cli/package.json (autorite) reamene de 0.28.0 a 0.32.0, etat des lieux redevient derive (plus de --version force). GUI main @ 9c63c7e. Reste : authoring des champs riches (UI), extensions Feanor. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `a297942` | 2026-07-26 | merge(vendor): vendorage roles/guardrails/skills (chantier #3 Lot 5c canon) |
+| `6bf1fe9` | 2026-07-26 | feat(vendor): vendorise roles/guardrails/skills (Lot 5c, +31 copies -> 76) |
+| `a7ac61b` | 2026-07-26 | docs(specs): cadrage Lot 5c (roles/guardrails/skills + unification workflow) |
+| `45e7ecc` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.31.0) |
 | `4177d54` | 2026-07-26 | merge(vendor): vendorage des pools principles/rituals/scaffolds (chantier #3 Lot 5b canon) |
 | `6c31974` | 2026-07-26 | feat(vendor): vendorise principles/rituals/scaffolds (Lot 5b, ensemble reference) |
 | `d7f7d1e` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `7a5450e` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.30.0) |
 | `af69dd3` | 2026-07-26 | merge(cli): pointeur frame active source unique iakaframe.json + verbe frame use (chantier #2 Lot 2) |
 | `a2a34c2` | 2026-07-26 | test(frame-active): pointeur JSON prioritaire, verbe frame use, R1, semis init |
-| `981c06a` | 2026-07-26 | feat(frame): verbe `iakaframe frame use <id>` — ecrivain canon du pointeur |
-| `b82597d` | 2026-07-26 | feat(init): seme le pointeur frame dans iakaframe.json (domicile canon) |
-| `a4216d3` | 2026-07-26 | fix(config): ne pas ecraser iakaframe.json illisible (faille R1) |
-| `e929f40` | 2026-07-26 | feat(frame-active): pointeur de frame = source unique iakaframe.json cle frame |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-26 22:59 | version | v0.32.0 | main | Persistance disque FERMEE (Lot 5 complet : 5a persona, 5b principes/rituels/scaffolds, 5c roles/guardrails/skills + unification workflow Option A - le pool library/workflows est la verite unique, chemin d'ecriture collection retire). Les 7 pools d'element ecrivent sur disque (round-trip byte-preservant prouve, vendor-check drift 0 checked 76). Correction du drift de version : cli/package.json (autorite) reamene de 0.28.0 a 0.32.0, etat des lieux redevient derive (plus de --version force). GUI main @ 9c63c7e. Reste : authoring des champs riches (UI), extensions Feanor. |
 | 2026-07-26 21:38 | version | v0.31.0 | main | Persistance disque authoring (Lot 5a+5b). 5a : infra pool_write (Rust) + patcheur non-destructif patchFrontmatter (preserve description/vignette/corps a l'octet) + persona persiste. 5b : cross-repo, principes/rituels/scaffolds vendorises (checked 20->45) + serialiseurs + derivees frame.<pool> + persistance disque. L'edition d'element ecrit desormais dans <IAKAFRAME_HOME>/library/<pool>/<id>.md (round-trip byte-preservant prouve sur 34 .md reels : 9 personas + 25 pools). GUI main @ 87eaa02. Reste : 5c (roles/guardrails/skills + dossier SKILL.md), authoring des champs riches (garde-fou rendering, scaffold entries), extensions Feanor (passerelle B, streaming, web live). |
 | 2026-07-26 20:33 | pause | v0.28.0 | main | Trois chantiers priorises 2->1->3 clos. #2 (v0.30.0) frame active actionnable + pointeur source unique CLI/GUI. #1 Feanor-en-tete FONCTIONNEL (conseil/chat branche sur le LLM existant, Ollama LAN, honnete, GUI-only). #3 extension authoring : les 7 types d'element (persona, principe, skill, rituel, garde-fou, role, scaffold, workflow) sont authorables dans l'entree elements avec Feanor-en-tete, via hote generique ElementReservoir + FeanorHead agnostique (facto Lot 1) puis remplissage (Lots 2-3). GUI main @ d12e166, vitest 716, vendor-check --strict drift 0 tenu partout. Reste differe : #3 Lot 5 persistance disque (cross-repo, edition en etat de session au MVP) ; authoring des champs riches garde-fou.rendering et scaffold.entries ; passerelle Feanor-en-tete -> materialisation d'element (MVP-B), streaming, web live. R8 : redeployer ~/.claude/agents/ pour le runtime. |
 | 2026-07-26 17:50 | version | v0.30.0 | main | Chantier #2 clos : la galerie models devient actionnable (cartes cliquables, hook partage useFrameSwitch, no-op/dangling) ET le pointeur de frame active devient source unique CLI<->GUI (iakaframe.json cle frame, lecteur CLI re-adresse, verbe iakaframe frame use <id>, correctif R1, semis init). Ferme I-1 : une frame posee depuis le GUI gouverne aussi iakastart/Odin. Cross-repo sans fixture, vendor-check --strict drift 0. GUI main @ fbc7569. Reste : R7 (frameVersion/re-sync) chantier separe. Prochains chantiers priorises : #1 Feanor fonctionnel (LLM), #3 extension Feanor-en-tete. |

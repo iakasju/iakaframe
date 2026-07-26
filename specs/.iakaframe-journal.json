@@ -568,5 +568,15 @@
     "dirty": true,
     "files": 1433,
     "note": "Persistance disque authoring (Lot 5a+5b). 5a : infra pool_write (Rust) + patcheur non-destructif patchFrontmatter (preserve description/vignette/corps a l'octet) + persona persiste. 5b : cross-repo, principes/rituels/scaffolds vendorises (checked 20->45) + serialiseurs + derivees frame.<pool> + persistance disque. L'edition d'element ecrit desormais dans <IAKAFRAME_HOME>/library/<pool>/<id>.md (round-trip byte-preservant prouve sur 34 .md reels : 9 personas + 25 pools). GUI main @ 87eaa02. Reste : 5c (roles/guardrails/skills + dossier SKILL.md), authoring des champs riches (garde-fou rendering, scaffold entries), extensions Feanor (passerelle B, streaming, web live)."
+  },
+  {
+    "date": "2026-07-26 22:59",
+    "reason": "version",
+    "version": "v0.32.0",
+    "branch": "main",
+    "commit": "a297942 merge(vendor): vendorage roles/guardrails/skills (chantier #3 Lot 5c canon)",
+    "dirty": true,
+    "files": 1435,
+    "note": "Persistance disque FERMEE (Lot 5 complet : 5a persona, 5b principes/rituels/scaffolds, 5c roles/guardrails/skills + unification workflow Option A - le pool library/workflows est la verite unique, chemin d'ecriture collection retire). Les 7 pools d'element ecrivent sur disque (round-trip byte-preservant prouve, vendor-check drift 0 checked 76). Correction du drift de version : cli/package.json (autorite) reamene de 0.28.0 a 0.32.0, etat des lieux redevient derive (plus de --version force). GUI main @ 9c63c7e. Reste : authoring des champs riches (UI), extensions Feanor."
   }
 ]
