@@ -15,7 +15,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { checkVendor, resolveGuiRoot, stripHeader, IDS } from '../src/lib/vendor.js';
+import { checkVendor, resolveGuiRoot, stripHeader, IDS, PRINCIPLE_IDS, RITUAL_IDS, SCAFFOLD_IDS } from '../src/lib/vendor.js';
 import { remediationFor, KNOWN_REASONS } from '../src/commands/vendor-check.js';
 import { generateAgent, loadDefaultBinding, renderAgentContract, verbatimBody } from '../src/lib/generate-agents.js';
 import { parseFrontmatter } from '../src/lib/frontmatter.js';
@@ -54,6 +54,15 @@ function makeCleanMirror() {
   fs.copyFileSync(path.join(REPO, 'library', 'workflows', 'iakaframe-3phases.md'),
     path.join(fx, 'workflow.iakaframe-3phases.md'));
 
+  // Pools plats a parseur (Lot 5b) : les 25 copies byte-a-byte de l'ensemble REFERENCE par la
+  // methode canonique (18 principles + 5 rituals + 2 scaffolds).
+  for (const [pool, ids] of [['principles', PRINCIPLE_IDS], ['rituals', RITUAL_IDS], ['scaffolds', SCAFFOLD_IDS]]) {
+    fs.mkdirSync(path.join(fx, pool), { recursive: true });
+    for (const id of ids) {
+      fs.copyFileSync(path.join(REPO, 'library', pool, `${id}.md`), path.join(fx, pool, `${id}.md`));
+    }
+  }
+
   const methodRaw = fs.readFileSync(path.join(REPO, 'methods', 'iakaframe.md'), 'utf8');
   fs.writeFileSync(path.join(fx, 'method.iakaframe.md'), methodRaw);
   // La derivee « wrapped » : MEME frontmatter, wrapping different -> doit rester VERTE.
@@ -69,12 +78,12 @@ function makeCleanMirror() {
 const fixturePath = (m, rel) => path.join(m.fx, rel);
 const run = (m, extra = {}) => checkVendor({ root: REPO, guiRoot: m.root, ...extra });
 
-test('A2 : miroir conforme -> ok, checked == 20 et derived == 4 (attendu EXACT)', () => {
+test('A2 : miroir conforme -> ok, checked == 45 et derived == 4 (attendu EXACT)', () => {
   const m = makeCleanMirror();
   const res = run(m);
   assert.equal(res.ok, true, 'miroir synthetique conforme attendu vert : ' + JSON.stringify(res.files, null, 2));
   assert.equal(res.status, 'clean');
-  assert.equal(res.checked, 20); // 9 personas + 9 goldens + 1 binding + 1 workflow (+ feanor)
+  assert.equal(res.checked, 45); // 20 (personas+goldens+binding+workflow) + 18 principles + 5 rituals + 2 scaffolds
   assert.equal(res.derived, 4);
   assert.equal(res.drift, 0);
 });
@@ -170,11 +179,11 @@ test('A7 : fixture supprimee -> rouge (jamais un compte allege qui validerait un
   fs.rmSync(fixturePath(m, path.join('personas', 'loki.md')));
   const res = run(m);
   assert.equal(res.ok, false);
-  assert.equal(res.checked, 19, 'la fixture manquante ne doit pas etre comptee comme verifiee');
+  assert.equal(res.checked, 44, 'la fixture manquante ne doit pas etre comptee comme verifiee');
   assert.ok(res.files.some((f) => f.reasons.some((r) => r.reason === 'fixture-manquante')));
 });
 
-test('A19 : ok:true implique checked == 20 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
+test('A19 : ok:true implique checked == 45 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
   const m = makeCleanMirror();
   fs.rmSync(fixturePath(m, 'team.iakaframe-8.md'));
   const res = run(m);
