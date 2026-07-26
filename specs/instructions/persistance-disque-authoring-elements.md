@@ -220,6 +220,11 @@ requis **uniquement pour la création** (fichier neuf), où il n'y a rien à pr�
   (le `pool_write` doit router vers le sous-dossier), + réconcilier la **dualité workflow** (pool
   read-only `library/workflows/` vs collection éditable `<home>/workflows/` — statuer laquelle est
   l'autorité d'édition). Le plus risqué ; à cadrer finement le moment venu.
+  > **Cadrage détaillé livré (2026-07-26) : `specs/instructions/persistance-5c-roles-guardrails-skills.md`.**
+  > Mesure la forme réelle des 3 pools + tranche : découpage **5c-1 roles+guardrails (sans Rust)** puis
+  > **5c-2 skills (extension Rust folder-write)** ; `guardrail` **plat** (`kind/hook/policy` préservés,
+  > **pas** de `rendering` inline-map) ; verrou C-1 sur **`key`** (role) ; **workflow HORS 5c**
+  > (persistance déjà résolue côté collection, fusion pool/collection = lot d'archi séparé).
 
 **Reco : livrer 5a seul, valider en réel, puis engager 5b, puis 5c.** Le décideur peut regrouper
 5b+5c ou réordonner ; la dépendance dure est « 5a d'abord » (l'infra conditionne tout le reste).
