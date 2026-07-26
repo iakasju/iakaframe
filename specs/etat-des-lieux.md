@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-26 11:54 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-07-26 15:05 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.27.0 |
+| Version | v0.28.0 |
 | Branche | main |
-| Dernier commit | b225184 docs(cadrage): constitution du modele de frame (Finding 4) - les 4 biais soldes |
-| Arbre | propre |
-| Fichiers (hors .git/node_modules) | 1421 |
-| Note | MODELE DE FRAME CLOS : les 4 biais soldes. (1) gouvernance + (2) cardinalite = modele agnostique v0.26.0 (kind first-class, gates optionnel, conteneur+acteurs unifies, coordinator optionnel/N=1 ; + fix d'un trou de lint reel). (3) schema strict v0.27.0 (table de schema type vendoree CLI+GUI, type-error bloquant, inconnu WARN+--strict ; 3 bugs latents fermes). (4) namespacing/partage = CONSTITUTION du modele (doc, b225184) : C-1..C-5 (library plate ids definitifs ; frame=methode+team FRERES ; construire=referencer/partage OU ecrire ; promotion=seul renommage ; personas/skills=elements de frame). Session complete : reservoir de frames (v0.21) + outillage frame lint/new/add (v0.22) + 9e persona Feanor (v0.23) + rangement pilote (v0.24) + catalogue 7 frames rangees (v0.25) + modele agnostique (v0.26) + schema strict (v0.27) + constitution. 8 frames dans le reservoir. Suites vertes, vendor-check drift 0. Suites backlog : alignement GUI (frame=methode+team) + reconciliation §3.3. |
+| Dernier commit | 3dfeaf4 merge(skills): iakaframe-lecture-maquettes + cablage dans Gandalf |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (hors .git/node_modules) | 1427 |
+| Note | Alignement GUI - Lot 1 pilote + skill Gandalf. (1) Ecran d'assemblage GUI de 1er ordre : rend visible 'frame = methode + team (freres) + binding-mariage' (cale sur la maquette 03, Studio clair, read-only, fonction pure buildAssemblyModel ; contrats packages/core INTOUCHES, parite verte). (2) Skill iakaframe-lecture-maquettes cablee dans Gandalf (lire les maquettes par chemin exact, jamais Glob). Merges cross-repo propres (iakaframe + iakaFrameGUI) apres demelage d'un enchevetrement de branches maitrise. vendor-check drift 0, frame lint --all exit 0, suites GUI vertes (vitest 564). Note R8 : contrat deploye ~/.claude/agents/gandalf.md a redeployer pour effet runtime. Reste : Lots 2-6 de l'alignement GUI (nav 7 entrees, reservoir, Feanor-en-tete...) + arbitrages A-F au fil des lots. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `3dfeaf4` | 2026-07-26 | merge(skills): iakaframe-lecture-maquettes + cablage dans Gandalf |
+| `b3c1b85` | 2026-07-26 | feat(skills): ajoute iakaframe-lecture-maquettes et cable la skill dans Gandalf |
+| `7ad441a` | 2026-07-26 | docs(cadrage): alignement du GUI sur le modele de frame + maquettes |
+| `d6810ee` | 2026-07-26 | docs(mock): maquettes GUI Studio clair (source unique specs/mock/gui) |
+| `242834f` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `b225184` | 2026-07-26 | docs(cadrage): constitution du modele de frame (Finding 4) - les 4 biais soldes |
 | `5366be9` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.27.0) |
 | `d8d965a` | 2026-07-26 | merge(frame): schema de frontmatter type + frame lint strict (Finding 3) |
 | `0fb4d31` | 2026-07-26 | feat(frame-lint): drapeau --strict + soleActor promu et vérifié (Lot 2, Finding 3) |
 | `14d56b1` | 2026-07-26 | feat(frame-lint): schema de frontmatter typé + politique WARN sur l'inconnu (Lot 1, Finding 3) |
-| `8b1f882` | 2026-07-26 | docs(cadrage): schema de frontmatter type + frame lint strict (Finding 3) - gate P1 a venir |
-| `ce6b339` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.26.0) |
-| `f28a589` | 2026-07-26 | merge(frame): modele de frame agnostique - gouvernance + cardinalite + fix du trou de lint |
-| `45eb6b0` | 2026-07-26 | docs(frames): acter que le detour n'en est plus un (biais gouvernance + cardinalite soldes) |
-| `12da472` | 2026-07-26 | feat(library): coordinator optionnel + N=1 legitime de premiere classe (lot B cardinalite) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-26 15:05 | version | v0.28.0 | main | Alignement GUI - Lot 1 pilote + skill Gandalf. (1) Ecran d'assemblage GUI de 1er ordre : rend visible 'frame = methode + team (freres) + binding-mariage' (cale sur la maquette 03, Studio clair, read-only, fonction pure buildAssemblyModel ; contrats packages/core INTOUCHES, parite verte). (2) Skill iakaframe-lecture-maquettes cablee dans Gandalf (lire les maquettes par chemin exact, jamais Glob). Merges cross-repo propres (iakaframe + iakaFrameGUI) apres demelage d'un enchevetrement de branches maitrise. vendor-check drift 0, frame lint --all exit 0, suites GUI vertes (vitest 564). Note R8 : contrat deploye ~/.claude/agents/gandalf.md a redeployer pour effet runtime. Reste : Lots 2-6 de l'alignement GUI (nav 7 entrees, reservoir, Feanor-en-tete...) + arbitrages A-F au fil des lots. |
 | 2026-07-26 11:54 | pause | v0.27.0 | main | MODELE DE FRAME CLOS : les 4 biais soldes. (1) gouvernance + (2) cardinalite = modele agnostique v0.26.0 (kind first-class, gates optionnel, conteneur+acteurs unifies, coordinator optionnel/N=1 ; + fix d'un trou de lint reel). (3) schema strict v0.27.0 (table de schema type vendoree CLI+GUI, type-error bloquant, inconnu WARN+--strict ; 3 bugs latents fermes). (4) namespacing/partage = CONSTITUTION du modele (doc, b225184) : C-1..C-5 (library plate ids definitifs ; frame=methode+team FRERES ; construire=referencer/partage OU ecrire ; promotion=seul renommage ; personas/skills=elements de frame). Session complete : reservoir de frames (v0.21) + outillage frame lint/new/add (v0.22) + 9e persona Feanor (v0.23) + rangement pilote (v0.24) + catalogue 7 frames rangees (v0.25) + modele agnostique (v0.26) + schema strict (v0.27) + constitution. 8 frames dans le reservoir. Suites vertes, vendor-check drift 0. Suites backlog : alignement GUI (frame=methode+team) + reconciliation §3.3. |
 | 2026-07-26 10:46 | version | v0.27.0 | main | Finding 3 : schema de frontmatter type + frame lint strict. frame lint tolerait silencieusement tout champ inconnu -> desormais table de schema en donnee (source unique vendoree CLI+GUI), type-error sur champ connu BLOQUANT, champ inconnu WARN + --strict opt-in. Ferme 3 bugs latents (shapeup kind hors-enum, soleActor non verifie, census). Retro-compat, zero migration, default byte-inchange. Gate P2->P3 PASS (CLI 539/0, GUI 551/0, 3 born-red verifies). Biais 1/2/3 des 4 corriges ; reste Finding 4 (namespacing personas inter-frames). |
 | 2026-07-26 03:12 | version | v0.26.0 | main | Modele de frame AGNOSTIQUE (biais 1 gouvernance + 2 cardinalite) : kind first-class (pipeline/cycle/flow/cycle-with-gate), gates optionnel, conteneur (phases+alias stages) et acteurs (actorsRoleKeys+alias agentsRoleKeys) unifies alias-aware CLI+GUI ; coordinator optionnel, N=1 legitime (garde N>=2 conservee). Corrige au passage un trou de lint reel : les refs d'acteurs des 8 frames forgees echappaient au lint (frame-lint.js et GUI parseWorkflowRefs ne lisaient que agentsRoleKeys) - ferme des 2 cotes (AC4). Retro-compat par alias, aucune frame migree ; seul iakaframe-3phases.md re-vendore. Cross-repo cohesif (vendor-check drift 0, GUI integre par le decideur). Gate P2->P3 Legolas PASS (CLI 530/0, GUI 536/0, parite 21/0 live-GUI). Reste Finding 3 (schema strict) puis Finding 4 (namespacing personas). |

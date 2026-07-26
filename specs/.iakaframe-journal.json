@@ -508,5 +508,15 @@
     "dirty": false,
     "files": 1421,
     "note": "MODELE DE FRAME CLOS : les 4 biais soldes. (1) gouvernance + (2) cardinalite = modele agnostique v0.26.0 (kind first-class, gates optionnel, conteneur+acteurs unifies, coordinator optionnel/N=1 ; + fix d'un trou de lint reel). (3) schema strict v0.27.0 (table de schema type vendoree CLI+GUI, type-error bloquant, inconnu WARN+--strict ; 3 bugs latents fermes). (4) namespacing/partage = CONSTITUTION du modele (doc, b225184) : C-1..C-5 (library plate ids definitifs ; frame=methode+team FRERES ; construire=referencer/partage OU ecrire ; promotion=seul renommage ; personas/skills=elements de frame). Session complete : reservoir de frames (v0.21) + outillage frame lint/new/add (v0.22) + 9e persona Feanor (v0.23) + rangement pilote (v0.24) + catalogue 7 frames rangees (v0.25) + modele agnostique (v0.26) + schema strict (v0.27) + constitution. 8 frames dans le reservoir. Suites vertes, vendor-check drift 0. Suites backlog : alignement GUI (frame=methode+team) + reconciliation §3.3."
+  },
+  {
+    "date": "2026-07-26 15:05",
+    "reason": "version",
+    "version": "v0.28.0",
+    "branch": "main",
+    "commit": "3dfeaf4 merge(skills): iakaframe-lecture-maquettes + cablage dans Gandalf",
+    "dirty": true,
+    "files": 1427,
+    "note": "Alignement GUI - Lot 1 pilote + skill Gandalf. (1) Ecran d'assemblage GUI de 1er ordre : rend visible 'frame = methode + team (freres) + binding-mariage' (cale sur la maquette 03, Studio clair, read-only, fonction pure buildAssemblyModel ; contrats packages/core INTOUCHES, parite verte). (2) Skill iakaframe-lecture-maquettes cablee dans Gandalf (lire les maquettes par chemin exact, jamais Glob). Merges cross-repo propres (iakaframe + iakaFrameGUI) apres demelage d'un enchevetrement de branches maitrise. vendor-check drift 0, frame lint --all exit 0, suites GUI vertes (vitest 564). Note R8 : contrat deploye ~/.claude/agents/gandalf.md a redeployer pour effet runtime. Reste : Lots 2-6 de l'alignement GUI (nav 7 entrees, reservoir, Feanor-en-tete...) + arbitrages A-F au fil des lots."
   }
 ]
