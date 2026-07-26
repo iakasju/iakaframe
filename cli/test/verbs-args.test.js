@@ -90,7 +90,7 @@ test('show --json : objet { ok, collection, id, data, body } (champs a plat)', (
   assert.equal(o.ok, true);
   assert.equal(o.collection, 'personas');
   assert.equal(o.data.roleKey, 'cadrage');
-  assert.deepEqual(o.data.skills, ['iakaframe-cadrage']);
+  assert.deepEqual(o.data.skills, ['iakaframe-cadrage', 'iakaframe-lecture-maquettes']);
   assert.ok(o.body.length > 0);
 });
 
