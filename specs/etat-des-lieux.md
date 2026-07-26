@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-26 03:12 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-26 10:46 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.26.0 |
+| Version | v0.27.0 |
 | Branche | main |
-| Dernier commit | f28a589 merge(frame): modele de frame agnostique - gouvernance + cardinalite + fix du trou de lint |
+| Dernier commit | d8d965a merge(frame): schema de frontmatter type + frame lint strict (Finding 3) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 1175 |
-| Note | Modele de frame AGNOSTIQUE (biais 1 gouvernance + 2 cardinalite) : kind first-class (pipeline/cycle/flow/cycle-with-gate), gates optionnel, conteneur (phases+alias stages) et acteurs (actorsRoleKeys+alias agentsRoleKeys) unifies alias-aware CLI+GUI ; coordinator optionnel, N=1 legitime (garde N>=2 conservee). Corrige au passage un trou de lint reel : les refs d'acteurs des 8 frames forgees echappaient au lint (frame-lint.js et GUI parseWorkflowRefs ne lisaient que agentsRoleKeys) - ferme des 2 cotes (AC4). Retro-compat par alias, aucune frame migree ; seul iakaframe-3phases.md re-vendore. Cross-repo cohesif (vendor-check drift 0, GUI integre par le decideur). Gate P2->P3 Legolas PASS (CLI 530/0, GUI 536/0, parite 21/0 live-GUI). Reste Finding 3 (schema strict) puis Finding 4 (namespacing personas). |
+| Fichiers (hors .git/node_modules) | 1419 |
+| Note | Finding 3 : schema de frontmatter type + frame lint strict. frame lint tolerait silencieusement tout champ inconnu -> desormais table de schema en donnee (source unique vendoree CLI+GUI), type-error sur champ connu BLOQUANT, champ inconnu WARN + --strict opt-in. Ferme 3 bugs latents (shapeup kind hors-enum, soleActor non verifie, census). Retro-compat, zero migration, default byte-inchange. Gate P2->P3 PASS (CLI 539/0, GUI 551/0, 3 born-red verifies). Biais 1/2/3 des 4 corriges ; reste Finding 4 (namespacing personas inter-frames). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `d8d965a` | 2026-07-26 | merge(frame): schema de frontmatter type + frame lint strict (Finding 3) |
+| `0fb4d31` | 2026-07-26 | feat(frame-lint): drapeau --strict + soleActor promu et vérifié (Lot 2, Finding 3) |
+| `14d56b1` | 2026-07-26 | feat(frame-lint): schema de frontmatter typé + politique WARN sur l'inconnu (Lot 1, Finding 3) |
+| `8b1f882` | 2026-07-26 | docs(cadrage): schema de frontmatter type + frame lint strict (Finding 3) - gate P1 a venir |
+| `ce6b339` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.26.0) |
 | `f28a589` | 2026-07-26 | merge(frame): modele de frame agnostique - gouvernance + cardinalite + fix du trou de lint |
 | `45eb6b0` | 2026-07-26 | docs(frames): acter que le detour n'en est plus un (biais gouvernance + cardinalite soldes) |
 | `12da472` | 2026-07-26 | feat(library): coordinator optionnel + N=1 legitime de premiere classe (lot B cardinalite) |
 | `8c2cc95` | 2026-07-26 | feat(frame): lecture d'acteurs alias-aware + re-vendorage du canon (lot A gouvernance) |
 | `9aac226` | 2026-07-26 | docs(cadrage): correction des biais du modele de frame (gouvernance + cardinalite) - gate P1 PASS |
-| `b59da8e` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.25.0) |
-| `984f268` | 2026-07-26 | merge(frame): rangement des 6 frames restantes - catalogue complet dans le reservoir |
-| `731ac49` | 2026-07-26 | test: comptes de personas dynamiques (cessent de deriver par frame rangee) |
-| `0194d38` | 2026-07-26 | feat(frame): range la frame GTD dans le reservoir (SOLO N=1, dette de cardinalite) |
-| `d02d891` | 2026-07-26 | feat(frame): range la frame Waterfall dans le reservoir (definition-of-done partage) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-26 10:46 | version | v0.27.0 | main | Finding 3 : schema de frontmatter type + frame lint strict. frame lint tolerait silencieusement tout champ inconnu -> desormais table de schema en donnee (source unique vendoree CLI+GUI), type-error sur champ connu BLOQUANT, champ inconnu WARN + --strict opt-in. Ferme 3 bugs latents (shapeup kind hors-enum, soleActor non verifie, census). Retro-compat, zero migration, default byte-inchange. Gate P2->P3 PASS (CLI 539/0, GUI 551/0, 3 born-red verifies). Biais 1/2/3 des 4 corriges ; reste Finding 4 (namespacing personas inter-frames). |
 | 2026-07-26 03:12 | version | v0.26.0 | main | Modele de frame AGNOSTIQUE (biais 1 gouvernance + 2 cardinalite) : kind first-class (pipeline/cycle/flow/cycle-with-gate), gates optionnel, conteneur (phases+alias stages) et acteurs (actorsRoleKeys+alias agentsRoleKeys) unifies alias-aware CLI+GUI ; coordinator optionnel, N=1 legitime (garde N>=2 conservee). Corrige au passage un trou de lint reel : les refs d'acteurs des 8 frames forgees echappaient au lint (frame-lint.js et GUI parseWorkflowRefs ne lisaient que agentsRoleKeys) - ferme des 2 cotes (AC4). Retro-compat par alias, aucune frame migree ; seul iakaframe-3phases.md re-vendore. Cross-repo cohesif (vendor-check drift 0, GUI integre par le decideur). Gate P2->P3 Legolas PASS (CLI 530/0, GUI 536/0, parite 21/0 live-GUI). Reste Finding 3 (schema strict) puis Finding 4 (namespacing personas). |
 | 2026-07-26 00:27 | version | v0.25.0 | main | CLOTURE sequence 1+2+3. Chantier 3 acheve : les 7 frames du catalogue (scrum/kanban/lean-startup/shapeup/design-thinking/waterfall/gtd) rangees dans le reservoir - le pot commun de briques partage prend vie (neutres time-box/definition-of-done/retrospective ; mvp->mvp-first canon). 8 frames lint-valides. Invariant : default iakaframe byte-inchange tout du long. Findings modele : biais de cardinalite (GTD solo, dette declaree), collision de personas inter-frames (nouvel axe, resolu par qualification), dette de schema de frontmatter (Finding 3). 7 brouillons archives (reversible). Toute la session : reservoir de frames (v0.21) + outillage de forge frame lint/new (v0.22) + 9e persona Feanor (v0.23) + rangement pilote (v0.24) + catalogue complet (v0.25). |
 | 2026-07-25 23:48 | version | v0.24.0 | main | Pilote de rangement : 1re frame tierce (Scrum) rangee dans le reservoir (descripteur + assemblage sur library partagee, dedup conservatrice). Le pilote a revele un defaut latent - repli frameTeamPersonas non frame-scope (fuite inter-frames) - corrige (repli sur team du default + test anti-fuite). Default byte-inchange. Chantier 3 en cours (1/7 frames rangees) ; suite = les 6 autres en batch. |

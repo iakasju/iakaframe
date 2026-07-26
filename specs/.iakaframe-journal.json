@@ -488,5 +488,15 @@
     "dirty": true,
     "files": 1175,
     "note": "Modele de frame AGNOSTIQUE (biais 1 gouvernance + 2 cardinalite) : kind first-class (pipeline/cycle/flow/cycle-with-gate), gates optionnel, conteneur (phases+alias stages) et acteurs (actorsRoleKeys+alias agentsRoleKeys) unifies alias-aware CLI+GUI ; coordinator optionnel, N=1 legitime (garde N>=2 conservee). Corrige au passage un trou de lint reel : les refs d'acteurs des 8 frames forgees echappaient au lint (frame-lint.js et GUI parseWorkflowRefs ne lisaient que agentsRoleKeys) - ferme des 2 cotes (AC4). Retro-compat par alias, aucune frame migree ; seul iakaframe-3phases.md re-vendore. Cross-repo cohesif (vendor-check drift 0, GUI integre par le decideur). Gate P2->P3 Legolas PASS (CLI 530/0, GUI 536/0, parite 21/0 live-GUI). Reste Finding 3 (schema strict) puis Finding 4 (namespacing personas)."
+  },
+  {
+    "date": "2026-07-26 10:46",
+    "reason": "version",
+    "version": "v0.27.0",
+    "branch": "main",
+    "commit": "d8d965a merge(frame): schema de frontmatter type + frame lint strict (Finding 3)",
+    "dirty": true,
+    "files": 1419,
+    "note": "Finding 3 : schema de frontmatter type + frame lint strict. frame lint tolerait silencieusement tout champ inconnu -> desormais table de schema en donnee (source unique vendoree CLI+GUI), type-error sur champ connu BLOQUANT, champ inconnu WARN + --strict opt-in. Ferme 3 bugs latents (shapeup kind hors-enum, soleActor non verifie, census). Retro-compat, zero migration, default byte-inchange. Gate P2->P3 PASS (CLI 539/0, GUI 551/0, 3 born-red verifies). Biais 1/2/3 des 4 corriges ; reste Finding 4 (namespacing personas inter-frames)."
   }
 ]
