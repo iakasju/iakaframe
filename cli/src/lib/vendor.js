@@ -12,7 +12,11 @@
 // depots ». C'est le maximum atteignable sans depot tiers d'ancrage.
 //
 // DEUX NATURES DE FIXTURES, deux traitements (§ 3.3) — ne jamais les confondre :
-//   - 20 COPIES (9 personas + 9 goldens + 1 binding + 1 workflow) -> comparaison BYTE-A-BYTE ;
+//   - 45 COPIES (9 personas + 9 goldens + 1 binding + 1 workflow + 18 principles + 5 rituals +
+//     2 scaffolds) -> comparaison BYTE-A-BYTE. Les 3 pools plats a parseur (principles/rituals/
+//     scaffolds) sont vendorises au Lot 5b (persistance-disque-authoring-elements.md § 5b) sur
+//     l'ENSEMBLE REFERENCE par la methode canonique iakaframe (principleIds/ritualIds/scaffoldIds),
+//     exactement comme les 9 personas vendorisent le casting de la team active (jamais tout le pool) ;
 //   - 4 DERIVEES (methode, methode wrapped, team, kit) -> ce sont des formes canoniques
 //     SERIALISEES, pas des copies. Comparaison de FRONTMATTER SEMANTIQUE, corps EXEMPTE.
 //     Exception : le kit, seul cas ou une egalite byte est definie, et elle l'est contre le
@@ -27,7 +31,20 @@ import { generateAgent, loadDefaultBinding } from './generate-agents.js';
 // Meme liste et meme ordre que le test d'inventaire de cli/test/parite-generateurs.test.js.
 export const IDS = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
 
-export const EXPECTED_COPIES = 20;   // 9 personas + 9 goldens + 1 binding + 1 workflow (+ feanor)
+// Pools plats a parseur vendorises au Lot 5b : l'ENSEMBLE REFERENCE par la methode canonique
+// (methods/iakaframe.md : principleIds/ritualIds/scaffoldIds) — pas tout le pool disque, exactement
+// comme IDS ci-dessus vendorise le casting de la team, pas les 34 personas de library/personas.
+export const PRINCIPLE_IDS = [
+  'qualite', 'gestion-backlog', 'documentation', 'commits-versionnement', 'isolation-docker',
+  'self-hosted-first', 'reutilisation-existant', 'mvp-first', 'identite-badges', 'perimetres-etanches',
+  'langue', 'mock-en-dev', 'cadrage-avant-code', 'confirmation-actes-destructifs',
+  'interruption-minimale-odin', 'merge-versionnement', 'canon-avant-citation', 'preuve-avant-declaration',
+];
+export const RITUAL_IDS = ['iakastart', 'init', 'update', 'snapshot', 'log-conversation'];
+export const SCAFFOLD_IDS = ['portefeuille', 'projet'];
+
+// 20 (9 personas + 9 goldens + 1 binding + 1 workflow) + 18 principles + 5 rituals + 2 scaffolds.
+export const EXPECTED_COPIES = 45;
 export const EXPECTED_DERIVED = 4;   // methode, methode wrapped, team, kit
 
 const FIXTURES_REL = path.join('packages', 'core', '__tests__', 'fixtures');
@@ -117,6 +134,27 @@ export function fixtureTable() {
     fixture: 'kit.iakaframe-claude.md',
     source: path.join('cli', 'test', 'fixtures', 'kit.iakaframe-claude.golden.md'),
   });
+  // Pools plats a parseur (Lot 5b) : COPIES byte-a-byte du canon library/<pool>/<id>.md. Le corps
+  // n'est PAS exempte (ce sont des copies conformes, pas des derivees serialisees) : le round-trip
+  // non-destructif cote GUI (patchFrontmatter) preserve frontmatter + corps a l'octet.
+  for (const id of PRINCIPLE_IDS) {
+    rows.push({
+      family: 'principles', kind: 'copy', fixture: path.join('principles', `${id}.md`),
+      source: path.join('library', 'principles', `${id}.md`), id,
+    });
+  }
+  for (const id of RITUAL_IDS) {
+    rows.push({
+      family: 'rituals', kind: 'copy', fixture: path.join('rituals', `${id}.md`),
+      source: path.join('library', 'rituals', `${id}.md`), id,
+    });
+  }
+  for (const id of SCAFFOLD_IDS) {
+    rows.push({
+      family: 'scaffolds', kind: 'copy', fixture: path.join('scaffolds', `${id}.md`),
+      source: path.join('library', 'scaffolds', `${id}.md`), id,
+    });
+  }
   return rows;
 }
 
