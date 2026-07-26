@@ -59,6 +59,15 @@ test('AC2.2 (ARB-3) : frame new <id> puis frame lint <id> sort 0 (lint-clean par
   assert.equal(res.findings.filter(f => f.severity === 'blocking').length, 0);
 });
 
+test('AC7 : frame new <id> puis frame lint <id> --strict sort 0 (gabarits n\'ont que des champs connus)', () => {
+  const root = makeReservoir();
+  assert.equal(scaffoldFrameNew('proj', root).ok, true);
+  const res = lintFrame('proj', root, { strict: true });
+  assert.equal(res.ok, true, 'ossature attendue --strict-clean : ' + JSON.stringify(res.findings, null, 2));
+  assert.equal(res.findings.filter(f => f.kind === 'unknown-field').length, 0,
+    'aucun champ inconnu ne doit sortir des gabarits (sinon --strict les bloquerait)');
+});
+
 test('AC2.2 bis : chaine CLI reelle - frame new puis frame lint -> exit 0 tous les deux', () => {
   const root = makeReservoir();
   const a = spawnSync(process.execPath, [CLI, 'frame', 'new', 'proj', '--root', root], { encoding: 'utf8' });

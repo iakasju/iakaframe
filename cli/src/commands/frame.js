@@ -29,15 +29,18 @@ id == nom de fichier partout. NE MODIFIE JAMAIS le disque.
 Options :
   <id>            Descripteur a valider (frames/<id>.md).
   --all           Valide chaque descripteur de frames/ (ignore frames/releases/).
+  --strict        Promeut les champs de frontmatter INCONNUS en BLOQUANT (pour frame new / CI).
   --json          Sortie machine : { ok, frame, checked, findings:[{severity,source,field,id,kind}] }.
   --root <dir>    Racine bibliotheque (defaut : resolution auto, cf. libraryRoot).
   --help          Cette aide.
 
 Severite : BLOQUANT (exit 1) = id pendant, casting orphelin sans coordinateur, binding
-incoherent, id != nom de fichier, self-ref de skill. AVERTISSEMENT (exit 0, liste) = role
-couvert par le coordinateur, workflow catalogue-connu mais pool-absent (ARB-2), id present
-dans plusieurs collections de pool (Finding 3). Les champs de frontmatter inconnus sont
-TOLERES sans avertissement (ARB-1 : MVP permissif, aucun schema strict grave).`;
+incoherent, id != nom de fichier, self-ref de skill, champ CONNU mal type (bad-type) ou requis
+manquant (missing-field), soleActor pendant. AVERTISSEMENT (exit 0, liste) = role couvert par le
+coordinateur, workflow catalogue-connu mais pool-absent (ARB-2), id present dans plusieurs
+collections de pool, et champ de frontmatter INCONNU (unknown-field). La passe de schema type les
+champs connus (table-donnee library/_schema/frontmatter.json, source unique CLI<->GUI) ; l'inconnu
+est SIGNALE (Fork A, Finding 3) et devient BLOQUANT sous --strict.`;
 
 const HELP = `iakaframe frame verify - garde d'anonymisation du miroir
 
@@ -66,6 +69,7 @@ export function runFrame(argv) {
       frame: { type: 'string' },
       root: { type: 'string' },
       all: { type: 'boolean', default: false },
+      strict: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
       verbose: { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
@@ -122,7 +126,7 @@ function runLint(values, positionals) {
   }
 
   if (values.all) {
-    const res = lintAllFrames(root);
+    const res = lintAllFrames(root, { strict: values.strict });
     // C-JSON : `ok` en tete, findings au PLURIEL + frere `count` (regle 3).
     const payload = { ok: res.ok, checked: res.checked, count: res.findings.length, findings: res.findings };
     emit(values.json, payload, () => renderLintAll(res));
@@ -130,7 +134,7 @@ function runLint(values, positionals) {
     return;
   }
 
-  const res = lintFrame(target, root);
+  const res = lintFrame(target, root, { strict: values.strict });
   const payload = { ok: res.ok, frame: res.frame, checked: res.checked, count: res.findings.length, findings: res.findings };
   emit(values.json, payload, () => renderLint(res));
   if (!res.ok) process.exitCode = 1;

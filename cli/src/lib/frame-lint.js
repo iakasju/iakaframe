@@ -9,6 +9,7 @@ import {
   checkRefs, scan, readEntry, assemble, toArray, bindingRows,
 } from './library.js';
 import { frameDescriptor } from './frame-active.js';
+import { checkDocSchema, checkStepFields, SOURCE_TO_TYPE } from './frontmatter-schema.js';
 
 // Miroir des CLES de WORKFLOW_CATALOG du coeur (@iakaframe/core workflow.ts, WORKFLOW_CATALOG /
 // workflowById). ARB-2 : un `workflowId` connu de ce catalogue partage mais ABSENT du pool est
@@ -48,7 +49,7 @@ function workflowRoleKeys(data) {
 //   severity : 'blocking' (exit 1) | 'warning' (exit 0, liste).
 //   source   : frame:<id> | method:<id> | team:<id> | binding:<id> | persona:<id> | workflow:<id>
 //              | skill:<id> | pool:<id>.
-export function lintFrame(frameId, root) {
+export function lintFrame(frameId, root, { strict = false } = {}) {
   const findings = [];
   const add = (severity, source, field, id, kind) =>
     findings.push({ severity, source, field, id, kind });
@@ -171,6 +172,11 @@ export function lintFrame(frameId, root) {
     if (wf) {
       pushDoc(`workflow:${wf.id}`, wf);
       for (const rk of workflowRoleKeys(wf.data)) if (!pools.roles.has(rk)) add('blocking', `workflow:${wf.id}`, 'agentsRoleKeys', rk, 'missing-ref');
+      // D-6 : `soleActor` promu first-class ET verifie comme ref persona (meme classe que le trou
+      // d'acteurs de v0.26.0). Sa cible doit resoudre dans le pool des personas ; sinon bloquant.
+      if (wf.data.soleActor && !pools.personas.has(wf.data.soleActor)) {
+        add('blocking', `workflow:${wf.id}`, 'soleActor', wf.data.soleActor, 'missing-ref');
+      }
     }
   }
 
@@ -203,14 +209,26 @@ export function lintFrame(frameId, root) {
     if (cols.length > 1) add('warning', `pool:${id}`, 'id', id, 'id-collision');
   }
 
+  // 9) Passe de SCHEMA de frontmatter (Finding 3) : pour CHAQUE document du graphe, type les champs
+  //    connus (bad-type / missing-field bloquants, AC2) et signale l'inconnu (unknown-field :
+  //    WARN par defaut, bloquant sous --strict, AC3). Le schema est la table-donnee faisant autorite
+  //    (library/_schema/frontmatter.json, source unique 5a). Fork A : les 8 frames rangees portent
+  //    des champs connus/types => ni warning ni blocage (invariant AC6 tenu par construction).
+  for (const { source, entry } of docs) {
+    const type = SOURCE_TO_TYPE[source.split(':')[0]];
+    if (!type || !entry || !entry.data) continue;
+    for (const f of checkDocSchema(type, entry.data, { strict })) add(f.severity, source, f.field, f.id, f.kind);
+    if (type === 'workflows') for (const f of checkStepFields(type, entry.data)) add(f.severity, source, f.field, f.id, f.kind);
+  }
+
   const ok = !findings.some(f => f.severity === 'blocking');
   return { ok, frame: desc.id, found: true, checked: docs.length, findings };
 }
 
 // --- Lint de TOUTES les frames de frames/ (kind flat : ignore frames/releases/ par construction,
 //     le scan `flat` ne lit que les *.md directs). Agrege ; exit 1 si au moins une est bloquante.
-export function lintAllFrames(root) {
-  const results = scan('frames', root).map(e => lintFrame(e.id, root));
+export function lintAllFrames(root, { strict = false } = {}) {
+  const results = scan('frames', root).map(e => lintFrame(e.id, root, { strict }));
   const findings = [];
   for (const r of results) for (const f of r.findings) findings.push({ ...f, frame: r.frame });
   return { ok: results.every(r => r.ok), checked: results.length, results, findings };
