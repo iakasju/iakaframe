@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-27 00:00 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-07-27 01:17 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,15 +9,16 @@
 |---|---|
 | Version | v0.32.0 |
 | Branche | main |
-| Dernier commit | 14ebffc chore(iakaframe): update etat des lieux + commit global (version) |
+| Dernier commit | cb3654f chore(iakaframe): update etat des lieux + commit global (pause) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 1436 |
-| Note | Authoring des champs riches CLOS (Lots A+B+C, GUI-only). A : socle ListEditor reutilisable + persona mission/pastille + fix honnetete roleIndex. B : role.scope + guardrail.policy + verrous kind/hook, retrait scope fantome. C : skill riche (rebranchement SkillAtom, description garde-visible + subskills sur ListEditor, correctif persistSkill qui jetait l'edition). Principe : zero controle fantome (tout champ affiche editable EST persiste, le reste verrouille visiblement) ; round-trip byte-preservant prouve par pool. GUI main @ 544563b, vitest 889, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). Reste : extensions Feanor (passerelle vers materialisation d'element MVP-B, streaming = canal Rust cross-repo, web live) ; corps markdown SKILL.md differe. |
+| Fichiers (hors .git/node_modules) | 1437 |
+| Note | Extensions Feanor livrees (GUI-only). Passerelle B (materialisation) : Feanor propose des champs -> pre-remplit l'editeur -> l'humain accepte (Enregistrer) -> persist<Pool> inchange (round-trip byte). Pilote persona puis generalise aux 8 pools via resolveur generique elementProposition (honnete : rien avant Enregistrer, aucune fausse proposition, C-1). Streaming du conseil/chat : commande Rust llm_complete_stream (NDJSON + Channel Tauri v2, additive), affichage progressif honnete (partiel marque en cours, erreur mid-flux -> aveu), CSP NON elargie (meme Ollama LAN), packages/core intouche, llm_complete bloquant conserve. GUI main @ 706f2b6, vitest 981, cargo 97, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). SEUL reste : web live (elargissement CSP a des hotes arbitraires = surface de securite, soumis au decideur avant tout code). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `cb3654f` | 2026-07-27 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `14ebffc` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version) |
 | `a297942` | 2026-07-26 | merge(vendor): vendorage roles/guardrails/skills (chantier #3 Lot 5c canon) |
 | `6bf1fe9` | 2026-07-26 | feat(vendor): vendorise roles/guardrails/skills (Lot 5c, +31 copies -> 76) |
@@ -27,7 +28,6 @@
 | `6c31974` | 2026-07-26 | feat(vendor): vendorise principles/rituals/scaffolds (Lot 5b, ensemble reference) |
 | `d7f7d1e` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `7a5450e` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.30.0) |
-| `af69dd3` | 2026-07-26 | merge(cli): pointeur frame active source unique iakaframe.json + verbe frame use (chantier #2 Lot 2) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-27 01:17 | pause | v0.32.0 | main | Extensions Feanor livrees (GUI-only). Passerelle B (materialisation) : Feanor propose des champs -> pre-remplit l'editeur -> l'humain accepte (Enregistrer) -> persist<Pool> inchange (round-trip byte). Pilote persona puis generalise aux 8 pools via resolveur generique elementProposition (honnete : rien avant Enregistrer, aucune fausse proposition, C-1). Streaming du conseil/chat : commande Rust llm_complete_stream (NDJSON + Channel Tauri v2, additive), affichage progressif honnete (partiel marque en cours, erreur mid-flux -> aveu), CSP NON elargie (meme Ollama LAN), packages/core intouche, llm_complete bloquant conserve. GUI main @ 706f2b6, vitest 981, cargo 97, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). SEUL reste : web live (elargissement CSP a des hotes arbitraires = surface de securite, soumis au decideur avant tout code). |
 | 2026-07-27 00:00 | pause | v0.32.0 | main | Authoring des champs riches CLOS (Lots A+B+C, GUI-only). A : socle ListEditor reutilisable + persona mission/pastille + fix honnetete roleIndex. B : role.scope + guardrail.policy + verrous kind/hook, retrait scope fantome. C : skill riche (rebranchement SkillAtom, description garde-visible + subskills sur ListEditor, correctif persistSkill qui jetait l'edition). Principe : zero controle fantome (tout champ affiche editable EST persiste, le reste verrouille visiblement) ; round-trip byte-preservant prouve par pool. GUI main @ 544563b, vitest 889, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). Reste : extensions Feanor (passerelle vers materialisation d'element MVP-B, streaming = canal Rust cross-repo, web live) ; corps markdown SKILL.md differe. |
 | 2026-07-26 22:59 | version | v0.32.0 | main | Persistance disque FERMEE (Lot 5 complet : 5a persona, 5b principes/rituels/scaffolds, 5c roles/guardrails/skills + unification workflow Option A - le pool library/workflows est la verite unique, chemin d'ecriture collection retire). Les 7 pools d'element ecrivent sur disque (round-trip byte-preservant prouve, vendor-check drift 0 checked 76). Correction du drift de version : cli/package.json (autorite) reamene de 0.28.0 a 0.32.0, etat des lieux redevient derive (plus de --version force). GUI main @ 9c63c7e. Reste : authoring des champs riches (UI), extensions Feanor. |
 | 2026-07-26 21:38 | version | v0.31.0 | main | Persistance disque authoring (Lot 5a+5b). 5a : infra pool_write (Rust) + patcheur non-destructif patchFrontmatter (preserve description/vignette/corps a l'octet) + persona persiste. 5b : cross-repo, principes/rituels/scaffolds vendorises (checked 20->45) + serialiseurs + derivees frame.<pool> + persistance disque. L'edition d'element ecrit desormais dans <IAKAFRAME_HOME>/library/<pool>/<id>.md (round-trip byte-preservant prouve sur 34 .md reels : 9 personas + 25 pools). GUI main @ 87eaa02. Reste : 5c (roles/guardrails/skills + dossier SKILL.md), authoring des champs riches (garde-fou rendering, scaffold entries), extensions Feanor (passerelle B, streaming, web live). |

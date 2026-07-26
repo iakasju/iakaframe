@@ -588,5 +588,15 @@
     "dirty": true,
     "files": 1436,
     "note": "Authoring des champs riches CLOS (Lots A+B+C, GUI-only). A : socle ListEditor reutilisable + persona mission/pastille + fix honnetete roleIndex. B : role.scope + guardrail.policy + verrous kind/hook, retrait scope fantome. C : skill riche (rebranchement SkillAtom, description garde-visible + subskills sur ListEditor, correctif persistSkill qui jetait l'edition). Principe : zero controle fantome (tout champ affiche editable EST persiste, le reste verrouille visiblement) ; round-trip byte-preservant prouve par pool. GUI main @ 544563b, vitest 889, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). Reste : extensions Feanor (passerelle vers materialisation d'element MVP-B, streaming = canal Rust cross-repo, web live) ; corps markdown SKILL.md differe."
+  },
+  {
+    "date": "2026-07-27 01:17",
+    "reason": "pause",
+    "version": "v0.32.0",
+    "branch": "main",
+    "commit": "cb3654f chore(iakaframe): update etat des lieux + commit global (pause)",
+    "dirty": true,
+    "files": 1437,
+    "note": "Extensions Feanor livrees (GUI-only). Passerelle B (materialisation) : Feanor propose des champs -> pre-remplit l'editeur -> l'humain accepte (Enregistrer) -> persist<Pool> inchange (round-trip byte). Pilote persona puis generalise aux 8 pools via resolveur generique elementProposition (honnete : rien avant Enregistrer, aucune fausse proposition, C-1). Streaming du conseil/chat : commande Rust llm_complete_stream (NDJSON + Channel Tauri v2, additive), affichage progressif honnete (partiel marque en cours, erreur mid-flux -> aveu), CSP NON elargie (meme Ollama LAN), packages/core intouche, llm_complete bloquant conserve. GUI main @ 706f2b6, vitest 981, cargo 97, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). SEUL reste : web live (elargissement CSP a des hotes arbitraires = surface de securite, soumis au decideur avant tout code)."
   }
 ]
