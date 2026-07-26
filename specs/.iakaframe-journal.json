@@ -538,5 +538,15 @@
     "dirty": false,
     "files": 1429,
     "note": "Alignement GUI au modele de frame CLOS : 6 lots livres, gate Legolas PASS a chacun, parite vendor-check --strict drift 0 tenue de bout en bout. GUI main iakaFrameGUI @ d18adaa. Lots : 0 Studio clair defaut, 2 nav 9 entrees + New + mode edition, 3 reservoir persona (fiches a vignettes), 3b enrichissement persona cross-repo (canon mission + surfacage frame.personas, v0.29.0), 4 galerie models (8 frames + marqueur actif), 5 workflow agnostique (selecteur kind + gates optionnels), 6 coquille Feanor-en-tete (inerte, sans LLM). Reste hors alignement : Feanor fonctionnel (LLM), changement de frame active, extension Feanor-en-tete aux autres pages-elements, gateless au niveau donnee (lots contrat separes si decides)."
+  },
+  {
+    "date": "2026-07-26 17:50",
+    "reason": "version",
+    "version": "v0.30.0",
+    "branch": "main",
+    "commit": "af69dd3 merge(cli): pointeur frame active source unique iakaframe.json + verbe frame use (chantier #2 Lot 2)",
+    "dirty": false,
+    "files": 1430,
+    "note": "Chantier #2 clos : la galerie models devient actionnable (cartes cliquables, hook partage useFrameSwitch, no-op/dangling) ET le pointeur de frame active devient source unique CLI<->GUI (iakaframe.json cle frame, lecteur CLI re-adresse, verbe iakaframe frame use <id>, correctif R1, semis init). Ferme I-1 : une frame posee depuis le GUI gouverne aussi iakastart/Odin. Cross-repo sans fixture, vendor-check --strict drift 0. GUI main @ fbc7569. Reste : R7 (frameVersion/re-sync) chantier separe. Prochains chantiers priorises : #1 Feanor fonctionnel (LLM), #3 extension Feanor-en-tete."
   }
 ]

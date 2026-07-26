@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-26 17:13 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-07-26 17:50 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.28.0 |
+| Version | v0.30.0 |
 | Branche | main |
-| Dernier commit | dfc4961 chore(iakaframe): update etat des lieux + commit global (version v0.29.0) |
+| Dernier commit | af69dd3 merge(cli): pointeur frame active source unique iakaframe.json + verbe frame use (chantier #2 Lot 2) |
 | Arbre | propre |
-| Fichiers (hors .git/node_modules) | 1429 |
-| Note | Alignement GUI au modele de frame CLOS : 6 lots livres, gate Legolas PASS a chacun, parite vendor-check --strict drift 0 tenue de bout en bout. GUI main iakaFrameGUI @ d18adaa. Lots : 0 Studio clair defaut, 2 nav 9 entrees + New + mode edition, 3 reservoir persona (fiches a vignettes), 3b enrichissement persona cross-repo (canon mission + surfacage frame.personas, v0.29.0), 4 galerie models (8 frames + marqueur actif), 5 workflow agnostique (selecteur kind + gates optionnels), 6 coquille Feanor-en-tete (inerte, sans LLM). Reste hors alignement : Feanor fonctionnel (LLM), changement de frame active, extension Feanor-en-tete aux autres pages-elements, gateless au niveau donnee (lots contrat separes si decides). |
+| Fichiers (hors .git/node_modules) | 1430 |
+| Note | Chantier #2 clos : la galerie models devient actionnable (cartes cliquables, hook partage useFrameSwitch, no-op/dangling) ET le pointeur de frame active devient source unique CLI<->GUI (iakaframe.json cle frame, lecteur CLI re-adresse, verbe iakaframe frame use <id>, correctif R1, semis init). Ferme I-1 : une frame posee depuis le GUI gouverne aussi iakastart/Odin. Cross-repo sans fixture, vendor-check --strict drift 0. GUI main @ fbc7569. Reste : R7 (frameVersion/re-sync) chantier separe. Prochains chantiers priorises : #1 Feanor fonctionnel (LLM), #3 extension Feanor-en-tete. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `af69dd3` | 2026-07-26 | merge(cli): pointeur frame active source unique iakaframe.json + verbe frame use (chantier #2 Lot 2) |
+| `a2a34c2` | 2026-07-26 | test(frame-active): pointeur JSON prioritaire, verbe frame use, R1, semis init |
+| `981c06a` | 2026-07-26 | feat(frame): verbe `iakaframe frame use <id>` — ecrivain canon du pointeur |
+| `b82597d` | 2026-07-26 | feat(init): seme le pointeur frame dans iakaframe.json (domicile canon) |
+| `a4216d3` | 2026-07-26 | fix(config): ne pas ecraser iakaframe.json illisible (faille R1) |
+| `e929f40` | 2026-07-26 | feat(frame-active): pointeur de frame = source unique iakaframe.json cle frame |
+| `c53d64a` | 2026-07-26 | docs(instructions): cadrage galerie models actionnable (Gandalf P1) |
+| `25d577c` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `dfc4961` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.29.0) |
 | `f699fc6` | 2026-07-26 | merge(personas): champ mission dedie sur les 9 personas + schema (Lot 3b canon) |
-| `bab5883` | 2026-07-26 | feat(personas): champ mission optionnel sur les 9 personas iakaframe |
-| `ea3d956` | 2026-07-26 | docs(instructions): cadrage enrichissement modele persona (mission) |
-| `04434d0` | 2026-07-26 | docs(cadrage): fige A-F de l'alignement GUI (nav 9, models galerie, Studio clair, Feanor coquille) |
-| `ac74307` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version v0.28.0) |
-| `3dfeaf4` | 2026-07-26 | merge(skills): iakaframe-lecture-maquettes + cablage dans Gandalf |
-| `b3c1b85` | 2026-07-26 | feat(skills): ajoute iakaframe-lecture-maquettes et cable la skill dans Gandalf |
-| `7ad441a` | 2026-07-26 | docs(cadrage): alignement du GUI sur le modele de frame + maquettes |
-| `d6810ee` | 2026-07-26 | docs(mock): maquettes GUI Studio clair (source unique specs/mock/gui) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-26 17:50 | version | v0.30.0 | main | Chantier #2 clos : la galerie models devient actionnable (cartes cliquables, hook partage useFrameSwitch, no-op/dangling) ET le pointeur de frame active devient source unique CLI<->GUI (iakaframe.json cle frame, lecteur CLI re-adresse, verbe iakaframe frame use <id>, correctif R1, semis init). Ferme I-1 : une frame posee depuis le GUI gouverne aussi iakastart/Odin. Cross-repo sans fixture, vendor-check --strict drift 0. GUI main @ fbc7569. Reste : R7 (frameVersion/re-sync) chantier separe. Prochains chantiers priorises : #1 Feanor fonctionnel (LLM), #3 extension Feanor-en-tete. |
 | 2026-07-26 17:13 | pause | v0.28.0 | main | Alignement GUI au modele de frame CLOS : 6 lots livres, gate Legolas PASS a chacun, parite vendor-check --strict drift 0 tenue de bout en bout. GUI main iakaFrameGUI @ d18adaa. Lots : 0 Studio clair defaut, 2 nav 9 entrees + New + mode edition, 3 reservoir persona (fiches a vignettes), 3b enrichissement persona cross-repo (canon mission + surfacage frame.personas, v0.29.0), 4 galerie models (8 frames + marqueur actif), 5 workflow agnostique (selecteur kind + gates optionnels), 6 coquille Feanor-en-tete (inerte, sans LLM). Reste hors alignement : Feanor fonctionnel (LLM), changement de frame active, extension Feanor-en-tete aux autres pages-elements, gateless au niveau donnee (lots contrat separes si decides). |
 | 2026-07-26 16:37 | version | v0.29.0 | main | Enrichissement du modele persona : champ mission dedie + surfacage frame.personas (fiches reservoir GUI derivees des .md reels : royaume IAKAFRAME, pastille, mission). Cloture le lot cross-repo 3b (canon + GUI, vendor-check --strict drift 0). Suite des lots d'alignement GUI (0 Studio clair, 2 nav 9, 3 reservoir persona). |
 | 2026-07-26 15:05 | version | v0.28.0 | main | Alignement GUI - Lot 1 pilote + skill Gandalf. (1) Ecran d'assemblage GUI de 1er ordre : rend visible 'frame = methode + team (freres) + binding-mariage' (cale sur la maquette 03, Studio clair, read-only, fonction pure buildAssemblyModel ; contrats packages/core INTOUCHES, parite verte). (2) Skill iakaframe-lecture-maquettes cablee dans Gandalf (lire les maquettes par chemin exact, jamais Glob). Merges cross-repo propres (iakaframe + iakaFrameGUI) apres demelage d'un enchevetrement de branches maitrise. vendor-check drift 0, frame lint --all exit 0, suites GUI vertes (vitest 564). Note R8 : contrat deploye ~/.claude/agents/gandalf.md a redeployer pour effet runtime. Reste : Lots 2-6 de l'alignement GUI (nav 7 entrees, reservoir, Feanor-en-tete...) + arbitrages A-F au fil des lots. |
