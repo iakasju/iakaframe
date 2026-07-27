@@ -55,7 +55,7 @@ function makeCleanMirror() {
     path.join(fx, 'workflow.iakaframe-3phases.md'));
 
   // Pools plats a parseur (Lot 5b) : les 25 copies byte-a-byte de l'ensemble REFERENCE par la
-  // methode canonique (18 principles + 5 rituals + 2 scaffolds).
+  // methode canonique (18 principles + 5 rituals + 3 scaffolds).
   for (const [pool, ids] of [['principles', PRINCIPLE_IDS], ['rituals', RITUAL_IDS], ['scaffolds', SCAFFOLD_IDS]]) {
     fs.mkdirSync(path.join(fx, pool), { recursive: true });
     for (const id of ids) {
@@ -92,12 +92,12 @@ function makeCleanMirror() {
 const fixturePath = (m, rel) => path.join(m.fx, rel);
 const run = (m, extra = {}) => checkVendor({ root: REPO, guiRoot: m.root, ...extra });
 
-test('A2 : miroir conforme -> ok, checked == 76 et derived == 4 (attendu EXACT)', () => {
+test('A2 : miroir conforme -> ok, checked == 77 et derived == 4 (attendu EXACT)', () => {
   const m = makeCleanMirror();
   const res = run(m);
   assert.equal(res.ok, true, 'miroir synthetique conforme attendu vert : ' + JSON.stringify(res.files, null, 2));
   assert.equal(res.status, 'clean');
-  assert.equal(res.checked, 76); // 45 (5a/5b) + 9 roles + 3 guardrails + 19 skills (Lot 5c)
+  assert.equal(res.checked, 77); // 46 (5a/5b) + 9 roles + 3 guardrails + 19 skills (Lot 5c)
   assert.equal(res.derived, 4);
   assert.equal(res.drift, 0);
 });
@@ -193,11 +193,11 @@ test('A7 : fixture supprimee -> rouge (jamais un compte allege qui validerait un
   fs.rmSync(fixturePath(m, path.join('personas', 'loki.md')));
   const res = run(m);
   assert.equal(res.ok, false);
-  assert.equal(res.checked, 75, 'la fixture manquante ne doit pas etre comptee comme verifiee');
+  assert.equal(res.checked, 76, 'la fixture manquante ne doit pas etre comptee comme verifiee');
   assert.ok(res.files.some((f) => f.reasons.some((r) => r.reason === 'fixture-manquante')));
 });
 
-test('A19 : ok:true implique checked == 76 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
+test('A19 : ok:true implique checked == 77 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
   const m = makeCleanMirror();
   fs.rmSync(fixturePath(m, 'team.iakaframe-8.md'));
   const res = run(m);
