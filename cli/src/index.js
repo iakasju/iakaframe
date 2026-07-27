@@ -8,6 +8,7 @@ import { runOnboard } from './commands/onboard.js';
 import { runUpdate } from './commands/update.js';
 import { runRepo } from './commands/repo.js';
 import { runAgents } from './commands/agents.js';
+import { runSkills } from './commands/skills.js';
 import { runGo } from './commands/go.js';
 import { runBanner } from './commands/banner.js';
 import { runBrief } from './commands/brief.js';
@@ -67,6 +68,9 @@ Commandes :
                         --aider-model <m>  (ex: ollama/llama3, pour le launcher legacy aider)
   agents              Equipe de personas : list | affect | fullteam | status
                         --agent <nom> --project <dir> --global --force  --json (list/status)
+  skills deploy       Deploie l'union resolue des skills -> <cible>/.claude/skills/ (non destructif)
+                        --project <dir> --global --check (diff sans ecriture)  --json
+                        (orphelines signalees orphan, jamais supprimees ; exit!=0 si drift/absent)
   go <projet>         Lance l'action du projet via son runner (claude-code|ollama|litellm|codex)
                         --path <dir> --runner <r> --do "tache"  (launchers legacy : aider, iakaide)
   banner <texte>      Titre ASCII (FIGlet embarque, zero dep)
@@ -157,6 +161,7 @@ async function main() {
     case 'services': await runServices(rest); break;
     case 'config':   runConfig(rest); break;
     case 'agents':   runAgents(rest); break;
+    case 'skills':   runSkills(rest); break;
     case 'go':       runGo(rest); break;
     case 'banner':   runBanner(rest); break;
     case 'brief':    runBrief(rest); break;

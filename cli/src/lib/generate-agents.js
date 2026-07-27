@@ -15,6 +15,7 @@ import fs from 'node:fs';
 import { buildDocument, parseFrontmatter } from './frontmatter.js';
 import { scan, pathFor, readEntry, bindingRows, toArray, libraryRoot } from './library.js';
 import { activeTeamId } from './frame-active.js';
+import { resolveSkills } from './resolve-skills.js';
 
 // Id du binding defaut (MVP : un seul binding claude ; cf. bindings/iakaframe-claude-default.md).
 export const DEFAULT_BINDING_ID = 'iakaframe-claude-default';
@@ -49,17 +50,22 @@ export function toolsForPersona(binding, personaId) {
 }
 
 // --- Rendu PUR du contrat ---------------------------------------------------------------------
-// Assemble le contrat Claude Code : frontmatter ORDRE FIXE `name, description, tools?, guardrails`
-// + corps verbatim. `tools` non vide -> scalaire virgule `Read, Grep, Glob` (PAS une flow-list
-// `[...]`) ; `tools` vide -> ligne OMISE (heritage de tous les outils, docs Claude Code).
-export function renderAgentContract({ id, description, tools, guardrails, body }) {
+// Assemble le contrat Claude Code : frontmatter ORDRE FIXE `name, description, tools?, skills?,
+// guardrails` + corps verbatim. `tools` non vide -> scalaire virgule `Read, Grep, Glob` (PAS une
+// flow-list `[...]`) ; `tools` vide -> ligne OMISE (heritage de tous les outils, docs Claude Code).
+// `skills` = liste RESOLUE (resolveSkills) rendue en flow-list `[a, b]` (une SEULE forme stable,
+// alignee sur guardrails ; l'ordre est verbatim -> tout flottement casse le golden), APRES `tools`
+// et AVANT `guardrails`, OMISE si vide (R8 § 5.2, Fait 1 : le runner precharge ce champ).
+export function renderAgentContract({ id, description, tools, skills, guardrails, body }) {
   const toolsList = toArray(tools);
+  const skillsList = toArray(skills);
   const fields = [
     { key: 'name', kind: 'scalar', value: id },
     { key: 'description', kind: 'scalar', value: description == null ? '' : String(description) },
     // Scalaire virgule : renderScalar ne quote pas `Read, Grep, Glob` (aucune regle de quoting
     // ne s'y applique). Ligne omise si liste vide (undefined -> ignore par buildDocument).
     (toolsList.length ? { key: 'tools', kind: 'scalar', value: toolsList.join(', ') } : undefined),
+    (skillsList.length ? { key: 'skills', kind: 'list', value: skillsList } : undefined),
     { key: 'guardrails', kind: 'list', value: toArray(guardrails) },
   ];
   return buildDocument(fields, body == null ? '' : String(body));
@@ -75,6 +81,7 @@ export function generateAgent(id, { root, binding }) {
     id,
     description: data.description,
     tools: toolsForPersona(binding, id),
+    skills: resolveSkills(id, { root }),
     guardrails: data.guardrails,
     body: verbatimBody(raw),
   });
@@ -97,13 +104,23 @@ export function loadDefaultBinding(root) {
 // Un id de team absent de la library est ignore silencieusement (team > library, garde defensive).
 export function generateAll({ root = libraryRoot(), binding, project } = {}) {
   const b = binding || loadDefaultBinding(root);
+  const out = new Map();
+  for (const id of personasForTarget({ root, project })) {
+    out.set(id, generateAgent(id, { root, binding: b }));
+  }
+  return out;
+}
+
+// --- Personas dont le CONTRAT est deploye sur une cible (definition PARTAGEE) -------------------
+// Team de la frame (global -> team du default ; projet -> team de la frame active), FILTREE aux
+// personas presentes sur le disque, ordre de la team preserve. C'est la MEME definition que
+// `generateAll` (contrats) et que `skills deploy` (union des skills) : l'invariant « contrat deploye
+// => skills resolues deployees » (R8 § 5.5) exige une source unique. Portefeuille (odin) et
+// activation explicite (feanor) sont INCLUS ici (leur contrat EST materialise par agents generate,
+// contrairement a `fullteam` qui ne deploie que le dispatch automatique).
+export function personasForTarget({ root = libraryRoot(), project } = {}) {
   const teamId = activeTeamId(project == null ? null : project, root);
   const team = teamId ? readEntry('teams', teamId, root) : null;
   const ids = team ? toArray(team.data.personas) : [];
-  const out = new Map();
-  for (const id of ids) {
-    const file = pathFor('personas', id, root);
-    if (file && fs.existsSync(file)) out.set(id, generateAgent(id, { root, binding: b }));
-  }
-  return out;
+  return ids.filter((id) => { const f = pathFor('personas', id, root); return f && fs.existsSync(f); });
 }

@@ -13,6 +13,7 @@ import { frameworkRoot } from './kit.js';
 import { scan, libraryRoot, readEntry, toArray } from './library.js';
 import { activeTeamId } from './frame-active.js';
 import { generateAgent, loadDefaultBinding } from './generate-agents.js';
+import { resolveSkills } from './resolve-skills.js';
 
 // Persona (code-nom) -> rôle canonique incarné (réf. CANONICAL_ROLES de @iakaframe/core).
 //
@@ -34,32 +35,11 @@ export const ROLE_OF = {
   feanor: 'frame',        // vocabulaire CANON (role net-neuf, cf. avertissement ci-dessus)
 };
 
-// Rôle canonique -> skill de la méthode. La skill est portee par le RÔLE, pas la persona.
-export const SKILL_OF = {
-  portefeuille: 'iakaframe-odin',
-  coordination: 'iakaframe-aragorn',
-  architecture: 'iakaframe-cadrage',
-  fabrication: '',                    // pas de skill : porté par le CLAUDE.md du projet
-  tests: 'iakaframe-qualite',
-  graphisme: 'iakaframe-naonedge',
-  doc: 'iakaframe-nathalie',
-  frame: 'iakaframe-frame',           // skill-rôle de Fëanor (érudition + corpus, vocabulaire CANON)
-};
-
-// Surcharge de skill au niveau PERSONA : quand une persona porte une skill differente de la
-// skill canonique de son rôle. Ex. helm partage le rôle "coordination" avec aragorn mais porte
-// sa propre skill de deploiement.
-export const SKILL_OVERRIDE_OF = {
-  helm: 'iakaframe-deploiement',
-};
-
-// Resout la skill d'une PERSONA : override persona > skill du rôle incarne. C'est la chaine
-// persona -> rôle -> skill (plus de conflation).
-export function skillOfPersona(name) {
-  if (Object.prototype.hasOwnProperty.call(SKILL_OVERRIDE_OF, name)) return SKILL_OVERRIDE_OF[name];
-  const roleKey = ROLE_OF[name];
-  return (roleKey && SKILL_OF[roleKey]) || '';
-}
+// Les ex-tables codees `SKILL_OF`/`SKILL_OVERRIDE_OF` (seconde source de verite, MONO-skill) sont
+// SUPPRIMEES (R8 D5) : le frontmatter `skills:` de la persona + `subskills:` des skills est la
+// source UNIQUE, resolue transitive par `resolveSkills` (resolve-skills.js). Elles disaient faux
+// (`fabrication: ''`) et rataient iakastart/memoire-humaine/lecture-maquettes. ROLE_OF (mapping de
+// rôle, distinct de la skill) reste, il n'a jamais porte la conflation skill.
 
 // Personas de portefeuille (hors team projet).
 export const PORTFOLIO_PERSONAS = ['odin'];
@@ -119,12 +99,15 @@ export function affectPersona(name, { project, global = false, force = false, bi
   if (fs.existsSync(dstPersona) && !force) console.log(`  = ${name} (deja present, --force pour ecraser)`);
   else { fs.writeFileSync(dstPersona, contract); console.log(`  + persona  ${name}`); }
 
-  const skill = skillOfPersona(name);
-  if (skill) {
-    const srcSkill = path.join(root, 'skills', skill);
+  // Skills : liste RESOLUE (transitive) depuis le frontmatter canon, jamais une table codee (R8
+  // D5/D6). Source = library/skills/<id>/ (le `<root>/skills` historique n'existait pas en dev :
+  // dette d'absence). Copie recursive fidele de chaque dossier resolu.
+  let resolved = [];
+  try { resolved = resolveSkills(name, { root: libRoot }); }
+  catch (e) { console.log(`  ! skills irresolubles pour ${name} : ${e.message}`); }
+  for (const skill of resolved) {
+    const srcSkill = path.join(libRoot, 'library', 'skills', skill);
     if (fs.existsSync(srcSkill)) { copyDir(srcSkill, path.join(target, 'skills', skill)); console.log(`  + skill  ${skill}`); }
-  } else if (name === 'gimli') {
-    console.log('  i gimli : pas de skill - porte par le CLAUDE.md du projet.');
   }
   // Loki : embarque les chartes design-* a la racine du projet.
   if (name === 'loki' && !global) {

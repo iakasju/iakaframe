@@ -1,5 +1,13 @@
 # Parité des skills — générateur, golden et déploiement (dette `~/.claude/skills/`)
 
+> ⛔ **SUPERSEDED le 2026-07-27 — remplacée par `deploiement-skills-runtime.md`.** Ce fichier a été
+> **gelé** (3 FAIL, jamais gaté PASS) puis **périmé** par deux évolutions du canon postérieures à sa
+> dernière note (`iakaframe-fabrication` — lot Gimli ; **9ᵉ persona Fëanor + `iakaframe-frame` +
+> `iakaframe-lecture-maquettes`** — lot Fëanor). Pool réel **26** (et non 24), roster **9** (et non
+> 8), **union transitive 19** (et non 17). **Ne pas exécuter d'après ce fichier.** Il est conservé
+> pour sa **trace d'arbitrages décideur** (§§ 13-14), tous reconduits en clair dans la nouvelle
+> instruction (§ 4). Toute citation de ses chiffres est un contresens : lire `deploiement-skills-runtime.md`.
+>
 > Instruction de cadrage (Gandalf, P1). **Lecture seule** sur le code ; ce fichier est le seul
 > artefact produit. Objectif : doter les **skills** du même dispositif anti-dérive que les personas
 > (générateur → golden → `--check`), et lever la dette **22/22 en écart** mesurée par Legolas.

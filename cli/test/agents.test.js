@@ -5,7 +5,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ROLE_OF, SKILL_OF, SKILL_OVERRIDE_OF, skillOfPersona, PORTFOLIO_PERSONAS, PORTFOLIO_AGENTS, EXPLICIT_ACTIVATION_PERSONAS, NON_DISPATCH_PERSONAS, listAgents, listPersonas, frameTeamPersonas, assignedPersonas, fullteam } from '../src/lib/agents.js';
+import { ROLE_OF, PORTFOLIO_PERSONAS, PORTFOLIO_AGENTS, EXPLICIT_ACTIVATION_PERSONAS, NON_DISPATCH_PERSONAS, listAgents, listPersonas, frameTeamPersonas, assignedPersonas, fullteam } from '../src/lib/agents.js';
+import { resolveSkills } from '../src/lib/resolve-skills.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..');
@@ -44,27 +45,24 @@ test('ROLE_OF mappe chaque persona vers un rôle canonique', () => {
   assert.equal(ROLE_OF.odin, 'portefeuille');
 });
 
-test('SKILL_OF est keye par RÔLE (pas par code-nom)', () => {
-  assert.equal(SKILL_OF.coordination, 'iakaframe-aragorn');
-  assert.equal(SKILL_OF.architecture, 'iakaframe-cadrage');
-  assert.equal(SKILL_OF.fabrication, ''); // gimli : porte par le CLAUDE.md
+// R8 D5/C18 : les tables codees SKILL_OF/SKILL_OVERRIDE_OF sont SUPPRIMEES. La skill d'une persona
+// se resout par le frontmatter canon (resolveSkills), source unique. Anti-regression du kit deploye :
+// les 1res skills resolues valent les anciennes valeurs de table, gimli n'est plus « sans skill ».
+test('C18 skills : plus de table codee, resolution par le frontmatter canon (source unique)', () => {
+  assert.equal(resolveSkills('odin', { root: REPO })[0], 'iakaframe-odin');
+  assert.equal(resolveSkills('aragorn', { root: REPO })[0], 'iakaframe-aragorn');
+  assert.equal(resolveSkills('gandalf', { root: REPO })[0], 'iakaframe-cadrage');
+  assert.equal(resolveSkills('legolas', { root: REPO })[0], 'iakaframe-qualite');
+  assert.equal(resolveSkills('loki', { root: REPO })[0], 'iakaframe-naonedge');
+  assert.equal(resolveSkills('nathalie', { root: REPO })[0], 'iakaframe-nathalie');
+  // gimli PORTE bien une skill (fin de « pas de skill ») : chaine fabrication (7).
+  assert.deepEqual(resolveSkills('gimli', { root: REPO })[0], 'iakaframe-fabrication');
+  assert.equal(resolveSkills('gimli', { root: REPO }).length, 7);
 });
 
-test('skillOfPersona resout persona -> rôle -> skill, sans regression de deploiement', () => {
-  // Valeurs IDENTIQUES a l'ancienne table SKILL_OF (non-regression du kit deploye).
-  assert.equal(skillOfPersona('odin'), 'iakaframe-odin');
-  assert.equal(skillOfPersona('aragorn'), 'iakaframe-aragorn');
-  assert.equal(skillOfPersona('gandalf'), 'iakaframe-cadrage');
-  assert.equal(skillOfPersona('gimli'), '');
-  assert.equal(skillOfPersona('legolas'), 'iakaframe-qualite');
-  assert.equal(skillOfPersona('loki'), 'iakaframe-naonedge');
-  assert.equal(skillOfPersona('nathalie'), 'iakaframe-nathalie');
-});
-
-test('override persona : helm partage le rôle coordination mais garde sa propre skill', () => {
-  assert.equal(ROLE_OF.helm, 'coordination');
-  assert.equal(SKILL_OVERRIDE_OF.helm, 'iakaframe-deploiement');
-  assert.equal(skillOfPersona('helm'), 'iakaframe-deploiement'); // != skill du rôle coordination
+test('helm : skill de deploiement resolue depuis son frontmatter (ex-override, plus de table)', () => {
+  assert.equal(ROLE_OF.helm, 'coordination');            // ROLE_OF (mapping de rôle) reste
+  assert.deepEqual(resolveSkills('helm', { root: REPO }), ['iakaframe-deploiement']);
 });
 
 test('aliases retro-compat conserves (PORTFOLIO_AGENTS, listAgents)', () => {
