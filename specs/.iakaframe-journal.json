@@ -618,5 +618,15 @@
     "dirty": true,
     "files": 1452,
     "note": "R8 phase (a) : mecanisme de deploiement des skills au runtime CONSTRUIT (verbe iakaframe skills deploy [--check] non destructif/idempotent, resolveSkills transitif + detection de cycles, activation A skills: au contrat + B Skill au binding, garde de parite golden+parite-skills.test, roster 9 avec Feanor materialise globalement, anomalie C corrigee, SKILL_OF retiree). ~/.claude/ REEL INTOUCHE (tests en os.tmpdir). Cross-repo drift 0/77. GUI main @ 61f4821. Reste : phase (b) le deploiement reel dans ~/.claude/ = feu vert decideur. Note : contamination appflowy-doc du gate ecartee, 5 commits sjupin preserves sur branche appflowy-doc-wip (+backup origin), a re-integrer separement (merge main + re-vendorisation)."
+  },
+  {
+    "date": "2026-07-28 00:32",
+    "reason": "version",
+    "version": "v0.35.0",
+    "branch": "main",
+    "commit": "8ff8d61 merge(appflowy-doc): re-integration du chantier appflowy-doc (decideur)",
+    "dirty": true,
+    "files": 1453,
+    "note": "Re-integration du chantier appflowy-doc du decideur (modele iakadoc 00-90, purge deux temps desarmee/dry-run, 72 tests hermetiques, SKILL.md aligne) apres ecartement de la contamination R8 ; 5 commits sjupin preserves byte-identiques, desync cross-repo resolue (vendor-check drift 0/77). Fait suite a R8 (b) deploiement runtime (Feanor + 19 skills actifs dans ~/.claude/). GUI main @ 2301a53."
   }
 ]
