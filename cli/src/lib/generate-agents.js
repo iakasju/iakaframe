@@ -104,13 +104,23 @@ export function loadDefaultBinding(root) {
 // Un id de team absent de la library est ignore silencieusement (team > library, garde defensive).
 export function generateAll({ root = libraryRoot(), binding, project } = {}) {
   const b = binding || loadDefaultBinding(root);
+  const out = new Map();
+  for (const id of personasForTarget({ root, project })) {
+    out.set(id, generateAgent(id, { root, binding: b }));
+  }
+  return out;
+}
+
+// --- Personas dont le CONTRAT est deploye sur une cible (definition PARTAGEE) -------------------
+// Team de la frame (global -> team du default ; projet -> team de la frame active), FILTREE aux
+// personas presentes sur le disque, ordre de la team preserve. C'est la MEME definition que
+// `generateAll` (contrats) et que `skills deploy` (union des skills) : l'invariant « contrat deploye
+// => skills resolues deployees » (R8 § 5.5) exige une source unique. Portefeuille (odin) et
+// activation explicite (feanor) sont INCLUS ici (leur contrat EST materialise par agents generate,
+// contrairement a `fullteam` qui ne deploie que le dispatch automatique).
+export function personasForTarget({ root = libraryRoot(), project } = {}) {
   const teamId = activeTeamId(project == null ? null : project, root);
   const team = teamId ? readEntry('teams', teamId, root) : null;
   const ids = team ? toArray(team.data.personas) : [];
-  const out = new Map();
-  for (const id of ids) {
-    const file = pathFor('personas', id, root);
-    if (file && fs.existsSync(file)) out.set(id, generateAgent(id, { root, binding: b }));
-  }
-  return out;
+  return ids.filter((id) => { const f = pathFor('personas', id, root); return f && fs.existsSync(f); });
 }
