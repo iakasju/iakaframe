@@ -598,5 +598,15 @@
     "dirty": true,
     "files": 1437,
     "note": "Extensions Feanor livrees (GUI-only). Passerelle B (materialisation) : Feanor propose des champs -> pre-remplit l'editeur -> l'humain accepte (Enregistrer) -> persist<Pool> inchange (round-trip byte). Pilote persona puis generalise aux 8 pools via resolveur generique elementProposition (honnete : rien avant Enregistrer, aucune fausse proposition, C-1). Streaming du conseil/chat : commande Rust llm_complete_stream (NDJSON + Channel Tauri v2, additive), affichage progressif honnete (partiel marque en cours, erreur mid-flux -> aveu), CSP NON elargie (meme Ollama LAN), packages/core intouche, llm_complete bloquant conserve. GUI main @ 706f2b6, vitest 981, cargo 97, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). SEUL reste : web live (elargissement CSP a des hotes arbitraires = surface de securite, soumis au decideur avant tout code)."
+  },
+  {
+    "date": "2026-07-27 10:08",
+    "reason": "version",
+    "version": "v0.33.0",
+    "branch": "main",
+    "commit": "f5cc413 merge(methode): scaffold recette-guidee + gabarit RQV HTML + citations RQV (canon)",
+    "dirty": true,
+    "files": 1440,
+    "note": "Gabarit recette guidee RQV entre dans la methode (scaffold recette-guidee + specs/recettes/_TEMPLATE.recette.html, self-contained/theme-aware/Export-Import honnete file://, citations RQV additives legolas/nathalie). Cross-repo vendorise (77 copies, drift 0). Backlog rafraichi avec les 5 trouvailles de la RQV humaine iakaFrameGUI (charte->Reglages, New inerte, popups click-away, commentaires perimes, copilote mock vs Feanor honnete). GUI main @ 1357518."
   }
 ]

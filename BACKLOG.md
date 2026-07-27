@@ -10,6 +10,14 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### Recette iakaFrameGUI (RQV humaine du 2026-07-27) — GUI-only
+
+- [ ] **Sélecteur de charte graphique → dans les Réglages** *(décideur, recette 2026-07-27)*. Le `CharteSelector` vit aujourd'hui dans le chrome (`ForgeShell.tsx`, à côté du bouton New) ; le déplacer dans le panneau Réglages (`SettingsRoot`). GUI-only.
+- [ ] **FAIL — bouton New du chrome inerte sur les réservoirs** *(recette 2026-07-27)*. Le New du chrome (`ForgeShell.tsx:280`, `disabled={activeDoc===null}`) ne pilote que les entrées à document (méthode/team/kit/workflow) ; sur **persona** et **éléments** il est grisé alors que ces écrans ont leur propre création → ressenti « New marche pas ». **Unifier** : le chrome New doit déclencher la création de l'écran courant. Double affordance New à résoudre (déjà signalée arbitrage Lot 2).
+- [ ] **FAIL — popups Open/Save/Save As sans fermeture au clic extérieur** *(recette 2026-07-27)*. Les popups/menus de la `DocBar` ne se ferment pas au clic à côté (manque click-away + Escape). Vérifier au passage Réglages + sélecteur de charte pour un dismiss cohérent.
+- [ ] **Nettoyer les commentaires périmés « différé/session »** *(dette doc, recette 2026-07-27)*. `ElementReservoir.tsx` (« pools 5b/5c différés »), `WorkflowElementEditor.tsx` (« ne persiste rien, Lot 5 différé »), `RitualEditor.tsx` (« ne persiste rien ») : **faux depuis** 5b/5c (persistance `poolWrite` câblée). Aligner la prose sur la réalité.
+- [ ] **Copilote d'atelier (`CopiloteShell`) vs Fëanor-en-tête : honnêteté divergente** *(audit 2026-07-27)*. `FeanorHead` est honnête (repli aveu, jamais de mock) ; `CopiloteShell` (team/méthode/kit) tombe en **mock déterministe** (`mock/copilote.ts`) quand le modèle est absent/injoignable (défaut « claude-code · mock »). À arbitrer : aligner le Copilote sur l'honnêteté de Fëanor (aveu au lieu de mock), ou garder le mock comme aide hors-ligne assumée+étiquetée. Différés Fëanor connexes : **web live** (décidé différé, surface CSP), **corps `SKILL.md`** éditable, **exécution des rituels** (geste différé côté cœur).
+
 ### Chantiers
 
 - [ ] **Aligner le GUI : `frame = méthode + team` (frères sous le frame)** *(décideur 2026-07-26)*. Rendre **visuellement clair** dans iakaFrameGUI que le frame possède **deux frères de même niveau** (une méthode **et** une team), et **pas** « méthode ⊃ team ». Cross-repo `iakaFrameGUI` — à cadrer/coordonner **avec le décideur** (son espace de travail GUI est actif). Réf. constitution `specs/instructions/constitution-modele-de-frame.md` C-2.
