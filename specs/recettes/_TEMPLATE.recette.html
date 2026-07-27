@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="studio-clair">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  ============================================================================
+  GABARIT DE RECETTE GUIDÉE — instrument standard de la RQV humaine (iakaframe)
+  ----------------------------------------------------------------------------
+  Canon : library/personas/legolas.md § Revue Qualité de Version (RQV).
+  Un SEUL fichier, CSS + JS INLINE, ZÉRO dépendance réseau / ZÉRO CDN.
+  Ouvrable en double-clic (file://) OU servi en http (artifact CI / localhost).
+
+  REMPLISSAGE PAR VERSION — tout se fait dans le bloc `const RECETTE = {...}`
+  plus bas (chercher « ⇩ REMPLIR ICI ⇩ ») :
+    1. titre, version, commit, date ;
+    2. prérequis / lancement (commande, URL, jeu de données) ;
+    3. groupes de scénarios (un axe fonctionnel par groupe A, B, C… G) ;
+    4. chaque scénario : id stable traçable vers l'AC, étapes, attendu.
+  Le reste (thème, tally, persistance, export/import, bannière) est générique.
+
+  HONNÊTETÉ file:// : localStorage est indéfini/bloqué sous origine file://
+  (MDN ; Firefox le bloque). La persistance AUTO est donc best-effort ; une
+  BANNIÈRE le dit sans mentir, et EXPORTER/IMPORTER (JSON) marchent toujours.
+  ============================================================================
+-->
+<title>Recette guidée</title>
+<style>
+  /* ---- Studio clair (défaut) — tokens portés de la charte produit iakaframe ---- */
+  :root, :root[data-theme="studio-clair"] {
+    --bg: #fbfbfc; --card: #ffffff; --deep: #f0f1f4;
+    --line: #e7e8ec; --line-soft: #eef0f3;
+    --text: #16181d; --text-2: #5b6270; --muted: #9aa0ad;
+    --accent: #5b5bd6; --accent-2: #7a78ff; --on-accent: #ffffff;
+    --accent-rgb: 91, 91, 214;
+    --pass: #30a46c; --fail: #e5484d; --block: #f5a623; --info: #3b82f6;
+    --shadow: 0 1px 2px rgba(20,22,28,.05), 0 6px 18px rgba(20,22,28,.07);
+    --radius: 13px; --radius-lg: 18px;
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  /* ---- Sombre — variante cohérente (même accent indigo, surfaces profondes) ---- */
+  :root[data-theme="studio-sombre"] {
+    --bg: #14151a; --card: #1c1e26; --deep: #23252f;
+    --line: #2b2e3a; --line-soft: #262833;
+    --text: #eceef4; --text-2: #a9afbe; --muted: #6d7482;
+    --accent: #7a78ff; --accent-2: #5b5bd6; --on-accent: #0d0e12;
+    --accent-rgb: 122, 120, 255;
+    --pass: #3dd68c; --fail: #ff6369; --block: #ffb547; --info: #5b9dff;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--font);
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+    padding: 0 0 64px;
+  }
+  a { color: var(--accent); }
+  code, kbd, .mono { font-family: var(--mono); font-size: .92em; }
+
+  /* ---- En-tête collante ---- */
+  header {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    padding: 14px clamp(16px, 4vw, 40px);
+  }
+  .head-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .titles { flex: 1 1 320px; min-width: 260px; }
+  h1 { font-size: 1.28rem; margin: 0; letter-spacing: -.01em; }
+  .sub { color: var(--text-2); font-size: .86rem; margin-top: 2px; }
+  .sub .mono { color: var(--muted); }
+
+  .tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  button, .btn {
+    font: inherit; font-size: .84rem; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    padding: 7px 12px; border-radius: 9px; transition: .12s;
+  }
+  button:hover, .btn:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  button.primary:hover { filter: brightness(1.06); color: var(--on-accent); }
+
+  /* ---- Tally / progression ---- */
+  .tally { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .bar { flex: 1 1 220px; height: 10px; border-radius: 999px; background: var(--deep);
+         overflow: hidden; min-width: 160px; }
+  .bar > i { display: block; height: 100%; width: 0;
+             background: linear-gradient(90deg, var(--accent), var(--accent-2));
+             transition: width .25s; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font-size: .78rem; padding: 3px 9px; border-radius: 999px;
+          border: 1px solid var(--line); color: var(--text-2); white-space: nowrap; }
+  .chip b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .chip.pass  { border-color: color-mix(in srgb, var(--pass) 45%, var(--line)); }
+  .chip.fail  { border-color: color-mix(in srgb, var(--fail) 45%, var(--line)); }
+  .chip.block { border-color: color-mix(in srgb, var(--block) 45%, var(--line)); }
+  .chip.pass  b { color: var(--pass); }
+  .chip.fail  b { color: var(--fail); }
+  .chip.block b { color: var(--block); }
+
+  /* ---- Bannière honnêteté ---- */
+  .banner {
+    margin: 14px clamp(16px, 4vw, 40px) 0;
+    padding: 11px 14px; border-radius: var(--radius);
+    border: 1px solid color-mix(in srgb, var(--block) 55%, var(--line));
+    background: color-mix(in srgb, var(--block) 12%, var(--card));
+    color: var(--text); font-size: .86rem; display: none;
+  }
+  .banner.show { display: block; }
+  .banner.ok {
+    border-color: color-mix(in srgb, var(--pass) 45%, var(--line));
+    background: color-mix(in srgb, var(--pass) 10%, var(--card));
+  }
+  .banner b { font-weight: 600; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 8px clamp(16px, 4vw, 40px) 0; }
+  section { margin-top: 26px; }
+  .lead { color: var(--text-2); font-size: .9rem; }
+
+  .prereq {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 16px 18px; box-shadow: var(--shadow); margin-top: 14px;
+  }
+  .prereq h2 { margin: 0 0 8px; font-size: 1.02rem; }
+  .prereq ul { margin: 8px 0 0; padding-left: 18px; }
+  .prereq li { margin: 4px 0; }
+  pre.cmd {
+    background: var(--deep); border: 1px solid var(--line); border-radius: 9px;
+    padding: 10px 12px; overflow-x: auto; margin: 8px 0 0; font-size: .86rem;
+  }
+
+  .group-title { display: flex; align-items: baseline; gap: 10px; margin: 30px 0 6px; }
+  .group-title h2 { margin: 0; font-size: 1.08rem; }
+  .group-title .g-id {
+    font-family: var(--mono); font-size: .8rem; color: var(--on-accent);
+    background: var(--accent); border-radius: 7px; padding: 2px 8px; letter-spacing: .02em;
+  }
+  .group-title .g-desc { color: var(--text-2); font-size: .85rem; }
+
+  .scn {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 15px 17px; margin-top: 12px; box-shadow: var(--shadow);
+  }
+  .scn[data-status="pass"]  { border-left: 4px solid var(--pass); }
+  .scn[data-status="fail"]  { border-left: 4px solid var(--fail); }
+  .scn[data-status="block"] { border-left: 4px solid var(--block); }
+  .scn-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .scn-id {
+    font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+    border-radius: 6px; padding: 1px 7px; white-space: nowrap;
+  }
+  .scn-title { font-weight: 600; flex: 1 1 260px; }
+  .scn-ac { color: var(--muted); font-size: .78rem; font-family: var(--mono); }
+  .scn-body { margin-top: 10px; display: grid; gap: 10px; }
+  .field-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .05em;
+                 color: var(--muted); font-weight: 600; margin-bottom: 3px; }
+  .steps { margin: 0; padding-left: 18px; }
+  .steps li { margin: 3px 0; }
+  .attendu { background: var(--deep); border-radius: 9px; padding: 8px 11px;
+             border: 1px solid var(--line-soft); font-size: .92rem; }
+
+  .statusbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 2px; }
+  .radio {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 8px; padding: 5px 11px; font-size: .84rem;
+    user-select: none; transition: .12s;
+  }
+  .radio input { accent-color: var(--accent); margin: 0; }
+  .radio:hover { border-color: var(--accent); }
+  .radio.on-pass  { background: color-mix(in srgb, var(--pass) 16%, var(--card));  border-color: var(--pass); }
+  .radio.on-fail  { background: color-mix(in srgb, var(--fail) 16%, var(--card));  border-color: var(--fail); }
+  .radio.on-block { background: color-mix(in srgb, var(--block) 16%, var(--card)); border-color: var(--block); }
+
+  textarea.note {
+    width: 100%; min-height: 44px; resize: vertical; font: inherit; font-size: .88rem;
+    color: var(--text); background: var(--bg); border: 1px solid var(--line);
+    border-radius: 9px; padding: 8px 10px;
+  }
+  textarea.note:focus { outline: 2px solid color-mix(in srgb, var(--accent) 40%, transparent); border-color: var(--accent); }
+
+  footer { max-width: 1000px; margin: 34px auto 0; padding: 0 clamp(16px, 4vw, 40px); }
+  .summary {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .summary h2 { margin: 0 0 8px; font-size: 1rem; }
+  .summary textarea {
+    width: 100%; min-height: 120px; font-family: var(--mono); font-size: .82rem;
+    color: var(--text); background: var(--deep); border: 1px solid var(--line);
+    border-radius: 9px; padding: 10px; resize: vertical;
+  }
+  .stamp { color: var(--muted); font-size: .78rem; margin-top: 10px; }
+  .file-input { display: none; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-row">
+    <div class="titles">
+      <h1 id="doc-title">Recette guidée</h1>
+      <div class="sub" id="doc-sub"></div>
+    </div>
+    <div class="tools">
+      <button id="btn-theme" title="Basculer clair / sombre">🌓 Thème</button>
+      <button id="btn-export" title="Télécharger la progression en JSON (marche en file://)">⇩ Exporter</button>
+      <button id="btn-import" class="btn" title="Recharger une progression exportée">⇧ Importer</button>
+      <input type="file" id="file-import" class="file-input" accept="application/json,.json">
+      <button id="btn-reset" title="Vider toute la progression">↺ Réinitialiser</button>
+    </div>
+  </div>
+  <div class="tally" aria-label="Progression">
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="bar-fill"></i></div>
+    <div class="chips">
+      <span class="chip pass">PASS <b id="n-pass">0</b></span>
+      <span class="chip fail">FAIL <b id="n-fail">0</b></span>
+      <span class="chip block">bloqué <b id="n-block">0</b></span>
+      <span class="chip">renseignés <b id="n-done">0</b>/<b id="n-total">0</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="banner" id="banner" role="status" aria-live="polite"></div>
+
+<main>
+  <section id="intro">
+    <p class="lead" id="doc-lead"></p>
+  </section>
+
+  <section class="prereq" id="prereq">
+    <h2>Prérequis &amp; lancement</h2>
+    <div id="prereq-body"></div>
+  </section>
+
+  <div id="groups"></div>
+</main>
+
+<footer>
+  <div class="summary">
+    <h2>Résumé recopiable (à coller dans le document RQV)</h2>
+    <textarea id="summary-out" readonly spellcheck="false"></textarea>
+    <div class="stamp" id="stamp"></div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================================
+   ⇩ REMPLIR ICI ⇩  —  Configuration de la recette (le SEUL bloc à éditer)
+   ---------------------------------------------------------------------------
+   Chaque scénario : { id, titre, ac, etapes:[...], attendu }.
+   `id` STABLE (ex. "A-03") et TRAÇABLE vers l'AC (`ac`) dont il dérive.
+   Groupes A→G = un axe fonctionnel chacun (dérivés des AC + les 3 angles que le
+   gate auto ne voit pas : rendu visuel, gestes réels, honnêteté observable).
+   ============================================================================ */
+const RECETTE = {
+  projet:  "{{PROJET}}",
+  version: "v{{X.Y.0}}",
+  commit:  "{{sha-court}}",
+  date:    "{{AAAA-MM-JJ}}",
+  lead:    "Recette guidée de la Revue Qualité de Version (RQV) humaine — dérivée des critères "
+         + "d'acceptation des instructions de la version. Déroulez chaque scénario dans l'app "
+         + "réelle, cochez PASS / FAIL / bloqué, laissez une note (preuve, écart, raison).",
+
+  // Prérequis : comment démarrer l'app testée AVANT tout scénario.
+  prerequis: {
+    intro: "Avant de commencer, mettre l'app dans l'état de départ :",
+    commande: "{{commande de lancement, ex. npm run dev}}",
+    points: [
+      "URL : {{http://localhost:PORT}}",
+      "Jeu de données : {{mock / fixtures / base de démo}}",
+      "Préconditions : {{compte connecté, feature flag, etc.}}",
+    ],
+  },
+
+  // Groupes de scénarios. Dupliquer/adapter. Vider `scenarios` d'un groupe non utilisé.
+  groupes: [
+    {
+      id: "A", titre: "{{Axe fonctionnel A}}", desc: "{{ce que couvre ce groupe}}",
+      scenarios: [
+        {
+          id: "A-01",
+          titre: "{{intitulé court du scénario}}",
+          ac: "AC-{{x}}",
+          etapes: [
+            "{{geste 1}}",
+            "{{geste 2}}",
+          ],
+          attendu: "{{comportement observable qui vaut PASS = formulation testable de l'AC}}",
+        },
+      ],
+    },
+    {
+      id: "B", titre: "{{Axe fonctionnel B}}", desc: "{{…}}",
+      scenarios: [
+        {
+          id: "B-01", titre: "{{…}}", ac: "AC-{{y}}",
+          etapes: ["{{…}}"],
+          attendu: "{{…}}",
+        },
+      ],
+    },
+    {
+      // Angle « honnêteté observable » : la recette prouve ce qu'elle teste.
+      id: "H", titre: "Honnêteté observable", desc: "aucun état factice, la persistance ne ment pas",
+      scenarios: [
+        {
+          id: "H-01",
+          titre: "La bannière de persistance dit la vérité",
+          ac: "AC-honnêteté",
+          etapes: [
+            "Ouvrir cette recette en double-clic (file://) puis, séparément, servie en http.",
+            "Lire la bannière de persistance en haut de page dans chaque cas.",
+          ],
+          attendu: "En file:// la bannière annonce que l'auto-sauvegarde est indisponible et invite "
+                 + "à Exporter ; en http elle confirme l'auto-sauvegarde. Aucune promesse fausse.",
+        },
+        {
+          id: "H-02",
+          titre: "Export puis Import restitue fidèlement la progression",
+          ac: "AC-honnêteté",
+          etapes: [
+            "Cocher quelques statuts et écrire des notes.",
+            "Cliquer Exporter (un fichier .json est téléchargé).",
+            "Réinitialiser, puis Importer le fichier téléchargé.",
+          ],
+          attendu: "L'état importé est identique à l'état exporté (statuts + notes), y compris en file://.",
+        },
+      ],
+    },
+  ],
+};
+/* ===========================  fin du bloc à éditer  ======================== */
+
+
+/* ---------------------------------------------------------------------------
+   Moteur générique — ne PAS éditer pour remplir une recette.
+   --------------------------------------------------------------------------- */
+(function () {
+  "use strict";
+  const STATUS = { pass: "PASS", fail: "FAIL", block: "bloqué" };
+  const $ = (s, r) => (r || document).querySelector(s);
+  const el = (tag, props) => Object.assign(document.createElement(tag), props || {});
+  const storageKey = () => "recette::" + RECETTE.projet + "::" + RECETTE.version;
+
+  // --- Sonde de persistance : localStorage est-il RÉELLEMENT utilisable ? (file:// = souvent non)
+  const LS = (function probe() {
+    try {
+      const k = "__recette_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return window.localStorage;
+    } catch (e) { return null; } // file:// / navigation privée / stockage bloqué
+  })();
+
+  // --- État : { [scenarioId]: { status, note }, _meta:{...} }
+  let state = load() || {};
+
+  function load() {
+    if (!LS) return null;
+    try { return JSON.parse(LS.getItem(storageKey()) || "null"); }
+    catch (e) { return null; }
+  }
+  function save() {
+    if (!LS) return false; // best-effort : silencieux, la bannière a déjà prévenu
+    try { LS.setItem(storageKey(), JSON.stringify(state)); return true; }
+    catch (e) { return false; }
+  }
+
+  // --- Bannière honnête
+  function renderBanner() {
+    const b = $("#banner");
+    b.classList.add("show");
+    if (LS) {
+      b.classList.add("ok");
+      b.innerHTML = "<b>Auto-sauvegarde active.</b> Votre progression est enregistrée dans ce "
+        + "navigateur (localStorage). Pour la partager ou l'archiver au document RQV, utilisez "
+        + "<b>Exporter</b>.";
+    } else {
+      b.classList.remove("ok");
+      b.innerHTML = "<b>Auto-sauvegarde indisponible.</b> Ouverte en <code>file://</code> (double-clic), "
+        + "cette page ne peut pas mémoriser votre progression entre deux ouvertures. Cliquez "
+        + "<b>Exporter</b> pour sauvegarder un fichier <code>.json</code>, et <b>Importer</b> pour "
+        + "le recharger. Servez la page en http (artifact CI / localhost) pour l'auto-sauvegarde.";
+    }
+  }
+
+  // --- Thème (clair/sombre) — mémorisé si possible
+  function initTheme() {
+    let t = null;
+    try { t = LS && LS.getItem("recette::theme"); } catch (e) {}
+    if (t) document.documentElement.setAttribute("data-theme", t);
+    $("#btn-theme").addEventListener("click", function () {
+      const cur = document.documentElement.getAttribute("data-theme");
+      const next = cur === "studio-sombre" ? "studio-clair" : "studio-sombre";
+      document.documentElement.setAttribute("data-theme", next);
+      try { LS && LS.setItem("recette::theme", next); } catch (e) {}
+    });
+  }
+
+  // --- Rendu de l'en-tête, prérequis, groupes
+  function renderStatic() {
+    const titre = RECETTE.projet + " — Recette guidée " + RECETTE.version;
+    document.title = titre;
+    $("#doc-title").textContent = titre;
+    $("#doc-sub").innerHTML = "commit <span class=\"mono\">" + esc(RECETTE.commit)
+      + "</span> · " + esc(RECETTE.date);
+    $("#doc-lead").textContent = RECETTE.lead;
+
+    const pb = $("#prereq-body"); const pr = RECETTE.prerequis || {};
+    if (pr.intro) pb.appendChild(el("p", { textContent: pr.intro, className: "lead" }));
+    if (pr.commande) { const pre = el("pre", { className: "cmd", textContent: pr.commande }); pb.appendChild(pre); }
+    if (pr.points && pr.points.length) {
+      const ul = el("ul");
+      pr.points.forEach(function (p) { ul.appendChild(el("li", { textContent: p })); });
+      pb.appendChild(ul);
+    }
+
+    const gr = $("#groups");
+    RECETTE.groupes.forEach(function (g) {
+      if (!g.scenarios || !g.scenarios.length) return;
+      const gt = el("div", { className: "group-title" });
+      gt.appendChild(el("span", { className: "g-id", textContent: g.id }));
+      gt.appendChild(el("h2", { textContent: g.titre }));
+      if (g.desc) gt.appendChild(el("span", { className: "g-desc", textContent: "— " + g.desc }));
+      gr.appendChild(gt);
+      g.scenarios.forEach(function (s) { gr.appendChild(renderScenario(s)); });
+    });
+  }
+
+  function renderScenario(s) {
+    const wrap = el("div", { className: "scn" });
+    wrap.id = "scn-" + s.id;
+    const st = (state[s.id] && state[s.id].status) || "";
+    if (st) wrap.setAttribute("data-status", st);
+
+    const head = el("div", { className: "scn-head" });
+    head.appendChild(el("span", { className: "scn-id", textContent: s.id }));
+    head.appendChild(el("span", { className: "scn-title", textContent: s.titre }));
+    if (s.ac) head.appendChild(el("span", { className: "scn-ac", textContent: "↳ " + s.ac }));
+    wrap.appendChild(head);
+
+    const body = el("div", { className: "scn-body" });
+
+    if (s.etapes && s.etapes.length) {
+      const box = el("div");
+      box.appendChild(el("div", { className: "field-label", textContent: "Étapes" }));
+      const ol = el("ol", { className: "steps" });
+      s.etapes.forEach(function (e) { ol.appendChild(el("li", { textContent: e })); });
+      box.appendChild(ol); body.appendChild(box);
+    }
+    if (s.attendu) {
+      const box = el("div");
+      box.appendChild(el("div", { className: "field-label", textContent: "Attendu (= PASS)" }));
+      box.appendChild(el("div", { className: "attendu", textContent: s.attendu }));
+      body.appendChild(box);
+    }
+
+    // Statut PASS / FAIL / bloqué
+    const sb = el("div", { className: "statusbar" });
+    Object.keys(STATUS).forEach(function (key) {
+      const lab = el("label", { className: "radio" });
+      const input = el("input", { type: "radio", name: "st-" + s.id, value: key });
+      input.checked = (st === key);
+      if (input.checked) lab.classList.add("on-" + key);
+      input.addEventListener("change", function () {
+        setStatus(s.id, key);
+        sb.querySelectorAll(".radio").forEach(function (r) { r.className = "radio"; });
+        lab.className = "radio on-" + key;
+        wrap.setAttribute("data-status", key);
+      });
+      lab.appendChild(input);
+      lab.appendChild(document.createTextNode(STATUS[key]));
+      sb.appendChild(lab);
+    });
+    body.appendChild(sb);
+
+    // Note libre
+    const nb = el("div");
+    nb.appendChild(el("div", { className: "field-label", textContent: "Note (preuve / écart / blocage)" }));
+    const ta = el("textarea", { className: "note", placeholder: "Observations…" });
+    ta.value = (state[s.id] && state[s.id].note) || "";
+    ta.addEventListener("input", function () { setNote(s.id, ta.value); });
+    nb.appendChild(ta); body.appendChild(nb);
+
+    wrap.appendChild(body);
+    return wrap;
+  }
+
+  // --- Mutations d'état
+  function setStatus(id, status) { state[id] = state[id] || {}; state[id].status = status; touch(); }
+  function setNote(id, note) { state[id] = state[id] || {}; state[id].note = note; touch(); }
+  function touch() { state._meta = { updated: new Date().toISOString() }; save(); refresh(); }
+
+  // --- Tally + résumé
+  function allScenarios() {
+    const out = [];
+    RECETTE.groupes.forEach(function (g) { (g.scenarios || []).forEach(function (s) { out.push(s); }); });
+    return out;
+  }
+  function refresh() {
+    const scn = allScenarios();
+    let pass = 0, fail = 0, block = 0, done = 0;
+    scn.forEach(function (s) {
+      const st = state[s.id] && state[s.id].status;
+      if (st === "pass") pass++; else if (st === "fail") fail++; else if (st === "block") block++;
+      if (st) done++;
+    });
+    const total = scn.length;
+    $("#n-pass").textContent = pass; $("#n-fail").textContent = fail;
+    $("#n-block").textContent = block; $("#n-done").textContent = done;
+    $("#n-total").textContent = total;
+    $("#bar-fill").style.width = total ? Math.round((done / total) * 100) + "%" : "0";
+    const bar = $(".bar"); if (bar) bar.setAttribute("aria-valuenow", total ? Math.round((done / total) * 100) : 0);
+
+    // Résumé recopiable
+    const lines = [];
+    lines.push(RECETTE.projet + " — Recette guidée " + RECETTE.version
+      + " (commit " + RECETTE.commit + ", " + RECETTE.date + ")");
+    lines.push("Tally : PASS " + pass + " / FAIL " + fail + " / bloqué " + block
+      + " / renseignés " + done + "/" + total);
+    lines.push("");
+    scn.forEach(function (s) {
+      const e = state[s.id] || {};
+      const st = e.status ? STATUS[e.status] : "—";
+      let l = "[" + st + "] " + s.id + " " + s.titre + (s.ac ? " (" + s.ac + ")" : "");
+      if (e.note) l += "\n    note: " + e.note.replace(/\n/g, " ");
+      lines.push(l);
+    });
+    $("#summary-out").value = lines.join("\n");
+
+    const upd = state._meta && state._meta.updated;
+    $("#stamp").textContent = "Dernière modification : " + (upd ? new Date(upd).toLocaleString() : "—")
+      + (LS ? " · auto-sauvegardé" : " · non persisté (utilisez Exporter)");
+  }
+
+  // --- Export / Import / Reset (fonctionnent TOUS en file://)
+  function doExport() {
+    const payload = { schema: "iakaframe-recette/1", projet: RECETTE.projet,
+      version: RECETTE.version, commit: RECETTE.commit, exportedAt: new Date().toISOString(),
+      state: state };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = el("a", { href: url,
+      download: "recette-" + slug(RECETTE.projet) + "-" + slug(RECETTE.version) + ".json" });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+  }
+  function doImport(file) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      try {
+        const data = JSON.parse(String(reader.result));
+        const imported = data && data.state ? data.state : data;
+        if (!imported || typeof imported !== "object") throw new Error("format inattendu");
+        state = imported; save();
+        // re-rendu complet pour refléter statuts + notes
+        $("#groups").innerHTML = ""; renderStatic(); refresh();
+      } catch (e) { alert("Import impossible : " + e.message); }
+    };
+    reader.readAsText(file);
+  }
+  function doReset() {
+    if (!confirm("Vider toute la progression de cette recette ?")) return;
+    state = {}; if (LS) { try { LS.removeItem(storageKey()); } catch (e) {} }
+    $("#groups").innerHTML = ""; renderStatic(); refresh();
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
+    return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
+  function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+
+  // --- Amorçage
+  document.addEventListener("DOMContentLoaded", function () {
+    renderBanner(); initTheme(); renderStatic(); refresh();
+    $("#btn-export").addEventListener("click", doExport);
+    $("#btn-reset").addEventListener("click", doReset);
+    $("#btn-import").addEventListener("click", function () { $("#file-import").click(); });
+    $("#file-import").addEventListener("change", function (e) {
+      if (e.target.files && e.target.files[0]) doImport(e.target.files[0]);
+      e.target.value = "";
+    });
+  });
+})();
+</script>
+</body>
+</html>
