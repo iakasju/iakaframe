@@ -118,9 +118,10 @@ export function planPurge({ tree, trash = [], spaces = [], pages = [], includeTr
 
   if (includeTrash) {
     for (const v of trash) {
+      const nom = v.name || '(sans nom)'
       push({
-        kind: 'trash', view_id: v.view_id, name: v.name || '(sans nom)',
-        path: '(corbeille)', descendants: 0,
+        kind: 'trash', view_id: v.view_id, name: nom,
+        path: '(corbeille) ' + nom, descendants: 0,
       })
     }
   }
