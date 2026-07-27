@@ -1,20 +1,20 @@
 #!/usr/bin/env node
 // Producteur UNIQUE du golden de parite CLI<->GUI (specs/instructions/parite-generateurs-contrat.md).
 //
-// Le CLI est la REFERENCE (renderAgentContract) : ce script fige, pour les 8 personas canon + le
+// Le CLI est la REFERENCE (renderAgentContract) : ce script fige, pour les 9 personas canon + le
 // binding defaut, le contrat `.claude/agents/<id>.md` reellement rendu. Chaque golden porte un
 // EN-TETE de provenance (commentaire hors frontmatter, retire au comparatif) + le `sha256` du
 // contenu utile (le contrat lui-meme). La copie GUI est byte-a-byte identique (meme header, meme
 // hash) : toute derive de format casse les DEUX tests de parite (effet cliquet bilateral).
 //
 // Rituel de resynchronisation (format de contrat modifie) :
-//   1. node cli/scripts/gen-agents-golden.mjs        (regenere les 8 goldens + hash cote CLI)
-//   2. re-vendorer les 8 fichiers dans la GUI :
+//   1. node cli/scripts/gen-agents-golden.mjs        (regenere les 9 goldens + hash cote CLI)
+//   2. re-vendorer les 9 fichiers dans la GUI :
 //      cp cli/test/fixtures/agents-golden/*.md \
 //         ../iakaFrameGUI/packages/core/__tests__/fixtures/agents-golden/
 //   3. les deux suites doivent repasser (CLI + GUI).
 //
-// ⚠️ CE RITUEL NE COUVRE QUE LES 8 GOLDENS — il ne suffit PAS a resynchroniser le vendorage.
+// ⚠️ CE RITUEL NE COUVRE QUE LES 9 GOLDENS — il ne suffit PAS a resynchroniser le vendorage.
 // La GUI vendore 21 fixtures sur 6 familles : 8 goldens, 8 personas, 1 binding (copies), plus 4
 // DERIVEES (methode, methode wrapped, team, kit) qui ne se copient JAMAIS — les copier detruirait
 // la forme canonique sur laquelle methodMd/teamMd/kitMd.test.ts sont batis. Ne jamais lire l'etape
@@ -37,7 +37,7 @@ function header(id, sha) {
     '<!-- iakaframe:agent-contract-golden — NE PAS EDITER A LA MAIN\n' +
     'Reference : iakaframe/cli src/lib/generate-agents.js renderAgentContract (referent gate)\n' +
     `Intrants  : library/personas/${id}.md + bindings/iakaframe-claude-default.md\n` +
-    'Regenerer : node cli/scripts/gen-agents-golden.mjs  (puis re-vendorer les 8 fichiers cote GUI)\n' +
+    'Regenerer : node cli/scripts/gen-agents-golden.mjs  (puis re-vendorer les 9 fichiers cote GUI)\n' +
     `sha256    : ${sha}\n` +
     '-->\n'
   );

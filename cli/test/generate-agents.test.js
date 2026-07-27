@@ -61,6 +61,29 @@ test('renderAgentContract : guardrails rendu en flow-list', () => {
   assert.match(out, /^guardrails: \[identity, perimeter, delegation\]$/m);
 });
 
+// --- 1bis. skills : projection APRES tools, AVANT guardrails, flow-list, omise si vide (R8 § 5.2)
+
+test('renderAgentContract : skills rendu en flow-list APRES tools et AVANT guardrails', () => {
+  const out = renderAgentContract({
+    id: 'x', description: 'd', tools: ['Read', 'Skill'],
+    skills: ['iakaframe-cadrage', 'iakaframe-jalon'], guardrails: ['identity'], body: '',
+  });
+  assert.match(out, /^skills: \[iakaframe-cadrage, iakaframe-jalon\]$/m);
+  // ordre : tools -> skills -> guardrails
+  assert.match(out, /tools: Read, Skill\nskills: \[iakaframe-cadrage, iakaframe-jalon\]\nguardrails: \[identity\]/);
+});
+
+test('renderAgentContract : skills VIDE => ligne skills OMISE (enchainement tools->guardrails)', () => {
+  const out = renderAgentContract({ id: 'x', description: 'd', tools: ['Read'], skills: [], guardrails: ['identity'], body: '' });
+  assert.doesNotMatch(out, /^skills:/m);
+  assert.match(out, /tools: Read\nguardrails: \[identity\]/);
+});
+
+test('C8 generateAgent : le contrat porte skills: (liste RESOLUE) pour gimli (7, jalon inclus)', () => {
+  const contract = generateAgent('gimli', { root: REPO });
+  assert.match(contract, /^skills: \[iakaframe-fabrication, iakaframe-gestion-de-source, iakaframe-git, iakaframe-forgejo, iakaframe-conteneurisation, iakaframe-docker, iakaframe-jalon\]$/m);
+});
+
 // --- 2. verbatimBody : preserve la ligne blanche de tete + le \n final ---------------------------
 
 test('verbatimBody : preserve la ligne blanche de tete (parseFrontmatter la strippe, pas nous)', () => {
@@ -78,10 +101,11 @@ test('verbatimBody : sans frontmatter => texte tel quel', () => {
 
 test('toolsForPersona : renvoie le tools de l assignment homonyme du binding', () => {
   const binding = loadDefaultBinding(REPO);
-  assert.deepEqual(toolsForPersona(binding, 'gandalf'), ['Read', 'Grep', 'Glob', 'Write', 'Edit', 'WebSearch', 'WebFetch']);
-  assert.deepEqual(toolsForPersona(binding, 'gimli'), ['Read', 'Edit', 'Write', 'Bash', 'Grep', 'Glob']);
+  // `Skill` en fin de liste des 9 assignments (R8 § 5.3, Fait 3 : invocation a la demande).
+  assert.deepEqual(toolsForPersona(binding, 'gandalf'), ['Read', 'Grep', 'Glob', 'Write', 'Edit', 'WebSearch', 'WebFetch', 'Skill']);
+  assert.deepEqual(toolsForPersona(binding, 'gimli'), ['Read', 'Edit', 'Write', 'Bash', 'Grep', 'Glob', 'Skill']);
   // Task accorde a Odin (arbitrage CH-B, 2026-07-19) : rend actif son guardrail `delegation`.
-  assert.deepEqual(toolsForPersona(binding, 'odin'), ['Read', 'Grep', 'Glob', 'Bash', 'Task']);
+  assert.deepEqual(toolsForPersona(binding, 'odin'), ['Read', 'Grep', 'Glob', 'Bash', 'Task', 'Skill']);
 });
 
 test('toolsForPersona : persona absente du binding => [] (=> ligne omise en aval)', () => {

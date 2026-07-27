@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { checkVendor, resolveGuiRoot, stripHeader, IDS, PRINCIPLE_IDS, RITUAL_IDS, SCAFFOLD_IDS, ROLE_KEYS, GUARDRAIL_IDS, SKILL_IDS } from '../src/lib/vendor.js';
 import { remediationFor, KNOWN_REASONS } from '../src/commands/vendor-check.js';
 import { generateAgent, loadDefaultBinding, renderAgentContract, verbatimBody } from '../src/lib/generate-agents.js';
+import { resolveSkills } from '../src/lib/resolve-skills.js';
 import { parseFrontmatter } from '../src/lib/frontmatter.js';
 import { sha256 } from '../src/lib/vendor.js';
 
@@ -136,26 +137,26 @@ test('A4 : 1 octet altere sur le binding vendore -> rouge', () => {
 
 test('A5-a : drift MUTUELLEMENT COHERENT (binding + golden + sha256 recalcules ensemble) -> ROUGE', () => {
   const m = makeCleanMirror();
-  // 1. on retire l'outil Task a odin dans le binding vendore ;
+  // 1. on retire l'outil Task a odin dans le binding vendore (Skill conserve en fin de liste) ;
   const bindingPath = fixturePath(m, path.join('binding', 'iakaframe-claude-default.md'));
   const drifted = fs.readFileSync(bindingPath, 'utf8')
-    .replace('tools: [Read, Grep, Glob, Bash, Task] }', 'tools: [Read, Grep, Glob, Bash] }');
+    .replace('tools: [Read, Grep, Glob, Bash, Task, Skill] }', 'tools: [Read, Grep, Glob, Bash, Skill] }');
   assert.notEqual(drifted, fs.readFileSync(bindingPath, 'utf8'), 'le drift doit reellement modifier le binding');
   fs.writeFileSync(bindingPath, drifted);
 
-  // 2. on REGENERE le golden d'odin avec ce binding drifte ;
+  // 2. on REGENERE le golden d'odin avec ce binding drifte (skills resolues conservees) ;
   const personaRaw = fs.readFileSync(fixturePath(m, path.join('personas', 'odin.md')), 'utf8');
   const { data } = parseFrontmatter(personaRaw);
   const contract = renderAgentContract({
     id: 'odin', description: data.description,
-    tools: ['Read', 'Grep', 'Glob', 'Bash'], guardrails: data.guardrails,
-    body: verbatimBody(personaRaw),
+    tools: ['Read', 'Grep', 'Glob', 'Bash', 'Skill'], skills: resolveSkills('odin', { root: REPO }),
+    guardrails: data.guardrails, body: verbatimBody(personaRaw),
   });
   // 3. ... et on RECALCULE son sha256 pour que la copie reste coherente avec elle-meme.
   const header = '<!-- iakaframe:agent-contract-golden — NE PAS EDITER A LA MAIN\n'
     + 'Reference : iakaframe/cli src/lib/generate-agents.js renderAgentContract (referent gate)\n'
     + 'Intrants  : library/personas/odin.md + bindings/iakaframe-claude-default.md\n'
-    + 'Regenerer : node cli/scripts/gen-agents-golden.mjs  (puis re-vendorer les 8 fichiers cote GUI)\n'
+    + 'Regenerer : node cli/scripts/gen-agents-golden.mjs  (puis re-vendorer les 9 fichiers cote GUI)\n'
     + `sha256    : ${sha256(contract)}\n-->\n`;
   fs.writeFileSync(fixturePath(m, path.join('agents-golden', 'odin.md')), header + contract);
 
