@@ -9,6 +9,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   renderAgentContract, toolsForPersona, verbatimBody, generateAgent, generateAll, loadDefaultBinding,
+  personasForTarget,
 } from '../src/lib/generate-agents.js';
 import { readEntry } from '../src/lib/library.js';
 import { parseFrontmatter } from '../src/lib/frontmatter.js';
@@ -120,6 +121,22 @@ test('generateAll : produit un contrat par persona (9)', () => {
   const m = generateAll({ root: REPO });
   assert.equal(m.size, IDS.length);
   for (const id of IDS) assert.ok(m.has(id), `manque ${id}`);
+});
+
+// C15 (mecanique) : la cible GLOBALE materialise le roster 9 — Fëanor INCLUS (activation explicite
+// != absence du runtime). personasForTarget(project=null) = les 9 personas dont agents generate
+// --global + skills deploy --global partagent la definition. Le deploiement reel = phase (b).
+test('C15 roster 9 : personasForTarget(global) inclut feanor ET odin (materialisation globale)', () => {
+  const ids = personasForTarget({ root: REPO, project: null });
+  assert.ok(ids.includes('feanor'), 'feanor doit etre materialise globalement (activation explicite)');
+  assert.ok(ids.includes('odin'), 'odin (portefeuille) fait partie de la cible globale');
+  assert.deepEqual([...ids].sort(), IDS, 'exactement le roster 9');
+});
+
+test('C15bis feanor : contrat global porte skills: [frame, jalon] + Skill (prechargement + invocation)', () => {
+  const contract = generateAll({ root: REPO }).get('feanor');
+  assert.match(contract, /^skills: \[iakaframe-frame, iakaframe-jalon\]$/m);
+  assert.match(contract, /^tools: .*Skill$/m);
 });
 
 test('anti-regression : chaque contrat a name==id, description non vide, guardrails==persona, tools==binding', () => {
