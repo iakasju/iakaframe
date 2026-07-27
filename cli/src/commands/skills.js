@@ -7,7 +7,7 @@
 import { parseArgs } from 'node:util';
 import { libraryRoot } from '../lib/library.js';
 import { deploySkills } from '../lib/skills-deploy.js';
-import { collection, fail } from '../lib/output.js';
+import { collection, emit, fail } from '../lib/output.js';
 
 export function runSkills(argv) {
   const { values, positionals } = parseArgs({
@@ -33,21 +33,21 @@ export function runSkills(argv) {
     count: rep.count, orphans: rep.orphans, target: rep.target, drift: rep.drift, ok: rep.ok,
   });
 
-  if (json) {
-    console.log(JSON.stringify(payload, null, 2));
-  } else if (values.check) {
-    console.log(`Verification des skills deployees (${rep.target}/skills) :`);
-    for (const r of rep.skills) console.log(`  ${r.status === 'ok' ? '=' : '!'} ${r.skill.padEnd(30)} ${r.status}`);
-    for (const o of rep.orphans) console.log(`  ~ ${o.skill.padEnd(30)} orphan (hors union, conservee)`);
-    console.log(rep.drift === 0
-      ? `OK : ${rep.count} skill(s) a jour (aucune derive).`
-      : `DERIVE : ${rep.drift} skill(s) divergente(s)/absente(s). Regenerer via 'skills deploy'.`);
-  } else {
-    console.log(`Deploiement des skills -> ${rep.target}/skills :`);
-    for (const r of rep.skills) console.log(`  ${r.status === 'unchanged' ? '=' : '+'} ${r.skill.padEnd(30)} ${r.status}`);
-    for (const o of rep.orphans) console.log(`  ~ ${o.skill.padEnd(30)} orphan (hors union, conservee)`);
-    console.log(`${rep.count} skill(s) dans l'union deployee.`);
-  }
+  emit(json, payload, () => {
+    if (values.check) {
+      console.log(`Verification des skills deployees (${rep.target}/skills) :`);
+      for (const r of rep.skills) console.log(`  ${r.status === 'ok' ? '=' : '!'} ${r.skill.padEnd(30)} ${r.status}`);
+      for (const o of rep.orphans) console.log(`  ~ ${o.skill.padEnd(30)} orphan (hors union, conservee)`);
+      console.log(rep.drift === 0
+        ? `OK : ${rep.count} skill(s) a jour (aucune derive).`
+        : `DERIVE : ${rep.drift} skill(s) divergente(s)/absente(s). Regenerer via 'skills deploy'.`);
+    } else {
+      console.log(`Deploiement des skills -> ${rep.target}/skills :`);
+      for (const r of rep.skills) console.log(`  ${r.status === 'unchanged' ? '=' : '+'} ${r.skill.padEnd(30)} ${r.status}`);
+      for (const o of rep.orphans) console.log(`  ~ ${o.skill.padEnd(30)} orphan (hors union, conservee)`);
+      console.log(`${rep.count} skill(s) dans l'union deployee.`);
+    }
+  });
 
   // Exit non-zero UNIQUEMENT sur derive (drift/absent), jamais sur orphan seul (D4).
   if (values.check && rep.drift !== 0) process.exitCode = 1;

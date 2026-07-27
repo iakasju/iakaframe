@@ -8,10 +8,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import {
-  listPersonas, affectPersona, fullteam, skillOfPersona,
+  listPersonas, affectPersona, fullteam,
   ROLE_OF, PORTFOLIO_PERSONAS,
 } from '../lib/agents.js';
 import { generateAll } from '../lib/generate-agents.js';
+import { resolveSkills } from '../lib/resolve-skills.js';
 import { libraryRoot } from '../lib/library.js';
 import { collection, emit, fail } from '../lib/output.js';
 
@@ -31,16 +32,21 @@ export function runAgents(argv) {
 
   switch (action) {
     case 'list': {
+      const root = libraryRoot();
+      // Skills RESOLUES (transitives) depuis le frontmatter canon (R8) — plus de table codee.
+      // resolveSkills peut echouer pour une persona d'une autre frame (skills non presentes) :
+      // repli defensif [] pour ne jamais casser un simple `list`.
+      const skillsOf = (n) => { try { return resolveSkills(n, { root }); } catch { return []; } };
       const personas = listPersonas().map((n) => ({
         persona: n,
         role: ROLE_OF[n] || null,
-        skill: skillOfPersona(n) || null,
+        skills: skillsOf(n),
         portfolio: PORTFOLIO_PERSONAS.includes(n),
       }));
       emit(json, collection('personas', personas), () => {
         console.log('Equipe iakaframe - personas canon :');
         for (const p of personas) {
-          const s = p.skill || '(CLAUDE.md)';
+          const s = p.skills.length ? p.skills.join(', ') : '(CLAUDE.md)';
           const tag = p.portfolio ? '  [portefeuille]' : '';
           console.log(`  ${p.persona.padEnd(9)} -> ${s}${tag}`);
         }

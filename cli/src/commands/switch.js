@@ -7,6 +7,8 @@ import path from 'node:path';
 import { parseArgs } from 'node:util';
 import { assemble, libraryRoot, readEntry, toArray } from '../lib/library.js';
 import { frameCoherence } from '../lib/frame-active.js';
+import { generateAgent, loadDefaultBinding } from '../lib/generate-agents.js';
+import { resolveSkills } from '../lib/resolve-skills.js';
 import { emit, fail, ok } from '../lib/output.js';
 
 function copyDir(src, dst) {
@@ -74,12 +76,20 @@ export function runSwitch(argv) {
   fs.mkdirSync(agentsDir, { recursive: true });
   const deployed = [];
   const skillsDeployed = new Set();
+  // Anomalie C corrigee (R8 D6) : on deploie le CONTRAT GENERE (generateAgent : frontmatter Claude
+  // Code valide + skills: resolues), JAMAIS la persona brute (frontmatter persona invalide au
+  // runtime). Les skills sont la liste RESOLUE transitive (resolveSkills), jamais le seul niveau
+  // declare. `switch` et `fullteam` empruntent desormais la meme resolution (parite C17).
+  const binding = res.binding || loadDefaultBinding(root);
   for (const pid of toArray(res.team.data.personas)) {
     const persona = readEntry('personas', pid, root);
     if (!persona) continue;
-    fs.copyFileSync(persona.path, path.join(agentsDir, `${pid}.md`));
+    let contract;
+    try { contract = generateAgent(pid, { root, binding }); }
+    catch { continue; }
+    fs.writeFileSync(path.join(agentsDir, `${pid}.md`), contract);
     deployed.push(pid);
-    for (const skill of toArray(persona.data.skills)) {
+    for (const skill of resolveSkills(pid, { root })) {
       const src = path.join(root, 'library', 'skills', skill);
       if (fs.existsSync(src)) { copyDir(src, path.join(skillsDir, skill)); skillsDeployed.add(skill); }
     }
