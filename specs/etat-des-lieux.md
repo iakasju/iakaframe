@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-27 10:08 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-27 14:54 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.33.0 |
+| Version | v0.34.0 |
 | Branche | main |
-| Dernier commit | f5cc413 merge(methode): scaffold recette-guidee + gabarit RQV HTML + citations RQV (canon) |
+| Dernier commit | 5a69777 merge(cli): mecanisme deploiement skills runtime (R8 phase a) — R8 PUR hors contamination appflowy |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 1440 |
-| Note | Gabarit recette guidee RQV entre dans la methode (scaffold recette-guidee + specs/recettes/_TEMPLATE.recette.html, self-contained/theme-aware/Export-Import honnete file://, citations RQV additives legolas/nathalie). Cross-repo vendorise (77 copies, drift 0). Backlog rafraichi avec les 5 trouvailles de la RQV humaine iakaFrameGUI (charte->Reglages, New inerte, popups click-away, commentaires perimes, copilote mock vs Feanor honnete). GUI main @ 1357518. |
+| Fichiers (hors .git/node_modules) | 1452 |
+| Note | R8 phase (a) : mecanisme de deploiement des skills au runtime CONSTRUIT (verbe iakaframe skills deploy [--check] non destructif/idempotent, resolveSkills transitif + detection de cycles, activation A skills: au contrat + B Skill au binding, garde de parite golden+parite-skills.test, roster 9 avec Feanor materialise globalement, anomalie C corrigee, SKILL_OF retiree). ~/.claude/ REEL INTOUCHE (tests en os.tmpdir). Cross-repo drift 0/77. GUI main @ 61f4821. Reste : phase (b) le deploiement reel dans ~/.claude/ = feu vert decideur. Note : contamination appflowy-doc du gate ecartee, 5 commits sjupin preserves sur branche appflowy-doc-wip (+backup origin), a re-integrer separement (merge main + re-vendorisation). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `5a69777` | 2026-07-27 | merge(cli): mecanisme deploiement skills runtime (R8 phase a) — R8 PUR hors contamination appflowy |
+| `cc6aae8` | 2026-07-27 | test(cli): roster 9 - feanor materialise globalement (contrat + skills frame/jalon) (R8 C15) |
+| `1d3015d` | 2026-07-27 | refactor(cli): supprime tables SKILL_OF/OVERRIDE + corrige anomalie C (R8 D5/D6) |
+| `b5bfdf3` | 2026-07-27 | feat(cli): golden de manifeste des skills + garde parite-skills (R8 § 5.7, C19/C20) |
+| `483fa04` | 2026-07-27 | feat(cli): verbe skills deploy [--check] non destructif + personasForTarget partage (R8 § 5.4) |
+| `d0dbd87` | 2026-07-27 | feat(cli): projette skills: resolues au contrat + Skill au binding (R8 activation A+B, Fait 1/3) |
+| `a6a78ed` | 2026-07-27 | feat(cli): resolveSkills transitif + detection de cycles + layer capacity sur jalon (R8 D1/D3) |
+| `b6b4c0d` | 2026-07-27 | docs(specs): instruction R8 deploiement skills runtime (remplace la gelee superseded) |
+| `e9950c4` | 2026-07-27 | chore(iakaframe): update etat des lieux + commit global (version) |
 | `f5cc413` | 2026-07-27 | merge(methode): scaffold recette-guidee + gabarit RQV HTML + citations RQV (canon) |
-| `bde797c` | 2026-07-27 | chore(vendor): vendorage du scaffold recette-guidee (76 -> 77 copies) + regen goldens |
-| `a7d685d` | 2026-07-27 | docs(rqv): cite la recette guidee comme instrument standard (additif, sans redefinir le cycle) |
-| `ee194f7` | 2026-07-27 | feat(recette-guidee): scaffold library + gabarit HTML self-contained RQV |
-| `9b6896c` | 2026-07-27 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `cb3654f` | 2026-07-27 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `14ebffc` | 2026-07-26 | chore(iakaframe): update etat des lieux + commit global (version) |
-| `a297942` | 2026-07-26 | merge(vendor): vendorage roles/guardrails/skills (chantier #3 Lot 5c canon) |
-| `6bf1fe9` | 2026-07-26 | feat(vendor): vendorise roles/guardrails/skills (Lot 5c, +31 copies -> 76) |
-| `a7ac61b` | 2026-07-26 | docs(specs): cadrage Lot 5c (roles/guardrails/skills + unification workflow) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-27 14:54 | version | v0.34.0 | main | R8 phase (a) : mecanisme de deploiement des skills au runtime CONSTRUIT (verbe iakaframe skills deploy [--check] non destructif/idempotent, resolveSkills transitif + detection de cycles, activation A skills: au contrat + B Skill au binding, garde de parite golden+parite-skills.test, roster 9 avec Feanor materialise globalement, anomalie C corrigee, SKILL_OF retiree). ~/.claude/ REEL INTOUCHE (tests en os.tmpdir). Cross-repo drift 0/77. GUI main @ 61f4821. Reste : phase (b) le deploiement reel dans ~/.claude/ = feu vert decideur. Note : contamination appflowy-doc du gate ecartee, 5 commits sjupin preserves sur branche appflowy-doc-wip (+backup origin), a re-integrer separement (merge main + re-vendorisation). |
 | 2026-07-27 10:08 | version | v0.33.0 | main | Gabarit recette guidee RQV entre dans la methode (scaffold recette-guidee + specs/recettes/_TEMPLATE.recette.html, self-contained/theme-aware/Export-Import honnete file://, citations RQV additives legolas/nathalie). Cross-repo vendorise (77 copies, drift 0). Backlog rafraichi avec les 5 trouvailles de la RQV humaine iakaFrameGUI (charte->Reglages, New inerte, popups click-away, commentaires perimes, copilote mock vs Feanor honnete). GUI main @ 1357518. |
 | 2026-07-27 01:17 | pause | v0.32.0 | main | Extensions Feanor livrees (GUI-only). Passerelle B (materialisation) : Feanor propose des champs -> pre-remplit l'editeur -> l'humain accepte (Enregistrer) -> persist<Pool> inchange (round-trip byte). Pilote persona puis generalise aux 8 pools via resolveur generique elementProposition (honnete : rien avant Enregistrer, aucune fausse proposition, C-1). Streaming du conseil/chat : commande Rust llm_complete_stream (NDJSON + Channel Tauri v2, additive), affichage progressif honnete (partiel marque en cours, erreur mid-flux -> aveu), CSP NON elargie (meme Ollama LAN), packages/core intouche, llm_complete bloquant conserve. GUI main @ 706f2b6, vitest 981, cargo 97, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). SEUL reste : web live (elargissement CSP a des hotes arbitraires = surface de securite, soumis au decideur avant tout code). |
 | 2026-07-27 00:00 | pause | v0.32.0 | main | Authoring des champs riches CLOS (Lots A+B+C, GUI-only). A : socle ListEditor reutilisable + persona mission/pastille + fix honnetete roleIndex. B : role.scope + guardrail.policy + verrous kind/hook, retrait scope fantome. C : skill riche (rebranchement SkillAtom, description garde-visible + subskills sur ListEditor, correctif persistSkill qui jetait l'edition). Principe : zero controle fantome (tout champ affiche editable EST persiste, le reste verrouille visiblement) ; round-trip byte-preservant prouve par pool. GUI main @ 544563b, vitest 889, vendor-check --strict drift 0. Autorite version inchangee (v0.32.0, canon intouche). Reste : extensions Feanor (passerelle vers materialisation d'element MVP-B, streaming = canal Rust cross-repo, web live) ; corps markdown SKILL.md differe. |

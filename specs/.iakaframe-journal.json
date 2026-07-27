@@ -608,5 +608,15 @@
     "dirty": true,
     "files": 1440,
     "note": "Gabarit recette guidee RQV entre dans la methode (scaffold recette-guidee + specs/recettes/_TEMPLATE.recette.html, self-contained/theme-aware/Export-Import honnete file://, citations RQV additives legolas/nathalie). Cross-repo vendorise (77 copies, drift 0). Backlog rafraichi avec les 5 trouvailles de la RQV humaine iakaFrameGUI (charte->Reglages, New inerte, popups click-away, commentaires perimes, copilote mock vs Feanor honnete). GUI main @ 1357518."
+  },
+  {
+    "date": "2026-07-27 14:54",
+    "reason": "version",
+    "version": "v0.34.0",
+    "branch": "main",
+    "commit": "5a69777 merge(cli): mecanisme deploiement skills runtime (R8 phase a) — R8 PUR hors contamination appflowy",
+    "dirty": true,
+    "files": 1452,
+    "note": "R8 phase (a) : mecanisme de deploiement des skills au runtime CONSTRUIT (verbe iakaframe skills deploy [--check] non destructif/idempotent, resolveSkills transitif + detection de cycles, activation A skills: au contrat + B Skill au binding, garde de parite golden+parite-skills.test, roster 9 avec Feanor materialise globalement, anomalie C corrigee, SKILL_OF retiree). ~/.claude/ REEL INTOUCHE (tests en os.tmpdir). Cross-repo drift 0/77. GUI main @ 61f4821. Reste : phase (b) le deploiement reel dans ~/.claude/ = feu vert decideur. Note : contamination appflowy-doc du gate ecartee, 5 commits sjupin preserves sur branche appflowy-doc-wip (+backup origin), a re-integrer separement (merge main + re-vendorisation)."
   }
 ]
