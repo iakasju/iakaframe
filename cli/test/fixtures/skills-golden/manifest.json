@@ -1,0 +1,235 @@
+{
+  "_provenance": "iakaframe:skills-manifest-golden — NE PAS EDITER A LA MAIN. Reference : cli/src/lib/resolve-skills.js resolveSkills. Regenerer : node cli/scripts/gen-skills-golden.mjs",
+  "counts": {
+    "skills": 26,
+    "personas": 9
+  },
+  "skills": [
+    {
+      "id": "iakaframe-appflowy-doc",
+      "sha256": "d59c9f6701e40bdb9079e41b49b3104b812a83cac6f0f37d1d93d0a22af014c8",
+      "subskills": [],
+      "layer": "product"
+    },
+    {
+      "id": "iakaframe-aragorn",
+      "sha256": "57d0c65409acf29593f7bbb95b261903358770ae0892abbf9cd6e8de17ce1821",
+      "subskills": [
+        "iakaframe-jalon"
+      ],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-cadrage",
+      "sha256": "a56eb94c6f9f4a5c1d6cb718806db3e283a7127ebefcfd1f025aaed070cac38e",
+      "subskills": [
+        "iakaframe-jalon"
+      ],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-conteneurisation",
+      "sha256": "752264fcfcdba602c86c0b3ae354145feda35add538d8dd5ee5803d13fe42ec9",
+      "subskills": [
+        "iakaframe-docker"
+      ],
+      "layer": "capacity"
+    },
+    {
+      "id": "iakaframe-deploiement",
+      "sha256": "1db2602e3efd7fa63449a2d50340c37e0e5c2adba0388036c064ed5320b524df",
+      "subskills": [],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-docker",
+      "sha256": "fa9cee05ed2fa09e5e6dd4d754afb8d641508933f59278209bf6fc68f6c3548e",
+      "subskills": [],
+      "layer": "product"
+    },
+    {
+      "id": "iakaframe-etat-des-lieux",
+      "sha256": "9e75ab2e16c593663b80db9363cc76a60583fe9373bce677166dbdd95ac9f05e",
+      "subskills": [],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-fabrication",
+      "sha256": "9b9511445d871a09932b353ca6db27d0b8ffd30fa87f7f3e783626146d367cae",
+      "subskills": [
+        "iakaframe-gestion-de-source",
+        "iakaframe-conteneurisation",
+        "iakaframe-jalon"
+      ],
+      "layer": "capacity"
+    },
+    {
+      "id": "iakaframe-forgejo",
+      "sha256": "f40ab1867897cb75aa3809e1f08daee1e0f52bbef4211f42d21e7099cbb590a3",
+      "subskills": [],
+      "layer": "product"
+    },
+    {
+      "id": "iakaframe-frame",
+      "sha256": "77daf1ce5830f3672a94b26f24712e2f6e674ffb79cbaba8af40479f524500b3",
+      "subskills": [
+        "iakaframe-jalon"
+      ],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-gestion-de-source",
+      "sha256": "ccaf807e96e34a4958f92865c1cbd0e9fe4c148d8cd31dc20d503f32aefba349",
+      "subskills": [
+        "iakaframe-git"
+      ],
+      "layer": "capacity"
+    },
+    {
+      "id": "iakaframe-git",
+      "sha256": "43f06fbb7e3c5452abd21d1133bb3657e8181ddefbff25796357f78a1b10feca",
+      "subskills": [
+        "iakaframe-forgejo"
+      ],
+      "layer": "family"
+    },
+    {
+      "id": "iakaframe-init",
+      "sha256": "8decb575e54cc75a079268fa2364a229108830d42d82ba82eb6d21cd730bd7c1",
+      "subskills": [
+        "iakaframe-gestion-de-source",
+        "iakaframe-etat-des-lieux"
+      ],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-jalon",
+      "sha256": "92acee34126e4566256699b0cf13f622910372b1868250f4cd5d9ee552e8f0ec",
+      "subskills": [],
+      "layer": "capacity"
+    },
+    {
+      "id": "iakaframe-journal-conversation",
+      "sha256": "257bc7a00f396c65c5ad20fa398a2272b78a2c9b8f14660b971818ceaad316f0",
+      "subskills": [
+        "iakaframe-log-conversation"
+      ],
+      "layer": "capacity"
+    },
+    {
+      "id": "iakaframe-learning",
+      "sha256": "2c0b09efb638785d13c197a956931a2a94a7a27655b09102571118bbc02a6308",
+      "subskills": [],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-lecture-maquettes",
+      "sha256": "60e126e0d0c2b2e5a295f1a4557291dbae8ea2a55037d8f10df143b710f2bf44",
+      "subskills": [],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-log-conversation",
+      "sha256": "a1d2114ef864905b46e8eaebc86ad3a310a78808e718db96dea66d69f39bb5e3",
+      "subskills": [],
+      "layer": "product"
+    },
+    {
+      "id": "iakaframe-memoire-humaine",
+      "sha256": "5b8638f09e8114d4a9a1ddd47b54bb23f62fa8f78b1aee56316c28d3a1c5a31e",
+      "subskills": [
+        "iakaframe-appflowy-doc"
+      ],
+      "layer": "capacity"
+    },
+    {
+      "id": "iakaframe-naonedge",
+      "sha256": "bd88611d20e97e5bcb363442490d36c5f9c7d330cac69b36810ac2714940c5ab",
+      "subskills": [],
+      "layer": "product"
+    },
+    {
+      "id": "iakaframe-nathalie",
+      "sha256": "0227ab8fffbec4f18fd6372e168d4e7295ab3e842e795795a0521ecaf29b6388",
+      "subskills": [],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-odin",
+      "sha256": "d79fd05a62fd46803741a1aa7c2d3af6b90fad74f2a9cd7fcde2bac25cca60a3",
+      "subskills": [
+        "iakastart"
+      ],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-qualite",
+      "sha256": "7a87ee5118f7567c89a72cc574580f9639d16925e522c0d93fcb95d6f58d2379",
+      "subskills": [],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-retrait",
+      "sha256": "d9a1c33c6c27f94c84a837d04e90910192ebeb846450e797a4ca6fac1b48a832",
+      "subskills": [],
+      "layer": null
+    },
+    {
+      "id": "iakaframe-update",
+      "sha256": "f9ca551379aeeeba80c5ee847e0f373d00cb4969c6fe7d67187a75b1ee577321",
+      "subskills": [
+        "iakaframe-etat-des-lieux",
+        "iakaframe-gestion-de-source"
+      ],
+      "layer": null
+    },
+    {
+      "id": "iakastart",
+      "sha256": "57e6c12d716dfb367bd44f48d95db3ffc7a05765d8612156725f1f7110be08c0",
+      "subskills": [],
+      "layer": null
+    }
+  ],
+  "resolution": {
+    "aragorn": [
+      "iakaframe-aragorn",
+      "iakaframe-jalon"
+    ],
+    "feanor": [
+      "iakaframe-frame",
+      "iakaframe-jalon"
+    ],
+    "gandalf": [
+      "iakaframe-cadrage",
+      "iakaframe-jalon",
+      "iakaframe-lecture-maquettes"
+    ],
+    "gimli": [
+      "iakaframe-fabrication",
+      "iakaframe-gestion-de-source",
+      "iakaframe-git",
+      "iakaframe-forgejo",
+      "iakaframe-conteneurisation",
+      "iakaframe-docker",
+      "iakaframe-jalon"
+    ],
+    "helm": [
+      "iakaframe-deploiement"
+    ],
+    "legolas": [
+      "iakaframe-qualite"
+    ],
+    "loki": [
+      "iakaframe-naonedge"
+    ],
+    "nathalie": [
+      "iakaframe-nathalie",
+      "iakaframe-memoire-humaine",
+      "iakaframe-appflowy-doc"
+    ],
+    "odin": [
+      "iakaframe-odin",
+      "iakastart"
+    ]
+  }
+}
