@@ -628,5 +628,15 @@
     "dirty": true,
     "files": 1453,
     "note": "Re-integration du chantier appflowy-doc du decideur (modele iakadoc 00-90, purge deux temps desarmee/dry-run, 72 tests hermetiques, SKILL.md aligne) apres ecartement de la contamination R8 ; 5 commits sjupin preserves byte-identiques, desync cross-repo resolue (vendor-check drift 0/77). Fait suite a R8 (b) deploiement runtime (Feanor + 19 skills actifs dans ~/.claude/). GUI main @ 2301a53."
+  },
+  {
+    "date": "2026-07-28 10:02",
+    "reason": "version",
+    "version": "v0.36.0",
+    "branch": "main",
+    "commit": "4c6fe54 merge(canal): purge Slack (slack = dead) -> Discord/iakaHub",
+    "dirty": true,
+    "files": 1455,
+    "note": "Purge Slack (slack = dead) : canal Slack retire du canon vivant (skill Odin, specs, kit Ollama->Discord, vitrines, zone gelee methode-de-travail.html en band-aid), reformule vers Discord/iakaHub. Zones historiques/generees gelees a raison. Cross-repo drift 0/77. Capture aussi les instructions de cadrage purge-scories-slack.md + authoring-corps-skill-editable.md. GUI main @ 1fc2e82."
   }
 ]
