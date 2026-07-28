@@ -28,7 +28,7 @@
 iakaframe distingue **orchestration** et **exécution de code** :
 
 - **Orchestration / wiring** — déjà l'outil d'Aragorn dans iakaframe : **n8n** (ou
-  **Activepieces**). Triggers, dispatch entre rôles, canal Slack, enchaînement, **appels Ollama**,
+  **Activepieces**). Triggers, dispatch entre rôles, canal Discord, enchaînement, **appels Ollama**,
   gates. Parfait pour piloter le cycle — **mais ne modifie pas le code**.
 - **Harnais de code (exécution)** — un agent qui **édite le repo, build, commit**, sur Ollama :
   **Aider** (`aider --model ollama/qwen2.5-coder`), **OpenHands**, **Cline / Continue** (VS Code,
@@ -41,11 +41,11 @@ iakaframe distingue **orchestration** et **exécution de code** :
 ### OpenClaw (openclaw.ai) — candidat all-in-one (recommandé pour ollama)
 
 **Open-source, local-first**, il couvre **les deux couches** : exécution système (shell,
-fichiers, navigateur, sandbox/full) **et** orchestration/canal (multi-chat **Slack/Telegram/
-Discord/Signal…**, **cron**, tâches de fond, **bibliothèque de skills** + skills auto-générées),
+fichiers, navigateur, sandbox/full) **et** orchestration/canal (multi-chat **Discord/Telegram/
+Signal…**, **cron**, tâches de fond, **bibliothèque de skills** + skills auto-générées),
 sur **modèles locaux (Ollama)** — **sans Claude ni ChatGPT**.
 - Les **skills OpenClaw** mappent bien sur les **personas iakaframe** (Odin/Aragorn/Gandalf…).
-- Le **canal Slack** d'Aragorn est nativement couvert.
+- Le **canal Discord** d'Aragorn est nativement couvert.
 - Pour du **dev lourd** (boucles code/build/test), le compléter d'un harnais code-focused
   (Aider/OpenHands) — OpenClaw peut le piloter.
 - CLI + desktop, install npm/git ; données chez l'utilisateur.
