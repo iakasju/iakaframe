@@ -49,7 +49,7 @@
 | 📖 **Nathalie** | 🟠 | — | **Guides utilisateurs / documentation** | Transverse | ✅ `iakaframe-nathalie` |
 
 > **Hiérarchie** : `l'utilisateur → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents`.
-> Odin est **disponible en permanence**, joignable par voix / Slack ; il ouvre la bonne porte,
+> Odin est **disponible en permanence**, joignable par voix / Discord ; il ouvre la bonne porte,
 > Aragorn coordonne à l'intérieur. C'est la **répartition entre projets** matérialisée.
 
 ---
@@ -69,7 +69,7 @@ Quand un agent **s'adresse à l'utilisateur** (question / prise de parole), il s
 | Portefeuille (🦅 Odin) | 🟡 | `#FFC107` (or) |
 
 Transverses (🛡️ Aragorn, 🎭 Loki, 📖 Nathalie) : pastille de la phase servie, 🟠 par défaut.
-Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
+Détail complet et rendus (terminal / Discord / HTML, option `iaka-say`) : voir
 `methode-de-travail.md` § « Identité des agents » et `specs/instructions/evolution-methode-3phases-identite-agents.md`.
 
 ## Fiches détaillées
@@ -78,7 +78,7 @@ Détail complet et rendus (terminal / Slack / HTML, option `iaka-say`) : voir
 - **Rôle** : niveau **portefeuille**, au-dessus de toutes les équipes. Reçoit les ordres de
   haut niveau de l'utilisateur et les exécute&nbsp;: **switcher** d'équipe/projet, **démarrer** un
   projet (`init iakaframe`), **créer** une équipe (`fullteam`), **vue d'ensemble**.
-- **Disponible en permanence**, joignable par **voix / Slack**.
+- **Disponible en permanence**, joignable par **voix / Discord**.
 - **Alternatives agents** : peut lancer **à la demande** un **état des lieux des alternatives**
   (table dans les kits `MODELES.md`, état réel via `ollama list`) — quel **modèle local
   (Ollama)** pour quel agent, dispo vs à installer. Cf. `specs/instructions/cible-ollama-modeles-agents.md`.

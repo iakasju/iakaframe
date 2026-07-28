@@ -11,7 +11,7 @@
 
 - **Ollama** lancé et joignable (`http://<host>:11434`). Vérifier : `iakaframe services`.
 - Un **outil agentique** sur Ollama. Recommandé all-in-one : **OpenClaw** (openclaw.ai —
-  open-source, local-first, exécution + orchestration + canal Slack + skills). Sinon un harnais
+  open-source, local-first, exécution + orchestration + canal Discord + skills). Sinon un harnais
   de code : **Aider** `--model ollama/<modele>`, OpenHands, Continue/Cline/opencode. Détail et
   deux couches : `MODELES.md`.
 - Les **modèles** voulus tirés via `ollama pull` (voir `MODELES.md`).
