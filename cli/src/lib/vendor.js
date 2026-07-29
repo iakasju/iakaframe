@@ -12,7 +12,7 @@
 // depots ». C'est le maximum atteignable sans depot tiers d'ancrage.
 //
 // DEUX NATURES DE FIXTURES, deux traitements (§ 3.3) — ne jamais les confondre :
-//   - 77 COPIES (9 personas + 9 goldens + 1 binding + 1 workflow + 18 principles + 5 rituals +
+//   - 78 COPIES (9 personas + 9 goldens + 1 binding + 1 workflow + 18 principles + 6 rituals +
 //     3 scaffolds + 9 roles + 3 guardrails + 19 skills) -> comparaison BYTE-A-BYTE. Les 3 pools
 //     plats a parseur (principles/rituals/scaffolds) sont vendorises au Lot 5b ; les 3 pools SANS
 //     parseur (roles/guardrails/skills) au Lot 5c (persistance-5c-roles-guardrails-skills.md § 6),
@@ -42,7 +42,7 @@ export const PRINCIPLE_IDS = [
   'langue', 'mock-en-dev', 'cadrage-avant-code', 'confirmation-actes-destructifs',
   'interruption-minimale-odin', 'merge-versionnement', 'canon-avant-citation', 'preuve-avant-declaration',
 ];
-export const RITUAL_IDS = ['iakastart', 'init', 'update', 'snapshot', 'log-conversation'];
+export const RITUAL_IDS = ['iakastart', 'init', 'update', 'snapshot', 'log-conversation', 'retrospective'];
 export const SCAFFOLD_IDS = ['portefeuille', 'projet', 'recette-guidee'];
 
 // Pools SANS parseur vendorises au Lot 5c (persistance-5c-roles-guardrails-skills.md § 6) : le meme
@@ -68,9 +68,9 @@ export const SKILL_IDS = [
   'iakaframe-appflowy-doc', 'iakaframe-git', 'iakaframe-docker', 'iakaframe-forgejo',
 ];
 
-// 20 (9 personas + 9 goldens + 1 binding + 1 workflow) + 18 principles + 5 rituals + 3 scaffolds
-// + 9 roles + 3 guardrails + 19 skills (Lot 5c) = 77.
-export const EXPECTED_COPIES = 77;
+// 20 (9 personas + 9 goldens + 1 binding + 1 workflow) + 18 principles + 6 rituals + 3 scaffolds
+// + 9 roles + 3 guardrails + 19 skills (Lot 5c) = 78.
+export const EXPECTED_COPIES = 78;
 export const EXPECTED_DERIVED = 4;   // methode, methode wrapped, team, kit
 
 const FIXTURES_REL = path.join('packages', 'core', '__tests__', 'fixtures');
