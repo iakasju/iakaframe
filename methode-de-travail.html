@@ -2635,6 +2635,46 @@ fouiller sa mémoire.
   <p>Résultat : <code>specs/etat-des-lieux.md</code> + <code>.html</code> toujours à jour. La documentation existe parce que le workflow l'exige — et reprendre un projet après des semaines redevient une lecture de deux minutes.</p>
 </section>
 
+<!-- ==================== MÉMOIRE HUMAINE ==================== -->
+<section class="section">
+  <div class="section-label">Documentation vivante</div>
+  <h2>La <span class="accent">mémoire humaine</span>, hors du dépôt</h2>
+  <p>L'état des lieux est la mémoire <em>de reprise</em>, dans le dépôt. À côté, on tient une <strong>mémoire humaine</strong> des projets dans un espace de notes auto-hébergé : une trace lisible, navigable et durable des décisions et de la documentation structurante — consultable <strong>sans cloner ni lire du Markdown brut</strong>. Elle est publiée aux <strong>mêmes moments</strong> que l'état des lieux : changement de version, pause, reprise. Jamais « quand on y pense ».</p>
+
+  <p>La structure est le modèle <code>iakadoc</code> : <strong>un espace par projet</strong>, qui n'est <em>pas une liste à plat</em> mais une <strong>arborescence numérotée et ordonnée</strong>.</p>
+
+  <pre><code>00 · Vue d'ensemble ....... version, sections présentes ET absentes, compteurs, pages non gérées
+10 · Le projet ............ 11 Cadre de travail (CLAUDE.md) · 12 Vision &amp; décisions (PROJET.md)
+20 · Où on en est ......... l'état des lieux
+30 · Décisions &amp; cadrage .. index + une page par instruction
+40 · Qualité .............. index + une page par version
+50 · Recette (RQV) ........ STATUT seul — « aucune recette » quand il n'y en a pas
+60 · Guide utilisateur .... index + une page par doc — ABSENT quand il n'y en a pas
+90 · Notes ................ ZONE HUMAINE — jamais écrasée, jamais retirée, jamais visitée</code></pre>
+
+  <p>Les pages portent le <strong>titre lisible</strong> du document, jamais son chemin brut ; le chemin figure dans l'avertissement en tête de page. <code>70</code> et <code>80</code> sont <strong>réservés</strong>. Une section vide n'est pas créée, et son absence est <strong>dite</strong> dans la vue d'ensemble.</p>
+
+  <div class="pillars-grid">
+    <div class="pillar-card">
+      <div class="pillar-number">1</div>
+      <h4>Idempotent</h4>
+      <p>Créer si absent, rafraîchir <strong>seulement ce qui a changé</strong>. Deux passes de suite sur un projet inchangé n'écrivent rien.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number">2</div>
+      <h4>Non destructif</h4>
+      <p>On ne retire <strong>que ce qu'on a écrit</strong>. Une page inconnue de la publication est <strong>laissée en place</strong> et signalée dans la vue d'ensemble.</p>
+    </div>
+    <div class="pillar-card">
+      <div class="pillar-number">3</div>
+      <h4>Une seule zone humaine</h4>
+      <p><code>90 · Notes</code> est la <strong>seule</strong> zone où un humain écrit — jamais visitée par la publication. Ailleurs, le dépôt garde seul l'autorité.</p>
+    </div>
+  </div>
+
+  <p>C'est un <strong>geste machine</strong> : la mémoire humaine est alimentée <strong>par instrumentation</strong> (petit CLI Node, config par variables d'environnement, <strong>aucun secret en dépôt</strong>), pas tenue à la main.</p>
+</section>
+
 </div>
 
 <div class="panel" id="p-avance">
