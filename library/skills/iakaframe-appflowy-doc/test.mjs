@@ -31,6 +31,7 @@ import {
   stripHtmlComments, docBody,
   isGuideDoc, walkGuideDocs,
   parseRecetteVersion, compareRecetteDesc, shortDate, recetteStatus, recetteBlocks, resolveRecettes,
+  classifyUnexpected, planUnmanaged, knownViewIds, expectedNames,
 } from './appflowy-doc.mjs'
 import {
   parsePurgeArgs, flattenTree, countDescendants, planPurge, purgeArmed, renderPlan, runPurge,
@@ -1864,15 +1865,61 @@ test('A8/A1 : page disparue côté AppFlowy -> recréée malgré un cache « à 
 
 // ═══════════════════ A10/B3 — balayage des orphelins ═══════════════════
 
-test('A10 planOrphans : ce qui n’est plus attendu, JAMAIS 90 · Notes', () => {
-  const node = { children: [
-    { view_id: 'v1', name: 'Alpha' }, { view_id: 'v2', name: 'Beta' },
-    { view_id: 'v3', name: SEC.NOTES },
-  ] }
-  assert.deepEqual(planOrphans(node, ['Alpha']), [{ view_id: 'v2', name: 'Beta' }])
-  assert.deepEqual(planOrphans(node, []), [
+const NOEUD_A10 = () => ({ children: [
+  { view_id: 'v1', name: 'Alpha' }, { view_id: 'v2', name: 'Beta' },
+  { view_id: 'v3', name: SEC.NOTES }, { view_id: 'humaine', name: 'Page humaine' },
+] })
+
+test('A10 planOrphans : ce qui n’est plus attendu ET que la skill a écrit, JAMAIS 90 · Notes', () => {
+  const node = NOEUD_A10()
+  const connus = new Set(['v1', 'v2'])
+  assert.deepEqual(planOrphans(node, ['Alpha'], connus), [{ view_id: 'v2', name: 'Beta' }])
+  assert.deepEqual(planOrphans(node, [], connus), [
     { view_id: 'v1', name: 'Alpha' }, { view_id: 'v2', name: 'Beta' },
   ], '90 · Notes reste hors de tout ciblage, même quand plus RIEN n’est attendu')
+})
+
+// ── Arbitrage du décideur (lot 4) : ne retirer QUE ce que la skill a créé ──
+
+test('lot4 : une page que la skill n’a PAS écrite n’est jamais balayée — elle est signalée', () => {
+  const node = NOEUD_A10()
+  const connus = new Set(['v1', 'v2'])
+  const { orphans, unmanaged } = classifyUnexpected(node, ['Alpha'], connus)
+  assert.deepEqual(orphans.map((o) => o.name), ['Beta'], 'écrite par la skill, source disparue')
+  assert.deepEqual(unmanaged.map((o) => o.name), ['Page humaine'], 'jamais écrite : intouchable')
+  assert.deepEqual(planUnmanaged(node, ['Alpha'], connus).map((o) => o.view_id), ['humaine'])
+})
+
+test('lot4 : 90 · Notes n’est NI orpheline NI « non gérée » — elle sort de toute liste', () => {
+  const node = NOEUD_A10()
+  const r = classifyUnexpected(node, [], new Set())
+  assert.ok(!r.orphans.some((o) => o.name === SEC.NOTES))
+  assert.ok(!r.unmanaged.some((o) => o.name === SEC.NOTES))
+})
+
+test('lot4 : cache perdu -> plus rien n’est balayé (dégradation dans le sens SÛR)', () => {
+  const node = NOEUD_A10()
+  const r = classifyUnexpected(node, ['Alpha'], new Set())
+  assert.deepEqual(r.orphans, [], 'aucun view_id connu : on ne détruit rien')
+  assert.deepEqual(r.unmanaged.map((o) => o.name), ['Beta', 'Page humaine'],
+    'les vraies orphelines sont signalées au lieu d’être retirées — déclaré')
+})
+
+test('lot4 knownViewIds : lit l’état d’empreintes, tolère un cache vide ou abîmé', () => {
+  assert.deepEqual([...knownViewIds({ pages: { a: { viewId: 'v1' }, b: { viewId: 'v2' } } })], ['v1', 'v2'])
+  assert.deepEqual([...knownViewIds({ pages: { a: {}, b: null } })], [])
+  assert.deepEqual([...knownViewIds(null)], [])
+  assert.deepEqual([...knownViewIds({})], [])
+})
+
+test('lot4 expectedNames : noms attendus au niveau espace ET dans chaque conteneur', () => {
+  const p = buildPlan({ project: 'demo', docs: GUIDE })
+  const e = expectedNames(p)
+  assert.deepEqual(e.top, [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE,
+    SEC.RECETTE, SEC.GUIDE, SEC.NOTES])
+  const c30 = e.containers.find((c) => c.name === SEC.CADRAGE)
+  assert.deepEqual(c30.names, [indexName('30'), 'Alpha', 'Beta'])
+  assert.ok(!e.containers.some((c) => c.name === SEC.RECETTE), '50 est une page, pas un conteneur')
 })
 
 test('A10 orchestration : un fichier RENOMMÉ ne laisse pas sa page derrière lui', async () => {
@@ -1931,16 +1978,48 @@ test('A10 : le balayage n’atteint NI 90 · Notes NI ses descendants', async ()
   } finally { FILES['specs/instructions/b.md'] = avant }
 })
 
-test('A10 : une page intruse au niveau de l’espace est retirée (l’espace appartient au dépôt)', async () => {
+// ARBITRAGE DU DÉCIDEUR — reproduction du scénario L9 relevé au gate, verdict INVERSÉ.
+// Avant : `corbeille = ["Page humaine dans 30", "Page humaine à la racine"]`. Désormais les
+// deux survivent, et la vue d'ensemble les nomme.
+test('lot4 orchestration : une page humaine posée dans l’espace ou dans 30 SURVIT au balayage', async () => {
   const server = makeFakeServer()
   const r1 = await publier(server)
   const space = findNodeById(server.roots['ws-proj'], r1.spaceId)
-  space.children.push({ view_id: 'vieille-section', name: '70 · Ancienne section', children: [] })
+  space.children.push({ view_id: 'humaine-racine', name: 'Page humaine à la racine', children: [] })
+  childrenOf(space).find((c) => c.name === SEC.CADRAGE).children
+    .push({ view_id: 'humaine-30', name: 'Page humaine dans 30', children: [] })
+
   const r2 = await publier(server)
-  assert.equal(r2.removed, 1)
-  assert.ok(server.trash.some((t) => t.name === '70 · Ancienne section'))
-  assert.deepEqual(namesOf(findNodeById(server.roots['ws-proj'], r1.spaceId)),
-    [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.RECETTE, SEC.GUIDE, SEC.NOTES])
+  assert.equal(r2.removed, 0, 'aucune corbeille : la skill n’a écrit ni l’une ni l’autre')
+  assert.equal(r2.unmanaged, 2)
+  for (const id of ['humaine-racine', 'humaine-30']) {
+    assert.ok(!server.trash.some((t) => t.view_id === id), 'page humaine détruite : ' + id)
+  }
+  const space2 = findNodeById(server.roots['ws-proj'], r1.spaceId)
+  assert.ok(namesOf(space2).includes('Page humaine à la racine'))
+  assert.ok(namesOf(childrenOf(space2).find((c) => c.name === SEC.CADRAGE)).includes('Page humaine dans 30'))
+
+  // … et elles sont NOMMÉES dans la vue d'ensemble : laisser en place sans le dire serait
+  // un silence, pas un ménagement.
+  const ov = childrenOf(space2).find((c) => c.name === SEC.OVERVIEW)
+  const txt = renderedText(server.blocks.get(ov.view_id) || [])
+  assert.match(txt, /Pages non gérées/)
+  assert.match(txt, /Page humaine à la racine/)
+  assert.match(txt, /Page humaine dans 30/)
+})
+
+test('lot4 orchestration : une page que la SKILL a créée reste balayée quand sa source part', async () => {
+  // Le pendant du test précédent : restreindre le balayage ne doit pas le désarmer.
+  const server = makeFakeServer()
+  await publier(server)
+  const avant = FILES['specs/instructions/b.md']
+  try {
+    delete FILES['specs/instructions/b.md']
+    const r = await publier(server)
+    assert.equal(r.removed, 1)
+    assert.equal(r.unmanaged, 0)
+    assert.ok(server.trash.some((t) => t.name === 'Beta'))
+  } finally { FILES['specs/instructions/b.md'] = avant }
 })
 
 // ═══════════════════ Contrat HTTP du client (fetch stubbé, aucun réseau) ═══════════════════

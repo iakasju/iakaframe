@@ -1374,6 +1374,12 @@ export function overviewBlocks(plan, generatedAtIso) {
     ...plan.sections.map((s) => bullet(s.name)),
     heading(2, 'Sections absentes'),
     ...(missing.length ? missing.map((m) => bullet(`${m.name} — ${m.reason}`)) : [para('aucune')]),
+    // Arbitrage lot 4 : ce que la skill n'a pas écrit n'est jamais retiré — il est DIT ici.
+    heading(2, 'Pages non gérées'),
+    ...((plan.unmanaged || []).length
+      ? (plan.unmanaged || []).map((u) => bullet(
+        `${u.name} — sous « ${u.where} » — laissée en place : la publication ne l'a pas créée`))
+      : [para('aucune')]),
     heading(2, 'Compteurs'),
     bullet(`Instructions : ${plan.counters.instructions}`),
     bullet(`Versions qualité : ${plan.counters.qualite}`),
@@ -1468,15 +1474,76 @@ export function writeCache(file, data, fsApi = fs) {
 }
 
 // ── Balayage des orphelins (correction B3, critère A10) ──
+//
+// ARBITRAGE DU DÉCIDEUR, lot 4 — LE BALAYAGE NE RETIRE QUE CE QUE LA SKILL A CRÉÉ.
+//
+// Avant : toute page non attendue partait à la corbeille. Une page humaine posée dans `30`
+// ou à la racine de l'espace — qui n'avait jamais transité par la skill — était donc
+// détruite (scénario L9 du gate : `corbeille = ["Page humaine dans 30", "Page humaine à la
+// racine"]`). Le décideur a tranché contre : on garde le miroir propre SANS JAMAIS détruire
+// ce qu'on n'a pas écrit.
+//
+// Le discriminant est la TRAÇABILITÉ : le cache d'empreintes mémorise le `view_id` de chaque
+// page que la skill a créée. Une page non attendue dont le `view_id` est connu est une
+// ORPHELINE (sa source a disparu ou a été renommée) : elle part à la corbeille. Une page non
+// attendue et INCONNUE est laissée en place, et SIGNALÉE dans `00 · Vue d'ensemble`.
+//
+// DÉGRADATION DÉCLARÉE : cache perdu => plus aucun `view_id` connu => plus rien n'est balayé,
+// et les vraies orphelines sont signalées comme « non gérées » au lieu d'être retirées. C'est
+// le sens SÛR de la dégradation : on préfère un miroir qui garde une page morte à un miroir
+// qui détruit une page humaine.
+//
+// `90 · Notes` (et tout son sous-arbre, jamais visité) reste EXCLU sans condition — c'est la
+// zone humaine, elle n'est le sujet d'aucun ciblage, connue ou non (§ 5.4).
 
-// PUR : parmi les enfants relus d'un parent, ceux dont le nom n'est plus attendu.
-// `90 · Notes` (et donc tout son sous-arbre, jamais visité) est EXCLU sans condition —
-// c'est la zone humaine, elle n'est le sujet d'aucun ciblage (§ 5.4).
-export function planOrphans(parentNode, expectedNames) {
+// PUR : range les enfants NON ATTENDUS d'un parent en deux tas — ce que la skill a écrit
+// (orphelines) et ce qu'elle n'a jamais écrit (non gérées).
+export function classifyUnexpected(parentNode, expectedNames, knownIds) {
   const attendus = new Set(expectedNames)
-  return childrenOf(parentNode)
-    .filter((c) => c.name !== SEC.NOTES && !attendus.has(c.name))
-    .map((c) => ({ view_id: c.view_id, name: c.name }))
+  const connus = knownIds instanceof Set ? knownIds : new Set(knownIds || [])
+  const orphans = []
+  const unmanaged = []
+  for (const c of childrenOf(parentNode)) {
+    if (c.name === SEC.NOTES) continue      // § 5.4 — inviolable, sans condition
+    if (attendus.has(c.name)) continue
+    const item = { view_id: c.view_id, name: c.name }
+    if (connus.has(c.view_id)) orphans.push(item)
+    else unmanaged.push(item)
+  }
+  return { orphans, unmanaged }
+}
+
+// Ce qui part à la corbeille : les orphelines SEULEMENT.
+export function planOrphans(parentNode, expectedNames, knownIds) {
+  return classifyUnexpected(parentNode, expectedNames, knownIds).orphans
+}
+
+// Ce qui est laissé en place et signalé.
+export function planUnmanaged(parentNode, expectedNames, knownIds) {
+  return classifyUnexpected(parentNode, expectedNames, knownIds).unmanaged
+}
+
+// PUR — noms attendus par emplacement : le niveau de l'espace, puis chaque conteneur.
+// Dérivé du seul plan : c'est ce qui permet de connaître les pages non gérées AVANT de
+// composer `00 · Vue d'ensemble`, qui doit les lister.
+export function expectedNames(plan) {
+  const top = []
+  const containers = []
+  for (const s of (plan && plan.sections) || []) {
+    top.push(s.name)
+    if (s.kind !== 'container') continue
+    const names = []
+    if (s.index) names.push(s.index.name)
+    for (const c of s.children || []) names.push(c.name)
+    containers.push({ name: s.name, names })
+  }
+  return { top, containers }
+}
+
+// PUR — `view_id` que la skill sait avoir écrits, lus dans l'état d'empreintes.
+export function knownViewIds(cache) {
+  const pages = (cache && cache.pages) || {}
+  return new Set(Object.values(pages).map((p) => p && p.viewId).filter(Boolean))
 }
 
 // ── Sélection du workspace (correction B2) ──
@@ -1985,12 +2052,34 @@ export async function run(argv, env, deps = {}) {
 
   const contentOf = (rel) => (docs.find((d) => d.rel === rel) || {}).content ?? ''
   const stats = {
-    created: 0, updated: 0, unchanged: 0, containers: 0, locked: 0, moves: 0, removed: 0, replaced: 0,
+    created: 0, updated: 0, unchanged: 0, containers: 0, locked: 0, moves: 0, removed: 0,
+    replaced: 0, unmanaged: 0,
   }
   // A8 — état d'empreintes, HORS DÉPÔT. Cache perdu => tout est réécrit (dégradation propre).
   const cacheFile = cachePath(env, client.wid, project)
   const cache = readCache(cacheFile, fsApi)
   const ctx = { client, cache, next: {}, stats }
+
+  // Arbitrage lot 4 — le balayage ne retire que ce que la skill a créé. On relève les pages
+  // NON GÉRÉES **avant** la boucle : `00 · Vue d'ensemble` doit pouvoir les lister, et elle
+  // est la première section traitée.
+  const known = knownViewIds(cache)
+  const attendus = expectedNames(plan)
+  plan.unmanaged = []
+  for (const u of planUnmanaged(spaceNode, attendus.top, known)) {
+    plan.unmanaged.push({ name: u.name, where: project })
+  }
+  for (const c of attendus.containers) {
+    const node = findByName(spaceNode, c.name)
+    if (!node) continue
+    for (const u of planUnmanaged(node, c.names, known)) {
+      plan.unmanaged.push({ name: u.name, where: c.name })
+    }
+  }
+  stats.unmanaged = plan.unmanaged.length
+  for (const u of plan.unmanaged) {
+    log(`  - ${u.name} (sous ${u.where}) : page non gérée — LAISSÉE EN PLACE (non créée par la publication)`)
+  }
   // Ordre canonique voulu, niveau espace : les sections du plan, dans l'ordre du plan.
   const topDesired = []
   const topNames = []
@@ -2019,6 +2108,9 @@ export async function run(argv, env, deps = {}) {
       const hash = fingerprint('overview', JSON.stringify({
         p: plan.project, v: plan.version, c: plan.counters,
         s: plan.sections.map((x) => x.name), m: plan.missing,
+        // Les pages non gérées sont AFFICHÉES : leur apparition/disparition doit rafraîchir
+        // la vue d'ensemble, sinon elle mentirait jusqu'au prochain changement de source.
+        u: plan.unmanaged,
       }))
       const ov = await syncPage(ctx, spaceNode, space.id, key, section.name,
         overviewBlocks(plan, generatedAt), hash)
@@ -2090,9 +2182,11 @@ export async function run(argv, env, deps = {}) {
 
   // A10/B3 — balayage des orphelins : une page renommée ou supprimée à la source ne
   // survit plus. `90 · Notes` et ses descendants ne sont JAMAIS visités (§ 5.4).
+  // Lot 4 — le balayage ne cible QUE les `view_id` que la skill sait avoir écrits : une page
+  // qu'elle ne reconnaît pas a déjà été signalée « non gérée » et reste en place.
   sweeps.push({ node: spaceNode, names: topNames, label: project })
   for (const sweep of sweeps) {
-    for (const orphan of planOrphans(sweep.node, sweep.names)) {
+    for (const orphan of planOrphans(sweep.node, sweep.names, known)) {
       await client.moveToTrash(orphan.view_id)
       stats.removed++
       log(`    - ${orphan.name} (sous ${sweep.label}) : retiré (orpheline, plus de source)`)
@@ -2136,6 +2230,9 @@ export async function run(argv, env, deps = {}) {
     `${stats.removed + stats.replaced} en corbeille (${stats.removed} orpheline(s), ` +
     `${stats.replaced} ancienne(s) version(s)), ` +
     `${stats.containers} conteneur(s) créé(s), ${stats.locked} verrou(s), ${stats.moves} déplacement(s), ` +
+    // Lot 4 — ce que la skill n'a PAS touché se compte aussi : un silence serait un mensonge
+    // par omission, exactement comme le « 0 retirée(s) » qui remplissait la corbeille (R-C).
+    `${stats.unmanaged} non gérée(s) laissée(s) en place, ` +
     `${skipped.length} ignoré(s) — ${client.calls?.total ?? 0} appel(s) HTTP` +
     (writes === undefined ? '' : ` dont ${writes} écriture(s)`),
   )

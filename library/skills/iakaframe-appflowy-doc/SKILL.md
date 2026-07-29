@@ -171,12 +171,41 @@ débris de corbeille par passe**.
 
 Toute page d'une section générée **qui n'a plus de source** part à la corbeille : un fichier
 renommé ou supprimé ne laisse plus sa page derrière lui, à jour de rien. Le balayage porte
-sur les enfants des conteneurs **et** sur le niveau de l'espace — hors `90 · Notes`, l'espace
-projet appartient au dépôt.
+sur les enfants des conteneurs **et** sur le niveau de l'espace.
+
+> **ARBITRAGE DU DÉCIDEUR (lot 4) — le balayage ne retire QUE ce que la skill a créé.**
+> Auparavant, **toute** page non attendue partait à la corbeille : une page humaine posée dans
+> `30` ou à la racine de l'espace, qui n'avait jamais transité par la skill, était **détruite**
+> (mesuré au gate du lot 3 : `corbeille = ["Page humaine dans 30", "Page humaine à la
+> racine"]`). Le décideur a tranché contre. **On garde le miroir propre sans jamais détruire ce
+> qu'on n'a pas écrit.**
+
+Le discriminant est la **traçabilité** : l'état d'empreintes mémorise le `view_id` de chaque
+page que la skill a créée.
+
+| Page non attendue | Son `view_id` | Sort |
+|---|---|---|
+| **orpheline** — la skill l'a écrite, sa source a disparu ou changé de nom | **connu** | **corbeille** |
+| **non gérée** — la skill ne l'a jamais écrite | **inconnu** | **laissée en place**, et **nommée** dans `00 · Vue d'ensemble` (§ « Pages non gérées ») + dans le journal |
+
+Laisser en place **sans le dire** serait un silence, pas un ménagement : le compte rendu de fin
+de passe porte donc un chiffre de plus — `N non gérée(s) laissée(s) en place`.
+
+> **Dégradation DÉCLARÉE — cache perdu.** Sans `view_id` connu, **plus rien n'est balayé** : les
+> vraies orphelines sont alors **signalées** comme « non gérées » au lieu d'être retirées. C'est
+> le sens **sûr** de la dégradation — un miroir qui garde une page morte vaut mieux qu'un miroir
+> qui détruit une page humaine. Une passe ultérieure, cache reconstitué, ne les rattrapera pas
+> non plus (leur `view_id` restera inconnu) : le retrait se fait alors à la main.
+
+> **Limite DÉCLARÉE — les noms réservés du modèle.** La restriction porte sur le **balayage**.
+> Le chemin de **réécriture** (une page générée dont l'empreinte a changé) remplace toujours la
+> page qui porte son nom, connue ou non : une page humaine nommée **exactement** comme une
+> entrée du modèle (`20 · Où on en est`, ou le titre d'un doc source) **squatte un nom réservé**
+> et est remplacée. Les préfixes `00`–`60` appartiennent au modèle ; pour écrire, `90 · Notes`.
 
 > **`90 · Notes` et TOUS ses descendants sont exclus sans condition**, quels que soient leur
-> nombre et leur nom : la zone humaine n'est le sujet d'aucun ciblage. Le balayage ne la
-> visite même pas.
+> nombre et leur nom : la zone humaine n'est le sujet d'aucun ciblage — ni balayage, ni
+> signalement. Le balayage ne la visite même pas.
 
 > ⚠️ **Sédiment résiduel** : chaque réécriture réelle laisse **une** ancienne version dans la
 > corbeille du workspace, que la skill ne vide jamais. Le phénomène est désormais borné au
