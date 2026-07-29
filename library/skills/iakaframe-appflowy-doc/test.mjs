@@ -1449,6 +1449,13 @@ test('loadDocs : contenu, mtime, titre lisible ; fichier illisible ignoré propr
 //  - l'ordre de création des frères est NON déterministe (ici : ordre inverse, cf. S2) ;
 //  - `move` avec prev_view_id repositionne, prev_view_id null place en tête ;
 //  - PATCH exige `name` ; `is_locked` est purement déclaratif.
+//
+// LOT 5 BIS — TROU DE COUVERTURE FERMÉ : `is_locked` est un CHAMP DE VUE, pas un registre
+// à part. Mesuré sur l'instance (2026-07-29, GET /folder?depth=6) : chaque vue renvoie
+// `is_locked` (true, ou null quand elle n'a jamais été verrouillée). L'ancien double rangeait
+// les verrous dans une Map `server.locks` INVISIBLE de `/folder` : aucun test ne pouvait donc
+// comparer l'état de verrou d'un arbre, et le défaut de verrou du lot 5 est passé au travers
+// de la simulation ET du gate. Le double porte désormais le champ sur les nœuds eux-mêmes.
 function makeFakeServer() {
   const server = {
     workspaces: [
@@ -1528,7 +1535,9 @@ function makeFakeClient(server) {
     if (method === 'POST' && seg[3] === 'page-view' && seg.length === 4) {
       const parent = server.nodeById(wid, need(body.parent_view_id, 'parent_view_id obligatoire'))
       if (!parent) throw new Error('404 parent introuvable : ' + body.parent_view_id)
-      const node = { view_id: 'v' + (++server.seq), name: need(body.name, 'name obligatoire'), is_space: false, children: [] }
+      // `is_locked: null` à la création — c'est EXACTEMENT ce que renvoie l'instance pour une
+      // vue jamais verrouillée (mesuré sur IakaPcl : `10 · Le projet` -> is_locked=null).
+      const node = { view_id: 'v' + (++server.seq), name: need(body.name, 'name obligatoire'), is_space: false, is_locked: null, children: [] }
       parent.children.unshift(node) // idem : c'est ce qui rend le `move` obligatoire (J2)
       return { data: { view_id: node.view_id } }
     }
@@ -1543,7 +1552,11 @@ function makeFakeClient(server) {
       const node = server.nodeById(wid, vid)
       if (node) node.name = body.name
       server.patched.push({ vid, name: body.name, locked: body.is_locked })
-      if (body.is_locked !== undefined) server.locks.set(vid, !!body.is_locked)
+      if (body.is_locked !== undefined) {
+        server.locks.set(vid, !!body.is_locked)
+        // Le verrou est OBSERVABLE dans `/folder` : sans ça, le double ment sur l'API réelle.
+        if (node) node.is_locked = !!body.is_locked
+      }
       return {}
     }
     if (method === 'POST' && seg[5] === 'move') {
@@ -1585,6 +1598,16 @@ const ENV = {
 const envCache = (tag) => ({ ...ENV, IAKAFRAME_CACHE_DIR: '/cache/' + tag })
 const silence = () => {}
 const namesOf = (n) => childrenOf(n).map((c) => c.name)
+
+// A1 — INSTANTANÉ D'ARBRE À TROIS DIMENSIONS : nom, hiérarchie ET état de verrou.
+//
+// `namesOf` ne relève qu'UNE dimension, et à UN seul niveau. C'est avec lui qu'on a « prouvé »
+// qu'une reconstruction rendait un arbre identique, alors que sur l'instance deux conteneurs
+// revenaient DÉVERROUILLÉS. Un critère de régénérabilité qui ignore la protection du miroir
+// ne prouve pas la régénérabilité : il prouve seulement que les noms sont revenus.
+const empreinteArbre = (node) => childrenOf(node).map((c) => ({
+  nom: c.name, verrou: c.is_locked === true, enfants: empreinteArbre(c),
+}))
 
 // Un cache par SERVEUR : deux passes sur le même serveur partagent leurs empreintes
 // (c'est le chemin incrémental réel), deux tests n'héritent jamais l'un de l'autre.
@@ -1948,6 +1971,90 @@ test('R-C : une réécriture alimente la corbeille — le compte rendu ne le TAI
   assert.equal(r.removed, 0, 'aucune ORPHELINE : rien n’a disparu de la source')
   assert.equal(r.replaced, nouveaux, 'chaque ancienne version corbeillée est COMPTÉE')
   assert.equal(r.replaced, r.updated, 'une réécriture = un débris, sans exception')
+})
+
+// ═══════════════════ A1 — RÉGÉNÉRABILITÉ, LES TROIS DIMENSIONS ═══════════════════
+//
+// Défaut MESURÉ sur l'instance le 2026-07-29 (espace `IakaPcl` détruit puis republié) :
+// l'arbre revenait avec les mêmes 21 nœuds et la même hiérarchie, mais `10 · Le projet` et
+// `30 · Décisions & cadrage` revenaient DÉVERROUILLÉS (`is_locked=null`) — et l'incrémentalité
+// gelait ce défaut (2ᵉ passe : 0 écriture). Cause : l'état de verrou des conteneurs était
+// DÉDUIT DU CACHE au lieu d'être OBSERVÉ dans l'arbre.
+
+test('A1 orchestration : espace DÉTRUIT puis republié sur cache PÉRIMÉ -> nom, hiérarchie ET verrou identiques', async () => {
+  const server = makeFakeServer()
+  const env = envCache('a1-reconstruction')
+  const r1 = await publier(server, [], env)
+  const avant = empreinteArbre(findNodeById(server.roots['ws-proj'], r1.spaceId))
+  assert.ok(avant.some((s) => s.enfants.length && s.verrou), 'la 1ʳᵉ passe verrouille bien les conteneurs')
+
+  // Le geste A1 réel : l'espace est PURGÉ, mais le cache d'empreintes SURVIT (il est hors
+  // dépôt, la purge ne le voit pas). C'est exactement l'état d'`IakaPcl` au moment du défaut.
+  const root = server.roots['ws-proj']
+  root.children = root.children.filter((c) => c.view_id !== r1.spaceId)
+
+  const r2 = await publier(server, [], env)
+  const apres = empreinteArbre(findNodeById(server.roots['ws-proj'], r2.spaceId))
+  assert.deepEqual(apres, avant, 'reconstruction : arbre identique — noms, hiérarchie ET verrous')
+  assert.equal(r2.locked, r2.created + r2.containers,
+    'chaque page ET chaque conteneur créés sont verrouillés (compteur : créées + conteneurs = verrous)')
+})
+
+test('A1 convergence : un verrou retiré à la main est RÉTABLI sans réécriture', async () => {
+  const server = makeFakeServer()
+  const r1 = await publier(server)
+  const space = findNodeById(server.roots['ws-proj'], r1.spaceId)
+  const etat = childrenOf(space).find((c) => c.name === SEC.ETAT)      // page simple
+  const cont = childrenOf(space).find((c) => c.name === SEC.CADRAGE)   // conteneur
+  // Déverrouillage hors skill (UI, ou reconstruction fautive) : l'état DIVERGE du contrat D1.
+  etat.is_locked = false
+  cont.is_locked = false
+  const debris = server.trash.length
+  server.writes = 0
+
+  const r2 = await publier(server)
+  assert.equal(r2.locked, 2, 'les deux verrous manquants sont rétablis')
+  assert.equal(r2.created + r2.updated + r2.replaced, 0, 'AUCUNE réécriture : un verrou coûte un PATCH')
+  assert.equal(server.writes, 2, `exactement 2 écritures (les 2 PATCH), vu ${server.writes}`)
+  assert.equal(server.trash.length, debris, 'aucun débris de corbeille')
+  assert.equal(server.locks.get(etat.view_id), true)
+  assert.equal(server.locks.get(cont.view_id), true)
+  assert.deepEqual(empreinteArbre(findNodeById(server.roots['ws-proj'], r1.spaceId)).map((s) => s.verrou),
+    empreinteArbre(space).map((s) => s.verrou))
+})
+
+test('A1 : le CACHE ne fait jamais foi sur le verrou — seul l’arbre observé décide', async () => {
+  // Un cache qui affirme `locked: true` sur une vue réellement déverrouillée doit être
+  // CONTREDIT par l'observation. C'est la forme minimale du défaut mesuré sur IakaPcl, où le
+  // cache portait le bon `view_id` ET un `locked: true` mensonger.
+  const server = makeFakeServer()
+  const env = envCache('a1-cache-menteur')
+  const r1 = await publier(server, [], env)
+  const space = findNodeById(server.roots['ws-proj'], r1.spaceId)
+  for (const c of childrenOf(space)) if (c.name !== SEC.NOTES) c.is_locked = null // verrous perdus
+  server.writes = 0
+  const r2 = await publier(server, [], env)  // cache intact : il dit « tout est verrouillé »
+  assert.ok(r2.locked >= 7, `verrous rétablis : ${r2.locked}`)
+  for (const c of childrenOf(findNodeById(server.roots['ws-proj'], r1.spaceId))) {
+    if (c.name === SEC.NOTES) { assert.notEqual(c.is_locked, true, '90 · Notes reste libre'); continue }
+    assert.equal(c.is_locked, true, 'non reverrouillée : ' + c.name)
+  }
+})
+
+test('R-5 : le faux serveur RENVOIE `is_locked` dans /folder (fidélité à l’instance)', async () => {
+  // Sans cette fidélité, aucun test ne PEUT voir un verrou : c'est le trou par lequel le
+  // défaut du lot 5 est passé. La garde protège le double lui-même.
+  const server = makeFakeServer()
+  const client = makeFakeClient(server)
+  await client.auth(); await client.resolveWorkspace('projects')
+  const sid = await client.createSpace('demo')
+  const vid = await client.createPage(sid, 'p')
+  const vue = (t) => findNodeById(t, vid)
+  assert.equal(vue(await client.folder()).is_locked, null, 'vue neuve : is_locked null, comme sur l’instance')
+  await client.setLocked(vid, 'p', true)
+  assert.equal(vue(await client.folder()).is_locked, true, '/folder doit exposer le verrou')
+  await client.setLocked(vid, 'p', false)
+  assert.equal(vue(await client.folder()).is_locked, false)
 })
 
 test('A8/A1 : page disparue côté AppFlowy -> recréée malgré un cache « à jour »', async () => {
