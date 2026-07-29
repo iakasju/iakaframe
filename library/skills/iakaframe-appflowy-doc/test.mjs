@@ -373,8 +373,9 @@ test('listes : une tabulation vaut 4 espaces d’indentation (tabulation de Comm
 })
 
 test('A7 inline liens absolus : attribut href (les 4 attributs vérifiés au spike)', () => {
-  assert.deepEqual(parseInline('[Forgejo](http://192.168.2.11:3001/x)'),
-    [{ insert: 'Forgejo', attributes: { href: 'http://192.168.2.11:3001/x' } }])
+  // A14 — fixtures BIDON : aucune URL d'infra réelle dans les tests.
+  assert.deepEqual(parseInline('[dépôt](http://fixture.invalid:3001/x)'),
+    [{ insert: 'dépôt', attributes: { href: 'http://fixture.invalid:3001/x' } }])
   assert.equal(isAbsoluteUrl('https://a.b'), true)
   assert.equal(isAbsoluteUrl('mailto:a@b.c'), true)
   assert.equal(isAbsoluteUrl('./doc.md'), false)
