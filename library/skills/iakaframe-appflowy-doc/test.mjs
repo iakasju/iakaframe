@@ -16,6 +16,8 @@ import assert from 'node:assert/strict'
 import {
   isTemplateFile, isStructuralDoc, selectStructuralDocs, para, heading, bullet,
   clampHeadingLevel, mirrorWarning, mirrorBlocks, fileToBlocks, stripFrontMatter,
+  numbered, todo, quote, code, divider, toDelta, parseInline, markdownToBlocks,
+  renderTable, splitTableRow, isAbsoluteUrl,
   readableTitle, clampTitle, dedupeTitles, parseVersion, compareVersionDesc,
   compareRecentDesc, buildPlan, latestVersion, indexBlocks, overviewBlocks, chunk,
   planMoves, pickWorkspace, workspaceLabel, parseArgs, parseDotenv, resolveDocPaths,
@@ -99,10 +101,13 @@ test('bullet : type bulleted_list', () => {
   assert.deepEqual(bullet('a'), { type: 'bulleted_list', data: { delta: [{ insert: 'a' }] } })
 })
 
-test('fileToBlocks : un paragraphe par ligne, CRLF normalisé, vides finaux élagués', () => {
-  assert.equal(fileToBlocks('a\nb\nc').length, 3)
-  assert.deepEqual(fileToBlocks('x\r\n\r\ny\n\n\n').map((p) => p.data.delta[0]?.insert ?? ''), ['x', '', 'y'])
-  assert.deepEqual(fileToBlocks('a\n\nb')[1], { type: 'paragraph', data: { delta: [] } })
+test('fileToBlocks : CRLF normalisé, front-matter masqué, aucun bloc vide parasite', () => {
+  // A7 — « a\nb\nc » est UN paragraphe : une coupure de ligne ne coupe plus rien.
+  assert.equal(fileToBlocks('a\nb\nc').length, 1)
+  assert.equal(fileToBlocks('x\r\n\r\ny\n\n\n').length, 2, 'CRLF normalisé, vides finaux sans effet')
+  assert.deepEqual(fileToBlocks('a\n\nb').map((b) => b.type), ['paragraph', 'paragraph'])
+  // Le front-matter a déjà servi au titre : il est masqué du corps.
+  assert.deepEqual(fileToBlocks('---\ntitle: T\n---\n# Corps').map((b) => b.type), ['heading'])
 })
 
 // ═══════════════════ § 5.3 — avertissement de miroir ═══════════════════
@@ -116,10 +121,409 @@ test('mirrorWarning : texte normatif exact, cite la source et 90 · Notes', () =
     'Pour écrire, utiliser « 90 · Notes ».')
 })
 
-test('mirrorBlocks : l’avertissement est le TOUT PREMIER bloc', () => {
+test('mirrorBlocks : l’avertissement est le TOUT PREMIER bloc, le corps est MAPPÉ', () => {
   const b = mirrorBlocks('specs/PROJET.md', '# Vision\ntexte', '2026-07-27T10:00:00.000Z')
+  assert.equal(b[0].type, 'paragraph')
   assert.match(b[0].data.delta[0].insert, /^Page générée depuis specs\/PROJET\.md/)
-  assert.equal(b[1].data.delta[0].insert, '# Vision')
+  // Le titre n'est plus un paragraphe « # Vision » : c'est un vrai bloc heading (A7).
+  assert.deepEqual(b.slice(1).map((x) => x.type), ['heading', 'paragraph'])
+  assert.equal(b[1].data.delta[0].insert, 'Vision')
+  assert.equal(b[2].data.delta[0].insert, 'texte')
+})
+
+// ═══════════════════ Lot 2 — mapper Markdown → blocs (critère A7) ═══════════════════
+//
+// J7 — le serveur AppFlowy accepte et persiste N'IMPORTE QUEL type de bloc, y compris un type
+// inventé (spike S3). Un test d'API ne prouverait donc rien. Toute la garantie de fidélité
+// repose sur cette section : le mapper est PUR, il se teste ici, cas de bloc par cas de bloc.
+
+const types = (md) => markdownToBlocks(md).map((b) => b.type)
+const texts = (md) => markdownToBlocks(md).map((b) => (b.data.delta || []).map((d) => d.insert).join(''))
+
+// ── Titres ATX ──
+
+test('A7 titre ATX : # → ### donnent un bloc heading de niveau 1 → 3', () => {
+  assert.deepEqual(types('# un\n\n## deux\n\n### trois'), ['heading', 'heading', 'heading'])
+  assert.deepEqual(markdownToBlocks('# un\n\n## deux\n\n### trois').map((b) => b.data.level), [1, 2, 3])
+  assert.deepEqual(texts('# un\n\n## deux\n\n### trois'), ['un', 'deux', 'trois'])
+})
+
+test('A7 titre ATX : ####+ clampé au niveau 3 (J7) mais TOUJOURS un heading', () => {
+  const b = markdownToBlocks('#### quatre\n\n##### cinq\n\n###### six')
+  assert.deepEqual(b.map((x) => x.type), ['heading', 'heading', 'heading'])
+  assert.deepEqual(b.map((x) => x.data.level), [3, 3, 3])
+})
+
+test('titre ATX : fermeture ###  optionnelle retirée, formatage en ligne conservé', () => {
+  assert.deepEqual(texts('## Titre ##'), ['Titre'])
+  const d = markdownToBlocks('## Section **grasse**')[0].data.delta
+  assert.deepEqual(d, [{ insert: 'Section ' }, { insert: 'grasse', attributes: { bold: true } }])
+})
+
+test('titre ATX : « #hashtag » sans espace n’est PAS un titre', () => {
+  assert.deepEqual(types('#pas-un-titre'), ['paragraph'])
+})
+
+// ── Agglomération des paragraphes (le cœur de A7) ──
+
+test('A7 agglomération : une coupure de ligne NE crée PAS de paragraphe', () => {
+  // Cas réel : prose rewrappée à 100 colonnes dans tous les CLAUDE.md du portefeuille.
+  const md = 'IakaCockpit — cockpit chapeau-rooted de l\'écosystème iakaProject\n'
+    + 'et point d\'entrée du portefeuille.\n'
+    + 'Troisième ligne du même paragraphe.'
+  const b = markdownToBlocks(md)
+  assert.equal(b.length, 1, 'trois lignes = UN paragraphe')
+  assert.equal(b[0].data.delta.map((d) => d.insert).join(''),
+    'IakaCockpit — cockpit chapeau-rooted de l\'écosystème iakaProject '
+    + 'et point d\'entrée du portefeuille. Troisième ligne du même paragraphe.')
+})
+
+test('A7 agglomération : SEULE la ligne vide sépare deux paragraphes', () => {
+  assert.equal(markdownToBlocks('a\nb\n\nc\nd').length, 2)
+  assert.deepEqual(texts('a\nb\n\nc\nd'), ['a b', 'c d'])
+  assert.equal(markdownToBlocks('a\n\n\n\nb').length, 2, 'les vides multiples ne créent pas de bloc vide')
+})
+
+// ── Listes ──
+
+test('A7 listes à puces : ≥1 bloc bulleted_list PAR item (-, *, +)', () => {
+  assert.deepEqual(types('- un\n- deux\n* trois\n+ quatre'),
+    ['bulleted_list', 'bulleted_list', 'bulleted_list', 'bulleted_list'])
+  assert.deepEqual(texts('- un\n- deux'), ['un', 'deux'])
+})
+
+test('A7 listes numérotées : « 1. » et « 1) » → numbered_list, un bloc par item', () => {
+  assert.deepEqual(types('1. un\n2. deux\n3) trois'),
+    ['numbered_list', 'numbered_list', 'numbered_list'])
+  assert.deepEqual(texts('1. un\n2. deux'), ['un', 'deux'])
+})
+
+test('listes à cocher : todo_list avec `checked` (S3), la case n’apparaît pas dans le texte', () => {
+  const b = markdownToBlocks('- [ ] à faire\n- [x] fait\n- [X] fait aussi')
+  assert.deepEqual(b.map((x) => x.type), ['todo_list', 'todo_list', 'todo_list'])
+  assert.deepEqual(b.map((x) => x.data.checked), [false, true, true])
+  assert.deepEqual(b.map((x) => x.data.delta.map((d) => d.insert).join('')), ['à faire', 'fait', 'fait aussi'])
+})
+
+test('listes imbriquées : un bloc par item, profondeur rendue par un retrait insécable', () => {
+  const b = markdownToBlocks('- a\n  - b\n    - c\n- d')
+  assert.deepEqual(b.map((x) => x.type), ['bulleted_list', 'bulleted_list', 'bulleted_list', 'bulleted_list'])
+  const t = b.map((x) => x.data.delta.map((d) => d.insert).join(''))
+  assert.equal(t[0], 'a')
+  assert.equal(t[1], '  b', 'niveau 2 = 2 insécables')
+  assert.equal(t[2], '    c', 'niveau 3 = 4 insécables')
+  assert.equal(t[3], 'd', 'retour au niveau 1')
+})
+
+test('A7 item de liste sur plusieurs lignes : UN bloc, jamais un paragraphe orphelin', () => {
+  // Cas réel : les tableaux de critères et les listes longues des instructions.
+  const b = markdownToBlocks('- **A1** Régénérabilité. Détruire un espace\n'
+    + '  et le reconstruire depuis le dépôt ne perd rien.\n'
+    + '- suivant')
+  assert.deepEqual(b.map((x) => x.type), ['bulleted_list', 'bulleted_list'])
+  assert.match(b[0].data.delta.map((d) => d.insert).join(''), /Détruire un espace et le reconstruire/)
+})
+
+test('continuation paresseuse : ligne nue après un item reste DANS l’item (CommonMark)', () => {
+  const b = markdownToBlocks('- item\nsuite non indentée\n\nvrai paragraphe')
+  assert.deepEqual(b.map((x) => x.type), ['bulleted_list', 'paragraph'])
+  assert.equal(b[0].data.delta.map((d) => d.insert).join(''), 'item suite non indentée')
+})
+
+test('une ligne ouvrant un bloc ferme la liste au lieu de la prolonger', () => {
+  assert.deepEqual(types('- item\n## Titre'), ['bulleted_list', 'heading'])
+  assert.deepEqual(types('- item\n> cité'), ['bulleted_list', 'quote'])
+})
+
+// ── Code fencé ──
+
+test('A7 code fencé : bloc `code`, langage CONSERVÉ (S3), contenu jamais interprété', () => {
+  const b = markdownToBlocks('```js\nconst a = **1**\n# pas un titre\n```')
+  assert.equal(b.length, 1)
+  assert.equal(b[0].type, 'code')
+  assert.equal(b[0].data.language, 'js')
+  assert.equal(b[0].data.delta[0].insert, 'const a = **1**\n# pas un titre',
+    'ni gras ni titre à l’intérieur d’un bloc de code')
+})
+
+test('code fencé : sans langage → pas de champ `language` ; ~~~ accepté ; langage normalisé', () => {
+  assert.equal(markdownToBlocks('```\nx\n```')[0].data.language, undefined)
+  assert.equal(markdownToBlocks('~~~bash\nls\n~~~')[0].data.language, 'bash')
+  assert.equal(markdownToBlocks('```JS\nx\n```')[0].data.language, 'js')
+  assert.equal(markdownToBlocks('```js title=a.js\nx\n```')[0].data.language, 'js', 'attributs ignorés')
+})
+
+test('code fencé non refermé en fin de fichier : bloc `code` quand même, rien de perdu', () => {
+  const b = markdownToBlocks('```sh\nligne 1\nligne 2')
+  assert.deepEqual(b.map((x) => x.type), ['code'])
+  assert.equal(b[0].data.delta[0].insert, 'ligne 1\nligne 2')
+})
+
+// ── Citations ──
+
+test('citations : lignes « > » consécutives = UN bloc quote', () => {
+  const b = markdownToBlocks('> Ce fichier est lu en priorité\n> à chaque session.')
+  assert.deepEqual(b.map((x) => x.type), ['quote'])
+  assert.equal(b[0].data.delta.map((d) => d.insert).join(''), 'Ce fichier est lu en priorité à chaque session.')
+})
+
+test('citations : « > » vide sépare deux quotes ; une liste citée reste une liste', () => {
+  assert.deepEqual(types('> un\n>\n> deux'), ['quote', 'quote'])
+  assert.deepEqual(types('> intro\n>\n> - a\n> - b'), ['quote', 'bulleted_list', 'bulleted_list'])
+})
+
+// ── Séparateurs ──
+
+test('séparateurs : ---, ***, ___ → bloc divider (et jamais une puce)', () => {
+  assert.deepEqual(types('a\n\n---\n\nb'), ['paragraph', 'divider', 'paragraph'])
+  assert.deepEqual(types('***\n\n___\n\n-----'), ['divider', 'divider', 'divider'])
+  assert.deepEqual(types('- item'), ['bulleted_list'], '« - item » reste une puce')
+})
+
+// ── Tableaux (perte assumée : préformaté aligné) ──
+
+test('A7 tableaux : ZÉRO ligne de tableau en paragraphe brut — un bloc code préformaté', () => {
+  const md = '| # | Critère |\n|---|---|\n| **A1** | Régénérabilité |\n| **A2** | Préservation |'
+  const b = markdownToBlocks(md)
+  assert.equal(b.length, 1)
+  assert.equal(b[0].type, 'code')
+  assert.equal(b[0].data.language, undefined, 'préformaté sans coloration')
+  for (const bl of b) assert.notEqual(bl.type, 'paragraph')
+})
+
+test('tableaux : colonnes alignées à largeur fixe (lisible, pas un magma)', () => {
+  const out = renderTable(['| Col | Autre colonne |', '|---|---:|', '| a | 12 |'])
+  assert.deepEqual(out.split('\n'), [
+    '| Col | Autre colonne |',
+    '| --- | ------------- |',
+    '| a   | 12            |',
+  ])
+})
+
+test('splitTableRow : `\\|` échappé et pipes dans du code en ligne ne coupent pas la cellule', () => {
+  assert.deepEqual(splitTableRow('| a | b |'), ['a', 'b'])
+  assert.deepEqual(splitTableRow('| a \\| suite | b |'), ['a | suite', 'b'])
+  assert.deepEqual(splitTableRow('| `x | y` | b |'), ['`x | y`', 'b'])
+})
+
+test('tableau irrégulier : lignes plus courtes complétées, aucune perte de ligne', () => {
+  const out = renderTable(['| a | b | c |', '| x |'])
+  assert.equal(out.split('\n').length, 2)
+  assert.match(out.split('\n')[1], /^\| x /)
+})
+
+// ── Formatage en ligne ──
+
+test('A7 inline gras : ** et __ → attribut bold', () => {
+  assert.deepEqual(parseInline('a **gras** b'),
+    [{ insert: 'a ' }, { insert: 'gras', attributes: { bold: true } }, { insert: ' b' }])
+  assert.deepEqual(parseInline('__gras__'), [{ insert: 'gras', attributes: { bold: true } }])
+})
+
+test('A7 inline italique : * et _ → attribut italic', () => {
+  assert.deepEqual(parseInline('a *pente* b'),
+    [{ insert: 'a ' }, { insert: 'pente', attributes: { italic: true } }, { insert: ' b' }])
+  assert.deepEqual(parseInline('_pente_'), [{ insert: 'pente', attributes: { italic: true } }])
+})
+
+test('inline : `_` NE coupe PAS un snake_case (le corpus en est plein)', () => {
+  assert.deepEqual(parseInline('workspace_id et view_id et parent_view_id'),
+    [{ insert: 'workspace_id et view_id et parent_view_id' }])
+  assert.deepEqual(parseInline('APPFLOWY__WORKSPACE'), [{ insert: 'APPFLOWY__WORKSPACE' }])
+})
+
+test('inline : `_` intra-mot n’ouvre PAS d’italique (règle left-flanking CommonMark)', () => {
+  // Garde d'OUVERTURE, distincte de la garde de fermeture : ici le `_` fermant est bien
+  // suivi d'une espace, seul le fait que le `_` ouvrant soit collé à `foo` protège.
+  assert.deepEqual(parseInline('foo_bar_ baz'), [{ insert: 'foo_bar_ baz' }])
+  assert.deepEqual(parseInline('is_locked_ vaut true'), [{ insert: 'is_locked_ vaut true' }])
+  // …et l'italique légitime, lui, fonctionne toujours.
+  assert.deepEqual(parseInline('un _vrai_ italique'),
+    [{ insert: 'un ' }, { insert: 'vrai', attributes: { italic: true } }, { insert: ' italique' }])
+})
+
+test('inline : `_` collé à un mot ne FERME pas non plus (garde de fermeture)', () => {
+  assert.deepEqual(parseInline('un _essai_bidon suit'), [{ insert: 'un _essai_bidon suit' }])
+})
+
+test('A7 inline code : les backticks → attribut code, rien ne se formate dedans', () => {
+  assert.deepEqual(parseInline('voir `specs/PROJET.md`'),
+    [{ insert: 'voir ' }, { insert: 'specs/PROJET.md', attributes: { code: true } }])
+  assert.deepEqual(parseInline('`**pas gras**`'),
+    [{ insert: '**pas gras**', attributes: { code: true } }])
+  assert.deepEqual(parseInline('``a ` b``'), [{ insert: 'a ` b', attributes: { code: true } }])
+})
+
+test('inline code : une espace de garde de chaque côté est rognée (règle CommonMark)', () => {
+  assert.deepEqual(parseInline('` a `'), [{ insert: 'a', attributes: { code: true } }])
+  assert.deepEqual(parseInline('`` `x` ``'), [{ insert: '`x`', attributes: { code: true } }])
+  assert.deepEqual(parseInline('` `'), [{ insert: ' ', attributes: { code: true } }], 'un seul caractère : intact')
+})
+
+test('inline liens : parenthèses ÉQUILIBRÉES dans l’URL (cible non tronquée)', () => {
+  assert.deepEqual(parseInline('[doc](https://ex.org/a_(1).png)'),
+    [{ insert: 'doc', attributes: { href: 'https://ex.org/a_(1).png' } }])
+})
+
+test('listes : une tabulation vaut 4 espaces d’indentation (tabulation de CommonMark)', () => {
+  const NB = ' ' // le retrait de profondeur est fait d'espaces INSÉCABLES
+  const t = markdownToBlocks('- a\n   - b\n\t- c').map((b) => b.data.delta.map((d) => d.insert).join(''))
+  assert.deepEqual(t, ['a', NB.repeat(2) + 'b', NB.repeat(4) + 'c'],
+    'la tabulation indente PLUS que 3 espaces : c est au niveau 3, pas au niveau 2')
+})
+
+test('A7 inline liens absolus : attribut href (les 4 attributs vérifiés au spike)', () => {
+  assert.deepEqual(parseInline('[Forgejo](http://192.168.2.11:3001/x)'),
+    [{ insert: 'Forgejo', attributes: { href: 'http://192.168.2.11:3001/x' } }])
+  assert.equal(isAbsoluteUrl('https://a.b'), true)
+  assert.equal(isAbsoluteUrl('mailto:a@b.c'), true)
+  assert.equal(isAbsoluteUrl('./doc.md'), false)
+  assert.equal(isAbsoluteUrl('specs/PROJET.md'), false)
+})
+
+test('PERTE ASSUMÉE liens relatifs : texte conservé, cible entre parenthèses, jamais de href', () => {
+  assert.deepEqual(parseInline('[la spec](./specs/PROJET.md)'),
+    [{ insert: 'la spec' }, { insert: ' (./specs/PROJET.md)' }].reduce((a, x) => {
+      const l = a[a.length - 1]; if (l) { l.insert += x.insert; return a } return [x]
+    }, []))
+  assert.equal(parseInline('[x](x)').length, 1, 'cible == libellé : pas de doublon')
+})
+
+test('PERTE ASSUMÉE images : mention explicite, JAMAIS un silence', () => {
+  assert.deepEqual(parseInline('avant ![schéma](./img/a.png) après'),
+    [{ insert: 'avant image non publiée : ./img/a.png après' }])
+})
+
+test('inline : combinaisons imbriquées (gras dans lien, code dans gras)', () => {
+  assert.deepEqual(parseInline('[**gras**](https://a.b)'),
+    [{ insert: 'gras', attributes: { href: 'https://a.b', bold: true } }])
+  assert.deepEqual(parseInline('**a `c` b**'), [
+    { insert: 'a ', attributes: { bold: true } },
+    { insert: 'c', attributes: { bold: true, code: true } },
+    { insert: ' b', attributes: { bold: true } },
+  ])
+})
+
+test('inline : échappements \\* \\_ \\` rendus littéraux', () => {
+  assert.deepEqual(parseInline('a \\*pas italique\\* b'), [{ insert: 'a *pas italique* b' }])
+})
+
+test('inline : marques non fermées laissées littérales (jamais de plantage)', () => {
+  assert.deepEqual(parseInline('a ** b'), [{ insert: 'a ** b' }])
+  assert.deepEqual(parseInline('a ` b'), [{ insert: 'a ` b' }])
+  assert.deepEqual(parseInline('2 * 3 * 4'), [{ insert: '2 * 3 * 4' }])
+})
+
+test('inline : `__` intra-mot n’ouvre PAS de gras, même avec un `__` fermant valide', () => {
+  // Garde d'OUVERTURE du gras : ici le `__` fermant est suivi d'une espace, seul le fait
+  // que le `__` ouvrant soit collé à APPFLOWY protège l'identifiant.
+  assert.deepEqual(parseInline('APPFLOWY__WORKSPACE__ vaut projects'),
+    [{ insert: 'APPFLOWY__WORKSPACE__ vaut projects' }])
+  assert.deepEqual(parseInline('__vrai gras__'), [{ insert: 'vrai gras', attributes: { bold: true } }])
+})
+
+test('inline : une marque suivie d’une espace n’ouvre PAS d’italique (multiplications)', () => {
+  // « a * b* c » : sans la garde, « b » partirait en italique. Cas réel des formules et
+  // des globs (`*.md`, `2 * 3`) présents dans les instructions.
+  assert.deepEqual(parseInline('a * b* c'), [{ insert: 'a * b* c' }])
+  assert.deepEqual(parseInline('les fichiers * .md* du dépôt'), [{ insert: 'les fichiers * .md* du dépôt' }])
+})
+
+test('inline : segments adjacents de même attribut fusionnés (delta compact)', () => {
+  assert.deepEqual(parseInline('**a****b**'), [{ insert: 'ab', attributes: { bold: true } }])
+})
+
+test('toDelta : chaîne, delta déjà construit, vide et null', () => {
+  assert.deepEqual(toDelta('x'), [{ insert: 'x' }])
+  assert.deepEqual(toDelta(''), [])
+  assert.deepEqual(toDelta(null), [])
+  const d = [{ insert: 'a', attributes: { bold: true } }]
+  assert.equal(toDelta(d), d, 'un delta passe tel quel')
+})
+
+test('constructeurs de blocs : types exacts vérifiés persistés au spike S3', () => {
+  assert.deepEqual(numbered('a'), { type: 'numbered_list', data: { delta: [{ insert: 'a' }] } })
+  assert.deepEqual(todo('a', true), { type: 'todo_list', data: { checked: true, delta: [{ insert: 'a' }] } })
+  assert.deepEqual(quote('a'), { type: 'quote', data: { delta: [{ insert: 'a' }] } })
+  assert.deepEqual(divider(), { type: 'divider', data: {} })
+  assert.deepEqual(code('x', 'JS'), { type: 'code', data: { language: 'js', delta: [{ insert: 'x' }] } })
+  assert.deepEqual(code('x'), { type: 'code', data: { delta: [{ insert: 'x' }] } })
+})
+
+test('PERTE ASSUMÉE : HTML brut et biffé ~~ laissés en texte, sans plantage', () => {
+  assert.deepEqual(types('<!-- commentaire -->'), ['paragraph'])
+  assert.deepEqual(types('<div class="x">bloc</div>'), ['paragraph'])
+  assert.deepEqual(parseInline('a ~~biffé~~ b'), [{ insert: 'a ~~biffé~~ b' }])
+})
+
+test('robustesse : entrées dégénérées ne lèvent jamais', () => {
+  for (const x of ['', null, undefined, '\n\n\n', '   ', '|', '```', '>', '- ']) {
+    assert.ok(Array.isArray(markdownToBlocks(x)), `échec sur ${JSON.stringify(x)}`)
+  }
+})
+
+// ── Le test qui tranche : un CLAUDE.md réaliste, bout en bout ──
+
+test('A7 bout en bout : un CLAUDE.md réaliste satisfait les 5 comptages du critère', () => {
+  // Extrait fidèle du corpus (IakaCockpit/CLAUDE.md + template-iakadoc-appflowy.md).
+  const md = [
+    '# CLAUDE.md — Instructions pour Claude Code',
+    '',
+    '> Ce fichier est lu en priorité par Claude Code à chaque session.',
+    '> Pour la vision complète, lire `specs/PROJET.md`.',
+    '',
+    '---',
+    '',
+    '## Ce qu’est ce projet',
+    '',
+    'Stack : **React 18.3 + TypeScript 5.5** (front, `src/`) · **Tauri 2 / Rust**',
+    '(backend, `src-tauri/`) · **SQLite** (`rusqlite` bundled).',
+    '',
+    '## Commandes à utiliser',
+    '',
+    '```bash',
+    'npm install',
+    'npm run tauri dev',
+    '```',
+    '',
+    '## Conventions',
+    '',
+    '- Langue du code : **anglais**.',
+    '- Commits : *conventional commits*.',
+    '  - jamais de `reset --hard`',
+    '- [ ] reste à faire',
+    '',
+    '### Critères',
+    '',
+    '| # | Critère | Vérification |',
+    '|---|---|---|',
+    '| **A1** | Régénérabilité | relever l’arbre via `/folder` |',
+    '| **A2** | Préservation | deux passes successives |',
+  ].join('\n')
+
+  const blocks = markdownToBlocks(md)
+  const n = (t) => blocks.filter((b) => b.type === t).length
+
+  // 1. ≥ 1 heading par titre ATX du source (5 titres : #, ##, ##, ##, ###).
+  assert.equal(n('heading'), 5)
+  // 2. ≥ 1 bloc de liste par item (3 puces + 1 case à cocher).
+  assert.equal(n('bulleted_list') + n('numbered_list') + n('todo_list'), 4)
+  // 3. chaque bloc de code fencé rendu en `code` (1 fence + 1 tableau préformaté).
+  assert.equal(n('code'), 2)
+  assert.equal(blocks.find((b) => b.data.language === 'bash') !== undefined, true)
+  // 4. ZÉRO ligne de tableau en paragraphe brut.
+  for (const b of blocks) {
+    if (b.type === 'code') continue
+    const t = (b.data.delta || []).map((d) => d.insert).join('')
+    assert.ok(!/^\s*\|.*\|/.test(t), `ligne de tableau échappée en ${b.type} : ${t}`)
+  }
+  // 5. AUCUN paragraphe issu d’une simple coupure de ligne : la prose sur 2 lignes = 1 bloc.
+  assert.equal(n('paragraph'), 1)
+  assert.match(blocks.find((b) => b.type === 'paragraph').data.delta.map((d) => d.insert).join(''),
+    /\(front, src\/\) · Tauri 2 \/ Rust \(backend, src-tauri\/\)/)
+  // et la citation sur 2 lignes = 1 seul bloc quote.
+  assert.equal(n('quote'), 1)
+  assert.equal(n('divider'), 1)
 })
 
 // ═══════════════════ § 5.1 — titres lisibles ═══════════════════

@@ -101,11 +101,18 @@ export function selectStructuralDocs(relPaths) {
 
 // ── Blocs AppFlowy (types vérifiés persistés au spike S3) ──
 
+// Un « delta » est la charge de texte riche d'un bloc : [{ insert, attributes? }, …].
+// Les constructeurs acceptent indifféremment une chaîne nue OU un delta déjà construit,
+// pour que le mapper Markdown puisse leur passer du texte formaté.
+export function toDelta(x) {
+  if (Array.isArray(x)) return x
+  const s = x == null ? '' : String(x)
+  return s.length ? [{ insert: s }] : []
+}
+
 // Bloc paragraphe (vide => delta vide accepté par l'API).
 export function para(text) {
-  return text && text.length
-    ? { type: 'paragraph', data: { delta: [{ insert: text }] } }
-    : { type: 'paragraph', data: { delta: [] } }
+  return { type: 'paragraph', data: { delta: toDelta(text) } }
 }
 
 // J7 — le rendu des niveaux > 3 n'est pas vérifiable par l'API : on clampe à 3.
@@ -118,12 +125,37 @@ export function clampHeadingLevel(level) {
 export function heading(level, text) {
   return {
     type: 'heading',
-    data: { level: clampHeadingLevel(level), delta: [{ insert: String(text ?? '') }] },
+    data: { level: clampHeadingLevel(level), delta: toDelta(text ?? '') },
   }
 }
 
 export function bullet(text) {
-  return { type: 'bulleted_list', data: { delta: [{ insert: String(text ?? '') }] } }
+  return { type: 'bulleted_list', data: { delta: toDelta(text ?? '') } }
+}
+
+export function numbered(text) {
+  return { type: 'numbered_list', data: { delta: toDelta(text ?? '') } }
+}
+
+// S3 — `todo_list` persiste `{ checked }`.
+export function todo(text, checked = false) {
+  return { type: 'todo_list', data: { checked: !!checked, delta: toDelta(text ?? '') } }
+}
+
+export function quote(text) {
+  return { type: 'quote', data: { delta: toDelta(text ?? '') } }
+}
+
+// S3 — `code` persiste `{ language }` ; sans langage, `data` reste vide.
+export function code(text, language) {
+  const lang = String(language ?? '').trim().toLowerCase()
+  const data = lang ? { language: lang, delta: toDelta(String(text ?? '')) }
+    : { delta: toDelta(String(text ?? '')) }
+  return { type: 'code', data }
+}
+
+export function divider() {
+  return { type: 'divider', data: {} }
 }
 
 // § 5.3 — avertissement de miroir, PREMIER bloc de toute page générée 00–60.
@@ -135,11 +167,348 @@ export function mirrorWarning(sourceLabel, generatedAtIso) {
   )
 }
 
-// Mapping fichier -> blocs (un paragraphe par ligne ; fidélité texte MVP, lot 2 = mapper riche).
+// ═══════════════════ Mapper Markdown → blocs (lot 2, critère A7) ═══════════════════
+//
+// Mapper MAISON, ZÉRO dépendance : la skill doit tourner telle quelle partout où Node ≥ 18
+// est présent. Il ne vise PAS CommonMark intégral, mais le sous-ensemble réellement écrit
+// dans les CLAUDE.md et specs/ du portefeuille (relevé sur 425 fichiers) :
+//   titres ATX · puces (imbriquées) · numérotées · cases à cocher · citations · code fencé
+//   avec langage · séparateurs · tableaux · gras/italique/code/liens en ligne.
+//
+// PERTES ASSUMÉES, déclarées ici et dans le SKILL.md (§ Pertes) :
+//   - tableaux            -> bloc préformaté aligné (jamais des paragraphes bruts)
+//   - liens relatifs      -> texte, cible entre parenthèses (pas de href : non résolvable)
+//   - images relatives    -> mention « image non publiée : <chemin> », jamais un silence
+//   - imbrication de liste-> aplatie ; la profondeur est rendue par un retrait insécable
+//   - numérotation propre -> AppFlowy renumérote (une liste démarrant à 3 repart à 1)
+//   - biffé `~~x~~`       -> laissé littéral (attribut non vérifié au spike S3)
+//   - HTML brut           -> laissé en texte
+//   - front-matter YAML   -> masqué du corps (déjà exploité pour le titre de page)
+
+const NBSP = ' '
+
+// Marques de bloc reconnues en tête de ligne — sert aussi à décider si une ligne peut être
+// la continuation « paresseuse » d'un item de liste (CommonMark) ou non.
+const RE_FENCE = /^ {0,3}(`{3,}|~{3,})[ \t]*([^\s`]*)/
+const RE_HEADING = /^ {0,3}(#{1,6})[ \t]+(.*?)[ \t]*#*[ \t]*$/
+const RE_DIVIDER = /^ {0,3}(-{3,}|\*{3,}|_{3,})[ \t]*$/
+const RE_QUOTE = /^ {0,3}>[ \t]?(.*)$/
+const RE_TABLE = /^ {0,3}\|/
+const RE_LIST = /^([ \t]*)([-*+]|\d{1,9}[.)])[ \t]+(.*)$/
+const RE_TODO = /^\[([ xX])\][ \t]+(.*)$/
+
+function isBlockStart(line) {
+  return RE_FENCE.test(line) || RE_HEADING.test(line) || RE_DIVIDER.test(line)
+    || RE_QUOTE.test(line) || RE_TABLE.test(line) || RE_LIST.test(line)
+}
+
+const indentWidth = (s) => s.replace(/\t/g, '    ').length
+
+// ── Formatage en ligne ──
+
+const sameAttrs = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null)
+
+// Une URL est publiable telle quelle (href) si elle est absolue. Un lien relatif entre docs
+// n'a aucun sens côté AppFlowy : perte assumée, on garde le texte.
+export function isAbsoluteUrl(url) {
+  return /^(https?:|mailto:|ftp:|tel:)/i.test(String(url ?? '').trim())
+}
+
+// Trouve la fin d'un groupe délimité, en respectant l'équilibrage des parenthèses.
+function closingParen(src, start) {
+  let depth = 0
+  for (let i = start; i < src.length; i++) {
+    if (src[i] === '\\') { i++; continue }
+    if (src[i] === '(') depth++
+    else if (src[i] === ')') { if (depth === 0) return i; depth-- }
+  }
+  return -1
+}
+
+// `_` et `__` ne délimitent PAS à l'intérieur d'un mot : sinon tout snake_case du corpus
+// (noms de variables, de fichiers) partirait en italique. Le `_` lui-même compte comme
+// caractère de mot, sans quoi `APPFLOWY__WORKSPACE__` ferait passer WORKSPACE en italique
+// (le second `_` de la paire ouvrante se croirait libre) — cas trouvé par mutation.
+const wordish = (c) => c !== undefined && /[\p{L}\p{N}_]/u.test(c)
+
+/**
+ * Markdown en ligne → delta AppFlowy [{ insert, attributes? }, …].
+ * Attributs émis : bold, italic, code, href — les 4 vérifiés persistés au spike S3.
+ */
+export function parseInline(text) {
+  const out = []
+  const push = (insert, attrs) => {
+    if (!insert) return
+    const a = attrs && Object.keys(attrs).length ? attrs : null
+    const last = out[out.length - 1]
+    if (last && sameAttrs(last.attributes, a)) { last.insert += insert; return }
+    out.push(a ? { insert, attributes: { ...a } } : { insert })
+  }
+
+  const walk = (src, attrs) => {
+    let buf = ''
+    const flush = () => { push(buf, attrs); buf = '' }
+    let i = 0
+    while (i < src.length) {
+      const c = src[i]
+
+      // Échappement : \* \_ \` \[ … → le caractère littéral.
+      if (c === '\\' && i + 1 < src.length && /[\\`*_[\]()~#+\-.!>|]/.test(src[i + 1])) {
+        buf += src[i + 1]; i += 2; continue
+      }
+
+      // Code en ligne — priorité absolue : rien ne se formate à l'intérieur.
+      if (c === '`') {
+        let n = 0
+        while (src[i + n] === '`') n++
+        const fence = '`'.repeat(n)
+        const end = src.indexOf(fence, i + n)
+        if (end !== -1) {
+          let inner = src.slice(i + n, end)
+          if (inner.length > 1 && inner.startsWith(' ') && inner.endsWith(' ')) inner = inner.slice(1, -1)
+          flush(); push(inner, { ...attrs, code: true })
+          i = end + n; continue
+        }
+      }
+
+      // Image : jamais téléversée (§ 4.2) — mention explicite, jamais un silence.
+      if (c === '!' && src[i + 1] === '[') {
+        const close = src.indexOf(']', i + 2)
+        if (close !== -1 && src[close + 1] === '(') {
+          const end = closingParen(src, close + 2)
+          if (end !== -1) {
+            const url = src.slice(close + 2, end).trim().split(/\s+/)[0]
+            flush(); push(`image non publiée : ${url}`, attrs)
+            i = end + 1; continue
+          }
+        }
+      }
+
+      // Lien.
+      if (c === '[') {
+        const close = src.indexOf(']', i + 1)
+        if (close !== -1 && src[close + 1] === '(') {
+          const end = closingParen(src, close + 2)
+          if (end !== -1) {
+            const label = src.slice(i + 1, close)
+            const url = src.slice(close + 2, end).trim().split(/\s+/)[0]
+            flush()
+            if (isAbsoluteUrl(url)) {
+              walk(label, { ...attrs, href: url })
+            } else {
+              // Perte assumée : le lien relatif reste du texte, la cible n'est pas perdue.
+              walk(label, attrs)
+              if (url && url !== label) push(` (${url})`, attrs)
+            }
+            i = end + 1; continue
+          }
+        }
+      }
+
+      // Gras ** … ** et __ … __ (jamais à l'intérieur d'un mot pour `__`).
+      let consumed = false
+      for (const mark of ['**', '__']) {
+        if (!src.startsWith(mark, i) || attrs?.bold) continue
+        if (mark === '__' && wordish(src[i - 1])) break
+        const end = src.indexOf(mark, i + 2)
+        if (end > i + 2 && !(mark === '__' && wordish(src[end + 2]))) {
+          flush(); walk(src.slice(i + 2, end), { ...attrs, bold: true })
+          i = end + 2; consumed = true
+        }
+        break
+      }
+      if (consumed) continue
+
+      // Italique * … * et _ … _ (idem : `snake_case` ne part pas en italique).
+      for (const mark of ['*', '_']) {
+        if (src[i] !== mark || src.startsWith(mark + mark, i) || attrs?.italic) continue
+        if (mark === '_' && wordish(src[i - 1])) break
+        if (/\s/.test(src[i + 1] ?? ' ')) break
+        let end = -1
+        for (let j = i + 1; j < src.length; j++) {
+          if (src[j] === '\\') { j++; continue }
+          if (src[j] !== mark || /\s/.test(src[j - 1])) continue
+          if (mark === '_' && wordish(src[j + 1])) continue
+          end = j; break
+        }
+        if (end > i + 1) {
+          flush(); walk(src.slice(i + 1, end), { ...attrs, italic: true })
+          i = end + 1; consumed = true
+        }
+        break
+      }
+      if (consumed) continue
+
+      buf += c; i++
+    }
+    flush()
+  }
+
+  walk(String(text ?? ''), null)
+  return out
+}
+
+// ── Tableaux → bloc préformaté aligné (perte assumée, jamais des paragraphes) ──
+
+// Découpe une ligne de tableau en cellules, en respectant `\|` et le code en ligne.
+export function splitTableRow(line) {
+  const s = String(line).trim().replace(/^\|/, '').replace(/\|$/, '')
+  const cells = []
+  let cur = ''
+  let tick = false
+  for (let i = 0; i < s.length; i++) {
+    const c = s[i]
+    if (c === '\\' && s[i + 1] === '|') { cur += '|'; i++; continue }
+    if (c === '`') tick = !tick
+    if (c === '|' && !tick) { cells.push(cur.trim()); cur = ''; continue }
+    cur += c
+  }
+  cells.push(cur.trim())
+  return cells
+}
+
+const isAlignRow = (cells) => cells.length > 0 && cells.every((c) => /^:?-{1,}:?$/.test(c))
+
+/**
+ * Rend un tableau Markdown en texte préformaté aligné (colonnes à largeur fixe).
+ * A7 : ZÉRO ligne de tableau ne doit finir en paragraphe brut.
+ */
+export function renderTable(lines) {
+  const rows = lines.map(splitTableRow)
+  const width = Math.max(...rows.map((r) => r.length))
+  const grid = rows.map((r) => { const c = r.slice(); while (c.length < width) c.push(''); return c })
+  const align = grid.map(isAlignRow)
+  const w = []
+  for (let c = 0; c < width; c++) {
+    w[c] = Math.max(3, ...grid.map((r, i) => (align[i] ? 0 : [...r[c]].length)))
+  }
+  return grid.map((r, i) => (align[i]
+    ? '| ' + r.map((_, c) => '-'.repeat(w[c])).join(' | ') + ' |'
+    : '| ' + r.map((cell, c) => cell + ' '.repeat(w[c] - [...cell].length)).join(' | ') + ' |'
+  )).join('\n')
+}
+
+// ── Mapper de blocs ──
+
+/**
+ * Markdown → blocs AppFlowy. Fonction PURE (J7 : le serveur ne validant aucun type de bloc,
+ * la garantie ne peut venir que d'ici, sous test unitaire).
+ */
+export function markdownToBlocks(md) {
+  const lines = String(md ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n')
+  const blocks = []
+  let buf = []          // paragraphe en cours d'agglomération
+  let listStack = []    // retraits des niveaux de liste ouverts (pour la profondeur)
+
+  const flush = () => {
+    if (!buf.length) return
+    // Agglomération : un simple retour à la ligne ne coupe PAS le paragraphe (A7).
+    blocks.push(para(parseInline(buf.join(' '))))
+    buf = []
+  }
+  const closeList = () => { listStack = [] }
+
+  let i = 0
+  while (i < lines.length) {
+    const line = lines[i]
+
+    // 1. Code fencé — avant tout le reste : son contenu n'est jamais interprété.
+    const fence = RE_FENCE.exec(line)
+    if (fence) {
+      flush(); closeList()
+      const marker = fence[1][0]           // ` ou ~
+      const closeRe = new RegExp('^ {0,3}' + (marker === '~' ? '~' : '\\`') + '{3,}[ \\t]*$')
+      const lang = (fence[2] || '').split(/[:\s]/)[0]
+      const body = []
+      i++
+      while (i < lines.length && !closeRe.test(lines[i])) { body.push(lines[i]); i++ }
+      i++ // consomme la clôture (absente en fin de fichier : sans conséquence)
+      blocks.push(code(body.join('\n'), lang))
+      continue
+    }
+
+    // 2. Tableau — bloc préformaté aligné (jamais des paragraphes).
+    if (RE_TABLE.test(line)) {
+      flush(); closeList()
+      const rows = []
+      while (i < lines.length && RE_TABLE.test(lines[i])) { rows.push(lines[i]); i++ }
+      blocks.push(code(renderTable(rows)))
+      continue
+    }
+
+    // 3. Ligne vide : elle seule sépare deux paragraphes.
+    if (!line.trim()) { flush(); closeList(); i++; continue }
+
+    // 4. Titre ATX (`####`+ clampé au niveau 3 — J7).
+    const h = RE_HEADING.exec(line)
+    if (h) {
+      flush(); closeList()
+      blocks.push(heading(h[1].length, parseInline(h[2])))
+      i++; continue
+    }
+
+    // 5. Séparateur.
+    if (RE_DIVIDER.test(line)) {
+      flush(); closeList()
+      blocks.push(divider())
+      i++; continue
+    }
+
+    // 6. Citation — le contenu cité est mappé récursivement : un paragraphe cité devient
+    //    `quote`, une liste citée reste une liste (sinon elle finirait en pavé illisible).
+    if (RE_QUOTE.test(line)) {
+      flush(); closeList()
+      const inner = []
+      while (i < lines.length && RE_QUOTE.test(lines[i])) { inner.push(RE_QUOTE.exec(lines[i])[1]); i++ }
+      for (const b of markdownToBlocks(inner.join('\n'))) {
+        blocks.push(b.type === 'paragraph' ? quote(b.data.delta) : b)
+      }
+      continue
+    }
+
+    // 7. Item de liste (à puce / numérotée / à cocher), avec continuations.
+    const li = RE_LIST.exec(line)
+    if (li) {
+      flush()
+      const ind = indentWidth(li[1])
+      while (listStack.length && listStack[listStack.length - 1] >= ind) listStack.pop()
+      listStack.push(ind)
+      const depth = listStack.length - 1
+
+      const parts = [li[3]]
+      i++
+      // Continuation : ligne plus indentée que le marqueur, OU continuation paresseuse
+      // (ligne nue qui n'ouvre aucun bloc). Dans les deux cas : PAS un nouveau paragraphe.
+      while (i < lines.length && lines[i].trim() && !RE_LIST.test(lines[i])
+             && (indentWidth(lines[i].match(/^[ \t]*/)[0]) > ind || !isBlockStart(lines[i]))) {
+        parts.push(lines[i].trim()); i++
+      }
+      const raw = parts.join(' ')
+      // La profondeur est rendue par un retrait insécable : l'API `append-block` est plate.
+      const prefix = NBSP.repeat(depth * 2)
+      const delta = parseInline(raw.replace(RE_TODO, '$2'))
+      if (prefix) delta.unshift({ insert: prefix })
+
+      const tick = RE_TODO.exec(raw)
+      if (tick) blocks.push(todo(delta, tick[1].toLowerCase() === 'x'))
+      else if (/^\d/.test(li[2])) blocks.push(numbered(delta))
+      else blocks.push(bullet(delta))
+      continue
+    }
+
+    // 8. Tout le reste (prose, HTML brut) : agglomération de paragraphe.
+    buf.push(line.trim())
+    i++
+  }
+  flush()
+  return blocks
+}
+
+// Mapping fichier → blocs. Le front-matter YAML est masqué du corps (il a déjà servi au
+// titre de page) ; le corps passe par le mapper Markdown.
 export function fileToBlocks(content) {
-  const lines = String(content).replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n')
-  while (lines.length > 1 && lines[lines.length - 1] === '') lines.pop()
-  return lines.map(para)
+  const { body } = stripFrontMatter(String(content ?? ''))
+  return markdownToBlocks(body)
 }
 
 // Blocs d'une page miroir : avertissement + contenu.
