@@ -29,6 +29,7 @@ import {
   fingerprint, pageKey, safeFileName, cachePath, readCache, writeCache, planOrphans,
   RENDER_VERSION,
   stripHtmlComments, docBody,
+  isGuideDoc, walkGuideDocs,
 } from './appflowy-doc.mjs'
 import {
   parsePurgeArgs, flattenTree, countDescendants, planPurge, purgeArmed, renderPlan, runPurge,
@@ -65,9 +66,34 @@ test('isStructuralDoc accepte les docs structurants', () => {
 
 test('isStructuralDoc rejette code et générés', () => {
   assert.equal(isStructuralDoc('src/main.rs'), false)
-  assert.equal(isStructuralDoc('README.md'), false)
+  assert.equal(isStructuralDoc('README.md'), false, 'le README n’est PAS un doc structurant')
   assert.equal(isStructuralDoc('specs/instructions/note.txt'), false)
-  assert.equal(isStructuralDoc('docs/autre/x.md'), false)
+  assert.equal(isStructuralDoc('docs/api.html'), false, 'seul le Markdown entre')
+  assert.equal(isStructuralDoc('specs/mock/x.md'), false)
+})
+
+// ── Lot 4 — contrat élargi : `docs/**.md` hors `qualite/` alimente `60 · Guide` ──
+
+test('lot4 isGuideDoc : docs/**.md hors qualite/, en profondeur', () => {
+  assert.equal(isGuideDoc('docs/prise-en-main.md'), true)
+  assert.equal(isGuideDoc('docs/guides/api/rest.md'), true, 'le contrat dit ** et non *')
+  assert.equal(isGuideDoc('docs/qualite/v0.1.0.md'), false, 'la qualité reste la section 40')
+  assert.equal(isGuideDoc('docs/notes.txt'), false)
+  assert.equal(isGuideDoc('specs/PROJET.md'), false)
+  assert.equal(isGuideDoc('CLAUDE.md'), false)
+})
+
+test('lot4 : un doc de guide est structurant, et un gabarit de guide ne l’est JAMAIS', () => {
+  assert.equal(isStructuralDoc('docs/prise-en-main.md'), true)
+  assert.equal(isStructuralDoc('docs/guides/api.md'), true)
+  assert.equal(isStructuralDoc('docs/_gabarit.md'), false, 'B1 prime sur tout')
+  assert.equal(isStructuralDoc('docs/guides/_brouillon.md'), false)
+})
+
+test('lot4 selectStructuralDocs : le guide vient APRÈS la qualité, en dernier rang', () => {
+  assert.deepEqual(selectStructuralDocs([
+    'docs/guides/api.md', 'docs/qualite/v0.1.0.md', 'CLAUDE.md', 'docs/prise-en-main.md',
+  ]), ['CLAUDE.md', 'docs/qualite/v0.1.0.md', 'docs/guides/api.md', 'docs/prise-en-main.md'])
 })
 
 test('selectStructuralDocs filtre, exclut les gabarits et ordonne', () => {
@@ -1006,6 +1032,58 @@ test('buildPlan : 30 ordonné mtime décroissant, 40 version décroissante, inde
   assert.deepEqual(s40.children.map((c) => c.name), ['Qualité v0.10.0', 'Qualité v0.9.0'])
 })
 
+// ── Lot 4 — `60 · Guide utilisateur` ──
+
+const GUIDE = [
+  ...DOCS,
+  { rel: 'docs/prise-en-main.md', title: 'Prise en main', mtimeMs: 500 },
+  { rel: 'docs/guides/api.md', title: 'API publique', mtimeMs: 200 },
+]
+
+test('lot4 buildPlan : 60 posée APRÈS 40, avec index, ordre mtime décroissant', () => {
+  const p = buildPlan({ project: 'demo', docs: GUIDE })
+  assert.deepEqual(p.sections.map((s) => s.key), ['00', '10', '20', '30', '40', '60', '90'])
+  const s60 = p.sections.find((s) => s.key === '60')
+  assert.equal(s60.kind, 'container')
+  assert.equal(s60.name, SEC.GUIDE)
+  assert.equal(s60.index.name, '60 · (index)')
+  assert.deepEqual(s60.children, [
+    { name: 'Prise en main', source: 'docs/prise-en-main.md', locked: true },
+    { name: 'API publique', source: 'docs/guides/api.md', locked: true },
+  ])
+  assert.equal(p.counters.guide, 2)
+})
+
+test('lot4 buildPlan : un rapport qualité n’atterrit JAMAIS dans 60', () => {
+  const s60 = buildPlan({ project: 'demo', docs: GUIDE }).sections.find((s) => s.key === '60')
+  assert.ok(!s60.children.some((c) => c.source.startsWith('docs/qualite/')))
+  const s40 = buildPlan({ project: 'demo', docs: GUIDE }).sections.find((s) => s.key === '40')
+  assert.ok(s40.children.every((c) => c.source.startsWith('docs/qualite/')))
+})
+
+test('A12 lot4 : sans docs/ hors qualite, PAS de section 60 — et la raison est dite', () => {
+  const p = buildPlan({ project: 'demo', docs: DOCS })
+  assert.ok(!p.sections.some((s) => s.key === '60'), 'section vide non créée')
+  const m = p.missing.find((x) => x.name === SEC.GUIDE)
+  assert.ok(m, 'l’absence est LISTÉE dans la vue d’ensemble')
+  assert.match(m.reason, /docs\/ hors qualite/)
+})
+
+test('lot4 : deux guides homonymes en sous-dossiers gardent des noms de page DISTINCTS', () => {
+  // Le nom de base ne suffit plus quand la collecte est récursive : deux pages de même nom
+  // se corbeilleraient l'une l'autre à chaque passe (l'idempotence tombe).
+  const p = buildPlan({
+    project: 'demo',
+    docs: [
+      { rel: 'docs/api/index.md', title: 'Index', mtimeMs: 2 },
+      { rel: 'docs/cli/index.md', title: 'Index', mtimeMs: 1 },
+    ],
+  })
+  const noms = p.sections.find((s) => s.key === '60').children.map((c) => c.name)
+  assert.equal(new Set(noms).size, 2, `noms en collision : ${noms.join(' / ')}`)
+  assert.deepEqual(noms, ['Index (docs/api/index)', 'Index (docs/cli/index)'])
+})
+
 test('buildPlan : 90 · Notes présente, jamais verrouillée, sans source', () => {
   const n = buildPlan({ project: 'demo', docs: DOCS }).sections.find((s) => s.key === '90')
   assert.equal(n.kind, 'human')
@@ -1157,26 +1235,51 @@ const FILES = {
   'specs/instructions/_workflow.md': '# Gabarit interdit 2\ncontenu',
   'docs/qualite/v0.9.0.md': '# Qualité v0.9.0\ncontenu',
   'docs/qualite/v0.10.0.md': '# Qualité v0.10.0\ncontenu',
+  // Lot 4 — section 60 : `docs/**.md` HORS `qualite/`, collecte RÉCURSIVE.
+  'docs/prise-en-main.md': '# Prise en main\ncontenu',
+  'docs/guides/api.md': '# API publique\ncontenu',
+  'docs/_gabarit.md': '# Gabarit interdit 3\ncontenu',
+  'docs/notes.txt': 'pas du Markdown',
+  // Lot 4 — section 50 : le STATUT seul, le HTML n'est JAMAIS lu.
+  'specs/recettes/recette-v0.10.0.html': '<html>NE DOIT JAMAIS ÊTRE PUBLIÉ</html>',
+  'specs/recettes/_TEMPLATE.recette.html': '<html>gabarit interdit</html>',
 }
 const MTIME = {
   'specs/instructions/a.md': 300,
   'specs/instructions/b.md': 100,
+  'docs/prise-en-main.md': 500,
+  'docs/guides/api.md': 200,
+  'specs/recettes/recette-v0.10.0.html': 1700000000000,
 }
 const relOf = (full) => String(full).replace(/^\/repo\/?/, '').split('\\').join('/')
+// Un vrai `readdir` ne rend que les enfants IMMÉDIATS et distingue fichier/dossier : un mock
+// qui aplatirait l'arbre rendrait le parcours récursif du lot 4 intestable.
+const DIRS = new Set()
+for (const f of Object.keys(FILES)) {
+  const parts = f.split('/')
+  for (let i = 1; i < parts.length; i++) DIRS.add(parts.slice(0, i).join('/'))
+}
 // Disque virtuel du cache d'empreintes (A8) : hors dépôt, hors disque réel.
 const DISQUE = new Map()
 const fsMock = {
   existsSync: (full) => relOf(full) === '' || FILES[relOf(full)] !== undefined,
   statSync: (full) => {
     const rel = relOf(full)
-    if (FILES[rel] === undefined) throw new Error('ENOENT')
-    return { isFile: () => true, mtimeMs: MTIME[rel] ?? 1 }
+    if (FILES[rel] !== undefined) {
+      return { isFile: () => true, isDirectory: () => false, mtimeMs: MTIME[rel] ?? 1 }
+    }
+    if (DIRS.has(rel)) return { isFile: () => false, isDirectory: () => true, mtimeMs: 1 }
+    throw new Error('ENOENT')
   },
   readdirSync: (full) => {
     const rel = relOf(full)
-    const out = Object.keys(FILES).filter((f) => f.startsWith(rel + '/')).map((f) => f.slice(rel.length + 1))
-    if (!out.length) throw new Error('ENOENT')
-    return out
+    if (!DIRS.has(rel)) throw new Error('ENOENT')
+    const out = new Set()
+    for (const f of Object.keys(FILES)) {
+      if (!f.startsWith(rel + '/')) continue
+      out.add(f.slice(rel.length + 1).split('/')[0]) // enfant IMMÉDIAT seulement
+    }
+    return [...out]
   },
   readFileSync: (full) => {
     const rel = relOf(full)
@@ -1194,8 +1297,31 @@ test('A3 resolveDocPaths : les gabarits _* ne sortent JAMAIS de la collecte', ()
     'CLAUDE.md', 'specs/PROJET.md', 'specs/etat-des-lieux.md',
     'specs/instructions/a.md', 'specs/instructions/b.md',
     'docs/qualite/v0.10.0.md', 'docs/qualite/v0.9.0.md',
+    'docs/guides/api.md', 'docs/prise-en-main.md',
   ])
   assert.ok(!r.some((p) => p.split('/').pop().startsWith('_')))
+  assert.equal(r.filter((p) => p === 'docs/qualite/v0.9.0.md').length, 1,
+    'le parcours du guide ne doit pas DOUBLER un rapport qualité')
+})
+
+test('lot4 walkGuideDocs : récursif, saute qualite/, les gabarits et le non-Markdown', () => {
+  assert.deepEqual(walkGuideDocs('/repo', fsMock), ['docs/guides/api.md', 'docs/prise-en-main.md'])
+})
+
+test('lot4 walkGuideDocs : docs/ absent -> liste vide, jamais une exception', () => {
+  const fsVide = { readdirSync: () => { throw new Error('ENOENT') }, statSync: () => { throw new Error('ENOENT') } }
+  assert.deepEqual(walkGuideDocs('/repo', fsVide), [])
+})
+
+test('lot4 walkGuideDocs : profondeur PLAFONNÉE (un docs/ pathologique ne fait pas diverger)', () => {
+  // Arbre infini : chaque dossier contient un dossier de même nom + un .md.
+  const fsInfini = {
+    readdirSync: () => ['sous', 'x.md'],
+    statSync: (full) => ({ isFile: () => /\.md$/.test(String(full)), isDirectory: () => !/\.md$/.test(String(full)), mtimeMs: 1 }),
+  }
+  const r = walkGuideDocs('/repo', fsInfini, 3)
+  assert.equal(r.length, 4, 'docs + 3 niveaux, pas un de plus')
+  assert.ok(r.every((p) => p.endsWith('x.md')))
 })
 
 test('resolveDocPaths : dossiers absents -> sans crash', () => {
@@ -1378,7 +1504,7 @@ test('A5 orchestration : arborescence 00–90 complète et ORDONNÉE au niveau e
   const res = await publier(server)
   assert.equal(res.workspaceId, 'ws-proj')
   const space = findNodeById(server.roots['ws-proj'], res.spaceId)
-  assert.deepEqual(namesOf(space), [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.NOTES])
+  assert.deepEqual(namesOf(space), [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.GUIDE, SEC.NOTES])
 })
 
 test('A5 orchestration : ordre interne des conteneurs (index en tête)', async () => {
@@ -1391,6 +1517,9 @@ test('A5 orchestration : ordre interne des conteneurs (index en tête)', async (
   assert.deepEqual(namesOf(s10), [SEC.CADRE, SEC.VISION])
   assert.deepEqual(namesOf(s30), [indexName('30'), 'Alpha', 'Beta'])
   assert.deepEqual(namesOf(s40), [indexName('40'), 'Qualité v0.10.0', 'Qualité v0.9.0'])
+  // Lot 4 — la section 60 obéit au même contrat : index en tête, mtime décroissant.
+  const s60 = childrenOf(space).find((c) => c.name === SEC.GUIDE)
+  assert.deepEqual(namesOf(s60), [indexName('60'), 'Prise en main', 'API publique'])
 })
 
 test('A3 orchestration : aucun gabarit publié', async () => {
@@ -1448,7 +1577,7 @@ test('A1/A2 orchestration : 2e passe idempotente, 90 · Notes et sa sous-page in
   const r2 = await publier(server)
   assert.equal(r2.spaceId, r1.spaceId, "l'espace est réutilisé, jamais dupliqué")
   const space2 = findNodeById(server.roots['ws-proj'], r2.spaceId)
-  assert.deepEqual(namesOf(space2), [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.NOTES])
+  assert.deepEqual(namesOf(space2), [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.GUIDE, SEC.NOTES])
   const notes2 = childrenOf(space2).find((c) => c.name === SEC.NOTES)
   assert.equal(notes2.view_id, notesId, '90 · Notes ne doit jamais être recréée')
   assert.equal(JSON.stringify(server.blocks.get(notesId) || []), blocsNotesAvant, '90 · Notes réécrite !')
@@ -1690,7 +1819,7 @@ test('A10 : une page intruse au niveau de l’espace est retirée (l’espace ap
   assert.equal(r2.removed, 1)
   assert.ok(server.trash.some((t) => t.name === '70 · Ancienne section'))
   assert.deepEqual(namesOf(findNodeById(server.roots['ws-proj'], r1.spaceId)),
-    [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.NOTES])
+    [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.GUIDE, SEC.NOTES])
 })
 
 // ═══════════════════ Contrat HTTP du client (fetch stubbé, aucun réseau) ═══════════════════

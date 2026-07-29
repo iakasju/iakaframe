@@ -75,6 +75,13 @@ export function isTemplateFile(relPath) {
   return base.startsWith('_')
 }
 
+// Un doc de `docs/` qui n'est PAS un rapport qualité alimente `60 · Guide utilisateur`
+// (contrat élargi du lot 4, § 5.2). Le seul discriminant est le sous-dossier `qualite/`.
+export function isGuideDoc(relPath) {
+  const p = String(relPath).split(path.sep).join('/')
+  return p.startsWith('docs/') && !p.startsWith('docs/qualite/') && p.endsWith('.md')
+}
+
 // Prédicat : ce chemin relatif est-il un doc structurant à publier ?
 export function isStructuralDoc(relPath) {
   const p = String(relPath).split(path.sep).join('/')
@@ -84,6 +91,7 @@ export function isStructuralDoc(relPath) {
   if (p === 'specs/etat-des-lieux.md') return true
   if (p.startsWith('specs/instructions/') && p.endsWith('.md')) return true
   if (p.startsWith('docs/qualite/') && p.endsWith('.md')) return true
+  if (isGuideDoc(p)) return true // lot 4 — section 60
   return false
 }
 
@@ -95,6 +103,7 @@ function docRank(relPath) {
   if (p === 'specs/etat-des-lieux.md') return 2
   if (p.startsWith('specs/instructions/')) return 3
   if (p.startsWith('docs/qualite/')) return 4
+  if (isGuideDoc(p)) return 5
   return 9
 }
 
@@ -1109,15 +1118,30 @@ export function readableTitle(relPath, content) {
 
 // Deux documents peuvent porter le même `#` : l'idempotence se faisant par NOM de page,
 // on désambiguïse de façon déterministe avec le nom de fichier.
+//
+// Lot 4 — la collecte de `docs/**` est RÉCURSIVE : deux fichiers homonymes dans deux
+// sous-dossiers (`docs/api/index.md`, `docs/cli/index.md`) partagent aussi leur nom de BASE.
+// Le nom de base ne suffit donc plus : on retombe alors sur le chemin relatif, qui est
+// unique par construction. Sans cela, deux pages porteraient le même nom et la réécriture
+// de l'une corbeillerait l'autre à chaque passe — l'idempotence tombait.
 export function dedupeTitles(entries) {
   const count = new Map()
   for (const e of entries) count.set(e.title, (count.get(e.title) || 0) + 1)
-  const seen = new Map()
+  const baseOf = (rel) => String(rel).split('/').pop().replace(/\.md$/i, '')
+  // Compte des candidats « titre (base) » : s'il y en a plusieurs, le nom de base ment.
+  const candCount = new Map()
+  for (const e of entries) {
+    if ((count.get(e.title) || 0) < 2) continue
+    const c = `${e.title} (${baseOf(e.rel)})`
+    candCount.set(c, (candCount.get(c) || 0) + 1)
+  }
   return entries.map((e) => {
     if ((count.get(e.title) || 0) < 2) return { ...e }
-    const base = String(e.rel).split('/').pop().replace(/\.md$/i, '')
-    seen.set(e.title, (seen.get(e.title) || 0) + 1)
-    return { ...e, title: clampTitle(`${e.title} (${base})`) }
+    const cand = `${e.title} (${baseOf(e.rel)})`
+    const suffix = (candCount.get(cand) || 0) > 1
+      ? String(e.rel).replace(/\.md$/i, '')
+      : baseOf(e.rel)
+    return { ...e, title: clampTitle(`${e.title} (${suffix})`) }
   })
 }
 
@@ -1205,9 +1229,21 @@ export function buildPlan({ project, docs = [] }) {
     missing.push({ name: SEC.QUALITE, reason: 'aucun rapport dans docs/qualite/' })
   }
 
-  // 50 / 60 — corpus élargi : collecte activée au lot 4 (§ 5.2). Sections non créées ici.
+  // 50 — recette : collecte activée au lot 4 (§ 5.2). Section posée plus bas.
   missing.push({ name: SEC.RECETTE, reason: 'collecte des recettes activée au lot 4' })
-  missing.push({ name: SEC.GUIDE, reason: 'collecte de docs/**.md activée au lot 4' })
+
+  // 60 — conteneur + index, une page par doc de `docs/` hors `qualite/`, ordre = mtime
+  // décroissant puis nom (§ 5.6). ABSENTE si vide, avec sa raison en `00` (critère A12).
+  const guide = dedupeTitles(docs.filter((d) => isGuideDoc(d.rel)).slice().sort(compareRecentDesc))
+  if (guide.length) {
+    sections.push({
+      key: '60', name: SEC.GUIDE, kind: 'container', locked: true,
+      index: { name: indexName('60'), title: SEC.GUIDE },
+      children: guide.map((d) => ({ name: d.title, source: d.rel, locked: true })),
+    })
+  } else {
+    missing.push({ name: SEC.GUIDE, reason: 'aucun document dans docs/ hors qualite/' })
+  }
 
   // 90 — zone humaine : create-if-missing, jamais réécrite, jamais verrouillée (J3).
   sections.push({ key: '90', name: SEC.NOTES, kind: 'human', locked: false })
@@ -1221,6 +1257,7 @@ export function buildPlan({ project, docs = [] }) {
       instructions: instructions.length,
       qualite: qualite.length,
       recette: 'non collectée (lot 4)',
+      guide: guide.length,
     },
   }
 }
@@ -1261,6 +1298,7 @@ export function overviewBlocks(plan, generatedAtIso) {
     bullet(`Instructions : ${plan.counters.instructions}`),
     bullet(`Versions qualité : ${plan.counters.qualite}`),
     bullet(`Recette (RQV) : ${plan.counters.recette}`),
+    bullet(`Guide utilisateur : ${plan.counters.guide ?? 0}`),
     para(`Pages 00–60 : générées depuis le dépôt, à ne pas modifier ici. ` +
       `${SEC.NOTES} est la zone d'écriture humaine.`),
   ]
@@ -1446,7 +1484,42 @@ export function resolveDocPaths(root, fsApi = fs) {
       if (e.endsWith('.md') && exists(rel)) out.push(rel)
     }
   }
+  // Lot 4 — `60 · Guide utilisateur` : `docs/**.md` HORS `qualite/`, en PROFONDEUR (le
+  // contrat dit `**`, pas `*` : `docs/guides/prise-en-main.md` compte). Le sous-arbre
+  // `qualite/` est sauté ici, il est déjà collecté à plat ci-dessus pour la section 40.
+  for (const rel of walkGuideDocs(root, fsApi)) out.push(rel)
   return selectStructuralDocs(out)
+}
+
+// Parcours récurent de `docs/`, borné et défensif : jamais `qualite/`, jamais un dossier
+// caché ou de dépendances, profondeur plafonnée (un `docs/` pathologique ne doit pas faire
+// diverger une passe de publication).
+export function walkGuideDocs(root, fsApi = fs, maxDepth = 6) {
+  const out = []
+  const IGNORE = new Set(['qualite', 'node_modules', 'target', 'dist', 'build', 'vendor'])
+  const isDir = (rel) => {
+    try {
+      const st = fsApi.statSync(path.join(root, rel))
+      return typeof st.isDirectory === 'function' ? st.isDirectory() : false
+    } catch { return false }
+  }
+  const walk = (rel, depth) => {
+    if (depth > maxDepth) return
+    let entries = []
+    try { entries = fsApi.readdirSync(path.join(root, rel)) } catch { return }
+    for (const name of entries.map(String)) {
+      if (name.startsWith('.')) continue
+      const child = rel + '/' + name
+      if (isDir(child)) {
+        if (!IGNORE.has(name)) walk(child, depth + 1)
+        continue
+      }
+      if (!name.endsWith('.md') || isTemplateFile(name)) continue // B1 — sans exception
+      out.push(child)
+    }
+  }
+  walk('docs', 0)
+  return out.sort()
 }
 
 // Charge les documents (contenu + titre lisible + mtime). Fichier illisible -> ignoré.
