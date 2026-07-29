@@ -486,6 +486,86 @@ export function renderTable(lines) {
   )).join('\n')
 }
 
+// ── Commentaires HTML : MASQUÉS, jamais publiés (arbitrage du décideur, lot 4) ──
+//
+// Un `<!-- … -->` est du bruit d'édition (note de rédaction, gabarit, ligne commentée) dans
+// un miroir destiné À LA LECTURE. Il est retiré du corps, comme le front-matter.
+//
+// DEUX RÉGIONS SONT ÉPARGNÉES, sans quoi le masquage détruirait du contenu :
+//   - le LITTÉRAL de bloc (fence, bloc indenté) : un `<!-- -->` montré en exemple dans un
+//     bloc de code EST le contenu — l'invariant « littéral bloc » le prouverait autrement ;
+//   - le LITTÉRAL EN LIGNE (`` `<!-- x -->` ``) : idem, l'invariant « littéral en ligne ».
+// Un commentaire à cheval sur plusieurs lignes est masqué en entier ; la ligne qui n'en
+// contenait que lui devient vide, donc un simple séparateur de paragraphe.
+
+// Retire les commentaires d'UNE ligne, en sautant les spans de code. `open` = on était déjà
+// à l'intérieur d'un commentaire ouvert plus haut. Retourne le texte restant + l'état.
+function stripCommentsInLine(line, open) {
+  let out = ''
+  let i = 0
+  let inside = !!open
+  while (i < line.length) {
+    if (inside) {
+      const end = line.indexOf('-->', i)
+      if (end === -1) return { text: out, open: true }
+      i = end + 3
+      inside = false
+      continue
+    }
+    const skip = skipCodeSpan(line, i)   // littéral en ligne : recopié tel quel
+    if (skip !== -1) { out += line.slice(i, skip); i = skip; continue }
+    if (line.startsWith('<!--', i)) { inside = true; i += 4; continue }
+    out += line[i]; i++
+  }
+  return { text: out, open: inside }
+}
+
+// PUR : masque les commentaires HTML hors régions littérales.
+export function stripHtmlComments(md) {
+  const lines = String(md ?? '').replace(/\r\n/g, '\n').replace(/\r/g, '\n').split('\n')
+  const out = []
+  let fence = null
+  let open = false
+  let blankBefore = true
+  for (let i = 0; i < lines.length; i++) {
+    const raw = lines[i]
+    if (fence) {                          // corps de bloc fencé : verbatim
+      out.push(raw)
+      if (fence.test(raw)) fence = null
+      continue
+    }
+    if (!open) {
+      const f = RE_FENCE_ANY.exec(raw)
+      if (f) {
+        fence = new RegExp('^[ \\t]*' + (f[2][0] === '~' ? '~' : '\\`') + '{3,}[ \\t]*$')
+        out.push(raw); blankBefore = false; continue
+      }
+      if (blankBefore && raw.trim() && RE_INDENTED_CODE.test(raw)) {
+        while (i < lines.length && (RE_INDENTED_CODE.test(lines[i]) || !lines[i].trim())) {
+          out.push(lines[i]); i++
+        }
+        i--; blankBefore = false; continue
+      }
+    }
+    const r = stripCommentsInLine(raw, open)
+    open = r.open
+    out.push(r.text)
+    blankBefore = !r.text.trim()
+  }
+  return out.join('\n')
+}
+
+/**
+ * Corps publiable d'un document : front-matter retiré (il sert au titre) ET commentaires HTML
+ * masqués. POINT UNIQUE — le mapper ET les quatre sondes en dérivent, sinon les sondes
+ * compteraient un contenu que le rendu ne porte plus et rougiraient sur une perte DÉCLARÉE.
+ * Conséquence assumée, du même ordre que `stripFrontMatter` : les sondes ne peuvent pas
+ * contredire le masquage lui-même — c'est la suite unitaire qui l'épingle.
+ */
+export function docBody(content) {
+  return stripHtmlComments(stripFrontMatter(content).body)
+}
+
 // ── Mapper de blocs ──
 
 /**
@@ -667,7 +747,7 @@ export function contentWords(text) {
 // dans la référence, et sa disparition du rendu devient une perte détectée (R-2a).
 // Ce compteur est indépendant du mapper : il ne partage aucune ligne de code avec lui.
 export function sourceReference(md) {
-  const lines = stripFrontMatter(md).body.split('\n')
+  const lines = docBody(md).split('\n')
   const out = []
   const last = new Map() // retrait -> dernier numéro de suite accepté
   let fence = null
@@ -726,7 +806,7 @@ export function sourceReference(md) {
 // mapper : c'est ce qui rend l'invariant capable de le contredire (R-2b — les blocs
 // indentés partaient en paragraphe, `__tests__` devenait « tests » en gras).
 export function literalRegions(md) {
-  const lines = stripFrontMatter(md).body.split('\n')
+  const lines = docBody(md).split('\n')
   const out = []
   let i = 0
   let blankBefore = true
@@ -760,7 +840,7 @@ export function literalRegions(md) {
 // `blocks` injectable : c'est ce qui permet de soumettre à la sonde un rendu FAUTIF et de
 // vérifier qu'elle rougit (mutation-test de la sonde elle-même, cf. R-E).
 export function literalLoss(md, blocks) {
-  const rendus = (blocks ?? markdownToBlocks(stripFrontMatter(md).body))
+  const rendus = (blocks ?? markdownToBlocks(docBody(md)))
     .filter((b) => b.type === 'code')
     .map((b) => (b.data.delta || []).map((d) => d.insert).join(''))
   return literalRegions(md).filter((r) => !rendus.some((t) => t.includes(r)))
@@ -775,7 +855,7 @@ export function literalLoss(md, blocks) {
 // verbatim — soit en segment `code`, soit dans un bloc `code` (cas d'une cellule de tableau,
 // rendue en bloc préformaté).
 export function inlineCodeRegions(md) {
-  const lines = stripFrontMatter(md).body.split('\n')
+  const lines = docBody(md).split('\n')
   const prose = []
   let i = 0
   let blankBefore = true
@@ -831,7 +911,7 @@ export function inlineCodeRegions(md) {
 
 // SONDE (2 bis) : tout span de code en ligne du source survit verbatim en littéral.
 export function inlineCodeLoss(md, blocks) {
-  const rendered = blocks ?? markdownToBlocks(stripFrontMatter(md).body)
+  const rendered = blocks ?? markdownToBlocks(docBody(md))
   const segs = []
   const pave = []
   const walk = (b) => {
@@ -875,7 +955,7 @@ const unquote = (line) => String(line).replace(/^([ \t]*)((?:>[ \t]?)*)/,
   (_, sp, q) => sp + ' '.repeat(indentWidth(q)))
 
 export function structureReference(md) {
-  const raw = stripFrontMatter(md).body.split('\n')
+  const raw = docBody(md).split('\n')
   const lines = raw.map(unquote)
   const ref = { heading: 0, divider: 0, list: 0, code: 0 }
   let i = 0
@@ -924,7 +1004,7 @@ export function structureReference(md) {
 export function structureLoss(md, blocks) {
   const attendu = structureReference(md)
   const rendu = { heading: 0, divider: 0, list: 0, code: 0 }
-  for (const b of blocks ?? markdownToBlocks(stripFrontMatter(md).body)) {
+  for (const b of blocks ?? markdownToBlocks(docBody(md))) {
     const k = STRUCT_OF[b.type]
     if (k) rendu[k]++
   }
@@ -966,15 +1046,14 @@ export function renderedText(blocks) {
 
 // SONDE : mots du source absents du rendu. Vide = conservation intégrale.
 export function contentLoss(md, blocks) {
-  const rendered = blocks ?? markdownToBlocks(stripFrontMatter(md).body)
+  const rendered = blocks ?? markdownToBlocks(docBody(md))
   return wordDeficit(contentWords(sourceReference(md)), contentWords(renderedText(rendered)))
 }
 
-// Mapping fichier → blocs. Le front-matter YAML est masqué du corps (il a déjà servi au
-// titre de page) ; le corps passe par le mapper Markdown.
+// Mapping fichier → blocs. Le front-matter YAML (déjà servi au titre de page) et les
+// commentaires HTML sont masqués du corps ; le reste passe par le mapper Markdown.
 export function fileToBlocks(content) {
-  const { body } = stripFrontMatter(String(content ?? ''))
-  return markdownToBlocks(body)
+  return markdownToBlocks(docBody(String(content ?? '')))
 }
 
 // Blocs d'une page miroir : avertissement + contenu.
@@ -1226,7 +1305,7 @@ export function planMoves(currentIds, desiredIds) {
 // quoi une page resterait figée sur un rendu périmé.
 
 // ⚠️ À INCRÉMENTER à toute évolution du rendu (mapper, avertissement, index, vue d'ensemble).
-export const RENDER_VERSION = 'lot3.2'
+export const RENDER_VERSION = 'lot4'
 
 export function fingerprint(...parts) {
   const h = createHash('sha256')

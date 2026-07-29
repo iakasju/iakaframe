@@ -28,6 +28,7 @@ import {
   belongsToOrderedRun, structureReference, structureLoss, inlineCodeRegions, inlineCodeLoss,
   fingerprint, pageKey, safeFileName, cachePath, readCache, writeCache, planOrphans,
   RENDER_VERSION,
+  stripHtmlComments, docBody,
 } from './appflowy-doc.mjs'
 import {
   parsePurgeArgs, flattenTree, countDescendants, planPurge, purgeArmed, renderPlan, runPurge,
@@ -144,6 +145,8 @@ test('mirrorBlocks : l’avertissement est le TOUT PREMIER bloc, le corps est MA
 
 const types = (md) => markdownToBlocks(md).map((b) => b.type)
 const texts = (md) => markdownToBlocks(md).map((b) => (b.data.delta || []).map((d) => d.insert).join(''))
+// Texte porté par UN bloc (utile quand on part de fileToBlocks et non de markdownToBlocks).
+const text = (b) => ((b && b.data && b.data.delta) || []).map((d) => d.insert).join('')
 
 // ── Titres ATX ──
 
@@ -459,10 +462,89 @@ test('constructeurs de blocs : types exacts vérifiés persistés au spike S3', 
   assert.deepEqual(code('x'), { type: 'code', data: { delta: [{ insert: 'x' }] } })
 })
 
-test('PERTE ASSUMÉE : HTML brut et biffé ~~ laissés en texte, sans plantage', () => {
-  assert.deepEqual(types('<!-- commentaire -->'), ['paragraph'])
+test('PERTE ASSUMÉE : HTML brut (hors commentaires) et biffé ~~ laissés en texte', () => {
   assert.deepEqual(types('<div class="x">bloc</div>'), ['paragraph'])
   assert.deepEqual(parseInline('a ~~biffé~~ b'), [{ insert: 'a ~~biffé~~ b' }])
+})
+
+// ═══════ Lot 4 — commentaires HTML MASQUÉS (arbitrage du décideur) ═══════
+//
+// Bruit d'édition dans un miroir de LECTURE : masqué, comme le front-matter. Les deux
+// exemptions (littéral de bloc, littéral en ligne) ne sont pas décoratives : sans elles, le
+// masquage détruirait un `<!-- -->` MONTRÉ EN EXEMPLE, c.-à-d. du contenu.
+
+test('lot4 : un commentaire sur une ligne est retiré du corps publié', () => {
+  assert.deepEqual(fileToBlocks('<!-- commentaire -->'), [], 'rien à publier')
+  assert.equal(text(fileToBlocks('avant <!-- note --> après')[0]), 'avant  après')
+  assert.deepEqual(types('# T\n\n<!-- caché -->\n\ncorps'), ['heading', 'paragraph', 'paragraph'],
+    'markdownToBlocks SEUL ne masque pas : le masquage est un geste de docBody')
+  assert.deepEqual(fileToBlocks('# T\n\n<!-- caché -->\n\ncorps').map((b) => b.type), ['heading', 'paragraph'])
+})
+
+test('lot4 : un commentaire À CHEVAL sur plusieurs lignes est masqué en entier', () => {
+  const md = 'un\n\n<!--\nnote de rédaction\nsur trois lignes\n-->\n\ndeux'
+  const b = fileToBlocks(md)
+  assert.deepEqual(b.map((x) => x.type), ['paragraph', 'paragraph'])
+  assert.deepEqual(b.map(text), ['un', 'deux'])
+  assert.equal(/rédaction/.test(renderedText(b)), false, 'le texte commenté ne survit nulle part')
+})
+
+test('lot4 : un commentaire ne SOUDE jamais deux paragraphes distincts', () => {
+  // Une ligne qui ne portait QUE le commentaire devient vide, donc séparatrice : deux
+  // paragraphes restent deux paragraphes. Souder aurait été la faute grave — c'est le
+  // pendant exact de l'agglomération A7, qui ne doit jamais franchir un bloc.
+  assert.deepEqual(fileToBlocks('un\n<!-- x -->\ndeux').map(text), ['un', 'deux'])
+  assert.deepEqual(fileToBlocks('un\n\n<!-- x -->\n\ndeux').map(text), ['un', 'deux'])
+  // En revanche un commentaire EN MILIEU de ligne ne coupe rien : la ligne subsiste.
+  assert.deepEqual(fileToBlocks('un <!-- x --> deux').map(text), ['un  deux'])
+})
+
+test('lot4 : un commentaire DANS un bloc fencé est du CONTENU — jamais masqué', () => {
+  const md = '```html\n<!-- ceci est un exemple -->\n```'
+  const b = fileToBlocks(md)
+  assert.deepEqual(b.map((x) => x.type), ['code'])
+  assert.equal(text(b[0]), '<!-- ceci est un exemple -->')
+  assert.deepEqual(literalLoss(md, b), [], 'l’invariant littéral bloc le prouve')
+})
+
+test('lot4 : un commentaire dans un bloc INDENTÉ est du CONTENU — jamais masqué', () => {
+  const md = 'texte\n\n    <!-- exemple indenté -->\n\nfin'
+  const b = fileToBlocks(md)
+  assert.deepEqual(b.map((x) => x.type), ['paragraph', 'code', 'paragraph'])
+  assert.equal(text(b[1]), '<!-- exemple indenté -->')
+  assert.deepEqual(literalLoss(md, b), [])
+})
+
+test('lot4 : un commentaire dans un SPAN de code en ligne est du CONTENU', () => {
+  const md = 'on écrit `<!-- todo -->` pour commenter.'
+  const b = fileToBlocks(md)
+  assert.equal(text(b[0]), 'on écrit <!-- todo --> pour commenter.')
+  assert.deepEqual(inlineCodeLoss(md, b), [], 'l’invariant littéral en ligne le prouve')
+})
+
+test('lot4 : le masquage ne fait rougir AUCUNE des quatre sondes (perte déclarée)', () => {
+  const md = '# Titre\n\n<!-- note interne -->\n\n- item un\n- item deux\n\n```\nlittéral\n```\n'
+  const b = fileToBlocks(md)
+  assert.deepEqual(contentLoss(md, b), [])
+  assert.deepEqual(literalLoss(md, b), [])
+  assert.deepEqual(inlineCodeLoss(md, b), [])
+  assert.deepEqual(structureLoss(md, b), [])
+})
+
+test('lot4 : stripHtmlComments — cas dégénérés, jamais d’exception ni de dévoration', () => {
+  for (const x of ['', null, undefined, '<!--', '-->', '<!-- <!-- -->', '```\n<!--\n']) {
+    assert.equal(typeof stripHtmlComments(x), 'string', `échec sur ${JSON.stringify(x)}`)
+  }
+  // `<!--` non refermé : tout ce qui suit est du commentaire (règle HTML), pas une erreur.
+  assert.equal(stripHtmlComments('a <!-- b\nc').trim(), 'a')
+  // `-->` orphelin : ce n'est pas un commentaire, le texte reste.
+  assert.equal(stripHtmlComments('a --> b'), 'a --> b')
+})
+
+test('lot4 : docBody enchaîne front-matter PUIS commentaires, dans cet ordre', () => {
+  assert.equal(docBody('---\ntitle: T\n---\n# C\n<!-- x -->').trim(), '# C')
+  // Un `<!--` dans le front-matter ne peut pas manger le corps : le front est retiré d'abord.
+  assert.equal(docBody('---\ntitle: T <!--\n---\n# C').trim(), '# C')
 })
 
 test('robustesse : entrées dégénérées ne lèvent jamais', () => {

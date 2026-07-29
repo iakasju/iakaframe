@@ -365,8 +365,26 @@ sondes relèvent **1 fichier** en perte de mot, **24 fichiers / 41 régions** en
   qui ouvrent (`0`, `1`) ou poursuivent réellement une suite.
 - **Case à cocher `[x]`** → portée par l'attribut `checked`, retirée du texte.
 - **Biffé `~~x~~`** → laissé littéral (l'attribut n'a pas été vérifié au spike S3).
-- **HTML brut** (y compris les commentaires `<!-- … -->`) → laissé en texte.
+- **HTML brut** (balises, `<div>`…) → laissé en texte.
+- **Commentaires HTML `<!-- … -->`** → **MASQUÉS, jamais publiés** (arbitrage du décideur,
+  lot 4) : c'est du **bruit d'édition** — note de rédaction, ligne commentée, en-tête de
+  gabarit — dans un miroir destiné **à la lecture**. Deux régions sont **épargnées**, sans
+  quoi le masquage détruirait du contenu : le **littéral de bloc** (fence, bloc indenté) et
+  le **littéral en ligne** (`` `<!-- x -->` ``) — un commentaire *montré en exemple* **est**
+  le contenu. Mesuré sur les 426 docs structurants : **231 commentaires masqués sur
+  45 documents** (9 500 caractères), et **27 commentaires conservés** parce qu'ils vivent
+  dans une région littérale. Une ligne qui ne portait que le commentaire devient vide, donc
+  **séparatrice** : deux paragraphes distincts ne sont **jamais soudés**.
 - **Front-matter YAML** → masqué du corps (il sert déjà au titre de page).
+
+> **Portée déclarée du masquage.** Le mapper **et** les quatre sondes dérivent du **même**
+> point (`docBody` = front-matter retiré, puis commentaires masqués). Les sondes ne peuvent
+> donc **pas** contredire le masquage lui-même — exactement comme elles ne contredisent pas le
+> retrait du front-matter. **Mesuré par mutation** : désarmer le masquage, ou lui retirer
+> l'exemption du littéral de bloc, laisse les sondes **vertes sur 426/426** documents et n'est
+> attrapé que par la **suite unitaire** (5 et 2 cas rougissent respectivement). Seule
+> l'exemption du **littéral en ligne**, une fois retirée, produit en plus un signal de corpus
+> (**2 spans altérés**). C'est la suite unitaire qui tient ce filet, et elle seule.
 
 ## Échec propre
 
