@@ -25,6 +25,7 @@ import {
   DEFAULT_WORKSPACE, run,
   listInterruptsParagraph, contentWords, sourceReference, wordDeficit, renderedText,
   contentLoss, literalRegions, literalLoss,
+  belongsToOrderedRun, structureReference, structureLoss, inlineCodeRegions, inlineCodeLoss,
   fingerprint, pageKey, safeFileName, cachePath, readCache, writeCache, planOrphans,
   RENDER_VERSION,
 } from './appflowy-doc.mjs'
@@ -557,6 +558,23 @@ test('SONDE R-2 : la référence ne concède QUE les marques déclarées', () =>
   assert.match(sourceReference('1. deja\n   3000) : configurer'), /3000\)/)
 })
 
+test('R-A : la référence ne dépend plus de l’HISTORIQUE du document', () => {
+  // Angle mort mesuré au gate : la mémoire des suites était globale et jamais purgée. Une
+  // sous-liste « 1. 2. » vue plus haut au retrait 3 blanchissait n’importe quel « 3000) »
+  // surgi au même retrait des dizaines de lignes plus bas — la sonde avait une maille
+  // dépendante du passé. Toute ligne au retrait w ferme les suites plus profondes que w.
+  const md = '1. alpha\n   1. sous-a\n   2. sous-b\n\n1. **Port dev = 3010** (occupe deja\n   3000) : configurer.'
+  assert.match(sourceReference(md), /3000\)/, '« 3000) » DOIT rester dans la référence')
+  assert.deepEqual(contentLoss(md), [], 'et le vrai rendu ne le perd pas')
+  // La sonde rougit bien si un mapper l’escamote (rendu fautif injecté).
+  assert.deepEqual(
+    contentLoss(md, [numbered('alpha'), numbered('sous-a'), numbered('sous-b'),
+      numbered('Port dev = 3010 (occupe deja'), numbered(': configurer.')]),
+    ['3000'], 'un mapper qui avale « 3000) » est désormais contredit')
+  // Les suites LÉGITIMES au même retrait restent concédées (pas de faux positif).
+  assert.ok(!/\b2\./.test(sourceReference('1. a\n   1. x\n   2. y\n2. b\n   1. z\n   2. w')))
+})
+
 test('SONDE R-2 (2/2) : tout littéral du source se retrouve dans un bloc `code`', () => {
   assert.deepEqual(literalRegions('a\n\n```js\nconst x = 1\n```\n\n    indenté\n'),
     ['const x = 1', 'indenté'])
@@ -571,11 +589,15 @@ test('SONDE R-2 : elle CONTREDIT un mapper fautif (mutation-test de la sonde)', 
   assert.deepEqual(
     wordDeficit(contentWords(sourceReference(md)), contentWords(renderedText(rendu))),
     ['3000'], 'la sonde doit voir « 3000 » disparaître')
+  // R-E — ce volet était À MOITIÉ TAUTOLOGIQUE : il filtrait un tableau construit sans bloc
+  // `code` et constatait qu'il n'en contenait pas, sans jamais appeler `literalLoss`. On
+  // INJECTE désormais le rendu fautif DANS la sonde : c'est elle qui doit rougir.
   const md2 = 'x :\n\n    a__b__c\n'
   const renduFaux = [para('x :'), para([{ insert: 'a' }, { insert: 'b', attributes: { bold: true } }, { insert: 'c' }])]
-  const rendus = renduFaux.filter((b) => b.type === 'code')
-  assert.deepEqual(rendus, [], 'aucun bloc code : le littéral a été reformaté')
-  assert.equal(literalRegions(md2).length, 1, 'la sonde voit pourtant une région littérale')
+  assert.equal(literalRegions(md2).length, 1, 'la sonde voit une région littérale')
+  assert.deepEqual(literalLoss(md2, renduFaux), ['a__b__c'],
+    'la sonde DOIT refuser un littéral reformaté en gras')
+  assert.deepEqual(literalLoss(md2), [], '…et rester verte sur le vrai rendu')
 })
 
 test('SONDE R-2 : renderedText ramasse href et langage (le contenu n’est pas que du texte)', () => {
@@ -584,6 +606,126 @@ test('SONDE R-2 : renderedText ramasse href et langage (le contenu n’est pas q
   assert.match(t, /exemple\.test/)
   assert.match(t, /bash/)
   assert.match(t, /npm test/)
+})
+
+// ═══════ R-2a bis — la règle CommonMark ne doit PAS fondre les vraies listes (A7) ═══════
+
+test('R-2a bis : une suite « 5. 6. 7. » après un paragraphe reste une LISTE', () => {
+  // Reproduction exacte du gate du lot 3
+  // (iakaFrameGUI/specs/instructions/feanor-source-inference-selecteur.md:215).
+  // Le correctif R-2a fondait les 7 prescriptions dans le paragraphe qui les annonce.
+  const md = '**Lot 2 — provider OpenAI**\n5. `llm.rs` : dispatch\n6. `settings.rs` : clé\n7. `backend.ts` : champ'
+  assert.deepEqual(markdownToBlocks(md).map((b) => b.type),
+    ['paragraph', 'numbered_list', 'numbered_list', 'numbered_list'])
+  assert.deepEqual(contentLoss(md), [])
+  assert.deepEqual(structureLoss(md), [], 'et la STRUCTURE est intacte')
+})
+
+test('R-2a bis : une liste qui reprend après un tableau n’est pas avalée', () => {
+  // Forme réelle d’iakaIDE/specs/instructions/f1-portefeuille.md:49 : le tableau ferme la
+  // liste, la ligne repliée rouvre un paragraphe, et « 2. » doit rouvrir la liste.
+  const md = '1. Socle\n\n| a | b |\n| - | - |\n\n   Ne PAS copier en bloc — repartir\n   d’un squelette vierge.\n2. Lecture git\n3. Découverte'
+  assert.deepEqual(markdownToBlocks(md).map((b) => b.type),
+    ['numbered_list', 'code', 'paragraph', 'numbered_list', 'numbered_list'])
+})
+
+test('R-2a bis : le voisin AMONT suffit (dernier item d’une suite, sans successeur)', () => {
+  // naonedge-dashboard/specs/instructions/bouton-work-cross-os-macos.md:80 : « 3. » n’a pas
+  // de successeur, mais « 2. » le précède au même retrait.
+  const md = '1. un\n2. deux\n   ```sh\n   echo x\n   ```\n   suite de l’item deux.\n3. trois'
+  const t = markdownToBlocks(md).map((b) => b.type)
+  assert.equal(t.filter((x) => x === 'numbered_list').length, 3, 'les 3 items survivent')
+})
+
+test('R-2a bis : la ligne repliée de PROSE reste, elle, dans le paragraphe', () => {
+  // Les trois cas réels que le correctif R-2a devait sauver — ils ne doivent pas régresser.
+  for (const [md, attendu] of [
+    ['Cela fait **20**, pas\n18. L’arithmétique suffisait.', ['paragraph']],
+    ['… `frame lint iakaframe` exit\n0. **Réponse nette au brief.**', ['paragraph']],
+    ['1. **Port dev = 3010** (iakaVODdash occupe deja\n   3000) : configurer Vite.', ['numbered_list']],
+  ]) {
+    assert.deepEqual(markdownToBlocks(md).map((b) => b.type), attendu, md.slice(0, 30))
+    assert.deepEqual(contentLoss(md), [], 'et aucun mot perdu')
+  }
+})
+
+test('belongsToOrderedRun : voisin amont OU aval, au MÊME retrait, jamais ailleurs', () => {
+  assert.equal(belongsToOrderedRun(['prose', '5. a', '6. b'], 1), true, 'successeur plus grand')
+  assert.equal(belongsToOrderedRun(['2. a', 'prose', '3. b'], 2), false, 'prose au même retrait : suite close')
+  assert.equal(belongsToOrderedRun(['2. a', '   repli', '3. b'], 2), true, 'la continuation se traverse')
+  assert.equal(belongsToOrderedRun(['texte', '14. isolé'], 1), false, 'aucun voisin ordonné')
+  assert.equal(belongsToOrderedRun(['1. a', '   3000) suite'], 1), false, 'retrait différent : hors suite')
+  assert.equal(belongsToOrderedRun(['5. a', '4. b'], 1), false, 'une suite ne décroît pas')
+  assert.equal(belongsToOrderedRun(['- a', '- b'], 1), false, 'une puce n’est pas une suite ordonnée')
+})
+
+// ═══════ SONDE (3/3) — l’invariant de STRUCTURE : la leçon du gate du lot 3 ═══════
+
+test('SONDE R-3 : la référence compte les structures du source, sans le mapper', () => {
+  const md = '# T\n\ntexte\n\n- a\n- b\n\n---\n\n```js\nx\n```\n'
+  assert.deepEqual(structureReference(md), { heading: 1, divider: 1, list: 2, code: 1 })
+  assert.deepEqual(structureLoss(md), [], 'le rendu porte bien tout')
+})
+
+test('SONDE R-3 : elle CONTREDIT le mapper du lot 3 (mutation réelle, pas un tableau bidon)', () => {
+  // LE test qui manquait au lot 3 : le rendu fautif est celui que produisait RÉELLEMENT le
+  // mapper d’alors — 3 items de liste fondus dans le paragraphe qui les annonce.
+  const md = '**Lot 2 — provider OpenAI**\n5. `llm.rs` : dispatch\n6. `settings.rs` : clé\n7. `backend.ts` : champ'
+  const renduLot3 = [para('Lot 2 — provider OpenAI 5. llm.rs : dispatch 6. settings.rs : clé 7. backend.ts : champ')]
+  assert.deepEqual(structureLoss(md, renduLot3), [{ type: 'list', attendu: 3, rendu: 0 }],
+    'la sonde de STRUCTURE doit voir les 3 blocs de liste disparaître')
+  assert.deepEqual(contentLoss(md, renduLot3), [],
+    'alors que la sonde de MOTS reste verte : c’est bien un angle mort qu’on comble')
+})
+
+test('SONDE R-3 : titre avalé, séparateur perdu, tableau reformaté — tous vus', () => {
+  const md = '## Titre\n\n---\n\n| a | b |\n| - | - |\n'
+  assert.deepEqual(structureLoss(md, [para('Titre'), para('---'), para('| a | b |')]),
+    [{ type: 'heading', attendu: 1, rendu: 0 },
+      { type: 'divider', attendu: 1, rendu: 0 },
+      { type: 'code', attendu: 1, rendu: 0 }])
+})
+
+test('SONDE R-3 : c’est une BORNE BASSE — un surplus de blocs n’est jamais une faute', () => {
+  const md = '- a\n'
+  assert.deepEqual(structureLoss(md, [bullet('a'), bullet('bonus'), heading(1, 'bonus')]), [])
+})
+
+// ═══════ R-B — le littéral EN LIGNE : le code en ligne lie plus fort que l’emphase ═══════
+
+test('R-B : `capabilities/*` dans un italique garde son astérisque', () => {
+  // Cas réel (iakaframe/specs/instructions/surface-apprentissage.md:269) : l’astérisque DU
+  // SPAN fermait l’italique ouvert avant lui, et le littéral perdait son `*` en silence.
+  const md = '*Test : `capabilities/*` liste les entrées.*'
+  const seg = markdownToBlocks(md)[0].data.delta.find((d) => d.attributes && d.attributes.code)
+  assert.equal(seg.insert, 'capabilities/*')
+  assert.deepEqual(inlineCodeLoss(md), [])
+})
+
+test('R-B : idem pour le gras — `~/work/iakaframe/**` survit', () => {
+  const md = '**Périmètre : `~/work/iakaframe/**` uniquement.**'
+  assert.ok(markdownToBlocks(md)[0].data.delta.some((d) => d.attributes?.code && d.insert === '~/work/iakaframe/**'))
+  assert.deepEqual(inlineCodeLoss(md), [])
+})
+
+test('R-B : la sonde de code en ligne CONTREDIT un rendu qui découpe le span', () => {
+  // Rendu fautif = exactement la signature décrite au gate : le span coupé en trois, le
+  // milieu passé en GRAS. Les sondes « mots » et « littéral bloc » n’y voient rien.
+  const md = 'voir `library/__tests__/fixtures/` pour le détail'
+  const faux = [para([{ insert: 'voir library/' },
+    { insert: 'tests', attributes: { bold: true } },
+    { insert: '/fixtures/ pour le détail' }])]
+  assert.deepEqual(inlineCodeLoss(md, faux), ['library/__tests__/fixtures/'])
+  assert.deepEqual(literalLoss(md, faux), [], 'l’invariant de littéral BLOC, lui, ne voit rien')
+  assert.deepEqual(inlineCodeLoss(md), [], 'et il est vert sur le vrai rendu')
+})
+
+test('R-B : extraction des spans — ni backtick esseulé, ni span à cheval perdu', () => {
+  assert.deepEqual(inlineCodeRegions('a `x` b ``y`` c'), ['x', 'y'])
+  assert.deepEqual(inlineCodeRegions('un backtick ` tout seul'), [], 'pas de span, pas de promesse')
+  assert.deepEqual(inlineCodeRegions('début `chemin/\ntrès/long` fin'), ['chemin/ très/long'],
+    'un span à cheval est agglomeré comme le mapper le fait')
+  assert.deepEqual(inlineCodeRegions('```js\n`pas un span`\n```'), [], 'le fencé est hors périmètre')
 })
 
 // ── Le test qui tranche : un CLAUDE.md réaliste, bout en bout ──
@@ -1331,7 +1473,7 @@ test('A8 orchestration : 2ᵉ passe sur projet INCHANGÉ = ZÉRO écriture, ZÉR
   const r2 = await publier(server)
   assert.equal(server.writes, 0, `2ᵉ passe : ${server.writes} écriture(s) au lieu de 0`)
   assert.equal(r2.writes, 0, 'le compteur du client le confirme')
-  assert.equal(r2.created + r2.updated + r2.removed + r2.moves + r2.locked, 0)
+  assert.equal(r2.created + r2.updated + r2.removed + r2.replaced + r2.moves + r2.locked, 0)
   assert.equal(r2.unchanged, r1.created, 'toutes les pages sont déclarées inchangées')
   assert.equal(server.trash.length, debris1, 'aucun débris de corbeille supplémentaire')
   assert.equal(r2.spaceId, r1.spaceId)
@@ -1360,6 +1502,21 @@ test('A8/A1 : cache perdu -> tout est réécrit, l’arbre reste identique (dég
   assert.equal(r2.unchanged, 0, 'sans cache, rien n’est présumé à jour')
   assert.equal(r2.updated, r1.created, 'tout est régénéré')
   assert.deepEqual(namesOf(findNodeById(server.roots['ws-proj'], r2.spaceId)), noms1, 'même arbre')
+})
+
+test('R-C : une réécriture alimente la corbeille — le compte rendu ne le TAIT plus', async () => {
+  // Mesuré au gate : cache perdu, projet inchangé → « created=0 updated=10 removed=0 » alors
+  // que la corbeille recevait 10 pages. Un compte rendu qui annonce « 0 retirée(s) » en
+  // remplissant la corbeille est FAUX. Même effet à chaque bump de RENDER_VERSION.
+  const server = makeFakeServer()
+  await publier(server)
+  const avant = server.trash.length
+  const r = await publier(server, [], envCache('cache-perdu'))
+  const nouveaux = server.trash.length - avant
+  assert.ok(nouveaux > 0, 'la corbeille grossit bel et bien')
+  assert.equal(r.removed, 0, 'aucune ORPHELINE : rien n’a disparu de la source')
+  assert.equal(r.replaced, nouveaux, 'chaque ancienne version corbeillée est COMPTÉE')
+  assert.equal(r.replaced, r.updated, 'une réécriture = un débris, sans exception')
 })
 
 test('A8/A1 : page disparue côté AppFlowy -> recréée malgré un cache « à jour »', async () => {

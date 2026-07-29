@@ -231,6 +231,47 @@ export function listInterruptsParagraph(marker, content) {
   return m ? Number(m[1]) === 1 : true
 }
 
+/**
+ * La règle CommonMark seule est TROP LARGE pour du rendu : elle fond aussi les vraies listes
+ * qui reprennent après une interruption de bloc (tableau, fence, note) — « 2. … 3. … » repart
+ * rarement à 1. Mesuré au gate du lot 3 : 32 blocs de liste fondus sur 10 documents réels.
+ *
+ * Discriminant retenu : un marqueur ordonné ≠ 1 est un VRAI marqueur s'il appartient à une
+ * SUITE à son propre retrait — c.-à-d. s'il a un voisin ordonné au MÊME retrait, plus petit
+ * avant (`2.` puis `3.`) ou plus grand après (`5.` puis `6.`). Le balayage saute les lignes
+ * plus indentées (continuations, sous-listes) et s'arrête net sur la première ligne moins
+ * indentée ou non-liste : il ne peut pas divaguer hors du niveau de liste courant.
+ *
+ * Une ligne repliée de prose (« … Cela fait 20, pas\n18. L'arithmétique … ») n'a, elle, aucun
+ * voisin ordonné à son retrait : elle reste dans le paragraphe (R-2a préservé).
+ */
+export function belongsToOrderedRun(lines, idx) {
+  const li = RE_LIST.exec(String(lines[idx] ?? ''))
+  if (!li) return false
+  const m = /^(\d{1,9})[.)]$/.exec(li[2])
+  if (!m) return false
+  const ind = indentWidth(li[1])
+  const n = Number(m[1])
+  // Numéro du plus proche item ordonné au MÊME retrait dans la direction `step`, ou null.
+  const neighbour = (step) => {
+    for (let j = idx + step; j >= 0 && j < lines.length; j += step) {
+      if (!lines[j].trim()) continue          // une ligne vide ne ferme pas une liste
+      const w = indentWidth(lines[j].match(/^[ \t]*/)[0])
+      if (w > ind) continue                   // continuation / sous-liste : on traverse
+      if (w !== ind) return null              // on est sorti du niveau : plus de suite
+      const nli = RE_LIST.exec(lines[j])
+      if (!nli) return null                   // de la prose au même retrait : plus de suite
+      const nm = /^(\d{1,9})[.)]$/.exec(nli[2])
+      return nm ? Number(nm[1]) : null
+    }
+    return null
+  }
+  const before = neighbour(-1)
+  if (before !== null && before < n) return true
+  const after = neighbour(1)
+  return after !== null && after > n
+}
+
 // ── Formatage en ligne ──
 
 const sameAttrs = (a, b) => JSON.stringify(a ?? null) === JSON.stringify(b ?? null)
@@ -257,6 +298,31 @@ function closingParen(src, start) {
 // caractère de mot, sans quoi `APPFLOWY__WORKSPACE__` ferait passer WORKSPACE en italique
 // (le second `_` de la paire ouvrante se croirait libre) — cas trouvé par mutation.
 const wordish = (c) => c !== undefined && /[\p{L}\p{N}_]/u.test(c)
+
+/**
+ * Fin (exclue) du span de code ouvert en `i`, ou -1 si `i` n'ouvre pas de span.
+ * R-B : le code en ligne lie PLUS FORT que l'emphase (CommonMark). Sans ce saut, l'astérisque
+ * de `` `capabilities/*` `` fermait l'italique ouvert avant lui et le span perdait son `*` —
+ * un littéral silencieusement altéré, invisible aux sondes « mots » et « littéral bloc ».
+ */
+const skipCodeSpan = (src, i) => {
+  let n = 0
+  while (src[i + n] === '`') n++
+  if (!n) return -1
+  const end = src.indexOf('`'.repeat(n), i + n)
+  return end === -1 ? -1 : end + n
+}
+
+// Cherche le délimiteur d'emphase fermant, en sautant les spans de code et les échappements.
+const findDelimiter = (src, from, mark) => {
+  for (let j = from; j < src.length; j++) {
+    if (src[j] === '\\') { j++; continue }
+    const skip = skipCodeSpan(src, j)
+    if (skip !== -1) { j = skip - 1; continue }
+    if (src.startsWith(mark, j)) return j
+  }
+  return -1
+}
 
 /**
  * Markdown en ligne → delta AppFlowy [{ insert, attributes? }, …].
@@ -340,7 +406,7 @@ export function parseInline(text) {
       for (const mark of ['**', '__']) {
         if (!src.startsWith(mark, i) || attrs?.bold) continue
         if (mark === '__' && wordish(src[i - 1])) break
-        const end = src.indexOf(mark, i + 2)
+        const end = findDelimiter(src, i + 2, mark)
         if (end > i + 2 && !(mark === '__' && wordish(src[end + 2]))) {
           flush(); walk(src.slice(i + 2, end), { ...attrs, bold: true })
           i = end + 2; consumed = true
@@ -357,6 +423,8 @@ export function parseInline(text) {
         let end = -1
         for (let j = i + 1; j < src.length; j++) {
           if (src[j] === '\\') { j++; continue }
+          const skip = skipCodeSpan(src, j)     // R-B : le code en ligne lie plus fort
+          if (skip !== -1) { j = skip - 1; continue }
           if (src[j] !== mark || /\s/.test(src[j - 1])) continue
           if (mark === '_' && wordish(src[j + 1])) continue
           end = j; break
@@ -517,9 +585,11 @@ export function markdownToBlocks(md) {
     // 7. Item de liste (à puce / numérotée / à cocher), avec continuations.
     const li = RE_LIST.exec(line)
     if (li) {
-      // Un paragraphe est ouvert : seule une liste qui PEUT l'interrompre le coupe.
-      // Sinon la ligne lui appartient encore — et son marqueur n'est pas avalé (R-2a).
-      if (buf.length && !listInterruptsParagraph(li[2], li[3])) {
+      // Un paragraphe est ouvert : seule une liste qui PEUT l'interrompre le coupe — ou qui
+      // appartient à une SUITE ordonnée à son retrait (une vraie liste qui reprend après un
+      // tableau / une note ne repart pas à 1). Sinon la ligne lui appartient encore, et son
+      // marqueur n'est pas avalé (R-2a).
+      if (buf.length && !listInterruptsParagraph(li[2], li[3]) && !belongsToOrderedRun(lines, i)) {
         buf.push(line.trim()); i++; continue
       }
       flush()
@@ -541,8 +611,9 @@ export function markdownToBlocks(md) {
           // il n'interrompt aucun paragraphe, sa numérotation est donc libre.
           if (nInd <= ind) break
           // Plus indenté : ce serait une SOUS-liste, qui n'ouvre que si elle peut
-          // interrompre le paragraphe de l'item. Sinon : continuation paresseuse.
-          if (listInterruptsParagraph(nli[2], nli[3])) break
+          // interrompre le paragraphe de l'item, ou si elle appartient à une suite ordonnée
+          // à son retrait. Sinon : continuation paresseuse.
+          if (listInterruptsParagraph(nli[2], nli[3]) || belongsToOrderedRun(lines, i)) break
         } else if (RE_FENCE_ANY.test(next)) break // le littéral ne se fond jamais dans l'item
         else if (nInd <= ind && isBlockStart(next)) break
         parts.push(next.trim()); i++
@@ -601,6 +672,12 @@ export function sourceReference(md) {
   const last = new Map() // retrait -> dernier numéro de suite accepté
   let fence = null
   let listOpen = false   // un item de liste vient d'être vu (sans ligne vide depuis)
+  // R-A : la mémoire des suites était GLOBALE au document et jamais purgée. Une sous-liste
+  // « 1. 2. » vue plus haut au retrait 3 rendait « conforme » n'importe quel « 3000) » surgi
+  // au retrait 3 des centaines de lignes plus bas — le filet avait une maille dépendante de
+  // l'historique. Toute ligne au retrait `w` FERME les suites plus profondes que `w` : on ne
+  // revient jamais dans un niveau de liste qu'on a quitté.
+  const closeDeeperThan = (w) => { for (const k of last.keys()) if (k > w) last.delete(k) }
   for (const raw of lines) {
     if (fence) { // dans un bloc fencé, rien n'est marqueur
       out.push(raw)
@@ -613,9 +690,16 @@ export function sourceReference(md) {
       out.push(raw); continue
     }
     if (!raw.trim()) { listOpen = false; out.push(raw); continue }
+    // Retrait EFFECTIF : le chevron de citation compte comme du retrait (une liste citée vit
+    // au niveau `> `). Une ligne vide DANS une citation (`>` seul) ne ferme rien.
+    const q = /^([ \t]*)((?:>[ \t]?)*)/.exec(raw)
     const m = /^([ \t]*)((?:>[ \t]?)*)([-*+]|\d{1,9}[.)])[ \t]+(\[[ xX]\][ \t]+)?/.exec(raw)
-    if (!m) { out.push(raw); continue }
+    if (!m) {
+      if (raw.slice(q[0].length).trim()) closeDeeperThan(indentWidth(q[1] + q[2]))
+      out.push(raw); continue
+    }
     const indent = indentWidth(m[1] + m[2])
+    closeDeeperThan(indent)
     const num = /^(\d{1,9})[.)]$/.exec(m[3])
     let conforme = true
     if (num) {
@@ -671,13 +755,175 @@ export function literalRegions(md) {
   return out.filter((t) => t.trim())
 }
 
-// SONDE (2/2) : toute région littérale du source se retrouve VERBATIM dans un bloc `code`.
+// SONDE (2/3) : toute région littérale du source se retrouve VERBATIM dans un bloc `code`.
 // Retourne les régions introuvables — vide = aucun littéral reformaté.
-export function literalLoss(md) {
-  const rendus = markdownToBlocks(stripFrontMatter(md).body)
+// `blocks` injectable : c'est ce qui permet de soumettre à la sonde un rendu FAUTIF et de
+// vérifier qu'elle rougit (mutation-test de la sonde elle-même, cf. R-E).
+export function literalLoss(md, blocks) {
+  const rendus = (blocks ?? markdownToBlocks(stripFrontMatter(md).body))
     .filter((b) => b.type === 'code')
     .map((b) => (b.data.delta || []).map((d) => d.insert).join(''))
   return literalRegions(md).filter((r) => !rendus.some((t) => t.includes(r)))
+}
+
+// ── Invariant 2 bis : le littéral EN LIGNE aussi (R-B) ──
+//
+// `literalRegions` ne connaît que les fences et les blocs indentés. Le code EN LIGNE avait
+// donc la même signature que R-2b, hors de portée : un mutant sur la priorité du code en
+// ligne coupait « `library/__tests__/fixtures/` » en trois avec « tests » en GRAS, sondes
+// vertes. On extrait les spans du source, sans le mapper, et on exige qu'ils survivent
+// verbatim — soit en segment `code`, soit dans un bloc `code` (cas d'une cellule de tableau,
+// rendue en bloc préformaté).
+export function inlineCodeRegions(md) {
+  const lines = stripFrontMatter(md).body.split('\n')
+  const prose = []
+  let i = 0
+  let blankBefore = true
+  while (i < lines.length) {
+    const f = RE_FENCE_ANY.exec(lines[i])
+    if (f) {
+      const closeRe = new RegExp('^[ \\t]*' + (f[2][0] === '~' ? '~' : '\\`') + '{3,}[ \\t]*$')
+      i++
+      while (i < lines.length && !closeRe.test(lines[i])) i++
+      i++; blankBefore = false; continue
+    }
+    if (blankBefore && lines[i].trim() && RE_INDENTED_CODE.test(lines[i])) {
+      while (i < lines.length && (RE_INDENTED_CODE.test(lines[i]) || !lines[i].trim())) i++
+      blankBefore = false; continue
+    }
+    blankBefore = !lines[i].trim()
+    prose.push(lines[i]); i++
+  }
+  // Un span peut chevaucher un retour à la ligne (`\`chemin/\ntrès/long\``) : le mapper
+  // agglomère avant de formater, la sonde doit agglomérer pareil. Sinon le backtick FERMANT
+  // d'un span à cheval passait pour un OUVRANT et la sonde fabriquait des spans fantômes
+  // (« . Grille CSS ») — 90 faux positifs mesurés sur le corpus.
+  const groups = ['']
+  for (const raw of prose) {
+    // Le chevron de citation est retiré comme le fait le mapper avant de récurser : sans ça
+    // un span à cheval sur deux lignes citées embarquait « > » et devenait introuvable.
+    const l = raw.replace(/^ {0,3}(?:>[ \t]?)+/, '')
+    // Un item de liste, un titre ou une ligne de tableau OUVRE une unité : le mapper les
+    // agglomère séparément. Sans cette coupure, un backtick esseulé (les documents qui
+    // PARLENT de backticks) appariait à travers deux items et fabriquait des spans fantômes.
+    if (!l.trim() || isBlockStart(l)) groups.push('')
+    if (!l.trim()) continue
+    groups[groups.length - 1] = (groups[groups.length - 1] ?? '') + (groups[groups.length - 1] ? ' ' : '') + l.trim()
+  }
+  const out = []
+  for (const line of groups) {
+    let j = 0
+    while (j < line.length) {
+      if (line[j] === '\\') { j += 2; continue }
+      if (line[j] !== '`') { j++; continue }
+      let n = 0
+      while (line[j + n] === '`') n++
+      const end = line.indexOf('`'.repeat(n), j + n)
+      if (end === -1) { j += n; continue }   // backtick isolé : pas un span, pas une promesse
+      let inner = line.slice(j + n, end)
+      if (inner.length > 1 && inner.startsWith(' ') && inner.endsWith(' ')) inner = inner.slice(1, -1)
+      if (inner.trim()) out.push(inner)
+      j = end + n
+    }
+  }
+  return out
+}
+
+// SONDE (2 bis) : tout span de code en ligne du source survit verbatim en littéral.
+export function inlineCodeLoss(md, blocks) {
+  const rendered = blocks ?? markdownToBlocks(stripFrontMatter(md).body)
+  const segs = []
+  const pave = []
+  const walk = (b) => {
+    const d = (b && b.data) || {}
+    if (b && b.type === 'code') pave.push((d.delta || []).map((s) => s.insert).join(''))
+    else for (const s of d.delta || []) if (s.attributes && s.attributes.code) segs.push(String(s.insert))
+    for (const c of (b && b.children) || []) walk(c)
+  }
+  for (const b of rendered || []) walk(b)
+  // `renderTable` déséchappe les `\|` d'une cellule : la variante déséchappée est admise.
+  const variants = (r) => (r.includes('\\|') ? [r, r.replace(/\\\|/g, '|')] : [r])
+  return inlineCodeRegions(md).filter((r) => !variants(r).some((v) =>
+    segs.some((s) => s.includes(v)) || pave.some((t) => t.includes(v))))
+}
+
+// ── Troisième invariant : la STRUCTURE tient ──
+//
+// LEÇON DU GATE DU LOT 3. Les deux premiers invariants comptent des MOTS et des LITTÉRAUX :
+// aucun ne regarde le TYPE des blocs. Le correctif R-2a a donc pu fondre 32 blocs de liste
+// dans des paragraphes sur 10 documents réels — aucun mot perdu, `contentLoss` VERTE, A7
+// comptage n°2 (« ≥1 bloc de liste par item de liste du source ») violé en silence.
+// Cet invariant compte les STRUCTURES du source, sans le mapper, et exige que le rendu en
+// porte AU MOINS autant. C'est une BORNE BASSE : un surplus n'est jamais une faute.
+//
+// Blindspot DÉCLARÉ : la reconnaissance d'un marqueur ordonné (`belongsToOrderedRun`) est
+// PARTAGÉE avec le mapper — l'invariant ne peut donc pas contredire cette règle-là. Il
+// contredit tout le reste : items fondus, titre avalé, séparateur perdu, tableau ou bloc de
+// code reformaté en prose.
+const STRUCT_OF = { heading: 'heading', divider: 'divider', code: 'code', numbered_list: 'list', bulleted_list: 'list', todo_list: 'list' }
+
+// Retire le chevron de citation en conservant la LARGEUR du retrait (`> ` ↦ deux espaces) :
+// les retraits relatifs d'une liste citée restent comparables entre eux.
+const unquote = (line) => String(line).replace(/^([ \t]*)((?:>[ \t]?)*)/,
+  (_, sp, q) => sp + ' '.repeat(indentWidth(q)))
+
+export function structureReference(md) {
+  const raw = stripFrontMatter(md).body.split('\n')
+  const lines = raw.map(unquote)
+  const ref = { heading: 0, divider: 0, list: 0, code: 0 }
+  let i = 0
+  let blankBefore = true
+  while (i < raw.length) {
+    // Ordre de reconnaissance MIROIR de celui du mapper (fence → tableau → vide → code
+    // indenté → titre → séparateur → liste), sans quoi les deux comptages divergeraient.
+    // Fence au retrait STRICT (0-3 espaces) : un fence plus indenté est déjà du littéral au
+    // sens CommonMark, il tombe dans la branche « code indenté ». Compter les deux ferait
+    // sortir la borne basse de sa promesse (ne jamais rougir à tort).
+    const f = RE_FENCE.exec(raw[i])
+    if (f) {
+      const closeRe = new RegExp('^[ \\t]*' + (f[2][0] === '~' ? '~' : '\\`') + '{3,}[ \\t]*$')
+      i++
+      while (i < raw.length && !closeRe.test(raw[i])) i++
+      i++
+      ref.code++; blankBefore = false; continue
+    }
+    // Tableau : compté seulement s'il OUVRE un bloc (précédé d'une ligne vide). Une ligne
+    // repliée d'item qui commence par `|` (« `skill` | `hook` |\n  | `config` ») n'est pas un
+    // tableau : l'ambiguïté sort du périmètre de la borne basse plutôt que de la faire mentir.
+    if (blankBefore && RE_TABLE.test(raw[i])) {
+      while (i < raw.length && RE_TABLE.test(raw[i])) i++
+      ref.code++; blankBefore = false; continue
+    }
+    if (!raw[i].trim()) { blankBefore = true; i++; continue }
+    if (blankBefore && RE_INDENTED_CODE.test(raw[i])) {
+      while (i < raw.length && (RE_INDENTED_CODE.test(raw[i]) || !raw[i].trim())) i++
+      ref.code++; blankBefore = false; continue
+    }
+    blankBefore = false
+    const line = lines[i]
+    if (RE_HEADING.test(line)) { ref.heading++; i++; continue }
+    if (RE_DIVIDER.test(line)) { ref.divider++; i++; continue }
+    const li = RE_LIST.exec(line)
+    // Un marqueur ordonné ≠ 1 hors suite est une AMBIGUÏTÉ du source (ligne repliée de prose,
+    // cf. R-2a) : hors périmètre de l'invariant, il n'est pas compté.
+    if (li && (listInterruptsParagraph(li[2], li[3]) || belongsToOrderedRun(lines, i))) ref.list++
+    i++
+  }
+  return ref
+}
+
+// SONDE (3/3) : le rendu porte au moins autant de structures que le source en annonce.
+// Retourne les écarts — vide = aucune structure fondue.
+export function structureLoss(md, blocks) {
+  const attendu = structureReference(md)
+  const rendu = { heading: 0, divider: 0, list: 0, code: 0 }
+  for (const b of blocks ?? markdownToBlocks(stripFrontMatter(md).body)) {
+    const k = STRUCT_OF[b.type]
+    if (k) rendu[k]++
+  }
+  return Object.keys(attendu)
+    .filter((k) => rendu[k] < attendu[k])
+    .map((k) => ({ type: k, attendu: attendu[k], rendu: rendu[k] }))
 }
 
 // Multi-ensemble des mots de `before` absents de `after` (occurrences comprises).
@@ -712,9 +958,9 @@ export function renderedText(blocks) {
 }
 
 // SONDE : mots du source absents du rendu. Vide = conservation intégrale.
-export function contentLoss(md) {
-  const blocks = markdownToBlocks(stripFrontMatter(md).body)
-  return wordDeficit(contentWords(sourceReference(md)), contentWords(renderedText(blocks)))
+export function contentLoss(md, blocks) {
+  const rendered = blocks ?? markdownToBlocks(stripFrontMatter(md).body)
+  return wordDeficit(contentWords(sourceReference(md)), contentWords(renderedText(rendered)))
 }
 
 // Mapping fichier → blocs. Le front-matter YAML est masqué du corps (il a déjà servi au
@@ -973,7 +1219,7 @@ export function planMoves(currentIds, desiredIds) {
 // quoi une page resterait figée sur un rendu périmé.
 
 // ⚠️ À INCRÉMENTER à toute évolution du rendu (mapper, avertissement, index, vue d'ensemble).
-export const RENDER_VERSION = 'lot3.1'
+export const RENDER_VERSION = 'lot3.2'
 
 export function fingerprint(...parts) {
   const h = createHash('sha256')
@@ -1371,12 +1617,14 @@ async function ensureContainer(client, parentNode, parentId, name) {
 }
 
 // Recrée une page générée par nom (corbeille de l'existante puis création fraîche).
+// `replaced` est un COMPTE, pas un booléen (R-C) : une réécriture alimente la corbeille, et
+// ce débris doit apparaître au compte rendu.
 async function rewritePage(client, parentNode, parentId, name, blocks) {
   const existing = childrenOf(parentNode).filter((c) => c.name === name)
   for (const e of existing) await client.moveToTrash(e.view_id)
   const vid = await client.createPage(parentId, name)
   if (blocks.length) await client.appendBlocks(vid, blocks)
-  return { vid, replaced: existing.length > 0 }
+  return { vid, replaced: existing.length }
 }
 
 /**
@@ -1396,6 +1644,9 @@ async function syncPage(ctx, parentNode, parentId, key, name, blocks, hash) {
   }
   const r = await rewritePage(ctx.client, parentNode, parentId, name, blocks)
   ctx.next[key] = { viewId: r.vid, hash, locked: false }
+  // R-C : les anciennes versions partent bien à la corbeille — on les COMPTE au lieu de les
+  // taire. Un « 0 retirée(s) » en alimentant la corbeille est un compte rendu FAUX.
+  ctx.stats.replaced += r.replaced
   r.replaced ? ctx.stats.updated++ : ctx.stats.created++
   return { vid: r.vid, state: r.replaced ? 'à jour' : 'créé' }
 }
@@ -1460,7 +1711,7 @@ export async function run(argv, env, deps = {}) {
 
   const contentOf = (rel) => (docs.find((d) => d.rel === rel) || {}).content ?? ''
   const stats = {
-    created: 0, updated: 0, unchanged: 0, containers: 0, locked: 0, moves: 0, removed: 0,
+    created: 0, updated: 0, unchanged: 0, containers: 0, locked: 0, moves: 0, removed: 0, replaced: 0,
   }
   // A8 — état d'empreintes, HORS DÉPÔT. Cache perdu => tout est réécrit (dégradation propre).
   const cacheFile = cachePath(env, client.wid, project)
@@ -1592,7 +1843,10 @@ export async function run(argv, env, deps = {}) {
   const writes = client.calls?.writes
   log(
     `appflowy-doc: terminé — ${stats.created} créée(s), ${stats.updated} à jour, ` +
-    `${stats.unchanged} inchangée(s), ${stats.removed} retirée(s), ` +
+    `${stats.unchanged} inchangée(s), ` +
+    // R-C — un seul chiffre pour la corbeille, DÉCOMPOSÉ : orphelines + anciennes versions.
+    `${stats.removed + stats.replaced} en corbeille (${stats.removed} orpheline(s), ` +
+    `${stats.replaced} ancienne(s) version(s)), ` +
     `${stats.containers} conteneur(s) créé(s), ${stats.locked} verrou(s), ${stats.moves} déplacement(s), ` +
     `${skipped.length} ignoré(s) — ${client.calls?.total ?? 0} appel(s) HTTP` +
     (writes === undefined ? '' : ` dont ${writes} écriture(s)`),
