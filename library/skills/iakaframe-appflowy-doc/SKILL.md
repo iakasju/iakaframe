@@ -530,6 +530,33 @@ touchée, aucun secret** (fixtures bidon).
 > client — c'est exactement ce qui a laissé passer un `prev_view_id` figé. Un test dédié
 > **vérifie que le double n'a réimplémenté aucune méthode**.
 
+### `RENDER_VERSION` — épinglée à la **surface de rendu**
+
+`RENDER_VERSION` est la **seule** chose qui invalide les caches : elle entre dans
+`fingerprint()` et `readCache()` jette tout cache d'un autre rendu. **Figée par mégarde**, les
+projets **déjà publiés** garderaient un rendu périmé — commentaires HTML toujours visibles,
+jamais de section `60` — **sans erreur et sans trace**. Le gate du lot 4 l'a démontré : remise à
+`'lot3'`, les 199 cas restaient **verts** (elle n'était vérifiée que *truthy*).
+
+La garde (`test.mjs`, cas « A8 garde ») épingle **deux choses ensemble** :
+
+1. la **valeur** de `RENDER_VERSION` ;
+2. l'**empreinte du texte source** des régions bornées `RENDER-SURFACE:BEGIN/END` d'
+   `appflowy-doc.mjs` — quatre régions : `modele`, `mapper`, `pages`, `sections`. Leur **nom**
+   et leur **nombre** sont épinglés aussi : retirer une paire de bornes rétrécirait la surface.
+
+Elle **mord dans les deux sens** : reculer `RENDER_VERSION` sans toucher au rendu rougit ;
+changer le rendu sans avancer `RENDER_VERSION` rougit également. C'est la **source** qui est
+hachée, pas `fn.toString()` : les régions couvrent aussi les helpers **non exportés**
+(`stripCommentsInLine`, `skipCodeSpan`, `RE_LIST`…), là où un hachage par fonction exportée
+serait aveugle. Les **sondes sont hors surface** — les toucher n'exige pas de bump, sans quoi la
+garde deviendrait un détecteur de bruit qu'on finit par neutraliser.
+
+**Rituel en cas d'échec** : incrémenter `RENDER_VERSION` **et** reporter la nouvelle empreinte
+dans `RENDER_SURFACE_PIN`, **dans le même commit**. Un second cas (« auto-mutation ») vérifie que
+la garde **mord réellement** : il altère la source en mémoire et exige que l'empreinte bouge —
+puis altère une **sonde** et exige qu'elle **ne bouge pas**.
+
 **Deux entrées, une seule source de vérité** :
 
 | Entrée | Usage |

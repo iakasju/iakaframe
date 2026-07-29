@@ -13,6 +13,8 @@
 // persisté) : un test qui se contenterait de vérifier des HTTP 200 validerait n'importe
 // quelle bouillie. La garantie doit donc venir d'ici, sur des fonctions pures.
 import assert from 'node:assert/strict'
+import nodeFs from 'node:fs'
+import { createHash } from 'node:crypto'
 import {
   isTemplateFile, isStructuralDoc, selectStructuralDocs, para, heading, bullet,
   clampHeadingLevel, mirrorWarning, mirrorBlocks, fileToBlocks, stripFrontMatter,
@@ -1766,6 +1768,102 @@ test('A8 fingerprint : stable, sensible au contenu, et lié à RENDER_VERSION', 
   assert.notEqual(fingerprint('ab', ''), fingerprint('a', 'b'), 'les parties sont séparées')
   assert.match(fingerprint('x'), /^[0-9a-f]{64}$/, 'sha256')
   assert.ok(RENDER_VERSION, 'une version de rendu DOIT exister : sans elle, un changement de mapper laisserait les pages figées')
+})
+
+// ─────────── Garde : RENDER_VERSION ↔ surface de rendu (correctif du lot 4 bis) ───────────
+//
+// POURQUOI CETTE GARDE. `RENDER_VERSION` est la SEULE chose qui invalide les caches : elle
+// entre dans `fingerprint()` et `readCache()` jette tout cache d'un autre rendu. Figée par
+// mégarde, les projets DÉJÀ publiés gardent un rendu périmé — pas d'erreur, pas de trace,
+// pas de section `60`, des commentaires HTML toujours visibles : le défaut SILENCIEUX.
+// Le gate du lot 4 l'a démontré en la remettant à `'lot3'` : 199 cas, 0 échec. Elle n'était
+// vérifiée que `truthy` (le cas ci-dessus) — donc épinglée par RIEN.
+//
+// CE QUE LA GARDE ÉPINGLE — deux choses, ENSEMBLE :
+//   1. la valeur littérale de `RENDER_VERSION` ;
+//   2. l'empreinte du TEXTE SOURCE des régions `RENDER-SURFACE:BEGIN/END` d'`appflowy-doc.mjs`
+//      — les seules dont une modification change ce qui est PUBLIÉ (modèle, mapper, pages,
+//      sections). On hache la SOURCE et non `fn.toString()` : les régions couvrent aussi les
+//      helpers NON exportés (`stripCommentsInLine`, `skipCodeSpan`, `RE_LIST`…), c'est-à-dire
+//      exactement là où une régression échapperait à un hachage par fonction exportée.
+//
+// ELLE MORD DANS LES DEUX SENS :
+//   • reculer/altérer `RENDER_VERSION` sans toucher au rendu  → assertion 2 rougit ;
+//   • changer le rendu sans avancer `RENDER_VERSION`          → assertion 1 rougit.
+//
+// RITUEL EN CAS D'ÉCHEC (ce n'est pas un test à « faire taire ») : si le rendu a bougé
+// volontairement, incrémenter `RENDER_VERSION` **et** reporter ici la nouvelle empreinte,
+// DANS LE MÊME COMMIT. Retirer une paire de bornes rétrécit la surface : le compte de régions
+// est donc épinglé lui aussi.
+
+// Régions marquées, dans l'ordre du fichier. Le nom de région est repris dans l'empreinte :
+// renommer une borne est un changement de surface.
+export function renderSurfaceRegions(src) {
+  const re = /^\/\/ RENDER-SURFACE:BEGIN ([\w-]+)$\n([\s\S]*?)^\/\/ RENDER-SURFACE:END \1$/gm
+  const out = []
+  let m
+  while ((m = re.exec(String(src)))) out.push({ name: m[1], body: m[2] })
+  return out
+}
+
+export function renderSurfaceDigest(src) {
+  const regions = renderSurfaceRegions(src)
+  const h = createHash('sha256')
+  // Séparateur NUL EXPLICITE (jamais un octet nul invisible dans la source) : même raison
+  // que dans `fingerprint()` — deux régions concaténées ne peuvent pas imiter une autre
+  // découpe. Un octet nul rendrait aussi ce fichier « binaire » pour grep.
+  const NUL = '\u0000'
+  for (const r of regions) { h.update(r.name); h.update(NUL); h.update(r.body); h.update(NUL) }
+  return { count: regions.length, names: regions.map((r) => r.name), sha256: h.digest('hex') }
+}
+
+// ⚠️ LES DEUX VALEURS CI-DESSOUS SE METTENT À JOUR ENSEMBLE, JAMAIS L'UNE SANS L'AUTRE.
+const RENDER_VERSION_PIN = 'lot4'
+const RENDER_SURFACE_PIN = {
+  count: 4,
+  names: ['modele', 'mapper', 'pages', 'sections'],
+  sha256: '0a9b1726051ed39cc668aa5f6f423bae1851fe194f1daa7d8fb51be9f5b752f7',
+}
+
+test('A8 garde : RENDER_VERSION est ÉPINGLÉE à la surface de rendu (anti-cache-figé)', () => {
+  const src = nodeFs.readFileSync(new URL('./appflowy-doc.mjs', import.meta.url), 'utf8')
+  const d = renderSurfaceDigest(src)
+
+  assert.equal(d.count, RENDER_SURFACE_PIN.count,
+    'une paire de bornes RENDER-SURFACE a disparu ou est apparue : la surface épinglée a changé de taille')
+  assert.deepEqual(d.names, RENDER_SURFACE_PIN.names,
+    'les régions de rendu épinglées ne sont plus les mêmes')
+
+  // (1) le rendu a changé → il FAUT avancer RENDER_VERSION (et reporter l'empreinte ici).
+  assert.equal(d.sha256, RENDER_SURFACE_PIN.sha256,
+    'La SURFACE DE RENDU a changé. Incrémente RENDER_VERSION (appflowy-doc.mjs) ET reporte ' +
+    'cette empreinte dans RENDER_SURFACE_PIN, dans le MÊME commit — sinon les projets déjà ' +
+    'publiés resteront figés sur l’ancien rendu, en silence. Empreinte mesurée : ' + d.sha256)
+
+  // (2) RENDER_VERSION a bougé (ou reculé) sans que le rendu bouge → mutation muette.
+  assert.equal(RENDER_VERSION, RENDER_VERSION_PIN,
+    'RENDER_VERSION a été modifiée alors que la surface de rendu est inchangée. Si c’est ' +
+    'volontaire, mets à jour RENDER_VERSION_PIN ; sinon, c’est exactement la mutation que ' +
+    'le gate du lot 4 a laissée passer (remise à « lot3 », 199 cas verts).')
+})
+
+test('A8 garde : la garde de surface DÉTECTE une altération du rendu (auto-mutation)', () => {
+  const src = nodeFs.readFileSync(new URL('./appflowy-doc.mjs', import.meta.url), 'utf8')
+  const reel = renderSurfaceDigest(src)
+  // On mute la SOURCE en mémoire (aucun fichier touché) : l'empreinte DOIT bouger.
+  const mute = src.replace('export function stripHtmlComments(md) {',
+    'export function stripHtmlComments(md) { /* mutant */')
+  assert.notEqual(mute, src, 'la reproduction minimale doit réellement altérer la source')
+  assert.notEqual(renderSurfaceDigest(mute).sha256, reel.sha256,
+    'une modification du masquage des commentaires DOIT changer l’empreinte de surface — ' +
+    'sans quoi la garde ne mord pas')
+  // Et une modification HORS surface (une sonde) ne doit PAS la faire bouger : la garde
+  // épingle le rendu, pas le fichier entier — sinon elle serait neutralisée pour bruit.
+  const horsSurface = src.replace('export function contentLoss(md, blocks) {',
+    'export function contentLoss(md, blocks) { /* hors surface */')
+  assert.notEqual(horsSurface, src)
+  assert.equal(renderSurfaceDigest(horsSurface).sha256, reel.sha256,
+    'une sonde n’est pas du rendu : la toucher ne doit pas exiger un bump de RENDER_VERSION')
 })
 
 test('A8 cachePath : HORS dépôt, par workspace et par projet, nom de fichier assaini', () => {

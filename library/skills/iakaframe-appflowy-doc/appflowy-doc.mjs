@@ -39,7 +39,16 @@ import os from 'node:os'
 import { createHash } from 'node:crypto'
 
 // ───────────────────────── Modèle iakadoc (constantes normatives) ─────────────────────────
+//
+// ⚠️ SURFACE DE RENDU ÉPINGLÉE. Les régions bornées par `RENDER-SURFACE:BEGIN` /
+// `RENDER-SURFACE:END` sont celles dont toute modification change CE QUI EST PUBLIÉ dans les
+// pages. Une garde de la suite unitaire (« A8 garde : RENDER_VERSION est épinglée… ») en
+// hache le texte source et refuse qu'il bouge sans que `RENDER_VERSION` bouge aussi — sans
+// quoi les projets déjà publiés resteraient figés sur un rendu périmé, EN SILENCE.
+// Les bornes couvrent aussi les helpers NON exportés (`stripCommentsInLine`, `skipCodeSpan`,
+// `RE_*`…) : c'est précisément par là qu'une régression passerait inaperçue.
 
+// RENDER-SURFACE:BEGIN modele
 // Séparateur normatif : espace + U+00B7 + espace.
 export const SEP = ' · '
 
@@ -61,6 +70,7 @@ export const indexName = (key) => key + SEP + '(index)'
 
 // Libellé de source pour les pages générées qui n'ont pas de fichier source unique.
 export const SOURCE_REPO = 'le dépôt du projet'
+// RENDER-SURFACE:END modele
 
 // Workspace cible par défaut (D5). Le workspace est désigné par son NOM : un UUID
 // d'instance n'a pas sa place en dur dans un outil générique.
@@ -115,6 +125,7 @@ export function selectStructuralDocs(relPaths) {
     .sort((a, b) => docRank(a) - docRank(b) || a.localeCompare(b))
 }
 
+// RENDER-SURFACE:BEGIN mapper
 // ── Blocs AppFlowy (types vérifiés persistés au spike S3) ──
 
 // Un « delta » est la charge de texte riche d'un bloc : [{ insert, attributes? }, …].
@@ -728,6 +739,8 @@ export function markdownToBlocks(md) {
   return blocks
 }
 
+// RENDER-SURFACE:END mapper
+
 // ═════════ Sonde de conservation du contenu (R-2) — le filet anti-perte silencieuse ═════════
 //
 // Une perte de contenu ne DOIT jamais passer inaperçue. Les deux défauts trouvés au gate du
@@ -1068,6 +1081,7 @@ export function contentLoss(md, blocks) {
   return wordDeficit(contentWords(sourceReference(md)), contentWords(renderedText(rendered)))
 }
 
+// RENDER-SURFACE:BEGIN pages
 // Mapping fichier → blocs. Le front-matter YAML (déjà servi au titre de page) et les
 // commentaires HTML sont masqués du corps ; le reste passe par le mapper Markdown.
 export function fileToBlocks(content) {
@@ -1153,6 +1167,8 @@ export function dedupeTitles(entries) {
     return { ...e, title: clampTitle(`${e.title} (${suffix})`) }
   })
 }
+
+// RENDER-SURFACE:END pages
 
 // ── Ordres canoniques (§ 5.6, critère A6) ──
 
@@ -1283,6 +1299,7 @@ export function latestVersion(qualiteDocs) {
   return null
 }
 
+// RENDER-SURFACE:BEGIN sections
 // Blocs d'une page d'index (§ 5.6 : ordre canonique, régénéré à chaque passe).
 export function indexBlocks(section, generatedAtIso) {
   return [
@@ -1398,6 +1415,8 @@ export function overviewBlocks(plan, generatedAtIso) {
       `${SEC.NOTES} est la zone d'écriture humaine.`),
   ]
 }
+
+// RENDER-SURFACE:END sections
 
 // Découpe une liste de blocs en lots (limite de taille de requête défensive).
 export function chunk(arr, size) {
