@@ -1459,10 +1459,17 @@ export function planMoves(currentIds, desiredIds) {
 // ⚠️ À INCRÉMENTER à toute évolution du rendu (mapper, avertissement, index, vue d'ensemble).
 export const RENDER_VERSION = 'lot4'
 
+// Separateur NUL ECHAPPE, jamais un octet nul BRUT dans la source. Deux raisons, pas une :
+//   1. semantique — deux parties concatenees ne peuvent pas imiter un autre decoupage ;
+//   2. lisibilite — un octet nul brut rend le fichier « binaire » pour grep : `grep` sans
+//      `-a` ne rend RIEN, et tout balayage de revue devient AVEUGLE sur ce fichier — celui
+//      qui porte pourtant le contrat de rendu. Meme regle que `renderSurfaceDigest()`.
+const NUL = '\u0000'
+
 export function fingerprint(...parts) {
   const h = createHash('sha256')
   h.update(RENDER_VERSION)
-  for (const p of parts) { h.update(' '); h.update(String(p ?? '')) }
+  for (const p of parts) { h.update(NUL); h.update(String(p ?? '')) }
   return h.digest('hex')
 }
 
