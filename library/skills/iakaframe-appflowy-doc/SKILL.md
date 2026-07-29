@@ -185,13 +185,44 @@ node appflowy-purge.mjs --workspace "<nom|id>" ... --execute --confirm <workspac
 > **inventé**, qui est persisté tel quel. La validité des blocs produits ne peut donc venir
 > que des **tests unitaires du mapper**, jamais d'une recette « ça répond 200 ».
 
-## Mise en forme
+## Mise en forme — mapper Markdown → blocs
 
-MVP = **paragraphes texte fidèles** (un paragraphe par ligne), plus les blocs `heading` et
-`bulleted_list` pour les pages générées (vue d'ensemble, index). Les niveaux de titre au-delà
-de `###` sont **clampés au niveau 3** (le rendu des niveaux supérieurs n'est pas vérifiable).
-Le rendu riche du Markdown source (titres, listes, code fencé, citations, tableaux) est le
-**lot 2**.
+Le corps de chaque page miroir passe par un **mapper maison, ZÉRO dépendance** (la skill doit
+tourner telle quelle partout où Node ≥ 18 est présent). Il ne vise pas CommonMark intégral,
+mais le **sous-ensemble réellement écrit** dans les `CLAUDE.md` et `specs/` du portefeuille.
+
+| Source Markdown | Bloc AppFlowy produit |
+|---|---|
+| `#` → `###` | `heading` niveau 1 → 3 |
+| `####` et au-delà | `heading` **clampé au niveau 3** (rendu des niveaux > 3 non vérifiable) |
+| `-` / `*` / `+` | `bulleted_list`, **un bloc par item** |
+| `1.` / `1)` | `numbered_list`, **un bloc par item** |
+| `- [ ]` / `- [x]` | `todo_list` avec `checked` |
+| `> …` | `quote` (lignes consécutives agglomérées ; une liste citée reste une liste) |
+| ```` ```lang ```` | `code`, **langage conservé** |
+| `---` / `***` / `___` | `divider` |
+| tableau `\| … \|` | `code` **préformaté aligné** (colonnes à largeur fixe) |
+| `**gras**`, `*italique*`, `` `code` ``, `[lien](url)` | attributs `bold`, `italic`, `code`, `href` |
+
+**Agglomération des paragraphes** : seule une **ligne vide** sépare deux paragraphes. Un simple
+retour à la ligne (prose rewrappée à 100 colonnes) **ne coupe plus rien** — c'est le cœur du
+critère A7. Idem pour un item de liste écrit sur plusieurs lignes : il reste **un seul** bloc.
+
+### Pertes assumées, déclarées
+
+- **Tableaux** → bloc préformaté aligné. Lisible et jamais éclaté en paragraphes, mais ce n'est
+  pas un vrai tableau AppFlowy (un bloc `table` créé par `append-block` est une coquille sans
+  cellules, mesuré au spike S3).
+- **Liens relatifs entre docs** → texte, cible entre parenthèses. Pas de `href` : la cible n'a
+  aucun sens côté AppFlowy.
+- **Images** → jamais téléversées : mention explicite `image non publiée : <chemin>`,
+  **jamais un silence**.
+- **Imbrication des listes** → aplatie (`append-block` est plat) ; la profondeur est rendue par
+  un **retrait en espaces insécables**, 2 par niveau.
+- **Numérotation d'origine** → AppFlowy renumérote : une liste démarrant à `3.` repart à `1.`.
+- **Biffé `~~x~~`** → laissé littéral (l'attribut n'a pas été vérifié au spike S3).
+- **HTML brut** (y compris les commentaires `<!-- … -->`) → laissé en texte.
+- **Front-matter YAML** → masqué du corps (il sert déjà au titre de page).
 
 ## Échec propre
 
@@ -201,17 +232,28 @@ Config absente, instance injoignable, auth refusée, **workspace introuvable** �
 
 ## Tests
 
-`node test.mjs` — tests unitaires des fonctions **pures** (exclusion des gabarits, titres
-lisibles, ordres canoniques, plan d'arborescence, plan de déplacement, sélection du workspace,
-plan de purge, parseur dotenv) **et** de l'orchestration complète contre un **faux serveur en
-mémoire** qui rejoue les comportements mesurés au spike (ordre de création non déterministe,
-`move`, `PATCH name` obligatoire, corbeille). Le contrat HTTP du client est vérifié avec
-`fetch` stubbé. **Aucun réseau, aucune instance touchée, aucun secret** (fixtures bidon).
+Tests unitaires des fonctions **pures** (mapper Markdown cas de bloc par cas de bloc, exclusion
+des gabarits, titres lisibles, ordres canoniques, plan d'arborescence, plan de déplacement,
+sélection du workspace, plan de purge, parseur dotenv) **et** de l'orchestration complète contre
+un **faux serveur en mémoire** qui rejoue les comportements mesurés au spike (ordre de création
+non déterministe, `move`, `PATCH name` obligatoire, corbeille). Le contrat HTTP du client est
+vérifié avec `fetch` stubbé. **Aucun réseau, aucune instance touchée, aucun secret**
+(fixtures bidon).
+
+**Deux entrées, une seule source de vérité** :
+
+| Entrée | Usage |
+|---|---|
+| `node test.mjs` | exécution directe, sortie lisible, pratique en dev |
+| `node --test` depuis `cli/` | **la chaîne** : `cli/test/appflowy-doc-skill.test.js` importe les cas exportés par `test.mjs` et les enregistre un par un dans `node:test` |
+
+⚠️ **La seconde entrée n'est pas un confort.** Sans elle, ces tests ne sont joués par **aucune**
+chaîne (`npm test` tourne depuis `cli/`, la CI aussi, il n'y a pas de `package.json` à la racine)
+et une régression du modèle passerait au vert. La CI `.forgejo/workflows/cli-ci.yml` se déclenche
+donc aussi sur `library/**`.
 
 ## Hors périmètre (différé tracé)
 
-- **Lot 2** : rendu riche Markdown → blocs (titres, listes, code, citations, tableaux en
-  préformaté, inline gras/italique/code/lien).
 - **Lot 3** : rafraîchissement incrémental par empreinte `sha256` (cache hors dépôt) et
   **balayage des pages orphelines**, avec exclusion stricte de `90 · Notes`.
 - **Lot 4** : sections `50 · Recette (RQV)` (statut seul) et `60 · Guide utilisateur`
