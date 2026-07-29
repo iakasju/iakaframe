@@ -496,8 +496,15 @@ sondes relèvent **1 fichier** en perte de mot, **24 fichiers / 41 régions** en
 > retrait du front-matter. **Mesuré par mutation** : désarmer le masquage, ou lui retirer
 > l'exemption du littéral de bloc, laisse les sondes **vertes sur 451/451** documents et n'est
 > attrapé que par la **suite unitaire** (5 et 2 cas rougissent respectivement). Seule
-> l'exemption du **littéral en ligne**, une fois retirée, produit en plus un signal de corpus
-> (**2 spans altérés**). C'est la suite unitaire qui tient ce filet, et elle seule.
+> l'exemption du **littéral en ligne**, une fois retirée, produit en plus un signal de corpus :
+> **2 fichiers / 5 spans altérés** — `iakaframe/specs/instructions/canon-projet-connaissance-produit.md`
+> (4 spans : `robotimmo`, `iakaFreeVision`, `kits/`, `frames/releases/`) et
+> `iakaframe/specs/instructions/vendor-check-golden-kit-fixturetable-workflow.md`
+> (1 span : `stripHeader(golden)`). C'est la suite unitaire qui tient ce filet, et elle seule.
+>
+> *(Rectification du lot 4 : « 2 spans altérés » y était publié — c'était le compte de
+> **fichiers** écrit comme un compte de **spans**. Re-mesuré ici sur les 451 docs, dans la
+> forme « N fichiers / M spans » employée partout ailleurs sur cette page.)*
 
 ## Échec propre
 
