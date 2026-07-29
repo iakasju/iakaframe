@@ -22,7 +22,8 @@ Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : 
 ```
 [WORKSPACE]  projects
 └── [ESPACE]  <Projet>
-    ├── 00 · Vue d'ensemble ................ GÉNÉRÉE (version, sections présentes/absentes, compteurs)
+    ├── 00 · Vue d'ensemble ................ GÉNÉRÉE (version, sections présentes/absentes,
+    │                                        pages non gérées, compteurs)
     ├── 10 · Le projet ..................... [conteneur] GÉNÉRÉ
     │   ├── 11 · Cadre de travail .......... ← CLAUDE.md
     │   └── 12 · Vision & décisions ........ ← specs/PROJET.md
@@ -48,8 +49,10 @@ Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : 
 - Les pages feuilles portent le **titre lisible** du document (1er `#` du fichier, à défaut
   le nom de fichier sans extension) — **plus jamais le chemin brut**. Le chemin source figure
   dans l'avertissement en tête de page. Deux titres identiques sont désambiguïsés par le
-  nom de fichier.
+  nom de fichier, et par le **chemin relatif** si le nom de fichier ne suffit pas.
 - **Sections vides non créées** : elles sont listées comme absentes dans `00 · Vue d'ensemble`.
+  **Une exception, voulue** : `50 · Recette` existe toujours et **affiche son vide**
+  (« aucune recette ») — rendre ce vide visible est le livrable (critère A12).
 - **Ordre garanti** de `00` à `90`, et de l'index puis des feuilles dans chaque conteneur :
   l'ordre de création AppFlowy est non déterministe, l'ordre est donc **imposé** par un
   appel `move` par page mal placée.
@@ -384,7 +387,7 @@ première ligne moins indentée ou non-liste : il ne peut pas divaguer hors du n
 ligne repliée de prose (« … Cela fait 20, pas / `18.` L'arithmétique … ») n'a, elle, **aucun**
 voisin ordonné à son retrait : elle reste dans le paragraphe.
 
-**Perte résiduelle DÉCLARÉE (3 occurrences sur 426 documents).** Trois lignes du portefeuille
+**Perte résiduelle DÉCLARÉE (3 occurrences sur 451 documents).** Trois lignes du portefeuille
 sont **structurellement ambiguës** — une ligne repliée de prose qui commence par un nombre suivi
 d'un point : `iakaFrameGUI/…/d9-re-vendorage-canon-iakaframe.md:38` (« pas / `18.` »),
 `iakaframe/…/adoption-retrospective-…md:118` (« exit / `0.` »),
@@ -418,7 +421,7 @@ et **rien en amont** : toute la couche de reconnaissance est **partagée** avec 
 (`RE_FENCE`, `RE_TABLE`, `RE_INDENTED_CODE`, `RE_HEADING`, `RE_DIVIDER`, `RE_LIST`,
 `listInterruptsParagraph`, `belongsToOrderedRun`, `stripFrontMatter`, `indentWidth` — pour les
 listes, c'est la **même expression mot pour mot**). Il ne peut donc contredire **aucune** règle de
-reconnaissance : mesuré, il reste **vert sur 426/426** documents quand on altère `RE_LIST`,
+reconnaissance : mesuré, il reste **vert sur 451/451** documents quand on altère `RE_LIST`,
 `RE_HEADING`, `RE_DIVIDER` ou `belongsToOrderedRun`, là où un oracle indépendant rougit en masse.
 Ce qu'il contredit — items fondus, titre avalé, séparateur perdu, tableau reformaté — l'est
 **à reconnaissance constante**. Le filet contre une régression de la *reconnaissance* reste la
@@ -427,13 +430,15 @@ hors suite, ligne repliée commençant par `|`) sont **exclues du comptage** plu
 mentir la borne.
 
 La référence ne concède que les marques **déclarées** plus bas ; tout autre déficit est une perte
-et fait rougir la suite. Passée sur les **426 docs structurants** du portefeuille — le corpus est
+et fait rougir la suite. Passée sur les **451 docs structurants** du portefeuille — le corpus est
 celui que la skill publie **réellement**, c'est-à-dire filtré par `selectStructuralDocs` : les
 **37 gabarits** `_*.md` que B1 écarte *sans exception* n'en font pas partie, les mesurer serait
-mesurer ce qui n'est jamais rendu. Résultat : **0 perte de mot, 0 littéral reformaté, 0 span
-altéré, 0 structure fondue** — pour un volume couvert de **795 952 mots**, **429 régions
-littérales**, **55 087 spans de code en ligne** et **25 137 structures** (6 000 titres,
-15 731 items de liste, 2 045 séparateurs, 1 361 préformatés). Ces volumes sont un **instantané** :
+mesurer ce qui n'est jamais rendu. Le corpus a **grandi de 25 documents au lot 4**, quand
+`docs/**.md` hors `qualite/` est entré au contrat (426 → **451**). Résultat : **0 perte de mot,
+0 littéral reformaté, 0 span altéré, 0 structure fondue** — pour un volume couvert de
+**832 078 mots**, **560 régions littérales**, **57 442 spans de code en ligne** et
+**26 394 structures** (6 437 titres, 16 230 items de liste, 2 151 séparateurs,
+1 576 préformatés). Ces volumes sont un **instantané** :
 le portefeuille est vivant, un recomptage ultérieur dérive de quelques dixièmes de pour-cent — les
 compteurs de **perte**, eux, restent à zéro. Rejouées contre les mappers précédents, ces mêmes
 sondes relèvent **1 fichier** en perte de mot, **24 fichiers / 41 régions** en littéral reformaté,
@@ -467,8 +472,8 @@ sondes relèvent **1 fichier** en perte de mot, **24 fichiers / 41 régions** en
   gabarit — dans un miroir destiné **à la lecture**. Deux régions sont **épargnées**, sans
   quoi le masquage détruirait du contenu : le **littéral de bloc** (fence, bloc indenté) et
   le **littéral en ligne** (`` `<!-- x -->` ``) — un commentaire *montré en exemple* **est**
-  le contenu. Mesuré sur les 426 docs structurants : **231 commentaires masqués sur
-  45 documents** (9 500 caractères), et **27 commentaires conservés** parce qu'ils vivent
+  le contenu. Mesuré sur les 451 docs structurants : **231 commentaires masqués sur
+  45 documents** (9 500 caractères), et **31 commentaires conservés** parce qu'ils vivent
   dans une région littérale. Une ligne qui ne portait que le commentaire devient vide, donc
   **séparatrice** : deux paragraphes distincts ne sont **jamais soudés**.
 - **Front-matter YAML** → masqué du corps (il sert déjà au titre de page).
@@ -477,7 +482,7 @@ sondes relèvent **1 fichier** en perte de mot, **24 fichiers / 41 régions** en
 > point (`docBody` = front-matter retiré, puis commentaires masqués). Les sondes ne peuvent
 > donc **pas** contredire le masquage lui-même — exactement comme elles ne contredisent pas le
 > retrait du front-matter. **Mesuré par mutation** : désarmer le masquage, ou lui retirer
-> l'exemption du littéral de bloc, laisse les sondes **vertes sur 426/426** documents et n'est
+> l'exemption du littéral de bloc, laisse les sondes **vertes sur 451/451** documents et n'est
 > attrapé que par la **suite unitaire** (5 et 2 cas rougissent respectivement). Seule
 > l'exemption du **littéral en ligne**, une fois retirée, produit en plus un signal de corpus
 > (**2 spans altérés**). C'est la suite unitaire qui tient ce filet, et elle seule.
