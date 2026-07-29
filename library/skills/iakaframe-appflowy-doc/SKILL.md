@@ -88,6 +88,7 @@ Les trois identifiants sont résolus dans cet ordre, **l'env ayant toujours prio
 | `APPFLOWY_EMAIL` | compte AppFlowy |
 | `APPFLOWY_PASSWORD` | mot de passe |
 | `APPFLOWY_WORKSPACE` | **workspace cible** : un **nom** exact ou un **`workspace_id`** |
+| `IAKAFRAME_CACHE_DIR` | *(facultatif)* racine du cache d'empreintes — défaut `~/.cache/iakaframe/appflowy` |
 
 **Le workspace cible est EXPLICITE.** Cascade : `--workspace` → env `APPFLOWY_WORKSPACE` →
 fichier dotenv → **défaut : le workspace nommé `projects`**. Aucune correspondance →
@@ -118,22 +119,62 @@ node appflowy-doc.mjs --project IakaPcl --root ~/work/IakaPcl --workspace projec
 ```
 
 Résout les docs structurants présents sous `--root`, garantit l'espace `--project` dans le
-workspace cible, construit l'arborescence `00`–`90`, régénère les pages générées, préserve
-`90 · Notes`, verrouille les pages générées puis impose l'ordre canonique.
+workspace cible, construit l'arborescence `00`–`90`, **ne réécrit que les pages dont
+l'empreinte a changé**, **retire les orphelines**, préserve `90 · Notes`, verrouille les pages
+générées puis impose l'ordre canonique.
 
-## Idempotence & non-destructivité
+Le journal dit, **page par page**, ce qui a été fait : `créé` · `à jour` · `inchangé` ·
+`retiré (orpheline, plus de source)`. La ligne finale compte les appels HTTP **et les
+écritures** — c'est le chiffre que vérifie le critère A8.
+
+## Idempotence & non-destructivité — **incrémentale par empreinte**
 
 - **Espace** : réutilisé par nom s'il existe, créé sinon (jamais de doublon).
 - **Conteneurs** (`10`, `30`, `40`) : créés une fois, **jamais** corbeillés.
-- **Pages générées** : mise à jour = mise en corbeille de l'ancienne + recréation du contenu
-  frais (l'API n'expose pas de remplacement in-place). **Relancer deux fois = même état.**
+- **Pages générées** : une page n'est réécrite que si son **empreinte `sha256` a changé**.
+  Sinon : **zéro appel**. Quand il faut réécrire, l'API n'exposant pas de remplacement
+  in-place, l'ancienne part à la corbeille et une page fraîche est créée.
 - **`90 · Notes`** : jamais touchée après création.
 - Ne touche jamais aux espaces/pages hors périmètre du projet, ni à un autre workspace.
 
-> ⚠️ **Sédiment connu** : la stratégie « corbeille puis recrée » laisse les anciennes versions
-> **dans la corbeille** du workspace, sans jamais la vider. Le rafraîchissement incrémental
-> par empreinte (lot 3) réduira le phénomène ; le vidage des débris se fait par
-> `appflowy-purge.mjs --trash` (geste explicite et confirmé, cf. ci-dessous).
+### L'empreinte (critère A8)
+
+- Prise **côté SOURCE** : le Markdown du dépôt. Le contenu d'une page AppFlowy revient en
+  `encoded_collab` — le hacher côté serveur coûterait un décodage (établi au spike).
+- Elle intègre **`RENDER_VERSION`** (constante du script). **Toute évolution du rendu
+  (mapper, avertissement, index, vue d'ensemble) DOIT l'incrémenter**, sans quoi les pages
+  resteraient figées sur un rendu périmé.
+- État stocké **hors dépôt** : `~/.cache/iakaframe/appflowy/<workspace_id>/<projet>.json`
+  (override : `$IAKAFRAME_CACHE_DIR`). Il mémorise, par page, son `view_id`, son empreinte
+  et son état de verrou.
+- **Le cache ne fait jamais foi seul** : une page n'est réputée à jour que si elle est
+  **encore présente** dans l'arbre relu, **seule** sous son nom et avec **le `view_id`
+  mémorisé**. Une page détruite hors de la skill est donc recréée (critère A1).
+- **Cache absent, illisible, corrompu ou d'un autre `RENDER_VERSION` → ignoré** : la passe
+  réécrit tout. Dégradation propre, jamais de corruption.
+- Le cache n'est écrit **qu'en fin de passe aboutie** : une passe interrompue laisse l'état
+  précédent, donc une reprise qui réécrit.
+
+**Mesuré** (faux serveur, projets réels, 3 passes) : `IakaPcl` 16 pages, `IakaCockpit`
+66 pages, `iakaframe` 108 pages → **2ᵉ et 3ᵉ passes : 0 écriture, 0 débris**, 5 appels HTTP
+de lecture. Avant l'empreinte, la même 2ᵉ passe coûtait 85 / 356 écritures et **+16 / +66
+débris de corbeille par passe**.
+
+### Balayage des orphelins (correction B3, critère A10)
+
+Toute page d'une section générée **qui n'a plus de source** part à la corbeille : un fichier
+renommé ou supprimé ne laisse plus sa page derrière lui, à jour de rien. Le balayage porte
+sur les enfants des conteneurs **et** sur le niveau de l'espace — hors `90 · Notes`, l'espace
+projet appartient au dépôt.
+
+> **`90 · Notes` et TOUS ses descendants sont exclus sans condition**, quels que soient leur
+> nombre et leur nom : la zone humaine n'est le sujet d'aucun ciblage. Le balayage ne la
+> visite même pas.
+
+> ⚠️ **Sédiment résiduel** : chaque réécriture réelle laisse **une** ancienne version dans la
+> corbeille du workspace, que la skill ne vide jamais. Le phénomène est désormais borné au
+> nombre de pages **effectivement changées** ; le vidage se fait par `appflowy-purge.mjs
+> --trash` (geste explicite et confirmé, cf. ci-dessous).
 
 ## Purge — `appflowy-purge.mjs` (outil **destructif**, désarmé par défaut)
 
@@ -199,7 +240,8 @@ mais le **sous-ensemble réellement écrit** dans les `CLAUDE.md` et `specs/` du
 | `1.` / `1)` | `numbered_list`, **un bloc par item** |
 | `- [ ]` / `- [x]` | `todo_list` avec `checked` |
 | `> …` | `quote` (lignes consécutives agglomérées ; une liste citée reste une liste) |
-| ```` ```lang ```` | `code`, **langage conservé** |
+| ```` ```lang ```` | `code`, **langage conservé** — y compris **dans un item de liste** (dédenté) |
+| 4 espaces / 1 tabulation | `code` (bloc **indenté** CommonMark), **jamais de formatage en ligne** |
 | `---` / `***` / `___` | `divider` |
 | tableau `\| … \|` | `code` **préformaté aligné** (colonnes à largeur fixe) |
 | `**gras**`, `*italique*`, `` `code` ``, `[lien](url)` | attributs `bold`, `italic`, `code`, `href` |
@@ -208,6 +250,25 @@ mais le **sous-ensemble réellement écrit** dans les `CLAUDE.md` et `specs/` du
 retour à la ligne (prose rewrappée à 100 colonnes) **ne coupe plus rien** — c'est le cœur du
 critère A7. Idem pour un item de liste écrit sur plusieurs lignes : il reste **un seul** bloc.
 
+**Un marqueur de liste ordonnée n'en est un que s'il peut ouvrir ou poursuivre une suite**
+(règle CommonMark : une liste ordonnée n'interrompt un paragraphe que si elle commence par
+`1`). Sans cette règle, la ligne repliée « `   3000) : configurer Vite` » voyait `3000)` pris
+pour un marqueur, donc **consommé et jeté**.
+
+### Sonde de conservation du contenu — **rien ne disparaît en silence**
+
+Deux invariants, purs et testés, tournent sur chaque document :
+
+| Sonde | Ce qu'elle affirme | Ce qu'elle attrape |
+|---|---|---|
+| **mots** | tout mot du source se retrouve dans le rendu (multi-ensemble, occurrences comprises ; `href` et langage inclus) | ligne, cellule, continuation ou marqueur avalés |
+| **littéral** | toute région littérale du source (fence, 4 espaces) se retrouve **verbatim** dans un bloc `code` | contenu de code reformaté ou passé au formatage en ligne |
+
+La référence ne concède que les marques **déclarées** ci-dessous ; **tout autre déficit est
+une perte** et fait rougir la suite. Passée sur les **420 docs structurants** du portefeuille :
+**0 perte de mot, 0 littéral reformaté**. Contre le mapper précédent, la même sonde relevait
+**1 fichier** en perte de mot et **23** en littéral reformaté.
+
 ### Pertes assumées, déclarées
 
 - **Tableaux** → bloc préformaté aligné. Lisible et jamais éclaté en paragraphes, mais ce n'est
@@ -215,11 +276,15 @@ critère A7. Idem pour un item de liste écrit sur plusieurs lignes : il reste *
   cellules, mesuré au spike S3).
 - **Liens relatifs entre docs** → texte, cible entre parenthèses. Pas de `href` : la cible n'a
   aucun sens côté AppFlowy.
-- **Images** → jamais téléversées : mention explicite `image non publiée : <chemin>`,
-  **jamais un silence**.
+- **Images** → jamais téléversées : mention explicite `image non publiée : <alt> (<chemin>)`,
+  le **texte alternatif conservé** — **jamais un silence**.
 - **Imbrication des listes** → aplatie (`append-block` est plat) ; la profondeur est rendue par
-  un **retrait en espaces insécables**, 2 par niveau.
+  un **retrait en espaces insécables**, 2 par niveau. Un **bloc fencé** écrit dans un item en
+  sort et devient un bloc `code` de plein droit : il ne se fond **jamais** dans le texte.
 - **Numérotation d'origine** → AppFlowy renumérote : une liste démarrant à `3.` repart à `1.`.
+  C'est la **seule** disparition de mot admise, et la sonde ne la concède qu'aux marqueurs
+  qui ouvrent (`0`, `1`) ou poursuivent réellement une suite.
+- **Case à cocher `[x]`** → portée par l'attribut `checked`, retirée du texte.
 - **Biffé `~~x~~`** → laissé littéral (l'attribut n'a pas été vérifié au spike S3).
 - **HTML brut** (y compris les commentaires `<!-- … -->`) → laissé en texte.
 - **Front-matter YAML** → masqué du corps (il sert déjà au titre de page).
@@ -232,13 +297,21 @@ Config absente, instance injoignable, auth refusée, **workspace introuvable** �
 
 ## Tests
 
-Tests unitaires des fonctions **pures** (mapper Markdown cas de bloc par cas de bloc, exclusion
-des gabarits, titres lisibles, ordres canoniques, plan d'arborescence, plan de déplacement,
-sélection du workspace, plan de purge, parseur dotenv) **et** de l'orchestration complète contre
-un **faux serveur en mémoire** qui rejoue les comportements mesurés au spike (ordre de création
-non déterministe, `move`, `PATCH name` obligatoire, corbeille). Le contrat HTTP du client est
-vérifié avec `fetch` stubbé. **Aucun réseau, aucune instance touchée, aucun secret**
-(fixtures bidon).
+Tests unitaires des fonctions **pures** (mapper Markdown cas de bloc par cas de bloc, sonde de
+conservation, empreintes et cache, plan d'orphelins, exclusion des gabarits, titres lisibles,
+ordres canoniques, plan d'arborescence, plan de déplacement, sélection du workspace, plan de
+purge, parseur dotenv) **et** de l'orchestration complète contre un **faux serveur en mémoire**
+qui rejoue les comportements mesurés au spike (ordre de création non déterministe, `move`,
+`PATCH name` obligatoire, troncature de `depth`, corbeille). **Aucun réseau, aucune instance
+touchée, aucun secret** (fixtures bidon).
+
+> ⚠️ **Le double de test EST le vrai client.** `makeFakeClient` construit un
+> **`AppFlowyClient` réel** dont seul le point de sortie HTTP (`_req`) et l'authentification
+> sont neutralisés ; le faux serveur interprète les **URL, verbes et charges utiles réels** et
+> **refuse** une route inconnue ou une charge utile invalide. Un double qui *réimplémenterait*
+> `movePage`, `createPage` ou `setLocked` rendrait l'orchestration aveugle aux défauts du
+> client — c'est exactement ce qui a laissé passer un `prev_view_id` figé. Un test dédié
+> **vérifie que le double n'a réimplémenté aucune méthode**.
 
 **Deux entrées, une seule source de vérité** :
 
@@ -254,8 +327,6 @@ donc aussi sur `library/**`.
 
 ## Hors périmètre (différé tracé)
 
-- **Lot 3** : rafraîchissement incrémental par empreinte `sha256` (cache hors dépôt) et
-  **balayage des pages orphelines**, avec exclusion stricte de `90 · Notes`.
 - **Lot 4** : sections `50 · Recette (RQV)` (statut seul) et `60 · Guide utilisateur`
   (`docs/**.md` hors `qualite/`) — **collecte non encore branchée**, les deux sections sont
   aujourd'hui déclarées « absentes » dans la vue d'ensemble.
