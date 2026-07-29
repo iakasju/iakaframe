@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-07-28 10:02 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-07-29 12:30 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
-  <div class="k">Version</div><div>v0.36.0</div>
+  <div class="k">Version</div><div>v0.37.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>4c6fe54 merge(canal): purge Slack (slack = dead) -&gt; Discord/iakaHub</code></div>
+  <div class="k">Dernier commit</div><div><code>8f90984 merge(vitrine): generateur .md-&gt;.html de methode-de-travail + garde anti-derive</code></div>
   <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
-  <div class="k">Fichiers</div><div>1455 (hors .git / node_modules)</div>
-  <div class='k'>Note</div><div>Purge Slack (slack = dead) : canal Slack retire du canon vivant (skill Odin, specs, kit Ollama-&gt;Discord, vitrines, zone gelee methode-de-travail.html en band-aid), reformule vers Discord/iakaHub. Zones historiques/generees gelees a raison. Cross-repo drift 0/77. Capture aussi les instructions de cadrage purge-scories-slack.md + authoring-corps-skill-editable.md. GUI main @ 1fc2e82.</div>
+  <div class="k">Fichiers</div><div>1458 (hors .git / node_modules)</div>
+  <div class='k'>Note</div><div>Generateur de vitrine .md-&gt;.html retabli : cli/scripts/gen-methode-vitrine.mjs regenere la zone CODE_BLOCKS de methode-de-travail.html depuis le canon vivant (agents = contrats generateAll Option B, roster 9 ; skills frame-scopees iakaframe = 26), splice byte-exact non destructif, idempotent, sous garde anti-derive vitrine-methode.test.js. Corrige le contenu perime (pwsh/fausse charte/slack=0). Leve la dette generateur vitrine (le band-aid de la zone gelee est desormais regenerable). iakaframe seul.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>4c6fe54</code></td><td>2026-07-28</td><td>merge(canal): purge Slack (slack = dead) -&gt; Discord/iakaHub</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>8f90984</code></td><td>2026-07-29</td><td>merge(vitrine): generateur .md-&gt;.html de methode-de-travail + garde anti-derive</td></tr>
+<tr><td><code>d848319</code></td><td>2026-07-29</td><td>chore(vitrine): regenerer la zone CODE_BLOCKS frame-scopee (9 agents + 26 skills)</td></tr>
+<tr><td><code>d96f767</code></td><td>2026-07-29</td><td>refactor(vitrine): frame-scope le bloc skills au domaine iakaframe (iakaframeSkillIds)</td></tr>
+<tr><td><code>f698f61</code></td><td>2026-07-29</td><td>chore(vitrine): regenerer la zone CODE_BLOCKS depuis le canon vivant</td></tr>
+<tr><td><code>7f21b8c</code></td><td>2026-07-29</td><td>feat(vitrine): generateur zone CODE_BLOCKS + garde anti-derive</td></tr>
+<tr><td><code>710363e</code></td><td>2026-07-29</td><td>docs(vitrine): cadrage generateur de vitrine methode md-&gt;html (Option B)</td></tr>
+<tr><td><code>41ec10d</code></td><td>2026-07-28</td><td>chore(iakaframe): update etat des lieux + commit global (version)</td></tr>
+<tr><td><code>4c6fe54</code></td><td>2026-07-28</td><td>merge(canal): purge Slack (slack = dead) -&gt; Discord/iakaHub</td></tr>
 <tr><td><code>1568d62</code></td><td>2026-07-28</td><td>chore(backlog): cloture item scories Slack + note dette regenerateur vitrine</td></tr>
 <tr><td><code>2faa49d</code></td><td>2026-07-28</td><td>chore(canal): purge Slack vitrines HTML + zone gelee methode-de-travail -&gt; Discord</td></tr>
-<tr><td><code>b78861d</code></td><td>2026-07-28</td><td>chore(canal): purge Slack specs equipe-agents + kit Ollama -&gt; Discord</td></tr>
-<tr><td><code>0c53154</code></td><td>2026-07-28</td><td>chore(canal): purge Slack du canon skill Odin -&gt; voix/Discord + regen golden skills</td></tr>
-<tr><td><code>5e64522</code></td><td>2026-07-28</td><td>chore(iakaframe): update etat des lieux + commit global (version)</td></tr>
-<tr><td><code>8ff8d61</code></td><td>2026-07-28</td><td>merge(appflowy-doc): re-integration du chantier appflowy-doc (decideur)</td></tr>
-<tr><td><code>688d22d</code></td><td>2026-07-27</td><td>fix(appflowy-doc): nomme les debris de corbeille dans le plan de purge</td></tr>
-<tr><td><code>67de292</code></td><td>2026-07-27</td><td>docs(appflowy-doc): SKILL.md aligne sur le modele iakadoc + golden regenere</td></tr>
-<tr><td><code>4636881</code></td><td>2026-07-27</td><td>test(appflowy-doc): 72 tests du modele, du contrat HTTP et de la purge</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-07-29 12:30</td><td><span class='r r-version'>version</span></td><td>v0.37.0</td><td>main</td><td>Generateur de vitrine .md-&gt;.html retabli : cli/scripts/gen-methode-vitrine.mjs regenere la zone CODE_BLOCKS de methode-de-travail.html depuis le canon vivant (agents = contrats generateAll Option B, roster 9 ; skills frame-scopees iakaframe = 26), splice byte-exact non destructif, idempotent, sous garde anti-derive vitrine-methode.test.js. Corrige le contenu perime (pwsh/fausse charte/slack=0). Leve la dette generateur vitrine (le band-aid de la zone gelee est desormais regenerable). iakaframe seul.</td></tr>
 <tr><td>2026-07-28 10:02</td><td><span class='r r-version'>version</span></td><td>v0.36.0</td><td>main</td><td>Purge Slack (slack = dead) : canal Slack retire du canon vivant (skill Odin, specs, kit Ollama-&gt;Discord, vitrines, zone gelee methode-de-travail.html en band-aid), reformule vers Discord/iakaHub. Zones historiques/generees gelees a raison. Cross-repo drift 0/77. Capture aussi les instructions de cadrage purge-scories-slack.md + authoring-corps-skill-editable.md. GUI main @ 1fc2e82.</td></tr>
 <tr><td>2026-07-28 00:32</td><td><span class='r r-version'>version</span></td><td>v0.35.0</td><td>main</td><td>Re-integration du chantier appflowy-doc du decideur (modele iakadoc 00-90, purge deux temps desarmee/dry-run, 72 tests hermetiques, SKILL.md aligne) apres ecartement de la contamination R8 ; 5 commits sjupin preserves byte-identiques, desync cross-repo resolue (vendor-check drift 0/77). Fait suite a R8 (b) deploiement runtime (Feanor + 19 skills actifs dans ~/.claude/). GUI main @ 2301a53.</td></tr>
 <tr><td>2026-07-27 14:54</td><td><span class='r r-version'>version</span></td><td>v0.34.0</td><td>main</td><td>R8 phase (a) : mecanisme de deploiement des skills au runtime CONSTRUIT (verbe iakaframe skills deploy [--check] non destructif/idempotent, resolveSkills transitif + detection de cycles, activation A skills: au contrat + B Skill au binding, garde de parite golden+parite-skills.test, roster 9 avec Feanor materialise globalement, anomalie C corrigee, SKILL_OF retiree). ~/.claude/ REEL INTOUCHE (tests en os.tmpdir). Cross-repo drift 0/77. GUI main @ 61f4821. Reste : phase (b) le deploiement reel dans ~/.claude/ = feu vert decideur. Note : contamination appflowy-doc du gate ecartee, 5 commits sjupin preserves sur branche appflowy-doc-wip (+backup origin), a re-integrer separement (merge main + re-vendorisation).</td></tr>

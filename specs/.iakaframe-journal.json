@@ -638,5 +638,15 @@
     "dirty": true,
     "files": 1455,
     "note": "Purge Slack (slack = dead) : canal Slack retire du canon vivant (skill Odin, specs, kit Ollama->Discord, vitrines, zone gelee methode-de-travail.html en band-aid), reformule vers Discord/iakaHub. Zones historiques/generees gelees a raison. Cross-repo drift 0/77. Capture aussi les instructions de cadrage purge-scories-slack.md + authoring-corps-skill-editable.md. GUI main @ 1fc2e82."
+  },
+  {
+    "date": "2026-07-29 12:30",
+    "reason": "version",
+    "version": "v0.37.0",
+    "branch": "main",
+    "commit": "8f90984 merge(vitrine): generateur .md->.html de methode-de-travail + garde anti-derive",
+    "dirty": true,
+    "files": 1458,
+    "note": "Generateur de vitrine .md->.html retabli : cli/scripts/gen-methode-vitrine.mjs regenere la zone CODE_BLOCKS de methode-de-travail.html depuis le canon vivant (agents = contrats generateAll Option B, roster 9 ; skills frame-scopees iakaframe = 26), splice byte-exact non destructif, idempotent, sous garde anti-derive vitrine-methode.test.js. Corrige le contenu perime (pwsh/fausse charte/slack=0). Leve la dette generateur vitrine (le band-aid de la zone gelee est desormais regenerable). iakaframe seul."
   }
 ]
