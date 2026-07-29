@@ -958,8 +958,17 @@ export function inlineCodeLoss(md, blocks) {
 // qui épingle des valeurs littérales.
 const STRUCT_OF = { heading: 'heading', divider: 'divider', code: 'code', numbered_list: 'list', bulleted_list: 'list', todo_list: 'list' }
 
-// Retire le chevron de citation en conservant la LARGEUR du retrait (`> ` ↦ deux espaces) :
-// les retraits relatifs d'une liste citée restent comparables entre eux.
+// Retire le chevron de citation. **Le retrait, lui, est MESURÉ** : sans ce retrait, une liste
+// CITÉE (`> - item`) n'est pas reconnue par `RE_LIST` et la borne basse devient aveugle là où
+// elle devrait compter — sur les 451 docs du portefeuille (dont **45** contiennent au moins une
+// liste citée), la référence perd alors **186 items de liste et 6 titres**.
+//
+// La largeur du chevron est **convertie** en retrait (`> ` ↦ deux espaces) plutôt qu'écrasée.
+// ⚠️ C'est une **prudence, pas un effet mesuré** : les deux variantes donnent des comptes
+// **rigoureusement identiques** sur le corpus (6 437 titres / 2 151 séparateurs / 16 230 listes
+// / 1 576 préformatés) et **aucune** ne produit de faux positif. On garde la conversion parce
+// qu'elle est la seule à distinguer **deux profondeurs de citation** (`> -` vs `> > -`) — cas
+// absent du corpus mesuré, mais pas du Markdown. Aucun bénéfice n'est revendiqué au-delà.
 const unquote = (line) => String(line).replace(/^([ \t]*)((?:>[ \t]?)*)/,
   (_, sp, q) => sp + ' '.repeat(indentWidth(q)))
 
