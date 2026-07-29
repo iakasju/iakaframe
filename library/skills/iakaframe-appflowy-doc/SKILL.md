@@ -408,7 +408,7 @@ première ligne moins indentée ou non-liste : il ne peut pas divaguer hors du n
 ligne repliée de prose (« … Cela fait 20, pas / `18.` L'arithmétique … ») n'a, elle, **aucun**
 voisin ordonné à son retrait : elle reste dans le paragraphe.
 
-**Perte résiduelle DÉCLARÉE (3 occurrences sur 451 documents).** Trois lignes du portefeuille
+**Perte résiduelle DÉCLARÉE (3 occurrences sur tout le corpus mesuré).** Trois lignes du portefeuille
 sont **structurellement ambiguës** — une ligne repliée de prose qui commence par un nombre suivi
 d'un point : `iakaFrameGUI/…/d9-re-vendorage-canon-iakaframe.md:38` (« pas / `18.` »),
 `iakaframe/…/adoption-retrospective-…md:118` (« exit / `0.` »),
@@ -442,7 +442,7 @@ et **rien en amont** : toute la couche de reconnaissance est **partagée** avec 
 (`RE_FENCE`, `RE_TABLE`, `RE_INDENTED_CODE`, `RE_HEADING`, `RE_DIVIDER`, `RE_LIST`,
 `listInterruptsParagraph`, `belongsToOrderedRun`, `stripFrontMatter`, `indentWidth` — pour les
 listes, c'est la **même expression mot pour mot**). Il ne peut donc contredire **aucune** règle de
-reconnaissance : mesuré, il reste **vert sur 451/451** documents quand on altère `RE_LIST`,
+reconnaissance : mesuré, il reste **vert sur la TOTALITÉ** du corpus quand on altère `RE_LIST`,
 `RE_HEADING`, `RE_DIVIDER` ou `belongsToOrderedRun`, là où un oracle indépendant rougit en masse.
 Ce qu'il contredit — items fondus, titre avalé, séparateur perdu, tableau reformaté — l'est
 **à reconnaissance constante**. Le filet contre une régression de la *reconnaissance* reste la
@@ -451,19 +451,44 @@ hors suite, ligne repliée commençant par `|`) sont **exclues du comptage** plu
 mentir la borne.
 
 La référence ne concède que les marques **déclarées** plus bas ; tout autre déficit est une perte
-et fait rougir la suite. Passée sur les **451 docs structurants** du portefeuille — le corpus est
-celui que la skill publie **réellement**, c'est-à-dire filtré par `selectStructuralDocs` : les
-**37 gabarits** `_*.md` que B1 écarte *sans exception* n'en font pas partie, les mesurer serait
-mesurer ce qui n'est jamais rendu. Le corpus a **grandi de 25 documents au lot 4**, quand
-`docs/**.md` hors `qualite/` est entré au contrat (426 → **451**). Résultat : **0 perte de mot,
-0 littéral reformaté, 0 span altéré, 0 structure fondue** — pour un volume couvert de
-**832 078 mots**, **560 régions littérales**, **57 442 spans de code en ligne** et
-**26 394 structures** (6 437 titres, 16 230 items de liste, 2 151 séparateurs,
-1 576 préformatés). Ces volumes sont un **instantané** :
-le portefeuille est vivant, un recomptage ultérieur dérive de quelques dixièmes de pour-cent — les
-compteurs de **perte**, eux, restent à zéro. Rejouées contre les mappers précédents, ces mêmes
-sondes relèvent **1 fichier** en perte de mot, **24 fichiers / 41 régions** en littéral reformaté,
-**7 fichiers / 9 spans** altérés en ligne et **8 fichiers** en structure fondue.
+et fait rougir la suite. Elle est passée sur le corpus que la skill publie **réellement**,
+c'est-à-dire filtré par `selectStructuralDocs` : les gabarits `_*.md` que B1 écarte *sans
+exception* n'en font pas partie — les mesurer serait mesurer ce qui n'est jamais rendu.
+
+> ### ⚠️ Instantané **DATÉ** — ces volumes ne sont PAS un fait reproductible
+>
+> **Mesuré le 2026-07-29**, avec le résolveur du produit lui-même (`resolveDocPaths` +
+> `resolveRecettes`), sur le portefeuille `~/work` :
+>
+> | Grandeur | Valeur au 2026-07-29 |
+> |---|---|
+> | Projets porteurs | **38** |
+> | Docs structurants | **446** |
+> | Gabarits `_*` écartés par B1 | **38** |
+> | Mots couverts | **816 452** |
+> | Régions littérales | **544** |
+> | Spans de code en ligne | **55 603** |
+> | Structures | **25 859** (6 325 titres, 15 871 items, 2 116 séparateurs, 1 547 préformatés) |
+> | Commentaires HTML masqués | **231** sur **45** documents (9 500 caractères) ; **30** conservés en région littérale |
+>
+> **Pourquoi une date et pas un fait.** Ce corpus vit **hors du dépôt** : c'est le portefeuille
+> de travail, il bouge tous les jours sans que la skill change d'une ligne. Le lot 4 bis publiait
+> **451 docs / 39 projets** ; deux jours plus tard la même mesure rend **446 / 38**, et le volume
+> de mots recule de 832 078 à 816 452. **Personne n'a touché au produit entre les deux.** Publier
+> ce nombre comme un fait, c'est publier une **fausse promesse de reproductibilité** : le prochain
+> lecteur qui recompte trouvera autre chose et croira à une régression. Le nombre est donc **daté**
+> — il n'est **rien de plus** que la taille de l'échantillon du jour.
+>
+> **Ce qui, lui, ne bouge pas — et c'est le seul résultat qui compte** : sur cet échantillon,
+> **0 perte de mot, 0 littéral reformaté, 0 span altéré, 0 structure fondue**. Ce verdict est
+> **invariant au volume** : il tient sur 426 documents comme sur 451 ou 446, parce qu'il n'affirme
+> pas « on a mesuré N » mais « le déficit est nul, quel que soit N ». Un chiffre de volume qui
+> dérive n'invalide donc rien ; il n'a simplement jamais rien prouvé à lui seul.
+
+Rejouées contre les mappers précédents, ces mêmes sondes relèvent **1 fichier** en perte de mot,
+**24 fichiers / 41 régions** en littéral reformaté, **7 fichiers / 9 spans** altérés en ligne et
+**8 fichiers** en structure fondue — c'est **cela** qui prouve qu'elles mordent, pas la taille du
+corpus.
 
 > **Aucune mémoire du passé dans la référence.** La reconnaissance d'un marqueur ne dépend que du
 > **voisinage** : toute ligne au retrait `w` **ferme** les suites plus profondes que `w`. Sans
@@ -493,17 +518,17 @@ sondes relèvent **1 fichier** en perte de mot, **24 fichiers / 41 régions** en
   gabarit — dans un miroir destiné **à la lecture**. Deux régions sont **épargnées**, sans
   quoi le masquage détruirait du contenu : le **littéral de bloc** (fence, bloc indenté) et
   le **littéral en ligne** (`` `<!-- x -->` ``) — un commentaire *montré en exemple* **est**
-  le contenu. Mesuré sur les 451 docs structurants : **231 commentaires masqués sur
-  45 documents** (9 500 caractères), et **31 commentaires conservés** parce qu'ils vivent
-  dans une région littérale. Une ligne qui ne portait que le commentaire devient vide, donc
-  **séparatrice** : deux paragraphes distincts ne sont **jamais soudés**.
+  le contenu. Volumes mesurés : voir l'**instantané daté** ci-dessus (§ Sondes de conservation)
+  — ils n'y figurent **qu'une fois**, avec leur date. Une ligne qui ne portait que le
+  commentaire devient vide, donc **séparatrice** : deux paragraphes distincts ne sont
+  **jamais soudés**.
 - **Front-matter YAML** → masqué du corps (il sert déjà au titre de page).
 
 > **Portée déclarée du masquage.** Le mapper **et** les quatre sondes dérivent du **même**
 > point (`docBody` = front-matter retiré, puis commentaires masqués). Les sondes ne peuvent
 > donc **pas** contredire le masquage lui-même — exactement comme elles ne contredisent pas le
 > retrait du front-matter. **Mesuré par mutation** : désarmer le masquage, ou lui retirer
-> l'exemption du littéral de bloc, laisse les sondes **vertes sur 451/451** documents et n'est
+> l'exemption du littéral de bloc, laisse les sondes **vertes sur la TOTALITÉ** des documents et n'est
 > attrapé que par la **suite unitaire** (5 et 2 cas rougissent respectivement). Seule
 > l'exemption du **littéral en ligne**, une fois retirée, produit en plus un signal de corpus :
 > **2 fichiers / 5 spans altérés** — `iakaframe/specs/instructions/canon-projet-connaissance-produit.md`
@@ -512,7 +537,7 @@ sondes relèvent **1 fichier** en perte de mot, **24 fichiers / 41 régions** en
 > (1 span : `stripHeader(golden)`). C'est la suite unitaire qui tient ce filet, et elle seule.
 >
 > *(Rectification du lot 4 : « 2 spans altérés » y était publié — c'était le compte de
-> **fichiers** écrit comme un compte de **spans**. Re-mesuré ici sur les 451 docs, dans la
+> **fichiers** écrit comme un compte de **spans**. Re-mesuré sur tout le corpus, dans la
 > forme « N fichiers / M spans » employée partout ailleurs sur cette page.)*
 
 ## Échec propre

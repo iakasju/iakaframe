@@ -973,13 +973,15 @@ const STRUCT_OF = { heading: 'heading', divider: 'divider', code: 'code', number
 
 // Retire le chevron de citation. **Le retrait, lui, est MESURÉ** : sans ce retrait, une liste
 // CITÉE (`> - item`) n'est pas reconnue par `RE_LIST` et la borne basse devient aveugle là où
-// elle devrait compter — sur les 451 docs du portefeuille (dont **45** contiennent au moins une
-// liste citée), la référence perd alors **186 items de liste et 6 titres**.
+// elle devrait compter — sur le corpus du portefeuille (dont **45** documents contiennent au
+// moins une liste citée), la référence perd alors **186 items de liste et 6 titres**.
+// ⚠️ Le VOLUME du corpus est un instantané DATÉ, jamais un fait : il vit hors du dépôt et
+// dérive tout seul. Il est publié une seule fois, avec sa date, dans SKILL.md.
 //
 // La largeur du chevron est **convertie** en retrait (`> ` ↦ deux espaces) plutôt qu'écrasée.
 // ⚠️ C'est une **prudence, pas un effet mesuré** : les deux variantes donnent des comptes
-// **rigoureusement identiques** sur le corpus (6 437 titres / 2 151 séparateurs / 16 230 listes
-// / 1 576 préformatés) et **aucune** ne produit de faux positif. On garde la conversion parce
+// **rigoureusement identiques** sur le corpus (comptes de structures : cf. l'instantané daté de
+// SKILL.md) et **aucune** ne produit de faux positif. On garde la conversion parce
 // qu'elle est la seule à distinguer **deux profondeurs de citation** (`> -` vs `> > -`) — cas
 // absent du corpus mesuré, mais pas du Markdown. Aucun bénéfice n'est revendiqué au-delà.
 const unquote = (line) => String(line).replace(/^([ \t]*)((?:>[ \t]?)*)/,
