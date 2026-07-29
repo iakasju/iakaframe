@@ -1983,11 +1983,12 @@ async function ensureSpace(client, root, project) {
 }
 
 // Garantit une page conteneur : créée UNE FOIS, jamais mise à la corbeille (§ 5.6).
+// `locked` est OBSERVÉ sur la vue en place (jamais déduit d'un cache) — cf. § verrou convergent.
 async function ensureContainer(client, parentNode, parentId, name) {
   const found = findByName(parentNode, name)
-  if (found) return { id: found.view_id, created: false }
+  if (found) return { id: found.view_id, created: false, locked: found.is_locked === true }
   const id = await client.createPage(parentId, name)
-  return { id, created: true }
+  return { id, created: true, locked: false } // une vue neuve n'est JAMAIS verrouillée
 }
 
 // Recrée une page générée par nom (corbeille de l'existante puis création fraîche).
@@ -2003,16 +2004,21 @@ async function rewritePage(client, parentNode, parentId, name, blocks) {
 
 /**
  * A8 — une page générée, synchronisée par EMPREINTE.
- * Empreinte inchangée + page toujours en place, seule sous son nom, déjà verrouillée
- * => ZÉRO appel d'écriture. C'est ce qui fait tomber la 2ᵉ passe à 0 écriture et tarit
- * la source des débris de corbeille (une réécriture = un débris).
+ * Empreinte inchangée + page toujours en place, seule sous son nom => ZÉRO appel d'écriture.
+ * C'est ce qui fait tomber la 2ᵉ passe à 0 écriture et tarit la source des débris de
+ * corbeille (une réécriture = un débris).
+ *
+ * LOT 5 BIS — LE VERROU N'ENTRE PAS DANS LA DÉCISION DE RÉÉCRITURE. Il en sortait deux
+ * défauts symétriques : un verrou manquant déclenchait une RÉÉCRITURE COMPLÈTE (corbeille +
+ * recréation + tous les blocs) là où un PATCH suffit ; et, côté conteneurs, il était présumé
+ * depuis le cache. Le verrou est désormais OBSERVÉ sur la vue en place et réconcilié à part.
  */
 async function syncPage(ctx, parentNode, parentId, key, name, blocks, hash) {
   const memo = ctx.cache.pages[key]
   const existing = childrenOf(parentNode).filter((c) => c.name === name)
   if (existing.length === 1 && memo && memo.hash === hash
-      && memo.viewId === existing[0].view_id && memo.locked === true) {
-    ctx.next[key] = { viewId: memo.viewId, hash, locked: true }
+      && memo.viewId === existing[0].view_id) {
+    ctx.next[key] = { viewId: memo.viewId, hash, locked: existing[0].is_locked === true }
     ctx.stats.unchanged++
     return { vid: memo.viewId, state: 'inchangé' }
   }
@@ -2125,6 +2131,17 @@ export async function run(argv, env, deps = {}) {
   // A10 — [{ node, names }] : ce qu'on balaiera, une fois toutes les sections traitées.
   const sweeps = []
   // Pages générées à verrouiller (J3) : [{ key, id, name }]. `90 · Notes` n'y entre jamais.
+  //
+  // LOT 5 BIS — VERROU CONVERGENT. `ctx.next[key].locked` porte l'état OBSERVÉ dans l'arbre
+  // qu'on vient de relire (le champ `is_locked` que `/folder` renvoie sur chaque vue), jamais
+  // un état PRÉSUMÉ depuis le cache. Sans quoi un cache périmé — espace détruit puis republié,
+  // le cache étant hors dépôt il survit à la purge — affirme un verrou qui n'existe plus, la
+  // pose est sautée, et l'incrémentalité GÈLE l'écart : la page reste éditable à la main,
+  // définitivement, contre D1. Mesuré sur l'instance le 2026-07-29 (`IakaPcl` : `10 · Le
+  // projet` et `30 · Décisions & cadrage` revenus avec `is_locked=null`).
+  //
+  // Corollaire voulu : le verrou CONVERGE. Un verrou retiré à la main dans l'UI est rétabli
+  // à la passe suivante — au prix d'UN PATCH, sans réécriture ni débris de corbeille.
   const toLock = []
   const lockIfNeeded = (key, id, name) => {
     if (ctx.next[key] && ctx.next[key].locked === true) return // déjà verrouillée : 0 appel
@@ -2188,7 +2205,8 @@ export async function run(argv, env, deps = {}) {
     log(`  · ${section.name} : conteneur ${cont.created ? 'créé' : 'réutilisé'}`)
     topDesired.push(cont.id)
     const contKey = pageKey(section.name)
-    ctx.next[contKey] = { viewId: cont.id, hash: 'conteneur', locked: cache.pages[contKey]?.locked === true }
+    // Verrou OBSERVÉ sur la vue en place — jamais `cache.pages[contKey].locked` (lot 5 bis).
+    ctx.next[contKey] = { viewId: cont.id, hash: 'conteneur', locked: cont.locked === true }
     lockIfNeeded(contKey, cont.id, section.name)
 
     const contNode = findNodeById(tree, cont.id) || { view_id: cont.id, children: [] }
@@ -2231,6 +2249,8 @@ export async function run(argv, env, deps = {}) {
   }
 
   // J3 — verrou déclaratif sur les pages générées 00–60 (jamais sur 90 · Notes).
+  // La liste ne contient QUE les vues observées non verrouillées : un espace déjà conforme
+  // n'y met rien (0 écriture), un espace reconstruit ou déverrouillé à la main s'y répare.
   for (const p of toLock) {
     await client.setLocked(p.id, p.name, true)
     if (ctx.next[p.key]) ctx.next[p.key].locked = true
@@ -2256,6 +2276,9 @@ export async function run(argv, env, deps = {}) {
 
   // A8 — l'état d'empreintes n'est écrit qu'ICI, une fois la passe réellement aboutie :
   // une passe interrompue laisse le cache d'avant, donc une reprise qui réécrit.
+  // Le champ `locked` qui y figure est un RELEVÉ, jamais une autorité : la passe suivante
+  // le réobserve dans `/folder` (lot 5 bis). Le prendre pour argent comptant est précisément
+  // ce qui a laissé deux conteneurs d'`IakaPcl` déverrouillés à vie.
   const cacheWritten = writeCache(cacheFile, { project, workspaceId: client.wid, spaceId: space.id, pages: ctx.next }, fsApi)
   if (!cacheWritten) log(`  - cache d'empreintes non écrit (${cacheFile}) : la prochaine passe réécrira tout`)
 
