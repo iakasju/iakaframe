@@ -439,6 +439,40 @@ décision redescend sous forme d'instruction écrite.
 5. Le développeur lit et applique la correction
 ```
 
+### La rétrospective — inspecter & adapter
+
+Les deux cycles ci-dessus font avancer le **produit**. La rétrospective fait avancer la
+**façon de travailler**. C'est un moment de recul, court et borné, où l'équipe regarde son
+propre processus — pas seulement le livrable — et **adapte** ce qui peut l'être pour le tour
+suivant. C'est la boucle d'amélioration qui referme le cycle 3-phases : sans elle, la méthode
+répète ses habitudes sans jamais les corriger.
+
+**Quand.** À la **clôture d'un tour de travail** — fin d'un lot ou d'une version, à rythme
+régulier. Elle s'aligne sur les jalons du cycle : une fois la version recettée, on prend le
+temps du bilan avant d'enchaîner.
+
+**Qui.** L'**équipe entière** (`side: team`), pas un rôle isolé. Un rôle de facilitation tient
+l'espace et garde le point **franc et sans blâme** ; la comptabilité reste **humaine** — aucun
+automatisme ne remplace la conversation.
+
+**Le geste — inspecter, puis adapter.** Un point d'équipe bref qui suit quatre temps :
+
+```
+1. Rassembler ce que le tour a appris : ce qui a marché, ce qui a surpris, ce qui a échoué
+        ↓
+2. Réfléchir au PROCESSUS lui-même — comment l'équipe travaille — pas seulement au produit
+        ↓
+3. Choisir un petit nombre d'améliorations concrètes et actionnables pour le tour suivant
+        ↓
+4. Décider consciemment de la suite : reboucler, poursuivre, ou aboutir — au vu de ce qui est appris
+```
+
+L'inspection sert l'adaptation : **une rétrospective qui ne change rien manque son but.**
+
+> Réf. : rituel neutre `library/rituals/retrospective.md`. C'est un principe agile général
+> (*inspect & adapt*), transverse aux méthodes ; chaque frame précise dans son assemblage le
+> rythme et le garant.
+
 ---
 
 ## Pourquoi le workflow crée la qualité
