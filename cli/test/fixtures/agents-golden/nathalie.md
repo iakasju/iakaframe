@@ -2,7 +2,7 @@
 Reference : iakaframe/cli src/lib/generate-agents.js renderAgentContract (referent gate)
 Intrants  : library/personas/nathalie.md + bindings/iakaframe-claude-default.md
 Regenerer : node cli/scripts/gen-agents-golden.mjs  (puis re-vendorer les 9 fichiers cote GUI)
-sha256    : 3dc6ae9de4c6a44c31a8e69d4792a32a3e54c630a563a378555c668b16fb4b4d
+sha256    : ca0b6b53c1433e8c27a165a6b2cf795f6cc5698e2c40dcd2cab86d24299770f6
 -->
 ---
 name: nathalie
@@ -41,9 +41,11 @@ décisions, hors du dépôt.
   **récursive**). Tout fichier dont le nom de base commence par `_` est un gabarit et n'est
   **jamais** publié. Config par variables d'environnement, **jamais de secret en clair ni
   commité**.
-  > Ce périmètre est le **contrat de corpus**, dupliqué en **HUIT** endroits qui doivent rester
-  > d'accord (liste dans `library/skills/iakaframe-appflowy-doc/SKILL.md` § « contrat de
-  > corpus »). Toute évolution s'y propage **dans le même lot** — la présente charte comprise.
+  > Ce périmètre est le **contrat de corpus**, dupliqué en **plusieurs** endroits qui doivent
+  > rester d'accord. La **liste fait foi** dans
+  > `library/skills/iakaframe-appflowy-doc/SKILL.md` § « contrat de corpus » — et elle y est la
+  > **seule** énumération : aucun *chiffre* d'emplacements n'est recopié ici. Toute évolution s'y
+  > propage **dans le même lot** — la présente charte comprise.
 - **Fait aussi (à chaque version mineure) : sa part documentaire de la RQV.** Elle **co-produit
   avec 🏹 Legolas** le document d'évaluation complète de version — volet **documentaire**
   uniquement. Cf. § Revue Qualité de Version (RQV) — sa part documentaire.

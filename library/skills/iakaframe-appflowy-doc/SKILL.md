@@ -94,8 +94,11 @@ Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : 
 > `_TEMPLATE.recette.html`…) est un gabarit et **n'est JAMAIS publié**. Un projet qui voudrait
 > publier un tel fichier doit le **renommer**.
 
-> **Le contrat de corpus est dupliqué en HUIT endroits, qui doivent rester d'accord.** La liste
-> ci-dessous **fait foi** ; toute évolution du périmètre se propage aux huit **dans le même lot**.
+> **Le contrat de corpus est dupliqué en PLUSIEURS endroits, qui doivent rester d'accord.** Le
+> **tableau ci-dessous fait foi** — c'est la liste, et elle est **la seule** énumération : on ne
+> répète **nulle part** un *chiffre* d'emplacements. Toute évolution du périmètre se propage à
+> **tous les emplacements du tableau, dans le même lot** ; ajouter un emplacement = **ajouter une
+> ligne ici**, et rien d'autre à corriger ailleurs.
 >
 > | # | Emplacement | Ce qu'il porte |
 > |---|---|---|
@@ -108,10 +111,16 @@ Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : 
 > | 7 | `library/skills/iakaframe-nathalie/SKILL.md` | la **skill-rôle** de cette persona |
 > | 8 | `cli/test/fixtures/agents-golden/nathalie.md` | le **golden**, *dérivé* : il suit par `node scripts/gen-agents-golden.mjs`, jamais à la main |
 >
-> ⚠️ **Le compte a été faux au lot 4** : les cinq premiers ont été propagés, `6` et `7` oubliés —
-> la charte de la persona a donc contredit le rôle qu'elle incarne, sur le périmètre exact de sa
-> propre skill-outil. Le **rôle** ne suffit pas : c'est la **persona** qu'un agent lit. Corriger
-> le rôle sans la persona ne corrige rien.
+> ⚠️ **Pourquoi il n'y a plus de chiffre.** Au lot 4 le compte annoncé était « cinq » : les cinq
+> premières lignes avaient été propagées, la **persona** et sa **skill-rôle** oubliées — la charte
+> de la persona a contredit le rôle qu'elle incarne, sur le périmètre exact de sa propre
+> skill-outil. Le **rôle** ne suffit pas : c'est la **persona** qu'un agent lit. Le lot 4 bis a
+> corrigé le périmètre **et** relevé le compte à « huit »… en le recopiant dans quatre fiches :
+> un 9ᵉ emplacement aurait alors obligé à corriger **un chiffre dans cinq fichiers, plus ce
+> tableau** — exactement le mode de défaillance qu'on venait de constater, reproduit à
+> l'identique. Le **chiffre est donc retiré partout** : un compte dupliqué est une **deuxième**
+> source de vérité, et deux sources de vérité finissent toujours par diverger. Le tableau est la
+> seule.
 
 ### Miroir strict et zone humaine
 

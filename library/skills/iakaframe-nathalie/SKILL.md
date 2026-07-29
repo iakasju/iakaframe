@@ -72,9 +72,11 @@ commence par `_` est un gabarit et n'est **jamais** publié. C'est le **miroir h
 l'état des lieux, pas son remplaçant. Détail : capacité `iakaframe-memoire-humaine` → produit
 installé + `methode-de-travail.md`.
 
-> **Contrat de corpus — dupliqué en HUIT endroits qui doivent rester d'accord.** La liste fait
-> foi dans `library/skills/iakaframe-appflowy-doc/SKILL.md` § « contrat de corpus ». Toute
-> évolution du périmètre se propage aux huit **dans le même lot** — la présente fiche comprise.
+> **Contrat de corpus — dupliqué en plusieurs endroits qui doivent rester d'accord.** La liste
+> fait foi dans `library/skills/iakaframe-appflowy-doc/SKILL.md` § « contrat de corpus » ; elle
+> y est la **seule** énumération (aucun chiffre d'emplacements n'est recopié ailleurs). Toute
+> évolution du périmètre se propage à **tous ses emplacements dans le même lot** — la présente
+> fiche comprise.
 
 ## Garde-fous
 

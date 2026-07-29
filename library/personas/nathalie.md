@@ -40,9 +40,11 @@ décisions, hors du dépôt.
   **récursive**). Tout fichier dont le nom de base commence par `_` est un gabarit et n'est
   **jamais** publié. Config par variables d'environnement, **jamais de secret en clair ni
   commité**.
-  > Ce périmètre est le **contrat de corpus**, dupliqué en **HUIT** endroits qui doivent rester
-  > d'accord (liste dans `library/skills/iakaframe-appflowy-doc/SKILL.md` § « contrat de
-  > corpus »). Toute évolution s'y propage **dans le même lot** — la présente charte comprise.
+  > Ce périmètre est le **contrat de corpus**, dupliqué en **plusieurs** endroits qui doivent
+  > rester d'accord. La **liste fait foi** dans
+  > `library/skills/iakaframe-appflowy-doc/SKILL.md` § « contrat de corpus » — et elle y est la
+  > **seule** énumération : aucun *chiffre* d'emplacements n'est recopié ici. Toute évolution s'y
+  > propage **dans le même lot** — la présente charte comprise.
 - **Fait aussi (à chaque version mineure) : sa part documentaire de la RQV.** Elle **co-produit
   avec 🏹 Legolas** le document d'évaluation complète de version — volet **documentaire**
   uniquement. Cf. § Revue Qualité de Version (RQV) — sa part documentaire.
