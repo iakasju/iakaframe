@@ -23,6 +23,10 @@ import {
   planMoves, pickWorkspace, workspaceLabel, parseArgs, parseDotenv, resolveDocPaths,
   loadDocs, resolveWorkspaceSelector, findNodeById, childrenOf, SEC, indexName, AppFlowyClient,
   DEFAULT_WORKSPACE, run,
+  listInterruptsParagraph, contentWords, sourceReference, wordDeficit, renderedText,
+  contentLoss, literalRegions, literalLoss,
+  fingerprint, pageKey, safeFileName, cachePath, readCache, writeCache, planOrphans,
+  RENDER_VERSION,
 } from './appflowy-doc.mjs'
 import {
   parsePurgeArgs, flattenTree, countDescendants, planPurge, purgeArmed, renderPlan, runPurge,
@@ -390,9 +394,12 @@ test('PERTE ASSUMÉE liens relatifs : texte conservé, cible entre parenthèses,
   assert.equal(parseInline('[x](x)').length, 1, 'cible == libellé : pas de doublon')
 })
 
-test('PERTE ASSUMÉE images : mention explicite, JAMAIS un silence', () => {
+test('PERTE ASSUMÉE images : mention explicite avec le texte alternatif, JAMAIS un silence', () => {
+  // Le texte alternatif est du CONTENU : l'escamoter serait une perte silencieuse de plus.
   assert.deepEqual(parseInline('avant ![schéma](./img/a.png) après'),
-    [{ insert: 'avant image non publiée : ./img/a.png après' }])
+    [{ insert: 'avant image non publiée : schéma (./img/a.png) après' }])
+  assert.deepEqual(parseInline('![](./img/b.png)'),
+    [{ insert: 'image non publiée : ./img/b.png' }])
 })
 
 test('inline : combinaisons imbriquées (gras dans lien, code dans gras)', () => {
@@ -463,6 +470,122 @@ test('robustesse : entrées dégénérées ne lèvent jamais', () => {
   }
 })
 
+// ═══════ R-2 — perte de contenu SILENCIEUSE : les deux défauts + la sonde ═══════
+
+test('R-2a : le marqueur d’une continuation paresseuse n’est PAS avalé', () => {
+  // Reproduction exacte du gate (iakaIDE/specs/instructions/f1-portefeuille.md:67).
+  // Avant : 2 blocs numbered_list et « 3000) » n’apparaissait NULLE PART.
+  const md = '1. **Port dev = 3010** (iakaVODdash occupe deja\n   3000) : configurer Vite sur 3010.'
+  const b = markdownToBlocks(md)
+  assert.deepEqual(b.map((x) => x.type), ['numbered_list'], 'la ligne repliée reste DANS l’item')
+  const t = b[0].data.delta.map((d) => d.insert).join('')
+  assert.match(t, /occupe deja 3000\) : configurer Vite sur 3010\./)
+  assert.deepEqual(contentLoss(md), [], 'aucun mot perdu')
+})
+
+test('R-2a variante : « 14. » n’interrompt pas un paragraphe (règle CommonMark)', () => {
+  const md = 'Le nombre de fenêtres de ma maison est\n14. Le nombre de portes est 6.'
+  const b = markdownToBlocks(md)
+  assert.deepEqual(b.map((x) => x.type), ['paragraph'])
+  assert.match(b[0].data.delta.map((d) => d.insert).join(''), /est 14\. Le nombre de portes/)
+  assert.deepEqual(contentLoss(md), [])
+})
+
+test('R-2a : une liste ordonnée démarrant à 1 interrompt bien un paragraphe', () => {
+  // La règle ne doit pas fermer la porte au cas légitime, sinon elle casse tout le corpus.
+  assert.deepEqual(markdownToBlocks('Prescription :\n1. faire ceci\n2. puis cela')
+    .map((x) => x.type), ['paragraph', 'numbered_list', 'numbered_list'])
+  assert.deepEqual(markdownToBlocks('Prescription :\n- faire ceci').map((x) => x.type),
+    ['paragraph', 'bulleted_list'], 'une puce, elle, interrompt toujours')
+})
+
+test('listInterruptsParagraph : 1 seul ouvre, item vide jamais, puce toujours', () => {
+  assert.equal(listInterruptsParagraph('1.', 'x'), true)
+  assert.equal(listInterruptsParagraph('1)', 'x'), true)
+  assert.equal(listInterruptsParagraph('2.', 'x'), false)
+  assert.equal(listInterruptsParagraph('3000)', 'x'), false)
+  assert.equal(listInterruptsParagraph('-', 'x'), true)
+  assert.equal(listInterruptsParagraph('-', '   '), false, 'un item vide n’interrompt rien')
+})
+
+test('R-2b : bloc de code INDENTÉ (4 espaces) → bloc `code`, contenu jamais reformaté', () => {
+  // Reproduction exacte du gate (remede-vendor-check-derive-de-l-etat.md L55/123/162/212).
+  // Avant : un paragraphe où « __tests__ » devenait « tests » en GRAS, les `_` perdus.
+  const md = 'Prescription :\n\n    cp library/personas/*.md   <GUI>/packages/core/__tests__/fixtures/personas/\n'
+  const b = markdownToBlocks(md)
+  assert.deepEqual(b.map((x) => x.type), ['paragraph', 'code'])
+  assert.equal(b[1].data.delta[0].insert,
+    'cp library/personas/*.md   <GUI>/packages/core/__tests__/fixtures/personas/')
+  assert.equal(b[1].data.language, undefined, 'pas de langage sur un bloc indenté')
+  assert.ok(!b[1].data.delta.some((d) => d.attributes), 'AUCUN formatage en ligne dans du littéral')
+  assert.deepEqual(literalLoss(md), [], 'le littéral se retrouve verbatim')
+})
+
+test('R-2b : une tabulation vaut aussi un bloc indenté ; le retour au ras ferme le bloc', () => {
+  const b = markdownToBlocks('texte\n\n\tligne littérale\n\nsuite')
+  assert.deepEqual(b.map((x) => x.type), ['paragraph', 'code', 'paragraph'])
+  assert.equal(b[1].data.delta[0].insert, 'ligne littérale')
+})
+
+test('R-2b : un retrait DANS une liste reste une continuation d’item, pas du code', () => {
+  // Sans cette garde, toute sous-liste ou continuation indentée basculerait en code.
+  assert.deepEqual(markdownToBlocks('- a\n    suite indentée').map((x) => x.type), ['bulleted_list'])
+  assert.deepEqual(markdownToBlocks('- a\n    - b').map((x) => x.type), ['bulleted_list', 'bulleted_list'])
+})
+
+test('R-2b : un bloc fencé DANS un item de liste reste littéral', () => {
+  const md = '- **Contrat** :\n  ```ts\n  export type Mode = "chat" | "shell";\n  ```\n- suivant'
+  const b = markdownToBlocks(md)
+  assert.deepEqual(b.map((x) => x.type), ['bulleted_list', 'code', 'bulleted_list'])
+  assert.equal(b[1].data.language, 'ts')
+  assert.equal(b[1].data.delta[0].insert, 'export type Mode = "chat" | "shell";', 'dédenté et intact')
+  assert.deepEqual(literalLoss(md), [])
+})
+
+test('SONDE R-2 (1/2) : le multi-ensemble des mots détecte une disparition', () => {
+  assert.deepEqual(wordDeficit(['a', 'b', 'b', 'c'], ['c', 'b', 'a']), ['b'])
+  assert.deepEqual(wordDeficit(['a'], ['a', 'surplus']), [], 'le surplus n’est pas une perte')
+  assert.deepEqual(contentWords('APPFLOWY_WORKSPACE _italique_ 42'),
+    ['APPFLOWY_WORKSPACE', 'italique', '42'], '`_` interne = contenu, `_` de bordure = emphase')
+})
+
+test('SONDE R-2 : la référence ne concède QUE les marques déclarées', () => {
+  const ref = sourceReference('---\ntitle: x\n---\n\n1. un\n2. deux\n- [x] fait\n')
+  assert.ok(!/title/.test(ref), 'front-matter hors référence')
+  assert.match(ref, /^\s*un\ndeux\nfait/, 'marqueurs conformes et case à cocher concédés')
+  // …mais un « 3000) » surgi d’une ligne repliée reste, LUI, dans la référence.
+  assert.match(sourceReference('1. deja\n   3000) : configurer'), /3000\)/)
+})
+
+test('SONDE R-2 (2/2) : tout littéral du source se retrouve dans un bloc `code`', () => {
+  assert.deepEqual(literalRegions('a\n\n```js\nconst x = 1\n```\n\n    indenté\n'),
+    ['const x = 1', 'indenté'])
+  assert.deepEqual(literalLoss('a\n\n```js\nconst x = 1\n```\n\n    indenté\n'), [])
+})
+
+test('SONDE R-2 : elle CONTREDIT un mapper fautif (mutation-test de la sonde)', () => {
+  // Une sonde qu’aucune faute ne fait rougir ne prouve rien. On lui soumet ici des rendus
+  // FAUTIFS fabriqués à la main : elle doit les refuser.
+  const md = '1. deja\n   3000) : configurer'
+  const rendu = [numbered('deja'), numbered(': configurer')] // le rendu d’AVANT le correctif
+  assert.deepEqual(
+    wordDeficit(contentWords(sourceReference(md)), contentWords(renderedText(rendu))),
+    ['3000'], 'la sonde doit voir « 3000 » disparaître')
+  const md2 = 'x :\n\n    a__b__c\n'
+  const renduFaux = [para('x :'), para([{ insert: 'a' }, { insert: 'b', attributes: { bold: true } }, { insert: 'c' }])]
+  const rendus = renduFaux.filter((b) => b.type === 'code')
+  assert.deepEqual(rendus, [], 'aucun bloc code : le littéral a été reformaté')
+  assert.equal(literalRegions(md2).length, 1, 'la sonde voit pourtant une région littérale')
+})
+
+test('SONDE R-2 : renderedText ramasse href et langage (le contenu n’est pas que du texte)', () => {
+  const b = markdownToBlocks('[doc](https://exemple.test/page)\n\n```bash\nnpm test\n```')
+  const t = renderedText(b)
+  assert.match(t, /exemple\.test/)
+  assert.match(t, /bash/)
+  assert.match(t, /npm test/)
+})
+
 // ── Le test qui tranche : un CLAUDE.md réaliste, bout en bout ──
 
 test('A7 bout en bout : un CLAUDE.md réaliste satisfait les 5 comptages du critère', () => {
@@ -525,6 +648,34 @@ test('A7 bout en bout : un CLAUDE.md réaliste satisfait les 5 comptages du crit
   // et la citation sur 2 lignes = 1 seul bloc quote.
   assert.equal(n('quote'), 1)
   assert.equal(n('divider'), 1)
+
+  // SONDE R-2 sur ce document réaliste : rien ne disparaît, rien n'est déformaté.
+  assert.deepEqual(contentLoss(md), [])
+  assert.deepEqual(literalLoss(md), [])
+})
+
+test('SONDE R-2 bout en bout : zéro perte sur un échantillon de tout le sous-ensemble', () => {
+  // Un document par difficulté connue du corpus. La sonde tourne aussi hors chaîne sur les
+  // 420 docs structurants du portefeuille (voir SKILL.md § Sonde de conservation).
+  const echantillon = [
+    '# Titre\n\nProse rewrappée\nsur deux lignes.\n',
+    '1. un\n2. deux\n3) trois\n',
+    '1. **Port dev = 3010** (iakaVODdash occupe deja\n   3000) : configurer Vite sur 3010.\n',
+    'Le nombre de fenêtres est\n14. Le nombre de portes est 6.\n',
+    'Prescription :\n\n    cp library/personas/*.md   <GUI>/core/__tests__/fixtures/\n',
+    '- item\n  ```bash\n  npm run test:all\n  ```\n- suivant\n',
+    '| a | b |\n|---|---|\n| `x\\|y` | 2 |\n',
+    '> 1. cité numéroté\n> 2. suite\n\n> simple citation\n',
+    '- [ ] à faire\n- [x] fait\n  - imbriqué\n',
+    'voir ![schéma du flux](./img/a.png) et [la spec](./specs/PROJET.md) et [web](https://ex.test/p)\n',
+    '---\ntitle: Depuis le front-matter\n---\n\n# Corps\n\ntexte APPFLOWY_WORKSPACE et _emphase_.\n',
+    '~~~python\nprint("**pas gras**")\n~~~\n',
+    '#### Titre profond\n\n<!-- commentaire HTML -->\n\ntexte ~~biffé~~ final\n',
+  ]
+  for (const md of echantillon) {
+    assert.deepEqual(contentLoss(md), [], 'mots perdus dans : ' + JSON.stringify(md.slice(0, 60)))
+    assert.deepEqual(literalLoss(md), [], 'littéral reformaté dans : ' + JSON.stringify(md.slice(0, 60)))
+  }
 })
 
 // ═══════════════════ § 5.1 — titres lisibles ═══════════════════
@@ -788,6 +939,8 @@ const MTIME = {
   'specs/instructions/b.md': 100,
 }
 const relOf = (full) => String(full).replace(/^\/repo\/?/, '').split('\\').join('/')
+// Disque virtuel du cache d'empreintes (A8) : hors dépôt, hors disque réel.
+const DISQUE = new Map()
 const fsMock = {
   existsSync: (full) => relOf(full) === '' || FILES[relOf(full)] !== undefined,
   statSync: (full) => {
@@ -803,9 +956,12 @@ const fsMock = {
   },
   readFileSync: (full) => {
     const rel = relOf(full)
-    if (FILES[rel] === undefined) throw new Error('ENOENT')
-    return FILES[rel]
+    if (FILES[rel] !== undefined) return FILES[rel]
+    if (DISQUE.has(String(full))) return DISQUE.get(String(full))
+    throw new Error('ENOENT')
   },
+  mkdirSync: () => {},
+  writeFileSync: (full, data) => { DISQUE.set(String(full), String(data)) },
 }
 
 test('A3 resolveDocPaths : les gabarits _* ne sortent JAMAIS de la collecte', () => {
@@ -871,77 +1027,126 @@ function makeFakeServer() {
   return server
 }
 
+// R-4 — TROU DE DÉTECTION FERMÉ.
+//
+// L'ancien double RÉIMPLÉMENTAIT les méthodes du client : `movePage`, `createPage`,
+// `setLocked`… Résultat, le vrai `AppFlowyClient` n'était couvert que par quelques tests de
+// contrat, et une mutation comme `prev_view_id: null` en dur survivait à toute la chaîne —
+// alors qu'en production elle aurait mis toutes les pages en tête et cassé A5 sans faire
+// rougir un test.
+//
+// Ici, le double N'EST PLUS un client : c'est le VRAI `AppFlowyClient`, dont on ne remplace
+// que le point de sortie HTTP (`_req`, `auth`). Toute l'orchestration passe donc par les
+// URL, les verbes et les CHARGES UTILES réels, interprétés par un faux serveur strict :
+// une route inconnue ou une charge utile invalide LÈVE.
 function makeFakeClient(server) {
   const clone = (n) => ({ ...n, children: childrenOf(n).map(clone) })
-  return {
-    wid: null, workspaceName: null, calls: { total: 0, writes: 0 },
-    async auth() {}, async provision() {},
-    async resolveWorkspace(sel) {
-      const ws = pickWorkspace(server.workspaces, sel)
-      this.wid = ws.workspace_id
-      this.workspaceName = workspaceLabel(ws)
-      return this.wid
-    },
-    async listWorkspaces() { return server.workspaces },
-    async folder() { this.calls.total++; return clone(server.roots[this.wid]) },
-    async createSpace(name) {
-      server.writes++; this.calls.total++
-      const node = { view_id: 'v' + (++server.seq), name, is_space: true, children: [] }
-      server.roots[this.wid].children.unshift(node) // ordre de création NON déterministe
-      return node.view_id
-    },
-    async createPage(parent, name) {
-      server.writes++; this.calls.total++
-      const p = server.nodeById(this.wid, parent)
-      if (!p) throw new Error('parent introuvable : ' + parent)
-      const node = { view_id: 'v' + (++server.seq), name, is_space: false, children: [] }
-      p.children.unshift(node) // idem : c'est ce qui rend le `move` obligatoire (J2)
-      return node.view_id
-    },
-    async appendBlocks(vid, blocks) {
-      server.writes++; this.calls.total++
-      server.blocks.set(vid, (server.blocks.get(vid) || []).concat(blocks))
-    },
-    async setLocked(vid, name, locked) {
-      server.writes++; this.calls.total++
-      if (!name) throw new Error("PATCH : champ 'name' obligatoire")
-      server.patched.push({ vid, name, locked })
-      server.locks.set(vid, !!locked)
-    },
-    async movePage(vid, parent, prev) {
-      server.writes++; this.calls.total++
-      const from = server.parentOf(this.wid, vid)
-      const node = server.nodeById(this.wid, vid)
+  const client = new AppFlowyClient({
+    base: 'http://fixture.invalid', email: 'bidon@example.test', password: 'bidon',
+  })
+  client.auth = async () => { client.token = 'jeton-bidon'; return client.token }
+
+  client._req = async (method, p, body) => {
+    client.calls.total++
+    if (method !== 'GET') { client.calls.writes++; server.writes++ }
+    const [route, query] = String(p).split('?')
+    const seg = route.split('/').filter(Boolean) // api workspace <wid> …
+    const need = (v, msg) => { if (v === undefined || v === null) throw new Error('400 ' + msg); return v }
+
+    if (method === 'GET' && route.startsWith('/api/user/verify/')) return {}
+    if (method === 'GET' && route === '/api/workspace') return { data: server.workspaces }
+
+    const wid = seg[2]
+    const root = server.roots[wid]
+    if (!root) throw new Error('404 workspace inconnu : ' + wid)
+
+    if (method === 'GET' && seg[3] === 'folder') {
+      // J1 — `depth` tronque STRICTEMENT côté serveur : on rejoue la troncature.
+      const depth = Number(new URLSearchParams(query || '').get('depth') || 1)
+      const cut = (n, d) => ({ ...n, children: d <= 1 ? [] : childrenOf(n).map((c) => cut(c, d - 1)) })
+      return { data: cut(clone(root), depth) }
+    }
+    if (method === 'POST' && seg[3] === 'space' && seg.length === 4) {
+      need(body.name, 'name obligatoire')
+      const node = { view_id: 'v' + (++server.seq), name: body.name, is_space: true, children: [] }
+      root.children.unshift(node) // ordre de création NON déterministe (mesuré au spike)
+      return { data: { view_id: node.view_id } }
+    }
+    if (method === 'POST' && seg[3] === 'page-view' && seg.length === 4) {
+      const parent = server.nodeById(wid, need(body.parent_view_id, 'parent_view_id obligatoire'))
+      if (!parent) throw new Error('404 parent introuvable : ' + body.parent_view_id)
+      const node = { view_id: 'v' + (++server.seq), name: need(body.name, 'name obligatoire'), is_space: false, children: [] }
+      parent.children.unshift(node) // idem : c'est ce qui rend le `move` obligatoire (J2)
+      return { data: { view_id: node.view_id } }
+    }
+    const vid = seg[4]
+    if (method === 'POST' && seg[3] === 'page-view' && seg[5] === 'append-block') {
+      if (!Array.isArray(body?.blocks)) throw new Error('400 blocks obligatoire')
+      server.blocks.set(vid, (server.blocks.get(vid) || []).concat(body.blocks))
+      return {}
+    }
+    if (method === 'PATCH' && seg[3] === 'page-view' && seg.length === 5) {
+      need(body.name, "champ 'name' obligatoire (J3)") // le serveur réel répond 400 sans lui
+      const node = server.nodeById(wid, vid)
+      if (node) node.name = body.name
+      server.patched.push({ vid, name: body.name, locked: body.is_locked })
+      if (body.is_locked !== undefined) server.locks.set(vid, !!body.is_locked)
+      return {}
+    }
+    if (method === 'POST' && seg[5] === 'move') {
+      const parentId = need(body.new_parent_view_id, 'new_parent_view_id obligatoire')
+      if (!('prev_view_id' in body)) throw new Error('400 prev_view_id obligatoire (null = en tête)')
+      const from = server.parentOf(wid, vid)
+      const node = server.nodeById(wid, vid)
+      if (!from || !node) throw new Error('404 page introuvable : ' + vid)
       from.children = from.children.filter((c) => c.view_id !== vid)
-      const to = server.nodeById(this.wid, parent)
-      const at = prev === null || prev === undefined ? 0 : to.children.findIndex((c) => c.view_id === prev) + 1
+      const to = server.nodeById(wid, parentId)
+      const at = body.prev_view_id === null ? 0 : to.children.findIndex((c) => c.view_id === body.prev_view_id) + 1
       to.children.splice(at, 0, node)
-    },
-    async moveToTrash(vid) {
-      server.writes++; this.calls.total++
-      const from = server.parentOf(this.wid, vid)
-      const node = server.nodeById(this.wid, vid)
+      return {}
+    }
+    if (method === 'POST' && seg[5] === 'move-to-trash') {
+      const from = server.parentOf(wid, vid)
+      const node = server.nodeById(wid, vid)
+      if (!from || !node) throw new Error('404 page introuvable : ' + vid)
       from.children = from.children.filter((c) => c.view_id !== vid)
       server.trash.push({ view_id: vid, name: node.name })
-    },
-    async listTrash() { this.calls.total++; return server.trash.slice() },
-    async deleteFromTrash(vid) {
-      server.writes++; this.calls.total++
-      server.trash = server.trash.filter((t) => t.view_id !== vid)
-      server.deleted.push(vid)
-    },
+      return {}
+    }
+    if (method === 'GET' && seg[3] === 'trash') return { data: { views: server.trash.slice() } }
+    if (method === 'DELETE' && seg[3] === 'trash') {
+      server.trash = server.trash.filter((t) => t.view_id !== seg[4])
+      server.deleted.push(seg[4])
+      return {}
+    }
+    throw new Error(`404 route inconnue : ${method} ${route}`)
   }
+  return client
 }
 
-const ENV = { APPFLOWY_URL: 'http://fixture.invalid', APPFLOWY_EMAIL: 'bidon@example.test', APPFLOWY_PASSWORD: 'bidon' }
+const ENV = {
+  APPFLOWY_URL: 'http://fixture.invalid', APPFLOWY_EMAIL: 'bidon@example.test',
+  APPFLOWY_PASSWORD: 'bidon', IAKAFRAME_CACHE_DIR: '/cache',
+}
+// Un env SANS cache partagé : chaque test qui le veut repart d'une ardoise vierge.
+const envCache = (tag) => ({ ...ENV, IAKAFRAME_CACHE_DIR: '/cache/' + tag })
 const silence = () => {}
 const namesOf = (n) => childrenOf(n).map((c) => c.name)
 
-async function publier(server, extraArgv = []) {
-  return run(['--project', 'demo', '--root', '/repo', '--workspace', 'projects', ...extraArgv], ENV, {
-    fs: fsMock, log: silence, now: () => new Date('2026-07-27T10:00:00.000Z'),
-    makeClient: () => makeFakeClient(server),
-  })
+// Un cache par SERVEUR : deux passes sur le même serveur partagent leurs empreintes
+// (c'est le chemin incrémental réel), deux tests n'héritent jamais l'un de l'autre.
+let noCache = 0
+const cacheDeServeur = new WeakMap()
+const cacheFor = (server) => {
+  if (!cacheDeServeur.has(server)) cacheDeServeur.set(server, envCache('s' + (++noCache)))
+  return cacheDeServeur.get(server)
+}
+async function publier(server, extraArgv = [], env) {
+  return run(['--project', 'demo', '--root', '/repo', '--workspace', 'projects', ...extraArgv],
+    env || cacheFor(server), {
+      fs: fsMock, log: silence, now: () => new Date('2026-07-27T10:00:00.000Z'),
+      makeClient: () => makeFakeClient(server),
+    })
 }
 
 test('A5 orchestration : arborescence 00–90 complète et ORDONNÉE au niveau espace', async () => {
@@ -1078,6 +1283,177 @@ test('A14 orchestration : aucun secret dans le journal de sortie', async () => {
   assert.ok(!txt.includes(ENV.APPFLOWY_EMAIL))
 })
 
+// ═══════════════════ A8 — incrémentalité par empreinte ═══════════════════
+
+test('A8 fingerprint : stable, sensible au contenu, et lié à RENDER_VERSION', () => {
+  assert.equal(fingerprint('a', 'b'), fingerprint('a', 'b'))
+  assert.notEqual(fingerprint('a', 'b'), fingerprint('a', 'c'))
+  assert.notEqual(fingerprint('ab', ''), fingerprint('a', 'b'), 'les parties sont séparées')
+  assert.match(fingerprint('x'), /^[0-9a-f]{64}$/, 'sha256')
+  assert.ok(RENDER_VERSION, 'une version de rendu DOIT exister : sans elle, un changement de mapper laisserait les pages figées')
+})
+
+test('A8 cachePath : HORS dépôt, par workspace et par projet, nom de fichier assaini', () => {
+  const p = cachePath({ IAKAFRAME_CACHE_DIR: '/c' }, 'ws-proj', 'Iaka Cockpit/../x')
+  assert.equal(p, '/c/ws-proj/Iaka_Cockpit_.._x.json')
+  assert.ok(!cachePath({}, 'w', 'p').includes('/repo'), 'jamais dans le dépôt')
+  assert.equal(safeFileName(''), 'projet')
+  // Un nom de projet ne doit pas pouvoir s’échapper du dossier de cache.
+  const evade = safeFileName('../../etc/passwd')
+  assert.ok(!evade.includes('/') && !evade.startsWith('.'), 'nom de fichier évadé : ' + evade)
+})
+
+test('A8 readCache : absent, illisible, corrompu ou d’un autre rendu -> vide (dégradation propre)', () => {
+  const boum = { readFileSync: () => { throw new Error('ENOENT') } }
+  assert.deepEqual(readCache('/c/x.json', boum), { pages: {} })
+  assert.deepEqual(readCache('/c/x.json', { readFileSync: () => '{pas du json' }), { pages: {} })
+  assert.deepEqual(readCache('/c/x.json', { readFileSync: () => JSON.stringify({ render: 'vieux', pages: { a: 1 } }) }),
+    { pages: {} }, 'un cache d’un autre rendu est jeté, jamais réutilisé')
+  const bon = JSON.stringify({ render: RENDER_VERSION, spaceId: 's1', pages: { a: { hash: 'h' } } })
+  assert.deepEqual(readCache('/c/x.json', { readFileSync: () => bon }), { spaceId: 's1', pages: { a: { hash: 'h' } } })
+})
+
+test('A8 writeCache : échec d’écriture toléré, jamais une exception', () => {
+  const ecrits = new Map()
+  assert.equal(writeCache('/c/x.json', { pages: {} }, { mkdirSync: () => {}, writeFileSync: (f, d) => ecrits.set(f, d) }), true)
+  assert.match(ecrits.get('/c/x.json'), new RegExp(RENDER_VERSION))
+  assert.equal(writeCache('/c/x.json', { pages: {} }, { mkdirSync: () => { throw new Error('EACCES') } }), false)
+})
+
+test('A8 orchestration : 2ᵉ passe sur projet INCHANGÉ = ZÉRO écriture, ZÉRO débris', async () => {
+  const server = makeFakeServer()
+  const r1 = await publier(server)
+  const ecrites1 = server.writes
+  const debris1 = server.trash.length
+  assert.ok(ecrites1 > 0, 'la 1ʳᵉ passe écrit')
+
+  server.writes = 0
+  const r2 = await publier(server)
+  assert.equal(server.writes, 0, `2ᵉ passe : ${server.writes} écriture(s) au lieu de 0`)
+  assert.equal(r2.writes, 0, 'le compteur du client le confirme')
+  assert.equal(r2.created + r2.updated + r2.removed + r2.moves + r2.locked, 0)
+  assert.equal(r2.unchanged, r1.created, 'toutes les pages sont déclarées inchangées')
+  assert.equal(server.trash.length, debris1, 'aucun débris de corbeille supplémentaire')
+  assert.equal(r2.spaceId, r1.spaceId)
+})
+
+test('A8 : seule la page dont la SOURCE a changé est réécrite', async () => {
+  const server = makeFakeServer()
+  await publier(server)
+  const avant = FILES['specs/instructions/a.md']
+  try {
+    FILES['specs/instructions/a.md'] = '# Alpha\ncontenu MODIFIÉ'
+    server.writes = 0
+    const r = await publier(server)
+    assert.equal(r.updated, 1, 'une seule page réécrite')
+    assert.equal(r.unchanged >= 7, true, `pages inchangées : ${r.unchanged}`)
+    assert.equal(server.trash.length, 1, 'un seul débris : l’ancienne version de la page touchée')
+    assert.equal(server.trash[0].name, 'Alpha')
+  } finally { FILES['specs/instructions/a.md'] = avant }
+})
+
+test('A8/A1 : cache perdu -> tout est réécrit, l’arbre reste identique (dégradation propre)', async () => {
+  const server = makeFakeServer()
+  const r1 = await publier(server)
+  const noms1 = namesOf(findNodeById(server.roots['ws-proj'], r1.spaceId))
+  const r2 = await publier(server, [], envCache('cache-perdu')) // autre cache = cache perdu
+  assert.equal(r2.unchanged, 0, 'sans cache, rien n’est présumé à jour')
+  assert.equal(r2.updated, r1.created, 'tout est régénéré')
+  assert.deepEqual(namesOf(findNodeById(server.roots['ws-proj'], r2.spaceId)), noms1, 'même arbre')
+})
+
+test('A8/A1 : page disparue côté AppFlowy -> recréée malgré un cache « à jour »', async () => {
+  const server = makeFakeServer()
+  const r1 = await publier(server)
+  const space = findNodeById(server.roots['ws-proj'], r1.spaceId)
+  const etat = childrenOf(space).find((c) => c.name === SEC.ETAT)
+  space.children = space.children.filter((c) => c.view_id !== etat.view_id) // destruction hors skill
+  const r2 = await publier(server)
+  assert.equal(r2.created, 1, 'la page détruite est recréée, le cache ne fait jamais foi seul')
+  assert.ok(namesOf(findNodeById(server.roots['ws-proj'], r1.spaceId)).includes(SEC.ETAT))
+})
+
+// ═══════════════════ A10/B3 — balayage des orphelins ═══════════════════
+
+test('A10 planOrphans : ce qui n’est plus attendu, JAMAIS 90 · Notes', () => {
+  const node = { children: [
+    { view_id: 'v1', name: 'Alpha' }, { view_id: 'v2', name: 'Beta' },
+    { view_id: 'v3', name: SEC.NOTES },
+  ] }
+  assert.deepEqual(planOrphans(node, ['Alpha']), [{ view_id: 'v2', name: 'Beta' }])
+  assert.deepEqual(planOrphans(node, []), [
+    { view_id: 'v1', name: 'Alpha' }, { view_id: 'v2', name: 'Beta' },
+  ], '90 · Notes reste hors de tout ciblage, même quand plus RIEN n’est attendu')
+})
+
+test('A10 orchestration : un fichier RENOMMÉ ne laisse pas sa page derrière lui', async () => {
+  const server = makeFakeServer()
+  await publier(server)
+  const avant = FILES['specs/instructions/b.md']
+  try {
+    delete FILES['specs/instructions/b.md']
+    FILES['specs/instructions/b2.md'] = '# Beta renommee\ncontenu'
+    MTIME['specs/instructions/b2.md'] = 100
+    const r = await publier(server)
+    const s30 = childrenOf(findNodeById(server.roots['ws-proj'], r.spaceId)).find((c) => c.name === SEC.CADRAGE)
+    assert.deepEqual(namesOf(s30), [indexName('30'), 'Alpha', 'Beta renommee'],
+      'l’ancienne page « Beta » ne doit PLUS être là')
+    assert.ok(server.trash.some((t) => t.name === 'Beta'), '« Beta » doit être à la corbeille')
+    assert.equal(r.removed, 1)
+  } finally {
+    FILES['specs/instructions/b.md'] = avant
+    delete FILES['specs/instructions/b2.md']; delete MTIME['specs/instructions/b2.md']
+  }
+})
+
+test('A10 orchestration : un fichier SUPPRIMÉ retire sa page', async () => {
+  const server = makeFakeServer()
+  await publier(server)
+  const avant = FILES['docs/qualite/v0.9.0.md']
+  try {
+    delete FILES['docs/qualite/v0.9.0.md']
+    const r = await publier(server)
+    const s40 = childrenOf(findNodeById(server.roots['ws-proj'], r.spaceId)).find((c) => c.name === SEC.QUALITE)
+    assert.deepEqual(namesOf(s40), [indexName('40'), 'Qualité v0.10.0'])
+    assert.ok(server.trash.some((t) => t.name === 'Qualité v0.9.0'))
+  } finally { FILES['docs/qualite/v0.9.0.md'] = avant }
+})
+
+test('A10 : le balayage n’atteint NI 90 · Notes NI ses descendants', async () => {
+  const server = makeFakeServer()
+  const r1 = await publier(server)
+  const space = findNodeById(server.roots['ws-proj'], r1.spaceId)
+  const notes = childrenOf(space).find((c) => c.name === SEC.NOTES)
+  notes.children.push({ view_id: 'humaine-9', name: 'Ma note à moi', children: [
+    { view_id: 'humaine-10', name: 'sous-note', children: [] },
+  ] })
+  const avant = FILES['specs/instructions/b.md']
+  try {
+    delete FILES['specs/instructions/b.md'] // provoque un balayage réel dans la même passe
+    await publier(server)
+    const space2 = findNodeById(server.roots['ws-proj'], r1.spaceId)
+    const notes2 = childrenOf(space2).find((c) => c.name === SEC.NOTES)
+    assert.equal(notes2.view_id, notes.view_id)
+    assert.deepEqual(namesOf(notes2), ['Ma note à moi'])
+    assert.deepEqual(namesOf(childrenOf(notes2)[0]), ['sous-note'])
+    for (const id of ['humaine-9', 'humaine-10', notes.view_id]) {
+      assert.ok(!server.trash.some((t) => t.view_id === id), 'zone humaine touchée : ' + id)
+    }
+  } finally { FILES['specs/instructions/b.md'] = avant }
+})
+
+test('A10 : une page intruse au niveau de l’espace est retirée (l’espace appartient au dépôt)', async () => {
+  const server = makeFakeServer()
+  const r1 = await publier(server)
+  const space = findNodeById(server.roots['ws-proj'], r1.spaceId)
+  space.children.push({ view_id: 'vieille-section', name: '70 · Ancienne section', children: [] })
+  const r2 = await publier(server)
+  assert.equal(r2.removed, 1)
+  assert.ok(server.trash.some((t) => t.name === '70 · Ancienne section'))
+  assert.deepEqual(namesOf(findNodeById(server.roots['ws-proj'], r1.spaceId)),
+    [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.NOTES])
+})
+
 // ═══════════════════ Contrat HTTP du client (fetch stubbé, aucun réseau) ═══════════════════
 
 // Rejoue les URL/verbes/charges utiles MESURÉS au spike lot 0. Aucune instance jointe.
@@ -1130,10 +1506,46 @@ test('J2 client.movePage : POST .../move avec new_parent_view_id et prev_view_id
     const c = new AppFlowyClient({ base: 'http://fixture.invalid', email: 'a@b.test', password: 'x' })
     c.wid = 'ws-proj'
     await c.movePage('v9', 'p1', null)
+    // R-4 — le cas NON NUL était le trou : `prev_view_id: null` figé en dur survivait à
+    // toute la chaîne (693 tests, 0 fail) et aurait mis toutes les pages en tête en prod.
+    await c.movePage('v9', 'p1', 'v8')
+    await c.movePage('v9', 'p1') // valeur par défaut
     assert.equal(appels[0].method, 'POST')
     assert.match(appels[0].url, /\/api\/workspace\/ws-proj\/page-view\/v9\/move$/)
     assert.deepEqual(appels[0].body, { new_parent_view_id: 'p1', prev_view_id: null })
+    assert.deepEqual(appels[1].body, { new_parent_view_id: 'p1', prev_view_id: 'v8' },
+      'le frère précédent DOIT être transmis tel quel')
+    assert.deepEqual(appels[2].body, { new_parent_view_id: 'p1', prev_view_id: null })
   })
+})
+
+test('R-4 : le double de test EST le vrai client (aucune méthode réimplémentée)', async () => {
+  // C'est la garde structurelle du trou de détection : si quelqu'un réintroduit un faux
+  // client qui réimplémente `movePage`, `createPage` ou `setLocked`, l'orchestration
+  // cesserait d'exercer les charges utiles réelles — et ce test rougit AVANT.
+  const c = makeFakeClient(makeFakeServer())
+  assert.ok(c instanceof AppFlowyClient, 'le double doit être un AppFlowyClient')
+  for (const m of ['movePage', 'createPage', 'createSpace', 'appendBlocks', 'setLocked',
+    'patchPage', 'moveToTrash', 'listTrash', 'deleteFromTrash', 'folder', 'resolveWorkspace',
+    'listWorkspaces', 'provision']) {
+    assert.equal(c[m], AppFlowyClient.prototype[m], `méthode réimplémentée par le double : ${m}`)
+  }
+  // Seuls le point de sortie HTTP et l'authentification sont neutralisés.
+  assert.notEqual(c._req, AppFlowyClient.prototype._req)
+  assert.notEqual(c.auth, AppFlowyClient.prototype.auth)
+})
+
+test('R-4 : le faux serveur REFUSE une charge utile invalide (sinon il ne prouve rien)', async () => {
+  const server = makeFakeServer()
+  const c = makeFakeClient(server)
+  await c.resolveWorkspace('projects')
+  await assert.rejects(() => c._req('POST', `/api/workspace/${c.wid}/page-view`, { name: 'x' }),
+    /parent_view_id obligatoire/)
+  await assert.rejects(() => c._req('PATCH', `/api/workspace/${c.wid}/page-view/v1`, { is_locked: true }),
+    /'name' obligatoire/)
+  await assert.rejects(() => c._req('POST', `/api/workspace/${c.wid}/page-view/v1/move`, { new_parent_view_id: 'p' }),
+    /prev_view_id obligatoire/)
+  await assert.rejects(() => c._req('GET', `/api/workspace/${c.wid}/inconnu`), /route inconnue/)
 })
 
 test('J3 client.setLocked : PATCH page-view avec name OBLIGATOIRE + is_locked', async () => {
@@ -1298,7 +1710,9 @@ test('J4 runPurge : garde-fous d’usage (workspace obligatoire, cible obligatoi
 
 // Les cas sont EXPORTÉS pour que la chaîne `node --test` (depuis cli/) les rejoue un par un
 // via cli/test/appflowy-doc-skill.test.js — cf. en-tête, R-1.
-export { cases }
+// Le faux serveur et son client sont exportés eux aussi : toute mesure d'A8 (écritures,
+// débris) DOIT porter sur CE double-là, jamais sur une réplique divergente.
+export { cases, makeFakeServer, makeFakeClient }
 
 const isMain = import.meta.url === `file://${process.argv[1]}`
 if (isMain) {

@@ -20,6 +20,12 @@
 //   30 Décisions & cadrage (+ index) · 40 Qualité (+ index) · 50 Recette · 60 Guide ·
 //   90 Notes (HUMAINE, create-if-missing, jamais écrasée).
 //
+// Rafraîchissement INCRÉMENTAL (lot 3, critère A8) : empreinte sha256 prise CÔTÉ SOURCE,
+//   état hors dépôt ($IAKAFRAME_CACHE_DIR, sinon ~/.cache/iakaframe/appflowy/<wid>/<projet>.json).
+//   Une page inchangée ne coûte AUCUNE écriture. Cache perdu -> tout est réécrit.
+// Balayage des ORPHELINS (lot 3, B3/A10) : une page de section générée sans source part à la
+//   corbeille. `90 · Notes` et ses descendants sont exclus sans condition.
+//
 // Mécanismes API vérifiés en réel (spike lot 0, 2026-07-27, AppFlowy Cloud 0.15.21) :
 //   - imbrication de pages sous une page : OK (S1) ; `/folder?depth=` tronque → depth ≥ 6 (J1)
 //   - ordre des frères : POST .../page-view/{vid}/move {new_parent_view_id, prev_view_id} (S2/J2)
@@ -30,6 +36,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
+import { createHash } from 'node:crypto'
 
 // ───────────────────────── Modèle iakadoc (constantes normatives) ─────────────────────────
 
@@ -189,13 +196,19 @@ const NBSP = ' '
 
 // Marques de bloc reconnues en tête de ligne — sert aussi à décider si une ligne peut être
 // la continuation « paresseuse » d'un item de liste (CommonMark) ou non.
-const RE_FENCE = /^ {0,3}(`{3,}|~{3,})[ \t]*([^\s`]*)/
+const RE_FENCE = /^( {0,3})(`{3,}|~{3,})[ \t]*([^\s`]*)/
+// Même clôture, retrait libre : un bloc fencé écrit DANS un item de liste est indenté au
+// niveau du contenu de l'item. Sans cette variante, son corps repartait en texte d'item,
+// donc reformaté en ligne — la même perte silencieuse que R-2b.
+const RE_FENCE_ANY = /^([ \t]*)(`{3,}|~{3,})[ \t]*([^\s`]*)/
 const RE_HEADING = /^ {0,3}(#{1,6})[ \t]+(.*?)[ \t]*#*[ \t]*$/
 const RE_DIVIDER = /^ {0,3}(-{3,}|\*{3,}|_{3,})[ \t]*$/
 const RE_QUOTE = /^ {0,3}>[ \t]?(.*)$/
 const RE_TABLE = /^ {0,3}\|/
 const RE_LIST = /^([ \t]*)([-*+]|\d{1,9}[.)])[ \t]+(.*)$/
 const RE_TODO = /^\[([ xX])\][ \t]+(.*)$/
+// Bloc de code INDENTÉ (CommonMark) : 4 espaces ou 1 tabulation en tête.
+const RE_INDENTED_CODE = /^(?: {4}|\t)/
 
 function isBlockStart(line) {
   return RE_FENCE.test(line) || RE_HEADING.test(line) || RE_DIVIDER.test(line)
@@ -203,6 +216,20 @@ function isBlockStart(line) {
 }
 
 const indentWidth = (s) => s.replace(/\t/g, '    ').length
+
+/**
+ * Un marqueur de liste peut-il INTERROMPRE un paragraphe (CommonMark) ?
+ * - liste ordonnée : seulement si elle commence par 1 ;
+ * - item vide : jamais.
+ * Sans cette règle, « … occupe deja\n   3000) : configurer … » voyait `3000)` pris pour un
+ * marqueur, donc CONSOMMÉ et jeté : perte de contenu SILENCIEUSE (R-2a). Idem pour
+ * « le nombre de fenêtres est\n14. le nombre de portes est 6. ».
+ */
+export function listInterruptsParagraph(marker, content) {
+  if (!String(content ?? '').trim()) return false
+  const m = /^(\d{1,9})[.)]$/.exec(String(marker ?? ''))
+  return m ? Number(m[1]) === 1 : true
+}
 
 // ── Formatage en ligne ──
 
@@ -278,7 +305,10 @@ export function parseInline(text) {
           const end = closingParen(src, close + 2)
           if (end !== -1) {
             const url = src.slice(close + 2, end).trim().split(/\s+/)[0]
-            flush(); push(`image non publiée : ${url}`, attrs)
+            // Le texte alternatif est du CONTENU : il est conservé, jamais escamoté.
+            const alt = src.slice(i + 2, close).trim()
+            flush()
+            push(alt ? `image non publiée : ${alt} (${url})` : `image non publiée : ${url}`, attrs)
             i = end + 1; continue
           }
         }
@@ -413,15 +443,19 @@ export function markdownToBlocks(md) {
     const line = lines[i]
 
     // 1. Code fencé — avant tout le reste : son contenu n'est jamais interprété.
-    const fence = RE_FENCE.exec(line)
+    //    Sous une liste ouverte, le retrait du fence est libre (il suit celui de l'item).
+    const fence = RE_FENCE.exec(line) || (listStack.length ? RE_FENCE_ANY.exec(line) : null)
     if (fence) {
       flush(); closeList()
-      const marker = fence[1][0]           // ` ou ~
-      const closeRe = new RegExp('^ {0,3}' + (marker === '~' ? '~' : '\\`') + '{3,}[ \\t]*$')
-      const lang = (fence[2] || '').split(/[:\s]/)[0]
+      const pad = fence[1]
+      const marker = fence[2][0]           // ` ou ~
+      const closeRe = new RegExp('^[ \\t]{0,' + Math.max(3, indentWidth(pad)) + '}'
+        + (marker === '~' ? '~' : '\\`') + '{3,}[ \\t]*$')
+      const lang = (fence[3] || '').split(/[:\s]/)[0]
+      const dedent = new RegExp('^' + pad.replace(/[\t]/g, '\\t'))
       const body = []
       i++
-      while (i < lines.length && !closeRe.test(lines[i])) { body.push(lines[i]); i++ }
+      while (i < lines.length && !closeRe.test(lines[i])) { body.push(lines[i].replace(dedent, '')); i++ }
       i++ // consomme la clôture (absente en fin de fichier : sans conséquence)
       blocks.push(code(body.join('\n'), lang))
       continue
@@ -438,6 +472,20 @@ export function markdownToBlocks(md) {
 
     // 3. Ligne vide : elle seule sépare deux paragraphes.
     if (!line.trim()) { flush(); closeList(); i++; continue }
+
+    // 3 bis. Bloc de code INDENTÉ (4 espaces / 1 tabulation), CommonMark. Il ne démarre
+    // jamais au milieu d'un paragraphe ni sous une liste ouverte (ce serait une
+    // continuation d'item). Sans ce cas, le contenu partait en paragraphe AVEC formatage
+    // inline : « __tests__ » devenait « tests » en gras, les `_` disparaissaient (R-2b).
+    if (!buf.length && !listStack.length && RE_INDENTED_CODE.test(line)) {
+      const body = []
+      while (i < lines.length && (RE_INDENTED_CODE.test(lines[i]) || !lines[i].trim())) {
+        body.push(lines[i].replace(RE_INDENTED_CODE, '')); i++
+      }
+      while (body.length && !body[body.length - 1].trim()) body.pop()
+      blocks.push(code(body.join('\n')))
+      continue
+    }
 
     // 4. Titre ATX (`####`+ clampé au niveau 3 — J7).
     const h = RE_HEADING.exec(line)
@@ -469,6 +517,11 @@ export function markdownToBlocks(md) {
     // 7. Item de liste (à puce / numérotée / à cocher), avec continuations.
     const li = RE_LIST.exec(line)
     if (li) {
+      // Un paragraphe est ouvert : seule une liste qui PEUT l'interrompre le coupe.
+      // Sinon la ligne lui appartient encore — et son marqueur n'est pas avalé (R-2a).
+      if (buf.length && !listInterruptsParagraph(li[2], li[3])) {
+        buf.push(line.trim()); i++; continue
+      }
       flush()
       const ind = indentWidth(li[1])
       while (listStack.length && listStack[listStack.length - 1] >= ind) listStack.pop()
@@ -479,9 +532,20 @@ export function markdownToBlocks(md) {
       i++
       // Continuation : ligne plus indentée que le marqueur, OU continuation paresseuse
       // (ligne nue qui n'ouvre aucun bloc). Dans les deux cas : PAS un nouveau paragraphe.
-      while (i < lines.length && lines[i].trim() && !RE_LIST.test(lines[i])
-             && (indentWidth(lines[i].match(/^[ \t]*/)[0]) > ind || !isBlockStart(lines[i]))) {
-        parts.push(lines[i].trim()); i++
+      while (i < lines.length && lines[i].trim()) {
+        const next = lines[i]
+        const nInd = indentWidth(next.match(/^[ \t]*/)[0])
+        const nli = RE_LIST.exec(next)
+        if (nli) {
+          // Au même niveau (ou plus à gauche) : nouvel item de la liste DÉJÀ ouverte —
+          // il n'interrompt aucun paragraphe, sa numérotation est donc libre.
+          if (nInd <= ind) break
+          // Plus indenté : ce serait une SOUS-liste, qui n'ouvre que si elle peut
+          // interrompre le paragraphe de l'item. Sinon : continuation paresseuse.
+          if (listInterruptsParagraph(nli[2], nli[3])) break
+        } else if (RE_FENCE_ANY.test(next)) break // le littéral ne se fond jamais dans l'item
+        else if (nInd <= ind && isBlockStart(next)) break
+        parts.push(next.trim()); i++
       }
       const raw = parts.join(' ')
       // La profondeur est rendue par un retrait insécable : l'API `append-block` est plate.
@@ -502,6 +566,155 @@ export function markdownToBlocks(md) {
   }
   flush()
   return blocks
+}
+
+// ═════════ Sonde de conservation du contenu (R-2) — le filet anti-perte silencieuse ═════════
+//
+// Une perte de contenu ne DOIT jamais passer inaperçue. Les deux défauts trouvés au gate du
+// lot 2 (marqueur numéroté avalé, bloc de code indenté reformaté) partageaient la même
+// signature : du texte disparaissait du rendu sans qu'aucun test ne rougisse. La sonde
+// compare un MULTI-ENSEMBLE de mots source au rendu ; tout déficit est une perte.
+
+// Un « mot » = une suite de lettres / chiffres / underscore. La ponctuation de syntaxe
+// (`#`, `-`, `|`, `>`, `*`) n'en produit aucun : elle peut disparaître sans alerte.
+// Les `_` de BORDURE sont rognés des deux côtés de la comparaison : ce sont des marques
+// d'emphase (`_à confirmer_`), consommées par construction. Les `_` INTERNES, eux, sont
+// du contenu (`snake_case`, `IAKAGRAPH_ROOT`) et restent comparés.
+export function contentWords(text) {
+  return (String(text ?? '').match(/[\p{L}\p{N}_]+/gu) || [])
+    .map((w) => w.replace(/^_+|_+$/g, ''))
+    .filter(Boolean)
+}
+
+// Référence : le source privé des SEULES marques dont la disparition est déclarée —
+// front-matter (§ pertes), marqueur de liste (AppFlowy renumérote), case à cocher
+// (portée par `checked`). Tout le reste doit survivre au rendu.
+//
+// Point CRUCIAL, et la raison pour laquelle une simple regex ne suffit pas : un marqueur
+// ordonné n'est retiré que s'il est CONFORME à la suite en cours (1, puis 2, puis 3…).
+// Un « 3000) » surgissant en tête d'une ligne repliée n'est PAS un marqueur : il reste
+// dans la référence, et sa disparition du rendu devient une perte détectée (R-2a).
+// Ce compteur est indépendant du mapper : il ne partage aucune ligne de code avec lui.
+export function sourceReference(md) {
+  const lines = stripFrontMatter(md).body.split('\n')
+  const out = []
+  const last = new Map() // retrait -> dernier numéro de suite accepté
+  let fence = null
+  let listOpen = false   // un item de liste vient d'être vu (sans ligne vide depuis)
+  for (const raw of lines) {
+    if (fence) { // dans un bloc fencé, rien n'est marqueur
+      out.push(raw)
+      if (fence.test(raw)) fence = null
+      continue
+    }
+    const f = RE_FENCE_ANY.exec(raw)
+    if (f) {
+      fence = new RegExp('^[ \\t]*' + (f[2][0] === '~' ? '~' : '\\`') + '{3,}[ \\t]*$')
+      out.push(raw); continue
+    }
+    if (!raw.trim()) { listOpen = false; out.push(raw); continue }
+    const m = /^([ \t]*)((?:>[ \t]?)*)([-*+]|\d{1,9}[.)])[ \t]+(\[[ xX]\][ \t]+)?/.exec(raw)
+    if (!m) { out.push(raw); continue }
+    const indent = indentWidth(m[1] + m[2])
+    const num = /^(\d{1,9})[.)]$/.exec(m[3])
+    let conforme = true
+    if (num) {
+      // Un marqueur ordonné n'est un marqueur que s'il OUVRE une suite (1), la POURSUIT
+      // (progression, sauts admis), ou démarre une suite HORS d'un contexte de liste.
+      // « 3000) » en tête d'une ligne repliée d'un item n'est aucun des trois : il reste
+      // dans la référence, et son escamotage devient une perte DÉTECTÉE (R-2a).
+      const n = Number(num[1])
+      conforme = n <= 1 // 0 et 1 ouvrent une suite (CommonMark admet « 0. »)
+        || (last.has(indent) && n > last.get(indent))
+        || (!last.has(indent) && !listOpen)
+      if (conforme) last.set(indent, n)
+    }
+    listOpen = true
+    out.push(conforme ? m[1] + m[2] + raw.slice(m[0].length) : raw)
+  }
+  return out.join('\n')
+}
+
+// ── Second invariant : le LITTÉRAL reste littéral ──
+//
+// Régions littérales du source, au sens CommonMark : corps de bloc fencé, et suite de
+// lignes indentées d'au moins 4 espaces précédée d'une ligne vide. Extraites SANS le
+// mapper : c'est ce qui rend l'invariant capable de le contredire (R-2b — les blocs
+// indentés partaient en paragraphe, `__tests__` devenait « tests » en gras).
+export function literalRegions(md) {
+  const lines = stripFrontMatter(md).body.split('\n')
+  const out = []
+  let i = 0
+  let blankBefore = true
+  while (i < lines.length) {
+    const f = RE_FENCE_ANY.exec(lines[i])
+    if (f) {
+      const closeRe = new RegExp('^[ \\t]*' + (f[2][0] === '~' ? '~' : '\\`') + '{3,}[ \\t]*$')
+      const dedent = new RegExp('^' + f[1].replace(/[\t]/g, '\\t'))
+      const body = []
+      i++
+      while (i < lines.length && !closeRe.test(lines[i])) { body.push(lines[i].replace(dedent, '')); i++ }
+      i++
+      out.push(body.join('\n')); blankBefore = false; continue
+    }
+    if (blankBefore && lines[i].trim() && RE_INDENTED_CODE.test(lines[i])) {
+      const body = []
+      while (i < lines.length && (RE_INDENTED_CODE.test(lines[i]) || !lines[i].trim())) {
+        body.push(lines[i].replace(RE_INDENTED_CODE, '')); i++
+      }
+      while (body.length && !body[body.length - 1].trim()) body.pop()
+      out.push(body.join('\n')); blankBefore = false; continue
+    }
+    blankBefore = !lines[i].trim()
+    i++
+  }
+  return out.filter((t) => t.trim())
+}
+
+// SONDE (2/2) : toute région littérale du source se retrouve VERBATIM dans un bloc `code`.
+// Retourne les régions introuvables — vide = aucun littéral reformaté.
+export function literalLoss(md) {
+  const rendus = markdownToBlocks(stripFrontMatter(md).body)
+    .filter((b) => b.type === 'code')
+    .map((b) => (b.data.delta || []).map((d) => d.insert).join(''))
+  return literalRegions(md).filter((r) => !rendus.some((t) => t.includes(r)))
+}
+
+// Multi-ensemble des mots de `before` absents de `after` (occurrences comprises).
+export function wordDeficit(before, after) {
+  const stock = new Map()
+  for (const w of after) stock.set(w, (stock.get(w) || 0) + 1)
+  const lost = []
+  for (const w of before) {
+    const n = stock.get(w) || 0
+    if (n > 0) stock.set(w, n - 1)
+    else lost.push(w)
+  }
+  return lost
+}
+
+// Tout le texte réellement porté par des blocs : inserts, `href` (une cible est du contenu)
+// et langage de bloc de code. Surtout PAS `JSON.stringify` : son échappement `\n` collerait
+// le « n » au mot suivant et la sonde inventerait des pertes.
+export function renderedText(blocks) {
+  const out = []
+  const walk = (b) => {
+    const d = (b && b.data) || {}
+    if (d.language) out.push(String(d.language))
+    for (const seg of d.delta || []) {
+      out.push(String(seg.insert ?? ''))
+      if (seg.attributes && seg.attributes.href) out.push(String(seg.attributes.href))
+    }
+    for (const c of (b && b.children) || []) walk(c)
+  }
+  for (const b of blocks || []) walk(b)
+  return out.join('\n')
+}
+
+// SONDE : mots du source absents du rendu. Vide = conservation intégrale.
+export function contentLoss(md) {
+  const blocks = markdownToBlocks(stripFrontMatter(md).body)
+  return wordDeficit(contentWords(sourceReference(md)), contentWords(renderedText(blocks)))
 }
 
 // Mapping fichier → blocs. Le front-matter YAML est masqué du corps (il a déjà servi au
@@ -750,6 +963,70 @@ export function planMoves(currentIds, desiredIds) {
     order.splice(target, 0, id)
   }
   return moves
+}
+
+// ═══════════ Incrémentalité par empreinte (§ 5.5, critère A8) — fonctions pures ═══════════
+//
+// L'empreinte est prise CÔTÉ SOURCE (le Markdown du dépôt) : le contenu d'une page AppFlowy
+// revient en `encoded_collab`, le hacher côté serveur coûterait un décodage (établi au spike).
+// Elle intègre `RENDER_VERSION` : changer le mapper ou le modèle invalide tout le cache, sans
+// quoi une page resterait figée sur un rendu périmé.
+
+// ⚠️ À INCRÉMENTER à toute évolution du rendu (mapper, avertissement, index, vue d'ensemble).
+export const RENDER_VERSION = 'lot3.1'
+
+export function fingerprint(...parts) {
+  const h = createHash('sha256')
+  h.update(RENDER_VERSION)
+  for (const p of parts) { h.update(' '); h.update(String(p ?? '')) }
+  return h.digest('hex')
+}
+
+// Clé d'identité stable d'une page dans l'espace : son chemin de NOMS depuis l'espace.
+export function pageKey(...names) {
+  return names.filter(Boolean).join(' ⟩ ')
+}
+
+// Un nom de projet ne doit jamais s'échapper en chemin de fichier.
+export function safeFileName(name) {
+  return (String(name ?? '').replace(/[^\p{L}\p{N}._-]+/gu, '_').replace(/^\.+/, '_').slice(0, 120)) || 'projet'
+}
+
+// État HORS DÉPÔT (§ 5.5) : ~/.cache/iakaframe/appflowy/<workspace_id>/<projet>.json
+export function cachePath(env, workspaceId, project) {
+  const base = env.IAKAFRAME_CACHE_DIR || path.join(os.homedir(), '.cache', 'iakaframe', 'appflowy')
+  return path.join(base, safeFileName(workspaceId), safeFileName(project) + '.json')
+}
+
+// Lecture DÉFENSIVE : absent, illisible, corrompu ou d'un autre rendu -> vide. La passe
+// suivante réécrit alors tout : dégradation propre, jamais de corruption (§ 5.5).
+export function readCache(file, fsApi = fs) {
+  try {
+    const j = JSON.parse(fsApi.readFileSync(file, 'utf8'))
+    if (!j || j.render !== RENDER_VERSION || typeof j.pages !== 'object' || !j.pages) return { pages: {} }
+    return { spaceId: j.spaceId, pages: j.pages }
+  } catch { return { pages: {} } }
+}
+
+// Écriture défensive : un cache non écrit dégrade la passe suivante, il ne la casse pas.
+export function writeCache(file, data, fsApi = fs) {
+  try {
+    fsApi.mkdirSync(path.dirname(file), { recursive: true })
+    fsApi.writeFileSync(file, JSON.stringify({ render: RENDER_VERSION, ...data }, null, 1))
+    return true
+  } catch { return false }
+}
+
+// ── Balayage des orphelins (correction B3, critère A10) ──
+
+// PUR : parmi les enfants relus d'un parent, ceux dont le nom n'est plus attendu.
+// `90 · Notes` (et donc tout son sous-arbre, jamais visité) est EXCLU sans condition —
+// c'est la zone humaine, elle n'est le sujet d'aucun ciblage (§ 5.4).
+export function planOrphans(parentNode, expectedNames) {
+  const attendus = new Set(expectedNames)
+  return childrenOf(parentNode)
+    .filter((c) => c.name !== SEC.NOTES && !attendus.has(c.name))
+    .map((c) => ({ view_id: c.view_id, name: c.name }))
 }
 
 // ── Sélection du workspace (correction B2) ──
@@ -1102,6 +1379,27 @@ async function rewritePage(client, parentNode, parentId, name, blocks) {
   return { vid, replaced: existing.length > 0 }
 }
 
+/**
+ * A8 — une page générée, synchronisée par EMPREINTE.
+ * Empreinte inchangée + page toujours en place, seule sous son nom, déjà verrouillée
+ * => ZÉRO appel d'écriture. C'est ce qui fait tomber la 2ᵉ passe à 0 écriture et tarit
+ * la source des débris de corbeille (une réécriture = un débris).
+ */
+async function syncPage(ctx, parentNode, parentId, key, name, blocks, hash) {
+  const memo = ctx.cache.pages[key]
+  const existing = childrenOf(parentNode).filter((c) => c.name === name)
+  if (existing.length === 1 && memo && memo.hash === hash
+      && memo.viewId === existing[0].view_id && memo.locked === true) {
+    ctx.next[key] = { viewId: memo.viewId, hash, locked: true }
+    ctx.stats.unchanged++
+    return { vid: memo.viewId, state: 'inchangé' }
+  }
+  const r = await rewritePage(ctx.client, parentNode, parentId, name, blocks)
+  ctx.next[key] = { viewId: r.vid, hash, locked: false }
+  r.replaced ? ctx.stats.updated++ : ctx.stats.created++
+  return { vid: r.vid, state: r.replaced ? 'à jour' : 'créé' }
+}
+
 // § 5.4 — `90 · Notes` : créée si absente, JAMAIS réécrite, JAMAIS verrouillée.
 async function ensureNotes(client, spaceNode, spaceId, generatedAtIso) {
   const found = findByName(spaceNode, SEC.NOTES)
@@ -1161,72 +1459,111 @@ export async function run(argv, env, deps = {}) {
   let spaceNode = findNodeById(tree, space.id) || { view_id: space.id, children: [] }
 
   const contentOf = (rel) => (docs.find((d) => d.rel === rel) || {}).content ?? ''
-  const stats = { created: 0, updated: 0, containers: 0, locked: 0, moves: 0 }
+  const stats = {
+    created: 0, updated: 0, unchanged: 0, containers: 0, locked: 0, moves: 0, removed: 0,
+  }
+  // A8 — état d'empreintes, HORS DÉPÔT. Cache perdu => tout est réécrit (dégradation propre).
+  const cacheFile = cachePath(env, client.wid, project)
+  const cache = readCache(cacheFile, fsApi)
+  const ctx = { client, cache, next: {}, stats }
   // Ordre canonique voulu, niveau espace : les sections du plan, dans l'ordre du plan.
   const topDesired = []
+  const topNames = []
   // [{ parentId, desired: [view_id...] }] — ordre voulu à l'intérieur des conteneurs.
   const innerDesired = []
-  // Pages générées à verrouiller (J3) : [{ id, name }]. `90 · Notes` n'y entre jamais.
+  // A10 — [{ node, names }] : ce qu'on balaiera, une fois toutes les sections traitées.
+  const sweeps = []
+  // Pages générées à verrouiller (J3) : [{ key, id, name }]. `90 · Notes` n'y entre jamais.
   const toLock = []
+  const lockIfNeeded = (key, id, name) => {
+    if (ctx.next[key] && ctx.next[key].locked === true) return // déjà verrouillée : 0 appel
+    toLock.push({ key, id, name })
+  }
 
   for (const section of plan.sections) {
     if (section.kind === 'human') {
       const notes = await ensureNotes(client, spaceNode, space.id, generatedAt)
       log(`  · ${section.name} : ${notes.created ? 'créée' : 'préservée (jamais réécrite)'}`)
-      topDesired.push(notes.id)
+      topDesired.push(notes.id); topNames.push(section.name)
       continue
     }
+    topNames.push(section.name)
 
     if (section.kind === 'overview') {
-      const ov = await rewritePage(client, spaceNode, space.id, section.name, overviewBlocks(plan, generatedAt))
-      ov.replaced ? stats.updated++ : stats.created++
-      log(`  · ${section.name} : ${ov.replaced ? 'régénérée' : 'créée'}`)
+      const key = pageKey(section.name)
+      const hash = fingerprint('overview', JSON.stringify({
+        p: plan.project, v: plan.version, c: plan.counters,
+        s: plan.sections.map((x) => x.name), m: plan.missing,
+      }))
+      const ov = await syncPage(ctx, spaceNode, space.id, key, section.name,
+        overviewBlocks(plan, generatedAt), hash)
+      log(`  · ${section.name} : ${ov.state}`)
       topDesired.push(ov.vid)
-      toLock.push({ id: ov.vid, name: section.name })
+      lockIfNeeded(key, ov.vid, section.name)
       continue
     }
 
     if (section.kind === 'page') {
-      const blocks = mirrorBlocks(section.source, contentOf(section.source), generatedAt)
-      const p = await rewritePage(client, spaceNode, space.id, section.name, blocks)
-      p.replaced ? stats.updated++ : stats.created++
-      log(`  · ${section.name} ← ${section.source} : ${p.replaced ? 'régénérée' : 'créée'}`)
+      const key = pageKey(section.name)
+      const hash = fingerprint('mirror', section.name, section.source, contentOf(section.source))
+      const p = await syncPage(ctx, spaceNode, space.id, key, section.name,
+        mirrorBlocks(section.source, contentOf(section.source), generatedAt), hash)
+      log(`  · ${section.name} ← ${section.source} : ${p.state}`)
       topDesired.push(p.vid)
-      toLock.push({ id: p.vid, name: section.name })
+      lockIfNeeded(key, p.vid, section.name)
       continue
     }
 
-    // Conteneur : créé une fois, jamais corbeillé ; ses enfants sont régénérés.
+    // Conteneur : créé une fois, jamais corbeillé ; ses enfants sont synchronisés.
     const cont = await ensureContainer(client, spaceNode, space.id, section.name)
     if (cont.created) stats.containers++
     log(`  · ${section.name} : conteneur ${cont.created ? 'créé' : 'réutilisé'}`)
     topDesired.push(cont.id)
-    toLock.push({ id: cont.id, name: section.name })
+    const contKey = pageKey(section.name)
+    ctx.next[contKey] = { viewId: cont.id, hash: 'conteneur', locked: cache.pages[contKey]?.locked === true }
+    lockIfNeeded(contKey, cont.id, section.name)
 
     const contNode = findNodeById(tree, cont.id) || { view_id: cont.id, children: [] }
     const inner = []
+    const innerNames = []
 
     if (section.index) {
-      const idx = await rewritePage(client, contNode, cont.id, section.index.name, indexBlocks(section, generatedAt))
-      idx.replaced ? stats.updated++ : stats.created++
-      inner.push(idx.vid)
-      toLock.push({ id: idx.vid, name: section.index.name })
-      log(`    - ${section.index.name} : ${idx.replaced ? 'régénéré' : 'créé'}`)
+      const key = pageKey(section.name, section.index.name)
+      const hash = fingerprint('index', section.name, ...section.children.map((c) => c.name))
+      const idx = await syncPage(ctx, contNode, cont.id, key, section.index.name,
+        indexBlocks(section, generatedAt), hash)
+      inner.push(idx.vid); innerNames.push(section.index.name)
+      lockIfNeeded(key, idx.vid, section.index.name)
+      log(`    - ${section.index.name} : ${idx.state}`)
     }
     for (const child of section.children) {
-      const blocks = mirrorBlocks(child.source, contentOf(child.source), generatedAt)
-      const p = await rewritePage(client, contNode, cont.id, child.name, blocks)
-      p.replaced ? stats.updated++ : stats.created++
-      inner.push(p.vid)
-      toLock.push({ id: p.vid, name: child.name })
-      log(`    - ${child.name} ← ${child.source} : ${p.replaced ? 'régénérée' : 'créée'}`)
+      const key = pageKey(section.name, child.name)
+      const hash = fingerprint('mirror', child.name, child.source, contentOf(child.source))
+      const p = await syncPage(ctx, contNode, cont.id, key, child.name,
+        mirrorBlocks(child.source, contentOf(child.source), generatedAt), hash)
+      inner.push(p.vid); innerNames.push(child.name)
+      lockIfNeeded(key, p.vid, child.name)
+      log(`    - ${child.name} ← ${child.source} : ${p.state}`)
     }
     innerDesired.push({ parentId: cont.id, desired: inner })
+    sweeps.push({ node: contNode, names: innerNames, label: section.name })
+  }
+
+  // A10/B3 — balayage des orphelins : une page renommée ou supprimée à la source ne
+  // survit plus. `90 · Notes` et ses descendants ne sont JAMAIS visités (§ 5.4).
+  sweeps.push({ node: spaceNode, names: topNames, label: project })
+  for (const sweep of sweeps) {
+    for (const orphan of planOrphans(sweep.node, sweep.names)) {
+      await client.moveToTrash(orphan.view_id)
+      stats.removed++
+      log(`    - ${orphan.name} (sous ${sweep.label}) : retiré (orpheline, plus de source)`)
+    }
   }
 
   // J3 — verrou déclaratif sur les pages générées 00–60 (jamais sur 90 · Notes).
   for (const p of toLock) {
     await client.setLocked(p.id, p.name, true)
+    if (ctx.next[p.key]) ctx.next[p.key].locked = true
     stats.locked++
   }
 
@@ -1247,14 +1584,23 @@ export async function run(argv, env, deps = {}) {
     }
   }
 
+  // A8 — l'état d'empreintes n'est écrit qu'ICI, une fois la passe réellement aboutie :
+  // une passe interrompue laisse le cache d'avant, donc une reprise qui réécrit.
+  const cacheWritten = writeCache(cacheFile, { project, workspaceId: client.wid, spaceId: space.id, pages: ctx.next }, fsApi)
+  if (!cacheWritten) log(`  - cache d'empreintes non écrit (${cacheFile}) : la prochaine passe réécrira tout`)
+
+  const writes = client.calls?.writes
   log(
-    `appflowy-doc: terminé — ${stats.created} page(s) créée(s), ${stats.updated} régénérée(s), ` +
+    `appflowy-doc: terminé — ${stats.created} créée(s), ${stats.updated} à jour, ` +
+    `${stats.unchanged} inchangée(s), ${stats.removed} retirée(s), ` +
     `${stats.containers} conteneur(s) créé(s), ${stats.locked} verrou(s), ${stats.moves} déplacement(s), ` +
-    `${skipped.length} ignoré(s) — ${client.calls?.total ?? 0} appel(s) HTTP`,
+    `${skipped.length} ignoré(s) — ${client.calls?.total ?? 0} appel(s) HTTP` +
+    (writes === undefined ? '' : ` dont ${writes} écriture(s)`),
   )
   return {
     project, spaceId: space.id, workspaceId: client.wid,
-    ...stats, skipped: skipped.length, plan,
+    ...stats, skipped: skipped.length, plan, cacheFile,
+    writes: writes ?? null, calls: client.calls?.total ?? null,
   }
 }
 
