@@ -1,6 +1,13 @@
 #!/usr/bin/env node
 // Tests unitaires des fonctions PURES + orchestration contre un faux serveur EN MÉMOIRE
-// (zéro I/O HTTP, zéro secret, aucune instance touchée). Lancer : node test.mjs
+// (zéro I/O HTTP, zéro secret, aucune instance touchée).
+//
+// DEUX ENTRÉES, UNE SEULE SOURCE DE VÉRITÉ (R-1) :
+//   1. `node test.mjs`  — exécution directe, runner maison, sortie lisible.
+//   2. `export { cases }` — consommé par `cli/test/appflowy-doc-skill.test.js`, qui les
+//      enregistre un par un dans `node:test`. C'est ce chemin-là qui les fait entrer dans
+//      `npm test` (depuis `cli/`) et dans la CI `.forgejo/workflows/cli-ci.yml`.
+// Sans le second, ces tests ne sont joués par AUCUNE chaîne : une régression passerait au vert.
 //
 // J7 — le serveur AppFlowy ne valide AUCUN type de bloc (un type inventé est accepté et
 // persisté) : un test qui se contenterait de vérifier des HTTP 200 validerait n'importe
@@ -884,17 +891,24 @@ test('J4 runPurge : garde-fous d’usage (workspace obligatoire, cible obligatoi
 
 // ═══════════════════ Exécution ═══════════════════
 
-let n = 0
-let ko = 0
-for (const [name, fn] of cases) {
-  try {
-    await fn()
-    n++
-    console.log('  ok —', name)
-  } catch (e) {
-    ko++
-    console.error('  ÉCHEC —', name, '\n     ', e.message)
+// Les cas sont EXPORTÉS pour que la chaîne `node --test` (depuis cli/) les rejoue un par un
+// via cli/test/appflowy-doc-skill.test.js — cf. en-tête, R-1.
+export { cases }
+
+const isMain = import.meta.url === `file://${process.argv[1]}`
+if (isMain) {
+  let n = 0
+  let ko = 0
+  for (const [name, fn] of cases) {
+    try {
+      await fn()
+      n++
+      console.log('  ok —', name)
+    } catch (e) {
+      ko++
+      console.error('  ÉCHEC —', name, '\n     ', e.message)
+    }
   }
+  console.log(`\n${n} tests OK${ko ? `, ${ko} ÉCHEC(S)` : ''}`)
+  if (ko) process.exit(1)
 }
-console.log(`\n${n} tests OK${ko ? `, ${ko} ÉCHEC(S)` : ''}`)
-if (ko) process.exit(1)

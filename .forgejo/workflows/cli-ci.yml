@@ -2,14 +2,19 @@ name: cli-ci
 # CI de la CLI @naonedge/iakaframe : tests sur Windows / macOS / Linux (Node 20).
 # Necessite des runners Forgejo Actions etiquetes en consequence ; a defaut, le job
 # ubuntu suffit (les autres restent en attente d'un runner adapte).
+# Les tests de cli/ lisent aussi library/ (goldens de parite, cas de la skill appflowy-doc
+# cables via cli/test/appflowy-doc-skill.test.js) : library/** doit donc declencher la CI,
+# sinon une regression de skill passe au vert faute d'execution.
 on:
   push:
     paths:
       - 'cli/**'
+      - 'library/**'
       - '.forgejo/workflows/cli-ci.yml'
   pull_request:
     paths:
       - 'cli/**'
+      - 'library/**'
 
 jobs:
   test:
