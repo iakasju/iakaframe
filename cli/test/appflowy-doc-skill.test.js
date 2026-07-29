@@ -20,7 +20,10 @@ import { cases } from '../../library/skills/iakaframe-appflowy-doc/test.mjs';
 // ne s'installe. Le seuil est un plancher, pas un compte fige (on peut ajouter des cas).
 test('appflowy-doc : les cas de la skill sont bien cables dans la chaine', () => {
   assert.ok(Array.isArray(cases), 'test.mjs doit exporter un tableau `cases`');
-  assert.ok(cases.length >= 199, `cas cables : ${cases.length} (plancher 199)`);
+  // Plancher releve a 205 au lot 5 bis (+4 : les 3 cas A1 a trois dimensions et la garde de
+  // fidelite du double sur is_locked). Un plancher qui ne monte pas avec le corpus finit par
+  // ne plus mordre.
+  assert.ok(cases.length >= 205, `cas cables : ${cases.length} (plancher 205)`);
   for (const [name, fn] of cases) {
     assert.equal(typeof name, 'string');
     assert.equal(typeof fn, 'function');
