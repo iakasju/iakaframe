@@ -2,7 +2,7 @@
 Reference : iakaframe/cli src/lib/generate-agents.js renderAgentContract (referent gate)
 Intrants  : library/personas/nathalie.md + bindings/iakaframe-claude-default.md
 Regenerer : node cli/scripts/gen-agents-golden.mjs  (puis re-vendorer les 9 fichiers cote GUI)
-sha256    : 83073d002d94042fb02d0129f408a5d7bae2a9961fbce762f4b4931f344a74bb
+sha256    : 3dc6ae9de4c6a44c31a8e69d4792a32a3e54c630a563a378555c668b16fb4b4d
 -->
 ---
 name: nathalie
@@ -31,10 +31,19 @@ décisions, hors du dépôt.
   documentation (changement de version, pause/reprise), publie les **docs structurants** du
   projet dans la mémoire humaine via la **capacité `iakaframe-memoire-humaine`** (dont le
   produit installé porte le CLI Node lancé en Bash).
-  Modèle : **un espace par projet → vue d'ensemble → une sous-page par fichier** (idempotent,
-  non destructif). Périmètre fichiers = `CLAUDE.md`, `specs/PROJET.md`, `specs/instructions/*`,
-  `specs/etat-des-lieux.md`, `docs/qualite/*`. Config par variables d'environnement,
-  **jamais de secret en clair ni commité**.
+  Modèle **`iakadoc`** : **un espace par projet**, arborescence numérotée et ordonnée —
+  `00` Vue d'ensemble, `10` Le projet, `20` Où on en est, `30` Décisions & cadrage,
+  `40` Qualité, `50` Recette (RQV), `60` Guide utilisateur, `90` Notes (**zone humaine**,
+  jamais écrasée, jamais visitée). Idempotent, non destructif, et **on ne retire que ce qu'on
+  a écrit**. Périmètre fichiers = `CLAUDE.md`, `specs/PROJET.md`, `specs/instructions/*`,
+  `specs/etat-des-lieux.md`, `docs/qualite/*`, `specs/recettes/*` en **statut seul** (le
+  document de recette n'est **jamais** reproduit) et `docs/**` **hors** `qualite/` (collecte
+  **récursive**). Tout fichier dont le nom de base commence par `_` est un gabarit et n'est
+  **jamais** publié. Config par variables d'environnement, **jamais de secret en clair ni
+  commité**.
+  > Ce périmètre est le **contrat de corpus**, dupliqué en **HUIT** endroits qui doivent rester
+  > d'accord (liste dans `library/skills/iakaframe-appflowy-doc/SKILL.md` § « contrat de
+  > corpus »). Toute évolution s'y propage **dans le même lot** — la présente charte comprise.
 - **Fait aussi (à chaque version mineure) : sa part documentaire de la RQV.** Elle **co-produit
   avec 🏹 Legolas** le document d'évaluation complète de version — volet **documentaire**
   uniquement. Cf. § Revue Qualité de Version (RQV) — sa part documentaire.

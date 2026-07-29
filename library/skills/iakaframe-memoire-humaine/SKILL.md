@@ -65,9 +65,14 @@ est **listée** dans la vue d'ensemble — sauf `50`, qui affiche explicitement 
 fichier dont le nom de base commence par `_` est un gabarit et n'est JAMAIS publié** — règle
 sans exception : un projet qui voudrait en publier un doit le **renommer**.
 
-> **Ce contrat est dupliqué en cinq endroits** — le produit (code + sa fiche), la présente
-> capacité, la méthode (§ « Mémoire humaine », le *quoi* et le *comment*) et le rôle de
-> documentation. Toute évolution du périmètre se propage aux cinq **dans le même lot**.
+> **Ce contrat est dupliqué en HUIT endroits** — le produit (code + sa fiche), la présente
+> capacité, la méthode (§ « Mémoire humaine », le *quoi* et le *comment*), le rôle de
+> documentation, **la persona qui caste ce rôle**, **sa skill-rôle**, et le **golden dérivé**
+> de cette persona. Toute évolution du périmètre se propage aux huit **dans le même lot** ; la
+> liste nominative fait foi dans `library/skills/iakaframe-appflowy-doc/SKILL.md` § « contrat
+> de corpus ». *(Au lot 4 le compte annoncé était **cinq** : la persona et sa skill ont été
+> oubliées — corriger le rôle sans la persona ne corrige rien, c'est la persona qu'un agent
+> lit.)*
 
 ## Délégation au concret
 

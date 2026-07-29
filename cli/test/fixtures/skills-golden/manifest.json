@@ -7,7 +7,7 @@
   "skills": [
     {
       "id": "iakaframe-appflowy-doc",
-      "sha256": "730a2150be7adeef3948772cfe3112627d3a87433a4be4bf3cc367773cf0607e",
+      "sha256": "fdaf9f38babeb7e632e9023b20eef7625557b1b38786359bab0d28b7b19f5899",
       "subskills": [],
       "layer": "product"
     },
@@ -136,7 +136,7 @@
     },
     {
       "id": "iakaframe-memoire-humaine",
-      "sha256": "1c5fa98323d606597605fbaf21ed59264d6f5fe95052563911e78e6151c80483",
+      "sha256": "0cf92dd6911c7545c239b9c14a01964d61049f0804a83f3f1834d2a02900419e",
       "subskills": [
         "iakaframe-appflowy-doc"
       ],
@@ -150,7 +150,7 @@
     },
     {
       "id": "iakaframe-nathalie",
-      "sha256": "0227ab8fffbec4f18fd6372e168d4e7295ab3e842e795795a0521ecaf29b6388",
+      "sha256": "900908a0d65b3347cfb913015c9d89687d4b5c20747a5194cf7a8f9efd920a65",
       "subskills": [],
       "layer": null
     },

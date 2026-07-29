@@ -94,12 +94,24 @@ Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : 
 > `_TEMPLATE.recette.html`…) est un gabarit et **n'est JAMAIS publié**. Un projet qui voudrait
 > publier un tel fichier doit le **renommer**.
 
-> **Le contrat de corpus est dupliqué en CINQ endroits, qui doivent rester d'accord** :
-> `appflowy-doc.mjs` (`isStructuralDoc` / `isGuideDoc` / `resolveRecettes`), le présent
-> `SKILL.md`, `library/skills/iakaframe-memoire-humaine/SKILL.md` (la **capacité**, qui porte
-> aussi le modèle `iakadoc`), `methode-de-travail.md` § « Mémoire humaine » (le *quoi* **et** le
-> *comment*), et `library/roles/documentation.md`. Toute évolution du périmètre se propage aux
-> cinq **dans le même lot**.
+> **Le contrat de corpus est dupliqué en HUIT endroits, qui doivent rester d'accord.** La liste
+> ci-dessous **fait foi** ; toute évolution du périmètre se propage aux huit **dans le même lot**.
+>
+> | # | Emplacement | Ce qu'il porte |
+> |---|---|---|
+> | 1 | `library/skills/iakaframe-appflowy-doc/appflowy-doc.mjs` | le **code** : `isStructuralDoc` / `isGuideDoc` / `resolveRecettes` |
+> | 2 | `library/skills/iakaframe-appflowy-doc/SKILL.md` | le **produit** (présent fichier) |
+> | 3 | `library/skills/iakaframe-memoire-humaine/SKILL.md` | la **capacité**, qui porte aussi le modèle `iakadoc` |
+> | 4 | `methode-de-travail.md` § « Mémoire humaine » | la **méthode** — le *quoi* **et** le *comment* |
+> | 5 | `library/roles/documentation.md` | le **rôle** |
+> | 6 | `library/personas/nathalie.md` | la **persona qui caste ce rôle** |
+> | 7 | `library/skills/iakaframe-nathalie/SKILL.md` | la **skill-rôle** de cette persona |
+> | 8 | `cli/test/fixtures/agents-golden/nathalie.md` | le **golden**, *dérivé* : il suit par `node scripts/gen-agents-golden.mjs`, jamais à la main |
+>
+> ⚠️ **Le compte a été faux au lot 4** : les cinq premiers ont été propagés, `6` et `7` oubliés —
+> la charte de la persona a donc contredit le rôle qu'elle incarne, sur le périmètre exact de sa
+> propre skill-outil. Le **rôle** ne suffit pas : c'est la **persona** qu'un agent lit. Corriger
+> le rôle sans la persona ne corrige rien.
 
 ### Miroir strict et zone humaine
 

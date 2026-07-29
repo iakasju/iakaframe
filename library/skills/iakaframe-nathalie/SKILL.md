@@ -61,11 +61,20 @@ concret. Invocation technique (ici via le produit AppFlowy installé) :
 node ~/.claude/skills/iakaframe-appflowy-doc/appflowy-doc.mjs --project <nom> --root <chemin-projet>
 ```
 
-→ un **espace par projet → vue d'ensemble → une sous-page par fichier** (idempotent, non
-destructif). Fichiers concernés : `CLAUDE.md`, `specs/PROJET.md`, `specs/instructions/*`,
-`specs/etat-des-lieux.md`, `docs/qualite/*`. C'est le **miroir humain** de l'état des lieux,
-pas son remplaçant. Détail : capacité `iakaframe-memoire-humaine` → produit installé +
-`methode-de-travail.md`.
+→ un **espace par projet** structuré selon le modèle **`iakadoc`** — `00` Vue d'ensemble,
+`10` Le projet, `20` Où on en est, `30` Décisions & cadrage, `40` Qualité, `50` Recette (RQV),
+`60` Guide utilisateur, `90` Notes (**zone humaine**, jamais écrasée) — idempotent, non
+destructif, et **on ne retire que ce qu'on a écrit**. Fichiers concernés : `CLAUDE.md`,
+`specs/PROJET.md`, `specs/instructions/*`, `specs/etat-des-lieux.md`, `docs/qualite/*`,
+`specs/recettes/*` en **statut seul** (le document de recette n'est **jamais** reproduit) et
+`docs/**` **hors** `qualite/` (collecte **récursive**). Tout fichier dont le nom de base
+commence par `_` est un gabarit et n'est **jamais** publié. C'est le **miroir humain** de
+l'état des lieux, pas son remplaçant. Détail : capacité `iakaframe-memoire-humaine` → produit
+installé + `methode-de-travail.md`.
+
+> **Contrat de corpus — dupliqué en HUIT endroits qui doivent rester d'accord.** La liste fait
+> foi dans `library/skills/iakaframe-appflowy-doc/SKILL.md` § « contrat de corpus ». Toute
+> évolution du périmètre se propage aux huit **dans le même lot** — la présente fiche comprise.
 
 ## Garde-fous
 
