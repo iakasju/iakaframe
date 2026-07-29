@@ -1,23 +1,26 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-29 12:30 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-29 14:30 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.37.0 |
+| Version | v0.38.0 |
 | Branche | main |
-| Dernier commit | 8f90984 merge(vitrine): generateur .md->.html de methode-de-travail + garde anti-derive |
+| Dernier commit | 9b7da66 merge(methode): iakaframe adopte le rituel de retrospective (cycle 3-phases) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 1458 |
-| Note | Generateur de vitrine .md->.html retabli : cli/scripts/gen-methode-vitrine.mjs regenere la zone CODE_BLOCKS de methode-de-travail.html depuis le canon vivant (agents = contrats generateAll Option B, roster 9 ; skills frame-scopees iakaframe = 26), splice byte-exact non destructif, idempotent, sous garde anti-derive vitrine-methode.test.js. Corrige le contenu perime (pwsh/fausse charte/slack=0). Leve la dette generateur vitrine (le band-aid de la zone gelee est desormais regenerable). iakaframe seul. |
+| Fichiers (hors .git/node_modules) | 1459 |
+| Note | iakaframe adopte le rituel de retrospective dans son cycle 3-phases (ritualIds += retrospective, ancre a la cloture de lot ; le default gagne une boucle d'amelioration). Adaptation fidele forcee par la frame cote GUI (RitualSide ouvert au 'team', l'union fermee etait un bug latent). Cross-repo vendorise (78 copies, drift 0). Solde l'item backlog 'briques emergentes' (promotion deja faite au lot rangement-catalogue). Reste : narratif Nathalie (methode-de-travail.md). GUI main @ 2603189. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `9b7da66` | 2026-07-29 | merge(methode): iakaframe adopte le rituel de retrospective (cycle 3-phases) |
+| `26993a1` | 2026-07-29 | feat(method): le default iakaframe adopte le rituel retrospective |
+| `bc597b2` | 2026-07-29 | chore(iakaframe): update etat des lieux + commit global (version) |
 | `8f90984` | 2026-07-29 | merge(vitrine): generateur .md->.html de methode-de-travail + garde anti-derive |
 | `d848319` | 2026-07-29 | chore(vitrine): regenerer la zone CODE_BLOCKS frame-scopee (9 agents + 26 skills) |
 | `d96f767` | 2026-07-29 | refactor(vitrine): frame-scope le bloc skills au domaine iakaframe (iakaframeSkillIds) |
@@ -25,9 +28,6 @@
 | `7f21b8c` | 2026-07-29 | feat(vitrine): generateur zone CODE_BLOCKS + garde anti-derive |
 | `710363e` | 2026-07-29 | docs(vitrine): cadrage generateur de vitrine methode md->html (Option B) |
 | `41ec10d` | 2026-07-28 | chore(iakaframe): update etat des lieux + commit global (version) |
-| `4c6fe54` | 2026-07-28 | merge(canal): purge Slack (slack = dead) -> Discord/iakaHub |
-| `1568d62` | 2026-07-28 | chore(backlog): cloture item scories Slack + note dette regenerateur vitrine |
-| `2faa49d` | 2026-07-28 | chore(canal): purge Slack vitrines HTML + zone gelee methode-de-travail -> Discord |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-29 14:30 | version | v0.38.0 | main | iakaframe adopte le rituel de retrospective dans son cycle 3-phases (ritualIds += retrospective, ancre a la cloture de lot ; le default gagne une boucle d'amelioration). Adaptation fidele forcee par la frame cote GUI (RitualSide ouvert au 'team', l'union fermee etait un bug latent). Cross-repo vendorise (78 copies, drift 0). Solde l'item backlog 'briques emergentes' (promotion deja faite au lot rangement-catalogue). Reste : narratif Nathalie (methode-de-travail.md). GUI main @ 2603189. |
 | 2026-07-29 12:30 | version | v0.37.0 | main | Generateur de vitrine .md->.html retabli : cli/scripts/gen-methode-vitrine.mjs regenere la zone CODE_BLOCKS de methode-de-travail.html depuis le canon vivant (agents = contrats generateAll Option B, roster 9 ; skills frame-scopees iakaframe = 26), splice byte-exact non destructif, idempotent, sous garde anti-derive vitrine-methode.test.js. Corrige le contenu perime (pwsh/fausse charte/slack=0). Leve la dette generateur vitrine (le band-aid de la zone gelee est desormais regenerable). iakaframe seul. |
 | 2026-07-28 10:02 | version | v0.36.0 | main | Purge Slack (slack = dead) : canal Slack retire du canon vivant (skill Odin, specs, kit Ollama->Discord, vitrines, zone gelee methode-de-travail.html en band-aid), reformule vers Discord/iakaHub. Zones historiques/generees gelees a raison. Cross-repo drift 0/77. Capture aussi les instructions de cadrage purge-scories-slack.md + authoring-corps-skill-editable.md. GUI main @ 1fc2e82. |
 | 2026-07-28 00:32 | version | v0.35.0 | main | Re-integration du chantier appflowy-doc du decideur (modele iakadoc 00-90, purge deux temps desarmee/dry-run, 72 tests hermetiques, SKILL.md aligne) apres ecartement de la contamination R8 ; 5 commits sjupin preserves byte-identiques, desync cross-repo resolue (vendor-check drift 0/77). Fait suite a R8 (b) deploiement runtime (Feanor + 19 skills actifs dans ~/.claude/). GUI main @ 2301a53. |

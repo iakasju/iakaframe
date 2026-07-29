@@ -648,5 +648,15 @@
     "dirty": true,
     "files": 1458,
     "note": "Generateur de vitrine .md->.html retabli : cli/scripts/gen-methode-vitrine.mjs regenere la zone CODE_BLOCKS de methode-de-travail.html depuis le canon vivant (agents = contrats generateAll Option B, roster 9 ; skills frame-scopees iakaframe = 26), splice byte-exact non destructif, idempotent, sous garde anti-derive vitrine-methode.test.js. Corrige le contenu perime (pwsh/fausse charte/slack=0). Leve la dette generateur vitrine (le band-aid de la zone gelee est desormais regenerable). iakaframe seul."
+  },
+  {
+    "date": "2026-07-29 14:30",
+    "reason": "version",
+    "version": "v0.38.0",
+    "branch": "main",
+    "commit": "9b7da66 merge(methode): iakaframe adopte le rituel de retrospective (cycle 3-phases)",
+    "dirty": true,
+    "files": 1459,
+    "note": "iakaframe adopte le rituel de retrospective dans son cycle 3-phases (ritualIds += retrospective, ancre a la cloture de lot ; le default gagne une boucle d'amelioration). Adaptation fidele forcee par la frame cote GUI (RitualSide ouvert au 'team', l'union fermee etait un bug latent). Cross-repo vendorise (78 copies, drift 0). Solde l'item backlog 'briques emergentes' (promotion deja faite au lot rangement-catalogue). Reste : narratif Nathalie (methode-de-travail.md). GUI main @ 2603189."
   }
 ]
