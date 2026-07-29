@@ -150,6 +150,13 @@ Le journal dit, **page par page**, ce qui a été fait : `créé` · `à jour` �
 - **Le cache ne fait jamais foi seul** : une page n'est réputée à jour que si elle est
   **encore présente** dans l'arbre relu, **seule** sous son nom et avec **le `view_id`
   mémorisé**. Une page détruite hors de la skill est donc recréée (critère A1).
+- **Limite DÉCLARÉE — le contrôle porte sur l'EXISTENCE de la page, pas sur son CONTENU.**
+  L'empreinte est prise côté source et n'est **jamais** confrontée au rendu serveur. Une page
+  **vidée ou éditée à la main** dans AppFlowy — nœud toujours là, `view_id` inchangé, blocs
+  supprimés — est donc réputée à jour et **n'est pas restaurée**. Contournement : toucher le
+  fichier source, ou supprimer la ligne du cache. Choix de design assumé (hacher le contenu
+  serveur imposerait de décoder l'`encoded_collab` de chaque page à chaque passe, ce qui ruine
+  le bénéfice de l'incrémentalité) — **déclaré, non corrigé**.
 - **Cache absent, illisible, corrompu ou d'un autre `RENDER_VERSION` → ignoré** : la passe
   réécrit tout. Dégradation propre, jamais de corruption.
 - Le cache n'est écrit **qu'en fin de passe aboutie** : une passe interrompue laisse l'état
@@ -175,6 +182,17 @@ projet appartient au dépôt.
 > corbeille du workspace, que la skill ne vide jamais. Le phénomène est désormais borné au
 > nombre de pages **effectivement changées** ; le vidage se fait par `appflowy-purge.mjs
 > --trash` (geste explicite et confirmé, cf. ci-dessous).
+
+**Le compte rendu dit la vérité sur la corbeille.** Le résumé de fin de passe distingue les deux
+sources de débris et **ne tait plus les réécritures** :
+
+```
+… N en corbeille (X orpheline(s), Y ancienne(s) version(s)) …
+```
+
+Auparavant seul `X` était compté : un cache perdu ou un bump de `RENDER_VERSION` annonçait
+« **0 retirée(s)** » en déposant *toutes* les pages du projet à la corbeille. Un compte rendu qui
+annonce zéro en remplissant la corbeille est **faux** — c'est le décideur qu'il trompe.
 
 ## Purge — `appflowy-purge.mjs` (outil **destructif**, désarmé par défaut)
 
@@ -246,28 +264,77 @@ mais le **sous-ensemble réellement écrit** dans les `CLAUDE.md` et `specs/` du
 | tableau `\| … \|` | `code` **préformaté aligné** (colonnes à largeur fixe) |
 | `**gras**`, `*italique*`, `` `code` ``, `[lien](url)` | attributs `bold`, `italic`, `code`, `href` |
 
+**Le code en ligne lie plus fort que l'emphase** (règle CommonMark). Sans cela, l'astérisque
+*interne* à `` `capabilities/*` `` fermait l'italique ouvert avant lui et le littéral perdait
+silencieusement son `*` — même signature qu'un bloc de code reformaté, mais hors de portée des
+sondes de l'époque. La recherche du délimiteur fermant **saute désormais les spans de code**.
+
 **Agglomération des paragraphes** : seule une **ligne vide** sépare deux paragraphes. Un simple
 retour à la ligne (prose rewrappée à 100 colonnes) **ne coupe plus rien** — c'est le cœur du
 critère A7. Idem pour un item de liste écrit sur plusieurs lignes : il reste **un seul** bloc.
 
-**Un marqueur de liste ordonnée n'en est un que s'il peut ouvrir ou poursuivre une suite**
-(règle CommonMark : une liste ordonnée n'interrompt un paragraphe que si elle commence par
-`1`). Sans cette règle, la ligne repliée « `   3000) : configurer Vite` » voyait `3000)` pris
-pour un marqueur, donc **consommé et jeté**.
+**Un marqueur de liste ordonnée n'en est un que s'il peut ouvrir une suite, ou s'il APPARTIENT
+à une suite.** La règle CommonMark seule (« une liste ordonnée n'interrompt un paragraphe que si
+elle commence par `1` ») est nécessaire mais **trop large pour du rendu** : elle sauve bien la
+ligne repliée « `   3000) : configurer Vite` », dont le `3000)` était sinon **consommé et jeté**,
+mais elle fond aussi les **vraies** listes qui reprennent après une interruption de bloc (un
+tableau, un fence, une note) — celles-là ne repartent pas à `1`. Mesuré : **32 blocs de liste
+fondus en paragraphe sur 10 documents réels**.
 
-### Sonde de conservation du contenu — **rien ne disparaît en silence**
+Le discriminant est donc la **suite** : un marqueur ordonné ≠ 1 est un vrai marqueur s'il a un
+**voisin ordonné au MÊME retrait**, plus petit avant (`2.` puis `3.`) ou plus grand après (`5.`
+puis `6.`). Le balayage traverse les continuations plus indentées et **s'arrête net** sur la
+première ligne moins indentée ou non-liste : il ne peut pas divaguer hors du niveau courant. Une
+ligne repliée de prose (« … Cela fait 20, pas / `18.` L'arithmétique … ») n'a, elle, **aucun**
+voisin ordonné à son retrait : elle reste dans le paragraphe.
 
-Deux invariants, purs et testés, tournent sur chaque document :
+**Perte résiduelle DÉCLARÉE (3 occurrences sur 463 documents).** Trois lignes du portefeuille
+sont **structurellement ambiguës** — une ligne repliée de prose qui commence par un nombre suivi
+d'un point : `iakaFrameGUI/…/d9-re-vendorage-canon-iakaframe.md:38` (« pas / `18.` »),
+`iakaframe/…/adoption-retrospective-…md:118` (« exit / `0.` »),
+`iakaIDE/…/f1-portefeuille.md:67` (« occupe deja / `3000)` »). Elles restent **dans le
+paragraphe** : le texte est intégralement conservé, mais un lecteur qui aurait *voulu* un item de
+liste n'en obtient pas. **Arbitrage assumé** : préserver le contenu prime sur restituer une
+structure que le source ne permet pas de distinguer.
+
+### Sondes de conservation — **rien ne disparaît en silence**
+
+**Quatre** invariants, purs et testés, tournent sur chaque document. Chacun est **injectable**
+(on peut lui soumettre un rendu fabriqué) : c'est ce qui permet de tester **la sonde elle-même**
+par mutation, et non seulement le mapper.
 
 | Sonde | Ce qu'elle affirme | Ce qu'elle attrape |
 |---|---|---|
 | **mots** | tout mot du source se retrouve dans le rendu (multi-ensemble, occurrences comprises ; `href` et langage inclus) | ligne, cellule, continuation ou marqueur avalés |
-| **littéral** | toute région littérale du source (fence, 4 espaces) se retrouve **verbatim** dans un bloc `code` | contenu de code reformaté ou passé au formatage en ligne |
+| **littéral bloc** | toute région littérale du source (fence, 4 espaces) se retrouve **verbatim** dans un bloc `code` | contenu de code reformaté ou passé au formatage en ligne |
+| **littéral en ligne** | tout span `` `…` `` du source survit verbatim, en segment `code` ou dans un bloc `code` | span découpé par une emphase : `` `library/__tests__/f/` `` rendu `library/` + **tests** en gras + `/f/` |
+| **structure** | le rendu porte **au moins autant** de titres, séparateurs, blocs de liste et blocs préformatés que le source en annonce | **items de liste fondus en paragraphe**, titre avalé, séparateur perdu, tableau reformaté en prose |
 
-La référence ne concède que les marques **déclarées** ci-dessous ; **tout autre déficit est
-une perte** et fait rougir la suite. Passée sur les **420 docs structurants** du portefeuille :
-**0 perte de mot, 0 littéral reformaté**. Contre le mapper précédent, la même sonde relevait
-**1 fichier** en perte de mot et **23** en littéral reformaté.
+> **Pourquoi une quatrième.** Les trois premières comptent des **mots** et des **littéraux** :
+> aucune ne regarde le **type** des blocs. C'est exactement par là qu'est passée la régression du
+> lot 3 — 32 blocs de liste fondus, **zéro mot perdu**, sonde verte. L'invariant de **structure**
+> comble cet angle mort : rejoué contre le mapper d'alors, il rougit sur **8 documents** et voit
+> les 3 blocs disparaître sur la reproduction minimale. C'est la leçon du gate, pas un ornement.
+
+**Bornes déclarées de l'invariant de structure** : (1) c'est une **borne basse** — un surplus de
+blocs n'est jamais une faute ; (2) la reconnaissance d'un marqueur ordonné est **partagée** avec
+le mapper, l'invariant ne peut donc pas contredire *cette règle-là* (il contredit tout le reste) ;
+(3) les ambiguïtés du source (marqueur hors suite, ligne repliée commençant par `|`) sont
+**exclues du comptage** plutôt que de faire mentir la borne.
+
+La référence ne concède que les marques **déclarées** plus bas ; tout autre déficit est une perte
+et fait rougir la suite. Passée sur les **463 docs structurants** du portefeuille :
+**0 perte de mot, 0 littéral reformaté, 0 span altéré, 0 structure fondue** — pour un volume
+couvert de **801 141 mots**, **433 régions littérales**, **55 206 spans de code en ligne** et
+**25 879 structures** (6 307 titres, 16 098 items de liste, 2 076 séparateurs, 1 398 préformatés).
+Rejouées contre les mappers précédents, ces mêmes sondes relèvent **1 fichier** en perte de mot,
+**17 fichiers / 28 régions** en littéral reformaté, **7 fichiers / 9 spans** altérés en ligne et
+**8 fichiers** en structure fondue.
+
+> **Aucune mémoire du passé dans la référence.** La reconnaissance d'un marqueur ne dépend que du
+> **voisinage** : toute ligne au retrait `w` **ferme** les suites plus profondes que `w`. Sans
+> cette purge, une sous-liste vue en tête de document blanchissait un `3000)` surgi cent lignes
+> plus bas au même retrait — une maille du filet dépendait de l'historique.
 
 ### Pertes assumées, déclarées
 
