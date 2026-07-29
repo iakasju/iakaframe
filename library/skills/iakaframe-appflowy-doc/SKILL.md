@@ -245,6 +245,37 @@ node appflowy-purge.mjs --workspace "<nom|id>" ... --execute --confirm <workspac
 - Une cible absente est **signalée**, jamais une erreur.
 - Le chemin de publication (`appflowy-doc.mjs`) n'appelle **jamais** ce script.
 
+### Purge de `My Workspace` — **EXÉCUTÉE le 2026-07-27** (D4/D5, critère A11)
+
+> **Journal d'exécution.** Ce geste est destructif et n'est pas rejouable : sa trace vit ici,
+> dans la branche, pour que le prochain lecteur sache **ce qui est arrivé à l'instance** — et
+> non seulement ce que le code sait faire. Le gate du lot 1 avait relevé que A11 était
+> **satisfait sans aucune trace** ; c'est ce défaut-là que cette section ferme.
+
+| | |
+|---|---|
+| **Quand** | **2026-07-27** |
+| **Qui a autorisé** | **le décideur (Stéphane)**, sur **feu vert écrit** préalable — règle de méthode sur les actions destructives |
+| **Qui a exécuté** | 🟡 Odin |
+| **Où** | workspace `My Workspace` de l'instance AppFlowy auto-hébergée |
+| **Résultat** | **67 / 67 objets supprimés, 0 échec** |
+
+Décompte des **67 objets supprimés** (un espace part avec **tous** ses descendants en **un
+seul** objet — cf. § Mécanismes API, point 10 : les descendants ci-dessous sont la
+**volumétrie emportée**, pas des suppressions de plus) :
+
+| Cible | Nature | Objets supprimés | Volumétrie emportée |
+|---|---|---|---|
+| espace `IakaCockpit` | espace projet publié par l'ancienne skill | **1** | 30 descendants |
+| espace `IakaPcl` | espace projet publié par l'ancienne skill | **1** | 16 descendants |
+| `General / iakaframe — preuve de concept API` | page résidu du spike | **1** | — |
+| corbeille du workspace | débris accumulés par les passes non incrémentales | **64** | — |
+| | | **= 67** | |
+
+**Vérification après coup** : les corbeilles des **deux** workspaces (`My Workspace` **et**
+`projects`) sont à **0 objet**. `My Workspace` redevient l'espace personnel du compte et
+n'est plus jamais touché par la skill — abstention vérifiable, c'est le critère **A9**.
+
 ## Mécanismes API (vérifiés en réel — spike lot 0, 2026-07-27, AppFlowy Cloud **0.15.21**)
 
 1. Auth : `POST {base}/gotrue/token?grant_type=password` → `access_token` (~2 h).
