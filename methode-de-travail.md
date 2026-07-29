@@ -705,13 +705,36 @@ sans cloner ni lire du Markdown brut.
 d'état : on ne documente jamais « quand on y pense ».
 
 **Quoi (fichiers importants = docs structurants du projet).** `CLAUDE.md`, `specs/PROJET.md`,
-`specs/instructions/*`, `specs/etat-des-lieux.md`, `docs/qualite/*`. Pas le code, pas les
-fichiers générés : seulement la **couche narrative et décisionnelle**.
+`specs/instructions/*`, `specs/etat-des-lieux.md`, `docs/qualite/*`, `specs/recettes/*` (le
+**statut seul** : le document de recette n'est jamais reproduit) et `docs/**` **hors**
+`qualite/` (le guide utilisateur). Pas le code, pas les fichiers générés : seulement la
+**couche narrative et décisionnelle**. **Tout fichier dont le nom de base commence par `_` est
+un gabarit et n'est jamais publié** — règle sans exception.
 
-**Comment (structure AppFlowy).** **Un espace par projet** (au nom du projet) → une **page
-« vue d'ensemble »** (synthèse + liens) → **une sous-page par fichier important** (contenu du
-fichier, rafraîchi). Idempotent et non destructif : créer si absent, mettre à jour sinon —
-jamais d'écrasement aveugle, jamais de page fantôme.
+**Comment (structure AppFlowy) — le modèle `iakadoc`.** **Un espace par projet** (au nom du
+projet), qui n'est pas une liste à plat mais une **arborescence numérotée et ordonnée** :
+
+```
+00 · Vue d'ensemble ....... version, sections présentes ET absentes, compteurs, pages non gérées
+10 · Le projet ............ 11 Cadre de travail (CLAUDE.md) · 12 Vision & décisions (PROJET.md)
+20 · Où on en est ......... l'état des lieux
+30 · Décisions & cadrage .. index + une page par instruction
+40 · Qualité .............. index + une page par version
+50 · Recette (RQV) ........ STATUT seul — « aucune recette » quand il n'y en a pas
+60 · Guide utilisateur .... index + une page par doc — ABSENT quand il n'y en a pas
+90 · Notes ................ ZONE HUMAINE — jamais écrasée, jamais retirée, jamais visitée
+```
+
+Les pages portent le **titre lisible** du document, jamais son chemin brut ; le chemin figure
+dans l'**avertissement en tête de page** (« page générée, toute modification sera perdue —
+pour écrire, `90 · Notes` »). `70` et `80` sont **réservés**. Une section vide n'est pas créée
+et son absence est **dite** dans la vue d'ensemble.
+
+**Idempotent et non destructif** : créer si absent, rafraîchir seulement ce qui a changé —
+jamais d'écrasement aveugle, jamais de page fantôme. Et **on ne retire que ce qu'on a écrit** :
+une page que la publication ne reconnaît pas est **laissée en place** et **signalée** dans la
+vue d'ensemble. Le dépôt garde seul l'autorité sur le contenu ; `90 · Notes` est la **seule**
+zone où un humain écrit.
 
 **Avec quoi.** Une skill dédiée `iakaframe-appflowy-doc` (calquée sur
 `iakaframe-log-conversation` : petit CLI Node, **config par variables d'env**, **aucun secret

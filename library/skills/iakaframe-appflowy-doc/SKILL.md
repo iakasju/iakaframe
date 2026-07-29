@@ -1,7 +1,7 @@
 ---
 id: iakaframe-appflowy-doc
 name: iakaframe-appflowy-doc
-description: Publier/rafraîchir la mémoire humaine d'un projet dans AppFlowy auto-hébergé selon le modèle iakadoc — un espace par projet, arborescence 00 Vue d'ensemble / 10 Le projet / 20 Où on en est / 30 Décisions & cadrage / 40 Qualité / 90 Notes, alimentée par CLAUDE.md, specs/PROJET.md, specs/instructions/*, specs/etat-des-lieux.md, docs/qualite/*. À utiliser quand il faut "documenter le projet dans AppFlowy", "mettre à jour la mémoire humaine", "publier les specs dans AppFlowy". Idempotent et non destructif ; le workspace cible est explicite, jamais deviné.
+description: Publier/rafraîchir la mémoire humaine d'un projet dans AppFlowy auto-hébergé selon le modèle iakadoc — un espace par projet, arborescence 00 Vue d'ensemble / 10 Le projet / 20 Où on en est / 30 Décisions & cadrage / 40 Qualité / 50 Recette (RQV) / 60 Guide utilisateur / 90 Notes, alimentée par CLAUDE.md, specs/PROJET.md, specs/instructions/*, specs/etat-des-lieux.md, docs/qualite/*, specs/recettes/* (statut seul) et docs/**.md hors qualite/. À utiliser quand il faut "documenter le projet dans AppFlowy", "mettre à jour la mémoire humaine", "publier les specs dans AppFlowy". Idempotent et non destructif ; le workspace cible est explicite, jamais deviné.
 layer: product
 ---
 
@@ -33,8 +33,11 @@ Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : 
     ├── 40 · Qualité ....................... [conteneur] GÉNÉRÉ
     │   ├── 40 · (index) ................... GÉNÉRÉ · version décroissante
     │   └── <une page par version> ......... ← docs/qualite/vX.Y.Z.md
-    ├── 50 · Recette (RQV) ................. ⏳ collecte activée au lot 4
-    ├── 60 · Guide utilisateur ............. ⏳ collecte activée au lot 4
+    ├── 50 · Recette (RQV) ................. GÉNÉRÉE · STATUT seul · TOUJOURS présente
+    │                                        ← specs/recettes/*.html (hors _*), JAMAIS le HTML
+    ├── 60 · Guide utilisateur ............. [conteneur] GÉNÉRÉ · ABSENT si vide
+    │   ├── 60 · (index) ................... GÉNÉRÉ · date de modif. décroissante puis nom
+    │   └── <une page par doc> ............. ← docs/**.md hors qualite/ (récursif)
     └── 90 · Notes ......................... HUMAINE · create-if-missing · JAMAIS ÉCRASÉE
 ```
 
@@ -52,15 +55,48 @@ Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : 
   appel `move` par page mal placée.
 - Les conteneurs sont créés **une fois** et **jamais** mis à la corbeille.
 
-### Docs structurants collectés
+### Docs structurants collectés — **le contrat de corpus**
 
-`CLAUDE.md`, `specs/PROJET.md`, `specs/etat-des-lieux.md`, `specs/instructions/*.md`,
-`docs/qualite/*.md`. **Jamais le code ni les fichiers générés.**
+| Entrée du dépôt | Traitement | Devient |
+|---|---|---|
+| `CLAUDE.md` | miroir | `11 · Cadre de travail` |
+| `specs/PROJET.md` | miroir | `12 · Vision & décisions` |
+| `specs/etat-des-lieux.md` | miroir | `20 · Où on en est` |
+| `specs/instructions/*.md` | miroir | pages sous `30` |
+| `docs/qualite/*.md` | miroir | pages sous `40` |
+| `specs/recettes/*.html` | **STATUT seul** : nom, version déduite, date de modification | contenu de `50` |
+| `docs/**.md` **hors** `qualite/` | miroir, collecte **récursive** | pages sous `60` |
+
+**Jamais le code ni les fichiers générés.** Jamais `specs/mock/`. Jamais le `README.md`.
+
+> **`50 · Recette` — le document n'est JAMAIS reproduit.** Une recette guidée est un HTML
+> autonome fait pour être **ouvert dans un navigateur** et coché à la main : le republier en
+> blocs ne donnerait ni une recette utilisable ni un texte lisible. La garantie est
+> **structurelle**, pas verbale : la collecte n'appelle **jamais** `readFileSync` — seules la
+> présence, le nom et la date circulent. La section est **toujours** présente : sans recette,
+> elle affiche explicitement **« aucune recette »** (critère A12). Deux conventions de nom
+> coexistent dans le référentiel — `recette-vX.Y.0.html` (gabarit RQV canon) et
+> `*.recette.html` (instruction du portail) : la collecte prend **tout `.html`** du dossier,
+> hors gabarits, ce qui couvre les deux sans en privilégier une.
+
+> **`60 · Guide` — absent si vide.** La collecte est **récursive** (`docs/**`, pas `docs/*`),
+> borne la profondeur et saute `qualite/` ainsi que les dossiers de dépendances. Sans aucun
+> document, la section **n'est pas créée** et son absence est **listée** dans
+> `00 · Vue d'ensemble` (A12). La collecte étant récursive, deux fichiers homonymes dans deux
+> sous-dossiers sont désambiguïsés par leur **chemin relatif** — deux pages de même nom se
+> corbeilleraient l'une l'autre à chaque passe.
 
 > **Exclusion des gabarits — règle sans exception** : tout fichier dont le **nom de base**
-> commence par `_` (`_TEMPLATE.md`, `_workflow.md`, `_arborescence.md`, `_AGENT_TEMPLATE.md`…)
-> est un gabarit et **n'est JAMAIS publié**. Un projet qui voudrait publier un tel fichier
-> doit le **renommer**.
+> commence par `_` (`_TEMPLATE.md`, `_workflow.md`, `_arborescence.md`, `_AGENT_TEMPLATE.md`,
+> `_TEMPLATE.recette.html`…) est un gabarit et **n'est JAMAIS publié**. Un projet qui voudrait
+> publier un tel fichier doit le **renommer**.
+
+> **Le contrat de corpus est dupliqué en CINQ endroits, qui doivent rester d'accord** :
+> `appflowy-doc.mjs` (`isStructuralDoc` / `isGuideDoc` / `resolveRecettes`), le présent
+> `SKILL.md`, `library/skills/iakaframe-memoire-humaine/SKILL.md` (la **capacité**, qui porte
+> aussi le modèle `iakadoc`), `methode-de-travail.md` § « Mémoire humaine » (le *quoi* **et** le
+> *comment*), et `library/roles/documentation.md`. Toute évolution du périmètre se propage aux
+> cinq **dans le même lot**.
 
 ### Miroir strict et zone humaine
 
@@ -484,9 +520,6 @@ donc aussi sur `library/**`.
 
 ## Hors périmètre (différé tracé)
 
-- **Lot 4** : sections `50 · Recette (RQV)` (statut seul) et `60 · Guide utilisateur`
-  (`docs/**.md` hors `qualite/`) — **collecte non encore branchée**, les deux sections sont
-  aujourd'hui déclarées « absentes » dans la vue d'ensemble.
 - **Lot 5** : branchement auto dans `iakaframe update` / snapshot (la skill est appelable ;
   le câblage aux moments version/pause/reprise reste à faire).
 - Liens cliquables vue d'ensemble → sous-pages (MVP = inventaire texte).
