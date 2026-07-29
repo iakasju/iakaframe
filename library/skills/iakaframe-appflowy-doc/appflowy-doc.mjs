@@ -1178,7 +1178,7 @@ export function compareRecentDesc(a, b) {
 
 // Construit le plan des sections présentes + la liste des sections absentes (A12).
 // `docs` : [{ rel, title, mtimeMs }] déjà filtré (B1 appliqué en amont).
-export function buildPlan({ project, docs = [] }) {
+export function buildPlan({ project, docs = [], recettes = [] }) {
   const byRel = (rel) => docs.find((d) => d.rel === rel)
   const under = (prefix) => docs.filter((d) => d.rel.startsWith(prefix))
 
@@ -1229,8 +1229,10 @@ export function buildPlan({ project, docs = [] }) {
     missing.push({ name: SEC.QUALITE, reason: 'aucun rapport dans docs/qualite/' })
   }
 
-  // 50 — recette : collecte activée au lot 4 (§ 5.2). Section posée plus bas.
-  missing.push({ name: SEC.RECETTE, reason: 'collecte des recettes activée au lot 4' })
+  // 50 — recette : TOUJOURS présente (A12). Sans recette, elle affiche « aucune recette » —
+  // rendre ce vide visible EST le livrable, pas un défaut.
+  const recette = recetteStatus(recettes)
+  sections.push({ key: '50', name: SEC.RECETTE, kind: 'recette', locked: true, status: recette })
 
   // 60 — conteneur + index, une page par doc de `docs/` hors `qualite/`, ordre = mtime
   // décroissant puis nom (§ 5.6). ABSENTE si vide, avec sa raison en `00` (critère A12).
@@ -1256,7 +1258,7 @@ export function buildPlan({ project, docs = [] }) {
     counters: {
       instructions: instructions.length,
       qualite: qualite.length,
-      recette: 'non collectée (lot 4)',
+      recette: recette.count ? `${recette.count} (statut seul)` : 'aucune recette',
       guide: guide.length,
     },
   }
@@ -1279,6 +1281,84 @@ export function indexBlocks(section, generatedAtIso) {
     heading(1, `${section.name} — index`),
     para(`${section.children.length} page(s), dans l'ordre canonique :`),
     ...section.children.map((c) => bullet(c.name)),
+  ]
+}
+
+// ── `50 · Recette (RQV)` — le STATUT seul (§ 5.2), JAMAIS le HTML ──
+//
+// Une recette guidée est un document HTML autonome (CSS + JS inline, ~27 ko) destiné à être
+// OUVERT dans un navigateur et coché à la main. Le republier en blocs AppFlowy ne produirait
+// ni une recette utilisable ni un texte lisible : seul son STATUT entre dans le miroir.
+// Conséquence de conception, et pas seulement de politesse : le fichier n'est **jamais lu**.
+// Seules sa présence, son nom et sa date de modification circulent.
+
+// Version portée par un nom de recette. Le gabarit canon nomme les recettes remplies
+// `recette-vX.Y.0.html` (`specs/instructions/recette-guidee-rqv.md`), l'instruction du
+// portail écrit `*.recette.html` : on cherche donc un triplet N'IMPORTE OÙ dans le nom de
+// base, ce qui couvre les deux conventions sans en privilégier une.
+export function parseRecetteVersion(relPath) {
+  const base = String(relPath ?? '').split('/').pop() || ''
+  const m = /v?(\d+)\.(\d+)\.(\d+)/.exec(base)
+  return m ? `v${Number(m[1])}.${Number(m[2])}.${Number(m[3])}` : null
+}
+
+// Recette la plus récente d'abord : version décroissante, puis mtime décroissant, puis nom.
+export function compareRecetteDesc(a, b) {
+  const va = parseRecetteVersion(a.rel), vb = parseRecetteVersion(b.rel)
+  if (va && vb && va !== vb) {
+    const na = va.slice(1).split('.').map(Number), nb = vb.slice(1).split('.').map(Number)
+    for (let i = 0; i < 3; i++) if (na[i] !== nb[i]) return nb[i] - na[i]
+  }
+  if (va && !vb) return -1
+  if (vb && !va) return 1
+  const ma = Number(a.mtimeMs || 0), mb = Number(b.mtimeMs || 0)
+  if (ma !== mb) return mb - ma
+  return String(a.rel).localeCompare(String(b.rel))
+}
+
+// Date lisible (jour) d'un mtime. `0` / absent -> « date inconnue » plutôt qu'une époque
+// fausse : un miroir n'invente pas un fait qu'il n'a pas.
+export function shortDate(mtimeMs) {
+  const n = Number(mtimeMs)
+  if (!Number.isFinite(n) || n <= 0) return 'date inconnue'
+  return new Date(n).toISOString().slice(0, 10)
+}
+
+// PUR — statut des recettes. `recettes` : [{ rel, mtimeMs }] (B1 déjà appliqué en amont).
+export function recetteStatus(recettes = []) {
+  const list = (recettes || []).slice().sort(compareRecetteDesc)
+  return {
+    count: list.length,
+    entries: list.map((r) => ({
+      rel: r.rel,
+      name: String(r.rel).split('/').pop(),
+      version: parseRecetteVersion(r.rel),
+      date: shortDate(r.mtimeMs),
+    })),
+  }
+}
+
+// Blocs de `50` — A12 : SANS recette, la section existe et le DIT explicitement. Ce vide
+// affiché est un fait du portefeuille, pas un défaut à masquer.
+export function recetteBlocks(status, generatedAtIso) {
+  const s = status || { count: 0, entries: [] }
+  if (!s.count) {
+    return [
+      mirrorWarning(SOURCE_REPO, generatedAtIso),
+      heading(1, SEC.RECETTE),
+      para('aucune recette — ce projet n’a pas de recette guidée (RQV) dans specs/recettes/.'),
+      para('Le statut seul est publié ici ; le document de recette n’est jamais reproduit dans '
+        + 'AppFlowy — il s’ouvre depuis le dépôt, dans un navigateur.'),
+    ]
+  }
+  return [
+    mirrorWarning(SOURCE_REPO, generatedAtIso),
+    heading(1, SEC.RECETTE),
+    para(`${s.count} recette(s) guidée(s) dans specs/recettes/ — STATUT seul, le document `
+      + `lui-même n’est jamais publié ici : il s’ouvre depuis le dépôt, dans un navigateur.`),
+    ...s.entries.map((e) => bullet(
+      `${e.name} — version ${e.version || 'non déduite du nom'} — modifiée le ${e.date}`,
+    )),
   ]
 }
 
@@ -1520,6 +1600,37 @@ export function walkGuideDocs(root, fsApi = fs, maxDepth = 6) {
   }
   walk('docs', 0)
   return out.sort()
+}
+
+/**
+ * Recettes guidées présentes sous `specs/recettes/` — pour la section `50`, STATUT SEUL.
+ *
+ * ⚠️ Le contenu n'est **JAMAIS** lu : cette fonction n'appelle pas `readFileSync`. C'est la
+ * garantie structurelle de « jamais le HTML » — non pas une intention, mais une absence
+ * d'appel, qu'un test peut constater en refusant toute lecture au faux `fsApi`.
+ *
+ * Le nom canon des recettes remplies est `recette-vX.Y.0.html` (gabarit RQV) ; l'instruction
+ * du portail écrit `*.recette.html`. On retient donc **tout `.html`** du dossier, hors
+ * gabarits `_*` (B1, qui écarte précisément `_TEMPLATE.recette.html`).
+ */
+export function resolveRecettes(root, fsApi = fs) {
+  const dir = 'specs/recettes'
+  let entries = []
+  try { entries = fsApi.readdirSync(path.join(root, dir)) } catch { return [] }
+  const out = []
+  for (const name of entries.map(String)) {
+    if (!name.toLowerCase().endsWith('.html')) continue
+    if (isTemplateFile(name)) continue // B1 — sans exception
+    const rel = dir + '/' + name
+    let mtimeMs = 0
+    try {
+      const st = fsApi.statSync(path.join(root, rel))
+      if (typeof st.isFile === 'function' && !st.isFile()) continue
+      mtimeMs = st.mtimeMs || 0
+    } catch { continue }
+    out.push({ rel, mtimeMs })
+  }
+  return out.sort((a, b) => a.rel.localeCompare(b.rel))
 }
 
 // Charge les documents (contenu + titre lisible + mtime). Fichier illisible -> ignoré.
@@ -1848,8 +1959,12 @@ export async function run(argv, env, deps = {}) {
 
   const relPaths = resolveDocPaths(root, fsApi)
   const { docs, skipped } = loadDocs(root, relPaths, fsApi)
+  // Section 50 : STATUT seul. Les recettes ne passent PAS par `loadDocs` — leur contenu
+  // n'est jamais chargé, donc jamais publiable, même par accident.
+  const recettes = resolveRecettes(root, fsApi)
   for (const s of skipped) log(`  - ${s} : ignoré (lecture impossible)`)
-  log(`appflowy-doc: projet "${project}" — ${docs.length} doc(s) structurant(s) retenu(s)`)
+  log(`appflowy-doc: projet "${project}" — ${docs.length} doc(s) structurant(s) retenu(s)`
+    + `, ${recettes.length} recette(s) en statut`)
 
   const client = makeClient({ base, email, password })
   await client.auth()
@@ -1858,7 +1973,7 @@ export async function run(argv, env, deps = {}) {
   log(`appflowy-doc: workspace « ${client.workspaceName} » (${String(client.wid).slice(0, 8)}) — sélecteur « ${selector} » (${from})`)
 
   const generatedAt = now().toISOString()
-  const plan = buildPlan({ project, docs })
+  const plan = buildPlan({ project, docs, recettes })
 
   let tree = await client.folder()
   const space = await ensureSpace(client, tree, project)
@@ -1910,6 +2025,20 @@ export async function run(argv, env, deps = {}) {
       log(`  · ${section.name} : ${ov.state}`)
       topDesired.push(ov.vid)
       lockIfNeeded(key, ov.vid, section.name)
+      continue
+    }
+
+    // 50 — statut des recettes. L'empreinte ne porte QUE des métadonnées (nom, version,
+    // date) : le contenu du HTML n'entre ni dans la page, ni dans le hachage.
+    if (section.kind === 'recette') {
+      const key = pageKey(section.name)
+      const hash = fingerprint('recette', JSON.stringify(section.status))
+      const p = await syncPage(ctx, spaceNode, space.id, key, section.name,
+        recetteBlocks(section.status, generatedAt), hash)
+      log(`  · ${section.name} : ${p.state} — ${section.status.count
+        ? `${section.status.count} recette(s), statut seul` : 'aucune recette'}`)
+      topDesired.push(p.vid)
+      lockIfNeeded(key, p.vid, section.name)
       continue
     }
 

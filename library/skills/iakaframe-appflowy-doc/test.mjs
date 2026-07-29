@@ -30,6 +30,7 @@ import {
   RENDER_VERSION,
   stripHtmlComments, docBody,
   isGuideDoc, walkGuideDocs,
+  parseRecetteVersion, compareRecetteDesc, shortDate, recetteStatus, recetteBlocks, resolveRecettes,
 } from './appflowy-doc.mjs'
 import {
   parsePurgeArgs, flattenTree, countDescendants, planPurge, purgeArmed, renderPlan, runPurge,
@@ -1007,9 +1008,9 @@ const DOCS = [
 
 test('buildPlan : sections 00,10,20,30,40,90 dans l’ordre canonique', () => {
   const p = buildPlan({ project: 'demo', docs: DOCS })
-  assert.deepEqual(p.sections.map((s) => s.key), ['00', '10', '20', '30', '40', '90'])
+  assert.deepEqual(p.sections.map((s) => s.key), ['00', '10', '20', '30', '40', '50', '90'])
   assert.deepEqual(p.sections.map((s) => s.name), [
-    SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.NOTES,
+    SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.RECETTE, SEC.NOTES,
   ])
 })
 
@@ -1032,6 +1033,102 @@ test('buildPlan : 30 ordonné mtime décroissant, 40 version décroissante, inde
   assert.deepEqual(s40.children.map((c) => c.name), ['Qualité v0.10.0', 'Qualité v0.9.0'])
 })
 
+// ── Lot 4 — `50 · Recette (RQV)` : le STATUT seul, JAMAIS le HTML ──
+
+test('lot4 parseRecetteVersion : les DEUX conventions de nom, sinon null', () => {
+  assert.equal(parseRecetteVersion('specs/recettes/recette-v0.15.0.html'), 'v0.15.0')
+  assert.equal(parseRecetteVersion('specs/recettes/v0.15.0.recette.html'), 'v0.15.0')
+  assert.equal(parseRecetteVersion('specs/recettes/recette-1.2.3.html'), 'v1.2.3')
+  assert.equal(parseRecetteVersion('specs/recettes/recette.html'), null)
+  assert.equal(parseRecetteVersion(undefined), null)
+})
+
+test('lot4 recetteStatus : version décroissante, nom et date lisibles', () => {
+  const s = recetteStatus([
+    { rel: 'specs/recettes/recette-v0.9.0.html', mtimeMs: 1000 },
+    { rel: 'specs/recettes/recette-v0.10.0.html', mtimeMs: 500 },
+  ])
+  assert.equal(s.count, 2)
+  assert.deepEqual(s.entries.map((e) => e.version), ['v0.10.0', 'v0.9.0'], '0.10 > 0.9')
+  assert.equal(s.entries[0].name, 'recette-v0.10.0.html')
+  assert.equal(s.entries[0].date, new Date(500).toISOString().slice(0, 10))
+})
+
+test('lot4 compareRecetteDesc : sans version au nom, on retombe sur mtime puis nom', () => {
+  const l = [
+    { rel: 'b.html', mtimeMs: 100 }, { rel: 'a.html', mtimeMs: 300 },
+    { rel: 'recette-v0.1.0.html', mtimeMs: 1 },
+  ]
+  assert.deepEqual(l.slice().sort(compareRecetteDesc).map((e) => e.rel),
+    ['recette-v0.1.0.html', 'a.html', 'b.html'], 'une recette versionnée passe devant')
+})
+
+test('lot4 shortDate : un mtime absent ne fabrique pas une fausse date', () => {
+  assert.equal(shortDate(0), 'date inconnue')
+  assert.equal(shortDate(undefined), 'date inconnue')
+  assert.equal(shortDate(1700000000000), '2023-11-14')
+})
+
+test('A12 lot4 recetteBlocks : sans recette, la section DIT « aucune recette »', () => {
+  const b = recetteBlocks(recetteStatus([]), '2026-07-27T00:00:00.000Z')
+  const txt = b.map(text).join('\n')
+  assert.match(b[0].data.delta[0].insert, /^Page générée depuis le dépôt du projet/)
+  assert.equal(b[1].type, 'heading')
+  assert.match(txt, /aucune recette/)
+  assert.match(txt, /jamais reproduit/, 'la règle « statut seul » est dite à l’humain')
+})
+
+test('A12 lot4 recetteBlocks : avec recettes, nom + version + date, et RIEN du HTML', () => {
+  const b = recetteBlocks(recetteStatus([
+    { rel: 'specs/recettes/recette-v0.15.0.html', mtimeMs: 1700000000000 },
+  ]), '2026-07-27T00:00:00.000Z')
+  const txt = b.map(text).join('\n')
+  assert.match(txt, /recette-v0\.15\.0\.html/)
+  assert.match(txt, /version v0\.15\.0/)
+  assert.match(txt, /modifiée le 2023-11-14/)
+  assert.ok(!b.some((x) => x.type === 'code'), 'aucun bloc préformaté : pas de HTML rendu')
+})
+
+test('lot4 buildPlan : 50 est TOUJOURS présente, entre 40 et 60', () => {
+  const p = buildPlan({
+    project: 'demo', docs: DOCS,
+    recettes: [{ rel: 'specs/recettes/recette-v0.10.0.html', mtimeMs: 1700000000000 }],
+  })
+  const keys = p.sections.map((s) => s.key)
+  assert.deepEqual(keys, ['00', '10', '20', '30', '40', '50', '90'])
+  const s50 = p.sections.find((s) => s.key === '50')
+  assert.equal(s50.kind, 'recette')
+  assert.equal(s50.status.count, 1)
+  assert.equal(p.counters.recette, '1 (statut seul)')
+})
+
+test('A12 lot4 : sans recette, le compteur de 00 dit « aucune recette »', () => {
+  assert.equal(buildPlan({ project: 'demo', docs: DOCS }).counters.recette, 'aucune recette')
+})
+
+test('B1 lot4 resolveRecettes : _TEMPLATE.recette.html n’entre JAMAIS', () => {
+  const r = resolveRecettes('/repo', fsMock)
+  assert.deepEqual(r.map((x) => x.rel), ['specs/recettes/recette-v0.10.0.html'])
+})
+
+test('lot4 resolveRecettes : dossier absent -> liste vide, jamais une exception', () => {
+  const vide = { readdirSync: () => { throw new Error('ENOENT') } }
+  assert.deepEqual(resolveRecettes('/repo', vide), [])
+})
+
+test('lot4 : le HTML d’une recette n’est JAMAIS LU — garantie structurelle, pas verbale', () => {
+  // Un fsApi qui REFUSE toute lecture : si la collecte lisait le fichier, ce test lèverait.
+  const sansLecture = {
+    readdirSync: () => ['recette-v1.0.0.html', '_TEMPLATE.recette.html'],
+    statSync: () => ({ isFile: () => true, isDirectory: () => false, mtimeMs: 1700000000000 }),
+    readFileSync: () => { throw new Error('LECTURE INTERDITE : le HTML de recette ne se lit pas') },
+  }
+  const r = resolveRecettes('/repo', sansLecture)
+  assert.equal(r.length, 1)
+  const b = recetteBlocks(recetteStatus(r), '2026-07-27T00:00:00.000Z')
+  assert.ok(!renderedText(b).includes('<html'), 'aucune balise ne peut avoir fuité')
+})
+
 // ── Lot 4 — `60 · Guide utilisateur` ──
 
 const GUIDE = [
@@ -1042,7 +1139,7 @@ const GUIDE = [
 
 test('lot4 buildPlan : 60 posée APRÈS 40, avec index, ordre mtime décroissant', () => {
   const p = buildPlan({ project: 'demo', docs: GUIDE })
-  assert.deepEqual(p.sections.map((s) => s.key), ['00', '10', '20', '30', '40', '60', '90'])
+  assert.deepEqual(p.sections.map((s) => s.key), ['00', '10', '20', '30', '40', '50', '60', '90'])
   const s60 = p.sections.find((s) => s.key === '60')
   assert.equal(s60.kind, 'container')
   assert.equal(s60.name, SEC.GUIDE)
@@ -1093,11 +1190,13 @@ test('buildPlan : 90 · Notes présente, jamais verrouillée, sans source', () =
 
 test('A12 buildPlan : sections vides non créées et listées comme absentes', () => {
   const p = buildPlan({ project: 'vide', docs: [] })
-  assert.deepEqual(p.sections.map((s) => s.key), ['00', '90'])
+  // `50` est la SEULE section qui subsiste vide : elle DOIT dire « aucune recette » (A12).
+  assert.deepEqual(p.sections.map((s) => s.key), ['00', '50', '90'])
   const noms = p.missing.map((m) => m.name)
   assert.ok(noms.includes(SEC.PROJET) && noms.includes(SEC.ETAT))
   assert.ok(noms.includes(SEC.CADRAGE) && noms.includes(SEC.QUALITE))
-  assert.ok(noms.includes(SEC.RECETTE) && noms.includes(SEC.GUIDE))
+  assert.ok(noms.includes(SEC.GUIDE))
+  assert.ok(!noms.includes(SEC.RECETTE), '50 n’est jamais « absente » : elle affiche le vide')
 })
 
 test('buildPlan : compteurs et version déduite', () => {
@@ -1122,7 +1221,8 @@ test('overviewBlocks : projet, version, sections présentes ET absentes, compteu
   assert.match(txt, /Version : v0\.10\.0/)
   assert.match(txt, /Instructions : 2/)
   assert.match(txt, /Versions qualité : 2/)
-  assert.match(txt, /Recette \(RQV\) : non collectée/)
+  assert.match(txt, /Recette \(RQV\) : aucune recette/)
+  assert.match(txt, /Guide utilisateur : 0/)
   assert.ok(txt.includes(SEC.CADRAGE) && txt.includes(SEC.RECETTE))
 })
 
@@ -1504,7 +1604,7 @@ test('A5 orchestration : arborescence 00–90 complète et ORDONNÉE au niveau e
   const res = await publier(server)
   assert.equal(res.workspaceId, 'ws-proj')
   const space = findNodeById(server.roots['ws-proj'], res.spaceId)
-  assert.deepEqual(namesOf(space), [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.GUIDE, SEC.NOTES])
+  assert.deepEqual(namesOf(space), [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.RECETTE, SEC.GUIDE, SEC.NOTES])
 })
 
 test('A5 orchestration : ordre interne des conteneurs (index en tête)', async () => {
@@ -1520,6 +1620,27 @@ test('A5 orchestration : ordre interne des conteneurs (index en tête)', async (
   // Lot 4 — la section 60 obéit au même contrat : index en tête, mtime décroissant.
   const s60 = childrenOf(space).find((c) => c.name === SEC.GUIDE)
   assert.deepEqual(namesOf(s60), [indexName('60'), 'Prise en main', 'API publique'])
+})
+
+test('lot4 orchestration : 50 publie le STATUT, le HTML ne fuit dans AUCUNE page', async () => {
+  const server = makeFakeServer()
+  const res = await publier(server)
+  const space = findNodeById(server.roots['ws-proj'], res.spaceId)
+  const s50 = childrenOf(space).find((c) => c.name === SEC.RECETTE)
+  assert.ok(s50, 'la section 50 existe')
+  assert.deepEqual(namesOf(s50), [], '50 est une page, pas un conteneur')
+  const txt = renderedText(server.blocks.get(s50.view_id) || [])
+  assert.match(txt, /recette-v0\.10\.0\.html/)
+  assert.match(txt, /version v0\.10\.0/)
+  // Le contenu du fichier de recette est une sentinelle : il ne doit apparaître NULLE PART.
+  const tout = []
+  const walk = (n) => {
+    tout.push(renderedText(server.blocks.get(n.view_id) || []))
+    for (const c of childrenOf(n)) walk(c)
+  }
+  walk(space)
+  assert.ok(!tout.join('\n').includes('NE DOIT JAMAIS ÊTRE PUBLIÉ'), 'le HTML de recette a fuité')
+  assert.ok(!tout.join('\n').includes('gabarit interdit'), 'B1 : le gabarit de recette a fuité')
 })
 
 test('A3 orchestration : aucun gabarit publié', async () => {
@@ -1577,7 +1698,7 @@ test('A1/A2 orchestration : 2e passe idempotente, 90 · Notes et sa sous-page in
   const r2 = await publier(server)
   assert.equal(r2.spaceId, r1.spaceId, "l'espace est réutilisé, jamais dupliqué")
   const space2 = findNodeById(server.roots['ws-proj'], r2.spaceId)
-  assert.deepEqual(namesOf(space2), [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.GUIDE, SEC.NOTES])
+  assert.deepEqual(namesOf(space2), [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.RECETTE, SEC.GUIDE, SEC.NOTES])
   const notes2 = childrenOf(space2).find((c) => c.name === SEC.NOTES)
   assert.equal(notes2.view_id, notesId, '90 · Notes ne doit jamais être recréée')
   assert.equal(JSON.stringify(server.blocks.get(notesId) || []), blocsNotesAvant, '90 · Notes réécrite !')
@@ -1819,7 +1940,7 @@ test('A10 : une page intruse au niveau de l’espace est retirée (l’espace ap
   assert.equal(r2.removed, 1)
   assert.ok(server.trash.some((t) => t.name === '70 · Ancienne section'))
   assert.deepEqual(namesOf(findNodeById(server.roots['ws-proj'], r1.spaceId)),
-    [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.GUIDE, SEC.NOTES])
+    [SEC.OVERVIEW, SEC.PROJET, SEC.ETAT, SEC.CADRAGE, SEC.QUALITE, SEC.RECETTE, SEC.GUIDE, SEC.NOTES])
 })
 
 // ═══════════════════ Contrat HTTP du client (fetch stubbé, aucun réseau) ═══════════════════
