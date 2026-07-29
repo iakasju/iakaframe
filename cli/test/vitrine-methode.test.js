@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildZone, extractZone, esc } from '../scripts/gen-methode-vitrine.mjs';
+import { iakaframeSkillIds } from '../scripts/gen-skills-golden.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..');
@@ -51,6 +52,16 @@ test('roster 9 : le bloc agents porte les 9 personas dont feanor (contrat rendu)
   const zone = buildZone({ root: REPO });
   for (const id of ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin']) {
     assert.ok(zone.includes(`id="code-agent-${id}"`), `carte agent manquante : ${id}`);
+  }
+});
+
+test('frame-scope skills : bloc skills = domaine iakaframe, aucun skill d\'une autre frame', () => {
+  const zone = buildZone({ root: REPO });
+  const scoped = iakaframeSkillIds(REPO);
+  const cards = (zone.match(/id="code-skill-([^"]+)"/g) || []).map((m) => m.slice('id="code-skill-'.length, -1));
+  assert.deepEqual(cards, scoped, 'le bloc skills doit etre EXACTEMENT le domaine iakaframe (tri par id)');
+  for (const other of ['scrum-facilitation', 'kanban-flow-management', 'gtd-engage', 'waterfall-construction']) {
+    assert.ok(!zone.includes(`id="code-skill-${other}"`), `skill hors frame present : ${other}`);
   }
 });
 

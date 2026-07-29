@@ -7,7 +7,10 @@
 // code des agents et des skills, HTML-echappees, depuis les SOURCES CANON VIVANTES :
 //   - bloc agents  = le CONTRAT rendu par generateAll (Option B, arbitre) — l'exact
 //     `.claude/agents/<id>.md` deploye, meme referent que le golden parite-generateurs ;
-//   - bloc skills  = TOUS les library/skills/<id>/SKILL.md (bruts), tries par id.
+//   - bloc skills  = les SKILL.md du DOMAINE iakaframe (iakaframeSkillIds : prefixe iakaframe- ou
+//     iakastart), bruts, tries par id. La page est la vitrine de LA methode iakaframe : le bloc
+//     skills est frame-scope COMME le bloc agents (roster 9), pas ballonne des skills d'autres
+//     frames (scrum-/kanban-/gtd-...). Meme interrupteur que le golden parite-skills (26).
 //
 // Calque de gen-agents-golden.mjs / gen-skills-golden.mjs : REPO atteint par ../.. ; fonction pure
 // exportee (buildZone) rejouable en memoire par la garde ; main() n'ecrit qu'en lancement DIRECT.
@@ -21,7 +24,8 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { generateAll } from '../src/lib/generate-agents.js';
-import { scan, pathFor } from '../src/lib/library.js';
+import { pathFor } from '../src/lib/library.js';
+import { iakaframeSkillIds } from './gen-skills-golden.mjs';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..'); // depot iakaframe (vraie bibliotheque)
@@ -69,9 +73,9 @@ export function buildZone({ root = REPO } = {}) {
     }));
   }
 
-  // --- Bloc skills : TOUS les library/skills/<id>/SKILL.md bruts, tries par id (scan trie deja).
+  // --- Bloc skills : SKILL.md du DOMAINE iakaframe, tries par id (iakaframeSkillIds trie deja).
   parts.push('<div class="code-group">skills/ &mdash; savoir-faire (SKILL.md)</div>');
-  for (const { id } of scan('skills', root)) {
+  for (const id of iakaframeSkillIds(root)) {
     const raw = fs.readFileSync(pathFor('skills', id, root), 'utf8');
     parts.push(renderCard({
       fname: id,
