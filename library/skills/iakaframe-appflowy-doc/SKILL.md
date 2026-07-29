@@ -288,7 +288,7 @@ première ligne moins indentée ou non-liste : il ne peut pas divaguer hors du n
 ligne repliée de prose (« … Cela fait 20, pas / `18.` L'arithmétique … ») n'a, elle, **aucun**
 voisin ordonné à son retrait : elle reste dans le paragraphe.
 
-**Perte résiduelle DÉCLARÉE (3 occurrences sur 463 documents).** Trois lignes du portefeuille
+**Perte résiduelle DÉCLARÉE (3 occurrences sur 426 documents).** Trois lignes du portefeuille
 sont **structurellement ambiguës** — une ligne repliée de prose qui commence par un nombre suivi
 d'un point : `iakaFrameGUI/…/d9-re-vendorage-canon-iakaframe.md:38` (« pas / `18.` »),
 `iakaframe/…/adoption-retrospective-…md:118` (« exit / `0.` »),
@@ -317,19 +317,31 @@ par mutation, et non seulement le mapper.
 > les 3 blocs disparaître sur la reproduction minimale. C'est la leçon du gate, pas un ornement.
 
 **Bornes déclarées de l'invariant de structure** : (1) c'est une **borne basse** — un surplus de
-blocs n'est jamais une faute ; (2) la reconnaissance d'un marqueur ordonné est **partagée** avec
-le mapper, l'invariant ne peut donc pas contredire *cette règle-là* (il contredit tout le reste) ;
-(3) les ambiguïtés du source (marqueur hors suite, ligne repliée commençant par `|`) sont
-**exclues du comptage** plutôt que de faire mentir la borne.
+blocs n'est jamais une faute ; (2) l'invariant vérifie le segment **reconnaissance → émission**,
+et **rien en amont** : toute la couche de reconnaissance est **partagée** avec le mapper
+(`RE_FENCE`, `RE_TABLE`, `RE_INDENTED_CODE`, `RE_HEADING`, `RE_DIVIDER`, `RE_LIST`,
+`listInterruptsParagraph`, `belongsToOrderedRun`, `stripFrontMatter`, `indentWidth` — pour les
+listes, c'est la **même expression mot pour mot**). Il ne peut donc contredire **aucune** règle de
+reconnaissance : mesuré, il reste **vert sur 426/426** documents quand on altère `RE_LIST`,
+`RE_HEADING`, `RE_DIVIDER` ou `belongsToOrderedRun`, là où un oracle indépendant rougit en masse.
+Ce qu'il contredit — items fondus, titre avalé, séparateur perdu, tableau reformaté — l'est
+**à reconnaissance constante**. Le filet contre une régression de la *reconnaissance* reste la
+**suite unitaire**, qui épingle des valeurs littérales ; (3) les ambiguïtés du source (marqueur
+hors suite, ligne repliée commençant par `|`) sont **exclues du comptage** plutôt que de faire
+mentir la borne.
 
 La référence ne concède que les marques **déclarées** plus bas ; tout autre déficit est une perte
-et fait rougir la suite. Passée sur les **463 docs structurants** du portefeuille :
-**0 perte de mot, 0 littéral reformaté, 0 span altéré, 0 structure fondue** — pour un volume
-couvert de **801 141 mots**, **433 régions littérales**, **55 206 spans de code en ligne** et
-**25 879 structures** (6 307 titres, 16 098 items de liste, 2 076 séparateurs, 1 398 préformatés).
-Rejouées contre les mappers précédents, ces mêmes sondes relèvent **1 fichier** en perte de mot,
-**17 fichiers / 28 régions** en littéral reformaté, **7 fichiers / 9 spans** altérés en ligne et
-**8 fichiers** en structure fondue.
+et fait rougir la suite. Passée sur les **426 docs structurants** du portefeuille — le corpus est
+celui que la skill publie **réellement**, c'est-à-dire filtré par `selectStructuralDocs` : les
+**37 gabarits** `_*.md` que B1 écarte *sans exception* n'en font pas partie, les mesurer serait
+mesurer ce qui n'est jamais rendu. Résultat : **0 perte de mot, 0 littéral reformaté, 0 span
+altéré, 0 structure fondue** — pour un volume couvert de **795 952 mots**, **429 régions
+littérales**, **55 087 spans de code en ligne** et **25 137 structures** (6 000 titres,
+15 731 items de liste, 2 045 séparateurs, 1 361 préformatés). Ces volumes sont un **instantané** :
+le portefeuille est vivant, un recomptage ultérieur dérive de quelques dixièmes de pour-cent — les
+compteurs de **perte**, eux, restent à zéro. Rejouées contre les mappers précédents, ces mêmes
+sondes relèvent **1 fichier** en perte de mot, **24 fichiers / 41 régions** en littéral reformaté,
+**7 fichiers / 9 spans** altérés en ligne et **8 fichiers** en structure fondue.
 
 > **Aucune mémoire du passé dans la référence.** La reconnaissance d'un marqueur ne dépend que du
 > **voisinage** : toute ligne au retrait `w` **ferme** les suites plus profondes que `w`. Sans

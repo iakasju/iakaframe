@@ -856,10 +856,17 @@ export function inlineCodeLoss(md, blocks) {
 // Cet invariant compte les STRUCTURES du source, sans le mapper, et exige que le rendu en
 // porte AU MOINS autant. C'est une BORNE BASSE : un surplus n'est jamais une faute.
 //
-// Blindspot DÉCLARÉ : la reconnaissance d'un marqueur ordonné (`belongsToOrderedRun`) est
-// PARTAGÉE avec le mapper — l'invariant ne peut donc pas contredire cette règle-là. Il
-// contredit tout le reste : items fondus, titre avalé, séparateur perdu, tableau ou bloc de
-// code reformaté en prose.
+// PORTÉE DÉCLARÉE (ne pas sous-déclarer) : cet invariant vérifie le segment RECONNAISSANCE →
+// ÉMISSION, et RIEN EN AMONT. Toute la couche de reconnaissance est PARTAGÉE avec le mapper :
+// RE_FENCE, RE_TABLE, RE_INDENTED_CODE, RE_HEADING, RE_DIVIDER, RE_LIST,
+// listInterruptsParagraph, belongsToOrderedRun, stripFrontMatter, indentWidth — et pour les
+// listes c'est la MÊME expression mot pour mot (cf. `markdownToBlocks`). Il ne peut donc
+// contredire AUCUNE règle de reconnaissance : mesuré, il reste VERT sur 426/426 documents
+// quand on altère RE_LIST, RE_HEADING, RE_DIVIDER ou belongsToOrderedRun, là où un oracle
+// indépendant rougit en masse. Ce qu'il contredit — items fondus, titre avalé, séparateur
+// perdu, tableau ou bloc de code reformaté en prose — l'est À RECONNAISSANCE CONSTANTE.
+// Le filet contre une régression de la reconnaissance elle-même reste la SUITE UNITAIRE,
+// qui épingle des valeurs littérales.
 const STRUCT_OF = { heading: 'heading', divider: 'divider', code: 'code', numbered_list: 'list', bulleted_list: 'list', todo_list: 'list' }
 
 // Retire le chevron de citation en conservant la LARGEUR du retrait (`> ` ↦ deux espaces) :
