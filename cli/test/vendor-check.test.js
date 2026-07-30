@@ -93,6 +93,30 @@ function makeCleanMirror() {
 const fixturePath = (m, rel) => path.join(m.fx, rel);
 const run = (m, extra = {}) => checkVendor({ root: REPO, guiRoot: m.root, ...extra });
 
+// Empreinte de contenu de TOUS les fichiers presents sous le dossier de fixtures d'un depot GUI :
+// pour chaque fichier (chemin relatif), sha256(contenu) + taille + mtime. C'est exactement le
+// perimetre que checkVendor LIT dans le miroir GUI (les fixtures vendorees). Comparee AVANT/APRES
+// un appel, elle prouve POSITIVEMENT qu'aucun fichier touche n'a mute, INDEPENDAMMENT de toute
+// salete git preexistante et non liee : un `git status --porcelain` global confond cette salete
+// et passe donc de facon VACANTE sur un arbre deja sale, la ou l'empreinte, elle, ne peut pas.
+function fingerprintFixtures(guiRoot) {
+  const dir = path.join(guiRoot, FIXTURES_REL);
+  const out = {};
+  const walk = (cur, rel) => {
+    let entries = [];
+    try { entries = fs.readdirSync(cur, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      const child = path.join(cur, e.name);
+      const childRel = rel ? path.join(rel, e.name) : e.name;
+      if (e.isDirectory()) { walk(child, childRel); continue; }
+      const st = fs.statSync(child);
+      out[childRel] = `${sha256(fs.readFileSync(child, 'utf8'))}:${st.size}:${st.mtimeMs}`;
+    }
+  };
+  walk(dir, '');
+  return out;
+}
+
 test('A2 : miroir conforme -> ok, checked == 78 et derived == 4 (attendu EXACT)', () => {
   const m = makeCleanMirror();
   const res = run(m);
@@ -585,11 +609,17 @@ test('C-9 : `remediation` est ADDITIF - `ok` reste en premiere cle, aucune cle e
 
 test('A5-a (garde de non-mutation) : le depot GUI reel n\'est jamais mute par la suite', () => {
   const real = resolveGuiRoot(REPO, { ...process.env, IAKAFRAME_GUI_ROOT: '' });
-  if (!real) return; // clone isole : rien a verifier
-  const before = spawnSync('git', ['-C', real, 'status', '--porcelain'], { encoding: 'utf8' });
-  if (before.status !== 0) return; // pas un depot git : hors sujet
-  makeCleanMirror();
+  if (!real) return; // clone isole : aucun miroir reel a eprouver (garde d'environnement conservee)
+  // PREUVE POSITIVE de lecture seule, robuste a une baseline git SALE. On ne s'appuie plus sur le
+  // porcelain global du depot (qui passait de facon vacante des que l'arbre GUI etait deja sale,
+  // cas frequent en dev) : on empreinte le contenu de chaque fichier que checkVendor lit dans le
+  // miroir, AVANT puis APRES l'appel, et on assere l'egalite fichier par fichier. Un octet mute,
+  // un fichier ajoute/supprime ou un simple bump de mtime fait rougir ce test, quelle que soit la
+  // salete git par ailleurs.
+  const before = fingerprintFixtures(real);
+  // Garde anti-vacance : sans fixture, deepEqual({}, {}) passerait sans rien prouver.
+  assert.ok(Object.keys(before).length > 0, 'empreinte vide : le miroir GUI ne porte aucune fixture a eprouver');
   checkVendor({ root: REPO, guiRoot: real });
-  const after = spawnSync('git', ['-C', real, 'status', '--porcelain'], { encoding: 'utf8' });
-  assert.equal(after.stdout, before.stdout, 'la garde doit etre STRICTEMENT en lecture seule');
+  const after = fingerprintFixtures(real);
+  assert.deepEqual(after, before, 'la garde doit etre STRICTEMENT en lecture seule : un fichier du miroir GUI a mute');
 });
