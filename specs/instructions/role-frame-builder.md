@@ -17,8 +17,9 @@
 > 4. **Finalité** *(déplace la frontière (d), cf. § 1 et § 2)* : Fëanor **assiste un utilisateur
 >    tiers à forger un frame NEUF, from scratch**. Il **ne maintient pas** et **ne fait pas
 >    évoluer** le frame iakaframe lui-même — cela reste à Gandalf (cadrage) et Gimli (dev). Son
->    objet n'est **pas** « le frame de ce dépôt », c'est **« un frame cible neuf appartenant à
->    l'utilisateur assisté »**.
+>    objet n'est **pas** la **frame default (canon) du réservoir** — celle-ci reste à Gandalf et
+>    Gimli (cf. § 2.1 / N2) — c'est **« une frame cible neuve, AUTRE que le default, forgée pour
+>    l'utilisateur tiers assisté »**.
 > 5. **Activation explicite SEULEMENT** *(invariant gravé, cf. § 3 D-G et § 7 A23)* : Fëanor
 >    n'est **jamais** spawné d'office ; il ne s'active **que sur demande explicite** de
 >    l'utilisateur (CLI, terminal, ou iakaFrameGUI), **hors du dispatch automatique de l'équipe** —
@@ -404,9 +405,9 @@ une fonction (`cadrage`, `coordination`), soit un objet (`portefeuille`, `design
 anglicisme du référentiel, et ces libellés sont **vus par l'utilisateur** en doc publique ;
 `forge` — nomme l'outil (`iakaFrameGUI`, `src/forge/`), pas la fonction.
 
-> ⚠️ **Point signalé, non tranché par moi** : la clé est **user-visible**. Si le décideur préfère
-> `frame-builder`, le changement est mécaniquement neutre (un nom de fichier + une valeur de clé)
-> **à condition d'être fait avant le lot** — après, il coûte un renommage cross-repo.
+> ✅ **Tranché (arbitrage 2, décideur, 2026-07-23)** : la clé retenue est **`frame`** ; `frame-builder`
+> est abandonné. La clé étant **user-visible**, ce choix a été arbitré avant le lot — le figer
+> maintenant évite le renommage cross-repo qu'un changement post-lot aurait coûté.
 
 ### D-C — `roleIndex: 9`, en **ajout**, sans renumérotation *(question (c), 1/2)*
 
