@@ -1,6 +1,6 @@
-# NaonEdge — Charte de design (label « design NaonEdge »)
+# NAOnEdge — Charte de design (label « design NAOnEdge »)
 
-> Design figé pour **tous les supports NaonEdge** : documents HTML, decks/slides,
+> Design figé pour **tous les supports NAOnEdge** : documents HTML, decks/slides,
 > flyers, visuels/images, exports. Dérivé de la charte **iakabox** (dark premium · or).
 > Source de vérité : [`naonedge.css`](./naonedge.css). Ne pas diverger sans mettre à jour ce dossier.
 
@@ -8,17 +8,22 @@
 
 ## 1. Marque
 
-- **Nom : `NaonEdge`** — mot-valise : **Naoned** (« Nantes » en breton) **+ Edge**
-  (le côté innovation / cutting-edge). Le « ed » de *Naoned* fusionne avec *Edge*.
-- **Wordmark** : `Naon` en encre claire + **`Edge`** en dégradé or (E majuscule pour
+- **Nom : `NAOnEdge`** — mot-valise : **Naoned** (« Nantes » en breton) **+ Edge**
+  (le côté innovation / cutting-edge). On garde `NAOn` de *Naoned*, dont le « ed » final
+  fusionne avec *Edge* : `NAOn` + `ed` + `Edge` → **`NAOnEdge`**.
+- **Capitalisation officielle** (graphie du site, qui fait foi) : `NAO` en **capitales**,
+  puis un `n` **minuscule**, puis `Edge` avec un `E` **majuscule**.
+  Règle : **toujours `NAOnEdge`** — jamais `NaonEdge`, jamais `NaoEdge`, jamais
+  `Naonedge`, jamais `NAO Edge` ni `Nao Edge`.
+- **Wordmark** : `NAOn` en encre claire + **`Edge`** en dégradé or (E majuscule pour
   surfacer l'innovation).
-  HTML : `<span class="ne-wordmark"><b>Naon</b><span class="edge">Edge</span></span>`
+  HTML : `<span class="ne-wordmark"><b>NAOn</b><span class="edge">Edge</span></span>`
 - **Domaine / fichiers / handles** : `naonedge` en minuscules.
 - **Logo** : [`naonedge-logo.svg`](./naonedge-logo.svg) — badge noir, contour or, motif
   « nœuds + arêtes » (graphe / *edge*). Zone de respiration ≥ hauteur d'un nœud.
 - **Icône de famille** : [`naonedge-grue.svg`](./naonedge-grue.svg) — la **grue jaune**
-  (réf. grue Titan de Nantes), marqueur des produits NaonEdge/iaka. Voir §7.
-- Ne pas : écrire « NAO Edge » / « Nao Edge » (perd le jeu de mots), changer l'or, étirer le logo,
+  (réf. grue Titan de Nantes), marqueur des produits NAOnEdge/iaka. Voir §7.
+- Ne pas : séparer en « NAO Edge » / « Nao Edge » (perd le jeu de mots), changer l'or, étirer le logo,
   poser le wordmark sur fond clair sans inverser.
 
 ## 2. Palette
@@ -94,9 +99,9 @@ devant le nom du produit.
 | Famille | Marqueur | Sens | Fichiers |
 |---|---|---|---|
 | **Robby** (produits de veille) | petit **robot** | l'assistant qui surveille | logos `robby-*` (accent couleur par robby) |
-| **NaonEdge / iaka** (cabinet, atelier, outils) | petite **grue jaune** | Nantes (grue Titan) + ingénierie | `naonedge-grue.svg` (badge) · `naonedge-grue-glyph.svg` (inline) |
+| **NAOnEdge / iaka** (cabinet, atelier, outils) | petite **grue jaune** | Nantes (grue Titan) + ingénierie | `naonedge-grue.svg` (badge) · `naonedge-grue-glyph.svg` (inline) |
 
-- La **grue jaune** marque tout ce qui relève de NaonEdge et de l'atelier « iaka » :
+- La **grue jaune** marque tout ce qui relève de NAOnEdge et de l'atelier « iaka » :
   favicon, en-tête, et **devant le nom d'un produit/outil** — exactement comme le petit
   robot précède un « Robby ».
 - Jaune `#f4c430` (sur badge noir, contour or). Une version glyphe est fournie pour un
@@ -106,5 +111,5 @@ devant le nom du produit.
 
 ---
 
-_Label **« design NaonEdge »** · d'après iakabox · à charger après les polices
+_Label **« design NAOnEdge »** · d'après iakabox · à charger après les polices
 (Fraunces · IBM Plex Sans · JetBrains Mono)._

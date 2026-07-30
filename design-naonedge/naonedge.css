@@ -1,8 +1,8 @@
 /* ============================================================================
-   NaonEdge — Design System (charte « dark premium · or »)
-   Naoned (Nantes en breton) + Edge (innovation).
+   NAOnEdge — Design System (charte « dark premium · or »)
+   Naoned (Nantes en breton) + Edge (innovation). Graphie officielle : NAOnEdge.
    ----------------------------------------------------------------------------
-   Feuille de style CANONIQUE, figée pour tous les supports NaonEdge :
+   Feuille de style CANONIQUE, figée pour tous les supports NAOnEdge :
    documents HTML, decks/slides, gabarits de flyers, exports.
    Dérivée de la charte iakabox (fond noir + accent or, Inter).
    Usage : <link rel="stylesheet" href="naonedge.css"> + Inter (Google Fonts).
@@ -23,7 +23,7 @@
   --text-secondary:#8a8a8a;
   --text-muted:#555;
 
-  /* — Accent OR (signature NaoEdge) — */
+  /* — Accent OR (signature NAOnEdge) — */
   --accent-gold:#c8a44e;
   --accent-gold-light:#e8c960;
   --accent-rgb:200,164,78;
@@ -130,7 +130,7 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
 .footer .accent-line{width:60px;height:3px;background:var(--gradient-accent);border-radius:999px;margin:0 auto 1.2rem}
 .footer p{color:var(--text-muted);font-size:.82rem;max-width:none;margin:.2rem auto}
 
-/* — Wordmark NaonEdge — "Naon" encre + "Edge" or (E majuscule) — */
+/* — Wordmark NAOnEdge — "NAOn" encre + "Edge" or (E majuscule) — */
 .ne-wordmark{font-weight:900;letter-spacing:-.01em;color:var(--text-primary)}
 .ne-wordmark b{font-weight:900}
 .ne-wordmark .edge{font-weight:900;background:var(--gradient-accent);-webkit-background-clip:text;background-clip:text;color:transparent}

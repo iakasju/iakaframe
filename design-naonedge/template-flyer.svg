@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="595" height="842" viewBox="0 0 595 842" font-family="Inter, sans-serif">
   <!-- Gabarit flyer A5 (vectoriel, échelle 72dpi : 595x842 ; exporter ×~4 pour 300dpi).
-       Éditer les textes ci-dessous. Charte design NaonEdge. -->
+       Éditer les textes ci-dessous. Charte design NAOnEdge. -->
   <defs>
     <linearGradient id="g" x1="0" y1="0" x2="595" y2="842">
       <stop offset="0" stop-color="#c8a44e"/><stop offset="1" stop-color="#e8c960"/>
@@ -19,7 +19,7 @@
     <path d="M11 12 L29 12 L20 29 Z" stroke="url(#g)" stroke-width="1.4" fill="none" opacity=".55"/>
     <circle cx="11" cy="12" r="3" fill="#c8a44e"/><circle cx="29" cy="12" r="3" fill="#e8c960"/><circle cx="20" cy="29" r="3" fill="#c8a44e"/>
     <text x="52" y="27" font-size="22" font-weight="900" letter-spacing="-0.5">
-      <tspan fill="#f0f0f0">Naon</tspan><tspan fill="url(#g)">Edge</tspan>
+      <tspan fill="#f0f0f0">NAOn</tspan><tspan fill="url(#g)">Edge</tspan>
     </text>
   </g>
 
