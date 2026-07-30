@@ -77,7 +77,7 @@ export function contractFile(target) {
   return contractFileForNode(normalizeNode(target).node || 'claude');
 }
 
-// Version iakaframe : etat-des-lieux (dev) > _bundled/VERSION (publie) > package.json.
+// Version iakaframe : etat-des-lieux (dev) > <root>/VERSION > package.json.
 export function frameworkVersion(root) {
   try {
     const md = fs.readFileSync(path.join(root, 'specs', 'etat-des-lieux.md'), 'utf8');

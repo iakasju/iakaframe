@@ -8,6 +8,23 @@ import { table, wrap } from '../lib/table.js';
 
 const JALON_FONT = 'Standard'; // police dediee aux jalons (distincte des titres de royaume)
 
+const USAGE = `Usage : iakaframe jalon [options]
+
+Rend le CADRE d'un jalon (gate) : titre FIGlet Standard "<PROJET> - JALON : <nom>"
++ tableau 3 zones (emetteur / contenu / recepteur). Les fichiers a verifier sont
+redonnes par l'agent en \`chemin:ligne\` dans son message (cliquables cote Claude Code).
+
+Options :
+  --project <nom>   Nom du projet (MAJUSCULE dans le titre ; defaut : PROJET)
+  --name <nom>      Nom du jalon
+  --from <emetteur> Emetteur (agent qui pose le jalon ; defaut : (emetteur))
+  --to <recepteur>  Recepteur qui valide (defaut : Utilisateur)
+  --content <txt>   Contenu livre / a valider
+  --files <a,b,c>   Fichiers a verifier (liste separee par des virgules)
+  --next <txt>      Prochaine etape (affichee avec --validated)
+  --validated       Affiche "JALON VALIDE" + la suite (le recepteur valide)
+  --ascii           Tableau en ASCII pur (sans box-drawing)`;
+
 export function runJalon(argv) {
   const { values } = parseArgs({
     args: argv, allowPositionals: true,
@@ -17,8 +34,10 @@ export function runJalon(argv) {
       content: { type: 'string' }, files: { type: 'string' },
       next: { type: 'string' }, validated: { type: 'boolean', default: false },
       ascii: { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   const project = (values.project || 'PROJET').toUpperCase();
   const name = values.name || '';
 
