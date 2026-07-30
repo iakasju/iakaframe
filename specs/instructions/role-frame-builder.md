@@ -569,6 +569,13 @@ mal ; ce qu'il ne faut pas faire, c'est livrer D1 en le **présentant** comme la
 
 ## 5. Recensement mécanique (e) — sur pièces, dépôt par dépôt
 
+> **Le lot s'exécute ENTIÈREMENT à D3** *(rappel — l'arbitrage (b) est tranché, § 4).* La colonne
+> **Degré** ci-dessous n'est **pas un phasage** : elle date, pour chaque entrée, le degré
+> d'incarnation à partir duquel elle devient obligatoire — une **trace de raisonnement** (§ 4.2),
+> **pas** un ordre d'exécution par paliers. **Tout ce qui est listé D0/D1/D3 est dans le périmètre
+> du lot unique** (§ 6, arbitrage 8) et se réalise au degré final **D3**. Les degrés inférieurs ne
+> subsistent que pour montrer *pourquoi* chaque entrée existe.
+
 Colonne **Degré** = degré d'incarnation à partir duquel l'entrée devient obligatoire.
 
 ### 5.1 Dépôt `iakaframe`
@@ -667,6 +674,12 @@ tomberait dans la même zone non outillée.
 
 ## 7. Critères d'acceptation — numérotés, mesurables
 
+> **Rappel — le lot se gate ENTIÈREMENT à D3.** Les intertitres « Communs à tous les degrés »,
+> « À partir de D1 » et « D3 » ci-dessous **classent** les critères par degré d'apparition ; ils
+> **ne découpent pas** le lot en phases. **Tous** ces critères s'appliquent au gate, le lot étant
+> exécuté à D3 (§ 4). Un critère « D1 » n'est pas différé : il est simplement apparu dès D1 dans le
+> raisonnement.
+
 > **A0 est une condition d'ordre, pas un critère de contenu.** Un lot qui remettrait les gardes au
 > vert sans les avoir vues rouges d'abord **n'est pas fini**, quelle que soit la couleur finale des
 > suites (même exigence qu'au § 9.3 de `decision-rolekey-reconciliation.md`).
@@ -683,8 +696,10 @@ tomberait dans la même zone non outillée.
   index existant n'a changé de valeur** (vérifiable par diff : une seule fiche ajoutée, zéro fiche
   modifiée sur ce champ).
 - **A3** — `iakaframe list roles` affiche **9** entrées.
-- **A4** — `iakaframe vendor-check` rend **OK, drift 0**, avec l'inventaire **exact attendu**
-  (`18 + 4` en D1 ; `20 + 4` en D3), jamais un minimum.
+- **A4** — `iakaframe vendor-check` rend **OK, drift 0**, avec l'inventaire **exact attendu**. Le
+  lot s'exécutant à **D3**, **seul `20 + 4` est asserté au gate** ; la valeur D1 (`18 + 4`) est une
+  **trace informative** — le compte qu'aurait donné une incarnation différée (§ 4.2), pas un jalon à
+  franchir. Inventaire exact, jamais un minimum.
 - **A5** — Les deux suites (`iakaframe` et `iakaFrameGUI`) sont vertes, et le **compte de tests
   n'a pas diminué**.
 - **A6** — `BACKLOG.md` : l'item « rôle frame builder » est soldé **avec sa preuve de clôture** ;
