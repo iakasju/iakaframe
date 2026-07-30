@@ -8,6 +8,22 @@ import { testRepo } from '../lib/forgejo.js';
 import { doSnapshot } from './snapshot.js';
 import { formatCadence } from '../lib/cadence.js';
 
+const USAGE = `Usage : iakaframe update [options]
+
+Checkpoint : etat des lieux + commit global (git add -A) + push. Auto-detection :
+depot absent de Forgejo ou pas de git local -> bascule en 'onboard'.
+
+Options :
+  --path <dir>       Racine du projet (defaut : dossier courant)
+  --repo <nom>       Nom du depot distant (defaut : nom du dossier)
+  --reason <motif>   version | pause | reprise | manual (defaut : manual)
+  --version <vX.Y.Z> Version a inscrire dans l'etat des lieux
+  --note <txt>       Note libre ajoutee au journal
+  --message <txt>    Message de commit (sinon message chore(iakaframe) auto)
+  --no-push          Commit local seulement, sans push
+  --home <dir>       Canon de cadence (sinon IAKA_MEMORY_HOME, sinon ~/.iaka/memory/)
+  --autoriser-creation-depot  Autorise la creation d'un depot distant a la bascule onboard`;
+
 // Avertissement NON BLOQUANT sur l'etat du miroir (specs/instructions/outillage-scrub-miroir-frame.md
 // § 5 « Cadence », critere C8).
 //
@@ -44,8 +60,10 @@ export async function runUpdate(argv) {
       home: { type: 'string' },
       // Autorisation EXPLICITE de creation de depot lors d'une bascule vers onboard (§ 4.2/4.6).
       'autoriser-creation-depot': { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   // Drapeaux REELLEMENT tapes par l'humain (distingue un defaut d'une valeur fournie) : c'est ce qui
   // permet de ne propager/declarer que ce qu'il a demande, sans forcer un defaut a la bascule.
   const passed = new Set(tokens.filter(t => t.kind === 'option').map(t => t.name));

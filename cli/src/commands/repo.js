@@ -16,6 +16,22 @@ import path from 'node:path';
 import { isRepo, run, hasRemoteOrigin } from '../lib/git.js';
 import { resolveAdapter } from '../lib/providers.js';
 
+const USAGE = `Usage : iakaframe repo [<nom>] [options]
+
+Branche (ou cree, avec --create) le remote d'un depot git EXISTANT. Geste
+provider-neutre. Sans --create : test d'existence (lecture seule) + remote LOCAL
+seulement, jamais de creation par effet de bord.
+
+Arguments :
+  <nom>              Nom du depot distant (defaut : --repo, sinon nom du dossier)
+
+Options :
+  --repo <nom>       Nom du depot distant (alternative au positionnel)
+  --path <dir>       Racine du depot git (defaut : dossier courant)
+  --provider <nom>   Fournisseur (defaut : forgejo)
+  --create           REQUIS pour creer le depot distant (sinon refus si absent)
+  --description <txt> Description ASCII du depot (n'a de sens qu'avec --create)`;
+
 export async function runRepo(argv) {
   const { values, positionals } = parseArgs({
     args: argv,
@@ -26,8 +42,10 @@ export async function runRepo(argv) {
       provider: { type: 'string', default: 'forgejo' }, // seul adaptateur code en MVP
       create: { type: 'boolean', default: false },      // le SEUL drapeau qui autorise la creation
       description: { type: 'string', default: '' },      // n'a de sens qu'avec --create
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   const root = path.resolve(values.path || process.cwd());
   const repo = values.repo || positionals[0] || path.basename(root);
 

@@ -8,6 +8,18 @@ import { runCadence, formatCadence, runProjectCadence, formatProjectCadence } fr
 
 const REASONS = ['version', 'pause', 'reprise', 'manual'];
 
+const USAGE = `Usage : iakaframe snapshot [options]
+
+Etat des lieux : journal append-only + specs/etat-des-lieux.md + .html.
+A regenerer a chaque changement de version et a chaque pause/reprise.
+
+Options :
+  --path <dir>       Racine du projet (defaut : dossier courant)
+  --reason <motif>   version | pause | reprise | manual (defaut : manual)
+  --version <vX.Y.Z> Version a inscrire (sinon deduite du package/tag git)
+  --note <txt>       Note libre ajoutee au journal
+  --home <dir>       Canon de cadence (sinon IAKA_MEMORY_HOME, sinon ~/.iaka/memory/)`;
+
 function flattenEntries(node, acc) {
   if (node == null) return;
   if (Array.isArray(node)) { for (const x of node) flattenEntries(x, acc); return; }
@@ -192,8 +204,10 @@ export function runSnapshot(argv) {
       version: { type: 'string' },
       note: { type: 'string' },
       home: { type: 'string' },
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   if (!REASONS.includes(values.reason)) {
     console.error(`reason invalide : ${values.reason} (attendu: ${REASONS.join('|')})`); process.exitCode = 1; return;
   }

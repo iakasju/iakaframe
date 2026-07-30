@@ -14,6 +14,26 @@ import { runInit, resolveNode } from './init.js';
 import { doSnapshot } from './snapshot.js';
 import readline from 'node:readline';
 
+const USAGE = `Usage : iakaframe onboard [options]
+
+Met en place la methode : structure + depot Forgejo + 1er commit + etat des lieux + push.
+Auto-detection : depot deja sur Forgejo (git local present) -> bascule en 'update'.
+
+Options :
+  --path <dir>       Racine du projet (defaut : dossier courant)
+  --node <n>         claude | codex | ollama-localhost | ollama-lan (defaut : claude)
+  --repo <nom>       Nom du depot distant (defaut : nom du dossier)
+  --description <txt> Description ASCII du depot (creation Forgejo)
+  --version <vX.Y.Z> Version initiale (defaut : v0.1.0)
+  --skip-forgejo     N'ecrit rien sur Forgejo (structure + git local seulement)
+  --no-push          Ne pousse pas
+  --force            Ecrase les fichiers de structure existants
+  --umbrella         Mode chapeau (Odin + dashboard + scan du portefeuille)
+  --init-projects    (umbrella) Amorce les projets non onboardes du chapeau
+  --home <dir>       Canon de cadence propage au snapshot
+  --autoriser-creation-depot  Autorise la creation de depot a la bascule depuis update
+  (--target = alias deprecie de --node)`;
+
 // Confirmation interactive o/N, DEFAUT = non (seul 'o'/'oui' vaut oui). Jamais appelee en
 // non-interactif (le chemin sur reste le REFUS, cf. runOnboard).
 function askYesNo(question) {
@@ -45,8 +65,10 @@ export async function runOnboard(argv) {
       'from-update': { type: 'boolean', default: false },
       // Echappatoire EXPLICITE : autorise la creation de depot malgre le marqueur de bascule.
       'autoriser-creation-depot': { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   const passed = new Set(tokens.filter(t => t.kind === 'option').map(t => t.name));
   const { node, error } = resolveNode(values);
   if (error) { console.error(error); process.exitCode = 1; return; }

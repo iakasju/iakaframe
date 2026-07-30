@@ -8,14 +8,30 @@ import { table } from '../lib/table.js';
 import { COLLECTION_TYPES, collectionOf, inventory, libraryRoot, scan } from '../lib/library.js';
 import { collection, emit, fail } from '../lib/output.js';
 
+const USAGE = `Usage : iakaframe list [type] [options]
+
+Inventaire de la bibliotheque (pool + assemblages) par scan. Sans type : resume des
+collections. Avec type : ids + libelles tries.
+
+Arguments :
+  [type]             personas | skills | principles | rituals | guardrails | roles |
+                     workflows | scaffolds | teams | methods | bindings | kits
+
+Options :
+  --root <dir>       Racine de bibliotheque
+  --ascii            Tableau en ASCII pur (sans box-drawing)
+  --json             Sortie machine`;
+
 export function runList(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
       root: { type: 'string' }, ascii: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   const root = libraryRoot(values.root);
   const type = positionals[0];
 

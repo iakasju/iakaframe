@@ -11,6 +11,24 @@ import { generateAgent, loadDefaultBinding } from '../lib/generate-agents.js';
 import { resolveSkills } from '../lib/resolve-skills.js';
 import { emit, fail, ok } from '../lib/output.js';
 
+const USAGE = `Usage : iakaframe use <methodId> <teamId> [options]
+        iakaframe switch <methodId> <teamId> [options]
+
+Bascule un PROJET (execution) vers une methode/team : assemble (refuse si incompatible),
+sauvegarde .claude/ existant, deploie les personas de la team + leurs skills.
+
+Arguments :
+  <methodId> <teamId> Methode et team a materialiser dans le projet
+
+Options :
+  --path <dir>       Projet cible (defaut : dossier courant)
+  --binding <id>     Binding de generation des contrats d'agent
+  --node <n>         Nœud runner (defaut : claude)
+  --rollback         Restaure la derniere sauvegarde .claude.bak-* (aucune bascule)
+  --root <dir>       Racine de bibliotheque
+  --force            Force l'ecriture
+  --json             Sortie machine`;
+
 function copyDir(src, dst) {
   fs.mkdirSync(dst, { recursive: true });
   for (const e of fs.readdirSync(src, { withFileTypes: true })) {
@@ -30,8 +48,10 @@ export function runSwitch(argv) {
       root: { type: 'string' }, binding: { type: 'string' }, path: { type: 'string' },
       node: { type: 'string' }, rollback: { type: 'boolean', default: false },
       force: { type: 'boolean', default: false }, json: { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   const projectDir = path.resolve(values.path || process.cwd());
   const root = libraryRoot(values.root);
 
