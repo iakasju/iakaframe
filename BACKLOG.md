@@ -82,9 +82,11 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 - [ ] **Test de non-mutation faible** (`cli/test/vendor-check.test.js:565-569`, **re-vérifié inchangé le 2026-07-23**) — il compare le porcelain GUI avant/après **à l'intérieur de lui-même** et n'assère jamais que la baseline était propre : un arbre déjà sale le ferait passer. Il verrouille un invariant réel (`vendor.js` ne contient aucune écriture, vérifié indépendamment par Legolas), mais faiblement. *Non bloquant.*
 
-- [ ] **`iakaframe jalon --help` plante** — **reproduit le 2026-07-23** : `TypeError [ERR_PARSE_ARGS_UNKNOWN_OPTION]` avec stack trace nue (`cli/src/commands/jalon.js:12`), là où `consolidate` gère proprement `--help`. C'est **un verbe de la méthode qui casse sur son propre `--help`** — et c'est le verbe du geste de jalon, désormais cité par les 8 personas. *Correctif quasi nul. Trouvé par Legolas au gate du 2026-07-19, toujours ouvert.*
+- [x] **`iakaframe jalon --help` plante** — **reproduit le 2026-07-23** : `TypeError [ERR_PARSE_ARGS_UNKNOWN_OPTION]` avec stack trace nue (`cli/src/commands/jalon.js:12`), là où `consolidate` gère proprement `--help`. C'est **un verbe de la méthode qui casse sur son propre `--help`** — et c'est le verbe du geste de jalon, désormais cité par les 8 personas. *Correctif quasi nul. Trouvé par Legolas au gate du 2026-07-19.*
+  **✅ SOLDÉ (149b7dc, 2026-07-30)** : USAGE + garde `--help` propre (pattern `consolidate`), exit 0 sans stack, test `cli/test/jalon-help.test.js`.
+- [ ] **Crash `--help` SYSTÉMIQUE sur ~10 autres verbes** *(signalé 2026-07-30 au lot jalon --help)*. Même `TypeError`/stack nue que `jalon` sur : `snapshot`, `update`, `onboard`, `repo`, `switch`, `list`, `show`, `add`, `assemble`, `banner`. Lot dédié (≈10 `USAGE` + gardes + tests, pattern `consolidate`/`jalon`). *Item Gimli, coût moyen.*
 
-- [ ] **Commentaire trompeur `frameworkVersion()` (`cli/src/lib/kit.js:80`)** — **re-vérifié faux le 2026-07-23**. Le commentaire annonce `_bundled/VERSION (publie)` alors que le code lit `path.join(root, 'VERSION')`. Tolérable non bloquant relevé au gate du lot dette-version ; laissé intact par Gimli pour rester chirurgical. À solder dans un prochain lot de nettoyage. *Item Gimli, coût quasi nul.*
+- [x] **Commentaire trompeur `frameworkVersion()` (`cli/src/lib/kit.js:80`)** — **re-vérifié faux le 2026-07-23**. Le commentaire annonçait `_bundled/VERSION (publie)` alors que le code lit `path.join(root, 'VERSION')`. **✅ SOLDÉ (149b7dc, 2026-07-30)** : commentaire corrigé (`<root>/VERSION`).
 
 ### Réserves d'exécution — lot `frame-builder` (Fëanor), gate P1 PASS le 2026-07-23
 
