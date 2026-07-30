@@ -184,12 +184,25 @@ valeur :
 
 Ordre de résolution, **calqué sur `cli/test/vocab-parity.test.js:16-21`** :
 
-1. `process.env.IAKAFRAME_GUI_ROOT` (chemin absolu vers la racine `iakaFrameGUI`) ;
+1. `process.env.IAKAFRAME_GUI_ROOT` (chemin absolu vers la racine `iakaFrameGUI`) — **override
+   AUTORITAIRE** (cf. décision ci-dessous) ;
 2. `<racine iakaframe>/../iakaFrameGUI` ;
 3. `<racine iakaframe>/../iakaframegui`.
 
-Premier chemin existant gagne. Aucun trouvé → **absent** (§ 3.4). Un chemin est retenu seulement si
-`<candidat>/packages/core/__tests__/fixtures` existe (évite de désigner un dossier homonyme vide).
+**Décision de cadrage — l'override `IAKAFRAME_GUI_ROOT` est AUTORITAIRE ; jamais de repli silencieux
+sur un dépôt non choisi.** *(Tranchée EN CODE par Gimli, arbitrage validé au gate Legolas, et déjà
+portée comme décision opposable par `docs/commandes.md` B.4, entrée `vendor-check` : « `IAKAFRAME_GUI_ROOT`
+est **autoritaire** (jamais de repli silencieux sur un autre dépôt) ».)* Quand la variable est **posée**,
+elle **gouverne seule** : le dépôt qu'elle désigne est le **seul** candidat retenu. S'il est **valide**
+(dossier `packages/core/__tests__/fixtures` présent), il gagne ; s'il est **absent ou invalide**, la
+résolution s'arrête sur **absent** (§ 3.4) — **jamais** un repli sur les candidats 2/3. Motif :
+l'opérateur qui a **explicitement** pointé un dépôt ne doit pas voir l'outil juger un **autre** dépôt
+qu'il n'a pas choisi ; un faux « vert » sur un frère non désigné est **pire** qu'un SKIP honnête.
+
+**Corollaire — « premier chemin existant gagne » ne vaut QUE pour la découverte automatique
+(candidats 2/3), quand la variable n'est PAS posée.** Un chemin n'est alors retenu que si
+`<candidat>/packages/core/__tests__/fixtures` existe (évite de désigner un dossier homonyme vide) ;
+aucun trouvé → **absent** (§ 3.4).
 
 ### 4.2 Table des 21 fixtures (source de vérité du lot)
 
@@ -288,7 +301,7 @@ sur le format — exactement la faute que le lot skills condamne pour `SKILL_OF`
 | A5 | **Recette du lot** : drift *mutuellement cohérent* (binding + golden + sha256 recalculés ensemble) → **GUI verte** MAIS `vendor-check` **ROUGE** | reproduit l'attaque de v0.17.14 ; volets A5-a/A5-b au § 11.1 |
 | A6 | Fixture surnuméraire → rouge | § 4.3 |
 | A7 | Fixture supprimée → rouge | § 4.3 |
-| A8 | Frère absent → SKIP (test) ; CLI `ok: false` + `status: "skipped"` + **exit 0** | `IAKAFRAME_GUI_ROOT` inexistant ; `--json` **et** `echo $?` |
+| A8 | Frère absent → SKIP (test) ; CLI `ok: false` + `status: "skipped"` + **exit 0** | `IAKAFRAME_GUI_ROOT` **posé sur un chemin inexistant/invalide** ⇒ SKIP **même si un frère `../iakaFrameGUI` réel existe** (override autoritaire, § 4.1 — pas de repli sur les candidats 2/3) ; `--json` **et** `echo $?` |
 | A9 | Frère absent + `--strict` → **exit 1** | idem |
 | A10 | `IAKAFRAME_GUI_ROOT` honoré en priorité | pointer sur une copie contrôlée |
 | A11 | La suite CLI complète reste verte | `node --test` |
