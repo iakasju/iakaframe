@@ -178,9 +178,15 @@ avec sa cadence/timebox propres **échoue** le test → reste un **rituel qualif
 
 - **Collision avec un id canon existant** : **jamais d'écrasement**. Soit identique → RÉFÉRENCER-CANON ;
   soit nuance requise → QUALIFIER (id préfixé). Le canon est **autoritaire et gelé** dans ce lot.
-- **Collision inter-frames** (deux frames, deux atomes de même id local, sens différent) : QUALIFIER
-  les deux (préfixe de frame). L'avertissement `id-collision` du lint reste **toléré** (exit 0) pour les
-  partages délibérés inter-collections, comme au canon.
+- **Collision inter-frames** (deux frames castent le **même personnage** — même `name:` d'affichage —,
+  ou portent deux atomes de même id local de sens différent) : **ranger sous des ids distincts** —
+  l'un peut rester **nu**, l'autre **préfixé** de sa frame (« natif nu / emprunteur qualifié », ex.
+  `ohno` natif Kanban / `leanstartup-ohno` emprunteur Lean) — **sans dédup forcée ni renommage du
+  personnage**. Les homonymes inter-frames **coexistent légitimement** : un id qualifié est un
+  **rangement**, jamais un renommage — le `name:` d'affichage reste **identique des deux côtés**.
+  Réf. autorité : `specs/instructions/constitution-modele-de-frame.md` **règle C-5** (« aucune
+  déduplication forcée, aucune garde qui pousse à qualifier »). L'avertissement `id-collision` du lint
+  reste **toléré** (exit 0) pour les partages délibérés inter-collections, comme au canon.
 
 ### 3.4 Politique de dédup — ✅ TRANCHÉ décideur 2026-07-25 : CONSERVATEUR, promotion sur preuve
 
