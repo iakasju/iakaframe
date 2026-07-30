@@ -8,12 +8,17 @@
 //
 // Identifiants résolus en cascade (aucun secret en dur, jamais commité) :
 //   1. env d'abord : APPFLOWY_URL / APPFLOWY_EMAIL / APPFLOWY_PASSWORD
-//   2. repli fichier dotenv local pour toute variable manquante :
+//   2. repli `<root>/.env` — le dotenv DU PROJET visé par `--root` (le plus proche du
+//      travail en cours, donc prioritaire sur la config machine)
+//   3. repli fichier dotenv GLOBAL pour toute variable encore manquante :
 //      $IAKAFRAME_APPFLOWY_ENV, sinon ~/.config/iakaframe/appflowy.env
+//   Chaque maillon absent/illisible/malformé est SAUTÉ en silence (jamais d'exception), et
+//   seule la PROVENANCE (un chemin, un nom de variable) circule — jamais une VALEUR.
 //
 // Workspace cible (correction B2 — plus JAMAIS `data[0]`) :
-//   env APPFLOWY_WORKSPACE (nom OU workspace_id) → fichier dotenv → défaut « projects »
-//   → sinon ÉCHEC PROPRE citant les workspaces disponibles. Aucun repli silencieux.
+//   env APPFLOWY_WORKSPACE (nom OU workspace_id) → `<root>/.env` → dotenv global →
+//   défaut « projects » → sinon ÉCHEC PROPRE citant les workspaces disponibles. Aucun
+//   repli silencieux.
 //
 // Modèle `iakadoc` (instruction iakadocs/specs/instructions/template-iakadoc-appflowy.md § 5.1) :
 //   espace = projet ; 00 Vue d'ensemble · 10 Le projet (11/12) · 20 Où on en est ·
@@ -1608,10 +1613,28 @@ export function parseDotenv(text) {
   return out
 }
 
-// Chemin du fichier d'identifiants (override env, sinon ~/.config/iakaframe/appflowy.env).
+// Chemin du fichier d'identifiants GLOBAL (override env, sinon ~/.config/iakaframe/appflowy.env).
 export function appflowyEnvPath(env) {
   if (env.IAKAFRAME_APPFLOWY_ENV) return env.IAKAFRAME_APPFLOWY_ENV
   return path.join(os.homedir(), '.config', 'iakaframe', 'appflowy.env')
+}
+
+// Chemin du dotenv DU PROJET (`<root>/.env`). `root` absent -> `null` : pas de maillon.
+export function projectEnvPath(root) {
+  return root ? path.join(String(root), '.env') : null
+}
+
+/**
+ * Fichiers dotenv à consulter, DANS L'ORDRE DE PRIORITÉ DÉCROISSANTE :
+ *   `<root>/.env` (le projet, le plus proche) puis le fichier global (la machine).
+ *
+ * `root` est OPTIONNEL : sans lui, la liste se réduit au seul fichier global — soit très
+ * exactement le comportement d'avant l'ajout du maillon projet. C'est ce qui rend le
+ * paramètre non cassant pour les appelants (et les tests) qui ne le passent pas.
+ */
+export function envFilePaths(env, root) {
+  const projet = projectEnvPath(root)
+  return projet ? [projet, appflowyEnvPath(env)] : [appflowyEnvPath(env)]
 }
 
 // Nom lisible d'un workspace tel que renvoyé par l'API (défensif sur le champ).
@@ -1764,29 +1787,46 @@ function readEnvFile(filePath, fsApi = fs) {
   }
 }
 
-// Résout les identifiants en cascade : env d'abord, puis fichier pour les manquants.
-export function resolveCredentials(env, fsApi = fs) {
+/**
+ * Résout les identifiants en cascade : env → `<root>/.env` → dotenv global, variable par
+ * variable (un fichier peut n'en compléter qu'une, les autres continuent de descendre).
+ *
+ * `root` est OPTIONNEL et vient EN DERNIER : les appelants existants `resolveCredentials(env)`
+ * et `resolveCredentials(env, fsApi)` gardent leur comportement au bit près.
+ *
+ * Le champ `from` trace la PROVENANCE de chaque identifiant (`'env'` ou un chemin) — jamais
+ * sa valeur. Il rend la cascade auditable sans jamais donner prise à une fuite de secret :
+ * un chemin n'est pas un secret, une valeur en est un.
+ */
+export function resolveCredentials(env, fsApi = fs, root) {
   const KEYS = ['APPFLOWY_URL', 'APPFLOWY_EMAIL', 'APPFLOWY_PASSWORD']
   const creds = {}
-  for (const k of KEYS) creds[k] = env[k]
-  if (KEYS.some((k) => !creds[k])) {
-    const fromFile = readEnvFile(appflowyEnvPath(env), fsApi)
-    for (const k of KEYS) if (!creds[k] && fromFile[k]) creds[k] = fromFile[k]
+  const from = {}
+  for (const k of KEYS) if (env[k]) { creds[k] = env[k]; from[k] = 'env' }
+  for (const file of envFilePaths(env, root)) {
+    if (!KEYS.some((k) => !creds[k])) break        // plus rien à compléter : on ne lit pas
+    const fromFile = readEnvFile(file, fsApi)      // absent/illisible/malformé -> {}
+    for (const k of KEYS) if (!creds[k] && fromFile[k]) { creds[k] = fromFile[k]; from[k] = file }
   }
   return {
     base: creds.APPFLOWY_URL,
     email: creds.APPFLOWY_EMAIL,
     password: creds.APPFLOWY_PASSWORD,
+    from,
   }
 }
 
-// Sélecteur de workspace en cascade : argument CLI → env → fichier → défaut « projects ».
-export function resolveWorkspaceSelector(env, fsApi = fs, cliValue) {
+/**
+ * Sélecteur de workspace en cascade : `--workspace` → env → `<root>/.env` → dotenv global
+ * → défaut « projects ». `root` est OPTIONNEL et vient EN DERNIER (non cassant, cf. supra).
+ * `from` dit d'où vient la valeur retenue : le CHEMIN du dotenv quand elle en vient.
+ */
+export function resolveWorkspaceSelector(env, fsApi = fs, cliValue, root) {
   if (cliValue) return { selector: cliValue, from: '--workspace' }
   if (env.APPFLOWY_WORKSPACE) return { selector: env.APPFLOWY_WORKSPACE, from: 'env APPFLOWY_WORKSPACE' }
-  const fromFile = readEnvFile(appflowyEnvPath(env), fsApi)
-  if (fromFile.APPFLOWY_WORKSPACE) {
-    return { selector: fromFile.APPFLOWY_WORKSPACE, from: appflowyEnvPath(env) }
+  for (const file of envFilePaths(env, root)) {
+    const fromFile = readEnvFile(file, fsApi)
+    if (fromFile.APPFLOWY_WORKSPACE) return { selector: fromFile.APPFLOWY_WORKSPACE, from: file }
   }
   return { selector: DEFAULT_WORKSPACE, from: 'défaut' }
 }
@@ -2055,17 +2095,19 @@ export async function run(argv, env, deps = {}) {
       'usage : node appflowy-doc.mjs --project <nom> --root <chemin-projet> [--workspace <nom|id>]',
     )
   }
-  const { base, email, password } = resolveCredentials(env, fsApi)
+  const { base, email, password } = resolveCredentials(env, fsApi, root)
   if (!base || !email || !password) {
+    // Le message cite des ENDROITS (chemins) et des NOMS de variables — JAMAIS une valeur :
+    // un message d'erreur voyage dans les logs, les tickets et les captures d'écran.
     throw new AppFlowyError(
       `config manquante : définis APPFLOWY_URL/EMAIL/PASSWORD (env), ` +
-      `ou renseigne ${appflowyEnvPath(env)}`,
+      `ou renseigne ${envFilePaths(env, root).join(' ou ')}`,
     )
   }
   if (!fsApi.existsSync(root)) {
     throw new AppFlowyError(`chemin projet introuvable : ${root}`)
   }
-  const { selector, from } = resolveWorkspaceSelector(env, fsApi, workspace)
+  const { selector, from } = resolveWorkspaceSelector(env, fsApi, workspace, root)
 
   const relPaths = resolveDocPaths(root, fsApi)
   const { docs, skipped } = loadDocs(root, relPaths, fsApi)

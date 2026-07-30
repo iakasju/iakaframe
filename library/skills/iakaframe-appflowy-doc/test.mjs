@@ -25,6 +25,7 @@ import {
   planMoves, pickWorkspace, workspaceLabel, parseArgs, parseDotenv, resolveDocPaths,
   loadDocs, resolveWorkspaceSelector, findNodeById, childrenOf, SEC, indexName, AppFlowyClient,
   DEFAULT_WORKSPACE, run,
+  resolveCredentials, appflowyEnvPath, projectEnvPath, envFilePaths,
   listInterruptsParagraph, contentWords, sourceReference, wordDeficit, renderedText,
   contentLoss, literalRegions, literalLoss,
   belongsToOrderedRun, structureReference, structureLoss, inlineCodeRegions, inlineCodeLoss,
@@ -1324,6 +1325,216 @@ test('parseDotenv : KV, commentaires, quotes, trim, lignes malformées', () => {
   assert.deepEqual(parseDotenv('=orphelin\nTOK=a=b=c'), { TOK: 'a=b=c' })
   assert.deepEqual(parseDotenv(''), {})
   assert.deepEqual(parseDotenv(undefined), {})
+})
+
+// ═══════════ Cascade de configuration : env → `<root>/.env` → dotenv global ═══════════
+//
+// POURQUOI CE MAILLON. Le `.env` du PROJET est le plus proche du travail en cours : il doit
+// primer sur la config machine, et céder devant l'environnement (qui, lui, est explicite et
+// ponctuel). D'où l'ordre : env → `<root>/.env` → global.
+//
+// CE QUI EST ÉPINGLÉ ICI, et qu'aucun autre test ne tient :
+//   1. l'ORDRE des trois maillons, dans les deux sens (le projet bat le global ; l'env bat le projet) ;
+//   2. la NON-RÉGRESSION : sans `root`, le fichier projet n'est PAS MÊME OUVERT — le
+//      paramètre est optionnel, donc l'ancien comportement doit être strictement conservé ;
+//   3. la DÉGRADATION SILENCIEUSE : absent / illisible / malformé -> maillon suivant, jamais
+//      d'exception (un `.env` cassé ne doit pas casser une publication) ;
+//   4. le ZÉRO-FUITE : aucune VALEUR de secret dans un message d'erreur ni dans la trace de
+//      provenance — seulement des CHEMINS et des NOMS de variables.
+
+// Faux disque : un dictionnaire chemin -> contenu (ou -> Error à lever). Toute autre lecture
+// lève ENOENT, comme un vrai `readFileSync`. On enregistre les chemins LUS : c'est ce qui
+// permet de prouver qu'un fichier n'a pas seulement été ignoré, mais jamais ouvert.
+const fauxDisque = (fichiers) => {
+  const lus = []
+  return {
+    lus,
+    readFileSync: (p) => {
+      lus.push(String(p))
+      const v = fichiers[String(p)]
+      if (v === undefined) { const e = new Error('ENOENT: ' + p); e.code = 'ENOENT'; throw e }
+      if (v instanceof Error) throw v
+      return v
+    },
+  }
+}
+
+const ENV_NU = {}                                   // ni identifiants, ni override de chemin
+const GLOBAL = appflowyEnvPath(ENV_NU)              // ~/.config/iakaframe/appflowy.env
+const PROJET = projectEnvPath('/projet')            // /projet/.env
+
+test('cascade : envFilePaths ordonne projet PUIS global, et se réduit au global sans root', () => {
+  assert.deepEqual(envFilePaths(ENV_NU, '/projet'), [PROJET, GLOBAL])
+  assert.deepEqual(envFilePaths(ENV_NU, undefined), [GLOBAL], 'sans root : un seul maillon')
+  assert.equal(projectEnvPath(undefined), null)
+  assert.equal(projectEnvPath(''), null, 'une racine vide n’est pas une racine')
+  // L'override de chemin global reste honoré, et reste EN DERNIER.
+  assert.deepEqual(envFilePaths({ IAKAFRAME_APPFLOWY_ENV: '/ailleurs.env' }, '/projet'),
+    [PROJET, '/ailleurs.env'])
+})
+
+test('cascade identifiants : le `.env` du PROJET l’emporte sur le fichier global', () => {
+  const disque = fauxDisque({
+    [PROJET]: 'APPFLOWY_URL=http://projet.invalid\nAPPFLOWY_EMAIL=projet@example.test\nAPPFLOWY_PASSWORD=pp',
+    [GLOBAL]: 'APPFLOWY_URL=http://global.invalid\nAPPFLOWY_EMAIL=global@example.test\nAPPFLOWY_PASSWORD=gg',
+  })
+  const c = resolveCredentials(ENV_NU, disque, '/projet')
+  assert.equal(c.base, 'http://projet.invalid')
+  assert.equal(c.email, 'projet@example.test')
+  assert.equal(c.password, 'pp')
+  assert.equal(c.from.APPFLOWY_URL, PROJET, 'la provenance doit désigner le `.env` du projet')
+})
+
+test('cascade identifiants : l’ENV l’emporte sur le `.env` du projet', () => {
+  const disque = fauxDisque({
+    [PROJET]: 'APPFLOWY_URL=http://projet.invalid\nAPPFLOWY_EMAIL=projet@example.test\nAPPFLOWY_PASSWORD=pp',
+  })
+  const env = {
+    APPFLOWY_URL: 'http://env.invalid', APPFLOWY_EMAIL: 'env@example.test', APPFLOWY_PASSWORD: 'ee',
+  }
+  const c = resolveCredentials(env, disque, '/projet')
+  assert.equal(c.base, 'http://env.invalid')
+  assert.equal(c.password, 'ee')
+  assert.deepEqual(c.from, { APPFLOWY_URL: 'env', APPFLOWY_EMAIL: 'env', APPFLOWY_PASSWORD: 'env' })
+  assert.deepEqual(disque.lus, [], 'rien ne manque : AUCUN fichier ne doit être ouvert')
+})
+
+test('cascade identifiants : complétion VARIABLE PAR VARIABLE le long des trois maillons', () => {
+  const disque = fauxDisque({
+    [PROJET]: 'APPFLOWY_EMAIL=projet@example.test',
+    [GLOBAL]: 'APPFLOWY_EMAIL=global@example.test\nAPPFLOWY_PASSWORD=gg',
+  })
+  const c = resolveCredentials({ APPFLOWY_URL: 'http://env.invalid' }, disque, '/projet')
+  assert.equal(c.base, 'http://env.invalid')
+  assert.equal(c.email, 'projet@example.test', 'le projet complète avant le global')
+  assert.equal(c.password, 'gg', 'ce que le projet n’a pas, le global le fournit encore')
+  assert.deepEqual(c.from,
+    { APPFLOWY_URL: 'env', APPFLOWY_EMAIL: PROJET, APPFLOWY_PASSWORD: GLOBAL })
+})
+
+test('NON-RÉGRESSION : sans `root`, le `.env` projet n’est PAS MÊME OUVERT', () => {
+  const disque = fauxDisque({
+    [PROJET]: 'APPFLOWY_URL=http://projet.invalid\nAPPFLOWY_EMAIL=p@example.test\nAPPFLOWY_PASSWORD=pp',
+    [GLOBAL]: 'APPFLOWY_URL=http://global.invalid\nAPPFLOWY_EMAIL=g@example.test\nAPPFLOWY_PASSWORD=gg',
+  })
+  const c = resolveCredentials(ENV_NU, disque)          // signature d'AVANT le maillon projet
+  assert.equal(c.base, 'http://global.invalid', 'sans root, seul le global parle')
+  assert.equal(c.from.APPFLOWY_URL, GLOBAL)
+  assert.deepEqual(disque.lus, [GLOBAL], 'un seul fichier ouvert : aucune I/O nouvelle')
+  // Idem côté workspace, et avec la signature à 2 puis 3 arguments (aucun appelant cassé).
+  const d2 = fauxDisque({ [PROJET]: 'APPFLOWY_WORKSPACE=projet', [GLOBAL]: 'APPFLOWY_WORKSPACE=global' })
+  assert.equal(resolveWorkspaceSelector(ENV_NU, d2).selector, 'global')
+  assert.equal(resolveWorkspaceSelector(ENV_NU, d2, undefined).selector, 'global')
+  assert.deepEqual(d2.lus, [GLOBAL, GLOBAL], 'le `.env` projet reste hors du chemin')
+})
+
+test('cascade : `.env` absent, ILLISIBLE ou MALFORMÉ -> maillon suivant, JAMAIS d’exception', () => {
+  const eacces = Object.assign(new Error('EACCES: permission denied'), { code: 'EACCES' })
+  const cas = [
+    ['absent', {}],
+    ['illisible', { [PROJET]: eacces }],
+    ['vide', { [PROJET]: '' }],
+    ['malformé', { [PROJET]: 'ceci nest pas du dotenv\n<<<\n???' }],
+    ['sans les bonnes clés', { [PROJET]: 'FORGEJO_TOKEN=abc\nAUTRE=1' }],
+  ]
+  for (const [nom, fichiers] of cas) {
+    const disque = fauxDisque({
+      ...fichiers,
+      [GLOBAL]: 'APPFLOWY_URL=http://global.invalid\nAPPFLOWY_EMAIL=g@example.test\n'
+        + 'APPFLOWY_PASSWORD=gg\nAPPFLOWY_WORKSPACE=global',
+    })
+    const c = resolveCredentials(ENV_NU, disque, '/projet')
+    assert.equal(c.base, 'http://global.invalid', `identifiants — repli propre (${nom})`)
+    assert.equal(resolveWorkspaceSelector(ENV_NU, disque, undefined, '/projet').selector, 'global',
+      `workspace — repli propre (${nom})`)
+  }
+})
+
+test('cascade workspace : `--workspace` → env → `<root>/.env` → global → défaut, et `from` le dit', () => {
+  const disque = fauxDisque({ [PROJET]: 'APPFLOWY_WORKSPACE=depuis-projet', [GLOBAL]: 'APPFLOWY_WORKSPACE=depuis-global' })
+  assert.equal(resolveWorkspaceSelector(ENV_NU, disque, 'depuis-cli', '/projet').from, '--workspace')
+  assert.equal(resolveWorkspaceSelector({ APPFLOWY_WORKSPACE: 'depuis-env' }, disque, undefined, '/projet').selector,
+    'depuis-env')
+
+  const r = resolveWorkspaceSelector(ENV_NU, disque, undefined, '/projet')
+  assert.equal(r.selector, 'depuis-projet', 'le `.env` du projet bat le fichier global')
+  assert.equal(r.from, PROJET, '`from` DOIT nommer le `.env` du projet — la provenance est traçable')
+
+  const sansProjet = fauxDisque({ [GLOBAL]: 'APPFLOWY_WORKSPACE=depuis-global' })
+  assert.equal(resolveWorkspaceSelector(ENV_NU, sansProjet, undefined, '/projet').from, GLOBAL)
+  const rien = fauxDisque({})
+  const d = resolveWorkspaceSelector(ENV_NU, rien, undefined, '/projet')
+  assert.deepEqual([d.selector, d.from], [DEFAULT_WORKSPACE, 'défaut'])
+})
+
+test('ZÉRO FUITE : aucune VALEUR de secret dans le message d’erreur ni dans la provenance', async () => {
+  const SECRET = 'MotDePasseUltraSecret-ne-doit-jamais-fuiter'
+  // Un `.env` projet réaliste : le mot de passe y est, mais URL et EMAIL manquent -> la
+  // config est incomplète, donc `run` lève. Le secret est chargé EN MÉMOIRE au moment où
+  // le message est construit : s'il devait fuiter, c'est ici.
+  const disque = fauxDisque({ [PROJET]: `APPFLOWY_PASSWORD=${SECRET}\nFORGEJO_TOKEN=tok-${SECRET}` })
+  let message = ''
+  await assert.rejects(
+    () => run(['--project', 'demo', '--root', '/projet'], ENV_NU,
+      { fs: { ...disque, existsSync: () => true }, log: () => {} }),
+    (e) => { message = e.message; return /config manquante/.test(e.message) },
+  )
+  assert.ok(!message.includes(SECRET), 'le message d’erreur contient un secret : ' + message)
+  assert.match(message, /APPFLOWY_URL\/EMAIL\/PASSWORD/, 'il cite les NOMS de variables')
+  assert.ok(message.includes(PROJET), 'il DOIT indiquer le `.env` du projet comme endroit à renseigner')
+  assert.ok(message.includes(GLOBAL), 'et le fichier global, qui reste un endroit valide')
+
+  // Même exigence sur la trace de provenance : elle porte des CHEMINS, jamais des valeurs.
+  const c = resolveCredentials(ENV_NU, disque, '/projet')
+  assert.equal(c.password, SECRET, 'la valeur est bien résolue (sinon le test ne prouve rien)')
+  assert.ok(!JSON.stringify(c.from).includes(SECRET), '`from` ne doit contenir aucune valeur')
+  assert.equal(c.from.APPFLOWY_PASSWORD, PROJET)
+})
+
+// CÂBLAGE — les deux tests ci-dessous sont ceux que la mutation a réclamés : les résolveurs
+// peuvent être irréprochables et `run()` ne LEUR PASSER PAS `root`. Deux mutants ont survécu
+// à tout le reste (`resolveCredentials(env, fsApi)` et `resolveWorkspaceSelector(env, fsApi,
+// workspace)` amputés de `root` dans `run()`) : sans ces cas, le maillon projet serait
+// parfaitement testé… et parfaitement débranché. On les joue de bout en bout, `run()` compris.
+
+// `fsMock` + un `.env` servi à la racine du dépôt de fixture.
+const fsAvecEnvProjet = (contenu) => ({
+  ...fsMock,
+  existsSync: (p) => String(p).endsWith('/.env') || fsMock.existsSync(p),
+  readFileSync: (p) => (String(p) === projectEnvPath('/repo') ? contenu : fsMock.readFileSync(p)),
+})
+
+test('CÂBLAGE run() : les identifiants viennent du `.env` du projet quand l’env est nu', async () => {
+  const server = makeFakeServer()
+  let recu = null
+  const res = await run(['--project', 'demo', '--root', '/repo', '--workspace', 'projects'],
+    { IAKAFRAME_CACHE_DIR: '/cache/cascade-creds' }, {
+      fs: fsAvecEnvProjet('APPFLOWY_URL=http://depuis-dot-env.invalid\n'
+        + 'APPFLOWY_EMAIL=projet@example.test\nAPPFLOWY_PASSWORD=pp\nFORGEJO_TOKEN=hors-sujet'),
+      log: () => {}, now: () => new Date('2026-07-27T10:00:00.000Z'),
+      makeClient: (c) => { recu = c; return makeFakeClient(server) },
+    })
+  assert.equal(res.workspaceId, 'ws-proj', 'la publication a bien eu lieu')
+  assert.equal(recu.base, 'http://depuis-dot-env.invalid', '`run` DOIT transmettre `root` au résolveur')
+  assert.equal(recu.email, 'projet@example.test')
+})
+
+test('CÂBLAGE run() : APPFLOWY_WORKSPACE du `.env` projet pilote le workspace, et la trace le dit', async () => {
+  const server = makeFakeServer()
+  const lignes = []
+  // « My Workspace » n'est NI le défaut (« projects ») NI un repli : s'il est retenu, c'est
+  // que la valeur vient bien du `.env` du projet.
+  const res = await run(['--project', 'demo', '--root', '/repo'],
+    { IAKAFRAME_CACHE_DIR: '/cache/cascade-ws' }, {
+      fs: fsAvecEnvProjet('APPFLOWY_URL=http://x.invalid\nAPPFLOWY_EMAIL=e@example.test\n'
+        + 'APPFLOWY_PASSWORD=SecretDuProjet\nAPPFLOWY_WORKSPACE=My Workspace'),
+      log: (m) => lignes.push(m), now: () => new Date('2026-07-27T10:00:00.000Z'),
+      makeClient: () => makeFakeClient(server),
+    })
+  assert.equal(res.workspaceId, 'ws-my', 'sans `root`, on retomberait sur le défaut « projects »')
+  const trace = lignes.find((l) => l.includes('workspace «'))
+  assert.ok(trace.includes(projectEnvPath('/repo')), 'la provenance affichée DOIT être le `.env` du projet')
+  assert.ok(!lignes.join('\n').includes('SecretDuProjet'), 'aucun secret ne doit apparaître dans les logs')
 })
 
 // ═══════════════════ I/O fichiers (fsApi mocké, aucun accès disque) ═══════════════════

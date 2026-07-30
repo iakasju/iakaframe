@@ -138,9 +138,16 @@ Le CLI `appflowy-doc.mjs` est **Node pur, zéro dépendance** (`fetch` natif) : 
 Les trois identifiants sont résolus dans cet ordre, **l'env ayant toujours priorité** :
 
 1. **Variables d'env** : `APPFLOWY_URL`, `APPFLOWY_EMAIL`, `APPFLOWY_PASSWORD`.
-2. **Repli fichier** : pour toute variable **encore absente** de l'env, lecture d'un fichier
-   dotenv local — `$IAKAFRAME_APPFLOWY_ENV` s'il est défini, sinon
-   `~/.config/iakaframe/appflowy.env`. Fichier absent/illisible → ignoré silencieusement.
+2. **Repli `<root>/.env`** : le dotenv **du projet** visé par `--root` — le plus proche du
+   travail en cours, donc prioritaire sur la config machine. Les clés étrangères qu'il
+   contient (un `FORGEJO_TOKEN`, par exemple) sont simplement ignorées.
+3. **Repli fichier global** : pour toute variable **encore absente**, lecture d'un dotenv
+   local — `$IAKAFRAME_APPFLOWY_ENV` s'il est défini, sinon
+   `~/.config/iakaframe/appflowy.env`.
+
+Chaque maillon est complété **variable par variable** ; tout fichier absent, illisible, vide
+ou malformé est **sauté en silence** (jamais d'exception). Seule la **provenance** (un chemin,
+un nom de variable) est tracée ou affichée — **jamais une valeur**.
 
 | Variable | Rôle |
 |---|---|
@@ -151,7 +158,7 @@ Les trois identifiants sont résolus dans cet ordre, **l'env ayant toujours prio
 | `IAKAFRAME_CACHE_DIR` | *(facultatif)* racine du cache d'empreintes — défaut `~/.cache/iakaframe/appflowy` |
 
 **Le workspace cible est EXPLICITE.** Cascade : `--workspace` → env `APPFLOWY_WORKSPACE` →
-fichier dotenv → **défaut : le workspace nommé `projects`**. Aucune correspondance →
+`<root>/.env` → dotenv global → **défaut : le workspace nommé `projects`**. Aucune correspondance →
 **échec propre, code de sortie non nul, message citant les workspaces disponibles**.
 **Jamais de repli sur le premier workspace renvoyé par l'API** : avec plusieurs workspaces et
 aucun ordre garanti, la cible changerait d'une exécution à l'autre et l'idempotence ne
@@ -168,8 +175,10 @@ APPFLOWY_WORKSPACE=projects
 ```
 
 > **Sécurité** : `chmod 600 ~/.config/iakaframe/appflowy.env`, **jamais commité** (ni le
-> fichier, ni son contenu). Si après la cascade une valeur manque encore, message net citant
-> **et** les variables d'env **et** le chemin du fichier attendu, code de sortie non nul.
+> fichier, ni son contenu) — et un `<root>/.env` doit rester **hors suivi git**. Si après la
+> cascade une valeur manque encore, message net citant **et** les variables d'env **et** les
+> **chemins** des deux fichiers attendus (`<root>/.env`, puis le global), code de sortie non
+> nul. Le message cite des **endroits**, jamais des **valeurs**.
 
 ## Utilisation
 
