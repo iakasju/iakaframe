@@ -9,6 +9,24 @@ import { assemble, libraryRoot, serializeKit } from '../lib/library.js';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import { emit, fail, ok, printJson } from '../lib/output.js';
 
+const USAGE = `Usage : iakaframe assemble <methodId> <teamId> [bindingId] [options]
+
+Compose un descripteur de kit + controle de compatibilite casting (roles de la methode
+couverts par la team). Dry-run par defaut : n'ecrit rien ; --write materialise kits/<id>.md.
+
+Arguments :
+  <methodId> <teamId> Methode et team a assembler
+  [bindingId]        Binding (alternative a --binding)
+
+Options :
+  --binding <id>     Binding de generation
+  --node <n>         Nœud runner (defaut : claude)
+  --write            Materialise kits/<id>.md (sinon dry-run)
+  --force            Remplace un kit existant (avec --write)
+  --root <dir>       Racine de bibliotheque
+  --ascii            Tableau en ASCII pur
+  --json             Sortie machine`;
+
 export function runAssemble(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
@@ -16,8 +34,10 @@ export function runAssemble(argv) {
       root: { type: 'string' }, binding: { type: 'string' }, node: { type: 'string' },
       write: { type: 'boolean', default: false }, force: { type: 'boolean', default: false },
       ascii: { type: 'boolean', default: false }, json: { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   const json = values.json;
   const [methodId, teamId, bindingPos] = positionals;
   if (!methodId || !teamId) {

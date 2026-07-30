@@ -16,14 +16,28 @@ const ASSEMBLY_KINDS = ['team', 'method', 'binding', 'frame'];
 // atome typé neuf par id (Lot 2, § 4.2) - mode distinct de la livraison de fichier.
 const KINDS = [...ASSEMBLY_KINDS, ...POOL_KINDS];
 
+const USAGE = `Usage : iakaframe add <team|method|binding|frame> <fichier.md>  (livraison)
+        iakaframe add <${POOL_KINDS.join('|')}> <id>  (scaffold)
+
+Livre un assemblage deja redige (valide le schema + l'integrite referentielle I1 AVANT
+d'ecrire ; refuse sans ecrire si une reference est cassee), OU scaffolde un atome de pool
+type neuf par id. Non destructif (refus si la cible existe, sauf --force).
+
+Options :
+  --root <dir>       Racine de bibliotheque
+  --force            Remplace une cible existante
+  --json             Sortie machine`;
+
 export function runAdd(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
       root: { type: 'string' }, force: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   const json = values.json;
   const [kind, arg] = positionals;
   if (!kind || !KINDS.includes(kind) || !arg) {

@@ -5,14 +5,29 @@ import { renderValue } from '../lib/frontmatter.js';
 import { COLLECTION_TYPES, collectionOf, libraryRoot, readEntry, resolveId } from '../lib/library.js';
 import { emit, fail, ok } from '../lib/output.js';
 
+const USAGE = `Usage : iakaframe show <id> [options]
+
+Contrat d'un atome/assemblage : resout <id> par scan sur toutes les collections, rend
+le frontmatter mis en forme + le corps. Collision d'id -> precisez --type.
+
+Arguments :
+  <id>               Identifiant de l'atome/assemblage a afficher
+
+Options :
+  --type <collection> Leve l'ambiguite si l'id existe dans plusieurs collections
+  --root <dir>       Racine de bibliotheque
+  --json             Sortie machine`;
+
 export function runShow(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
       root: { type: 'string' }, type: { type: 'string' },
       json: { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
     },
   });
+  if (values.help) { console.log(USAGE); return; }
   const json = values.json;
   const id = positionals[0];
   if (!id) return fail(json, 'Usage : iakaframe show <id> [--type <collection>]');
