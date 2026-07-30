@@ -5,6 +5,7 @@ import path from 'node:path';
 import { isRepo, out } from '../lib/git.js';
 import { now } from '../lib/date.js';
 import { runCadence, formatCadence, runProjectCadence, formatProjectCadence } from '../lib/cadence.js';
+import { runMemoireHumaine, formatMemoireHumaine } from '../lib/memoire-humaine.js';
 
 const REASONS = ['version', 'pause', 'reprise', 'manual'];
 
@@ -53,7 +54,7 @@ function countFiles(dir) {
 // Coeur reutilisable par onboard/update.
 // `home` (optionnel) cible le canon de la boucle d'apprentissage pour la CADENCE (T6, § 6) ; sinon
 // IAKA_MEMORY_HOME, sinon ~/.iaka/memory/. `cadenceRun` est un point d'injection (defaut = runCadence).
-export function doSnapshot({ projectPath, reason = 'manual', version = '', note = '', home, cadenceRun = runCadence, projectCadenceRun = runProjectCadence }) {
+export function doSnapshot({ projectPath, reason = 'manual', version = '', note = '', home, cadenceRun = runCadence, projectCadenceRun = runProjectCadence, memoireHumaineRun = runMemoireHumaine }) {
   const root = path.resolve(projectPath);
   const specs = path.join(root, 'specs');
   fs.mkdirSync(specs, { recursive: true });
@@ -180,7 +181,16 @@ ${rows}</table>
   try { projectCadence = projectCadenceRun({ projectPath: root, reason, home }); }
   catch (e) { projectCadence = { triggered: false, skipped: 'guarded', reason, error: e.message }; }
 
-  return { version, branch, fileCount, dirty, cadence, projectCadence };
+  // ---- MEMOIRE HUMAINE (R3, lot 5) : la publication AppFlowy greffee sur le MEME rituel.
+  // C'est LE point d'accroche retenu : `doSnapshot` est le passage oblige des trois moments de doc
+  // (version / pause / reprise) ET du checkpoint `update`, et il recoit deja `projectPath` +
+  // `reason`. Opt-in strict par projet, aucune creation par effet de bord, meme double filet
+  // non-bloquant que les deux cadences ci-dessus. Detail : cli/src/lib/memoire-humaine.js
+  let memoireHumaine;
+  try { memoireHumaine = memoireHumaineRun({ projectPath: root, reason }); }
+  catch (e) { memoireHumaine = { triggered: false, skipped: 'garde', reason, error: e.message }; }
+
+  return { version, branch, fileCount, dirty, cadence, projectCadence, memoireHumaine };
 }
 
 export function runSnapshot(argv) {
@@ -202,4 +212,5 @@ export function runSnapshot(argv) {
   console.log(`  version=${r.version} branche=${r.branch} fichiers=${r.fileCount}${r.dirty ? ' [arbre sale]' : ''}`);
   console.log(`  ${formatCadence(r.cadence)}`);
   console.log(`  ${formatProjectCadence(r.projectCadence)}`);
+  console.log(`  ${formatMemoireHumaine(r.memoireHumaine)}`);
 }
