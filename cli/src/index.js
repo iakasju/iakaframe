@@ -34,9 +34,15 @@ import { runObserve } from './commands/observe.js';
 import { runPortfolio } from './commands/portfolio.js';
 import { resolveRoot } from './lib/root.js';
 import { packageVersion } from './lib/version.js';
+import { EXPECTED_COPIES, EXPECTED_DERIVED } from './lib/vendor.js';
 
 // Source unique : lue depuis cli/package.json (cf. lib/version.js). Plus aucune copie codee en dur.
 const VERSION = packageVersion();
+
+// Meme principe pour le compte de fixtures : derive du manifeste de vendorage, jamais recopie.
+// L'aide avait fige « 21 fixtures (17 copies) » alors que la garde en verifiait 82 — un nombre
+// duplique a la main finit toujours par mentir.
+const VENDOR_TOTAL = EXPECTED_COPIES + EXPECTED_DERIVED;
 
 const HELP = `iakaframe v${VERSION} - methode de travail outillee (CLI multi-OS)
 
@@ -94,8 +100,8 @@ Commandes :
   detach <skill>      Detache un skill d'un persona : retire de skills:[] (le - de attach)
                         --persona <id>  (--json)
   assemble <m> <t>    Compose un kit (methode+team[+binding]) - dry-run  (--write --binding --json)
-  vendor-check        Constate que les 21 fixtures vendorees de iakaFrameGUI (17 copies +
-                        4 derivees) sont fideles au canon. Gracieux si le frere est absent
+  vendor-check        Constate que les ${VENDOR_TOTAL} fixtures vendorees de iakaFrameGUI (${EXPECTED_COPIES} copies +
+                        ${EXPECTED_DERIVED} derivees) sont fideles au canon. Gracieux si le frere est absent
                         (exit 0, ok:false)  (--strict --gui <dir> --root --json)
   frame verify        Garde d'anonymisation du miroir frames/releases/ : gates G1-G6 par CLASSES
                         (G2 = ALLOWLIST de marque, attrape le nom SUIVANT). Constate, ne reecrit

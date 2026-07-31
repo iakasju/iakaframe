@@ -15,7 +15,8 @@
 //   3. les deux suites doivent repasser (CLI + GUI).
 //
 // ⚠️ CE RITUEL NE COUVRE QUE LES 9 GOLDENS — il ne suffit PAS a resynchroniser le vendorage.
-// La GUI vendore 21 fixtures sur 6 familles : 8 goldens, 8 personas, 1 binding (copies), plus 4
+// La GUI vendore 82 fixtures sur 11 familles : 78 COPIES (9 goldens, 9 personas, 1 binding,
+// 1 workflow, 18 principles, 6 rituals, 3 scaffolds, 9 roles, 3 guardrails, 19 skills), plus 4
 // DERIVEES (methode, methode wrapped, team, kit) qui ne se copient JAMAIS — les copier detruirait
 // la forme canonique sur laquelle methodMd/teamMd/kitMd.test.ts sont batis. Ne jamais lire l'etape
 // 2 ci-dessus comme « le vendorage est a jour ».
