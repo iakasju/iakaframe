@@ -48,6 +48,19 @@ function authorityVersion(root) {
   return '';
 }
 
+// DERNIER recours, pour un projet TIERS : son propre package.json racine. Sans lui, tout projet
+// non tague rendait « Version : - » — le cas de iakaFrameGUI, et de tout projet du portefeuille
+// qui ne tague pas. Place APRES `git describe` a dessein : un projet qui tague deja garde son
+// comportement mot pour mot, donc ce repli n'ajoute que du renseigne la ou il n'y avait rien.
+// (Le manifeste npm seulement : un projet Rust/Go sans package.json reste sur `-`.)
+function projectPackageVersion(root) {
+  try {
+    const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
+    if (pkg && typeof pkg.version === 'string' && /^\d+\.\d+\.\d+/.test(pkg.version)) return 'v' + pkg.version;
+  } catch { /* pas de manifeste npm lisible -> '-' */ }
+  return '';
+}
+
 function countFiles(dir) {
   let n = 0;
   const walk = (d) => {
@@ -74,7 +87,8 @@ export function doSnapshot({ projectPath, reason = 'manual', version = '', note 
   const git = isRepo(root);
   const branch = git ? (out(root, ['rev-parse', '--abbrev-ref', 'HEAD']) || '-') : '-';
   if (!version) version = authorityVersion(root);
-  if (!version) version = git ? (out(root, ['describe', '--tags', '--abbrev=0']) || '-') : '-';
+  if (!version) version = git ? (out(root, ['describe', '--tags', '--abbrev=0']) || '') : '';
+  if (!version) version = projectPackageVersion(root);
   if (!version) version = '-';
   const lastCommit = git ? (out(root, ['log', '-1', '--pretty=format:%h %s']) || '-') : '-';
   const dirty = git ? out(root, ['status', '--porcelain']) !== '' : false;

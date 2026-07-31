@@ -126,3 +126,75 @@ test('non-regression : sans cli/package.json @naonedge/iakaframe, snapshot retom
     fs.rmSync(tmp, { recursive: true, force: true });
   }
 });
+
+// --- G4 : projet TIERS non tague -> son propre package.json, au lieu du tiret ---------------------
+// Constate sur iakaFrameGUI : sans tag git, l'etat des lieux inscrivait « Version : - » alors que
+// package.json portait 0.1.4. Le repli ne s'applique qu'APRES git describe : voir la non-regression
+// juste en dessous, ou le tag continue de gagner.
+
+test('G4 : projet tiers sans tag derive de son package.json (plus de « Version : - » muet)', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-vsu-tiers-pkg-'));
+  try {
+    const git = (args) => spawnSync('git', args, { cwd: tmp, encoding: 'utf8' });
+    git(['init', '-q']);
+    git(['config', 'user.email', 'test@iaka']);
+    git(['config', 'user.name', 'test']);
+    fs.writeFileSync(path.join(tmp, 'package.json'),
+      JSON.stringify({ name: 'iakaframegui', version: '0.1.4' }), 'utf8');
+    git(['add', '-A']);
+    git(['commit', '-qm', 'init']);
+    // AUCUN tag : c'est exactement le cas iakaFrameGUI.
+
+    const noop = () => ({ triggered: false });
+    const r = doSnapshot({ projectPath: tmp, reason: 'pause', cadenceRun: noop, projectCadenceRun: noop });
+
+    assert.equal(r.version, 'v0.1.4', 'projet tiers non tague : version derivee de son package.json');
+    assert.notEqual(r.version, '-', 'le tiret muet a disparu');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('G4 non-regression : un tag PRIME toujours sur le package.json du projet tiers', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-vsu-tiers-both-'));
+  try {
+    const git = (args) => spawnSync('git', args, { cwd: tmp, encoding: 'utf8' });
+    git(['init', '-q']);
+    git(['config', 'user.email', 'test@iaka']);
+    git(['config', 'user.name', 'test']);
+    fs.writeFileSync(path.join(tmp, 'package.json'),
+      JSON.stringify({ name: 'projet-tiers', version: '2.0.0' }), 'utf8');
+    git(['add', '-A']);
+    git(['commit', '-qm', 'init']);
+    git(['tag', 'v3.1.4']);
+
+    const noop = () => ({ triggered: false });
+    const r = doSnapshot({ projectPath: tmp, reason: 'version', cadenceRun: noop, projectCadenceRun: noop });
+
+    assert.equal(r.version, 'v3.1.4', 'le tag reste l\'autorite quand il existe : aucun projet ne change de comportement');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+test('G4 : sans tag NI package.json exploitable, le tiret demeure (pas d\'invention)', () => {
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-vsu-tiers-rien-'));
+  try {
+    const git = (args) => spawnSync('git', args, { cwd: tmp, encoding: 'utf8' });
+    git(['init', '-q']);
+    git(['config', 'user.email', 'test@iaka']);
+    git(['config', 'user.name', 'test']);
+    fs.writeFileSync(path.join(tmp, 'README.md'), '# projet Rust, pas de manifeste npm\n', 'utf8');
+    // package.json sans champ version : ne doit pas etre pris pour une version.
+    fs.writeFileSync(path.join(tmp, 'package.json'), JSON.stringify({ name: 'sans-version' }), 'utf8');
+    git(['add', '-A']);
+    git(['commit', '-qm', 'init']);
+
+    const noop = () => ({ triggered: false });
+    const r = doSnapshot({ projectPath: tmp, reason: 'pause', cadenceRun: noop, projectCadenceRun: noop });
+
+    assert.equal(r.version, '-', 'rien d\'exploitable -> tiret honnete, jamais une version inventee');
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});

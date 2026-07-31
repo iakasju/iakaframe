@@ -117,7 +117,7 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 |---|---|---|
 | `onboard` | `--path <dir> --node claude\|codex\|ollama-localhost\|ollama-lan --repo <nom> --description "ascii" --version vX.Y.Z --skip-forgejo --no-push --force` | Met en place la méthode : structure + dépôt Forgejo + commit + état des lieux + push. Mode **umbrella** : `onboard --umbrella --path <chapeau> [--init-projects]`. |
 | `init` | `--path <dir> --node <n> --force` | Déploie le kit + le marqueur `.iakaframe` (**non destructif**). |
-| `snapshot` | `--path <dir> --reason version\|pause\|reprise\|manual --version --note` | État des lieux (journal + MD + HTML). |
+| `snapshot` | `--path <dir> --reason version\|pause\|reprise\|manual --version --note` | État des lieux (journal + MD + HTML). **Résolution de la version**, dans l'ordre : `--version` explicite → autorité `cli/package.json` (le projet `iakaframe` lui-même) → `git describe --tags` → **`package.json` du projet** → `-`. Le dernier repli évite le « Version : `-` » muet des projets non tagués ; un projet qui tague garde son comportement. |
 | `update` | `--path <dir> --reason --version --note --message --no-push` | Checkpoint : snapshot + commit global + push. |
 | `config` | `--path <dir> --runner claude-code\|ollama\|litellm\|codex --node <n> --aider-model <m>` | Écrit/màj `<projet>/iakaframe.json` (runner + nœud). |
 
