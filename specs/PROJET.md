@@ -87,3 +87,10 @@ Chaque feature reçoit son fichier dans `specs/instructions/` **avant** impléme
 - **2026-07-22** — **Dette de version à résoudre** : divergence entre l'état des lieux
   (`specs/etat-des-lieux.md` → **v0.6.1**) et `cli/package.json` (**v0.1.0**). Source de
   vérité de version à réconcilier ; à cadrer (Gandalf) avant prochain versionnement.
+- **2026-07-31** — **Décision de Stéphane** : le logo et le favicon d'un outil du
+  portefeuille sont des **actifs de marque**, pas des graphismes locaux à la page. Ils
+  vivent dans le **réservoir iakagraph** (`theme/<famille>/<variante>/logos/`), qui en est
+  la source canonique ; une page les consomme, ne les possède pas. Premier cas appliqué :
+  le badge plein jaune du dashboard portefeuille, versé sous
+  `naonedge-grue-jaune.svg` et arbitré **icône d'application / favicon** de la marque
+  NaonEdge (journal détaillé dans `iakagraph/specs/PROJET.md`).
