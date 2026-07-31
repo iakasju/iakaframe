@@ -658,5 +658,15 @@
     "dirty": true,
     "files": 1459,
     "note": "iakaframe adopte le rituel de retrospective dans son cycle 3-phases (ritualIds += retrospective, ancre a la cloture de lot ; le default gagne une boucle d'amelioration). Adaptation fidele forcee par la frame cote GUI (RitualSide ouvert au 'team', l'union fermee etait un bug latent). Cross-repo vendorise (78 copies, drift 0). Solde l'item backlog 'briques emergentes' (promotion deja faite au lot rangement-catalogue). Reste : narratif Nathalie (methode-de-travail.md). GUI main @ 2603189."
+  },
+  {
+    "date": "2026-07-31 16:31",
+    "reason": "pause",
+    "version": "v0.38.0",
+    "branch": "main",
+    "commit": "6af4d77 fix(cli): l aide derive le compte de fixtures au lieu de le figer",
+    "dirty": false,
+    "files": 1463,
+    "note": "Session portefeuille : aide CLI vendor-check corrigee (le compte de fixtures est desormais DERIVE du manifeste, 82 = 78 copies + 4 derivees ; 21/17 etait fige et faux depuis les lots 5b/5c). Meme chiffre remis d aplomb dans gen-agents-golden.mjs et docs/commandes.md (sync identifiee par l instruction vendor-check-golden-kit-fixturetable-workflow). Journal et instructions NON reecrits : leurs comptes sont vrais a leur date. Parite cross-repo VERIFIEE verte des deux depots (vendor-check OK, drift 0) ; iakaFrameGUI main poussee (6997d7e, jalon E1). Decision decideur journalisee dans specs/PROJET.md : logo et favicon d un outil sont des actifs de marque, ils vivent dans le reservoir iakagraph. RESTE : le critere C7 de specs/instructions/outillage-scrub-miroir-frame.md fige encore 'OK - 17 copies + 4 derivees' et est aujourd hui inatteignable - arbitrage decideur requis (instruction active ou archivee ?)."
   }
 ]

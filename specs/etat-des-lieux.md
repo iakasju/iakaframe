@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-29 14:30 (motif: version).
+> Genere par iakaframe (CLI) le 2026-07-31 16:31 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.38.0 |
 | Branche | main |
-| Dernier commit | 9b7da66 merge(methode): iakaframe adopte le rituel de retrospective (cycle 3-phases) |
-| Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (hors .git/node_modules) | 1459 |
-| Note | iakaframe adopte le rituel de retrospective dans son cycle 3-phases (ritualIds += retrospective, ancre a la cloture de lot ; le default gagne une boucle d'amelioration). Adaptation fidele forcee par la frame cote GUI (RitualSide ouvert au 'team', l'union fermee etait un bug latent). Cross-repo vendorise (78 copies, drift 0). Solde l'item backlog 'briques emergentes' (promotion deja faite au lot rangement-catalogue). Reste : narratif Nathalie (methode-de-travail.md). GUI main @ 2603189. |
+| Dernier commit | 6af4d77 fix(cli): l aide derive le compte de fixtures au lieu de le figer |
+| Arbre | propre |
+| Fichiers (hors .git/node_modules) | 1463 |
+| Note | Session portefeuille : aide CLI vendor-check corrigee (le compte de fixtures est desormais DERIVE du manifeste, 82 = 78 copies + 4 derivees ; 21/17 etait fige et faux depuis les lots 5b/5c). Meme chiffre remis d aplomb dans gen-agents-golden.mjs et docs/commandes.md (sync identifiee par l instruction vendor-check-golden-kit-fixturetable-workflow). Journal et instructions NON reecrits : leurs comptes sont vrais a leur date. Parite cross-repo VERIFIEE verte des deux depots (vendor-check OK, drift 0) ; iakaFrameGUI main poussee (6997d7e, jalon E1). Decision decideur journalisee dans specs/PROJET.md : logo et favicon d un outil sont des actifs de marque, ils vivent dans le reservoir iakagraph. RESTE : le critere C7 de specs/instructions/outillage-scrub-miroir-frame.md fige encore 'OK - 17 copies + 4 derivees' et est aujourd hui inatteignable - arbitrage decideur requis (instruction active ou archivee ?). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `9b7da66` | 2026-07-29 | merge(methode): iakaframe adopte le rituel de retrospective (cycle 3-phases) |
-| `26993a1` | 2026-07-29 | feat(method): le default iakaframe adopte le rituel retrospective |
-| `bc597b2` | 2026-07-29 | chore(iakaframe): update etat des lieux + commit global (version) |
-| `8f90984` | 2026-07-29 | merge(vitrine): generateur .md->.html de methode-de-travail + garde anti-derive |
-| `d848319` | 2026-07-29 | chore(vitrine): regenerer la zone CODE_BLOCKS frame-scopee (9 agents + 26 skills) |
-| `d96f767` | 2026-07-29 | refactor(vitrine): frame-scope le bloc skills au domaine iakaframe (iakaframeSkillIds) |
-| `f698f61` | 2026-07-29 | chore(vitrine): regenerer la zone CODE_BLOCKS depuis le canon vivant |
-| `7f21b8c` | 2026-07-29 | feat(vitrine): generateur zone CODE_BLOCKS + garde anti-derive |
-| `710363e` | 2026-07-29 | docs(vitrine): cadrage generateur de vitrine methode md->html (Option B) |
-| `41ec10d` | 2026-07-28 | chore(iakaframe): update etat des lieux + commit global (version) |
+| `6af4d77` | 2026-07-31 | fix(cli): l aide derive le compte de fixtures au lieu de le figer |
+| `e82911d` | 2026-07-31 | docs(specs): decision - logo et favicon sont des actifs de marque |
+| `5d06752` | 2026-07-31 | docs(instructions): cadrage skill apprendre-un-artiste et unification des chartes |
+| `87716b7` | 2026-07-31 | fix(design-naonedge): aligne le wordmark sur la graphie officielle NAOnEdge |
+| `6013f96` | 2026-07-30 | docs(backlog): clot suite L56 corpus-web (faux positif - deja fait 2026-07-25) |
+| `a7c1e28` | 2026-07-30 | docs(backlog): clot L56 role frame/Feanor (audit Legolas PASS mecanique) + ouvre suite corpus-web |
+| `5733e85` | 2026-07-30 | docs(backlog): clot L45 (outillage frame new/lint/scaffolds) + L28 (align GUI) - audits Legolas PASS |
+| `297db27` | 2026-07-30 | docs(backlog): clot L48 catalogue 7 frames (audit Legolas PASS) |
+| `c0e803a` | 2026-07-30 | docs(backlog): solde reserves T-2/T-3 frame-builder (12fa997) |
+| `12fa997` | 2026-07-30 | merge(docs): solde reserves T-2/T-3 frame-builder (bandeau D3, A4 20+4 asserte) - Gandalf |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-07-31 16:31 | pause | v0.38.0 | main | Session portefeuille : aide CLI vendor-check corrigee (le compte de fixtures est desormais DERIVE du manifeste, 82 = 78 copies + 4 derivees ; 21/17 etait fige et faux depuis les lots 5b/5c). Meme chiffre remis d aplomb dans gen-agents-golden.mjs et docs/commandes.md (sync identifiee par l instruction vendor-check-golden-kit-fixturetable-workflow). Journal et instructions NON reecrits : leurs comptes sont vrais a leur date. Parite cross-repo VERIFIEE verte des deux depots (vendor-check OK, drift 0) ; iakaFrameGUI main poussee (6997d7e, jalon E1). Decision decideur journalisee dans specs/PROJET.md : logo et favicon d un outil sont des actifs de marque, ils vivent dans le reservoir iakagraph. RESTE : le critere C7 de specs/instructions/outillage-scrub-miroir-frame.md fige encore 'OK - 17 copies + 4 derivees' et est aujourd hui inatteignable - arbitrage decideur requis (instruction active ou archivee ?). |
 | 2026-07-29 14:30 | version | v0.38.0 | main | iakaframe adopte le rituel de retrospective dans son cycle 3-phases (ritualIds += retrospective, ancre a la cloture de lot ; le default gagne une boucle d'amelioration). Adaptation fidele forcee par la frame cote GUI (RitualSide ouvert au 'team', l'union fermee etait un bug latent). Cross-repo vendorise (78 copies, drift 0). Solde l'item backlog 'briques emergentes' (promotion deja faite au lot rangement-catalogue). Reste : narratif Nathalie (methode-de-travail.md). GUI main @ 2603189. |
 | 2026-07-29 12:30 | version | v0.37.0 | main | Generateur de vitrine .md->.html retabli : cli/scripts/gen-methode-vitrine.mjs regenere la zone CODE_BLOCKS de methode-de-travail.html depuis le canon vivant (agents = contrats generateAll Option B, roster 9 ; skills frame-scopees iakaframe = 26), splice byte-exact non destructif, idempotent, sous garde anti-derive vitrine-methode.test.js. Corrige le contenu perime (pwsh/fausse charte/slack=0). Leve la dette generateur vitrine (le band-aid de la zone gelee est desormais regenerable). iakaframe seul. |
 | 2026-07-28 10:02 | version | v0.36.0 | main | Purge Slack (slack = dead) : canal Slack retire du canon vivant (skill Odin, specs, kit Ollama->Discord, vitrines, zone gelee methode-de-travail.html en band-aid), reformule vers Discord/iakaHub. Zones historiques/generees gelees a raison. Cross-repo drift 0/77. Capture aussi les instructions de cadrage purge-scories-slack.md + authoring-corps-skill-editable.md. GUI main @ 1fc2e82. |
