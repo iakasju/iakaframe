@@ -2,6 +2,22 @@
   "$comment": "SOURCE UNIQUE des suggestions de modeles d'IA par roleKey (instruction specs/instructions/models-par-rolekey.md, D2). Lue par cli/src/commands/models.js. Les anciennes tables (kits/iakaframe-ollama/MODELES.md et les instructions de 2026-06-24) sont des LECTEURS : elles renvoient ici, elles ne decident plus. DONNEE PURE, aucune logique. AUCUN hote ni IP ici (doctrine de neutralite du depot, cf. services.js) : les hotes viennent de IAKAFRAME_HOSTS / --hosts.",
   "version": 1,
   "updatedAt": "2026-08-03",
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 3060, 12 Go de VRAM (mesure du 2026-08-03)",
+    "partage": "GPU PARTAGE avec un service de generation d'image (idle a ~0,1 Go, mais plusieurs Go en generation).",
+    "plafond": "Q4_K_M jusqu'a ~14B tient sur cette carte ; au-dela, quantization plus agressive ou deport CPU (-70 a -80 % de vitesse). Le parc actuel (3,3 a 9,6 Go) est DEJA a l'optimum de cette carte : les modeles superieurs recommandes par la veille (qwen3-coder:30b ~19 Go) NE TIENNENT PAS.",
+    "arbitrage": "gemma4:e4b (9,6 Go) tient seul, mais ne laisse presque rien au service d'image. Faire tourner un agent PENDANT une generation impose de choisir : `ollama stop` avant generation, ou un modele plus petit."
+  },
+  "veille": {
+    "date": "2026-08-03",
+    "methode": "Recherche web (etat de l'art 2026) CONFRONTEE a nos propres mesures. En cas de desaccord, nos mesures priment : elles portent sur NOS taches et NOTRE materiel.",
+    "constats": [
+      "CONFIRME — qwen2.5-coder:7b est le consensus 2026 pour le code en 7B (Ollama). Notre choix pour `dev` et `qualite` est aligne sur l'etat de l'art, sans changement.",
+      "EXPLIQUE NOTRE MESURE — Qwen3.5 est meilleur QUE SUR LE PAPIER : il mene SWE-bench / Terminal-Bench / TAU2 a PLEINE PRECISION, mais il est decrit comme 'flaky under quantization', la ou Gemma 4 reste consistant. Notre parc est en Q4_K_M : les classements pleine precision NE S'APPLIQUENT PAS a notre installation. C'est la cause probable de ce que nous avons mesure (gemma4 plus rapide ET plus docile que qwen3.5 sur nos deux taches).",
+      "A ARBITRER — l'etat de l'art place BGE-M3 et Qwen3-Embedding devant nomic-embed-text pour la recherche multilingue/hybride, mais nomic reste juge solide sur materiel modeste (contexte 8192). Aucun changement propose sans un besoin RAG reel : on ne tire pas un modele pour un usage qui n'existe pas encore.",
+      "SANS OBJET POUR NOUS — les meilleurs modeles de code 2026 (qwen3-coder:30b, gemma4 26B-A4B) depassent la VRAM disponible. La veille est lue a travers la contrainte materielle, sinon elle recommande l'inaccessible."
+    ]
+  },
   "source": "Parc mesure le 2026-08-03 sur l'Ollama de reference (GET /api/tags) et la passerelle LiteLLM (13 entrees, GET /v1/models). Pas de veille web a cette date : les suggestions ne recommandent QUE des modeles constates presents.",
   "methodId": "iakaframe",
   "roles": {
