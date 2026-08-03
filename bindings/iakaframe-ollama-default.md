@@ -49,11 +49,12 @@ fait **dans la source**, puis se rejoue ici — jamais l'inverse.
   alternative — c'est le seul modèle **sans raisonnement** du parc, donc le seul directement
   exploitable **via la passerelle** (cf. point suivant).
 - **`gemma4` et `qwen3.5` sont des modèles *thinking*, et augmenter le budget ne suffit pas.**
-  Mesuré : 4000 tokens accordés, **2193 mots de raisonnement, zéro mot de réponse**. La seule
-  parade est **`think: false`** — qui passe par l'**API Ollama directe**, la passerelle LiteLLM
-  1.82.6 ne transmettant pas ce paramètre (`drop_params` le jette en silence). C'est pourquoi ce
-  binding cible `ollama-distant` et non `litellm` : **le bon chemin dépend du modèle**, aucune
-  cible n'est un passage obligé.
+  Mesuré : 4000 tokens accordés, **2193 mots de raisonnement, zéro mot de réponse**. La parade est
+  **`think: false`**, à envoyer **explicitement**. *Rectification du 2026-08-03 : une version
+  antérieure de cette note accusait la passerelle de ne pas transmettre le paramètre — c'est
+  **faux**, test de contrôle à l'appui (avec : 1,9 s / 37 mots ; sans : 0 mot). Le facteur est le
+  paramètre, pas le chemin.* Ce binding cible `ollama-distant` par simple proximité du parc, **pas**
+  parce que la passerelle serait déficiente : les deux voies conviennent.
 - **Un seul GPU, partagé.** Ces neuf affectations ne s'exécutent pas en parallèle : les modèles
   se chargent et se déchargent (~30-50 s à froid, ~10 s à chaud), et le GPU peut servir ailleurs.
   *Une équipe de 9 personas en local, c'est de la sérialisation, pas du parallélisme.*
