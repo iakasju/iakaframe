@@ -12,7 +12,7 @@ assignments:
   - { personaId: legolas,  runner: ollama-distant, model: "qwen2.5-coder:7b" }
   - { personaId: helm,     runner: ollama-distant, model: "qwen3.5:9b" }
   - { personaId: loki,     runner: ollama-distant, model: "qwen3.5:9b", tools: [comfyui-local] }
-  - { personaId: nathalie, runner: ollama-distant, model: "mistral:7b-instruct-q4_K_M" }
+  - { personaId: nathalie, runner: ollama-distant, model: "qwen3.5:9b" }
   - { personaId: feanor,   runner: ollama-distant, model: "gemma4:e4b" }
 ---
 # Binding iakaframe — cible Ollama (modèles locaux)
@@ -37,16 +37,23 @@ fait **dans la source**, puis se rejoue ici — jamais l'inverse.
 | portefeuille · coordination · deploiement · design | Odin · Aragorn · Helm · Loki | `qwen3.5:9b` | outils + raisonnement, et **vision** pour le design |
 | cadrage · frame | Gandalf · Fëanor | `gemma4:e4b` | le plus gros du parc : le raisonnement paie le plus à ces postes |
 | dev · qualite | Gimli · Legolas | `qwen2.5-coder:7b` | seul modèle de code dédié du parc (complétion `insert`) |
-| documentation | Nathalie | `mistral:7b-instruct-q4_K_M` | rédaction suivie, sans outils : le plus léger suffit et libère le GPU |
+| documentation | Nathalie | `qwen3.5:9b` | **corrigé après mesure** (cf. ci-dessous) |
 
 ## Trois faits d'usage, pas des détails
 
-- **Nathalie est le seul poste sans tool-calling.** `mistral:7b-instruct-q4_K_M` ne porte que la
-  complétion. C'est **délibéré** (rédaction pure) : ne pas lui confier un geste qui appelle des
-  outils, et ne pas « corriger » ce choix sans changer aussi le modèle.
-- **`gemma4` et `qwen3.5` sont des modèles *thinking*.** Avec un budget de tokens serré, la
-  réponse revient **vide** — tout part dans `reasoning_content`. Prévoir **≥ 300 tokens**, sinon
-  un modèle sain se lit comme une panne.
+- **Le poste documentation a été corrigé APRÈS MESURE (2026-08-03), pas au jugé.** Il portait
+  `mistral:7b-instruct-q4_K_M`, choisi pour sa légèreté. Test réel — même tâche de rédaction,
+  même chemin, même consigne (« 150 mots maximum, ne recopie pas les options ») : **qwen3.5 rend
+  163 mots en 6 s** ; **mistral rend 279 mots en 19 s et recopie la liste des options malgré
+  l'interdiction**. *Le plus léger n'était ni le plus rapide ni le plus docile.* mistral reste en
+  alternative — c'est le seul modèle **sans raisonnement** du parc, donc le seul directement
+  exploitable **via la passerelle** (cf. point suivant).
+- **`gemma4` et `qwen3.5` sont des modèles *thinking*, et augmenter le budget ne suffit pas.**
+  Mesuré : 4000 tokens accordés, **2193 mots de raisonnement, zéro mot de réponse**. La seule
+  parade est **`think: false`** — qui passe par l'**API Ollama directe**, la passerelle LiteLLM
+  1.82.6 ne transmettant pas ce paramètre (`drop_params` le jette en silence). C'est pourquoi ce
+  binding cible `ollama-distant` et non `litellm` : **le bon chemin dépend du modèle**, aucune
+  cible n'est un passage obligé.
 - **Un seul GPU, partagé.** Ces neuf affectations ne s'exécutent pas en parallèle : les modèles
   se chargent et se déchargent (~30-50 s à froid, ~10 s à chaud), et le GPU peut servir ailleurs.
   *Une équipe de 9 personas en local, c'est de la sérialisation, pas du parallélisme.*

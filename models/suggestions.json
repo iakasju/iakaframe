@@ -55,11 +55,11 @@
       "why": "Seul poste ou la vision est requise (lecture de maquettes). qwen3-vl-4b = repli leger 3,3 Go."
     },
     "documentation": {
-      "recommended": "mistral:7b-instruct-q4_K_M",
-      "alternatives": ["qwen3.5:9b"],
+      "recommended": "qwen3.5:9b",
+      "alternatives": ["mistral:7b-instruct-q4_K_M"],
       "requires": [],
-      "sizeGb": 4.4,
-      "why": "Redaction suivie, sans outils : le modele le plus leger fait l'affaire et libere le GPU."
+      "sizeGb": 6.6,
+      "why": "CORRIGE le 2026-08-03 APRES MESURE (la suggestion initiale, mistral, reposait sur la taille du modele, pas sur une observation). Meme tache de redaction, meme chemin direct, meme prompt : qwen3.5 rend 163 mots en 6 s (limite demandee 150) ; mistral rend 279 mots en 19 s et RECOPIE la liste des options malgre une interdiction explicite. Le plus leger n'etait ni le plus rapide ni le plus docile. IMPERATIF : appeler avec `think: false` (cf. notes)."
     },
     "frame": {
       "recommended": "gemma4:e4b",
@@ -77,6 +77,8 @@
   },
   "notes": [
     "Modeles *thinking* (gemma4, qwen3.5) : avec un budget de tokens serre, `content` revient VIDE (tout part dans `reasoning_content`). Prevoir >= 300 tokens pour toute verification, sinon un modele sain se lit comme un echec.",
+    "MESURE DU 2026-08-03, plus dure que la note ci-dessus : augmenter le budget NE SUFFIT PAS. Sur une tache de redaction, qwen3.5 a consomme 4000 tokens (2193 mots de raisonnement) et rendu ZERO mot de reponse. La vraie parade est `think: false` — avec elle, le MEME modele rend un guide complet en 6 s.",
+    "CONSEQUENCE DE CHEMIN : `think: false` passe par l'API Ollama directe (`POST /api/chat`), PAS par la passerelle LiteLLM 1.82.6, qui ne transmet pas ce parametre (`drop_params: true` le jette en silence). Pour tout modele *thinking* en redaction, viser Ollama en direct ; la passerelle reste excellente pour les modeles sans raisonnement et pour la compatibilite OpenAI. Illustration concrete qu'aucune cible n'est un passage oblige.",
     "mistral:7b-instruct-q4_K_M ne porte PAS le tool-calling (capabilities: completion seule) : ne jamais le suggerer pour un roleKey qui appelle des outils.",
     "Cout de chargement : ~30-50 s a froid (VRAM), ~10 s a chaud. Le GPU peut etre partage avec un service d'image : ne pas eprouver plusieurs modeles en parallele."
   ]
