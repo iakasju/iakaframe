@@ -15,7 +15,8 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { hostsForTarget, replaceModelInLine, ageInDays, buildState, TARGETS, loadSuggestions,
-         writeAssignments, summarize, serverMessage } from '../src/commands/models.js';
+         writeAssignments, summarize, serverMessage, applyMakeAvailable, applyRemove,
+         pickAndAct } from '../src/commands/models.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, '..', 'src', 'index.js');
@@ -83,9 +84,15 @@ test('--binding : lit le binding demande, et ses affectations sont celles du can
   const models = new Set(o.roles.flatMap(r => r.personas.map(p => p.model)));
   assert.ok(models.has('qwen2.5-coder:7b'), 'le binding ollama doit porter des modeles locaux');
   assert.ok(!models.has('sonnet') && !models.has('opus'), 'aucun modele du binding claude ne doit fuiter');
-  // Le binding derive de la source unique : tout roleKey couvert doit etre « en-place ».
+  // GATE QUALITE 2026-08-03 : cette assertion exigeait `en-place` pour tout role couvert — elle
+  // VERROUILLAIT le defaut bloquant (statut aveugle a la disponibilite reelle) au lieu de
+  // l'attraper. Ici aucun hote LAN n'est fourni : les modeles du binding ollama ne sont exposes
+  // NULLE PART, donc le bon statut est « a installer », et les roles doivent rester ACTIONNABLES.
   for (const r of o.roles.filter(x => x.covered)) {
-    assert.equal(r.status, 'en-place', `${r.roleKey} devrait etre aligne sur la suggestion`);
+    assert.ok(r.aligned, `${r.roleKey} : le binding doit rester aligne sur la suggestion`);
+    assert.notEqual(r.status, 'en-place',
+      `${r.roleKey} : « en place » exige une presence MESUREE, pas seulement une egalite de noms`);
+    assert.deepEqual(r.availableOn, [], 'aucune cible ne doit exposer ce modele dans ce contexte');
   }
 });
 
@@ -170,11 +177,19 @@ test('buildState : les statuts distinguent en-place, a-installer et non-couvert'
     { roleKey: 'qualite',  covered: true,  personas: [{ id: 'b', name: 'B', model: 'autre' }] },
     { roleKey: 'orphelin', covered: false, personas: [] },
   ] };
-  const probes = [{ target: 'ollama-distant', available: true, kind: 'ollama', models: ['m2'] }];
+  // `m1` (affecte a dev) ET `m2` (suggere pour qualite) sont exposes : les deux cas sont mesures.
+  const probes = [{ target: 'ollama-distant', available: true, kind: 'ollama', models: ['m1', 'm2'] }];
   const roles = buildState({ canon, suggestions, probes });
-  assert.equal(roles.find(r => r.roleKey === 'dev').status, 'en-place');
-  assert.equal(roles.find(r => r.roleKey === 'qualite').status, 'disponible');
+  assert.equal(roles.find(r => r.roleKey === 'dev').status, 'en-place', 'aligne ET present');
+  assert.equal(roles.find(r => r.roleKey === 'qualite').status, 'disponible', 'present mais non affecte');
   assert.equal(roles.find(r => r.roleKey === 'orphelin').status, 'non-couvert');
+
+  // LE DEFAUT BLOQUANT du gate qualite : aligne mais ABSENT de toute cible. L'ancienne regle
+  // rendait `en-place` — donc non actionnable — et gelait tout le process sur le binding ollama.
+  const sansM1 = [{ target: 'ollama-distant', available: true, kind: 'ollama', models: ['m2'] }];
+  const dev = buildState({ canon, suggestions, probes: sansM1 }).find(r => r.roleKey === 'dev');
+  assert.equal(dev.status, 'a-installer', 'un modele affecte mais introuvable reste A INSTALLER');
+  assert.equal(dev.aligned, true, 'il reste aligne sur la suggestion : les deux notions sont distinctes');
 });
 
 test('source unique : chaque roleKey de la methode a une suggestion', () => {
@@ -232,4 +247,181 @@ test('serverMessage : deballe le motif d\'erreur de la passerelle', () => {
   assert.match(serverMessage({ body: null, text: 'Bad Gateway' }), /Bad Gateway/, 'repli sur le corps brut');
   assert.equal(serverMessage({ body: null, text: '' }), '', 'aucun motif -> chaine vide, pas de bruit');
   assert.equal(serverMessage(undefined), '', 'reponse absente toleree');
+});
+
+// ================================================================================================
+// ADAPTATEURS ET GATE — chemin que le gate qualite du 2026-08-03 a trouve SANS AUCUN TEST
+// (models.js 330-451 et http.js 23-42 non couverts : pull, declare, delete, gate, ecriture).
+// Ces tests montent un faux service local : aucun reseau externe, aucun TTY.
+// ================================================================================================
+import http from 'node:http';
+import os from 'node:os';
+
+function fakeService(routes) {
+  const calls = [];
+  const srv = http.createServer((req, res) => {
+    let body = '';
+    req.on('data', c => { body += c; });
+    req.on('end', () => {
+      calls.push({ method: req.method, url: req.url, body: body ? JSON.parse(body) : null });
+      const key = `${req.method} ${req.url}`;
+      const handler = routes[key];
+      if (!handler) { res.writeHead(404).end('{}'); return; }
+      const [code, payload] = handler(calls.at(-1));
+      res.writeHead(code, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(payload));
+    });
+  });
+  return new Promise(resolve => srv.listen(0, '127.0.0.1', () => {
+    resolve({ url: `http://127.0.0.1:${srv.address().port}`, calls, close: () => srv.close() });
+  }));
+}
+
+test('applyMakeAvailable : Ollama -> pull, et un echec remonte le motif du service', async () => {
+  const okSrv = await fakeService({ 'POST /api/pull': () => [200, { status: 'success' }] });
+  try {
+    const r = await applyMakeAvailable({ target: { kind: 'ollama', url: okSrv.url }, model: 'm:1b' });
+    assert.equal(r.ok, true);
+    assert.deepEqual(okSrv.calls.map(c => c.url), ['/api/pull']);
+    assert.equal(okSrv.calls[0].body.name, 'm:1b', 'le modele demande doit etre celui transmis');
+  } finally { okSrv.close(); }
+
+  const koSrv = await fakeService({ 'POST /api/pull': () => [500, { error: { message: 'disque plein' } }] });
+  try {
+    const r = await applyMakeAvailable({ target: { kind: 'ollama', url: koSrv.url }, model: 'm:1b' });
+    assert.equal(r.ok, false);
+    assert.ok(r.lines.join(' ').includes('disque plein'), 'le motif du service doit remonter');
+  } finally { koSrv.close(); }
+});
+
+test('applyMakeAvailable : LiteLLM SAUVEGARDE avant d\'ecrire (AC-8), et n\'ecrit pas sans filet', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-bak-'));
+  process.env.IAKAFRAME_BACKUP_DIR = dir;
+  t.after(() => { delete process.env.IAKAFRAME_BACKUP_DIR; fs.rmSync(dir, { recursive: true, force: true }); });
+
+  // Cas nominal : la sauvegarde precede l'ecriture, et le fichier existe vraiment.
+  const srv = await fakeService({
+    'GET /model/info': () => [200, { data: [{ model_name: 'deja', model_info: { id: 'abc' } }] }],
+    'POST /model/new': () => [200, { ok: true }],
+  });
+  try {
+    const r = await applyMakeAvailable({ target: { kind: 'litellm', url: srv.url }, model: 'm:1b', key: 'k', stamp: 'STAMP' });
+    assert.equal(r.ok, true);
+    assert.deepEqual(srv.calls.map(c => c.url), ['/model/info', '/model/new'],
+      'la sauvegarde doit PRECEDER l\'ecriture, jamais l\'inverse');
+    const bak = path.join(dir, 'litellm-catalog-STAMP.json');
+    assert.ok(fs.existsSync(bak), 'le fichier de sauvegarde doit exister');
+    assert.match(fs.readFileSync(bak, 'utf8'), /deja/, 'la sauvegarde doit contenir le catalogue lu');
+  } finally { srv.close(); }
+
+  // Filet impossible -> on N'ECRIT PAS. C'est le coeur d'AC-8.
+  const noBak = await fakeService({ 'POST /model/new': () => [200, { ok: true }] });  // /model/info absent -> 404
+  try {
+    const r = await applyMakeAvailable({ target: { kind: 'litellm', url: noBak.url }, model: 'm:1b', key: 'k', stamp: 'S2' });
+    assert.equal(r.ok, false);
+    assert.ok(!noBak.calls.some(c => c.url === '/model/new'), 'AUCUNE ecriture ne doit partir sans sauvegarde');
+    assert.match(r.lines.join(' '), /ecriture ANNULEE/i);
+  } finally { noBak.close(); }
+});
+
+test('applyMakeAvailable : LiteLLM sans cle -> aucun appel, bloc a coller rendu', async () => {
+  const srv = await fakeService({ 'POST /model/new': () => [200, {}] });
+  try {
+    const r = await applyMakeAvailable({ target: { kind: 'litellm', url: srv.url }, model: 'm:1b', key: '' });
+    assert.equal(r.ok, false);
+    assert.equal(srv.calls.length, 0, 'sans cle, on ne contacte meme pas le service');
+    assert.ok(r.lines.join('\n').includes('model_name: m:1b'), 'le repli exploitable doit etre fourni');
+  } finally { srv.close(); }
+});
+
+test('applyRemove : ROUTE par type de cible (defaut #4 du gate)', async (t) => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-bak-'));
+  process.env.IAKAFRAME_BACKUP_DIR = dir;
+  t.after(() => { delete process.env.IAKAFRAME_BACKUP_DIR; fs.rmSync(dir, { recursive: true, force: true }); });
+
+  const ollama = await fakeService({ 'DELETE /api/delete': () => [200, {}] });
+  try {
+    const r = await applyRemove({ target: { kind: 'ollama', url: ollama.url }, model: 'm:1b' });
+    assert.equal(r.ok, true);
+    assert.deepEqual(ollama.calls.map(c => `${c.method} ${c.url}`), ['DELETE /api/delete']);
+  } finally { ollama.close(); }
+
+  // Sur LiteLLM, `/api/delete` n'existe pas : le retrait passe par l'id du catalogue.
+  const gw = await fakeService({
+    'GET /model/info': () => [200, { data: [{ model_name: 'm:1b', model_info: { id: 'ID-42' } }] }],
+    'POST /model/delete': () => [200, {}],
+  });
+  try {
+    const r = await applyRemove({ target: { kind: 'litellm', url: gw.url }, model: 'm:1b', key: 'k', stamp: 'S' });
+    assert.equal(r.ok, true);
+    const urls = gw.calls.map(c => `${c.method} ${c.url}`);
+    assert.ok(!urls.includes('DELETE /api/delete'), 'l\'endpoint d\'Ollama ne doit JAMAIS etre appele sur la passerelle');
+    assert.ok(urls.includes('POST /model/delete'), 'le retrait au catalogue doit passer par /model/delete');
+    assert.equal(gw.calls.at(-1).body.id, 'ID-42', 'le retrait se fait par ID interne, pas par nom');
+  } finally { gw.close(); }
+
+  // Modele absent du catalogue : on le DIT, on ne supprime pas au hasard.
+  const vide = await fakeService({ 'GET /model/info': () => [200, { data: [] }] });
+  try {
+    const r = await applyRemove({ target: { kind: 'litellm', url: vide.url }, model: 'introuvable', key: 'k', stamp: 'S' });
+    assert.equal(r.ok, false);
+    assert.match(r.lines.join(' '), /absent du catalogue/);
+  } finally { vide.close(); }
+});
+
+test('pickAndAct : REFUSER au gate n\'emet aucun appel et n\'ecrit rien (AC-3)', async () => {
+  const srv = await fakeService({
+    'POST /api/pull': () => [200, {}], 'DELETE /api/delete': () => [200, {}],
+  });
+  const binding = path.join(HERE, 'fixtures', `binding-gate-${process.pid}.md`);
+  fs.writeFileSync(binding, ['---', 'id: t', 'teamId: t8', 'assignments:',
+    '  - { personaId: p1, runner: claude-code, model: "avant" }', '---', '# corps', ''].join('\n'), 'utf8');
+  const avant = fs.readFileSync(binding, 'utf8');
+  try {
+    const answers = ['1', 'r', 'n'];                       // cible 1, remplacer, PUIS REFUS
+    const res = await pickAndAct({
+      ask: async () => answers.shift(), yes: (s) => /^(o|oui|y|yes)$/i.test(s),
+      pick: '1',
+      diff: [{ roleKey: 'dev', personas: [{ id: 'p1', name: 'P1' }], assigned: ['avant'],
+               recommended: 'apres', sizeGb: 1, status: 'a-installer' }],
+      probes: [{ target: 'ollama-distant', label: 'O', url: srv.url, kind: 'ollama',
+                 available: true, installMeans: 'pull' }],
+      canon: { bindingPath: binding },
+    });
+    assert.equal(res.executed, false, 'un refus ne doit rien executer');
+    assert.equal(srv.calls.length, 0, 'AUCUN appel reseau apres un refus');
+    assert.equal(fs.readFileSync(binding, 'utf8'), avant, 'le binding doit etre intact');
+  } finally { srv.close(); fs.rmSync(binding, { force: true }); }
+});
+
+test('pickAndAct : CONFIRMER execute, et « remplacer » n\'ecrit QUE si la mise a disposition a reussi', async () => {
+  const ko = await fakeService({ 'POST /api/pull': () => [500, { error: { message: 'refus' } }] });
+  const binding = path.join(HERE, 'fixtures', `binding-gate2-${process.pid}.md`);
+  fs.writeFileSync(binding, ['---', 'id: t', 'teamId: t8', 'assignments:',
+    '  - { personaId: p1, runner: claude-code, model: "avant" }', '---', '# corps', ''].join('\n'), 'utf8');
+  try {
+    const answers = ['1', 'r', 'o'];                       // cible 1, remplacer, CONFIRME
+    const res = await pickAndAct({
+      ask: async () => answers.shift(), yes: (s) => /^(o|oui|y|yes)$/i.test(s),
+      pick: '1',
+      diff: [{ roleKey: 'dev', personas: [{ id: 'p1', name: 'P1' }], assigned: ['avant'],
+               recommended: 'apres', sizeGb: 1, status: 'a-installer' }],
+      probes: [{ target: 'ollama-distant', label: 'O', url: ko.url, kind: 'ollama',
+                 available: true, installMeans: 'pull' }],
+      canon: { bindingPath: binding },
+    });
+    assert.equal(res.executed, true, 'la confirmation doit declencher l\'execution');
+    assert.equal(res.ok, false, 'le pull a echoue');
+    assert.match(fs.readFileSync(binding, 'utf8'), /model: "avant"/,
+      'une affectation ne doit PAS etre ecrite si le modele n\'a pas pu etre mis a disposition');
+  } finally { ko.close(); fs.rmSync(binding, { force: true }); }
+});
+
+test('buildState : sans AUCUNE cible mesurable, le statut est « indetermine » (on ne devine pas)', () => {
+  const suggestions = { roles: { dev: { recommended: 'm1', alternatives: [], requires: [] } } };
+  const canon = { roles: [{ roleKey: 'dev', covered: true, personas: [{ id: 'a', name: 'A', model: 'm1' }] }] };
+  const mortes = [{ target: 'ollama-distant', available: false, kind: 'ollama', models: [] },
+                  { target: 'claude', available: true, kind: 'cli', models: [] }];
+  assert.equal(buildState({ canon, suggestions, probes: mortes })[0].status, 'indetermine',
+    'un CLI joignable ne mesure aucun parc : il ne rend pas la disponibilite connue');
 });

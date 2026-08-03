@@ -19,6 +19,7 @@
 import { parseArgs } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
 import readline from 'node:readline/promises';
 import { getJson, sendJson } from '../lib/http.js';
 import { emit, ok, fail } from '../lib/output.js';
@@ -249,16 +250,28 @@ function availableOn(model, probes) {
 
 // --- Etat des lieux (etape 1) ----------------------------------------------------------------
 export function buildState({ canon, suggestions, probes }) {
+  // Une cible « mesurable » = joignable et capable de porter un modele (les CLI claude/codex ne
+  // portent pas de parc). Sans AUCUNE cible mesurable, on ne SAIT PAS ce qui est disponible :
+  // le dire est plus honnete que de trancher (statut `indetermine`).
+  const measurable = probes.some(p => p.available && p.kind !== 'cli');
+
   const roles = canon.roles.map(r => {
     const sug = suggestions?.roles?.[r.roleKey] || null;
     const recommended = sug?.recommended || null;
     const where = availableOn(recommended, probes);
     const assigned = [...new Set(r.personas.map(p => p.model).filter(Boolean))];
+    const aligned = assigned.length > 0 && assigned.every(m => m === recommended);
     let status;
+    // GATE QUALITE 2026-08-03, defaut bloquant #1 : le statut ne regardait QUE l'egalite
+    // affectation <-> suggestion. Un modele affecte et present NULLE PART etait declare
+    // `en-place` ; l'etape 3 filtrant sur `!== 'en-place'`, le binding `ollama` livre par ce
+    // meme lot n'offrait AUCUNE action — le verbe cense mettre des modeles a disposition ne
+    // pouvait pas les mettre a disposition. `en-place` exige desormais une PRESENCE MESUREE.
     if (!r.covered) status = 'non-couvert';
     else if (!recommended) status = 'sans-suggestion';
-    else if (assigned.length && assigned.every(m => m === recommended)) status = 'en-place';
-    else if (where.length) status = 'disponible';
+    else if (!measurable) status = 'indetermine';
+    else if (aligned && where.length) status = 'en-place';
+    else if (!aligned && where.length) status = 'disponible';
     else status = 'a-installer';
     return {
       roleKey: r.roleKey,
@@ -271,6 +284,7 @@ export function buildState({ canon, suggestions, probes }) {
       sizeGb: sug?.sizeGb ?? null,
       why: sug?.why || '',
       availableOn: where,
+      aligned,
       status,
     };
   });
@@ -338,11 +352,21 @@ async function interactive({ canon, suggestions, probes, roles, root, hosts, tim
     if (!yes(want)) { console.log('\nRien n\'a ete modifie.\n'); return; }
 
     // Etape 3 - diff suggestion <-> affectation.
-    const diff = roles.filter(r => r.covered && r.recommended && r.status !== 'en-place');
+    // GATE QUALITE 2026-08-03, defaut #2 : la liste ne contenait QUE les divergences, si bien
+    // qu'un role aligne sortait definitivement du champ d'action — le modele qu'on venait
+    // d'installer ne pouvait plus etre retire (AC-7 faux). La liste des divergences reste
+    // l'ecran par defaut (c'est ce qu'on vient voir), mais TOUS les roles restent atteignables.
+    const actionable = roles.filter(r => r.covered && r.recommended);
+    const diverging = actionable.filter(r => r.status !== 'en-place');
+    let diff = diverging;
     console.log('\n=== Suggestions qui different de l\'affectation en place ===');
-    if (!diff.length) {
-      console.log('  (aucune : tout ce qui est suggere est deja affecte)\n');
-      return;
+    if (!diverging.length) {
+      console.log('  (aucune : tout ce qui est suggere est deja affecte ET disponible)');
+      if (!actionable.length) { console.log(''); return; }
+      const tout = await ask('\nAfficher quand meme tous les roles (pour retirer un modele) ? [o/N] ');
+      if (!yes(tout)) { console.log('\nRien n\'a ete modifie.\n'); return; }
+      diff = actionable;
+      console.log('\n=== Tous les roles couverts ===');
     }
     diff.forEach((r, i) => {
       const size = r.sizeGb ? ` ~${r.sizeGb} Go` : '';
@@ -352,110 +376,215 @@ async function interactive({ canon, suggestions, probes, roles, root, hosts, tim
       // longs noyaient la liste, qui devenait illisible — un ecran de choix doit tenir d'un coup
       // d'oeil. Le detail complet reste dans models/suggestions.json, jamais perdu.
       if (r.why) console.log(`      ${summarize(r.why)}`);
-      console.log(`      dispo sur : ${r.availableOn.join(', ') || 'aucune cible'}${r.alternatives.length ? ` · alternatives : ${r.alternatives.join(', ')}` : ''}`);
+      console.log(`      dispo sur : ${r.availableOn.join(', ') || 'aucune cible'}${r.alternatives.length ? ` · alternatives : ${r.alternatives.join(', ')}` : ''} [${r.status}]`);
     });
+    if (diff === diverging && diverging.length < actionable.length) {
+      console.log(`\n  (${actionable.length - diverging.length} role(s) deja en place, non listes — tapez « t » pour tout afficher)`);
+    }
 
     // Etape 4 - choix, recapitulatif, GATE, execution.
-    const pick = await ask('\nNumero du roleKey a traiter (vide = quitter) : ');
-    const idx = parseInt(pick, 10);
-    if (!pick || Number.isNaN(idx) || idx < 1 || idx > diff.length) {
-      console.log('\nRien n\'a ete modifie.\n'); return;
-    }
-    const row = diff[idx - 1];
-
-    const usable = probes.filter(p => p.available && p.kind !== 'cli');
-    if (!usable.length) {
-      console.log('\nAucune cible joignable pour installer : rien a faire.\n'); return;
-    }
-    console.log('\n  Cibles disponibles :');
-    usable.forEach((p, i) => console.log(`    ${i + 1}. ${p.label} (${p.url}) — ${p.installMeans}`));
-    const tpick = await ask('  Cible [1] : ');
-    const target = usable[(parseInt(tpick, 10) || 1) - 1];
-    if (!target) { console.log('\nRien n\'a ete modifie.\n'); return; }
-
-    const act = await ask('  Action : (i)nstaller  (r)emplacer l\'affectation  (x) retirer le modele  [i] : ');
-    const action = /^r/i.test(act) ? 'replace' : /^x/i.test(act) ? 'remove' : 'install';
-
-    // Recapitulatif AVANT gate : dit tout, y compris le fichier qui sera ecrit (R5).
-    console.log('\n  --- Recapitulatif ---');
-    console.log(`  roleKey    : ${row.roleKey} (${row.personas.map(p => p.name).join(', ')})`);
-    // Le poids ne se lit pas pareil selon le geste : « a telecharger » n'a aucun sens quand on
-    // RETIRE (recette du 2026-08-03 — le recapitulatif d'un retrait annoncait encore un
-    // telechargement). Un recapitulatif qui decrit mal l'acte qu'il fait confirmer est un piege.
-    const poids = row.sizeGb
-      ? (action === 'remove' ? ` (~${row.sizeGb} Go liberes)` : ` (~${row.sizeGb} Go a telecharger si absent)`)
-      : '';
-    console.log(`  modele     : ${row.recommended}${poids}`);
-    console.log(`  cible      : ${target.label} — ${target.url}`);
-    console.log(`  action     : ${action === 'install' ? 'mettre a disposition' : action === 'replace' ? 'mettre a disposition PUIS ecrire l\'affectation' : 'RETIRER le modele de la cible'}`);
-    if (action === 'replace') console.log(`  fichier    : ${canon.bindingPath || '(binding introuvable — ecriture impossible)'}`);
-    if (target.kind === 'litellm') console.log('  note       : effet de bord sur un service PARTAGE (catalogue de la passerelle).');
-    if (action === 'remove') console.log('  rappel     : la politique de retention conserve 1 a 2 versions anterieures — retirer n\'est pas obligatoire.');
-
-    const go = await ask('\n  Confirmer ? [o/N] ');
-    if (!yes(go)) { console.log('\nAbandonne. Rien n\'a ete modifie.\n'); return; }
-
-    // --- Execution (apres gate uniquement) ---
-    if (action === 'remove') {
-      const r = await sendJson(`${target.url}/api/delete`, { method: 'DELETE', body: { name: row.recommended }, timeoutMs: 60000 });
-      console.log(r.ok ? `\n  Retire : ${row.recommended}` : `\n  ECHEC du retrait (HTTP ${r.status}).`);
+    const pick = await ask('\nNumero du roleKey a traiter (« t » = tout afficher, vide = quitter) : ');
+    if (/^t$/i.test(pick)) {
+      diff = actionable;
+      console.log('\n=== Tous les roles couverts ===');
+      diff.forEach((r, i) => console.log(
+        `  ${String(i + 1).padStart(2)}. ${r.roleKey.padEnd(14)} ${(r.assigned.join(', ') || '-')} -> ${r.recommended}  [${r.status}]`));
+      const again = await ask('\nNumero du roleKey a traiter (vide = quitter) : ');
+      await pickAndAct({ ask, yes, pick: again, diff, probes, canon });
       return;
     }
-
-    if (target.kind === 'ollama') {
-      console.log(`\n  Telechargement de ${row.recommended} — cela peut prendre plusieurs minutes...`);
-      const r = await sendJson(`${target.url}/api/pull`, { method: 'POST', body: { name: row.recommended, stream: false }, timeoutMs: 3600000 });
-      if (!r.ok) { console.log(`  ECHEC du telechargement (HTTP ${r.status}).`); return; }
-      console.log('  Modele disponible.');
-    } else if (target.kind === 'litellm') {
-      const key = process.env.IAKAFRAME_LITELLM_KEY;
-      if (!key) {
-        console.log('\n  Cle d\'administration absente (IAKAFRAME_LITELLM_KEY) : la passerelle ne peut pas etre');
-        console.log('  modifiee automatiquement. Bloc a ajouter au catalogue, puis redemarrer le service :\n');
-        printCatalogBlock(row.recommended);
-        return;
-      }
-      const r = await sendJson(`${target.url}/model/new`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${key}` },
-        body: { model_name: row.recommended,
-                litellm_params: { model: `ollama_chat/${row.recommended}`, api_base: 'http://ollama:11434' } },
-        timeoutMs: 60000,
-      });
-      if (r.ok) {
-        console.log(`\n  Declare au catalogue : ${row.recommended}`);
-      } else {
-        // Le code HTTP seul ne dit RIEN d'actionnable. Recette du 2026-08-03 : la passerelle a
-        // rendu 500 avec un motif parfaitement clair (« Set STORE_MODEL_IN_DB=True »), que le CLI
-        // avalait. On remonte le motif du serveur, puis on retombe sur le bloc a coller — un echec
-        // doit laisser l'utilisateur avec quelque chose d'exploitable, pas avec un numero.
-        console.log(`\n  La declaration automatique a echoue (HTTP ${r.status}).`);
-        const motif = serverMessage(r);
-        if (motif) console.log(`  Motif renvoye par la passerelle : ${motif}`);
-        console.log('\n  Repli — bloc a ajouter au catalogue, puis redemarrer le service :\n');
-        printCatalogBlock(row.recommended);
-        return;
-      }
-    }
-
-    if (action === 'replace') {
-      const res = writeAssignments(canon, row.personas.map(p => p.id), row.recommended);
-      console.log(res.ok
-        ? `  Affectation ecrite pour : ${res.written.join(', ')} (${canon.bindingPath})`
-        : `  Affectation NON ecrite : ${res.error}`);
-    }
-    console.log('');
+    await pickAndAct({ ask, yes, pick, diff, probes, canon });
   } finally {
     rl.close();
   }
 }
 
-// Bloc de catalogue a coller a la main — repli commun a « pas de cle » et « declaration refusee ».
-function printCatalogBlock(model) {
-  console.log(`    - model_name: ${model}`);
-  console.log('      litellm_params:');
-  console.log(`        model: ollama_chat/${model}`);
-  console.log('        api_base: http://ollama:11434\n');
+// Etape 4 : choix de la cible et de l'action, recapitulatif, GATE, puis execution par adaptateur.
+// `ask`/`yes` sont INJECTES : la fonction ne connait pas readline, ce qui la rend jouable dans un
+// test en lui passant des reponses scriptees (gate qualite, defaut #3 : ce chemin n'avait aucun test).
+export async function pickAndAct({ ask, yes, pick, diff, probes, canon, env = process.env, now = null }) {
+  const idx = parseInt(pick, 10);
+  if (!pick || Number.isNaN(idx) || idx < 1 || idx > diff.length) {
+    console.log('\nRien n\'a ete modifie.\n');
+    return { action: null, executed: false };
+  }
+  const row = diff[idx - 1];
+
+  const usable = probes.filter(p => p.available && p.kind !== 'cli');
+  if (!usable.length) {
+    console.log('\nAucune cible joignable : rien a faire.\n');
+    return { action: null, executed: false };
+  }
+  console.log('\n  Cibles disponibles :');
+  usable.forEach((p, i) => console.log(`    ${i + 1}. ${p.label} (${p.url}) — ${p.installMeans}`));
+  const tpick = await ask('  Cible [1] : ');
+  const target = usable[(parseInt(tpick, 10) || 1) - 1];
+  if (!target) { console.log('\nRien n\'a ete modifie.\n'); return { action: null, executed: false }; }
+
+  const act = await ask('  Action : (i)nstaller  (r)emplacer l\'affectation  (x) retirer le modele  [i] : ');
+  const action = /^r/i.test(act) ? 'replace' : /^x/i.test(act) ? 'remove' : 'install';
+
+  // Recapitulatif AVANT gate : dit tout, y compris le fichier qui sera ecrit (R5) et le filet.
+  const stamp = now || new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-');
+  console.log('\n  --- Recapitulatif ---');
+  console.log(`  roleKey    : ${row.roleKey} (${row.personas.map(p => p.name).join(', ')})`);
+  // Le poids ne se lit pas pareil selon le geste : « a telecharger » n'a aucun sens quand on RETIRE.
+  const poids = row.sizeGb
+    ? (action === 'remove' ? ` (~${row.sizeGb} Go liberes)` : ` (~${row.sizeGb} Go a telecharger si absent)`)
+    : '';
+  console.log(`  modele     : ${row.recommended}${poids}`);
+  console.log(`  cible      : ${target.label} — ${target.url}`);
+  console.log(`  action     : ${action === 'install' ? 'mettre a disposition' : action === 'replace' ? 'mettre a disposition PUIS ecrire l\'affectation' : 'RETIRER le modele de la cible'}`);
+  if (action === 'replace') console.log(`  fichier    : ${canon.bindingPath || '(binding introuvable — ecriture impossible)'}`);
+  if (target.kind === 'litellm') {
+    console.log('  note       : effet de bord sur un service PARTAGE (catalogue de la passerelle).');
+    // AC-8 : le filet est ANNONCE avant le gate, pas seulement pris. On confirme en sachant
+    // ou atterrira la sauvegarde.
+    console.log(`  filet      : sauvegarde datee du catalogue -> ${backupDir()}/litellm-catalog-${stamp}.json`);
+  }
+  if (action === 'remove') console.log('  rappel     : la politique de retention conserve 1 a 2 versions anterieures — retirer n\'est pas obligatoire.');
+
+  const go = await ask('\n  Confirmer ? [o/N] ');
+  if (!yes(go)) {
+    console.log('\nAbandonne. Rien n\'a ete modifie.\n');
+    return { action, executed: false, target: target.target };
+  }
+
+  // --- Execution : APRES le gate uniquement ---
+  const key = env.IAKAFRAME_LITELLM_KEY || '';
+  let res;
+  if (action === 'remove') {
+    res = await applyRemove({ target, model: row.recommended, key, stamp });
+  } else {
+    if (target.kind === 'ollama') console.log(`\n  Telechargement de ${row.recommended} — cela peut prendre plusieurs minutes...`);
+    res = await applyMakeAvailable({ target, model: row.recommended, key, stamp });
+  }
+  console.log('');
+  res.lines.forEach(l => console.log(l));
+
+  if (action === 'replace' && res.ok) {
+    const w = writeAssignments(canon, row.personas.map(p => p.id), row.recommended);
+    console.log(w.ok
+      ? `  Affectation ecrite pour : ${w.written.join(', ')} (${canon.bindingPath})`
+      : `  Affectation NON ecrite : ${w.error}`);
+  } else if (action === 'replace') {
+    console.log('  Affectation NON ecrite : la mise a disposition a echoue.');
+  }
+  console.log('');
+  return { action, executed: true, ok: res.ok, target: target.target };
+}
+
+// --- Adaptateurs (D4) -------------------------------------------------------------------------
+// EXTRAITS de la boucle `readline` : le gate qualite du 2026-08-03 a montre que tout le chemin
+// qui telecharge, ecrit et touche la passerelle etait INTESTABLE tant qu'il vivait dans une
+// fonction exigeant un TTY (lignes non couvertes). Des fonctions pures et exportees se testent
+// contre un serveur local, sans terminal et sans reseau externe.
+
+// Repertoire des sauvegardes : HORS du depot (une sauvegarde versionnee n'en est pas une) et
+// persistant (un /tmp qui disparait au reboot non plus). Surchargeable pour les tests.
+export function backupDir() {
+  return process.env.IAKAFRAME_BACKUP_DIR
+    || path.join(os.homedir() || '.', '.iakaframe', 'backups');
+}
+
+// AC-8 : sauvegarde DATEE du catalogue AVANT toute ecriture sur la passerelle — seule cible a
+// effet de bord sur un service partage (trois consommateurs vivants). Sans filet, une erreur sur
+// ce service n'a aucun retour arriere. Rend { ok, file } ou { ok:false, error }.
+export async function backupCatalog(target, key, stamp, timeoutMs = 15000) {
+  const headers = key ? { Authorization: `Bearer ${key}` } : undefined;
+  const r = await getJson(`${target.url}/model/info`, timeoutMs, headers);
+  if (!r.ok) return { ok: false, error: `catalogue illisible (HTTP ${r.status})` };
+  const dir = backupDir();
+  try {
+    fs.mkdirSync(dir, { recursive: true });
+    const file = path.join(dir, `litellm-catalog-${stamp}.json`);
+    fs.writeFileSync(file, JSON.stringify(r.body, null, 2), 'utf8');
+    return { ok: true, file };
+  } catch (e) {
+    return { ok: false, error: `ecriture impossible : ${e.message}` };
+  }
+}
+
+// Mettre a disposition : `pull` sur Ollama, declaration au catalogue sur LiteLLM.
+// Rend { ok, lines:[...] } — les lignes sont RENDUES, jamais imprimees ici : une fonction qui
+// ecrit sur stdout ne se teste pas, une fonction qui rend du texte se teste.
+export async function applyMakeAvailable({ target, model, key, stamp }) {
+  if (target.kind === 'ollama') {
+    const r = await sendJson(`${target.url}/api/pull`,
+      { method: 'POST', body: { name: model, stream: false }, timeoutMs: 3600000 });
+    return r.ok
+      ? { ok: true, lines: ['  Modele disponible.'] }
+      : { ok: false, lines: [`  ECHEC du telechargement (HTTP ${r.status}).`, ...motifLines(r)] };
+  }
+  if (target.kind === 'litellm') {
+    if (!key) {
+      return { ok: false, lines: [
+        '  Cle d\'administration absente (IAKAFRAME_LITELLM_KEY) : la passerelle ne peut pas etre',
+        '  modifiee automatiquement. Bloc a ajouter au catalogue, puis redemarrer le service :',
+        '', ...catalogBlock(model)] };
+    }
+    // AC-8 : le filet AVANT le geste. Si la sauvegarde echoue, on N'ECRIT PAS — un service
+    // partage ne se modifie pas sans retour arriere.
+    const bak = await backupCatalog(target, key, stamp);
+    if (!bak.ok) {
+      return { ok: false, lines: [
+        `  Sauvegarde du catalogue impossible (${bak.error}) : ecriture ANNULEE.`,
+        '  Un service partage ne se modifie pas sans filet.'] };
+    }
+    const r = await sendJson(`${target.url}/model/new`, {
+      method: 'POST', headers: { Authorization: `Bearer ${key}` },
+      body: { model_name: model,
+              litellm_params: { model: `ollama_chat/${model}`, api_base: 'http://ollama:11434' } },
+      timeoutMs: 60000,
+    });
+    if (r.ok) return { ok: true, lines: [`  Declare au catalogue : ${model}`, `  Sauvegarde : ${bak.file}`] };
+    return { ok: false, lines: [
+      `  La declaration automatique a echoue (HTTP ${r.status}).`, ...motifLines(r),
+      `  Catalogue sauvegarde avant tentative : ${bak.file}`,
+      '', '  Repli — bloc a ajouter au catalogue, puis redemarrer le service :', '',
+      ...catalogBlock(model)] };
+  }
+  return { ok: false, lines: [`  Cible ${target.kind} : rien a mettre a disposition.`] };
+}
+
+// Retirer : ROUTE PAR TYPE DE CIBLE (gate qualite, defaut #4 — `/api/delete` etait emis sur la
+// passerelle, ou cet endpoint n'existe pas : l'utilisateur confirmait un retrait impossible).
+export async function applyRemove({ target, model, key, stamp }) {
+  if (target.kind === 'ollama') {
+    const r = await sendJson(`${target.url}/api/delete`,
+      { method: 'DELETE', body: { name: model }, timeoutMs: 60000 });
+    return r.ok ? { ok: true, lines: [`  Retire : ${model}`] }
+                : { ok: false, lines: [`  ECHEC du retrait (HTTP ${r.status}).`, ...motifLines(r)] };
+  }
+  if (target.kind === 'litellm') {
+    if (!key) return { ok: false, lines: ['  Cle d\'administration absente : retrait impossible au catalogue.'] };
+    const bak = await backupCatalog(target, key, stamp);
+    if (!bak.ok) return { ok: false, lines: [`  Sauvegarde impossible (${bak.error}) : retrait ANNULE.`] };
+    // Le retrait au catalogue se fait par ID interne, pas par nom : il faut le resoudre.
+    const info = await getJson(`${target.url}/model/info`, 15000, { Authorization: `Bearer ${key}` });
+    const entry = (info.body?.data || []).find(m => m.model_name === model);
+    const id = entry?.model_info?.id;
+    if (!id) return { ok: false, lines: [`  ${model} est absent du catalogue : rien a retirer.`] };
+    const r = await sendJson(`${target.url}/model/delete`, {
+      method: 'POST', headers: { Authorization: `Bearer ${key}` }, body: { id }, timeoutMs: 60000 });
+    return r.ok
+      ? { ok: true, lines: [`  Retire du catalogue : ${model}`, `  Sauvegarde : ${bak.file}`] }
+      : { ok: false, lines: [`  ECHEC du retrait au catalogue (HTTP ${r.status}).`, ...motifLines(r),
+                             `  Sauvegarde : ${bak.file}`] };
+  }
+  return { ok: false, lines: [`  Cible ${target.kind} : rien a retirer.`] };
+}
+
+function motifLines(res) {
+  const m = serverMessage(res);
+  return m ? [`  Motif renvoye par le service : ${m}`] : [];
+}
+
+export function catalogBlock(model) {
+  return [`    - model_name: ${model}`,
+          '      litellm_params:',
+          `        model: ollama_chat/${model}`,
+          '        api_base: http://ollama:11434'];
 }
 
 // Extrait le motif lisible d'une reponse d'erreur de la passerelle. Le corps est parfois un objet

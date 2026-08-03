@@ -90,6 +90,29 @@ Les suggestions vivent dans **un seul fichier de données** du réservoir :
   **capacités requises** (`tools`, `vision`, `thinking`, `embedding`), un **ordre de grandeur**
   de taille, et la **date** + **source** de la dernière veille.
 
+### D2-bis — Ce que « source unique » couvre, et ce qu'elle ne couvre PAS (ajout du 2026-08-03)
+Le gate qualité a montré que le constat C2 était **sous-mesuré** : les tables périmées ne sont pas
+trois mais **beaucoup plus**, et certaines ne sont pas décoratives — ce sont des **configurations
+réellement consommées**. Périmètre tranché, par écrit, plutôt que laissé implicite :
+
+**Rattaché à la source unique (traité)** : `kits/iakaframe-ollama/MODELES.md`,
+`specs/instructions/cible-ollama-modeles-agents.md`, `specs/instructions/modeles-suggestion-install.md`,
+et le renvoi de `bindings/iakaframe-claude-default.md`.
+
+**Identifié, NON traité, hors périmètre de ce lot — dette nommée** :
+- `kits/iakaframe-anythingllm/MODELES.md`, `kits/iakaframe-openwebui/MODELES.md`,
+  `kits/iakaframe-codex/MODELES.md`, `kits/iakaframe-ollama/AGENTS.md` — quatre tables vivantes
+  qui recommandent encore des modèles absents du parc ;
+- **six fichiers de configuration** `kits/iakaframe-openwebui/models/*.json` (`gandalf`, `loki`,
+  `feanor`, `odin`, `aragorn`, `helm`) portant `"base_model_id": "deepseek-r1:latest"`.
+
+*Pourquoi ne pas les traiter ici* : ces fichiers appartiennent aux **kits d'autres runners**
+(AnythingLLM, OpenWebUI, Codex), dont la génération depuis un binding est explicitement différée
+au canon. Les corriger à la main les remettrait en cohérence **aujourd'hui** et les laisserait
+diverger **demain** — le vrai correctif est la génération, pas la retouche. **Tant que ce lot n'est
+pas fait, la phrase « source unique » ne vaut que pour la cible Ollama** : c'est écrit ici pour que
+personne ne la lise plus largement qu'elle n'est vraie.
+
 ### D3 — Suggérer par `roleKey`, affecter par persona
 Deux étages, jamais confondus :
 - **Suggestion** = générique et portable, indexée par **`roleKey`** (un tableau qui parle de

@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-07-31 22:50 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-08-03 21:04 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.38.0 |
-| Branche | main |
-| Dernier commit | 4301943 feat(snapshot): derive la version du package.json des projets non tagues |
-| Arbre | propre |
-| Fichiers (hors .git/node_modules) | 1463 |
-| Note | Lot livre : snapshot derive desormais la version du package.json des projets NON TAGUES. Cause tracee dans le code - authorityVersion() ne derivait que si pkg.name valait '@naonedge/iakaframe', donc pour iakaframe lui-meme ; tout autre projet retombait sur git describe --tags, et un projet sans tag n avait plus rien (constate en cloturant iakaFrameGUI : 'Version : -' alors que package.json portait 0.1.4). Touchait tout le portefeuille, pas seulement le GUI. CASCADE COMPLETE : --version explicite -> autorite cli/package.json -> git describe --tags -> package.json du projet -> '-'. Le nouveau repli est place APRES git describe A DESSEIN : un projet qui tague garde son comportement mot pour mot, le repli n ajoute du renseigne que la ou il n y avait rien, aucun projet existant ne change de version. Effet de bord corrige : le '|| -' du repli git court-circuitait toute cascade ulterieure, il rend maintenant '' pour laisser la main. TESTS : 3 gardes G4 ajoutees a guard-version-source-unique (tiers sans tag -> package.json ; tiers avec tag ET package.json -> le tag prime, non-regression ; ni tag ni version exploitable -> tiret maintenu, jamais de version inventee). Suite CLI 597 pass / 0 fail. docs/commandes.md documente la cascade. RAPPEL DE LA SESSION : l aide vendor-check derive aussi son compte du manifeste (82 = 78+4) au lieu de le recopier - meme geste, meme cause de fond, un chiffre duplique a la main finit par mentir. RESTE OUVERT, sans urgence : specs/instructions/outillage-scrub-miroir-frame.md est PROPOSEE depuis le 21/07, jamais engagee (3 arbitrages ouverts au § 9) ; son critere C7 cite litteralement 'OK - 17 copies + 4 derivees', ecriture perimee dont l intention reste valide - a recalculer au dispatch ou a archiver. |
+| Version | v0.39.0 |
+| Branche | feat/models-par-rolekey |
+| Dernier commit | f0a71c5 fix(models): remonte le motif d'erreur de la passerelle + repli exploitable |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (hors .git/node_modules) | 1469 |
+| Note | Verbe models : suggestions de modeles d'IA par roleKey + mise a disposition interactive (5 cibles), source unique models/suggestions.json, binding ollama, recette guidee. Reprise apres gate qualite FAIL. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `4301943` | 2026-07-31 | feat(snapshot): derive la version du package.json des projets non tagues |
-| `23f49cd` | 2026-07-31 | docs(specs): rectifie la note du checkpoint sur le critere C7 |
-| `c2a5c79` | 2026-07-31 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `6af4d77` | 2026-07-31 | fix(cli): l aide derive le compte de fixtures au lieu de le figer |
-| `e82911d` | 2026-07-31 | docs(specs): decision - logo et favicon sont des actifs de marque |
-| `5d06752` | 2026-07-31 | docs(instructions): cadrage skill apprendre-un-artiste et unification des chartes |
-| `87716b7` | 2026-07-31 | fix(design-naonedge): aligne le wordmark sur la graphie officielle NAOnEdge |
-| `6013f96` | 2026-07-30 | docs(backlog): clot suite L56 corpus-web (faux positif - deja fait 2026-07-25) |
-| `a7c1e28` | 2026-07-30 | docs(backlog): clot L56 role frame/Feanor (audit Legolas PASS mecanique) + ouvre suite corpus-web |
-| `5733e85` | 2026-07-30 | docs(backlog): clot L45 (outillage frame new/lint/scaffolds) + L28 (align GUI) - audits Legolas PASS |
+| `f0a71c5` | 2026-08-03 | fix(models): remonte le motif d'erreur de la passerelle + repli exploitable |
+| `aa3836a` | 2026-08-03 | fix(models): le recapitulatif d'un RETRAIT n'annonce plus un telechargement |
+| `5b3c995` | 2026-08-03 | docs(models): veille web 2026 confrontee a nos mesures + contrainte materielle reelle |
+| `4c7becf` | 2026-08-03 | fix(models): resume les motifs de suggestion a l'ecran (defaut trouve EN RECETTE) |
+| `470ed06` | 2026-08-03 | fix(models): poste documentation -> gemma4, apres le banc complet |
+| `a079e8b` | 2026-08-03 | fix(models): la passerelle transmet BIEN `think` - correction d'une affirmation fausse |
+| `e32b410` | 2026-08-03 | test(models): gemma4 eprouve sur le cadrage - et le raisonnement ne paie pas |
+| `bfc2139` | 2026-08-03 | fix(models): poste documentation -> qwen3.5, apres mesure et non au juge |
+| `d9c243e` | 2026-08-03 | feat(binding): binding `ollama` pour la team iakaframe-8 + selection explicite |
+| `d40c053` | 2026-08-03 | docs(recette): recette guidee RQV du verbe `models` (v0.39.0) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -40,6 +40,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-08-03 21:04 | version | v0.39.0 | feat/models-par-rolekey | Verbe models : suggestions de modeles d'IA par roleKey + mise a disposition interactive (5 cibles), source unique models/suggestions.json, binding ollama, recette guidee. Reprise apres gate qualite FAIL. |
 | 2026-07-31 22:50 | pause | v0.38.0 | main | Lot livre : snapshot derive desormais la version du package.json des projets NON TAGUES. Cause tracee dans le code - authorityVersion() ne derivait que si pkg.name valait '@naonedge/iakaframe', donc pour iakaframe lui-meme ; tout autre projet retombait sur git describe --tags, et un projet sans tag n avait plus rien (constate en cloturant iakaFrameGUI : 'Version : -' alors que package.json portait 0.1.4). Touchait tout le portefeuille, pas seulement le GUI. CASCADE COMPLETE : --version explicite -> autorite cli/package.json -> git describe --tags -> package.json du projet -> '-'. Le nouveau repli est place APRES git describe A DESSEIN : un projet qui tague garde son comportement mot pour mot, le repli n ajoute du renseigne que la ou il n y avait rien, aucun projet existant ne change de version. Effet de bord corrige : le '// -' du repli git court-circuitait toute cascade ulterieure, il rend maintenant '' pour laisser la main. TESTS : 3 gardes G4 ajoutees a guard-version-source-unique (tiers sans tag -> package.json ; tiers avec tag ET package.json -> le tag prime, non-regression ; ni tag ni version exploitable -> tiret maintenu, jamais de version inventee). Suite CLI 597 pass / 0 fail. docs/commandes.md documente la cascade. RAPPEL DE LA SESSION : l aide vendor-check derive aussi son compte du manifeste (82 = 78+4) au lieu de le recopier - meme geste, meme cause de fond, un chiffre duplique a la main finit par mentir. RESTE OUVERT, sans urgence : specs/instructions/outillage-scrub-miroir-frame.md est PROPOSEE depuis le 21/07, jamais engagee (3 arbitrages ouverts au § 9) ; son critere C7 cite litteralement 'OK - 17 copies + 4 derivees', ecriture perimee dont l intention reste valide - a recalculer au dispatch ou a archiver. |
 | 2026-07-31 16:31 | pause | v0.38.0 | main | Session portefeuille : aide CLI vendor-check corrigee — le compte de fixtures est desormais DERIVE du manifeste (82 = 78 copies + 4 derivees) ; « 21 fixtures / 17 copies » etait recopie a la main et faux depuis les lots 5b/5c. Meme chiffre remis d aplomb dans gen-agents-golden.mjs et docs/commandes.md (sync identifiee de longue date par l instruction vendor-check-golden-kit-fixturetable-workflow). Journal et instructions NON reecrits : leurs comptes sont vrais a leur date. Parite cross-repo VERIFIEE verte des deux depots (vendor-check OK, drift 0) ; iakaFrameGUI main poussee (6997d7e, jalon E1). Decision decideur journalisee dans specs/PROJET.md : le logo et le favicon d un outil sont des actifs de marque, ils vivent dans le reservoir iakagraph. RIEN EN ATTENTE cote iakaframe. Pour memoire et sans urgence : specs/instructions/outillage-scrub-miroir-frame.md est PROPOSEE depuis le 21/07 et n a jamais ete engagee (3 arbitrages ouverts au § 9, ils changent le perimetre). Son critere C7 cite litteralement « OK - 17 copies + 4 derivees » : l intention (le vendorage ne doit pas bouger sous ce lot) reste valide, seule l ecriture est perimee — a recalculer au dispatch si le lot est repris, a archiver s il est abandonne. |
 | 2026-07-29 14:30 | version | v0.38.0 | main | iakaframe adopte le rituel de retrospective dans son cycle 3-phases (ritualIds += retrospective, ancre a la cloture de lot ; le default gagne une boucle d'amelioration). Adaptation fidele forcee par la frame cote GUI (RitualSide ouvert au 'team', l'union fermee etait un bug latent). Cross-repo vendorise (78 copies, drift 0). Solde l'item backlog 'briques emergentes' (promotion deja faite au lot rangement-catalogue). Reste : narratif Nathalie (methode-de-travail.md). GUI main @ 2603189. |
