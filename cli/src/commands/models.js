@@ -379,7 +379,13 @@ async function interactive({ canon, suggestions, probes, roles, root, hosts, tim
     // Recapitulatif AVANT gate : dit tout, y compris le fichier qui sera ecrit (R5).
     console.log('\n  --- Recapitulatif ---');
     console.log(`  roleKey    : ${row.roleKey} (${row.personas.map(p => p.name).join(', ')})`);
-    console.log(`  modele     : ${row.recommended}${row.sizeGb ? ` (~${row.sizeGb} Go a telecharger si absent)` : ''}`);
+    // Le poids ne se lit pas pareil selon le geste : « a telecharger » n'a aucun sens quand on
+    // RETIRE (recette du 2026-08-03 — le recapitulatif d'un retrait annoncait encore un
+    // telechargement). Un recapitulatif qui decrit mal l'acte qu'il fait confirmer est un piege.
+    const poids = row.sizeGb
+      ? (action === 'remove' ? ` (~${row.sizeGb} Go liberes)` : ` (~${row.sizeGb} Go a telecharger si absent)`)
+      : '';
+    console.log(`  modele     : ${row.recommended}${poids}`);
     console.log(`  cible      : ${target.label} — ${target.url}`);
     console.log(`  action     : ${action === 'install' ? 'mettre a disposition' : action === 'replace' ? 'mettre a disposition PUIS ecrire l\'affectation' : 'RETIRER le modele de la cible'}`);
     if (action === 'replace') console.log(`  fichier    : ${canon.bindingPath || '(binding introuvable — ecriture impossible)'}`);
