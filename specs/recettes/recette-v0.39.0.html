@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="studio-clair">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  ============================================================================
+  GABARIT DE RECETTE GUIDÉE — instrument standard de la RQV humaine (iakaframe)
+  ----------------------------------------------------------------------------
+  Canon : library/personas/legolas.md § Revue Qualité de Version (RQV).
+  Un SEUL fichier, CSS + JS INLINE, ZÉRO dépendance réseau / ZÉRO CDN.
+  Ouvrable en double-clic (file://) OU servi en http (artifact CI / localhost).
+
+  REMPLISSAGE PAR VERSION — tout se fait dans le bloc `const RECETTE = {...}`
+  plus bas (chercher « ⇩ REMPLIR ICI ⇩ ») :
+    1. titre, version, commit, date ;
+    2. prérequis / lancement (commande, URL, jeu de données) ;
+    3. groupes de scénarios (un axe fonctionnel par groupe A, B, C… G) ;
+    4. chaque scénario : id stable traçable vers l'AC, étapes, attendu.
+  Le reste (thème, tally, persistance, export/import, bannière) est générique.
+
+  HONNÊTETÉ file:// : localStorage est indéfini/bloqué sous origine file://
+  (MDN ; Firefox le bloque). La persistance AUTO est donc best-effort ; une
+  BANNIÈRE le dit sans mentir, et EXPORTER/IMPORTER (JSON) marchent toujours.
+  ============================================================================
+-->
+<title>Recette guidée</title>
+<style>
+  /* ---- Studio clair (défaut) — tokens portés de la charte produit iakaframe ---- */
+  :root, :root[data-theme="studio-clair"] {
+    --bg: #fbfbfc; --card: #ffffff; --deep: #f0f1f4;
+    --line: #e7e8ec; --line-soft: #eef0f3;
+    --text: #16181d; --text-2: #5b6270; --muted: #9aa0ad;
+    --accent: #5b5bd6; --accent-2: #7a78ff; --on-accent: #ffffff;
+    --accent-rgb: 91, 91, 214;
+    --pass: #30a46c; --fail: #e5484d; --block: #f5a623; --info: #3b82f6;
+    --shadow: 0 1px 2px rgba(20,22,28,.05), 0 6px 18px rgba(20,22,28,.07);
+    --radius: 13px; --radius-lg: 18px;
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  /* ---- Sombre — variante cohérente (même accent indigo, surfaces profondes) ---- */
+  :root[data-theme="studio-sombre"] {
+    --bg: #14151a; --card: #1c1e26; --deep: #23252f;
+    --line: #2b2e3a; --line-soft: #262833;
+    --text: #eceef4; --text-2: #a9afbe; --muted: #6d7482;
+    --accent: #7a78ff; --accent-2: #5b5bd6; --on-accent: #0d0e12;
+    --accent-rgb: 122, 120, 255;
+    --pass: #3dd68c; --fail: #ff6369; --block: #ffb547; --info: #5b9dff;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg); color: var(--text); font-family: var(--font);
+    line-height: 1.55; -webkit-font-smoothing: antialiased;
+    padding: 0 0 64px;
+  }
+  a { color: var(--accent); }
+  code, kbd, .mono { font-family: var(--mono); font-size: .92em; }
+
+  /* ---- En-tête collante ---- */
+  header {
+    position: sticky; top: 0; z-index: 20;
+    background: color-mix(in srgb, var(--card) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    padding: 14px clamp(16px, 4vw, 40px);
+  }
+  .head-row { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .titles { flex: 1 1 320px; min-width: 260px; }
+  h1 { font-size: 1.28rem; margin: 0; letter-spacing: -.01em; }
+  .sub { color: var(--text-2); font-size: .86rem; margin-top: 2px; }
+  .sub .mono { color: var(--muted); }
+
+  .tools { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  button, .btn {
+    font: inherit; font-size: .84rem; cursor: pointer;
+    border: 1px solid var(--line); background: var(--card); color: var(--text);
+    padding: 7px 12px; border-radius: 9px; transition: .12s;
+  }
+  button:hover, .btn:hover { border-color: var(--accent); color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  button.primary:hover { filter: brightness(1.06); color: var(--on-accent); }
+
+  /* ---- Tally / progression ---- */
+  .tally { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 12px; }
+  .bar { flex: 1 1 220px; height: 10px; border-radius: 999px; background: var(--deep);
+         overflow: hidden; min-width: 160px; }
+  .bar > i { display: block; height: 100%; width: 0;
+             background: linear-gradient(90deg, var(--accent), var(--accent-2));
+             transition: width .25s; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+  .chip { font-size: .78rem; padding: 3px 9px; border-radius: 999px;
+          border: 1px solid var(--line); color: var(--text-2); white-space: nowrap; }
+  .chip b { color: var(--text); font-variant-numeric: tabular-nums; }
+  .chip.pass  { border-color: color-mix(in srgb, var(--pass) 45%, var(--line)); }
+  .chip.fail  { border-color: color-mix(in srgb, var(--fail) 45%, var(--line)); }
+  .chip.block { border-color: color-mix(in srgb, var(--block) 45%, var(--line)); }
+  .chip.pass  b { color: var(--pass); }
+  .chip.fail  b { color: var(--fail); }
+  .chip.block b { color: var(--block); }
+
+  /* ---- Bannière honnêteté ---- */
+  .banner {
+    margin: 14px clamp(16px, 4vw, 40px) 0;
+    padding: 11px 14px; border-radius: var(--radius);
+    border: 1px solid color-mix(in srgb, var(--block) 55%, var(--line));
+    background: color-mix(in srgb, var(--block) 12%, var(--card));
+    color: var(--text); font-size: .86rem; display: none;
+  }
+  .banner.show { display: block; }
+  .banner.ok {
+    border-color: color-mix(in srgb, var(--pass) 45%, var(--line));
+    background: color-mix(in srgb, var(--pass) 10%, var(--card));
+  }
+  .banner b { font-weight: 600; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 8px clamp(16px, 4vw, 40px) 0; }
+  section { margin-top: 26px; }
+  .lead { color: var(--text-2); font-size: .9rem; }
+
+  .prereq {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 16px 18px; box-shadow: var(--shadow); margin-top: 14px;
+  }
+  .prereq h2 { margin: 0 0 8px; font-size: 1.02rem; }
+  .prereq ul { margin: 8px 0 0; padding-left: 18px; }
+  .prereq li { margin: 4px 0; }
+  pre.cmd {
+    background: var(--deep); border: 1px solid var(--line); border-radius: 9px;
+    padding: 10px 12px; overflow-x: auto; margin: 8px 0 0; font-size: .86rem;
+  }
+
+  .group-title { display: flex; align-items: baseline; gap: 10px; margin: 30px 0 6px; }
+  .group-title h2 { margin: 0; font-size: 1.08rem; }
+  .group-title .g-id {
+    font-family: var(--mono); font-size: .8rem; color: var(--on-accent);
+    background: var(--accent); border-radius: 7px; padding: 2px 8px; letter-spacing: .02em;
+  }
+  .group-title .g-desc { color: var(--text-2); font-size: .85rem; }
+
+  .scn {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 15px 17px; margin-top: 12px; box-shadow: var(--shadow);
+  }
+  .scn[data-status="pass"]  { border-left: 4px solid var(--pass); }
+  .scn[data-status="fail"]  { border-left: 4px solid var(--fail); }
+  .scn[data-status="block"] { border-left: 4px solid var(--block); }
+  .scn-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+  .scn-id {
+    font-family: var(--mono); font-size: .8rem; font-weight: 600; color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 12%, var(--card));
+    border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+    border-radius: 6px; padding: 1px 7px; white-space: nowrap;
+  }
+  .scn-title { font-weight: 600; flex: 1 1 260px; }
+  .scn-ac { color: var(--muted); font-size: .78rem; font-family: var(--mono); }
+  .scn-body { margin-top: 10px; display: grid; gap: 10px; }
+  .field-label { font-size: .74rem; text-transform: uppercase; letter-spacing: .05em;
+                 color: var(--muted); font-weight: 600; margin-bottom: 3px; }
+  .steps { margin: 0; padding-left: 18px; }
+  .steps li { margin: 3px 0; }
+  .attendu { background: var(--deep); border-radius: 9px; padding: 8px 11px;
+             border: 1px solid var(--line-soft); font-size: .92rem; }
+
+  .statusbar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-top: 2px; }
+  .radio {
+    display: inline-flex; align-items: center; gap: 6px; cursor: pointer;
+    border: 1px solid var(--line); border-radius: 8px; padding: 5px 11px; font-size: .84rem;
+    user-select: none; transition: .12s;
+  }
+  .radio input { accent-color: var(--accent); margin: 0; }
+  .radio:hover { border-color: var(--accent); }
+  .radio.on-pass  { background: color-mix(in srgb, var(--pass) 16%, var(--card));  border-color: var(--pass); }
+  .radio.on-fail  { background: color-mix(in srgb, var(--fail) 16%, var(--card));  border-color: var(--fail); }
+  .radio.on-block { background: color-mix(in srgb, var(--block) 16%, var(--card)); border-color: var(--block); }
+
+  textarea.note {
+    width: 100%; min-height: 44px; resize: vertical; font: inherit; font-size: .88rem;
+    color: var(--text); background: var(--bg); border: 1px solid var(--line);
+    border-radius: 9px; padding: 8px 10px;
+  }
+  textarea.note:focus { outline: 2px solid color-mix(in srgb, var(--accent) 40%, transparent); border-color: var(--accent); }
+
+  footer { max-width: 1000px; margin: 34px auto 0; padding: 0 clamp(16px, 4vw, 40px); }
+  .summary {
+    background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-lg);
+    padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .summary h2 { margin: 0 0 8px; font-size: 1rem; }
+  .summary textarea {
+    width: 100%; min-height: 120px; font-family: var(--mono); font-size: .82rem;
+    color: var(--text); background: var(--deep); border: 1px solid var(--line);
+    border-radius: 9px; padding: 10px; resize: vertical;
+  }
+  .stamp { color: var(--muted); font-size: .78rem; margin-top: 10px; }
+  .file-input { display: none; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
+</head>
+<body>
+<header>
+  <div class="head-row">
+    <div class="titles">
+      <h1 id="doc-title">Recette guidée</h1>
+      <div class="sub" id="doc-sub"></div>
+    </div>
+    <div class="tools">
+      <button id="btn-theme" title="Basculer clair / sombre">🌓 Thème</button>
+      <button id="btn-export" title="Télécharger la progression en JSON (marche en file://)">⇩ Exporter</button>
+      <button id="btn-import" class="btn" title="Recharger une progression exportée">⇧ Importer</button>
+      <input type="file" id="file-import" class="file-input" accept="application/json,.json">
+      <button id="btn-reset" title="Vider toute la progression">↺ Réinitialiser</button>
+    </div>
+  </div>
+  <div class="tally" aria-label="Progression">
+    <div class="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100"><i id="bar-fill"></i></div>
+    <div class="chips">
+      <span class="chip pass">PASS <b id="n-pass">0</b></span>
+      <span class="chip fail">FAIL <b id="n-fail">0</b></span>
+      <span class="chip block">bloqué <b id="n-block">0</b></span>
+      <span class="chip">renseignés <b id="n-done">0</b>/<b id="n-total">0</b></span>
+    </div>
+  </div>
+</header>
+
+<div class="banner" id="banner" role="status" aria-live="polite"></div>
+
+<main>
+  <section id="intro">
+    <p class="lead" id="doc-lead"></p>
+  </section>
+
+  <section class="prereq" id="prereq">
+    <h2>Prérequis &amp; lancement</h2>
+    <div id="prereq-body"></div>
+  </section>
+
+  <div id="groups"></div>
+</main>
+
+<footer>
+  <div class="summary">
+    <h2>Résumé recopiable (à coller dans le document RQV)</h2>
+    <textarea id="summary-out" readonly spellcheck="false"></textarea>
+    <div class="stamp" id="stamp"></div>
+  </div>
+</footer>
+
+<script>
+/* ============================================================================
+   ⇩ REMPLIR ICI ⇩  —  Configuration de la recette (le SEUL bloc à éditer)
+   ---------------------------------------------------------------------------
+   Chaque scénario : { id, titre, ac, etapes:[...], attendu }.
+   `id` STABLE (ex. "A-03") et TRAÇABLE vers l'AC (`ac`) dont il dérive.
+   Groupes A→G = un axe fonctionnel chacun (dérivés des AC + les 3 angles que le
+   gate auto ne voit pas : rendu visuel, gestes réels, honnêteté observable).
+   ============================================================================ */
+const RECETTE = {
+  projet:  "iakaframe — verbe `models`",
+  version: "v0.39.0",
+  commit:  "48eba20",
+  date:    "2026-08-03",
+  lead:    "Recette guidée de la RQV humaine pour `iakaframe models` (suggestions de modèles d'IA "
+         + "par roleKey + mise à disposition). Dérivée des 10 critères de "
+         + "specs/instructions/models-par-rolekey.md. Le gate automatique couvre déjà 12 tests "
+         + "unitaires (609 verts sur la suite CLI) : cette recette porte sur ce qu'un test ne "
+         + "peut PAS prouver — le parcours interactif au terminal, un vrai téléchargement de "
+         + "bout en bout, et l'honnêteté de ce qui est affiché.",
+
+  prerequis: {
+    intro: "Ouvrir un terminal DANS le dépôt iakaframe, sur la branche du lot :",
+    commande: "cd ~/work/iakaframe && git switch feat/models-par-rolekey && cd cli",
+    points: [
+      "Lancement : `node src/index.js models` (ou `iakaframe models` si le paquet est installé).",
+      "Hôtes LAN : export IAKAFRAME_HOSTS=<ip-de-la-vm-gpu> — sinon les cibles LAN diront « aucun hôte LAN fourni ».",
+      "Ports/clé : export IAKAFRAME_LITELLM_PORT=4001 et IAKAFRAME_LITELLM_KEY=<master key> pour lire le catalogue de la passerelle.",
+      "IMPORTANT : le parcours interactif exige un VRAI terminal. En pipe ou en CI, la commande s'arrête volontairement à l'état des lieux.",
+      "Filet : le dépôt est propre avant de commencer (`git status`) — plusieurs scénarios vérifient qu'il l'est encore après.",
+      "DÉJÀ DÉROULÉS EN MACHINE le 2026-08-03 (rejouables, mais pas à refaire) : A-01, A-02, A-03, A-04, "
+        + "C-04, D-01, D-02, D-03, D-04, H-01, H-02, H-03 — tous PASS. Preuves notables : l'inventaire "
+        + "Ollama LAN coïncide exactement avec /api/tags (8 modèles, aucun inventé, aucun omis) ; une date "
+        + "vieillie à 2026-01-01 affiche bien « 214 j — A RAFRAICHIR » puis a été restaurée ; le schéma "
+        + "vendoré n'apparaît pas au diff.",
+      "RESTENT À DÉROULER PAR LE DÉCIDEUR (terminal interactif obligatoire, aucun test ne peut les "
+        + "prouver) : B-01, B-02, B-03, B-04, C-01, C-02, C-03, C-05 — soit 8 scénarios. B-04 est le plus "
+        + "important : refuser au gate ne doit RIEN exécuter.",
+    ],
+  },
+
+  groupes: [
+    {
+      id: "A", titre: "État des lieux (étape 1)",
+      desc: "ce que la commande montre avant toute question — critères 1 et 2",
+      scenarios: [
+        {
+          id: "A-01",
+          titre: "L'état des lieux s'affiche et couvre tous les rôles",
+          ac: "AC-1 / AC-2",
+          etapes: [
+            "Lancer `node src/index.js models` avec IAKAFRAME_HOSTS renseigné.",
+            "Lire l'en-tête (frame, méthode, team, binding cible) puis le tableau des rôles.",
+          ],
+          attendu: "Les 9 roleKeys de la méthode sont listés (portefeuille, coordination, cadrage, dev, "
+                 + "qualite, deploiement, design, documentation, frame), chacun avec sa persona, le modèle "
+                 + "affecté, le modèle suggéré et un statut. La date de fraîcheur des suggestions est affichée.",
+        },
+        {
+          id: "A-02",
+          titre: "Les 5 cibles sont mesurées, y compris celles qui sont mortes",
+          ac: "AC-6",
+          etapes: [
+            "Sur le même écran, lire le bloc « Cibles de mise à disposition ».",
+          ],
+          attendu: "Les 5 cibles apparaissent (Ollama local, Ollama LAN, LiteLLM LAN, Claude local, Codex local). "
+                 + "Une cible injoignable est RENDUE avec [--] et un motif lisible — jamais omise en silence.",
+        },
+        {
+          id: "A-03",
+          titre: "Sans réseau, la commande ne plante pas",
+          ac: "AC-1",
+          etapes: [
+            "Relancer avec IAKAFRAME_HOSTS=localhost (donc aucun hôte LAN).",
+          ],
+          attendu: "La commande s'exécute normalement, exit 0. Les cibles LAN indiquent « aucun hôte LAN fourni » "
+                 + "au lieu d'un timeout ou d'une trace d'erreur.",
+        },
+        {
+          id: "A-04",
+          titre: "Local et LAN ne se confondent pas",
+          ac: "AC-6",
+          etapes: [
+            "Comparer les lignes « Ollama local » et « Ollama LAN » avec IAKAFRAME_HOSTS pointant sur la VM GPU.",
+          ],
+          attendu: "Les deux lignes montrent des URL et des comptes de modèles DIFFÉRENTS. "
+                 + "(Défaut corrigé pendant le lot : elles sondaient la même liste et étaient indistinguables.)",
+        },
+      ],
+    },
+    {
+      id: "B", titre: "Le parcours interactif (le cœur non testable en auto)",
+      desc: "les 4 temps du process — c'est ici que la recette humaine est irremplaçable",
+      scenarios: [
+        {
+          id: "B-01",
+          titre: "Répondre « non » sort proprement sans rien écrire",
+          ac: "AC-3",
+          etapes: [
+            "Lancer `node src/index.js models`.",
+            "À « Voulez-vous voir les suggestions par roleKey ? », répondre `n` (ou Entrée).",
+            "Lancer `git status` dans le dépôt.",
+          ],
+          attendu: "La commande affiche « Rien n'a été modifié. » et se termine. `git status` est propre : "
+                 + "aucun fichier touché, aucun téléchargement lancé.",
+        },
+        {
+          id: "B-02",
+          titre: "Le diff des suggestions est lisible et motivé",
+          ac: "AC-4",
+          etapes: [
+            "Relancer et répondre `o`.",
+          ],
+          attendu: "La liste numérotée montre, par roleKey : le modèle affecté → le modèle suggéré, la taille "
+                 + "approximative, le POURQUOI de la suggestion, les cibles où le modèle est déjà disponible et "
+                 + "les alternatives. Les rôles déjà en place n'apparaissent pas.",
+        },
+        {
+          id: "B-03",
+          titre: "Le récapitulatif précède TOUJOURS la confirmation",
+          ac: "AC-3 / R5",
+          etapes: [
+            "Choisir un numéro de roleKey, puis une cible, puis une action (i / r / x).",
+            "Lire le bloc « Récapitulatif ».",
+          ],
+          attendu: "Avant toute question de confirmation, le récapitulatif indique : le roleKey et ses personas, "
+                 + "le modèle et sa taille, la cible et son URL, l'action, et — pour un remplacement — LE CHEMIN "
+                 + "EXACT du fichier binding qui sera écrit. Pour LiteLLM, l'effet de bord sur un service partagé "
+                 + "est annoncé.",
+        },
+        {
+          id: "B-04",
+          titre: "Refuser au gate n'exécute rien",
+          ac: "AC-3",
+          etapes: [
+            "À « Confirmer ? », répondre `n`.",
+            "Vérifier `git status` et l'inventaire des modèles de la cible.",
+          ],
+          attendu: "« Abandonné. Rien n'a été modifié. » Le dépôt est propre et le parc de modèles est inchangé. "
+                 + "C'est LE scénario qui protège de tout le reste : s'il échoue, le lot est refusé.",
+        },
+      ],
+    },
+    {
+      id: "C", titre: "Mise à disposition réelle",
+      desc: "les gestes qui téléchargent, écrivent ou retirent — critères 6 et 7",
+      scenarios: [
+        {
+          id: "C-01",
+          titre: "Installer un modèle absent le rend réellement disponible",
+          ac: "AC-6",
+          etapes: [
+            "Choisir un roleKey dont le modèle suggéré n'est PAS présent sur la cible choisie.",
+            "Action « installer », confirmer.",
+            "Attendre la fin, puis relancer `node src/index.js models`.",
+          ],
+          attendu: "Le téléchargement s'annonce (« cela peut prendre plusieurs minutes »), puis « Modèle disponible ». "
+                 + "Au relancement, le roleKey passe de [!!] à [..] et le modèle apparaît à l'inventaire de la cible.",
+        },
+        {
+          id: "C-02",
+          titre: "Remplacer écrit l'affectation de la bonne persona, et d'elle seule",
+          ac: "AC-3 / D3",
+          etapes: [
+            "Choisir un roleKey, action « remplacer », confirmer.",
+            "Ouvrir le fichier binding cité au récapitulatif et lire les lignes d'assignments.",
+            "Faire `git diff` sur ce fichier.",
+          ],
+          attendu: "SEULE la ligne de la persona du roleKey a changé, et seulement son champ `model`. "
+                 + "Le runner, les tools, l'ordre des lignes, les commentaires et le corps du document sont intacts. "
+                 + "Le diff tient en une ligne par persona concernée.",
+        },
+        {
+          id: "C-03",
+          titre: "Symétrie : ce qui s'installe se retire",
+          ac: "AC-7",
+          etapes: [
+            "Relancer, choisir le modèle installé en C-01, action « retirer » (x), confirmer.",
+            "Relancer l'état des lieux.",
+          ],
+          attendu: "Le modèle est retiré de la cible et disparaît de l'inventaire. Le récapitulatif rappelle "
+                 + "au préalable que la politique de rétention conserve 1 à 2 versions antérieures — retirer "
+                 + "n'est jamais imposé.",
+        },
+        {
+          id: "C-04",
+          titre: "Claude et Codex : « installer » veut dire vérifier",
+          ac: "AC-6",
+          etapes: [
+            "Lire les lignes Claude local et Codex local de l'état des lieux.",
+          ],
+          attendu: "Elles annoncent « CLI présent » ou « CLI absent du PATH », et le mode d'installation est "
+                 + "« vérification (rien à télécharger) ». À aucun moment l'écran ne laisse croire qu'un "
+                 + "téléchargement va se produire pour ces deux cibles.",
+        },
+        {
+          id: "C-05",
+          titre: "LiteLLM sans clé : le CLI ne prétend pas agir",
+          ac: "AC-8",
+          etapes: [
+            "Retirer IAKAFRAME_LITELLM_KEY de l'environnement, relancer, choisir la cible LiteLLM et confirmer.",
+          ],
+          attendu: "Le CLI n'écrit rien à distance : il affiche le bloc YAML exact à coller dans le catalogue et "
+                 + "le dit franchement (« la passerelle ne peut pas être modifiée automatiquement »). "
+                 + "Aucune fausse réussite.",
+        },
+      ],
+    },
+    {
+      id: "D", titre: "Canon : source unique et dettes corrigées",
+      desc: "ce que le lot devait nettoyer — critères 4, 5, 9, 10",
+      scenarios: [
+        {
+          id: "D-01",
+          titre: "Les anciennes tables ne décident plus",
+          ac: "AC-4",
+          etapes: [
+            "Ouvrir kits/iakaframe-ollama/MODELES.md et specs/instructions/cible-ollama-modeles-agents.md.",
+          ],
+          attendu: "Les deux portent un avertissement en tête qui renvoie vers models/suggestions.json comme "
+                 + "SOURCE UNIQUE, et déclarent leur propre table périmée. Aucune valeur concurrente ne se "
+                 + "présente comme une recommandation en vigueur.",
+        },
+        {
+          id: "D-02",
+          titre: "Le faux ✅ est corrigé",
+          ac: "AC-5",
+          etapes: [
+            "Lire l'en-tête de specs/instructions/cible-ollama-modeles-agents.md.",
+            "Chercher iakaframe-alternatives.ps1 dans le dépôt.",
+          ],
+          attendu: "L'instruction dit explicitement que le script déclaré livré n'existe plus, et que son geste "
+                 + "est repris par `iakaframe models`. La recherche ne retrouve effectivement aucun fichier.",
+        },
+        {
+          id: "D-03",
+          titre: "La commande est documentée là où on la cherche",
+          ac: "AC-9",
+          etapes: [
+            "Ouvrir docs/commandes.md, section B.2.",
+          ],
+          attendu: "Le verbe `models` y figure avec ses options, ses 5 cibles, sa source unique, et "
+                 + "l'avertissement que « model » désigne ici un modèle d'IA et non un modèle de frame.",
+        },
+        {
+          id: "D-04",
+          titre: "Le schéma vendoré n'a pas bougé",
+          ac: "AC-10",
+          etapes: [
+            "Faire `git diff main...HEAD --stat` et chercher library/_schema/frontmatter.json.",
+            "Lancer `npm test` dans cli/.",
+          ],
+          attendu: "Le fichier de schéma n'apparaît PAS dans le diff, et la suite complète est verte "
+                 + "(609 passés, 0 échec) — la parité avec la GUI est intacte, aucun lot GUI n'a été ouvert.",
+        },
+      ],
+    },
+    {
+      id: "H", titre: "Honnêteté observable",
+      desc: "ce que la commande affiche correspond-il au réel ?",
+      scenarios: [
+        {
+          id: "H-01",
+          titre: "L'inventaire n'invente aucun modèle",
+          ac: "AC-honnêteté",
+          etapes: [
+            "Relever la liste de modèles affichée pour Ollama LAN (`node src/index.js models --json`).",
+            "La comparer à la source : `curl http://<vm-gpu>:11434/api/tags`.",
+          ],
+          attendu: "Les deux listes coïncident exactement. Aucun modèle affiché qui n'existe pas, aucun modèle "
+                 + "réel omis.",
+        },
+        {
+          id: "H-02",
+          titre: "La péremption des suggestions dit la vérité",
+          ac: "AC-honnêteté / R1",
+          etapes: [
+            "Éditer temporairement models/suggestions.json et mettre updatedAt à une date de plus de 90 jours.",
+            "Relancer l'état des lieux, puis RESTAURER la date (git checkout).",
+          ],
+          attendu: "L'en-tête affiche l'âge en jours et la mention « À RAFRAÎCHIR ». Une table périmée ne peut "
+                 + "plus se faire passer pour fraîche — c'est ce qui a tué ses trois ancêtres.",
+        },
+        {
+          id: "H-03",
+          titre: "Les pièges d'usage sont dits, pas cachés",
+          ac: "AC-honnêteté",
+          etapes: [
+            "Lire les notes affichées en bas de l'état des lieux.",
+          ],
+          attendu: "Trois avertissements apparaissent : les modèles *thinking* rendent un contenu VIDE avec un "
+                 + "budget de tokens serré (prévoir ≥ 300) ; mistral ne porte pas le tool-calling ; le coût de "
+                 + "chargement à froid et le partage du GPU. Ce sont les faits qui font lire un modèle sain "
+                 + "comme un échec.",
+        },
+      ],
+    },
+  ],
+};
+
+/* ===========================  fin du bloc à éditer  ======================== */
+
+
+/* ---------------------------------------------------------------------------
+   Moteur générique — ne PAS éditer pour remplir une recette.
+   --------------------------------------------------------------------------- */
+(function () {
+  "use strict";
+  const STATUS = { pass: "PASS", fail: "FAIL", block: "bloqué" };
+  const $ = (s, r) => (r || document).querySelector(s);
+  const el = (tag, props) => Object.assign(document.createElement(tag), props || {});
+  const storageKey = () => "recette::" + RECETTE.projet + "::" + RECETTE.version;
+
+  // --- Sonde de persistance : localStorage est-il RÉELLEMENT utilisable ? (file:// = souvent non)
+  const LS = (function probe() {
+    try {
+      const k = "__recette_probe__";
+      window.localStorage.setItem(k, "1");
+      window.localStorage.removeItem(k);
+      return window.localStorage;
+    } catch (e) { return null; } // file:// / navigation privée / stockage bloqué
+  })();
+
+  // --- État : { [scenarioId]: { status, note }, _meta:{...} }
+  let state = load() || {};
+
+  function load() {
+    if (!LS) return null;
+    try { return JSON.parse(LS.getItem(storageKey()) || "null"); }
+    catch (e) { return null; }
+  }
+  function save() {
+    if (!LS) return false; // best-effort : silencieux, la bannière a déjà prévenu
+    try { LS.setItem(storageKey(), JSON.stringify(state)); return true; }
+    catch (e) { return false; }
+  }
+
+  // --- Bannière honnête
+  function renderBanner() {
+    const b = $("#banner");
+    b.classList.add("show");
+    if (LS) {
+      b.classList.add("ok");
+      b.innerHTML = "<b>Auto-sauvegarde active.</b> Votre progression est enregistrée dans ce "
+        + "navigateur (localStorage). Pour la partager ou l'archiver au document RQV, utilisez "
+        + "<b>Exporter</b>.";
+    } else {
+      b.classList.remove("ok");
+      b.innerHTML = "<b>Auto-sauvegarde indisponible.</b> Ouverte en <code>file://</code> (double-clic), "
+        + "cette page ne peut pas mémoriser votre progression entre deux ouvertures. Cliquez "
+        + "<b>Exporter</b> pour sauvegarder un fichier <code>.json</code>, et <b>Importer</b> pour "
+        + "le recharger. Servez la page en http (artifact CI / localhost) pour l'auto-sauvegarde.";
+    }
+  }
+
+  // --- Thème (clair/sombre) — mémorisé si possible
+  function initTheme() {
+    let t = null;
+    try { t = LS && LS.getItem("recette::theme"); } catch (e) {}
+    if (t) document.documentElement.setAttribute("data-theme", t);
+    $("#btn-theme").addEventListener("click", function () {
+      const cur = document.documentElement.getAttribute("data-theme");
+      const next = cur === "studio-sombre" ? "studio-clair" : "studio-sombre";
+      document.documentElement.setAttribute("data-theme", next);
+      try { LS && LS.setItem("recette::theme", next); } catch (e) {}
+    });
+  }
+
+  // --- Rendu de l'en-tête, prérequis, groupes
+  function renderStatic() {
+    const titre = RECETTE.projet + " — Recette guidée " + RECETTE.version;
+    document.title = titre;
+    $("#doc-title").textContent = titre;
+    $("#doc-sub").innerHTML = "commit <span class=\"mono\">" + esc(RECETTE.commit)
+      + "</span> · " + esc(RECETTE.date);
+    $("#doc-lead").textContent = RECETTE.lead;
+
+    const pb = $("#prereq-body"); const pr = RECETTE.prerequis || {};
+    if (pr.intro) pb.appendChild(el("p", { textContent: pr.intro, className: "lead" }));
+    if (pr.commande) { const pre = el("pre", { className: "cmd", textContent: pr.commande }); pb.appendChild(pre); }
+    if (pr.points && pr.points.length) {
+      const ul = el("ul");
+      pr.points.forEach(function (p) { ul.appendChild(el("li", { textContent: p })); });
+      pb.appendChild(ul);
+    }
+
+    const gr = $("#groups");
+    RECETTE.groupes.forEach(function (g) {
+      if (!g.scenarios || !g.scenarios.length) return;
+      const gt = el("div", { className: "group-title" });
+      gt.appendChild(el("span", { className: "g-id", textContent: g.id }));
+      gt.appendChild(el("h2", { textContent: g.titre }));
+      if (g.desc) gt.appendChild(el("span", { className: "g-desc", textContent: "— " + g.desc }));
+      gr.appendChild(gt);
+      g.scenarios.forEach(function (s) { gr.appendChild(renderScenario(s)); });
+    });
+  }
+
+  function renderScenario(s) {
+    const wrap = el("div", { className: "scn" });
+    wrap.id = "scn-" + s.id;
+    const st = (state[s.id] && state[s.id].status) || "";
+    if (st) wrap.setAttribute("data-status", st);
+
+    const head = el("div", { className: "scn-head" });
+    head.appendChild(el("span", { className: "scn-id", textContent: s.id }));
+    head.appendChild(el("span", { className: "scn-title", textContent: s.titre }));
+    if (s.ac) head.appendChild(el("span", { className: "scn-ac", textContent: "↳ " + s.ac }));
+    wrap.appendChild(head);
+
+    const body = el("div", { className: "scn-body" });
+
+    if (s.etapes && s.etapes.length) {
+      const box = el("div");
+      box.appendChild(el("div", { className: "field-label", textContent: "Étapes" }));
+      const ol = el("ol", { className: "steps" });
+      s.etapes.forEach(function (e) { ol.appendChild(el("li", { textContent: e })); });
+      box.appendChild(ol); body.appendChild(box);
+    }
+    if (s.attendu) {
+      const box = el("div");
+      box.appendChild(el("div", { className: "field-label", textContent: "Attendu (= PASS)" }));
+      box.appendChild(el("div", { className: "attendu", textContent: s.attendu }));
+      body.appendChild(box);
+    }
+
+    // Statut PASS / FAIL / bloqué
+    const sb = el("div", { className: "statusbar" });
+    Object.keys(STATUS).forEach(function (key) {
+      const lab = el("label", { className: "radio" });
+      const input = el("input", { type: "radio", name: "st-" + s.id, value: key });
+      input.checked = (st === key);
+      if (input.checked) lab.classList.add("on-" + key);
+      input.addEventListener("change", function () {
+        setStatus(s.id, key);
+        sb.querySelectorAll(".radio").forEach(function (r) { r.className = "radio"; });
+        lab.className = "radio on-" + key;
+        wrap.setAttribute("data-status", key);
+      });
+      lab.appendChild(input);
+      lab.appendChild(document.createTextNode(STATUS[key]));
+      sb.appendChild(lab);
+    });
+    body.appendChild(sb);
+
+    // Note libre
+    const nb = el("div");
+    nb.appendChild(el("div", { className: "field-label", textContent: "Note (preuve / écart / blocage)" }));
+    const ta = el("textarea", { className: "note", placeholder: "Observations…" });
+    ta.value = (state[s.id] && state[s.id].note) || "";
+    ta.addEventListener("input", function () { setNote(s.id, ta.value); });
+    nb.appendChild(ta); body.appendChild(nb);
+
+    wrap.appendChild(body);
+    return wrap;
+  }
+
+  // --- Mutations d'état
+  function setStatus(id, status) { state[id] = state[id] || {}; state[id].status = status; touch(); }
+  function setNote(id, note) { state[id] = state[id] || {}; state[id].note = note; touch(); }
+  function touch() { state._meta = { updated: new Date().toISOString() }; save(); refresh(); }
+
+  // --- Tally + résumé
+  function allScenarios() {
+    const out = [];
+    RECETTE.groupes.forEach(function (g) { (g.scenarios || []).forEach(function (s) { out.push(s); }); });
+    return out;
+  }
+  function refresh() {
+    const scn = allScenarios();
+    let pass = 0, fail = 0, block = 0, done = 0;
+    scn.forEach(function (s) {
+      const st = state[s.id] && state[s.id].status;
+      if (st === "pass") pass++; else if (st === "fail") fail++; else if (st === "block") block++;
+      if (st) done++;
+    });
+    const total = scn.length;
+    $("#n-pass").textContent = pass; $("#n-fail").textContent = fail;
+    $("#n-block").textContent = block; $("#n-done").textContent = done;
+    $("#n-total").textContent = total;
+    $("#bar-fill").style.width = total ? Math.round((done / total) * 100) + "%" : "0";
+    const bar = $(".bar"); if (bar) bar.setAttribute("aria-valuenow", total ? Math.round((done / total) * 100) : 0);
+
+    // Résumé recopiable
+    const lines = [];
+    lines.push(RECETTE.projet + " — Recette guidée " + RECETTE.version
+      + " (commit " + RECETTE.commit + ", " + RECETTE.date + ")");
+    lines.push("Tally : PASS " + pass + " / FAIL " + fail + " / bloqué " + block
+      + " / renseignés " + done + "/" + total);
+    lines.push("");
+    scn.forEach(function (s) {
+      const e = state[s.id] || {};
+      const st = e.status ? STATUS[e.status] : "—";
+      let l = "[" + st + "] " + s.id + " " + s.titre + (s.ac ? " (" + s.ac + ")" : "");
+      if (e.note) l += "\n    note: " + e.note.replace(/\n/g, " ");
+      lines.push(l);
+    });
+    $("#summary-out").value = lines.join("\n");
+
+    const upd = state._meta && state._meta.updated;
+    $("#stamp").textContent = "Dernière modification : " + (upd ? new Date(upd).toLocaleString() : "—")
+      + (LS ? " · auto-sauvegardé" : " · non persisté (utilisez Exporter)");
+  }
+
+  // --- Export / Import / Reset (fonctionnent TOUS en file://)
+  function doExport() {
+    const payload = { schema: "iakaframe-recette/1", projet: RECETTE.projet,
+      version: RECETTE.version, commit: RECETTE.commit, exportedAt: new Date().toISOString(),
+      state: state };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = el("a", { href: url,
+      download: "recette-" + slug(RECETTE.projet) + "-" + slug(RECETTE.version) + ".json" });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+  }
+  function doImport(file) {
+    const reader = new FileReader();
+    reader.onload = function () {
+      try {
+        const data = JSON.parse(String(reader.result));
+        const imported = data && data.state ? data.state : data;
+        if (!imported || typeof imported !== "object") throw new Error("format inattendu");
+        state = imported; save();
+        // re-rendu complet pour refléter statuts + notes
+        $("#groups").innerHTML = ""; renderStatic(); refresh();
+      } catch (e) { alert("Import impossible : " + e.message); }
+    };
+    reader.readAsText(file);
+  }
+  function doReset() {
+    if (!confirm("Vider toute la progression de cette recette ?")) return;
+    state = {}; if (LS) { try { LS.removeItem(storageKey()); } catch (e) {} }
+    $("#groups").innerHTML = ""; renderStatic(); refresh();
+  }
+
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
+    return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]; }); }
+  function slug(s) { return String(s).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, ""); }
+
+  // --- Amorçage
+  document.addEventListener("DOMContentLoaded", function () {
+    renderBanner(); initTheme(); renderStatic(); refresh();
+    $("#btn-export").addEventListener("click", doExport);
+    $("#btn-reset").addEventListener("click", doReset);
+    $("#btn-import").addEventListener("click", function () { $("#file-import").click(); });
+    $("#file-import").addEventListener("change", function (e) {
+      if (e.target.files && e.target.files[0]) doImport(e.target.files[0]);
+      e.target.value = "";
+    });
+  });
+})();
+</script>
+</body>
+</html>
