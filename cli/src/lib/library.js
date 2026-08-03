@@ -289,7 +289,20 @@ export function assemble(methodId, teamId, bindingId, root, { node = 'claude' } 
     const candidates = scan('bindings', root)
       .map(e => readEntry('bindings', e.id, root))
       .filter(b => b && b.data.methodId === method.id && b.data.teamId === team.id);
+    // Auto-selection : un seul candidat -> lui. PLUSIEURS candidats -> celui qui porte
+    // `origin: forge-default`.
+    //
+    // POURQUOI. La regle d'origine ne selectionnait QUE sur la cardinalite (`length === 1`), ce
+    // qui supposait « un seul binding par couple methode+team » — vrai tant qu'un seul runner
+    // existait (Q-4 du binding claude : « un seul binding, claude »), faux des qu'une team porte
+    // plusieurs cibles d'execution (claude, ollama...). Le jour ou un second binding est apparu,
+    // l'auto-selection abandonnait silencieusement et le kit perdait son `bindingId` — la parite
+    // byte-a-byte avec le golden l'a attrape. Un defaut se MARQUE (`origin`), il ne se deduit pas
+    // du fait qu'il est seul. Sans marque et a plusieurs, on ne devine toujours pas : `null`.
     if (candidates.length === 1) binding = candidates[0];
+    else if (candidates.length > 1) {
+      binding = candidates.find(b => b.data.origin === 'forge-default') || null;
+    }
   }
 
   // Convention d'id du coeur (@iakaframe/core) : <methodId>-<node> (cf. kits/iakaframe-claude.md,

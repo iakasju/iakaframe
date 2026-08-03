@@ -68,6 +68,8 @@ Options :
   --timeout <s>     timeout de sonde en secondes (defaut 3)
   --path <dir>      projet dont on lit la frame active (defaut : cwd)
   --root <dir>      racine de la bibliotheque iakaframe
+  --binding <id>    binding a lire/ecrire (defaut : celui de la team active marque forge-default)
+                    ex. --binding iakaframe-ollama-default pour la cible modeles locaux
   --help            cette aide
 
 Cibles de mise a disposition (--json les mesure toutes) :
@@ -97,7 +99,7 @@ export function ageInDays(updatedAt, now = new Date()) {
 
 // --- Lecture du canon : roleKey -> personas -> modele affecte (D3) ----------------------------
 // Ne DECIDE rien : projette la frame active sur des lignes lisibles.
-export function roleRows(root, projectDir) {
+export function roleRows(root, projectDir, bindingId = null) {
   const teamId = activeTeamId(projectDir, root);
   const frameId = activeFrameId(projectDir);
   const frame = readEntry('frames', frameId, root);
@@ -116,7 +118,7 @@ export function roleRows(root, projectDir) {
   const fromCasting = [...new Set(personas.map(p => p.roleKey).filter(Boolean))];
   const roleKeys = declared.length ? declared : fromCasting;
 
-  const binding = pickBinding(root, teamId);
+  const binding = bindingId ? pickBindingById(root, teamId, bindingId) : pickBinding(root, teamId);
   const assignments = new Map();
   for (const a of toRows(binding?.data?.assignments)) {
     if (a && a.personaId) assignments.set(String(a.personaId), a);
@@ -131,7 +133,21 @@ export function roleRows(root, projectDir) {
   });
 
   return { frameId, methodId, teamId, bindingId: binding?.id || null,
-           bindingPath: binding?.path || null, roles: rows };
+           bindingPath: binding?.path || null,
+           bindingError: binding === undefined ? bindingId : null,
+           roles: rows };
+}
+
+// Binding EXPLICITE (`--binding <id>`). Le canon peut porter plusieurs bindings pour une meme
+// team (un par cible d'execution : claude, ollama...) ; sans mecanisme d'activation, le choix
+// doit rester EXPLICITE plutot que devine. Un binding qui ne concerne pas la team active est
+// REFUSE (`undefined`) et non silencieusement ignore : ecrire dans le binding d'une autre team
+// serait exactement le defaut que le recapitulatif d'avant-gate cherche a empecher.
+function pickBindingById(root, teamId, bindingId) {
+  const e = readEntry('bindings', bindingId, root);
+  if (!e) return undefined;
+  if (teamId && String(e.data?.teamId) !== String(teamId)) return undefined;
+  return e;
 }
 
 // Binding de la team active. Priorite au binding `forge-default` s'il y en a plusieurs : un choix
@@ -442,6 +458,7 @@ export async function runModels(argv) {
         timeout: { type: 'string', default: '3' },
         path: { type: 'string' },
         root: { type: 'string' },
+        binding: { type: 'string' },
         help: { type: 'boolean', default: false },
       },
     }));
@@ -466,7 +483,15 @@ export async function runModels(argv) {
     return;
   }
 
-  const canon = roleRows(root, projectDir);
+  const canon = roleRows(root, projectDir, values.binding || null);
+  if (canon.bindingError) {
+    fail(values.json, 'binding inconnu ou etranger a la team active',
+         { binding: canon.bindingError, teamId: canon.teamId }, () => {
+      console.error(`\nBinding « ${canon.bindingError} » introuvable, ou rattache a une autre team que ${canon.teamId}.`);
+      console.error('Lister les bindings disponibles : iakaframe list bindings\n');
+    });
+    return;
+  }
   const probes = await probeTargets(hosts, timeoutMs);
   const roles = buildState({ canon, suggestions, probes });
 

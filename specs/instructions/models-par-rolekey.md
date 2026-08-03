@@ -134,6 +134,24 @@ au-delà de 90 jours.
 *Le « périodiquement » du besoin est donc **piloté par un humain et un agent**, pas par un cron
 invisible — et le CLI le rend visible en affichant la péremption.*
 
+### D5-bis — Le binding `ollama` (ajout du 2026-08-03, même lot)
+La demande d'origine — *mettre des modèles locaux à disposition des équipes* — exige un artefact
+que le canon n'avait pas : **un binding qui apparie la méthode et la team sur des modèles
+locaux**. Il est livré : `bindings/iakaframe-ollama-default.md` (`node: ollama-lan`,
+`runner: ollama-distant`, 9 personas), **dérivé de la source unique** (D2) par projection
+`roleKey → persona`.
+
+Trois décisions le cadrent :
+- **Il n'est pas actif par défaut.** `origin: forge-ollama` (et non `forge-default`) : le binding
+  du défaut reste celui de Claude. Une équipe bascule **sur décision**, jamais par effet de bord.
+- **Le choix est explicite, jamais deviné.** Une team peut désormais porter plusieurs bindings ;
+  `models --binding <id>` désigne celui qu'on lit et écrit. Un binding **rattaché à une autre
+  team est refusé** (exit 1) — écrire dans le binding d'une team étrangère est précisément le
+  défaut que le récapitulatif d'avant-gate cherche à empêcher (R5).
+- **`tools` n'est pas recopié.** Les allowlists du binding défaut sont des ids d'outils **Claude
+  Code** : sans valeur hors de ce runner. Le champ est **omis** (sauf `comfyui-local` pour le
+  design). *Un champ absent est plus honnête qu'un champ plausible.*
+
 ### D6 — Symétrie et rétention
 Tout ce qu'un ajout installe, un retrait doit pouvoir l'enlever (règle de symétrie `+`/`-` du
 canon) : `models` expose donc **retirer** dès ce lot, pas dans un second temps.

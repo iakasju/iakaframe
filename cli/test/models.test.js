@@ -77,6 +77,29 @@ test('models --json : les 5 cibles sont mesurees, claude/codex sans telechargeme
   }
 });
 
+test('--binding : lit le binding demande, et ses affectations sont celles du canon', () => {
+  const o = JSON.parse(run(['models', '--json', '--timeout', '1', '--binding', 'iakaframe-ollama-default']));
+  assert.equal(o.bindingId, 'iakaframe-ollama-default');
+  const models = new Set(o.roles.flatMap(r => r.personas.map(p => p.model)));
+  assert.ok(models.has('qwen2.5-coder:7b'), 'le binding ollama doit porter des modeles locaux');
+  assert.ok(!models.has('sonnet') && !models.has('opus'), 'aucun modele du binding claude ne doit fuiter');
+  // Le binding derive de la source unique : tout roleKey couvert doit etre « en-place ».
+  for (const r of o.roles.filter(x => x.covered)) {
+    assert.equal(r.status, 'en-place', `${r.roleKey} devrait etre aligne sur la suggestion`);
+  }
+});
+
+test('--binding etranger a la team active : refus explicite, exit 1', () => {
+  assert.throws(() => run(['models', '--json', '--timeout', '1', '--binding', 'scrum-default']),
+    (err) => {
+      assert.equal(err.status, 1, 'exit code 1 attendu');
+      const o = JSON.parse(err.stdout);
+      assert.equal(o.ok, false);
+      assert.match(o.error, /binding inconnu ou etranger/);
+      return true;
+    });
+});
+
 test('un etat des lieux n\'ecrit RIEN (aucune ecriture hors gate)', () => {
   const binding = path.join(ROOT, 'bindings', 'iakaframe-claude-default.md');
   const before = fs.readFileSync(binding, 'utf8');
