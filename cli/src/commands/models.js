@@ -412,10 +412,7 @@ async function interactive({ canon, suggestions, probes, roles, root, hosts, tim
       if (!key) {
         console.log('\n  Cle d\'administration absente (IAKAFRAME_LITELLM_KEY) : la passerelle ne peut pas etre');
         console.log('  modifiee automatiquement. Bloc a ajouter au catalogue, puis redemarrer le service :\n');
-        console.log(`    - model_name: ${row.recommended}`);
-        console.log('      litellm_params:');
-        console.log(`        model: ollama_chat/${row.recommended}`);
-        console.log('        api_base: http://ollama:11434\n');
+        printCatalogBlock(row.recommended);
         return;
       }
       const r = await sendJson(`${target.url}/model/new`, {
@@ -425,8 +422,20 @@ async function interactive({ canon, suggestions, probes, roles, root, hosts, tim
                 litellm_params: { model: `ollama_chat/${row.recommended}`, api_base: 'http://ollama:11434' } },
         timeoutMs: 60000,
       });
-      console.log(r.ok ? `\n  Declare au catalogue : ${row.recommended}` : `\n  ECHEC de la declaration (HTTP ${r.status}).`);
-      if (!r.ok) return;
+      if (r.ok) {
+        console.log(`\n  Declare au catalogue : ${row.recommended}`);
+      } else {
+        // Le code HTTP seul ne dit RIEN d'actionnable. Recette du 2026-08-03 : la passerelle a
+        // rendu 500 avec un motif parfaitement clair (« Set STORE_MODEL_IN_DB=True »), que le CLI
+        // avalait. On remonte le motif du serveur, puis on retombe sur le bloc a coller — un echec
+        // doit laisser l'utilisateur avec quelque chose d'exploitable, pas avec un numero.
+        console.log(`\n  La declaration automatique a echoue (HTTP ${r.status}).`);
+        const motif = serverMessage(r);
+        if (motif) console.log(`  Motif renvoye par la passerelle : ${motif}`);
+        console.log('\n  Repli — bloc a ajouter au catalogue, puis redemarrer le service :\n');
+        printCatalogBlock(row.recommended);
+        return;
+      }
     }
 
     if (action === 'replace') {
@@ -439,6 +448,27 @@ async function interactive({ canon, suggestions, probes, roles, root, hosts, tim
   } finally {
     rl.close();
   }
+}
+
+// Bloc de catalogue a coller a la main — repli commun a « pas de cle » et « declaration refusee ».
+function printCatalogBlock(model) {
+  console.log(`    - model_name: ${model}`);
+  console.log('      litellm_params:');
+  console.log(`        model: ollama_chat/${model}`);
+  console.log('        api_base: http://ollama:11434\n');
+}
+
+// Extrait le motif lisible d'une reponse d'erreur de la passerelle. Le corps est parfois un objet
+// { error: { message } } dont le `message` est LUI-MEME du JSON echappe : on deballe une fois de
+// plus quand c'est le cas, sinon l'utilisateur lit une chaine pleine de contre-obliques.
+export function serverMessage(res) {
+  const raw = res?.body?.error?.message ?? res?.body?.detail ?? res?.body?.error ?? null;
+  let msg = typeof raw === 'string' ? raw : (raw ? JSON.stringify(raw) : '');
+  if (!msg && res?.text) msg = String(res.text).slice(0, 300);
+  if (!msg) return '';
+  const inner = msg.match(/'error':\s*"([^"]+)"/) || msg.match(/"error":\s*"([^"]+)"/);
+  if (inner) msg = inner[1];
+  return msg.replace(/\s+/g, ' ').trim().slice(0, 240);
 }
 
 // --- Ecriture de l'affectation dans le binding (D3) -------------------------------------------

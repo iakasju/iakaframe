@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { hostsForTarget, replaceModelInLine, ageInDays, buildState, TARGETS, loadSuggestions,
-         writeAssignments, summarize } from '../src/commands/models.js';
+         writeAssignments, summarize, serverMessage } from '../src/commands/models.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, '..', 'src', 'index.js');
@@ -216,4 +216,20 @@ test('summarize : coupe proprement les motifs longs, laisse les courts intacts',
 
   // Un mot coupe en deux est illisible : la coupe cherche un espace.
   assert.ok(!/\w\[…\]$/.test(out), 'ne doit pas trancher au milieu d\'un mot');
+});
+
+// Recette du 2026-08-03 (scenario C-05, cle presente) : la passerelle a refuse la declaration
+// avec un motif parfaitement actionnable (« Set STORE_MODEL_IN_DB=True »), que le CLI reduisait a
+// « HTTP 500 ». Un code de statut ne dit rien de ce qu'il faut faire ensuite.
+test('serverMessage : deballe le motif d\'erreur de la passerelle', () => {
+  const reel = { body: { error: { message: "{'error': \"Set `'STORE_MODEL_IN_DB='True'` in your env to enable this feature.\"}",
+                                  type: 'auth_error', code: '500' } } };
+  const msg = serverMessage(reel);
+  assert.match(msg, /STORE_MODEL_IN_DB/, 'le motif actionnable doit survivre');
+  assert.ok(!msg.includes('\\"'), 'aucune contre-oblique d\'echappement ne doit remonter a l\'ecran');
+
+  assert.equal(serverMessage({ body: { detail: 'quota depasse' } }), 'quota depasse');
+  assert.match(serverMessage({ body: null, text: 'Bad Gateway' }), /Bad Gateway/, 'repli sur le corps brut');
+  assert.equal(serverMessage({ body: null, text: '' }), '', 'aucun motif -> chaine vide, pas de bruit');
+  assert.equal(serverMessage(undefined), '', 'reponse absente toleree');
 });
