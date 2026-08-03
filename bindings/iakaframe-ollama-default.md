@@ -12,7 +12,7 @@ assignments:
   - { personaId: legolas,  runner: ollama-distant, model: "qwen2.5-coder:7b" }
   - { personaId: helm,     runner: ollama-distant, model: "qwen3.5:9b" }
   - { personaId: loki,     runner: ollama-distant, model: "qwen3.5:9b", tools: [comfyui-local] }
-  - { personaId: nathalie, runner: ollama-distant, model: "qwen3.5:9b" }
+  - { personaId: nathalie, runner: ollama-distant, model: "gemma4:e4b" }
   - { personaId: feanor,   runner: ollama-distant, model: "gemma4:e4b" }
 ---
 # Binding iakaframe — cible Ollama (modèles locaux)
@@ -35,19 +35,27 @@ fait **dans la source**, puis se rejoue ici — jamais l'inverse.
 | roleKey | persona | modèle | pourquoi |
 |---|---|---|---|
 | portefeuille · coordination · deploiement · design | Odin · Aragorn · Helm · Loki | `qwen3.5:9b` | outils + raisonnement, et **vision** pour le design |
-| cadrage · frame | Gandalf · Fëanor | `gemma4:e4b` | le plus gros du parc : le raisonnement paie le plus à ces postes |
+| cadrage · frame · documentation | Gandalf · Fëanor · Nathalie | `gemma4:e4b` | **le meilleur du parc au banc d'essai** (cf. ci-dessous) |
 | dev · qualite | Gimli · Legolas | `qwen2.5-coder:7b` | seul modèle de code dédié du parc (complétion `insert`) |
-| documentation | Nathalie | `qwen3.5:9b` | **corrigé après mesure** (cf. ci-dessous) |
 
 ## Trois faits d'usage, pas des détails
 
-- **Le poste documentation a été corrigé APRÈS MESURE (2026-08-03), pas au jugé.** Il portait
-  `mistral:7b-instruct-q4_K_M`, choisi pour sa légèreté. Test réel — même tâche de rédaction,
-  même chemin, même consigne (« 150 mots maximum, ne recopie pas les options ») : **qwen3.5 rend
-  163 mots en 6 s** ; **mistral rend 279 mots en 19 s et recopie la liste des options malgré
-  l'interdiction**. *Le plus léger n'était ni le plus rapide ni le plus docile.* mistral reste en
-  alternative — c'est le seul modèle **sans raisonnement** du parc, donc le seul directement
-  exploitable **via la passerelle** (cf. point suivant).
+- **Le poste documentation a été corrigé DEUX FOIS le même jour (2026-08-03)** — et la seconde
+  fois parce que la première mesure était **trop étroite**. Il portait `mistral`, choisi sur sa
+  taille sans aucune observation ; un duel mistral/qwen3.5 l'a fait basculer sur `qwen3.5`
+  — mais gemma4 n'avait pas été testé sur cette tâche. **Banc complet sur les 7 modèles du parc**,
+  même consigne (« 150 mots maximum, ne recopie pas les options ») :
+
+  | modèle | durée | mots | limite | recopie les options |
+  |---|---|---|---|---|
+  | **gemma4:e4b** | **4,7 s** | 138 | tenue | non |
+  | qwen3.5:9b | 25 s | 182 | dépassée | non |
+  | mistral:7b | 39 s | 321 | dépassée | **oui** |
+
+  *Le plus gros modèle du parc est aussi le plus rapide et le plus docile.* **Bonus opérationnel** :
+  il sert déjà `cadrage` et `frame`, donc **un seul modèle reste chargé** dans une VRAM partagée
+  au lieu de deux. **Leçon de méthode** : corriger une intuition par une mesure partielle ne
+  produit pas une conclusion, mais une autre intuition.
 - **`gemma4` et `qwen3.5` sont des modèles *thinking*, et augmenter le budget ne suffit pas.**
   Mesuré : 4000 tokens accordés, **2193 mots de raisonnement, zéro mot de réponse**. La parade est
   **`think: false`**, à envoyer **explicitement**. *Rectification du 2026-08-03 : une version

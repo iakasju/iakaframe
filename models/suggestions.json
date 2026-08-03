@@ -55,11 +55,11 @@
       "why": "Seul poste ou la vision est requise (lecture de maquettes). qwen3-vl-4b = repli leger 3,3 Go."
     },
     "documentation": {
-      "recommended": "qwen3.5:9b",
-      "alternatives": ["mistral:7b-instruct-q4_K_M"],
+      "recommended": "gemma4:e4b",
+      "alternatives": ["qwen3.5:9b", "mistral:7b-instruct-q4_K_M"],
       "requires": [],
-      "sizeGb": 6.6,
-      "why": "CORRIGE le 2026-08-03 APRES MESURE (la suggestion initiale, mistral, reposait sur la taille du modele, pas sur une observation). Meme tache de redaction, meme chemin direct, meme prompt : qwen3.5 rend 163 mots en 6 s (limite demandee 150) ; mistral rend 279 mots en 19 s et RECOPIE la liste des options malgre une interdiction explicite. Le plus leger n'etait ni le plus rapide ni le plus docile. IMPERATIF : appeler avec `think: false` (cf. notes)."
+      "sizeGb": 9.6,
+      "why": "CORRIGE DEUX FOIS LE MEME JOUR (2026-08-03), et la seconde fois parce que la premiere mesure etait TROP ETROITE. (1) Suggestion d'origine : mistral, choisi sur sa taille, sans aucune observation. (2) Premiere correction : qwen3.5, apres un duel mistral/qwen3.5 — mais gemma4 n'avait pas ete teste sur cette tache. (3) Banc complet sur les 7 modeles du parc : gemma4 rend 138 mots en 4,7 s (limite 150, tenue) contre 182 mots en 25 s pour qwen3.5 (hors limite) et 321 mots en 39 s pour mistral, qui recopie en plus la liste des options malgre l'interdiction. gemma4 est le plus rapide ET le plus docile, alors qu'il est le PLUS GROS du parc. Bonus operationnel : il sert deja `cadrage` et `frame`, donc un seul modele reste charge dans une VRAM partagee au lieu de deux. IMPERATIF : appeler avec `think: false` (cf. notes). Lecon de methode : corriger une intuition par une mesure partielle produit une autre intuition."
     },
     "frame": {
       "recommended": "gemma4:e4b",
