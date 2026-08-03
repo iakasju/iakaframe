@@ -1,7 +1,16 @@
 # MODELES.md — modèles locaux (Ollama) par agent
 
+> ⚠️ **Ce tableau n'est plus une source (2026-08-03).** La **source unique** des suggestions est
+> **`models/suggestions.json`** à la racine du réservoir, indexée par **`roleKey`** (portable
+> d'une méthode à l'autre) — lue par le verbe **`iakaframe models`**, qui confronte les
+> suggestions au parc réellement disponible et propose l'installation sur gate humain.
+>
+> **Le tableau ci-dessous est conservé à titre indicatif et il est périmé** : les modèles qu'il
+> recommande (`qwen3`, `deepseek-r1`, `llama3.1`, `qwen2.5-vl`) n'étaient **pas présents** sur le
+> parc au 2026-08-03. Ne pas l'éditer pour « le remettre à jour » : corriger la source unique.
+>
 > Quel modèle pour quel agent, en cible **ollama**. État réel (installés vs à installer) :
-> `ollama list`. Tags exacts (taille/quantization) à choisir selon ta VRAM/RAM.
+> `iakaframe models`. Tags exacts (taille/quantization) à choisir selon ta VRAM/RAM.
 
 | Agent | Rôle | Recommandé | Alternatives | `ollama pull` (exemple) |
 |---|---|---|---|---|
