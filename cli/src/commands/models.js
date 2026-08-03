@@ -303,13 +303,32 @@ export function summarize(text, max = 150) {
 }
 
 // --- Rendu humain ----------------------------------------------------------------------------
-const MARK = {
-  'en-place': '[OK]',
-  'disponible': '[..]',
-  'a-installer': '[!!]',
-  'non-couvert': '[--]',
-  'sans-suggestion': '[??]',
+// Marqueur ET libelle de legende par statut, dans UNE seule table : le gate qualite (2e passe,
+// defaut A) a trouve `undefined` imprime sur les 9 lignes parce que le statut `indetermine`,
+// ajoute par le correctif precedent, n'avait pas d'entree ici — et la legende, ecrite a la main
+// ailleurs, ne le mentionnait pas davantage. Deux sources pour la meme information, donc deux
+// occasions de diverger. Desormais la legende SE DERIVE de cette table : ajouter un statut sans
+// marqueur devient impossible a rater (un test le verifie sur la sortie reelle).
+export const STATUS_MARKS = {
+  'en-place':        { mark: '[OK]', legend: 'en place' },
+  'disponible':      { mark: '[..]', legend: 'disponible non affecte' },
+  'a-installer':     { mark: '[!!]', legend: 'a installer' },
+  'indetermine':     { mark: '[??]', legend: 'aucune cible joignable : disponibilite inconnue' },
+  'sans-suggestion': { mark: '[  ]', legend: 'aucune suggestion pour ce role' },
+  'non-couvert':     { mark: '[--]', legend: 'role sans persona' },
 };
+
+export function markFor(status) {
+  return STATUS_MARKS[status]?.mark || '[??]';
+}
+
+export function legendLine(statuses) {
+  const seen = statuses ? [...new Set(statuses)] : Object.keys(STATUS_MARKS);
+  return seen
+    .filter(s => STATUS_MARKS[s])
+    .map(s => `${STATUS_MARKS[s].mark} ${STATUS_MARKS[s].legend}`)
+    .join('  ');
+}
 
 function printState(canon, suggestions, probes, roles) {
   console.log('\n=== iakaframe - modeles d\'IA par roleKey ===');
@@ -332,10 +351,10 @@ function printState(canon, suggestions, probes, roles) {
   for (const r of roles) {
     const cast = r.personas.map(p => p.name).join(', ') || '(non couvert)';
     const assigned = r.assigned.join(', ') || '-';
-    console.log(`  ${MARK[r.status]} ${r.roleKey.padEnd(13)} ${cast.slice(0, 18).padEnd(19)} ${assigned.slice(0, 21).padEnd(22)} ${(r.recommended || '-').slice(0, 21).padEnd(22)} ${r.status}`);
+    console.log(`  ${markFor(r.status)} ${r.roleKey.padEnd(13)} ${cast.slice(0, 18).padEnd(19)} ${assigned.slice(0, 21).padEnd(22)} ${(r.recommended || '-').slice(0, 21).padEnd(22)} ${r.status}`);
   }
   console.log('');
-  console.log('  [OK] en place  [..] disponible non affecte  [!!] a installer  [--] role non couvert');
+  console.log(`  ${legendLine(roles.map(r => r.status))}`);
   for (const n of suggestions?.notes || []) console.log(`  · ${n}`);
   console.log('');
 }
@@ -436,11 +455,20 @@ export async function pickAndAct({ ask, yes, pick, diff, probes, canon, env = pr
   console.log(`  cible      : ${target.label} — ${target.url}`);
   console.log(`  action     : ${action === 'install' ? 'mettre a disposition' : action === 'replace' ? 'mettre a disposition PUIS ecrire l\'affectation' : 'RETIRER le modele de la cible'}`);
   if (action === 'replace') console.log(`  fichier    : ${canon.bindingPath || '(binding introuvable — ecriture impossible)'}`);
+  const keyPresent = !!(env.IAKAFRAME_LITELLM_KEY || '');
   if (target.kind === 'litellm') {
     console.log('  note       : effet de bord sur un service PARTAGE (catalogue de la passerelle).');
-    // AC-8 : le filet est ANNONCE avant le gate, pas seulement pris. On confirme en sachant
-    // ou atterrira la sauvegarde.
-    console.log(`  filet      : sauvegarde datee du catalogue -> ${backupDir()}/litellm-catalog-${stamp}.json`);
+    // AC-8 : le filet est ANNONCE avant le gate — mais SEULEMENT s'il sera reellement pris.
+    // Gate qualite 2e passe, defaut B : la ligne s'affichait sans regarder la cle, alors que sans
+    // cle le CLI sort avant tout appel : aucune sauvegarde, aucun fichier. L'utilisateur
+    // confirmait en croyant a un retour arriere inexistant. Un recapitulatif qui promet ce qui
+    // n'arrivera pas est pire qu'un recapitulatif muet : il fait decider sur du faux.
+    if (keyPresent) {
+      console.log(`  filet      : sauvegarde datee du catalogue -> ${backupDir()}/litellm-catalog-${stamp}.json`);
+    } else {
+      console.log('  filet      : AUCUN — cle d\'administration absente (IAKAFRAME_LITELLM_KEY).');
+      console.log('               La passerelle ne sera PAS modifiee : un bloc a coller sera affiche.');
+    }
   }
   if (action === 'remove') console.log('  rappel     : la politique de retention conserve 1 a 2 versions anterieures — retirer n\'est pas obligatoire.');
 
@@ -463,10 +491,26 @@ export async function pickAndAct({ ask, yes, pick, diff, probes, canon, env = pr
   res.lines.forEach(l => console.log(l));
 
   if (action === 'replace' && res.ok) {
-    const w = writeAssignments(canon, row.personas.map(p => p.id), row.recommended);
-    console.log(w.ok
-      ? `  Affectation ecrite pour : ${w.written.join(', ')} (${canon.bindingPath})`
-      : `  Affectation NON ecrite : ${w.error}`);
+    // D3 : « si un roleKey porte plusieurs personas, l'ecriture est proposee POUR CHACUNE,
+    // individuellement (jamais un lot silencieux) ». Le gate qualite (defaut E) a releve que le
+    // code ecrivait en lot — latent aujourd'hui (une persona par role) mais en contradiction avec
+    // l'instruction. On ne requalifie pas l'instruction : on la respecte. Cas a une persona
+    // inchange (aucune question de plus), le surcout n'existe que quand le lot serait reel.
+    const cibles = [];
+    for (const p of row.personas) {
+      if (row.personas.length === 1) { cibles.push(p.id); continue; }
+      const okP = await ask(`  Ecrire l'affectation pour ${p.name} (${p.id}) ? [o/N] `);
+      if (yes(okP)) cibles.push(p.id);
+      else console.log(`  ${p.name} : ignore.`);
+    }
+    if (!cibles.length) {
+      console.log('  Aucune persona retenue : rien n\'a ete ecrit.');
+    } else {
+      const w = writeAssignments(canon, cibles, row.recommended);
+      console.log(w.ok
+        ? `  Affectation ecrite pour : ${w.written.join(', ')} (${canon.bindingPath})`
+        : `  Affectation NON ecrite : ${w.error}`);
+    }
   } else if (action === 'replace') {
     console.log('  Affectation NON ecrite : la mise a disposition a echoue.');
   }
@@ -594,7 +638,9 @@ export function serverMessage(res) {
   const raw = res?.body?.error?.message ?? res?.body?.detail ?? res?.body?.error ?? null;
   let msg = typeof raw === 'string' ? raw : (raw ? JSON.stringify(raw) : '');
   if (!msg && res?.text) msg = String(res.text).slice(0, 300);
-  if (!msg) return '';
+  // Un corps vide, `{}` ou `[]` n'est PAS un motif : l'imprimer produit « Motif renvoye par le
+  // service : {} », qui occupe une ligne pour ne rien dire (gate qualite, defaut G).
+  if (!msg || /^[\s{}\[\]"']*$/.test(msg)) return '';
   const inner = msg.match(/'error':\s*"([^"]+)"/) || msg.match(/"error":\s*"([^"]+)"/);
   if (inner) msg = inner[1];
   return msg.replace(/\s+/g, ' ').trim().slice(0, 240);
@@ -613,6 +659,10 @@ export function writeAssignments(canon, personaIds, model) {
     return { ok: false, error: 'binding introuvable', written: [] };
   }
   const src = fs.readFileSync(canon.bindingPath, 'utf8');
+  // Fin de ligne PRESERVEE (gate qualite, defaut F) : `split(/\r?\n/)` + `join('\n')` convertissait
+  // TOUT un fichier CRLF en LF pour une ecriture d'une seule ligne — sur Windows, plateforme
+  // supportee par ce CLI, cela produit un diff de fichier entier au lieu d'une ligne.
+  const eol = src.includes('\r\n') ? '\r\n' : '\n';
   const lines = src.split(/\r?\n/);
   const written = [];
   for (const id of personaIds) {
@@ -622,7 +672,7 @@ export function writeAssignments(canon, personaIds, model) {
     if (next && next !== lines[i]) { lines[i] = next; written.push(id); }
   }
   if (!written.length) return { ok: false, error: 'aucune ligne d\'assignment reconnue', written: [] };
-  fs.writeFileSync(canon.bindingPath, lines.join('\n'), 'utf8');
+  fs.writeFileSync(canon.bindingPath, lines.join(eol), 'utf8');
   return { ok: true, written };
 }
 

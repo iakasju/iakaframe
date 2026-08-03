@@ -16,7 +16,7 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { hostsForTarget, replaceModelInLine, ageInDays, buildState, TARGETS, loadSuggestions,
          writeAssignments, summarize, serverMessage, applyMakeAvailable, applyRemove,
-         pickAndAct } from '../src/commands/models.js';
+         pickAndAct, STATUS_MARKS, markFor, legendLine } from '../src/commands/models.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, '..', 'src', 'index.js');
@@ -424,4 +424,128 @@ test('buildState : sans AUCUNE cible mesurable, le statut est « indetermine » 
                   { target: 'claude', available: true, kind: 'cli', models: [] }];
   assert.equal(buildState({ canon, suggestions, probes: mortes })[0].status, 'indetermine',
     'un CLI joignable ne mesure aucun parc : il ne rend pas la disponibilite connue');
+});
+
+// ================================================================================================
+// RENDU HUMAIN — zone que la 2e passe du gate a trouvee cassee PENDANT que la suite restait verte.
+// Aucun test ne regardait la SORTIE : `MARK[status]` rendait `undefined` sur les 9 lignes des que
+// le statut `indetermine` (ajoute par le correctif precedent) etait atteint. Ces tests ferment la
+// classe entiere de defauts, pas seulement l'occurrence.
+// ================================================================================================
+test('STATUS_MARKS : tout statut produit par buildState a un marqueur ET une legende', () => {
+  // Les statuts sont enumeres depuis le CODE qui les produit, pas recopies a la main : ajouter un
+  // statut sans l'inscrire dans la table fait rougir ce test.
+  const src = fs.readFileSync(path.join(HERE, '..', 'src', 'commands', 'models.js'), 'utf8');
+  const bloc = src.slice(src.indexOf('export function buildState'), src.indexOf('export function summarize'));
+  const produits = [...bloc.matchAll(/status = '([a-z-]+)'/g)].map(m => m[1]);
+  assert.ok(produits.length >= 5, `statuts detectes : ${produits.length}`);
+  for (const s of new Set(produits)) {
+    assert.ok(STATUS_MARKS[s], `statut « ${s} » produit par buildState mais ABSENT de STATUS_MARKS`);
+    assert.match(markFor(s), /^\[.{2}\]$/, `marqueur mal forme pour ${s}`);
+    assert.ok(STATUS_MARKS[s].legend.length > 3, `legende vide pour ${s}`);
+  }
+  assert.equal(markFor('un-statut-jamais-vu'), '[??]', 'repli sur un statut inconnu, jamais undefined');
+});
+
+test('legendLine : ne decrit QUE les statuts presents a l\'ecran', () => {
+  const l = legendLine(['en-place', 'en-place', 'indetermine']);
+  assert.match(l, /\[OK\] en place/);
+  assert.match(l, /\[\?\?\] aucune cible joignable/);
+  assert.ok(!l.includes('role sans persona'), 'un statut absent de l\'ecran n\'a pas a etre explique');
+  assert.ok(!l.includes('undefined'));
+});
+
+test('rendu humain hors ligne : aucun « undefined » a l\'ecran (regression du 2e gate)', () => {
+  // Tous ports morts + hote non routable : c'est LE cas pour lequel `indetermine` a ete cree.
+  const out = run(['models', '--timeout', '1'],
+    { IAKAFRAME_HOSTS: DEAD, IAKAFRAME_OLLAMA_PORT: '1', IAKAFRAME_LITELLM_PORT: '1' });
+  assert.ok(!out.includes('undefined'), 'aucun marqueur manquant ne doit fuiter a l\'ecran');
+  assert.match(out, /\[\?\?\].+indetermine/, 'le statut indetermine doit etre marque');
+  assert.match(out, /\[\?\?\] aucune cible joignable/, 'et explique en legende');
+});
+
+test('recapitulatif LiteLLM : le filet n\'est annonce QUE s\'il sera pris (regression du 2e gate)', async () => {
+  const srv = await fakeService({ 'POST /model/new': () => [200, {}] });
+  const dit = [];
+  const orig = console.log;
+  console.log = (...a) => dit.push(a.join(' '));
+  try {
+    const answers = ['1', 'i', 'n'];                    // cible 1, installer, REFUS (rien n'est execute)
+    const commun = {
+      ask: async () => answers.shift(), yes: (s) => /^(o|oui|y|yes)$/i.test(s), pick: '1',
+      diff: [{ roleKey: 'dev', personas: [{ id: 'p1', name: 'P1' }], assigned: ['a'],
+               recommended: 'm', sizeGb: 1, status: 'a-installer' }],
+      probes: [{ target: 'litellm', label: 'GW', url: srv.url, kind: 'litellm',
+                 available: true, installMeans: 'declaration' }],
+      canon: { bindingPath: null },
+    };
+    // SANS cle : le filet ne sera pas pris -> il ne doit pas etre promis.
+    await pickAndAct({ ...commun, env: {} });
+    const sansCle = dit.join('\n');
+    assert.match(sansCle, /filet\s*: AUCUN/, 'l\'absence de filet doit etre DITE');
+    assert.ok(!/sauvegarde datee du catalogue ->/.test(sansCle),
+      'ne jamais promettre une sauvegarde qui n\'aura pas lieu');
+
+    // AVEC cle : le filet sera pris -> il est annonce, avec son chemin.
+    dit.length = 0;
+    const answers2 = ['1', 'i', 'n'];
+    await pickAndAct({ ...commun, ask: async () => answers2.shift(), env: { IAKAFRAME_LITELLM_KEY: 'k' } });
+    assert.match(dit.join('\n'), /filet\s*: sauvegarde datee du catalogue ->/);
+  } finally { console.log = orig; srv.close(); }
+});
+
+test('writeAssignments : PRESERVE les fins de ligne du fichier (defaut F du 2e gate)', () => {
+  const tmp = path.join(HERE, 'fixtures', `binding-crlf-${process.pid}.md`);
+  const lignes = ['---', 'id: t', 'teamId: t8', 'assignments:',
+    '  - { personaId: gimli,   runner: claude-code, model: "sonnet" }',
+    '  - { personaId: legolas, runner: claude-code, model: "sonnet" }',
+    '---', '# corps', ''];
+  fs.writeFileSync(tmp, lignes.join('\r\n'), 'utf8');
+  const crlfAvant = (fs.readFileSync(tmp, 'utf8').match(/\r\n/g) || []).length;
+  try {
+    writeAssignments({ bindingPath: tmp }, ['gimli'], 'qwen2.5-coder:7b');
+    const apres = fs.readFileSync(tmp, 'utf8');
+    assert.equal((apres.match(/\r\n/g) || []).length, crlfAvant,
+      'une ecriture d\'UNE ligne ne doit pas convertir tout le fichier (diff de fichier entier sur Windows)');
+    assert.match(apres, /model: "qwen2\.5-coder:7b"/);
+  } finally { fs.rmSync(tmp, { force: true }); }
+
+  // Un fichier LF reste en LF : la preservation marche dans les deux sens.
+  const lf = path.join(HERE, 'fixtures', `binding-lf-${process.pid}.md`);
+  fs.writeFileSync(lf, lignes.join('\n'), 'utf8');
+  try {
+    writeAssignments({ bindingPath: lf }, ['gimli'], 'x');
+    assert.equal((fs.readFileSync(lf, 'utf8').match(/\r\n/g) || []).length, 0);
+  } finally { fs.rmSync(lf, { force: true }); }
+});
+
+test('serverMessage : un corps vide ou « {} » n\'est pas un motif (defaut G du 2e gate)', () => {
+  assert.equal(serverMessage({ body: {}, text: '{}' }), '', 'ne pas occuper une ligne pour ne rien dire');
+  assert.equal(serverMessage({ body: [], text: '[]' }), '');
+  assert.equal(serverMessage({ body: null, text: '   ' }), '');
+  assert.equal(serverMessage({ body: { detail: 'quota depasse' } }), 'quota depasse', 'un vrai motif passe');
+});
+
+test('replace multi-personas : chaque persona est confirmee individuellement (D3, defaut E)', async () => {
+  const srv = await fakeService({ 'POST /api/pull': () => [200, { status: 'success' }] });
+  const tmp = path.join(HERE, 'fixtures', `binding-multi-${process.pid}.md`);
+  fs.writeFileSync(tmp, ['---', 'id: t', 'teamId: t8', 'assignments:',
+    '  - { personaId: p1, runner: claude-code, model: "avant" }',
+    '  - { personaId: p2, runner: claude-code, model: "avant" }',
+    '---', '# corps', ''].join('\n'), 'utf8');
+  try {
+    // cible 1, remplacer, CONFIRMER le geste, puis OUI pour p1 et NON pour p2.
+    const answers = ['1', 'r', 'o', 'o', 'n'];
+    await pickAndAct({
+      ask: async () => answers.shift(), yes: (s) => /^(o|oui|y|yes)$/i.test(s), pick: '1',
+      diff: [{ roleKey: 'dev', personas: [{ id: 'p1', name: 'P1' }, { id: 'p2', name: 'P2' }],
+               assigned: ['avant'], recommended: 'apres', sizeGb: 1, status: 'a-installer' }],
+      probes: [{ target: 'ollama-distant', label: 'O', url: srv.url, kind: 'ollama',
+                 available: true, installMeans: 'pull' }],
+      canon: { bindingPath: tmp }, env: {},
+    });
+    const out = fs.readFileSync(tmp, 'utf8');
+    assert.match(out, /personaId: p1,\s+runner: claude-code, model: "apres"/, 'p1 acceptee -> ecrite');
+    assert.match(out, /personaId: p2,\s+runner: claude-code, model: "avant"/, 'p2 refusee -> INTACTE');
+  } finally { srv.close(); fs.rmSync(tmp, { force: true }); }
 });

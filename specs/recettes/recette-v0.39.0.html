@@ -260,7 +260,7 @@
 const RECETTE = {
   projet:  "iakaframe — verbe `models`",
   version: "v0.39.0",
-  commit:  "0ba21f4",
+  commit:  "PLACEHOLDER",
   date:    "2026-08-03",
   lead:    "Recette guidée de la RQV humaine pour `iakaframe models` (suggestions de modèles d'IA "
          + "par roleKey + mise à disposition). Dérivée des 10 critères de "
@@ -280,7 +280,7 @@ const RECETTE = {
       "Filet : le dépôt est propre avant de commencer (`git status`) — plusieurs scénarios vérifient qu'il l'est encore après.",
       "À RE-DÉROULER — le gate qualité a rendu FAIL et le code a été repris depuis : les scénarios "
         + "passés avant la reprise ne valent plus. Ancrage remis sur la tête de branche. Concernés : A-01, A-02, A-03, A-04, "
-        + "C-04, D-01, D-02, D-03, D-04, H-01, H-02, H-03 — tous PASS. Preuves notables : l'inventaire "
+        + "C-04, D-01, D-02, D-03, D-04, H-01, H-02, H-03 (leur ancien resultat est CADUC). Preuves d'alors, a re-etablir : l'inventaire "
         + "Ollama LAN coïncide exactement avec /api/tags (8 modèles, aucun inventé, aucun omis) ; une date "
         + "vieillie à 2026-01-01 affiche bien « 214 j — A RAFRAICHIR » puis a été restaurée ; le schéma "
         + "vendoré n'apparaît pas au diff.",
@@ -443,6 +443,43 @@ const RECETTE = {
           attendu: "Elles annoncent « CLI présent » ou « CLI absent du PATH », et le mode d'installation est "
                  + "« vérification (rien à télécharger) ». À aucun moment l'écran ne laisse croire qu'un "
                  + "téléchargement va se produire pour ces deux cibles.",
+        },
+        {
+          id: "C-06",
+          titre: "Retirer un modèle alors que tout est déjà en place",
+          ac: "AC-7",
+          etapes: [
+            "Se placer dans un contexte où tous les rôles sont « en place » (LAN joignable, binding ollama).",
+            "Lancer `models --binding iakaframe-ollama-default`, répondre `o`.",
+            "À « Afficher quand même tous les rôles (pour retirer un modèle) ? », répondre `o`.",
+            "Choisir un rôle, une cible, action `x`, puis REFUSER au gate.",
+          ],
+          attendu: "La liste complète des 9 rôles s'affiche malgré l'absence de divergence, un rôle « en place » "
+                 + "est sélectionnable, et le refus n'exécute rien. Sans ce chemin, un modèle installé ne "
+                 + "pourrait plus jamais être retiré par le process.",
+        },
+        {
+          id: "C-07",
+          titre: "La sauvegarde du catalogue est annoncée, puis réellement écrite",
+          ac: "AC-8",
+          etapes: [
+            "Avec IAKAFRAME_LITELLM_KEY renseignée, choisir la cible LiteLLM et une action d'installation.",
+            "Lire la ligne « filet » du récapitulatif AVANT de confirmer, puis confirmer.",
+            "Vérifier le fichier annoncé dans ~/.iakaframe/backups/.",
+          ],
+          attendu: "Le récapitulatif annonce le chemin exact de la sauvegarde ; après confirmation, le fichier "
+                 + "existe et contient le catalogue lu avant l'écriture.",
+        },
+        {
+          id: "C-08",
+          titre: "Sans clé, aucun filet n'est promis",
+          ac: "AC-8",
+          etapes: [
+            "Retirer IAKAFRAME_LITELLM_KEY, refaire le même parcours jusqu'au récapitulatif.",
+          ],
+          attendu: "Le récapitulatif affiche « filet : AUCUN — clé d'administration absente » et annonce qu'un "
+                 + "bloc à coller sera fourni. Il ne promet AUCUNE sauvegarde. (Régression trouvée au 2e gate : "
+                 + "le filet était annoncé même quand il n'allait pas être pris.)",
         },
         {
           id: "C-05",
