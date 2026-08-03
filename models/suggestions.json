@@ -1,0 +1,83 @@
+{
+  "$comment": "SOURCE UNIQUE des suggestions de modeles d'IA par roleKey (instruction specs/instructions/models-par-rolekey.md, D2). Lue par cli/src/commands/models.js. Les anciennes tables (kits/iakaframe-ollama/MODELES.md et les instructions de 2026-06-24) sont des LECTEURS : elles renvoient ici, elles ne decident plus. DONNEE PURE, aucune logique. AUCUN hote ni IP ici (doctrine de neutralite du depot, cf. services.js) : les hotes viennent de IAKAFRAME_HOSTS / --hosts.",
+  "version": 1,
+  "updatedAt": "2026-08-03",
+  "source": "Parc mesure le 2026-08-03 sur l'Ollama de reference (GET /api/tags) et la passerelle LiteLLM (13 entrees, GET /v1/models). Pas de veille web a cette date : les suggestions ne recommandent QUE des modeles constates presents.",
+  "methodId": "iakaframe",
+  "roles": {
+    "portefeuille": {
+      "recommended": "qwen3.5:9b",
+      "alternatives": ["gemma4:e4b"],
+      "requires": ["tools", "thinking"],
+      "sizeGb": 6.6,
+      "why": "Arbitrage transverse : a besoin d'outils et de raisonnement, pas de vision."
+    },
+    "coordination": {
+      "recommended": "qwen3.5:9b",
+      "alternatives": ["gemma4:e4b"],
+      "requires": ["tools", "thinking"],
+      "sizeGb": 6.6,
+      "why": "Dispatch et suivi : appelle des outils, doit tenir un fil long."
+    },
+    "cadrage": {
+      "recommended": "gemma4:e4b",
+      "alternatives": ["qwen3.5:9b"],
+      "requires": ["tools", "thinking"],
+      "sizeGb": 9.6,
+      "why": "Le plus gros modele du parc : le cadrage est le poste ou le raisonnement paie le plus."
+    },
+    "dev": {
+      "recommended": "qwen2.5-coder:7b",
+      "alternatives": ["gemma4:e4b"],
+      "requires": ["tools"],
+      "sizeGb": 4.7,
+      "why": "Modele de code dedie, le seul du parc a porter la completion de code (insert)."
+    },
+    "qualite": {
+      "recommended": "qwen2.5-coder:7b",
+      "alternatives": ["gemma4:e4b"],
+      "requires": ["tools"],
+      "sizeGb": 4.7,
+      "why": "Lit du code et des traces de test : meme profil que dev, jamais la meme instance."
+    },
+    "deploiement": {
+      "recommended": "qwen3.5:9b",
+      "alternatives": ["gemma4:e4b"],
+      "requires": ["tools"],
+      "sizeGb": 6.6,
+      "why": "Ops : enchaine des appels d'outils. mistral:7b est ECARTE ici — il ne porte PAS le tool-calling."
+    },
+    "design": {
+      "recommended": "qwen3.5:9b",
+      "alternatives": ["qwen3-vl-4b"],
+      "requires": ["vision", "tools"],
+      "sizeGb": 6.6,
+      "why": "Seul poste ou la vision est requise (lecture de maquettes). qwen3-vl-4b = repli leger 3,3 Go."
+    },
+    "documentation": {
+      "recommended": "mistral:7b-instruct-q4_K_M",
+      "alternatives": ["qwen3.5:9b"],
+      "requires": [],
+      "sizeGb": 4.4,
+      "why": "Redaction suivie, sans outils : le modele le plus leger fait l'affaire et libere le GPU."
+    },
+    "frame": {
+      "recommended": "gemma4:e4b",
+      "alternatives": ["qwen3.5:9b"],
+      "requires": ["tools", "thinking"],
+      "sizeGb": 9.6,
+      "why": "Erudition du modele de frame : meme profil de raisonnement que le cadrage."
+    }
+  },
+  "embedding": {
+    "recommended": "nomic-embed-text",
+    "alternatives": [],
+    "dimensions": 768,
+    "why": "Seul modele d'embedding du parc ; expose aussi sous les alias OpenAI de la passerelle."
+  },
+  "notes": [
+    "Modeles *thinking* (gemma4, qwen3.5) : avec un budget de tokens serre, `content` revient VIDE (tout part dans `reasoning_content`). Prevoir >= 300 tokens pour toute verification, sinon un modele sain se lit comme un echec.",
+    "mistral:7b-instruct-q4_K_M ne porte PAS le tool-calling (capabilities: completion seule) : ne jamais le suggerer pour un roleKey qui appelle des outils.",
+    "Cout de chargement : ~30-50 s a froid (VRAM), ~10 s a chaud. Le GPU peut etre partage avec un service d'image : ne pas eprouver plusieurs modeles en parallele."
+  ]
+}
