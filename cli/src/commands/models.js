@@ -277,6 +277,17 @@ export function buildState({ canon, suggestions, probes }) {
   return roles;
 }
 
+// Resume d'un motif pour l'affichage : premiere phrase, coupee net a `max` caracteres.
+// Coupe sur un espace pour ne pas trancher un mot, et signale la troncature par une ellipse
+// (un texte coupe sans marque se lit comme un texte complet — donc comme un motif incomplet).
+export function summarize(text, max = 150) {
+  const one = String(text).replace(/\s+/g, ' ').trim();
+  if (one.length <= max) return one;
+  const cut = one.slice(0, max);
+  const at = cut.lastIndexOf(' ');
+  return (at > max * 0.6 ? cut.slice(0, at) : cut).replace(/[ ,;:.]+$/, '') + ' […]';
+}
+
 // --- Rendu humain ----------------------------------------------------------------------------
 const MARK = {
   'en-place': '[OK]',
@@ -336,7 +347,11 @@ async function interactive({ canon, suggestions, probes, roles, root, hosts, tim
     diff.forEach((r, i) => {
       const size = r.sizeGb ? ` ~${r.sizeGb} Go` : '';
       console.log(`  ${String(i + 1).padStart(2)}. ${r.roleKey.padEnd(14)} ${(r.assigned.join(', ') || '-')} -> ${r.recommended}${size}`);
-      if (r.why) console.log(`      ${r.why}`);
+      // Le motif est TRONQUE a l'ecran : dans la source, il porte l'historique des mesures qui
+      // fondent la suggestion (parfois plusieurs phrases). Recette du 2026-08-03 : ces motifs
+      // longs noyaient la liste, qui devenait illisible — un ecran de choix doit tenir d'un coup
+      // d'oeil. Le detail complet reste dans models/suggestions.json, jamais perdu.
+      if (r.why) console.log(`      ${summarize(r.why)}`);
       console.log(`      dispo sur : ${r.availableOn.join(', ') || 'aucune cible'}${r.alternatives.length ? ` · alternatives : ${r.alternatives.join(', ')}` : ''}`);
     });
 

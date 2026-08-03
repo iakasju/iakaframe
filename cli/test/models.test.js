@@ -15,7 +15,7 @@ import fs from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { hostsForTarget, replaceModelInLine, ageInDays, buildState, TARGETS, loadSuggestions,
-         writeAssignments } from '../src/commands/models.js';
+         writeAssignments, summarize } from '../src/commands/models.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, '..', 'src', 'index.js');
@@ -196,4 +196,24 @@ test('neutralite : aucun hote prive en dur dans le code ni dans la donnee', () =
     const src = fs.readFileSync(f, 'utf8');
     assert.ok(!priv.test(src), `hote prive en dur dans ${path.basename(f)} (doctrine de neutralite)`);
   }
+});
+
+// Recette du 2026-08-03 (scenario B-02, angle « rendu » que le gate auto ne voit pas) : les motifs
+// de suggestion portent l'historique des mesures et avaient grossi au point de noyer l'ecran de
+// choix. Un ecran de selection doit tenir d'un coup d'oeil ; le detail reste dans la source.
+test('summarize : coupe proprement les motifs longs, laisse les courts intacts', () => {
+  const court = 'Modele de code dedie, le seul du parc.';
+  assert.equal(summarize(court), court, 'un motif court ne doit pas etre touche');
+
+  const long = 'CORRIGE DEUX FOIS LE MEME JOUR, et la seconde fois parce que la premiere mesure '
+    + 'etait TROP ETROITE. Suggestion d\'origine : mistral, choisi sur sa taille, sans aucune '
+    + 'observation, puis qwen3.5 apres un duel incomplet, puis gemma4 apres le banc complet.';
+  const out = summarize(long);
+  assert.ok(out.length <= 160, `resume trop long : ${out.length}`);
+  assert.ok(out.endsWith('[…]'), 'la troncature doit etre SIGNALEE (sinon on lit un motif ampute comme complet)');
+  assert.ok(!/\s\[…\]$/.test(out.replace(' […]', 'X')), 'pas d\'espace parasite avant l\'ellipse');
+  assert.ok(!out.includes('  '), 'les espaces multiples sont normalises');
+
+  // Un mot coupe en deux est illisible : la coupe cherche un espace.
+  assert.ok(!/\w\[…\]$/.test(out), 'ne doit pas trancher au milieu d\'un mot');
 });
