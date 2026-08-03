@@ -467,7 +467,13 @@ export async function pickAndAct({ ask, yes, pick, diff, probes, canon, env = pr
       console.log(`  filet      : sauvegarde datee du catalogue -> ${backupDir()}/litellm-catalog-${stamp}.json`);
     } else {
       console.log('  filet      : AUCUN — cle d\'administration absente (IAKAFRAME_LITELLM_KEY).');
-      console.log('               La passerelle ne sera PAS modifiee : un bloc a coller sera affiche.');
+      // Gate qualite 3e passe, defaut I : la suite de la phrase promettait « un bloc a coller »
+      // QUELLE QUE SOIT l'action — or seul le chemin « mettre a disposition » en produit un ;
+      // un retrait sans cle s'arrete net. Le recapitulatif annonce desormais ce qui va vraiment
+      // se passer POUR CETTE ACTION, jamais une consolation generique.
+      console.log(action === 'remove'
+        ? '               Le retrait au catalogue est IMPOSSIBLE sans cle : rien ne sera fait.'
+        : '               La passerelle ne sera PAS modifiee : un bloc a coller sera affiche.');
     }
   }
   if (action === 'remove') console.log('  rappel     : la politique de retention conserve 1 a 2 versions anterieures — retirer n\'est pas obligatoire.');

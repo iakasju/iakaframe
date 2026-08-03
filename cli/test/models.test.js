@@ -549,3 +549,37 @@ test('replace multi-personas : chaque persona est confirmee individuellement (D3
     assert.match(out, /personaId: p2,\s+runner: claude-code, model: "avant"/, 'p2 refusee -> INTACTE');
   } finally { srv.close(); fs.rmSync(tmp, { force: true }); }
 });
+
+test('recapitulatif LiteLLM sans cle : la suite annoncee depend de l\'ACTION (defaut I, 3e gate)', async () => {
+  const srv = await fakeService({ 'GET /model/info': () => [200, { data: [] }] });
+  const dit = [];
+  const orig = console.log;
+  console.log = (...a) => dit.push(a.join(' '));
+  const commun = {
+    yes: (s) => /^(o|oui|y|yes)$/i.test(s), pick: '1',
+    diff: [{ roleKey: 'dev', personas: [{ id: 'p1', name: 'P1' }], assigned: ['a'],
+             recommended: 'm', sizeGb: 1, status: 'a-installer' }],
+    probes: [{ target: 'litellm', label: 'GW', url: srv.url, kind: 'litellm',
+               available: true, installMeans: 'declaration' }],
+    canon: { bindingPath: null }, env: {},
+  };
+  try {
+    // RETIRER sans cle : aucun bloc n'arrivera -> le recapitulatif ne doit pas en promettre un.
+    const a1 = ['1', 'x', 'o'];
+    await pickAndAct({ ...commun, ask: async () => a1.shift() });
+    const retrait = dit.join('\n');
+    assert.match(retrait, /filet\s*: AUCUN/);
+    assert.ok(!/bloc a coller sera affiche/.test(retrait),
+      'ne pas promettre un bloc que le chemin « retirer » ne produit jamais');
+    assert.match(retrait, /retrait au catalogue est IMPOSSIBLE sans cle/);
+    assert.ok(!/model_name:/.test(retrait), 'et de fait, aucun bloc n\'est rendu');
+
+    // INSTALLER sans cle : le bloc arrive vraiment -> l'annoncer reste vrai.
+    dit.length = 0;
+    const a2 = ['1', 'i', 'o'];
+    await pickAndAct({ ...commun, ask: async () => a2.shift() });
+    const install = dit.join('\n');
+    assert.match(install, /bloc a coller sera affiche/, 'ici la promesse est tenue...');
+    assert.match(install, /model_name: m/, '...et le bloc est bien rendu');
+  } finally { console.log = orig; srv.close(); }
+});

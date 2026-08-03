@@ -472,14 +472,19 @@ const RECETTE = {
         },
         {
           id: "C-08",
-          titre: "Sans clé, aucun filet n'est promis",
+          titre: "Sans clé, aucun filet n'est promis — et l'annonce dépend de l'action",
           ac: "AC-8",
           etapes: [
-            "Retirer IAKAFRAME_LITELLM_KEY, refaire le même parcours jusqu'au récapitulatif.",
+            "Retirer IAKAFRAME_LITELLM_KEY, refaire le parcours jusqu'au récapitulatif avec l'action « installer ».",
+            "Confirmer, et vérifier ce qui est réellement affiché ensuite.",
+            "RECOMMENCER avec l'action « retirer » (x), et comparer la dernière ligne du récapitulatif.",
           ],
-          attendu: "Le récapitulatif affiche « filet : AUCUN — clé d'administration absente » et annonce qu'un "
-                 + "bloc à coller sera fourni. Il ne promet AUCUNE sauvegarde. (Régression trouvée au 2e gate : "
-                 + "le filet était annoncé même quand il n'allait pas être pris.)",
+          attendu: "Dans les deux cas : « filet : AUCUN — clé d'administration absente », AUCUNE sauvegarde promise. "
+                 + "Puis la phrase qui suit DIFFÈRE selon l'action, et dit à chaque fois ce qui va vraiment se "
+                 + "passer : sur « installer », un bloc à coller est annoncé ET fourni ; sur « retirer », le "
+                 + "récapitulatif dit que l'opération est impossible sans clé, et ne promet aucun bloc — car "
+                 + "aucun n'arrive. (Deux régressions successives ici : le filet annoncé sans être pris — 2e gate ; "
+                 + "puis un bloc promis quelle que soit l'action — 3e gate.)",
         },
         {
           id: "C-05",
