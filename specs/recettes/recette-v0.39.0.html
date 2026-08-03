@@ -260,12 +260,12 @@
 const RECETTE = {
   projet:  "iakaframe — verbe `models`",
   version: "v0.39.0",
-  commit:  "48eba20",
+  commit:  "0ba21f4",
   date:    "2026-08-03",
   lead:    "Recette guidée de la RQV humaine pour `iakaframe models` (suggestions de modèles d'IA "
          + "par roleKey + mise à disposition). Dérivée des 10 critères de "
          + "specs/instructions/models-par-rolekey.md. Le gate automatique couvre déjà 12 tests "
-         + "unitaires (609 verts sur la suite CLI) : cette recette porte sur ce qu'un test ne "
+         + "unitaires (suite CLI verte, chiffres re-mesures a chaque passe) : cette recette porte sur ce qu'un test ne "
          + "peut PAS prouver — le parcours interactif au terminal, un vrai téléchargement de "
          + "bout en bout, et l'honnêteté de ce qui est affiché.",
 
@@ -278,7 +278,8 @@ const RECETTE = {
       "Ports/clé : export IAKAFRAME_LITELLM_PORT=4001 et IAKAFRAME_LITELLM_KEY=<master key> pour lire le catalogue de la passerelle.",
       "IMPORTANT : le parcours interactif exige un VRAI terminal. En pipe ou en CI, la commande s'arrête volontairement à l'état des lieux.",
       "Filet : le dépôt est propre avant de commencer (`git status`) — plusieurs scénarios vérifient qu'il l'est encore après.",
-      "DÉJÀ DÉROULÉS EN MACHINE le 2026-08-03 (rejouables, mais pas à refaire) : A-01, A-02, A-03, A-04, "
+      "À RE-DÉROULER — le gate qualité a rendu FAIL et le code a été repris depuis : les scénarios "
+        + "passés avant la reprise ne valent plus. Ancrage remis sur la tête de branche. Concernés : A-01, A-02, A-03, A-04, "
         + "C-04, D-01, D-02, D-03, D-04, H-01, H-02, H-03 — tous PASS. Preuves notables : l'inventaire "
         + "Ollama LAN coïncide exactement avec /api/tags (8 modèles, aucun inventé, aucun omis) ; une date "
         + "vieillie à 2026-01-01 affiche bien « 214 j — A RAFRAICHIR » puis a été restaurée ; le schéma "
