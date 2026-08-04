@@ -1,0 +1,45 @@
+name: release
+
+# Publie l'artefact installable de la CLI sur la release du tag pousse.
+# La CLI est en Node pur (zero dependance runtime) : son artefact est le
+# tarball npm, installable par `npm install -g <fichier>.tgz` sur les trois OS.
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag de version a publier (ex. v0.20.4)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Verifier que la CLI demarre
+        working-directory: cli
+        run: node src/index.js --help
+
+      - name: Produire le tarball npm
+        working-directory: cli
+        run: npm pack --pack-destination ..
+
+      - name: Attacher le tarball a la release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.tag || github.ref_name }}
+          files: '*.tgz'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
