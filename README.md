@@ -9,6 +9,43 @@ en place, au lieu de le réinventer à chaque fois.
 
 ---
 
+## Installation
+
+La version scellée courante est **[v0.20.4](../../releases/tag/v0.20.4)** — voir
+[toutes les versions](../../releases).
+
+**Prérequis :** Node.js **≥ 20** (rien d'autre : la CLI est en Node pur, **zéro
+dépendance** runtime, identique sous Windows, macOS et Linux).
+
+```bash
+# 1. Récupérer l'archive de la version depuis la page des releases
+#    (Assets > Source code), puis la décompresser
+cd iakaframe-0.20.4
+
+# 2. Installer la CLI globalement depuis le dossier cli/
+npm install -g ./cli
+
+# 3. Vérifier
+iakaframe --help
+iakaframe banner IAKAFRAME
+```
+
+Sans installation globale, la CLI s'exécute directement depuis l'archive :
+
+```bash
+node cli/src/index.js --help
+```
+
+> **Sur le réseau interne**, le paquet est aussi publié sur le registre npm privé :
+> `npm install -g @naonedge/iakaframe` (registre `@naonedge` configuré sur Forgejo).
+> En dehors du LAN, passer par l'archive de la release ci-dessus.
+
+Première utilisation : se placer dans un dossier de projet et lancer `iakaframe init`
+(ou `iakaframe onboard` pour amorcer aussi le dépôt distant). La commande n'écrase
+jamais un fichier existant sans `--force`.
+
+---
+
 ## Contenu
 
 | Fichier | Rôle |
@@ -18,28 +55,34 @@ en place, au lieu de le réinventer à chaque fois.
 | [`iakaframe-methode.html`](./iakaframe-methode.html) | **Présentation à onglets** de la méthode + équipe d'agents + infra + vision (NaonEdge). |
 | [`iakaframe-skills.html`](./iakaframe-skills.html) | Référence visuelle des **skills** (NaonEdge). |
 | [`iakabox-usage.html`](./iakabox-usage.html) | **Guide d'usage du homelab iakabox** : Git via Forgejo, IA locale, services. |
-| [`agents/`](./agents/) | **Définitions des subagents** de l'équipe (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie) + `_TEMPLATE.md`. |
-| [`skills/`](./skills/) | **23 skills** : savoir-faire des agents + briques de cycle de vie. Voir [`skills/README.md`](./skills/README.md). |
-| [`specs/equipe-agents.md`](./specs/equipe-agents.md) | **Référence canonique de l'équipe d'agents** (roster, 3 phases + squad prod, identité, étanchéité, incarnation). |
-| [`kit-claude/`](./kit-claude/) | **Kit de démarrage** à copier dans tout nouveau projet. |
+| [`library/`](./library/) | **Réservoir partagé** : `personas/` (définitions des rôles incarnés), `skills/` (savoir-faire), `roles/`, `workflows/`, `guardrails/`, `principles/`, `rituals/`, `scaffolds/`. |
+| [`methods/`](./methods/) | **Méthodes de travail** disponibles : `iakaframe`, mais aussi `scrum`, `kanban`, `shapeup`, `lean-startup`, `design-thinking`, `waterfall`, `gtd`. |
+| [`teams/`](./teams/) | **Compositions d'équipe** (qui joue quel rôle) — dont `iakaframe-8`, l'équipe par défaut de la méthode. |
+| [`frames/`](./frames/) | **Frames** = méthode + équipe + bindings + kits assemblés. `frames/releases/` contient les frames figées, prêtes à déployer. |
+| [`bindings/`](./bindings/) | **Appariements** entre un rôle et un runner concret (Claude Code, Codex…). |
+| [`kits/`](./kits/) | **Kits de démarrage** par hôte et par méthode (`iakaframe-claude`, `iakaframe-codex`, `iakaframe-openwebui`, `scrum-claude`…), déployés par [`install.mjs`](./install.mjs). |
+| [`specs/equipe-agents.md`](./specs/equipe-agents.md) | **Référence canonique de l'équipe** (roster, 3 phases + squad prod, identité, étanchéité, incarnation). |
 | [`cli/`](./cli/) | **CLI Node multi-OS** `@naonedge/iakaframe` (Windows/macOS/Linux, **zéro dépendance** runtime) : 13 commandes de la méthode (`onboard`/`init`/`snapshot`/`update`/`services`/`config`/`agents`/`go`/`banner`/`brief`/`recap`/`jalon`/`root`). Voir [`cli/README.md`](./cli/README.md). |
 | [`design-naonedge/`](./design-naonedge/) | **Design NaonEdge** (label figé) : `naonedge.css` (charte canon), `naonedge-charte.md`, gabarits doc/slides/flyer, logo. À réutiliser pour tous les supports. |
 | [`docs/`](./docs/) | Documents de référence (note de cadrage « Yakaframe Avancé », etc.). |
 
-### Le kit de démarrage (`kit-claude/`)
+### Les kits de démarrage (`kits/`)
+
+Un **kit** est ce qui est réellement déposé sur un poste pour qu'un runner applique la
+méthode. Il en existe un par couple (méthode, hôte) — par exemple `iakaframe-claude`,
+`iakaframe-codex`, `iakaframe-openwebui`, `scrum-claude`, `kanban-claude`…
 
 ```
-kit-claude/
-├── CLAUDE.md                       ← Contrat de travail Claude Code (à remplir)
+kits/iakaframe-claude/
+├── CLAUDE.md                       ← Contrat de travail du projet (à remplir)
 ├── .claude/settings.local.json     ← Permissions (allowlist large + denylist destructive)
-└── specs/
-    ├── PROJET.md                   ← Gabarit de vision/specs projet
-    └── instructions/
-        └── _TEMPLATE.md            ← Gabarit d'un fichier d'instruction
+├── .claude/commands/               ← Commandes de la méthode (iaka-brief, iaka-cadre, iaka-etat…)
+└── global/                         ← Conf globale : CLAUDE.md, hooks de garde-fous
 ```
 
-**Pour démarrer un projet :** copier le contenu de `kit-claude/` à la racine du nouveau
-repo, puis remplir `CLAUDE.md` et `specs/PROJET.md`.
+**Pour démarrer un projet :** lancer `iakaframe init` dans le dossier (le kit est déployé
+sans rien écraser), puis remplir `CLAUDE.md` et `specs/PROJET.md`. Le déploiement
+multi-hôte se fait par [`install.mjs`](./install.mjs).
 
 ---
 
