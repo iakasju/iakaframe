@@ -43,6 +43,16 @@ function personas() {
 }
 
 // Affectations d'un binding : { personaId -> model }.
+//
+// GATE QUALITE 4e passe : ce parseur lisait `model:\s*"…"` — donc UNIQUEMENT la forme entre
+// guillemets doubles, et SANS limite de mot. Deux consequences reproduites en bac a sable :
+//   - `model: sonnet` ou `model: 'sonnet'` (formes que `replaceModelInLine` accepte
+//     explicitement) donnaient une case VIDE : « cet agent n'a pas de modele », faux et muet ;
+//   - `basemodel: "PIEGE"` sur la meme ligne etait capture a la place du vrai modele.
+// La lecture est desormais ALIGNEE sur `replaceModelInLine` (`\bmodel\s*:` + les trois formes) :
+// deux parseurs du meme depot ne doivent pas lire deux langages differents.
+const MODEL_RE = /\bmodel\s*:\s*("([^"]*)"|'([^']*)'|([^,}\s]+))/;
+
 function assignments(bindingId) {
   const file = path.join(ROOT, 'bindings', `${bindingId}.md`);
   if (!fs.existsSync(file)) return null;
@@ -50,8 +60,15 @@ function assignments(bindingId) {
   const out = {};
   for (const line of block.split(/\r?\n/)) {
     const id = line.match(/personaId:\s*([\w-]+)/);
-    const model = line.match(/model:\s*"([^"]*)"/);
-    if (id && model) out[id[1]] = model[1];
+    const model = line.match(MODEL_RE);
+    if (!id || !model) continue;
+    const valeur = model[2] ?? model[3] ?? model[4] ?? '';
+    // Une SECONDE ligne pour la meme persona ecrasait la premiere en silence : on refuse.
+    if (out[id[1]] !== undefined && out[id[1]] !== valeur) {
+      throw new Error(`${bindingId} : deux affectations differentes pour « ${id[1]} » `
+        + `(« ${out[id[1]]} » puis « ${valeur} ») — la doc ne peut pas trancher a votre place.`);
+    }
+    out[id[1]] = valeur;
   }
   return out;
 }
@@ -82,9 +99,23 @@ L('seul le moteur change. Aucune n\'est imposée : on choisit celle qu\'on veut 
 L('');
 L('| Agent | Rôle | Sur Claude *(par défaut)* | En local *(Ollama)* |');
 L('|---|---|---|---|');
+// GATE QUALITE 4e passe : `if (!p) continue;` faisait DISPARAITRE de la doc toute persona du
+// roster non resolue (par exemple sans `roleKey`) — un agent entier s'evaporait sans un mot, et
+// la garde restait verte. Un trou silencieux dans une doc EST la copie perimee que ce lot
+// combat. On sort desormais en erreur : mieux vaut pas de doc qu'une doc amputee.
 for (const id of roster) {
   const p = byId.get(id);
-  if (!p) continue;
+  if (!p) {
+    throw new Error(`persona « ${id} » du roster ${team.id || 'iakaframe-8'} introuvable ou sans `
+      + `roleKey : la doc serait AMPUTEE d'un agent. Corriger library/personas/${id}.md.`);
+  }
+  const manquants = [['claude', claude], ['ollama', ollama]]
+    .filter(([, a]) => Object.keys(a).length && a[id] === undefined)
+    .map(([nom]) => nom);
+  if (manquants.length) {
+    throw new Error(`persona « ${id} » sans affectation dans le(s) binding(s) : ${manquants.join(', ')}. `
+      + `Une case vide se lit « cet agent n'a pas de modele » — c'est faux, et muet.`);
+  }
   const pastille = (p.pastille || '').replace(/"/g, '');
   L(`| ${pastille} ${p.name || id} | \`${p.roleKey}\` | ${claude[id] ? `\`${claude[id]}\`` : '—'} | ${ollama[id] ? `\`${ollama[id]}\`` : '—'} |`);
 }

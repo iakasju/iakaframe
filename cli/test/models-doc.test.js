@@ -25,17 +25,62 @@ test('la doc des modeles est A JOUR (regeneration byte-a-byte)', () => {
   assert.match(out, /a jour/);
 });
 
-test('la doc porte les affectations REELLES des deux bindings', () => {
+test('la doc porte les affectations REELLES, AGENT PAR AGENT', () => {
+  // GATE QUALITE 4e passe : ce test verifiait qu'une CHAINE de modele « apparait quelque part »
+  // dans la doc. Deux docs fausses passaient au vert :
+  //   - une doc affichant un modele PIEGE pour Gimli (le regex gourmand retenait, lui, la bonne
+  //     valeur plus loin sur la ligne : le test et le generateur se contredisaient) ;
+  //   - une doc ayant PERDU Gimli entierement (ses modeles etant portes par d'autres personas,
+  //     rien ne manquait a ses yeux — un agent pouvait s'evaporer sans rougir).
+  // On compare desormais LIGNE PAR LIGNE : chaque persona du roster doit avoir SA ligne, avec
+  // SES deux modeles, lus avec la MEME regle que le generateur.
   const doc = fs.readFileSync(DOC, 'utf8');
-  for (const id of ['iakaframe-claude-default', 'iakaframe-ollama-default']) {
+  const MODEL_RE = /\bmodel\s*:\s*("([^"]*)"|'([^']*)'|([^,}\s]+))/;
+
+  const team = fs.readFileSync(path.join(REPO, 'teams', 'iakaframe-8.md'), 'utf8');
+  const roster = (team.match(/^personas:\s*\[([^\]]+)\]/m) || [, ''])[1]
+    .split(',').map(x => x.trim()).filter(Boolean);
+  assert.ok(roster.length >= 9, `roster lu : ${roster.length}`);
+
+  const lire = (id) => {
     const src = fs.readFileSync(path.join(REPO, 'bindings', `${id}.md`), 'utf8');
-    const models = [...src.matchAll(/personaId:\s*([\w-]+)[^}]*model:\s*"([^"]+)"/g)];
-    assert.ok(models.length >= 9, `${id} : ${models.length} affectations lues`);
-    for (const [, persona, model] of models) {
-      assert.ok(doc.includes(`\`${model}\``),
-        `${persona} : le modele ${model} du binding ${id} n'apparait pas dans la doc`);
+    const out = {};
+    for (const line of src.split(/\r?\n/)) {
+      const p = line.match(/personaId:\s*([\w-]+)/);
+      const m = line.match(MODEL_RE);
+      if (p && m) out[p[1]] = m[2] ?? m[3] ?? m[4];
     }
+    return out;
+  };
+  const claude = lire('iakaframe-claude-default');
+  const ollama = lire('iakaframe-ollama-default');
+
+  for (const id of roster) {
+    const persona = fs.readFileSync(path.join(REPO, 'library', 'personas', `${id}.md`), 'utf8');
+    const nom = (persona.match(/^name:\s*(.+)$/m) || [, id])[1].trim();
+    // La ligne de CET agent doit exister...
+    const ligne = doc.split('\n').find(l => l.includes(`| ${nom} |`) || l.includes(`${nom} |`));
+    assert.ok(ligne, `agent « ${nom} » ABSENT de la doc (un agent ne doit pas pouvoir s'evaporer)`);
+    // ...et porter SES modeles, pas ceux d'un autre.
+    assert.ok(ligne.includes(`\`${claude[id]}\``),
+      `${nom} : la doc n'affiche pas son modele claude (${claude[id]}) — ligne lue : ${ligne}`);
+    assert.ok(ligne.includes(`\`${ollama[id]}\``),
+      `${nom} : la doc n'affiche pas son modele ollama (${ollama[id]}) — ligne lue : ${ligne}`);
   }
+});
+
+test('le generateur REFUSE les sources qui produiraient une doc amputee ou ambigue', () => {
+  // Les deux garde-fous ajoutes apres le gate : mieux vaut pas de doc qu'une doc fausse.
+  const src = fs.readFileSync(GEN, 'utf8');
+  assert.match(src, /throw new Error\([^)]*introuvable ou sans/,
+    'une persona du roster non resolue doit faire SORTIR le script, pas disparaitre de la doc');
+  assert.match(src, /throw new Error\([^)]*deux affectations differentes/,
+    'deux affectations contradictoires doivent etre refusees, pas arbitrees en silence');
+  assert.match(src, /sans affectation dans le\(s\) binding\(s\)/,
+    'une case vide se lit « pas de modele » : il faut la refuser');
+  // Le parseur doit lire les TROIS formes de valeur, comme replaceModelInLine.
+  assert.match(src, /\\bmodel\\s\*:/, 'la lecture doit etre bornee au mot `model` (pas `basemodel`)');
+  assert.match(src, /'\(\[\^'\]\*\)'/, 'la forme a quote simple doit etre lue');
 });
 
 test('la doc explique CHAQUE statut que la commande peut afficher', () => {
