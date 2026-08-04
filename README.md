@@ -11,8 +11,8 @@ en place, au lieu de le réinventer à chaque fois.
 
 ## Installation
 
-La version scellée courante est **[v0.20.4](../../releases/tag/v0.20.4)** — voir
-[toutes les versions](../../releases).
+La version scellée courante est **[v0.20.4](https://github.com/iakasju/iakaframe/releases/tag/v0.20.4)** — voir
+[toutes les versions](https://github.com/iakasju/iakaframe/releases).
 
 **Prérequis :** Node.js **≥ 20** (rien d'autre : la CLI est en Node pur, **zéro
 dépendance** runtime, identique sous Windows, macOS et Linux).
