@@ -139,6 +139,21 @@ if (sug.embedding) {
   L(`**Embedding** : \`${sug.embedding.recommended}\`${sug.embedding.dimensions ? ` (${sug.embedding.dimensions} dimensions)` : ''} — ${sug.embedding.why}`);
   L('');
 }
+if (sug.familles) {
+  L('## Quelles familles de modèles la passerelle sait servir');
+  L('');
+  L(`*Vérifié le ${sug.familles.eprouve_le} — ${sug.familles.methode}*`);
+  L('');
+  L('| Famille | Servie ? | Ce qu\'il faut savoir |');
+  L('|---|---|---|');
+  for (const [nom, detail] of Object.entries(sug.familles.servies || {})) {
+    L(`| **${nom}** | ✅ | ${String(detail).replace(/\s+/g, ' ')} |`);
+  }
+  for (const [nom, detail] of Object.entries(sug.familles.non_servie || {})) {
+    L(`| **${nom}** | ❌ | ${String(detail).replace(/\s+/g, ' ')} |`);
+  }
+  L('');
+}
 L('## Voir où en est votre installation');
 L('');
 L('```');

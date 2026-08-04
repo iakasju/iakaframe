@@ -45,6 +45,18 @@ trop étroite.
 
 **Embedding** : `nomic-embed-text` (768 dimensions) — Seul modele d'embedding du parc ; expose aussi sous les alias OpenAI de la passerelle.
 
+## Quelles familles de modèles la passerelle sait servir
+
+*Vérifié le 2026-08-04 — Chaque famille servie a ete verifiee par un APPEL REEL a travers la passerelle, pas par la presence d'une ligne au catalogue.*
+
+| Famille | Servie ? | Ce qu'il faut savoir |
+|---|---|---|
+| **Gemma** | ✅ | gemma4:e4b (9,6 Go) — tools + thinking. Meilleur du parc au banc d'essai. |
+| **Qwen** | ✅ | qwen3.5:9b (6,6 Go, vision+tools+thinking) et qwen2.5-coder:7b (4,7 Go, code). |
+| **DeepSeek** | ✅ | deepseek-r1:8b (5,2 Go) — distill Llama 8B. PAS de tool-calling. Emet son raisonnement MEME avec `think: false` (c'est son template) : prevoir un budget large. Ajoute et eprouve le 2026-08-04. |
+| **GLM** | ✅ | glm4:9b (5,5 Go, contexte 128K) — PAS de tool-calling, PAS de raisonnement. Le plus rapide des quatre a repondre. Ajoute et eprouve le 2026-08-04. |
+| **Kimi** | ❌ | IMPOSSIBLE EN LOCAL, et ce n'est pas une question de reglage : Kimi K2 est un MoE de 1000 milliards de parametres (~600 Go en Q4, ~250 Go meme en 1-bit). Ollama ne le distribue QU'EN TAG `:cloud` (kimi-k2.6:cloud) — il n'existe aucun poids local a tirer, quelle que soit la carte. Deux voies possibles, TOUTES DEUX distantes et payantes, a arbitrer par le decideur : (a) API Moonshot via LiteLLM (`moonshot/...` + cle), (b) Ollama Cloud (`:cloud` + compte). Servir Kimi signifie donc sortir du self-hosted — arbitrage, pas detail technique. |
+
 ## Voir où en est votre installation
 
 ```

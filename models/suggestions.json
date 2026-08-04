@@ -23,64 +23,104 @@
   "roles": {
     "portefeuille": {
       "recommended": "qwen3.5:9b",
-      "alternatives": ["gemma4:e4b"],
-      "requires": ["tools", "thinking"],
+      "alternatives": [
+        "gemma4:e4b"
+      ],
+      "requires": [
+        "tools",
+        "thinking"
+      ],
       "sizeGb": 6.6,
       "why": "Arbitrage transverse : a besoin d'outils et de raisonnement, pas de vision."
     },
     "coordination": {
       "recommended": "qwen3.5:9b",
-      "alternatives": ["gemma4:e4b"],
-      "requires": ["tools", "thinking"],
+      "alternatives": [
+        "gemma4:e4b"
+      ],
+      "requires": [
+        "tools",
+        "thinking"
+      ],
       "sizeGb": 6.6,
       "why": "Dispatch et suivi : appelle des outils, doit tenir un fil long."
     },
     "cadrage": {
       "recommended": "gemma4:e4b",
-      "alternatives": ["qwen3.5:9b"],
-      "requires": ["tools", "thinking"],
+      "alternatives": [
+        "qwen3.5:9b"
+      ],
+      "requires": [
+        "tools",
+        "thinking"
+      ],
       "sizeGb": 9.6,
       "why": "Le plus gros modele du parc. EPROUVE le 2026-08-03 sur une vraie tache de cadrage (epingler une image sur son digest) : structure tenue, AUCUN fait invente (digest repris exactement), et de vraies questions au decideur. MAIS il a RATE le seul risque qui comptait — verifier que le digest est encore recuperable AVANT de modifier — et a propose comme rollback un retour au tag flottant, qui est precisement le faux filet. BROUILLON de cadrage, jamais cadrage valide."
     },
     "dev": {
       "recommended": "qwen2.5-coder:7b",
-      "alternatives": ["gemma4:e4b"],
-      "requires": ["tools"],
+      "alternatives": [
+        "gemma4:e4b"
+      ],
+      "requires": [
+        "tools"
+      ],
       "sizeGb": 4.7,
       "why": "Modele de code dedie, le seul du parc a porter la completion de code (insert)."
     },
     "qualite": {
       "recommended": "qwen2.5-coder:7b",
-      "alternatives": ["gemma4:e4b"],
-      "requires": ["tools"],
+      "alternatives": [
+        "gemma4:e4b"
+      ],
+      "requires": [
+        "tools"
+      ],
       "sizeGb": 4.7,
       "why": "Lit du code et des traces de test : meme profil que dev, jamais la meme instance."
     },
     "deploiement": {
       "recommended": "qwen3.5:9b",
-      "alternatives": ["gemma4:e4b"],
-      "requires": ["tools"],
+      "alternatives": [
+        "gemma4:e4b"
+      ],
+      "requires": [
+        "tools"
+      ],
       "sizeGb": 6.6,
       "why": "Ops : enchaine des appels d'outils. mistral:7b est ECARTE ici — il ne porte PAS le tool-calling."
     },
     "design": {
       "recommended": "qwen3.5:9b",
-      "alternatives": ["qwen3-vl-4b"],
-      "requires": ["vision", "tools"],
+      "alternatives": [
+        "qwen3-vl-4b"
+      ],
+      "requires": [
+        "vision",
+        "tools"
+      ],
       "sizeGb": 6.6,
       "why": "Seul poste ou la vision est requise (lecture de maquettes). qwen3-vl-4b = repli leger 3,3 Go."
     },
     "documentation": {
       "recommended": "gemma4:e4b",
-      "alternatives": ["qwen3.5:9b", "mistral:7b-instruct-q4_K_M"],
+      "alternatives": [
+        "qwen3.5:9b",
+        "mistral:7b-instruct-q4_K_M"
+      ],
       "requires": [],
       "sizeGb": 9.6,
       "why": "CORRIGE DEUX FOIS LE MEME JOUR (2026-08-03), et la seconde fois parce que la premiere mesure etait TROP ETROITE. (1) Suggestion d'origine : mistral, choisi sur sa taille, sans aucune observation. (2) Premiere correction : qwen3.5, apres un duel mistral/qwen3.5 — mais gemma4 n'avait pas ete teste sur cette tache. (3) Banc complet sur les 7 modeles du parc : gemma4 rend 138 mots en 4,7 s (limite 150, tenue) contre 182 mots en 25 s pour qwen3.5 (hors limite) et 321 mots en 39 s pour mistral, qui recopie en plus la liste des options malgre l'interdiction. gemma4 est le plus rapide ET le plus docile, alors qu'il est le PLUS GROS du parc. Bonus operationnel : il sert deja `cadrage` et `frame`, donc un seul modele reste charge dans une VRAM partagee au lieu de deux. IMPERATIF : appeler avec `think: false` (cf. notes). Lecon de methode : corriger une intuition par une mesure partielle produit une autre intuition."
     },
     "frame": {
       "recommended": "gemma4:e4b",
-      "alternatives": ["qwen3.5:9b"],
-      "requires": ["tools", "thinking"],
+      "alternatives": [
+        "qwen3.5:9b"
+      ],
+      "requires": [
+        "tools",
+        "thinking"
+      ],
       "sizeGb": 9.6,
       "why": "Erudition du modele de frame : meme profil de raisonnement que le cadrage."
     }
@@ -98,5 +138,19 @@
     "CORRIGE LE 2026-08-03 (une note precedente affirmait le contraire, a tort) : la passerelle LiteLLM 1.82.6 TRANSMET BIEN `think: false`. Test de controle, meme modele, meme prompt, meme voie : AVEC le parametre = 1,9 s et 37 mots ; SANS = 13,2 s, 366 mots de raisonnement et ZERO mot de reponse. Le facteur n'est donc PAS le chemin (passerelle vs direct) mais le PARAMETRE : il faut l'envoyer, explicitement, quelle que soit la voie. La conclusion pratique ne change pas — `think: false` par defaut — mais son motif si : ne pas eviter la passerelle pour cette raison.",
     "mistral:7b-instruct-q4_K_M ne porte PAS le tool-calling (capabilities: completion seule) : ne jamais le suggerer pour un roleKey qui appelle des outils.",
     "Cout de chargement : ~30-50 s a froid (VRAM), ~10 s a chaud. Le GPU peut etre partage avec un service d'image : ne pas eprouver plusieurs modeles en parallele."
-  ]
+  ],
+  "familles": {
+    "$comment": "Couverture par FAMILLE de modeles, exigence du decideur (2026-08-04) : « au minimum litellm doit pouvoir servir un kimi, un gemma, un deepseek, qwen, GLM ». Distinct des suggestions par roleKey : une famille servie n'est pas forcement recommandee pour un role.",
+    "servies": {
+      "Gemma": "gemma4:e4b (9,6 Go) — tools + thinking. Meilleur du parc au banc d'essai.",
+      "Qwen": "qwen3.5:9b (6,6 Go, vision+tools+thinking) et qwen2.5-coder:7b (4,7 Go, code).",
+      "DeepSeek": "deepseek-r1:8b (5,2 Go) — distill Llama 8B. PAS de tool-calling. Emet son raisonnement MEME avec `think: false` (c'est son template) : prevoir un budget large. Ajoute et eprouve le 2026-08-04.",
+      "GLM": "glm4:9b (5,5 Go, contexte 128K) — PAS de tool-calling, PAS de raisonnement. Le plus rapide des quatre a repondre. Ajoute et eprouve le 2026-08-04."
+    },
+    "non_servie": {
+      "Kimi": "IMPOSSIBLE EN LOCAL, et ce n'est pas une question de reglage : Kimi K2 est un MoE de 1000 milliards de parametres (~600 Go en Q4, ~250 Go meme en 1-bit). Ollama ne le distribue QU'EN TAG `:cloud` (kimi-k2.6:cloud) — il n'existe aucun poids local a tirer, quelle que soit la carte. Deux voies possibles, TOUTES DEUX distantes et payantes, a arbitrer par le decideur : (a) API Moonshot via LiteLLM (`moonshot/...` + cle), (b) Ollama Cloud (`:cloud` + compte). Servir Kimi signifie donc sortir du self-hosted — arbitrage, pas detail technique."
+    },
+    "eprouve_le": "2026-08-04",
+    "methode": "Chaque famille servie a ete verifiee par un APPEL REEL a travers la passerelle, pas par la presence d'une ligne au catalogue."
+  }
 }
