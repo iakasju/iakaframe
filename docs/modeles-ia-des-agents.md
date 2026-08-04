@@ -36,8 +36,8 @@ trop étroite.
 | `portefeuille` | `qwen3.5:9b` *(~6.6 Go)* | Arbitrage transverse : a besoin d'outils et de raisonnement, pas de vision. |
 | `coordination` | `qwen3.5:9b` *(~6.6 Go)* | Dispatch et suivi : appelle des outils, doit tenir un fil long. |
 | `cadrage` | `gemma4:e4b` *(~9.6 Go)* | Le plus gros modele du parc. EPROUVE le 2026-08-03 sur une vraie tache de cadrage (epingler une image sur son digest) : structure tenue, AUCUN fait invente (digest repris exactement), et de […] |
-| `dev` | `qwen2.5-coder:7b` *(~4.7 Go)* | Modele de code dedie, le seul du parc a porter la completion de code (insert). |
-| `qualite` | `qwen2.5-coder:7b` *(~4.7 Go)* | Lit du code et des traces de test : meme profil que dev, jamais la meme instance. |
+| `dev` | `qwen2.5-coder:7b` *(~4.7 Go)* | Modele de code dedie, le seul du parc a porter la completion de code (insert). EPROUVE PAR CODE EXECUTE le 2026-08-04, suite a une revue du classement de l'arene (objectif coding). L'arene […] |
+| `qualite` | `qwen2.5-coder:7b` *(~4.7 Go)* | Lit du code et des traces de test : meme profil que dev, jamais la meme instance. EPROUVE PAR CODE EXECUTE le 2026-08-04, suite a une revue du classement de l'arene (objectif coding). […] |
 | `deploiement` | `qwen3.5:9b` *(~6.6 Go)* | Ops : enchaine des appels d'outils. mistral:7b est ECARTE ici — il ne porte PAS le tool-calling. |
 | `design` | `qwen3.5:9b` *(~6.6 Go)* | Seul poste ou la vision est requise (lecture de maquettes). qwen3-vl-4b = repli leger 3,3 Go. |
 | `documentation` | `gemma4:e4b` *(~9.6 Go)* | CORRIGE DEUX FOIS LE MEME JOUR (2026-08-03), et la seconde fois parce que la premiere mesure etait TROP ETROITE. (1) Suggestion d'origine : mistral, choisi sur sa taille, sans aucune […] |
@@ -105,6 +105,8 @@ Pour les deux dernières, « installer » signifie **vérifier** — il n'y a ri
 - EXPLIQUE NOTRE MESURE — Qwen3.5 est meilleur QUE SUR LE PAPIER : il mene SWE-bench / Terminal-Bench / TAU2 a PLEINE PRECISION, mais il est decrit comme 'flaky under quantization', la ou Gemma 4 reste consistant. Notre parc est en Q4_K_M : les classements pleine precision NE S'APPLIQUENT PAS a notre installation. C'est la cause probable de ce que nous avons mesure (gemma4 plus rapide ET plus docile que qwen3.5 sur nos deux taches).
 - A ARBITRER — l'etat de l'art place BGE-M3 et Qwen3-Embedding devant nomic-embed-text pour la recherche multilingue/hybride, mais nomic reste juge solide sur materiel modeste (contexte 8192). Aucun changement propose sans un besoin RAG reel : on ne tire pas un modele pour un usage qui n'existe pas encore.
 - SANS OBJET POUR NOUS — les meilleurs modeles de code 2026 (qwen3-coder:30b, gemma4 26B-A4B) depassent la VRAM disponible. La veille est lue a travers la contrainte materielle, sinon elle recommande l'inaccessible.
+- CLASSEMENT DE L'ARENE, CONFRONTE (2026-08-04, objectif coding) — le sommet est hors de portee : Kimi K3 mene le Frontend Code Arena (1679 Elo) avec 2 800 milliards de parametres ; GLM-5 mene chez les open-weights ; le meilleur open-weight n'est plus qu'a ~55 points Elo du meilleur modele proprietaire. Seule la categorie « sous 14B » nous concerne, et elle designait qwen2.5-coder:14b et phi-4:14b. VERDICT APRES MESURE : notre qwen2.5-coder:7b les egale ou les bat, deux fois plus vite. Un classement Elo mesure des preferences humaines sur des conversations, souvent sur des modeles qu'on ne peut pas faire tourner : il oriente la recherche, il ne decide pas a la place d'un banc execute.
+- gemma4:e4b ECARTE des alternatives de `dev` et `qualite` (il y figurait sans mesure) : 7/10 au banc 1, contre 10/10 pour les modeles de code. Il domine notre banc de REDACTION, il n'est pas un modele de code — les deux ne se deduisent pas l'un de l'autre.
 
 ---
 
