@@ -82,7 +82,11 @@ test('--binding : lit le binding demande, et ses affectations sont celles du can
   const o = JSON.parse(run(['models', '--json', '--timeout', '1', '--binding', 'iakaframe-ollama-default']));
   assert.equal(o.bindingId, 'iakaframe-ollama-default');
   const models = new Set(o.roles.flatMap(r => r.personas.map(p => p.model)));
-  assert.ok(models.has('qwen2.5-coder:7b'), 'le binding ollama doit porter des modeles locaux');
+  // Ne PAS coder en dur un modele precis : les suggestions bougent avec les mesures (le poste
+  // dev est passe du 7B au 14B apres une mesure de variance). On verifie la PROPRIETE qui doit
+  // tenir — des modeles locaux, jamais des modeles Claude — pas une valeur du jour.
+  assert.ok([...models].some(m => /^(qwen|gemma|mistral|glm|deepseek|phi)/i.test(m)),
+    `le binding ollama doit porter des modeles locaux, lu : ${[...models].join(', ')}`);
   assert.ok(!models.has('sonnet') && !models.has('opus'), 'aucun modele du binding claude ne doit fuiter');
   // GATE QUALITE 2026-08-03 : cette assertion exigeait `en-place` pour tout role couvert — elle
   // VERROUILLAIT le defaut bloquant (statut aveugle a la disponibilite reelle) au lieu de

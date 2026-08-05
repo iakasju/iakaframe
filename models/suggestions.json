@@ -17,7 +17,8 @@
       "A ARBITRER — l'etat de l'art place BGE-M3 et Qwen3-Embedding devant nomic-embed-text pour la recherche multilingue/hybride, mais nomic reste juge solide sur materiel modeste (contexte 8192). Aucun changement propose sans un besoin RAG reel : on ne tire pas un modele pour un usage qui n'existe pas encore.",
       "SANS OBJET POUR NOUS — les meilleurs modeles de code 2026 (qwen3-coder:30b, gemma4 26B-A4B) depassent la VRAM disponible. La veille est lue a travers la contrainte materielle, sinon elle recommande l'inaccessible.",
       "CLASSEMENT DE L'ARENE, CONFRONTE (2026-08-04, objectif coding) — le sommet est hors de portee : Kimi K3 mene le Frontend Code Arena (1679 Elo) avec 2 800 milliards de parametres ; GLM-5 mene chez les open-weights ; le meilleur open-weight n'est plus qu'a ~55 points Elo du meilleur modele proprietaire. Seule la categorie « sous 14B » nous concerne, et elle designait qwen2.5-coder:14b et phi-4:14b. VERDICT APRES MESURE : notre qwen2.5-coder:7b les egale ou les bat, deux fois plus vite. Un classement Elo mesure des preferences humaines sur des conversations, souvent sur des modeles qu'on ne peut pas faire tourner : il oriente la recherche, il ne decide pas a la place d'un banc execute.",
-      "gemma4:e4b ECARTE des alternatives de `dev` et `qualite` (il y figurait sans mesure) : 7/10 au banc 1, contre 10/10 pour les modeles de code. Il domine notre banc de REDACTION, il n'est pas un modele de code — les deux ne se deduisent pas l'un de l'autre."
+      "gemma4:e4b ECARTE des alternatives de `dev` et `qualite` (il y figurait sans mesure) : 7/10 au banc 1, contre 10/10 pour les modeles de code. Il domine notre banc de REDACTION, il n'est pas un modele de code — les deux ne se deduisent pas l'un de l'autre.",
+      "PROTOCOLE — un run par modele NE CLASSE PAS. Ces modeles sont non deterministes meme a temperature 0.1 : sur le banc semver, le meme modele rate des cas differents d'une execution a l'autre. Constate a mes depens : une conclusion publiee le 2026-08-04 a du etre annulee le lendemain. Regle desormais : au moins 3 runs, et on regarde la DISPERSION autant que le score. Un modele regulier a 11/12 vaut mieux qu'un modele qui oscille entre 9 et 12."
     ]
   },
   "source": "Parc mesure le 2026-08-03 sur l'Ollama de reference (GET /api/tags) et la passerelle LiteLLM (13 entrees, GET /v1/models). Pas de veille web a cette date : les suggestions ne recommandent QUE des modeles constates presents.",
@@ -60,26 +61,28 @@
       "why": "Le plus gros modele du parc. EPROUVE le 2026-08-03 sur une vraie tache de cadrage (epingler une image sur son digest) : structure tenue, AUCUN fait invente (digest repris exactement), et de vraies questions au decideur. MAIS il a RATE le seul risque qui comptait — verifier que le digest est encore recuperable AVANT de modifier — et a propose comme rollback un retour au tag flottant, qui est precisement le faux filet. BROUILLON de cadrage, jamais cadrage valide."
     },
     "dev": {
-      "recommended": "qwen2.5-coder:7b",
+      "recommended": "qwen2.5-coder:14b",
       "alternatives": [
+        "qwen2.5-coder:7b",
         "phi4:14b"
       ],
       "requires": [
         "tools"
       ],
-      "sizeGb": 4.7,
-      "why": "Modele de code dedie, le seul du parc a porter la completion de code (insert). EPROUVE PAR CODE EXECUTE le 2026-08-04, suite a une revue du classement de l'arene (objectif coding). L'arene recommandait de monter en 14B ; la mesure sur nos taches dit le CONTRAIRE. Deux bancs, code genere puis LANCE contre des assertions (on n'a pas juge le code a l'oeil) : banc 1 (parseDuration, 10 cas) et banc 2 (compareVersions semver, 12 cas dont les regles de pre-release). Resultats banc 2 : qwen2.5-coder:7b 12/12 en 38 s ; qwen2.5-coder:14b 11/12 en 76 s (il rate « 2.0.0 vs 10.0.0 », une comparaison numerique de base) ; phi4:14b 12/12 en 85 s ; deepseek-coder-v2 10/12 en 63 s (rate les regles de pre-release). LE 7B BAT LE 14B DE SA PROPRE FAMILLE, deux fois plus vite et pour 4,3 Go de moins. Aucun changement : monter en taille couterait de la VRAM sur une carte deja etroite, sans rien acheter."
+      "sizeGb": 9.0,
+      "why": "Modele de code dedie, le seul du parc a porter la completion de code (insert). CORRIGE LE 2026-08-05 APRES MESURE DE VARIANCE — et cette correction annule celle de la veille, qui reposait sur UN SEUL RUN par modele. Rejouer le banc a montre que ces modeles ne sont PAS deterministes, meme a temperature 0.1 : deux executions, deux bugs differents. Trois runs par modele sur le banc semver (12 assertions, code EXECUTE) : qwen2.5-coder:14b = 11, 11, 11 (parfaitement stable, rate toujours le meme cas « 1.2 vs 1.2.0 », donc previsible) ; qwen2.5-coder:7b = 9, 9, 10 (dispersion, bugs variables). Le 14B marque MIEUX et surtout REGULIEREMENT. Ecart de vitesse a chaud : ~13 s contre ~9 s — les « 76 s contre 38 s » d'hier incluaient le chargement en VRAM et exageraient l'ecart d'un facteur 5. Cout : +4,3 Go (9,0 Go), qui tiennent dans la carte. LECON : le 12/12 du 7B au premier banc etait un coup de chance, et j'avais bati une conclusion dessus — puis rejete la recommandation de l'arene, qui avait raison. Un run unique ne classe pas."
     },
     "qualite": {
-      "recommended": "qwen2.5-coder:7b",
+      "recommended": "qwen2.5-coder:14b",
       "alternatives": [
+        "qwen2.5-coder:7b",
         "phi4:14b"
       ],
       "requires": [
         "tools"
       ],
-      "sizeGb": 4.7,
-      "why": "Lit du code et des traces de test : meme profil que dev, jamais la meme instance. EPROUVE PAR CODE EXECUTE le 2026-08-04, suite a une revue du classement de l'arene (objectif coding). L'arene recommandait de monter en 14B ; la mesure sur nos taches dit le CONTRAIRE. Deux bancs, code genere puis LANCE contre des assertions (on n'a pas juge le code a l'oeil) : banc 1 (parseDuration, 10 cas) et banc 2 (compareVersions semver, 12 cas dont les regles de pre-release). Resultats banc 2 : qwen2.5-coder:7b 12/12 en 38 s ; qwen2.5-coder:14b 11/12 en 76 s (il rate « 2.0.0 vs 10.0.0 », une comparaison numerique de base) ; phi4:14b 12/12 en 85 s ; deepseek-coder-v2 10/12 en 63 s (rate les regles de pre-release). LE 7B BAT LE 14B DE SA PROPRE FAMILLE, deux fois plus vite et pour 4,3 Go de moins. Aucun changement : monter en taille couterait de la VRAM sur une carte deja etroite, sans rien acheter."
+      "sizeGb": 9.0,
+      "why": "Lit du code et des traces de test : meme profil que dev, jamais la meme instance. CORRIGE LE 2026-08-05 APRES MESURE DE VARIANCE — et cette correction annule celle de la veille, qui reposait sur UN SEUL RUN par modele. Rejouer le banc a montre que ces modeles ne sont PAS deterministes, meme a temperature 0.1 : deux executions, deux bugs differents. Trois runs par modele sur le banc semver (12 assertions, code EXECUTE) : qwen2.5-coder:14b = 11, 11, 11 (parfaitement stable, rate toujours le meme cas « 1.2 vs 1.2.0 », donc previsible) ; qwen2.5-coder:7b = 9, 9, 10 (dispersion, bugs variables). Le 14B marque MIEUX et surtout REGULIEREMENT. Ecart de vitesse a chaud : ~13 s contre ~9 s — les « 76 s contre 38 s » d'hier incluaient le chargement en VRAM et exageraient l'ecart d'un facteur 5. Cout : +4,3 Go (9,0 Go), qui tiennent dans la carte. LECON : le 12/12 du 7B au premier banc etait un coup de chance, et j'avais bati une conclusion dessus — puis rejete la recommandation de l'arene, qui avait raison. Un run unique ne classe pas."
     },
     "deploiement": {
       "recommended": "qwen3.5:9b",

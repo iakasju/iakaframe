@@ -17,8 +17,8 @@ seul le moteur change. Aucune n'est imposée : on choisit celle qu'on veut utili
 | 🟡 Odin | `portefeuille` | `opus` | `qwen3.5:9b` |
 | 🟠 Aragorn | `coordination` | `opus` | `qwen3.5:9b` |
 | 🔵 Gandalf | `cadrage` | `opus` | `gemma4:e4b` |
-| 🔴 Gimli | `dev` | `sonnet` | `qwen2.5-coder:7b` |
-| 🔴 Legolas | `qualite` | `sonnet` | `qwen2.5-coder:7b` |
+| 🔴 Gimli | `dev` | `sonnet` | `qwen2.5-coder:14b` |
+| 🔴 Legolas | `qualite` | `sonnet` | `qwen2.5-coder:14b` |
 | 🟣 Helm | `deploiement` | `sonnet` | `qwen3.5:9b` |
 | 🟠 Loki | `design` | `sonnet` | `qwen3.5:9b` |
 | 🟠 Nathalie | `documentation` | `sonnet` | `gemma4:e4b` |
@@ -36,8 +36,8 @@ trop étroite.
 | `portefeuille` | `qwen3.5:9b` *(~6.6 Go)* | Arbitrage transverse : a besoin d'outils et de raisonnement, pas de vision. |
 | `coordination` | `qwen3.5:9b` *(~6.6 Go)* | Dispatch et suivi : appelle des outils, doit tenir un fil long. |
 | `cadrage` | `gemma4:e4b` *(~9.6 Go)* | Le plus gros modele du parc. EPROUVE le 2026-08-03 sur une vraie tache de cadrage (epingler une image sur son digest) : structure tenue, AUCUN fait invente (digest repris exactement), et de […] |
-| `dev` | `qwen2.5-coder:7b` *(~4.7 Go)* | Modele de code dedie, le seul du parc a porter la completion de code (insert). EPROUVE PAR CODE EXECUTE le 2026-08-04, suite a une revue du classement de l'arene (objectif coding). L'arene […] |
-| `qualite` | `qwen2.5-coder:7b` *(~4.7 Go)* | Lit du code et des traces de test : meme profil que dev, jamais la meme instance. EPROUVE PAR CODE EXECUTE le 2026-08-04, suite a une revue du classement de l'arene (objectif coding). […] |
+| `dev` | `qwen2.5-coder:14b` *(~9 Go)* | Modele de code dedie, le seul du parc a porter la completion de code (insert). CORRIGE LE 2026-08-05 APRES MESURE DE VARIANCE — et cette correction annule celle de la veille, qui reposait […] |
+| `qualite` | `qwen2.5-coder:14b` *(~9 Go)* | Lit du code et des traces de test : meme profil que dev, jamais la meme instance. CORRIGE LE 2026-08-05 APRES MESURE DE VARIANCE — et cette correction annule celle de la veille, qui reposait […] |
 | `deploiement` | `qwen3.5:9b` *(~6.6 Go)* | Ops : enchaine des appels d'outils. mistral:7b est ECARTE ici — il ne porte PAS le tool-calling. |
 | `design` | `qwen3.5:9b` *(~6.6 Go)* | Seul poste ou la vision est requise (lecture de maquettes). qwen3-vl-4b = repli leger 3,3 Go. |
 | `documentation` | `gemma4:e4b` *(~9.6 Go)* | CORRIGE DEUX FOIS LE MEME JOUR (2026-08-03), et la seconde fois parce que la premiere mesure etait TROP ETROITE. (1) Suggestion d'origine : mistral, choisi sur sa taille, sans aucune […] |
@@ -107,6 +107,7 @@ Pour les deux dernières, « installer » signifie **vérifier** — il n'y a ri
 - SANS OBJET POUR NOUS — les meilleurs modeles de code 2026 (qwen3-coder:30b, gemma4 26B-A4B) depassent la VRAM disponible. La veille est lue a travers la contrainte materielle, sinon elle recommande l'inaccessible.
 - CLASSEMENT DE L'ARENE, CONFRONTE (2026-08-04, objectif coding) — le sommet est hors de portee : Kimi K3 mene le Frontend Code Arena (1679 Elo) avec 2 800 milliards de parametres ; GLM-5 mene chez les open-weights ; le meilleur open-weight n'est plus qu'a ~55 points Elo du meilleur modele proprietaire. Seule la categorie « sous 14B » nous concerne, et elle designait qwen2.5-coder:14b et phi-4:14b. VERDICT APRES MESURE : notre qwen2.5-coder:7b les egale ou les bat, deux fois plus vite. Un classement Elo mesure des preferences humaines sur des conversations, souvent sur des modeles qu'on ne peut pas faire tourner : il oriente la recherche, il ne decide pas a la place d'un banc execute.
 - gemma4:e4b ECARTE des alternatives de `dev` et `qualite` (il y figurait sans mesure) : 7/10 au banc 1, contre 10/10 pour les modeles de code. Il domine notre banc de REDACTION, il n'est pas un modele de code — les deux ne se deduisent pas l'un de l'autre.
+- PROTOCOLE — un run par modele NE CLASSE PAS. Ces modeles sont non deterministes meme a temperature 0.1 : sur le banc semver, le meme modele rate des cas differents d'une execution a l'autre. Constate a mes depens : une conclusion publiee le 2026-08-04 a du etre annulee le lendemain. Regle desormais : au moins 3 runs, et on regarde la DISPERSION autant que le score. Un modele regulier a 11/12 vaut mieux qu'un modele qui oscille entre 9 et 12.
 
 ---
 

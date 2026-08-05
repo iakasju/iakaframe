@@ -8,8 +8,8 @@ assignments:
   - { personaId: odin,     runner: ollama-distant, model: "qwen3.5:9b" }
   - { personaId: aragorn,  runner: ollama-distant, model: "qwen3.5:9b" }
   - { personaId: gandalf,  runner: ollama-distant, model: "gemma4:e4b" }
-  - { personaId: gimli,    runner: ollama-distant, model: "qwen2.5-coder:7b" }
-  - { personaId: legolas,  runner: ollama-distant, model: "qwen2.5-coder:7b" }
+  - { personaId: gimli,    runner: ollama-distant, model: "qwen2.5-coder:14b" }
+  - { personaId: legolas,  runner: ollama-distant, model: "qwen2.5-coder:14b" }
   - { personaId: helm,     runner: ollama-distant, model: "qwen3.5:9b" }
   - { personaId: loki,     runner: ollama-distant, model: "qwen3.5:9b", tools: [comfyui-local] }
   - { personaId: nathalie, runner: ollama-distant, model: "gemma4:e4b" }
@@ -36,7 +36,7 @@ fait **dans la source**, puis se rejoue ici — jamais l'inverse.
 |---|---|---|---|
 | portefeuille · coordination · deploiement · design | Odin · Aragorn · Helm · Loki | `qwen3.5:9b` | outils + raisonnement, et **vision** pour le design |
 | cadrage · frame · documentation | Gandalf · Fëanor · Nathalie | `gemma4:e4b` | **le meilleur du parc au banc d'essai** (cf. ci-dessous) |
-| dev · qualite | Gimli · Legolas | `qwen2.5-coder:7b` | seul modèle de code dédié du parc (complétion `insert`) |
+| dev · qualite | Gimli · Legolas | `qwen2.5-coder:14b` | **le plus régulier au banc semver** : 11/12 sur 3 runs, contre 9-10 pour le 7B |
 
 ## Trois faits d'usage, pas des détails
 
