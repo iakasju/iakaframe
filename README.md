@@ -1,6 +1,7 @@
 # iakaframe
 
-**La méthode de travail entre l'utilisateur, Cowork et Claude Code — formalisée et réutilisable.**
+**Une méthode de travail entre un décideur humain et une équipe d'agents — formalisée,
+outillée, et portable d'un runner à l'autre.**
 
 Ce dépôt extrait et généralise la façon de collaborer mise au point au fil des
 projets `IAKA Vod`, `robotimmo`, `iakaAFstorage`, `iakabox` et `iakaJarvis`.
@@ -69,20 +70,28 @@ jamais un fichier existant sans `--force`.
 ### Les kits de démarrage (`kits/`)
 
 Un **kit** est ce qui est réellement déposé sur un poste pour qu'un runner applique la
-méthode. Il en existe un par couple (méthode, hôte) — par exemple `iakaframe-claude`,
-`iakaframe-codex`, `iakaframe-openwebui`, `scrum-claude`, `kanban-claude`…
+méthode. **La méthode ne dépend d'aucun hôte** : il existe un kit par couple
+(méthode, hôte), et c'est le kit qui traduit la méthode dans le format attendu par
+l'hôte visé.
+
+| | Hôtes disponibles | Méthodes disponibles |
+|---|---|---|
+| Kits publiés | `claude`, `codex`, `openwebui`, `ollama` | `iakaframe`, `scrum`, `kanban`, `shapeup`, `leanstartup`, `design-thinking`, `waterfall`, `gtd` |
+
+Quel que soit l'hôte, un kit dépose la même chose sous trois formes différentes :
 
 ```
-kits/iakaframe-claude/
-├── CLAUDE.md                       ← Contrat de travail du projet (à remplir)
-├── .claude/settings.local.json     ← Permissions (allowlist large + denylist destructive)
-├── .claude/commands/               ← Commandes de la méthode (iaka-brief, iaka-cadre, iaka-etat…)
-└── global/                         ← Conf globale : CLAUDE.md, hooks de garde-fous
+kits/<methode>-<hote>/
+├── <contrat de projet>     ← ce que l'agent lit en priorité (CLAUDE.md, AGENTS.md… selon l'hôte)
+├── <réglages de l'hôte>    ← permissions : allowlist large + denylist destructive
+├── <commandes>             ← verbes de la méthode (iaka-brief, iaka-cadre, iaka-etat…)
+└── global/                 ← configuration hors projet + hooks de garde-fous
 ```
 
 **Pour démarrer un projet :** lancer `iakaframe init` dans le dossier (le kit est déployé
-sans rien écraser), puis remplir `CLAUDE.md` et `specs/PROJET.md`. Le déploiement
-multi-hôte se fait par [`install.mjs`](./install.mjs).
+sans rien écraser), puis remplir le contrat de projet et `specs/PROJET.md`. Le déploiement
+multi-hôte — un seul geste, tous les hôtes présents sur le poste — se fait par
+[`install.mjs`](./install.mjs).
 
 ---
 
@@ -90,10 +99,11 @@ multi-hôte se fait par [`install.mjs`](./install.mjs).
 
 Deux mécanismes la rendent automatique :
 
-1. **`C:\Users\sjupi\.claude\CLAUDE.md`** (instructions globales, lues à chaque
-   session, tous projets confondus). Il dit à Claude : sur un projet **neuf/vide**
-   (ni `CLAUDE.md` ni `specs/`), amorcer la méthode iakaframe avant toute autre
-   chose. Sur un projet qui a déjà son `CLAUDE.md`, celui-ci **prime** — pas
+1. **Le contrat global du runner** — le fichier d'instructions que l'agent lit à
+   chaque session, tous projets confondus, déposé dans le dossier de configuration de
+   l'hôte par [`install.mjs`](./install.mjs). Il pose la règle : sur un projet
+   **neuf ou vide** (ni contrat de projet, ni `specs/`), amorcer la méthode avant
+   toute autre chose ; sur un projet qui a déjà le sien, **celui-ci prime** — pas
    d'écrasement.
 
 2. **`iakaframe init`** — déploiement en une commande :
@@ -106,14 +116,14 @@ Deux mécanismes la rendent automatique :
 
    La commande ne remplace jamais un fichier existant (sauf `--force`).
 
-> Concrètement : dans un nouveau dossier, lancez `claude` et demandez « initialise
+> Concrètement : dans un nouveau dossier, ouvrez votre runner et demandez « initialise
 > le projet » — la méthode se met en place toute seule.
 
 ---
 
 ## La commande « init iakaframe »
 
-Dans n'importe quel répertoire, dire à Claude **« init iakaframe »**. Selon le contenu :
+Dans n'importe quel répertoire, dire à l'agent **« init iakaframe »**. Selon le contenu :
 
 - **Répertoire vide** → nouveau projet : dépôt Forgejo nommé d'après le dossier,
   structure de la méthode, premier commit, état des lieux v0.1.0, push.
@@ -157,7 +167,7 @@ iakaframe snapshot --reason pause   --note "WIP : reprendre par les tests"
 ```
 
 Le script capte les faits git (version, branche, commits, état de l'arbre) et tient un
-journal append-only ; **Cowork complète le récit de reprise** dans le `.md`.
+journal append-only ; **le rôle de cadrage complète le récit de reprise** dans le `.md`.
 
 ### Commande « update iakaframe »
 
@@ -183,12 +193,12 @@ de session** : les titres ASCII (`banner`), l'entrée de projet (`brief`), les g
 iakaframe banner "IAKAFRAME"                 # titre ASCII (FIGlet embarqué, zéro dep)
 iakaframe go mon-projet                       # entre dans le projet : titre + brief, puis runner
 iakaframe brief mon-projet                    # dernière étape + backlog + agents assignés
-iakaframe jalon --project mon-projet --name "Cadrage validé" --from Gandalf --to Gimli
+iakaframe jalon --project mon-projet --name "Cadrage validé" --from cadrage --to realisation
 iakaframe recap mon-projet                    # fermeture : commits + agents mobilisés
 ```
 
-Ces rituels sont câblés au **portefeuille** via les **hooks** de
-`C:\work\.claude\settings.json` :
+Ces rituels se câblent au **dossier chapeau** via les **hooks** du runner — le fichier de
+réglages de l'hôte, déposé par [`install.mjs`](./install.mjs) :
 
 - **`SessionStart`** → affiche le titre ASCII `IAKAFRAME` (`iakaframe banner IAKAFRAME`).
 - **`SessionEnd`** → régénère l'état des lieux pour préparer la reprise
@@ -196,45 +206,54 @@ Ces rituels sont câblés au **portefeuille** via les **hooks** de
 
 ---
 
-## L'équipe d'agents (« Yakaframe Avancé »)
+## L'équipe de rôles
 
-La couche réflexion+exécution se spécialise en une **équipe d'agents nommés**, au périmètre
-fermé, qui incarnent la chaîne CI/CD. Référence : [`specs/equipe-agents.md`](./specs/equipe-agents.md).
+La couche réflexion + exécution se spécialise en une **équipe de rôles** à périmètres
+fermés, qui incarnent la chaîne de bout en bout. Chaque rôle est tenu par un **persona**
+— librement nommable, et portable d'un runner à l'autre.
+Référence : [`specs/equipe-agents.md`](./specs/equipe-agents.md).
 
 ```
-l'utilisateur → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par projet) → agents
+le décideur → portefeuille (dossier chapeau) → coordination (par projet) → rôles d'exécution
 ```
 
-- 🦅 **Odin** — super-agent **portefeuille**, disponible en permanence, seul affecté à `C:\work` : switch d'équipe, démarrage projet, création d'équipe. **Au premier appel par session, il régénère et affiche le dashboard projets** (`naonedge-dashboard\scan.ps1` puis `index.html`) avant la synthèse.
-- 🛡️ **Aragorn** — coordination entre agents, **3 phases** (cadrage → réalisation → staging), dispatch à la demande, canal **iakaHub ↔ Discord** (avec repli terminal).
-- 🧙 **Gandalf** (cadrage) · ⚒️ **Gimli** (dev + devops jusqu'au staging) · 🏹 **Legolas** (qualité) · 🌉 **Helm** (**squad prod** : déploiement + surveillance + alertes) · 🎭 **Loki** (design) · 📖 **Nathalie** (guides).
+| Rôle | Périmètre |
+|---|---|
+| **Portefeuille** | Au-dessus de tous les projets : changer d'équipe, démarrer un projet, vue d'ensemble. |
+| **Coordination** | Répartit le besoin, suit les phases (cadrage → réalisation → staging), décide qui intervient. |
+| **Cadrage** | Transforme un besoin en instruction fermée et vérifiable. N'écrit jamais de code. |
+| **Réalisation** | Lit l'instruction, code, build, teste, commite, déploie jusqu'au staging. |
+| **Qualité** | Tests, lint, typage, couverture — rend un verdict pass/fail. Ne corrige jamais le code. |
+| **Production** | Promotion en production et surveillance, avec feu vert humain obligatoire. |
+| **Design** | Supports visuels et UX, selon la charte du projet. |
+| **Documentation** | Guides et modes d'emploi destinés à l'utilisateur final. |
 
-**Modèle d'étanchéité** : définitions mutualisées (source unique), exécution étanche (chaque
-projet instancie sa propre équipe scopée). **Incarnation** : un subagent (`agents/`) + une
-skill-rôle (`skills/`).
+**Modèle d'étanchéité** : définitions mutualisées (source unique dans `library/`),
+exécution étanche — chaque projet instancie sa propre équipe scopée. **Incarnation** :
+un persona (`library/personas/`) apparié à une skill de rôle (`library/skills/`), l'appariement
+au runner concret étant porté par `bindings/`.
 
 ```bash
 iakaframe agents --action fullteam --project /chemin/mon-projet   # deployer l'equipe
-iakaframe agents --action affect --agent odin --project ~/work    # Odin au portefeuille
+iakaframe agents --action affect --agent <persona> --project ~/work
 ```
 
 ---
 
 ## Résumé de l'investigation — la méthode telle qu'elle est réellement appliquée
 
-En analysant les projets et la mémoire Claude associée, la méthode se résume à
+En analysant les projets et leur mémoire de travail, la méthode se résume à
 **trois acteurs, un cycle, des preuves persistantes** :
 
 ### Trois acteurs, zéro chevauchement
-- **l'utilisateur (développeur)** = décideur : vision, arbitrages, validation, test réel.
-- **Cowork (Claude réflexion)** = architecte/rédacteur : analyse en lecture seule,
-  rédige les instructions. **Ne code jamais.**
-- **Claude Code (Claude exécution)** = développeur IA : lit l'instruction, code,
-  build, teste, commite.
+- **le décideur (humain)** : vision, arbitrages, validation, test réel.
+- **le cadrage** = architecte/rédacteur : analyse en lecture seule, rédige les
+  instructions. **Ne code jamais.**
+- **l'exécution** = développeur IA : lit l'instruction, code, build, teste, commite.
 
 ### Un cycle répété pour chaque feature
-besoin → analyse Cowork → discussion → **instruction écrite** → validation →
-implémentation Claude Code → test & feedback → (boucle).
+besoin → analyse (cadrage) → discussion → **instruction écrite** → validation →
+implémentation (exécution) → test & feedback → (boucle).
 
 ### Des preuves transverses (relevées dans la mémoire des projets)
 - **Langue : français**, réponses concises. Code/identifiants en anglais.
@@ -259,6 +278,6 @@ implémentation Claude Code → test & feedback → (boucle).
 
 ## Origine
 
-La première formalisation vit dans `C:\iakaVODdash\claudecowork\`
-(`methode-de-travail.md` + `.html`). `iakaframe` en est la version
-project-agnostic, destinée à être réutilisée tel quel sur les futurs projets.
+La première formalisation est née sur un projet unique, sous la forme d'un simple
+`methode-de-travail.md`. `iakaframe` en est la version agnostique — indépendante du
+projet comme du runner —, destinée à être réutilisée telle quelle.
