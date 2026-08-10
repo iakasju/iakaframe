@@ -93,6 +93,11 @@ test('G-ROUTE-1 : reciprocite Helm <-> Charon sur tout artefact par-persona', ()
 //   Regle BINAIRE et BALAYANTE : toute ligne qui nomme Helm doit aussi nommer Charon. C'est le seul
 //   critere qui attrape F2 (« le deploiement (→ Helm) », « prete pour Helm ») SANS enumerer des
 //   tournures — enumerer, c'est reproduire le defaut qu'on corrige.
+//   CONSEQUENCE DE REDACTION, assumee et non contournee : chez ces trois personas, les deux noms du
+//   squad prod doivent tenir sur la MEME ligne. Ce n'est pas une contrainte de mise en page subie —
+//   c'est le remede meme : le defaut corrige ici consistait precisement a nommer un jumeau sans
+//   l'autre. Si une phrase doit etre reflowee pour les garder ensemble, on la reflowe ; on ne
+//   relache pas la garde.
 //
 // Niveau B — artefacts par-persona de HELM lui-meme. Lui a toutes les raisons de dire « Helm » ;
 //   ce qu'il ne peut plus faire, c'est REVENDIQUER LA TRAVERSEE. Regle : toute ligne portant une
