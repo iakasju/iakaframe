@@ -432,7 +432,7 @@ specs/instructions/_TEMPLATE.md <span class="cmt"># gabarit d'instruction</span>
       <pre><code>pwsh iakaframe-snapshot.ps1 -Reason pause
 pwsh iakaframe-update.ps1            <span class="cmt"># commit global + push Forgejo</span></code></pre>
     </li>
-    <li><strong>Boucle</strong> : feature suivante → retour à l'étape 5. La chaîne s'arrête au <em>staging</em> ; la mise en prod est un squad séparé (🌉 Helm) sur ton feu vert.</li>
+    <li><strong>Boucle</strong> : feature suivante → retour à l'étape 5. La chaîne s'arrête au <em>staging</em> ; la mise en prod est un squad séparé : la bascule est portée par ⛴️ <strong>Charon</strong>, sur ton feu vert, et 🌉 <strong>Helm</strong> veille ensuite sur ce qui tourne — sans attendre d'ordre.</li>
   </ol>
 
   <div class="note tip"><p><b>Différence clé avec Claude.</b> Chez Claude, les rôles sont des sous-agents dispatchables. Sous Codex, ce sont des <strong>personas joués en série</strong> : « je suis Gandalf, je cadre » puis « je suis Gimli, j'implémente ». Le gate « ne pas valider son propre code » se tient via une <strong>passe de revue distincte</strong> (persona Legolas, sur le diff seul) + la <strong>CI Forgejo</strong> comme juge objectif.</p></div>
