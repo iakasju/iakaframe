@@ -23,13 +23,24 @@ import { resolveSkills } from './resolve-skills.js';
 // vocabulaire-roles-agnostique.md). L'entree `feanor: 'frame'` est ecrite au vocabulaire CANON
 // (le role `frame` n'a pas d'ancien equivalent : il est net-neuf). La table est donc, a partir
 // d'ici, a DEUX vocabulaires. C'est DELIBERE et documente, pas une incoherence accidentelle.
+// 🛑 DETTE ECRITE LA OU ELLE SE LIT (scission du squad prod, 2026-08-08). Apres la scission,
+// cette table dit que **Charon fait du deploiement** et que **Helm fait de la coordination** —
+// et la seconde moitie est FAUSSE : Helm ne coordonne rien, il surveille. L'entree `helm` n'est
+// PAS corrigee ici, et c'est delibere : `ROLE_OF` est le dernier porteur du vocabulaire
+// d'origine, et sa reconciliation est HORS PERIMETRE DECLARE (poste B3 de
+// vocabulaire-roles-agnostique.md), gele par trois instructions. Y toucher pour un seul persona
+// ouvrirait ce chantier lexical en passant, sans arbitrage.
+// Une dette VISIBLE a l'endroit ou on la lit vaut mieux qu'une dette rangee dans un ticket.
+// La verite sur les roles vit dans le frontmatter `roleKey` des personas — c'est LUI que
+// `assemble` lit, jamais cette table.
 export const ROLE_OF = {
   odin: 'portefeuille',
   aragorn: 'coordination',
   gandalf: 'architecture',
   gimli: 'fabrication',
   legolas: 'tests',
-  helm: 'coordination',   // déploiement prod : rattaché à la coordination (cf. core skill.ts)
+  charon: 'deploiement',  // vocabulaire CANON (persona net-neuve, cf. avertissement ci-dessus)
+  helm: 'coordination',   // ⚠️ FAUX depuis la scission — dette assumee, cf. bloc ci-dessus
   loki: 'graphisme',
   nathalie: 'doc',
   feanor: 'frame',        // vocabulaire CANON (role net-neuf, cf. avertissement ci-dessus)

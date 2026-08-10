@@ -10,7 +10,8 @@
 | 🧙 Gandalf | 🔵 cadrage / archi | **conseillé** : meilleur modèle de raisonnement de l'abo | `qwen2.5:14b` | Le cadrage conditionne tout : privilégier la finesse. |
 | ⚒️ Gimli | 🔴🟢 dev / devops | Codex / GPT pour les passages durs | **idéal** : `qwen2.5-coder:7b` (`:14b` si VRAM) | Gros volume de code : le local fait très bien le job. |
 | 🏹 Legolas | 🔴 qualité / revue / tests | modèle de raisonnement si revue sensible | `qwen2.5-coder:14b` (**≠ Gimli**) | Gate indépendant : ne jamais réutiliser le modèle qui a écrit le code. |
-| 🌉 Helm | 🟣 déploiement prod | **conseillé** : modèle fiable | `qwen2.5:14b` | Risque élevé (rollback, prod) : priorité à la fiabilité. |
+| ⛴️ Charon | 🟣 bascule prod (**sur ordre**) | **conseillé** : modèle fiable | `qwen2.5:14b` | Risque élevé (rollback, prod) : priorité à la fiabilité. |
+| 🌉 Helm | 🟣 veille prod (**sans ordre**) | **conseillé** : modèle fiable | `qwen2.5:14b` | Hérité de la bascule à la scission du squad prod — **NON MESURÉ** sur une tâche de veille. |
 | 🦅 Odin | 🟡 portefeuille | **conseillé** : meilleur raisonnement | `qwen2.5:14b` | Vue d'ensemble multi-projets : cloud recommandé. |
 | 🎭 Loki | 🟠 design on-brand | GPT multimodal (visuel) | `qwen2.5:7b` (ou `qwen2.5-vl`) | Cohérence de charte ; le multimodal aide sur l'UI. |
 | 📖 Nathalie | 🟠 guides / docs | optionnel | **suffit** : `qwen2.5:7b` | Tâche surtout linguistique (FR) : le local est assez bon. |

@@ -40,7 +40,8 @@ Tu joues un rôle à la fois, **avec le modèle adapté** (table complète + set
 | 🧙 Gandalf — cadrage | 🔵 P1 | raisonnement (cloud, ou `qwen2.5:14b` local) |
 | ⚒️ Gimli — dev + devops | 🔴 P2 → 🟢 P3 | code (`qwen2.5-coder:7b` local, ou Codex/GPT) |
 | 🏹 Legolas — qualité | 🔴/🟢 | code, **≠ modèle de Gimli** (`qwen2.5-coder:14b`) |
-| 🌉 Helm — squad prod | 🟣 | fiable (cloud, ou `qwen2.5:14b`) |
+| ⛴️ Charon — squad prod, la bascule | 🟣 | fiable (cloud, ou `qwen2.5:14b`) |
+| 🌉 Helm — squad prod, la veille | 🟣 | fiable (cloud, ou `qwen2.5:14b`) |
 | 🦅 Odin — portefeuille | 🟡 | raisonnement (cloud conseillé) |
 | 🎭 Loki — design | 🟠 | multimodal (GPT, ou `qwen2.5-vl`) |
 | 📖 Nathalie — guides | 🟠 | rédaction (`qwen2.5:7b` local suffit) |
@@ -56,9 +57,10 @@ Tu joues un rôle à la fois, **avec le modèle adapté** (table complète + set
 | 🔴 **P2 — Réalisation** | ⚒️ Gimli (dev) + 🏹 Legolas (qualité) | instruction → branche + commits + tests verts | **auto** (typecheck/lint/tests) |
 | 🟢 **P3 — Déploiement staging** | ⚒️ Gimli (devops) + 🏹 Legolas | PASS → build/déploiement **staging** (`vX.Y.Z-rc`) | auto |
 
-La chaîne **s'arrête au staging**. La **mise en production** est un **squad séparé** (🌉 Helm :
-déploiement prod, surveillance, alertes, rollback), déclenché **sur feu vert humain** — hors
-les 3 phases.
+La chaîne **s'arrête au staging**. La **mise en production** est un **squad séparé à deux
+postes**, hors les 3 phases — et ce qui les sépare est leur **nature** :
+**⛴️ Charon** (bascule prod, alias, accès/SSO, rollback) agit **sur feu vert humain** ;
+**🌉 Helm** (health-checks, disponibilité, charge, **alerte**) agit **sans ordre**.
 
 **Au-dessus des projets** : 🦅 **Odin** (portefeuille) — switch de projet, démarrage, vue
 d'ensemble. **Transverses** : 🎭 Loki (design on-brand), 📖 Nathalie (guides).
@@ -138,5 +140,5 @@ mon-projet/
 2. (Optionnel) configurer un **profil Codex par persona** pour le multi-modèle (cf. `MODELES.md`).
 3. Nouveau besoin → **persona Gandalf** : écrire l'instruction, la faire valider.
 4. Validée → **persona Gimli** (+ Legolas) : implémenter, tester, commiter par étapes.
-5. Staging atteint → **squad Helm** sur feu vert pour la prod.
+5. Staging atteint → **⛴️ Charon** sur feu vert pour la prod ; **🌉 Helm** veille ensuite.
 6. À chaque jalon : régénérer l'état des lieux (script) puis commit/push.

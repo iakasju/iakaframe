@@ -25,7 +25,8 @@ explicitement.
 | 🧙 Gandalf | P1 — cadrage | 🔵 |
 | ⚒️ Gimli | P2 dev → P3 staging | 🔴 dev · 🟢 staging |
 | 🏹 Legolas | qualité / tests (P2/P3) | 🔴 réalisation · 🟢 validation stage |
-| 🌉 Helm | squad prod | 🟣 |
+| ⛴️ Charon | squad prod — la bascule (**sur ordre**) | 🟣 |
+| 🌉 Helm | squad prod — la veille (**sans ordre**) | 🟣 |
 | 🎭 Loki | design on-brand | 🟠 |
 | 📖 Nathalie | guides utilisateurs | 🟠 |
 
@@ -37,8 +38,8 @@ explicitement.
 | 🔴 **P2 — Réalisation** | ⚒️ Gimli (dev) + 🏹 Legolas (qualité) | instruction → branche + commits + tests verts | **auto** (typecheck/lint/tests) |
 | 🟢 **P3 — Staging** | ⚒️ Gimli (devops) + 🏹 Legolas | PASS → build/déploiement **staging** (`vX.Y.Z-rc`) | auto |
 
-La chaîne **s'arrête au staging**. La **mise en production** est un **squad séparé** (🌉 Helm),
-déclenché **sur feu vert humain**. Au-dessus des projets : 🦅 **Odin** (portefeuille).
+La chaîne **s'arrête au staging**. La **mise en production** est un **squad séparé à deux
+postes** : **⛴️ Charon** bascule **sur feu vert humain**, **🌉 Helm** veille **sans ordre**. Au-dessus des projets : 🦅 **Odin** (portefeuille).
 Transverses : 🎭 Loki, 📖 Nathalie.
 
 ---

@@ -13,7 +13,8 @@
 | 🧙 Gandalf | cadrage / archi | `deepseek-r1:latest` | qwen3, gpt-oss, kimi / cloud raisonnement | Le cadrage conditionne tout. |
 | ⚒️ Gimli | dev / devops | `qwen2.5-coder:latest` | deepseek-coder, codestral / Codex-GPT | Gros volume de code : local OK. |
 | 🏹 Legolas | qualité / tests | `qwen2.5-coder:latest` (**≠ celui de Gimli**) | deepseek-coder / cloud si revue sensible | Gate indépendant. |
-| 🌉 Helm | prod / ops | `llama3.1:latest` | qwen3, mistral / cloud fiable | Priorité fiabilité. |
+| ⛴️ Charon | prod / bascule (**sur ordre**) | `llama3.1:latest` | qwen3, mistral / cloud fiable | Priorité fiabilité. |
+| 🌉 Helm | prod / veille (**sans ordre**) | `llama3.1:latest` | qwen3, mistral / cloud fiable | Hérité de la bascule à la scission — **NON MESURÉ** sur une tâche de veille. |
 | 🎭 Loki | design / vision | `qwen2.5-vl:latest` | llava / GPT multimodal | Le multimodal aide sur l'UI. |
 | 📖 Nathalie | guides / rédaction | `mistral:latest` | qwen3, llama3.1 | Tâche linguistique (FR). |
 
