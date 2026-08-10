@@ -19,7 +19,8 @@ seul le moteur change. Aucune n'est imposée : on choisit celle qu'on veut utili
 | 🔵 Gandalf | `cadrage` | `opus` | `gemma4:e4b` |
 | 🔴 Gimli | `dev` | `sonnet` | `qwen2.5-coder:14b` |
 | 🔴 Legolas | `qualite` | `sonnet` | `qwen2.5-coder:14b` |
-| 🟣 Helm | `deploiement` | `sonnet` | `qwen3.5:9b` |
+| 🟣 Charon | `deploiement` | `sonnet` | `qwen3.5:9b` |
+| 🟣 Helm | `surveillance` | `sonnet` | `qwen3.5:9b` |
 | 🟠 Loki | `design` | `sonnet` | `qwen3.5:9b` |
 | 🟠 Nathalie | `documentation` | `sonnet` | `gemma4:e4b` |
 | 🟠 Fëanor | `frame` | `opus` | `gemma4:e4b` |
@@ -39,6 +40,7 @@ trop étroite.
 | `dev` | `qwen2.5-coder:14b` *(~9 Go)* | Modele de code dedie, le seul du parc a porter la completion de code (insert). CORRIGE LE 2026-08-05 APRES MESURE DE VARIANCE — et cette correction annule celle de la veille, qui reposait […] |
 | `qualite` | `qwen2.5-coder:14b` *(~9 Go)* | Lit du code et des traces de test : meme profil que dev, jamais la meme instance. CORRIGE LE 2026-08-05 APRES MESURE DE VARIANCE — et cette correction annule celle de la veille, qui reposait […] |
 | `deploiement` | `qwen3.5:9b` *(~6.6 Go)* | Ops : enchaine des appels d'outils. mistral:7b est ECARTE ici — il ne porte PAS le tool-calling. |
+| `surveillance` | `qwen3.5:9b` *(~6.6 Go)* | HERITE DE `deploiement` A LA SCISSION DU SQUAD PROD DU 2026-08-08 — NON MESURE sur une tache de veille. Aucun banc n'a ete execute sur ce poste : ni sonde d'endpoint, ni lecture de […] |
 | `design` | `qwen3.5:9b` *(~6.6 Go)* | Seul poste ou la vision est requise (lecture de maquettes). qwen3-vl-4b = repli leger 3,3 Go. |
 | `documentation` | `gemma4:e4b` *(~9.6 Go)* | CORRIGE DEUX FOIS LE MEME JOUR (2026-08-03), et la seconde fois parce que la premiere mesure etait TROP ETROITE. (1) Suggestion d'origine : mistral, choisi sur sa taille, sans aucune […] |
 | `frame` | `gemma4:e4b` *(~9.6 Go)* | Erudition du modele de frame : meme profil de raisonnement que le cadrage. |
@@ -111,5 +113,5 @@ Pour les deux dernières, « installer » signifie **vérifier** — il n'y a ri
 
 ---
 
-*Suggestions v1, mises à jour le 2026-08-03. La fraîcheur est affichée à
+*Suggestions v1, mises à jour le 2026-08-08. La fraîcheur est affichée à
 chaque lancement de `iakaframe models` ; au-delà de 90 jours, elle est signalée `A RAFRAICHIR`.*
