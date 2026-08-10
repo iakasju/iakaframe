@@ -10,6 +10,7 @@ assignments:
   - { personaId: gandalf,  runner: ollama-distant, model: "gemma4:e4b" }
   - { personaId: gimli,    runner: ollama-distant, model: "qwen2.5-coder:14b" }
   - { personaId: legolas,  runner: ollama-distant, model: "qwen2.5-coder:14b" }
+  - { personaId: charon,   runner: ollama-distant, model: "qwen3.5:9b" }
   - { personaId: helm,     runner: ollama-distant, model: "qwen3.5:9b" }
   - { personaId: loki,     runner: ollama-distant, model: "qwen3.5:9b", tools: [comfyui-local] }
   - { personaId: nathalie, runner: ollama-distant, model: "gemma4:e4b" }
@@ -34,9 +35,14 @@ fait **dans la source**, puis se rejoue ici — jamais l'inverse.
 
 | roleKey | persona | modèle | pourquoi |
 |---|---|---|---|
-| portefeuille · coordination · deploiement · design | Odin · Aragorn · Helm · Loki | `qwen3.5:9b` | outils + raisonnement, et **vision** pour le design |
+| portefeuille · coordination · deploiement · **surveillance** · design | Odin · Aragorn · **Charon** · **Helm** · Loki | `qwen3.5:9b` | outils + raisonnement, et **vision** pour le design |
 | cadrage · frame · documentation | Gandalf · Fëanor · Nathalie | `gemma4:e4b` | **le meilleur du parc au banc d'essai** (cf. ci-dessous) |
 | dev · qualite | Gimli · Legolas | `qwen2.5-coder:14b` | **le plus régulier au banc semver** : 11/12 sur 3 runs, contre 9-10 pour le 7B |
+
+> ⚠️ **`surveillance` est le seul rôle de cette table dont la suggestion n'est pas MESURÉE.** Elle
+> est **héritée** de `deploiement` à la scission du squad prod du 2026-08-08, sans banc d'essai sur
+> une tâche de veille. La mention vit à la source (`models/suggestions.json`, champ `why`) ; elle
+> est reprise ici pour qu'aucun lecteur de ce seul tableau ne la prenne pour un résultat.
 
 ## Trois faits d'usage, pas des détails
 
@@ -63,9 +69,9 @@ fait **dans la source**, puis se rejoue ici — jamais l'inverse.
   **faux**, test de contrôle à l'appui (avec : 1,9 s / 37 mots ; sans : 0 mot). Le facteur est le
   paramètre, pas le chemin.* Ce binding cible `ollama-distant` par simple proximité du parc, **pas**
   parce que la passerelle serait déficiente : les deux voies conviennent.
-- **Un seul GPU, partagé.** Ces neuf affectations ne s'exécutent pas en parallèle : les modèles
+- **Un seul GPU, partagé.** Ces dix affectations ne s'exécutent pas en parallèle : les modèles
   se chargent et se déchargent (~30-50 s à froid, ~10 s à chaud), et le GPU peut servir ailleurs.
-  *Une équipe de 9 personas en local, c'est de la sérialisation, pas du parallélisme.*
+  *Une équipe de 10 personas en local, c'est de la sérialisation, pas du parallélisme.*
 
 ## `tools` : ce qui n'a pas été recopié
 

@@ -1,7 +1,7 @@
 {
   "$comment": "SOURCE UNIQUE des suggestions de modeles d'IA par roleKey (instruction specs/instructions/models-par-rolekey.md, D2). Lue par cli/src/commands/models.js. Les anciennes tables (kits/iakaframe-ollama/MODELES.md et les instructions de 2026-06-24) sont des LECTEURS : elles renvoient ici, elles ne decident plus. DONNEE PURE, aucune logique. AUCUN hote ni IP ici (doctrine de neutralite du depot, cf. services.js) : les hotes viennent de IAKAFRAME_HOSTS / --hosts.",
   "version": 1,
-  "updatedAt": "2026-08-03",
+  "updatedAt": "2026-08-08",
   "hardware": {
     "gpu": "NVIDIA GeForce RTX 3060, 12 Go de VRAM (mesure du 2026-08-03)",
     "partage": "GPU PARTAGE avec un service de generation d'image (idle a ~0,1 Go, mais plusieurs Go en generation).",
@@ -94,6 +94,17 @@
       ],
       "sizeGb": 6.6,
       "why": "Ops : enchaine des appels d'outils. mistral:7b est ECARTE ici — il ne porte PAS le tool-calling."
+    },
+    "surveillance": {
+      "recommended": "qwen3.5:9b",
+      "alternatives": [
+        "gemma4:e4b"
+      ],
+      "requires": [
+        "tools"
+      ],
+      "sizeGb": 6.6,
+      "why": "HERITE DE `deploiement` A LA SCISSION DU SQUAD PROD DU 2026-08-08 — NON MESURE sur une tache de veille. Aucun banc n'a ete execute sur ce poste : ni sonde d'endpoint, ni lecture de metriques, ni redaction d'alerte. La valeur reprise est celle du role dont `surveillance` a ete detache, au motif de PROXIMITE DE PROFIL (les deux enchainent des appels d'outils), pas de resultat. Ce fichier a une culture de mesure : plusieurs `why` corrigent une intuition anterieure, et l'un d'eux annule une conclusion publiee la veille. Une suggestion non mesuree qui n'annonce pas qu'elle ne l'est pas recirculerait comme un fait. mistral:7b reste ECARTE ici pour la meme raison que sur `deploiement` : il ne porte PAS le tool-calling. A REMPLACER par une mesure des qu'une tache de veille reelle existera — c'est-a-dire des que le declencheur de la veille sera construit."
     },
     "design": {
       "recommended": "qwen3.5:9b",
