@@ -24,7 +24,8 @@ skills dans un projet. Chaque skill se déclenche quand le contexte correspond �
 | `iakaframe-aragorn` | 🛡️ Aragorn | Coordination entre agents, 3 phases + squad prod, dispatch à la demande, canal iakaHub ↔ Discord |
 | `iakaframe-cadrage` | 🧙 Gandalf | P1 — cadrage : besoin → instruction fermée |
 | `iakaframe-qualite` | 🏹 Legolas | P2 / P3 — qualité / test, gate auto |
-| `iakaframe-deploiement` | 🌉 Helm | Squad prod — déploiement, accès, rollback, surveillance, alertes |
+| `iakaframe-deploiement` | ⛴️ Charon | Squad prod — bascule stage → prod, accès, rollback. **Sur ordre** |
+| `iakaframe-surveillance` | 🌉 Helm | Squad prod — health-checks, disponibilité, charge, **alerte**. **Sans ordre** |
 | `iakaframe-naonedge` | 🎭 Loki | Design : supports on-brand (catalogue de chartes `design-*/`) |
 | `iakaframe-nathalie` | 📖 Nathalie | Guides utilisateurs / documentation |
 

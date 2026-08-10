@@ -18,7 +18,7 @@ en place, au lieu de le réinventer à chaque fois.
 | [`iakaframe-methode.html`](./iakaframe-methode.html) | **Présentation à onglets** de la méthode + équipe d'agents + infra + vision (NaonEdge). |
 | [`iakaframe-skills.html`](./iakaframe-skills.html) | Référence visuelle des **skills** (NaonEdge). |
 | [`iakabox-usage.html`](./iakabox-usage.html) | **Guide d'usage du homelab iakabox** : Git via Forgejo, IA locale, services. |
-| [`agents/`](./agents/) | **Définitions des subagents** de l'équipe (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie) + `_TEMPLATE.md`. |
+| [`agents/`](./agents/) | **Définitions des subagents** de l'équipe (odin, aragorn, gandalf, gimli, legolas, charon, helm, loki, nathalie) + `_TEMPLATE.md`. |
 | [`skills/`](./skills/) | **23 skills** : savoir-faire des agents + briques de cycle de vie. Voir [`skills/README.md`](./skills/README.md). |
 | [`specs/equipe-agents.md`](./specs/equipe-agents.md) | **Référence canonique de l'équipe d'agents** (roster, 3 phases + squad prod, identité, étanchéité, incarnation). |
 | [`kit-claude/`](./kit-claude/) | **Kit de démarrage** à copier dans tout nouveau projet. |
@@ -164,7 +164,8 @@ l'utilisateur → 🦅 Odin (portefeuille, C:\work) → 🛡️ Aragorn (par pro
 
 - 🦅 **Odin** — super-agent **portefeuille**, disponible en permanence, seul affecté à `C:\work` : switch d'équipe, démarrage projet, création d'équipe. **Au premier appel par session, il régénère et affiche le dashboard projets** (`naonedge-dashboard\scan.ps1` puis `index.html`) avant la synthèse.
 - 🛡️ **Aragorn** — coordination entre agents, **3 phases** (cadrage → réalisation → staging), dispatch à la demande, canal **iakaHub ↔ Discord** (avec repli terminal).
-- 🧙 **Gandalf** (cadrage) · ⚒️ **Gimli** (dev + devops jusqu'au staging) · 🏹 **Legolas** (qualité) · 🌉 **Helm** (**squad prod** : déploiement + surveillance + alertes) · 🎭 **Loki** (design) · 📖 **Nathalie** (guides).
+- 🧙 **Gandalf** (cadrage) · ⚒️ **Gimli** (dev + devops jusqu'au staging) · 🏹 **Legolas** (qualité) · 🎭 **Loki** (design) · 📖 **Nathalie** (guides).
+- **Squad prod — deux agents, une ligne de partage** : ⛴️ **Charon** *fait passer* stage → prod (alias, accès/SSO, rollback) **sur ordre**, gate humain non négociable ; 🌉 **Helm** *veille* sur la production (health-checks, charge, **alerte**) **sans ordre**. *Charon agit sur ordre, Helm agit sans ordre* — c'est la nature des deux missions qui les sépare, pas leur contenu.
 
 **Modèle d'étanchéité** : définitions mutualisées (source unique), exécution étanche (chaque
 projet instancie sa propre équipe scopée). **Incarnation** : un subagent (`agents/`) + une

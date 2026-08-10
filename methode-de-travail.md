@@ -68,9 +68,10 @@ pas la réflexion — il délègue l'exécution. Il décide **à chaque gate**.
 > **Règle absolue : la phase de cadrage ne touche jamais au code de production.** Le jour où
 > celui qui réfléchit est aussi celui qui exécute sans garde-fou, il n'y a plus de contrôle.
 
-La **mise en production** est un **squad séparé** (🌉 Helm : déploiement prod, surveillance,
-alertes, rollback), déclenché sur **feu vert humain** — hors les 3 phases. Roster complet,
-détail des phases, squad prod et **identité des agents** : section suivante.
+La **mise en production** est un **squad séparé à deux postes**, hors les 3 phases :
+**⛴️ Charon** fait passer stage → prod (alias, accès/SSO, rollback) sur **feu vert humain**, et
+**🌉 Helm** veille ensuite sur la production (health-checks, charge, **alerte**) **sans ordre**.
+Roster complet, détail des phases, squad prod et **identité des agents** : section suivante.
 
 ---
 
@@ -110,7 +111,8 @@ industrialiser le développement « au fil de l'eau » sur une chaîne CI/CD, ce
 | 🧙 **Gandalf** | 🔵 | Architecte-cadreur : besoin → instruction fermée | P1 — Cadrage | `iakaframe-cadrage` |
 | ⚒️ **Gimli** | 🔴/🟢 | **Dev + devops** : code, build, commits, **déploiement jusqu'au staging** (×N) | P2 Réalisation → P3 Staging | (CLAUDE.md) |
 | 🏹 **Legolas** | 🔴/🟢 | Qualité / test : verdict PASS, gate auto (dev + validation stage) | P2 Réalisation / P3 Staging | `iakaframe-qualite` |
-| 🌉 **Helm** | 🟣 | **Équipe prod** : déploiement prod, surveillance, alertes, rollback, accès | Prod (squad séparé) | `iakaframe-deploiement` |
+| ⛴️ **Charon** | 🟣 | **Squad prod — le passeur** : bascule stage → prod (alias), accès/SSO, rollback. **Sur ordre** | Prod (squad séparé) | `iakaframe-deploiement` |
+| 🌉 **Helm** | 🟣 | **Squad prod — le veilleur** : health-checks, disponibilité, charge, **alerte**. **Sans ordre** | Prod (squad séparé) | `iakaframe-surveillance` |
 | 🎭 **Loki** | 🟠 | Design : supports on-brand (catalogue de chartes `design-*/`) | Transverse | `iakaframe-naonedge` |
 | 📖 **Nathalie** | 🟠 | Guides utilisateurs / documentation | Transverse | `iakaframe-nathalie` |
 
@@ -167,18 +169,40 @@ agent** est aux commandes ; Aragorn enchaîne et vérifie le gate avant de passe
 > jusqu'à la mise en stage (build, image, déploiement). 🏹 Legolas valide en P2 (tests) puis sur
 > le stage en P3.
 
-**Le squad prod — séparé, sur feu vert humain.** La mise en production **n'est pas une phase**
-de la chaîne de dev : c'est une **équipe dédiée**, déclenchée par un **feu vert tracé** de
-l'utilisateur.
+**Le squad prod — séparé, et à DEUX agents depuis le 2026-08-08.** La mise en production **n'est
+pas une phase** de la chaîne de dev : c'est une **équipe dédiée**. Elle porte **deux missions à
+horloges incompatibles**, qui ont donc **deux agents** — l'une est un **événement** sous feu vert
+tracé, l'autre un **régime permanent** qui n'attend rien.
+
+> ## ⚖️ **Charon agit SUR ORDRE. Helm agit SANS ORDRE.**
+>
+> C'est la **seule** frontière du squad prod qui ne se rediscutera pas, parce qu'elle tient à la
+> **nature** des deux missions et non à leur contenu. Toute question « qui fait X ? » se tranche
+> par elle : *X attend-il un feu vert humain ?* → **Charon**. *X doit-il se produire même si
+> personne ne demande rien ?* → **Helm**.
 
 | Étape prod | Agent | Entrée → Sortie | Gate |
 |---|---|---|---|
-| 🟣 **Déploiement prod** | 🌉 Helm | rc recettée + feu vert → prod (alias de version) | **humain** (feu vert tracé) |
-| 🟣 **Surveillance** | 🌉 Helm | prod → santé OK / alerte / rollback | continu |
+| 🟣 **Déploiement prod** | ⛴️ **Charon** | rc recettée + feu vert → prod (alias de version) + rollback prêt | **humain** (feu vert tracé) |
+| 🟣 **Veille de production** | 🌉 **Helm** | une prod en service → état de santé / **alerte motivée** | **aucun** — il agit sans ordre |
 
-> Frontière nette : **dev → staging** (les 3 phases) puis **prod** (squad 🌉 Helm), avec une
-> **couture humaine** entre les deux. Le squad prod est **extensible** (rôles surveillance /
-> alerte dédiés à terme).
+**La couture entre les deux, à connaître** : Helm **constate et alerte** ; il **ne bascule pas et
+ne rollback pas**. Le rollback est un **artefact de bascule** : il appartient à Charon, et Charon
+ne l'exécute que **sur feu vert**. Une alerte de Helm est une **entrée** dans la décision, jamais
+la décision.
+
+> Frontière nette : **dev → staging** (les 3 phases) puis **prod** (squad à deux postes), avec une
+> **couture humaine** entre les deux. **L'extensibilité annoncée du squad prod A EU LIEU** : le
+> poste de veille est **livré**, incarné par 🌉 Helm. La formulation antérieure — « rôles
+> surveillance / **alerte** dédiés à terme » — est **doublement périmée** : le futur est advenu,
+> **et le pluriel est écarté**. Séparer *constater* et *dire* reconstruirait exactement la maladie
+> qu'on soigne (une panne constatée dont personne n'est prévenu) : **la mission de Helm est « voir
+> ET dire », indivisible.**
+>
+> 🛑 **Ce que ce squad ne fait PAS encore.** Un persona ne s'exécute que lorsqu'on l'invoque : tant
+> qu'aucun **déclencheur vivant hors des systèmes surveillés** (horloge calendaire + canal
+> d'émission non bloquant) n'existe, la veille **est prête, pas armée**. La scission est un
+> **préalable**, pas le remède. Cf. `specs/instructions/scission-squad-prod-charon-helm.md` § 5.
 
 Transverses : 🎭 **Loki** (supports visuels) et 📖 **Nathalie** (guides) interviennent sur
 sollicitation, à toute phase. **Tout agent peut solliciter l'utilisateur directement** ; Aragorn
@@ -251,7 +275,8 @@ une simple restitution ou un compte rendu) :
 > 🔵 `[IAKABOX][Gandalf]` instruction prête à valider.
 > 🔴 `[IAKABOX][Gimli]` dev en cours, commit `feat: …`.
 > 🟢 `[IAKABOX][Gimli]` déployé en staging, `v0.6.0-rc1`.
-> 🟣 `[IAKABOX][Helm]` prod en ligne, surveillance active.
+> 🟣 `[IAKABOX][Charon]` prod en ligne, rollback prêt.
+> 🟣 `[IAKABOX][Helm]` santé OK, aucune alerte.
 > 🟡 `[PORTEFEUILLE][Odin]` je rebascule le focus.
 
 > **Option terminal « vraie couleur »** : une fonction PowerShell `iaka-say` (profil) colorise le

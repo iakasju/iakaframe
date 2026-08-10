@@ -713,17 +713,18 @@ main {
     </div>
   </div>
 
-  <h3>Le squad prod — séparé, sur feu vert humain</h3>
+  <h3>Le squad prod — séparé, et à deux agents</h3>
+  <p><strong>⚖️ Charon agit SUR ORDRE. Helm agit SANS ORDRE.</strong> C'est la <strong>seule</strong> frontière du squad prod, et elle tient à la <strong>nature</strong> des deux missions, pas à leur contenu. Toute question « qui fait X ?&nbsp;» se tranche par elle&nbsp;: <em>X attend-il un feu vert humain&nbsp;?</em> → <strong>Charon</strong>. <em>X doit-il se produire même si personne ne demande rien&nbsp;?</em> → <strong>Helm</strong>.</p>
   <table class="tool-table">
     <thead><tr><th>Étape prod</th><th>Agent</th><th>Entrée → sortie</th><th>Gate</th></tr></thead>
     <tbody>
-      <tr><td><span class="ph-prod">🟣 Déploiement prod</span></td><td>🌉 Helm</td><td>rc recettée + feu vert → prod (alias)</td><td>humain</td></tr>
-      <tr><td><span class="ph-prod">🟣 Surveillance</span></td><td>🌉 Helm</td><td>prod → santé / alerte / rollback</td><td>continu</td></tr>
+      <tr><td><span class="ph-prod">🟣 Déploiement prod</span></td><td>⛴️ Charon</td><td>rc recettée + feu vert → prod (alias) + rollback prêt</td><td><strong>humain</strong></td></tr>
+      <tr><td><span class="ph-prod">🟣 Veille de production</span></td><td>🌉 Helm</td><td>une prod en service → état de santé / <strong>alerte motivée</strong></td><td><strong>aucun</strong> — sans ordre</td></tr>
     </tbody>
   </table>
   <div class="rule">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9C27B0" stroke-width="2"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-    <div><p>Frontière nette&nbsp;: <strong>dev → staging</strong> (les 3 phases), puis <strong>prod</strong> (squad 🌉 Helm) sur <strong>feu vert humain</strong>. Le squad prod est extensible (surveillance / alertes dédiées).</p></div>
+    <div><p>Frontière nette&nbsp;: <strong>dev → staging</strong> (les 3 phases), puis <strong>prod</strong> (squad à deux postes) avec une <strong>couture humaine</strong> entre les deux. Helm <strong>constate et alerte</strong>&nbsp;; il ne bascule ni ne rollback — la reprise est à Charon, <strong>sur feu vert</strong>.<br>L'extensibilité annoncée du squad prod <strong>a eu lieu</strong> (2026-08-08)&nbsp;: le poste de veille est <strong>livré</strong>. Le pluriel «&nbsp;surveillance / alerte&nbsp;» est en revanche <strong>écarté</strong> — séparer <em>constater</em> et <em>dire</em> refabriquerait le défaut qu'on soigne&nbsp;: la mission de Helm est «&nbsp;voir ET dire&nbsp;», indivisible.<br>🛑 <strong>Ce que ce squad ne fait pas encore</strong>&nbsp;: sans déclencheur vivant hors des systèmes surveillés (horloge calendaire + canal d'émission non bloquant), la veille est <strong>prête, pas armée</strong>.</p></div>
   </div>
 </section>
 </div>
@@ -756,7 +757,8 @@ main {
       <tr><td>🧙 Gandalf</td><td>🔵</td><td>Architecte-cadreur : besoin → instruction fermée</td><td>P1 Cadrage</td><td><code>iakaframe-cadrage</code></td></tr>
       <tr><td>⚒️ Gimli</td><td>🔴/🟢</td><td><strong>Dev + devops</strong> : code, build, commits, déploiement jusqu'au staging (×N)</td><td>P2 → P3</td><td>CLAUDE.md</td></tr>
       <tr><td>🏹 Legolas</td><td>🔴/🟢</td><td>Qualité / test : verdict PASS, gate auto (dev + validation stage)</td><td>P2 / P3</td><td><code>iakaframe-qualite</code></td></tr>
-      <tr><td>🌉 Helm</td><td>🟣</td><td><strong>Équipe prod</strong> : déploiement prod, surveillance, alertes, rollback, accès</td><td>Prod (squad)</td><td><code>iakaframe-deploiement</code></td></tr>
+      <tr><td>⛴️ Charon</td><td>🟣</td><td><strong>Squad prod — le passeur</strong> : bascule stage → prod (alias), accès/SSO, rollback. <strong>Sur ordre</strong></td><td>Prod (squad)</td><td><code>iakaframe-deploiement</code></td></tr>
+      <tr><td>🌉 Helm</td><td>🟣</td><td><strong>Squad prod — le veilleur</strong> : health-checks, disponibilité, charge, <strong>alerte</strong>. <strong>Sans ordre</strong></td><td>Prod (squad)</td><td><code>iakaframe-surveillance</code></td></tr>
       <tr><td>🎭 Loki</td><td>🟠</td><td>Design : supports on-brand (catalogue de chartes <code>design-*/</code>)</td><td>Transverse</td><td><code>iakaframe-naonedge</code></td></tr>
       <tr><td>📖 Nathalie</td><td>🟠</td><td>Guides utilisateurs / documentation</td><td>Transverse</td><td><code>iakaframe-nathalie</code></td></tr>
     </tbody>
@@ -773,7 +775,7 @@ main {
       <tr><td><span class="ph-cadrage">Cadrage / réflexion</span></td><td>🔵</td><td><span class="ph-cadrage">🔵 [IAKABOX][Gandalf]</span> instruction prête à valider.</td></tr>
       <tr><td><span class="ph-dev">Dev</span></td><td>🔴</td><td><span class="ph-dev">🔴 [IAKABOX][Gimli]</span> dev en cours…</td></tr>
       <tr><td><span class="ph-staging">Staging</span></td><td>🟢</td><td><span class="ph-staging">🟢 [IAKABOX][Gimli]</span> déployé en staging.</td></tr>
-      <tr><td><span class="ph-prod">Prod</span></td><td>🟣</td><td><span class="ph-prod">🟣 [IAKABOX][Helm]</span> prod en ligne, surveillance active.</td></tr>
+      <tr><td><span class="ph-prod">Prod</span></td><td>🟣</td><td><span class="ph-prod">🟣 [IAKABOX][Charon]</span> prod en ligne, rollback prêt. — <span class="ph-prod">🟣 [IAKABOX][Helm]</span> santé OK, aucune alerte. <em>(même pastille&nbsp;: elle marque la phase, le nom désambiguïse)</em></td></tr>
       <tr><td><span class="ph-portef">Portefeuille</span></td><td>🟡</td><td><span class="ph-portef">🟡 [PORTEFEUILLE][Odin]</span> je rebascule le focus.</td></tr>
     </tbody>
   </table>
@@ -2305,8 +2307,8 @@ l'utilisateur directement** ; toi, tu es son interlocuteur par défaut.
 
 | Étape prod | Agent | Sortie | Gate |
 |---|---|---|---|
-| 🟣 Déploiement prod | 🌉 Helm | version en prod (alias) | **humain** (feu vert) |
-| 🟣 Surveillance | 🌉 Helm | santé OK / alerte / rollback | continu |
+| 🟣 Déploiement prod | ⛴️ Charon | version en prod (alias) + rollback prêt | **humain** (feu vert) |
+| 🟣 Veille de production | 🌉 Helm | état de santé / **alerte motivée** | **aucun** — il agit sans ordre |
 
 ## Procédure
 
@@ -2329,7 +2331,7 @@ l'utilisateur peut te demander **directement** de lancer un travail sur un agent
 
 Marche à suivre :
 1. **Vérifie le pré-requis de la phase** avant de lancer (ex. Gimli n'avance pas sans
-   instruction validée par Gandalf ; Helm ne déploie pas sans feu vert). Pré-requis absent
+   instruction validée par Gandalf ; Charon ne déploie pas sans feu vert). Pré-requis absent
    → tu le dis et tu proposes l'étape manquante, tu ne forces pas.
 2. **Émets l'ordre de mission** (ci-dessous) et **dispatche le subagent cible** : outil Agent
    en session Claude Code, ou n8n/Hermes en chaîne automatisée.
@@ -3199,7 +3201,7 @@ en déploie **un** pour l'environnement de l'utilisateur (présence = sélection
 <div class="codecard"><div class="codecard-head"><span><span class="fname">iakaframe-init</span><span class="fpath">library/skills/iakaframe-init/SKILL.md</span></span><button class="dlbtn" onclick="iakaDL('code-skill-iakaframe-init','iakaframe-init-SKILL.md')">&#x2B07; download</button></div><pre id="code-skill-iakaframe-init" data-path="library/skills/iakaframe-init/SKILL.md">---
 id: iakaframe-init
 name: iakaframe-init
-description: Amorce un projet avec la structure iakaframe complète — arborescence specs/, CLAUDE.md, les 8 personas d'agent (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie), le cadrage du workflow et le script qualité. Utiliser cette skill quand l'utilisateur veut "démarrer un projet iakaframe", "mettre en place la méthode", "initialiser la structure", "déposer les contrats d'agent", "onboarder un dépôt", ou amorcer un nouveau projet (ou un projet existant) selon la méthode de l'équipe augmentée. À lancer une fois au début d'un projet.
+description: Amorce un projet avec la structure iakaframe complète — arborescence specs/, CLAUDE.md, les 9 personas d'agent (odin, aragorn, gandalf, gimli, legolas, charon, helm, loki, nathalie), le cadrage du workflow et le script qualité. Utiliser cette skill quand l'utilisateur veut "démarrer un projet iakaframe", "mettre en place la méthode", "initialiser la structure", "déposer les contrats d'agent", "onboarder un dépôt", ou amorcer un nouveau projet (ou un projet existant) selon la méthode de l'équipe augmentée. À lancer une fois au début d'un projet.
 subskills: [iakaframe-gestion-de-source, iakaframe-etat-des-lieux]
 ---
 
@@ -3239,7 +3241,8 @@ abandonné) :
 | **gandalf** | architecte-cadreur (P1 — écrit les instructions) |
 | **gimli** | développeur + devops (P2 réalisation → P3 staging) |
 | **legolas** | qualité / testeur (gate pass/fail + RQV à la version) |
-| **helm** | squad prod (promotion stage → prod, sur feu vert humain) |
+| **charon** | squad prod — le passeur (promotion stage → prod, sur feu vert humain) |
+| **helm** | squad prod — le veilleur (santé de la prod, alerte ; **sans ordre**) |
 | **loki** | studio de design (supports on-brand, catalogue `design-*/`) |
 | **nathalie** | guides utilisateurs &amp; mémoire humaine AppFlowy |
 
@@ -3278,7 +3281,7 @@ abandonné) :
 - Cadrer une tâche → agent **Gandalf** (P1) → `specs/instructions/&lt;feature&gt;.md`
 - Développer → agent **Gimli** (P2/P3)
 - Vérifier la qualité → agent **Legolas** (gate pass/fail)
-- Déployer en prod → squad **Helm** (feu vert humain)
+- Déployer en prod → squad prod, **⛴️ Charon** (feu vert humain) ; puis **🌉 Helm** veille
 - Faire le point → `iakaframe snapshot` / `iakaframe recap`
 </pre></div>
 <div class="codecard"><div class="codecard-head"><span><span class="fname">iakaframe-jalon</span><span class="fpath">library/skills/iakaframe-jalon/SKILL.md</span></span><button class="dlbtn" onclick="iakaDL('code-skill-iakaframe-jalon','iakaframe-jalon-SKILL.md')">&#x2B07; download</button></div><pre id="code-skill-iakaframe-jalon" data-path="library/skills/iakaframe-jalon/SKILL.md">---
@@ -3879,7 +3882,7 @@ Réf. gravée : `library/personas/odin.md` (§ Posture / § Apprentissage de fon
 ## Garde-fous
 
 - Tu ne codes pas, tu ne cadres pas, tu ne déploies pas — tu **orientes le portefeuille**.
-- Tu ne franchis aucun gate de production (ça reste Helm + feu vert humain, dans l'équipe).
+- Tu ne franchis aucun gate de production (ça reste Charon + feu vert humain, dans l'équipe).
 - **Disponible en permanence**, mais tu ne lances rien de structurant (start/create) sans un
   **ordre explicite** de l'utilisateur.
 - Tu es le **seul** agent à vivre à `C:\work` ; tu ne te déploies pas dans les projets.
@@ -4276,7 +4279,8 @@ l'agent n'a pas de pastille fixe (elle varie selon la phase servie).
 | gandalf   | Cadrage (P1)             | 🔵       | Transforme un besoin en instruction fermée et vérifiable |
 | gimli     | Dev / DevOps (P2→P3)     | —        | Code, build, teste, commite, déploie jusqu'au staging (🔴 dev / 🟢 staging) |
 | legolas   | Qualité (P2/P3)          | —        | Revue, typecheck/lint/tests, garde les critères d'acceptation (🔴 P2 / 🟢 P3) |
-| helm      | Production               | 🟣       | Gate de prod, déploiement, surveillance, feu vert humain requis |
+| charon    | Production — bascule     | 🟣       | Gate de prod, bascule stage → prod par alias, accès/SSO, rollback. **Feu vert humain requis** |
+| helm      | Production — veille      | 🟣       | Health-checks, disponibilité, charge, **alerte**. **Aucun gate : il agit sans ordre** |
 | loki      | Design                   | 🟠       | Conception visuelle / UX, supports on-brand selon charte |
 | nathalie  | Doc utilisateur          | 🟠       | Documentation destinée à l'utilisateur final (guides, FAQ, tutos) |
 | feanor    | Constructeur de frame    | 🟠       | Assiste un tiers à forger une frame neuve — **activation explicite seulement** (hors dispatch auto) |
@@ -4294,7 +4298,8 @@ noms ci-dessous sont ceux de la frame default ; adapte-les à la team de la fram
 - **gandalf** → cadrer un besoin en instruction validable (P1).
 - **gimli** → implémenter une instruction validée + déployer en staging (P2→P3).
 - **legolas** → gate qualité (tests/lint/typage), verdict pass/fail.
-- **helm** → promotion en production (feu vert humain).
+- **charon** → promotion en production (feu vert humain), rollback.
+- **helm** → veille sur la production : santé, charge, **alerte** (sans ordre ; il ne bascule ni ne rollback).
 - **loki** → support visuel on-brand.
 - **nathalie** → guide / doc utilisateur final.
 - **feanor** → forger une frame neuve (conseil + génération + verdict de conformité) — **sur demande explicite seulement**.

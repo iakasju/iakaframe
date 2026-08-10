@@ -44,7 +44,8 @@
 | 🧙 **Gandalf** | 🔵 | Da Vinci — l'inventeur | **Création & cadrage amont** : invente la solution, écrit l'instruction fermée | P1 — Cadrage | ✅ `iakaframe-cadrage` |
 | ⚒️ **Gimli** | 🔴/🟢 | le nain forgeron | **Développement + devops** : code, build, commits atomiques, **déploiement jusqu'au staging** | P2 Réalisation → P3 Staging | (porté par Claude Code) |
 | 🏹 **Legolas** | 🔴/🟢 | l'archer à l'œil sûr | **Qualité / test** : typecheck, lint, tests unitaires + intégration (dev + validation stage) | P2 Réalisation / P3 Staging | ✅ `iakaframe-qualite` |
-| 🌉 **Helm** | 🟣 | Heimdall, gardien du Bifröst (+ barre / Helm) | **Équipe prod** : déploiement prod, **gardien des accès** (proxy, SSO, alias, rollback), **surveillance + alertes** | Prod (squad séparé) | ✅ `iakaframe-deploiement` |
+| ⛴️ **Charon** | 🟣 | Charon, le nocher du Styx — celui qui **fait passer** (un seul R) | **Squad prod — le passeur** : bascule stage → prod, **gardien des accès** (proxy, SSO, alias, rollback). **Sur ordre** | Prod (squad séparé) | ✅ `iakaframe-deploiement` |
+| 🌉 **Helm** | 🟣 | Heimdall, **le guetteur qui ne dort jamais** (+ barre / Helm) | **Squad prod — le veilleur** : health-checks, disponibilité, charge, **alerte**. **Sans ordre** | Prod (squad séparé) | ✅ `iakaframe-surveillance` |
 | 🎭 **Loki** | 🟠 | l'illusionniste, maître des apparences | **Graphisme / design** (catalogue de chartes `design-*/`) | Transverse | ✅ `iakaframe-naonedge` |
 | 📖 **Nathalie** | 🟠 | — | **Guides utilisateurs / documentation** | Transverse | ✅ `iakaframe-nathalie` |
 
@@ -96,7 +97,8 @@ Détail complet et rendus (terminal / Discord / HTML, option `iaka-say`) : voir
 - **Modèles** : quand un **modèle IA plus adapté** existerait, Aragorn le **suggère** et propose
   son **installation** (Ollama / ComfyUI) — **gate humain** avant tout pull. Cf.
   `specs/instructions/modeles-suggestion-install.md`.
-- **Ne fait pas** : ni le cadrage fin (→ Gandalf), ni le code (→ Gimli), ni le déploiement (→ Helm).
+- **Ne fait pas** : ni le cadrage fin (→ Gandalf), ni le code (→ Gimli), ni le déploiement
+  (→ Charon), ni la veille de prod (→ Helm).
 - **Gate** : tient l'utilisateur informé ; remonte tout blocage ou décision structurante.
 
 ### 🧙 Gandalf — Architecte-cadreur (l'inventeur, Da Vinci)
@@ -110,7 +112,7 @@ Détail complet et rendus (terminal / Discord / HTML, option `iaka-say`) : voir
 - **Rôle** : **P2 Réalisation → P3 Staging**. Lit l'instruction, implémente étape par étape,
   build, **commits atomiques** (P2), **puis enfile la casquette devops** : build d'image et
   **déploiement jusqu'au staging** (P3). La chaîne **s'arrête au staging** ; la prod est le
-  squad Helm.
+  squad prod (⛴️ Charon bascule, 🌉 Helm veille).
 - **Parallélisme** (vision PDF) : *N* Gimli possibles en parallèle (worktrees / sous-agents)
   — à cadrer côté orchestration (Aragorn).
 - **Pastille** : 🔴 en dev (P2), 🟢 en staging (P3).
@@ -126,18 +128,44 @@ Détail complet et rendus (terminal / Discord / HTML, option `iaka-say`) : voir
   Allure + DevLake. Cf. `specs/instructions/revue-qualite-version.md`.
 - **Skill** : `iakaframe-qualite`.
 
-### 🌉 Helm — Équipe prod (Heimdall)
-- **Rôle** : **squad prod séparé**, hors les 3 phases de dev. **Déploie** une version recettée
-  depuis le staging ; **garde les accès** (proxy inversé type Proxy Manager, SSO, routage par
-  **alias de version**, **rollback**) ; **surveille la prod** (health-checks, disponibilité,
-  charge, dashboard) et **émet les alertes**.
+### Le squad prod — deux agents, une ligne de partage
+
+> ## ⚖️ **Charon agit SUR ORDRE. Helm agit SANS ORDRE.**
+>
+> C'est la **seule** frontière du squad prod, et elle tient à la **nature** des deux missions et
+> non à leur contenu. Toute question « qui fait X ? » se tranche par elle : *X attend-il un feu
+> vert humain ?* → **Charon**. *X doit-il se produire même si personne ne demande rien ?* →
+> **Helm**. Scindés le **2026-08-08** — cf.
+> `specs/instructions/scission-squad-prod-charon-helm.md`.
+
+### ⛴️ Charon — Le passeur (nocher du Styx)
+- **Rôle** : **squad prod séparé**, hors les 3 phases de dev. **Fait passer** une version
+  recettée du staging à la prod ; **garde les accès** (proxy inversé type Proxy Manager, SSO,
+  routage par **alias de version**, **rollback**).
+- **Ne fait pas** : **surveiller la prod** (→ Helm) ; modifier le code (→ Gimli).
 - **Déclenchement** : sur **feu vert humain** de l'utilisateur (couture entre staging et prod).
-- **Gate** : mise en production = **gate humain**. Helm ne promeut jamais seul.
-- **Extensible** : on pourra ajouter au squad des rôles surveillance/alerte dédiés.
+- **Gate** : mise en production = **gate humain**. Charon ne promeut jamais seul. **Le rollback
+  aussi est sur ordre** — une alerte de Helm est une *entrée* dans la décision, jamais un feu
+  vert ; seule exception, l'anomalie survenue **pendant** la bascule en cours.
+- **Orthographe** : **un seul R** — le nocher, pas l'artisan charron. Tranchée par le décideur.
+- **Skill** : `iakaframe-deploiement`.
+
+### 🌉 Helm — Le veilleur (Heimdall)
+- **Rôle** : **squad prod séparé**, second poste. **Surveille la prod** (health-checks,
+  disponibilité, charge, dashboard) et **émet les alertes**. **Voir ET dire est indivisible** :
+  constater sans prévenir n'est pas de la surveillance.
+- **Ne fait pas** : **basculer ni rollbacker** (→ Charon, sur feu vert) ; gérer alias/SSO
+  (→ Charon) ; modifier le code (→ Gimli).
+- **Déclenchement** : **aucun — il agit sans ordre.** L'absence de gate *est* la déclaration
+  formelle de sa nature.
+- 🛑 **Limite à la livraison** : un persona ne s'exécute que lorsqu'on l'invoque. Tant qu'aucun
+  **déclencheur vivant hors des systèmes surveillés** n'existe (horloge calendaire + canal
+  d'émission non bloquant), la veille **est prête, pas armée**.
 - **Conf GPU** : vérifie la conf GPU de l'hôte IA (driver NVIDIA / runtime / CUDA via
   `nvidia-smi`), **conseille** une modif si nécessaire, et **propose de l'appliquer via SSH**
   seulement avec accès + **autorisation** (gate humain). Cf.
   `specs/instructions/onboarding-v2-multiplateforme.md`.
+- **Skill** : `iakaframe-surveillance`.
 - **Pastille** : 🟣 (prod).
 - **Skill** : `iakaframe-deploiement` (déploiement + surveillance).
 
@@ -165,8 +193,8 @@ Détail complet et rendus (terminal / Discord / HTML, option `iaka-say`) : voir
 | Interface conversationnelle / cadrage (§1) | 🧙 Gandalf |
 | Agents de Développement — *N* parallèles (§2) | ⚒️ Gimli (×N) |
 | Agent Testeur & Qualité (§2) | 🏹 Legolas |
-| Agent de Gestion de Production (§2) | 🌉 Helm |
-| Agent de Surveillance de Production (§2) | 🌉 Helm *(fusionné)* |
+| Agent de Gestion de Production (§2) | ⛴️ Charon |
+| Agent de Surveillance de Production (§2) | 🌉 Helm *(**défusionné** le 2026-08-08)* |
 | Orchestration n8n / Hermes (§4) | outil piloté par 🛡️ Aragorn |
 | *(hors PDF)* design | 🎭 Loki |
 | *(hors PDF)* guides utilisateurs | 📖 Nathalie |
@@ -188,10 +216,11 @@ Détail complet et rendus (terminal / Discord / HTML, option `iaka-say`) : voir
 
 ## État de l'outillage
 
-- ✅ **Définitions de subagents** : `agents/` (odin, aragorn, gandalf, gimli, legolas, helm,
-  loki, nathalie) + `agents/_TEMPLATE.md`.
+- ✅ **Définitions de subagents** : `agents/` (odin, aragorn, gandalf, gimli, legolas, charon,
+  helm, loki, nathalie) + `agents/_TEMPLATE.md`.
 - ✅ **Skills** : `iakaframe-odin`, `iakaframe-aragorn`, `iakaframe-cadrage`,
-  `iakaframe-qualite`, `iakaframe-deploiement` (étendu surveillance), `iakaframe-naonedge`
+  `iakaframe-qualite`, `iakaframe-deploiement` (bascule seule), `iakaframe-surveillance`
+  (la veille, **détachée** de la précédente), `iakaframe-naonedge`
   (catalogue de chartes), `iakaframe-nathalie`. Gimli reste porté par le `CLAUDE.md` du projet.
 - ✅ **Commande** : `iakaframe agents` (`list` / `generate` / `affect` / `fullteam` /
   `status`, option `--global`). `fullteam` **exclut Odin** (portefeuille) ; Odin s'affecte à
