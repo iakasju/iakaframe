@@ -36,9 +36,11 @@ test('C19 jalon declare layer: capacity (source vivante)', () => {
   assert.match(raw, /^layer: capacity$/m);
 });
 
-test('compteurs : domaine iakaframe = 26 skills, roster = 9 personas', () => {
+// 26 -> 27 skills et 9 -> 10 personas a la SCISSION DU SQUAD PROD (2026-08-08) :
+// `iakaframe-surveillance` (skill neuve) et `charon` (persona neuve).
+test('compteurs : domaine iakaframe = 27 skills, roster = 10 personas', () => {
   const m = JSON.parse(fs.readFileSync(GOLDEN, 'utf8'));
-  assert.equal(m.counts.skills, 26);
-  assert.equal(m.counts.personas, 9);
-  assert.equal(iakaframeSkillIds(REPO).length, 26, 'compte canon iakaframe skills == 26');
+  assert.equal(m.counts.skills, 27);
+  assert.equal(m.counts.personas, 10);
+  assert.equal(iakaframeSkillIds(REPO).length, 27, 'compte canon iakaframe skills == 27');
 });

@@ -19,7 +19,7 @@ import { generateAgent, loadDefaultBinding } from '../src/lib/generate-agents.js
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..'); // vraie bibliotheque du depot iakaframe
 const GOLDEN_DIR = path.join(HERE, 'fixtures', 'agents-golden');
-const IDS = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
+const IDS = ['aragorn', 'charon', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
 
 // Un golden = en-tete de provenance `<!-- ... -->` PUIS le contrat (`---\n...`). Le contenu utile
 // commence au 1er `---\n` (le header n'en contient jamais). L'en-tete declare `sha256 : <hex>`.
@@ -53,7 +53,7 @@ test('garde sha256 : le hash declare == sha256 du contenu utile (anti-alteration
   }
 });
 
-test('golden : 9 personas presentes dans le repertoire fige', () => {
+test('golden : 10 personas presentes dans le repertoire fige', () => {
   const files = fs.readdirSync(GOLDEN_DIR).filter((f) => f.endsWith('.md')).sort();
   assert.deepEqual(files, IDS.map((id) => `${id}.md`).sort());
 });

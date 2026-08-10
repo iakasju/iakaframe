@@ -60,9 +60,18 @@ test('C18 skills : plus de table codee, resolution par le frontmatter canon (sou
   assert.equal(resolveSkills('gimli', { root: REPO }).length, 7);
 });
 
-test('helm : skill de deploiement resolue depuis son frontmatter (ex-override, plus de table)', () => {
-  assert.equal(ROLE_OF.helm, 'coordination');            // ROLE_OF (mapping de rôle) reste
-  assert.deepEqual(resolveSkills('helm', { root: REPO }), ['iakaframe-deploiement']);
+// SCISSION DU SQUAD PROD (2026-08-08) : la skill de DEPLOIEMENT est passee a `charon` ; `helm`
+// porte desormais `iakaframe-surveillance`. Les deux sont asseres ensemble, exprès : c'est le
+// couple qui prouve la scission, aucun des deux ne la prouve seul.
+test('squad prod : charon porte le deploiement, helm la surveillance (frontmatter, plus de table)', () => {
+  assert.deepEqual(resolveSkills('charon', { root: REPO }), ['iakaframe-deploiement']);
+  assert.deepEqual(resolveSkills('helm', { root: REPO }), ['iakaframe-surveillance']);
+  assert.equal(ROLE_OF.charon, 'deploiement');           // vocabulaire CANON (entree neuve)
+  // 🛑 DETTE ASSUMEE, ASSEREE POUR QU'ELLE NE SE CORRIGE PAS EN SILENCE : apres la scission,
+  // ROLE_OF.helm dit 'coordination', ce qui est FAUX (il surveille). La reconciliation de cette
+  // table est hors perimetre declare (poste B3 de vocabulaire-roles-agnostique.md). Le jour ou
+  // ce poste sera traite, CE TEST DOIT ROUGIR — c'est son role.
+  assert.equal(ROLE_OF.helm, 'coordination');
 });
 
 test('aliases retro-compat conserves (PORTFOLIO_AGENTS, listAgents)', () => {
@@ -86,7 +95,7 @@ test('activation explicite : feanor caste dans iakaframe-8 mais EXCLU de frameTe
     const team = frameTeamPersonas(tmp());
     assert.ok(!team.includes('feanor'), 'feanor ne doit PAS etre dispatche automatiquement');
     assert.ok(!team.includes('odin'), 'odin (portefeuille) reste hors dispatch');
-    assert.deepEqual(team, ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
+    assert.deepEqual(team, ['aragorn', 'charon', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
   });
 });
 
@@ -113,9 +122,9 @@ test('frameTeamPersonas : team de la frame active, MOINS le portefeuille (A7)', 
 
 test('frameTeamPersonas : pointeur absent -> team du default (repli, zero regression A11)', () => {
   withHome(synthRoot(), () => {
-    // hors projet -> frame default iakaframe -> team iakaframe-8 -> 7 (odin hors dispatch)
+    // hors projet -> frame default iakaframe -> team iakaframe-8 -> 8 (odin et feanor hors dispatch)
     assert.deepEqual(frameTeamPersonas(tmp()),
-      ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
+      ['aragorn', 'charon', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
   });
 });
 
@@ -125,8 +134,8 @@ test('frameTeamPersonas : pointeur absent -> team du default (repli, zero regres
 test('frameTeamPersonas : projet sans pointeur -> team du default, ZERO fuite d\'autres frames', () => {
   withHome(synthRoot(), () => {
     const team = frameTeamPersonas(tmp());
-    // exactement le roster dispatchable du default (9 - odin - feanor = 7)
-    assert.deepEqual(team, ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
+    // exactement le roster dispatchable du default (10 - odin - feanor = 8)
+    assert.deepEqual(team, ['aragorn', 'charon', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie']);
     // AUCUNE persona d'une autre frame (scrum) ne fuit, meme si elle existe dans la library partagee
     for (const foreign of ['carter', 'gregan', 'meads']) {
       assert.ok(!team.includes(foreign), `fuite : ${foreign} (frame scrum) ne doit PAS apparaitre`);

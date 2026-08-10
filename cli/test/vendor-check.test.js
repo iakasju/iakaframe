@@ -117,12 +117,14 @@ function fingerprintFixtures(guiRoot) {
   return out;
 }
 
-test('A2 : miroir conforme -> ok, checked == 78 et derived == 4 (attendu EXACT)', () => {
+test('A2 : miroir conforme -> ok, checked == 82 et derived == 4 (attendu EXACT)', () => {
   const m = makeCleanMirror();
   const res = run(m);
   assert.equal(res.ok, true, 'miroir synthetique conforme attendu vert : ' + JSON.stringify(res.files, null, 2));
   assert.equal(res.status, 'clean');
-  assert.equal(res.checked, 78); // 47 (5a/5b) + 9 roles + 3 guardrails + 19 skills (Lot 5c)
+  // 78 -> 82 a la SCISSION DU SQUAD PROD (2026-08-08) : +1 persona `charon`, +1 golden `charon`,
+  // +1 role `surveillance`, +1 skill `iakaframe-surveillance`.
+  assert.equal(res.checked, 82); // 49 (5a/5b) + 10 roles + 3 guardrails + 20 skills (Lot 5c)
   assert.equal(res.derived, 4);
   assert.equal(res.drift, 0);
 });
@@ -218,11 +220,11 @@ test('A7 : fixture supprimee -> rouge (jamais un compte allege qui validerait un
   fs.rmSync(fixturePath(m, path.join('personas', 'loki.md')));
   const res = run(m);
   assert.equal(res.ok, false);
-  assert.equal(res.checked, 77, 'la fixture manquante ne doit pas etre comptee comme verifiee');
+  assert.equal(res.checked, 81, 'la fixture manquante ne doit pas etre comptee comme verifiee');
   assert.ok(res.files.some((f) => f.reasons.some((r) => r.reason === 'fixture-manquante')));
 });
 
-test('A19 : ok:true implique checked == 78 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
+test('A19 : ok:true implique checked == 82 ET derived == 4 (un minimum ne prouverait pas la couverture)', () => {
   const m = makeCleanMirror();
   fs.rmSync(fixturePath(m, 'team.iakaframe-8.md'));
   const res = run(m);
