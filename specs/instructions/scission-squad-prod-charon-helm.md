@@ -504,63 +504,63 @@ et l'échec attendu **doit être déclaré nommément** (`CA-22`), jamais décou
 
 ### Garde et couverture de rôle
 
-- [ ] **`CA-1`** — `G-SURV` a été **vue ROUGE** sur l'état d'avant (trace dans le message de commit
+- [x] **`CA-1`** — `G-SURV` a été **vue ROUGE** sur l'état d'avant (trace dans le message de commit
       de l'étape 1). *Un lot qui livre sans avoir vu la garde échouer n'est pas fini* (`F29`/`F30`).
-- [ ] **`CA-2`** — `G-SURV` asserte **`coveredByCoordinator == []`**, **pas** `orphans == []`.
+- [x] **`CA-2`** — `G-SURV` asserte **`coveredByCoordinator == []`**, **pas** `orphans == []`.
       Vérif : lecture du test ; `orphans` est structurellement vide sur cette team (`library.js:273`).
-- [ ] **`CA-3`** — `assemble('iakaframe','iakaframe-8',…)` rend **0 orphelin**, **0 rôle pris par le
+- [x] **`CA-3`** — `assemble('iakaframe','iakaframe-8',…)` rend **0 orphelin**, **0 rôle pris par le
       coordinateur**, **0 persona inconnue**.
-- [ ] **`CA-4`** — `deploiement` est porté par **`charon`** et **par lui seul** ; `surveillance` par
+- [x] **`CA-4`** — `deploiement` est porté par **`charon`** et **par lui seul** ; `surveillance` par
       **`helm`** et **par lui seul**. Vérif : union des `roleKey` du casting, sans doublon sur ces deux clés.
 
 ### Canon
 
-- [ ] **`CA-5`** — `library/roles/surveillance.md` existe, `key: surveillance`, `roleIndex: 10`, et
+- [x] **`CA-5`** — `library/roles/surveillance.md` existe, `key: surveillance`, `roleIndex: 10`, et
       `methods/iakaframe.md:11` porte **10** `roleKeys`. Vérif : `iakaframe` charge la méthode **sans
       référence manquante** (`F22`).
-- [ ] **`CA-6`** — `library/personas/charon.md` : `roleKey: deploiement`, `pastille: "🟣"`,
+- [x] **`CA-6`** — `library/personas/charon.md` : `roleKey: deploiement`, `pastille: "🟣"`,
       `skills: [iakaframe-deploiement]`, `guardrails: [identity, perimeter]`. **Aucun `runner` ni
       `model`** dans le frontmatter (casting pur).
 - [ ] **`CA-7`** — `library/personas/helm.md` : `roleKey: surveillance`, `skills:
       [iakaframe-surveillance]`, et **`id`, `name`, `pastille`, `royaume`, `guardrails` strictement
       inchangés**. Vérif : `git diff` sur le frontmatter — exactement **2** champs modifiés.
-- [ ] **`CA-8`** — `models/suggestions.json` porte `roles.surveillance`, et son `why` contient la
+- [x] **`CA-8`** — `models/suggestions.json` porte `roles.surveillance`, et son `why` contient la
       chaîne **« NON MESURÉ »**. Vérif : `grep`.
 
 ### Étanchéité des deux skills
 
-- [ ] **`CA-9`** — Le § *Surveillance de production* et **son format de sortie** sont **présents**
+- [x] **`CA-9`** — Le § *Surveillance de production* et **son format de sortie** sont **présents**
       dans `iakaframe-surveillance/SKILL.md` et **ABSENTS** de `iakaframe-deploiement/SKILL.md`.
       Vérif : `grep -c "Health-check"` = **1** côté surveillance, **0** côté déploiement.
-- [ ] **`CA-10`** — `iakaframe-deploiement/SKILL.md` § *Identité* porte **`[ROYAUME][Charon]`** ;
+- [x] **`CA-10`** — `iakaframe-deploiement/SKILL.md` § *Identité* porte **`[ROYAUME][Charon]`** ;
       `iakaframe-surveillance/SKILL.md` porte **`[ROYAUME][Helm]`**. Vérif : `grep`.
-- [ ] **`CA-11`** — La **couture** est écrite **des deux côtés** : la skill de Helm dit qu'il
+- [x] **`CA-11`** — La **couture** est écrite **des deux côtés** : la skill de Helm dit qu'il
       **alerte et ne rollback pas** ; celle de Charon dit que **le rollback lui revient, sur feu
       vert**. Vérif : relecture croisée.
 - [ ] **`CA-12`** — Le § *bornage de l'écriture* de `helm.md` **ne mentionne plus** la configuration
       de bascule/alias/SSO **ni** la procédure de rollback ; celui de `charon.md` **les porte**.
       Vérif : `grep -i "alias\|SSO\|rollback"` sur les deux chartes.
-- [ ] **`CA-13`** — Le § *Gate* de `helm.md` **n'exige plus de feu vert humain** et énonce
+- [x] **`CA-13`** — Le § *Gate* de `helm.md` **n'exige plus de feu vert humain** et énonce
       explicitement qu'**il agit sans ordre** ; celui de `charon.md` porte le **gate humain non
       négociable** mot pour mot. Vérif : relecture.
 
 ### Assemblage
 
-- [ ] **`CA-14`** — `library/workflows/iakaframe-3phases.md` porte **5 étapes** (`p1`,`p2`,`p3`,
+- [x] **`CA-14`** — `library/workflows/iakaframe-3phases.md` porte **5 étapes** (`p1`,`p2`,`p3`,
       `prod`,`surveillance`) ; l'étape `prod` garde `actorsRoleKeys: [deploiement]` **et son gate
       humain** ; l'étape `surveillance` porte `[surveillance]` **et aucun gate**. Vérif :
       `iakaframe frame --lint` **sans finding bloquant**.
-- [ ] **`CA-15`** — `teams/iakaframe-8.md` porte **10** personas dont `charon` ; **le nom du fichier
+- [x] **`CA-15`** — `teams/iakaframe-8.md` porte **10** personas dont `charon` ; **le nom du fichier
       et l'id sont inchangés**.
-- [ ] **`CA-16`** — *(reprise du critère 3 de `correctif-roster-team-helm.md`)*
+- [x] **`CA-16`** — *(reprise du critère 3 de `correctif-roster-team-helm.md`)*
       `set(team.personas) == set(binding.personaId)` sur **`iakaframe-claude-default`**. Vérif : test.
-- [ ] **`CA-17`** — *(reprise du critère 5)* **0 rôle de la méthode non casté**.
-- [ ] **`CA-18`** — Les **deux** bindings portent une ligne `charon` ; la ligne `helm` est
+- [x] **`CA-17`** — *(reprise du critère 5)* **0 rôle de la méthode non casté**.
+- [x] **`CA-18`** — Les **deux** bindings portent une ligne `charon` ; la ligne `helm` est
       **inchangée dans les deux** (`D8`). Vérif : `git diff` = **+1 ligne**, **0 ligne modifiée**.
 
 ### Mécanique
 
-- [ ] **`CA-19`** — `ROSTER` des **deux** `guard-core.mjs` contient `"charon"` ; `verdictDelegation('charon')`
+- [x] **`CA-19`** — `ROSTER` des **deux** `guard-core.mjs` contient `"charon"` ; `verdictDelegation('charon')`
       rend `{ known: true, refused: false }`. **`feanor` reste absent** (`ROSTER-FEANOR`). Vérif :
       `cli/test/guard-core.test.js`.
 
@@ -577,16 +577,16 @@ et l'échec attendu **doit être déclaré nommément** (`CA-22`), jamais décou
       (e) **aucun** fichier ne le décrit encore comme l'agent qui **bascule** (vérif :
       `grep -rn "Helm" | grep -i "bascul\|alias\|feu vert"` → **0 ligne**, hors historique cité et
       hors `frames/releases/`).
-- [ ] **`CA-21`** — `frames/releases/StefFrame2/` est **byte-identique** à l'état d'avant. Vérif :
+- [x] **`CA-21`** — `frames/releases/StefFrame2/` est **byte-identique** à l'état d'avant. Vérif :
       `git diff --stat frames/releases/StefFrame2/` → **vide** (`D9`).
-- [ ] **`CA-22`** — 🛑 **L'ÉCHEC DE `vendor-check` EST DÉCLARÉ, PAS DÉCOUVERT.** Le message de commit
+- [x] **`CA-22`** — 🛑 **L'ÉCHEC DE `vendor-check` EST DÉCLARÉ, PAS DÉCOUVERT.** Le message de commit
       **et** le rapport de remise nomment : le test en échec, le **nombre exact** de fixtures
       manquantes côté GUI (**4** : persona `charon`, golden `charon`, rôle `surveillance`, skill
       `iakaframe-surveillance`), et le lot successeur **`GUI-VENDOR-CHARON`**. Vérif : relecture du
       commit (`D10`).
-- [ ] **`CA-23`** — `node --test` **vert sur toutes les suites sauf `vendor-check`**. Tout **autre**
+- [x] **`CA-23`** — `node --test` **vert sur toutes les suites sauf `vendor-check`**. Tout **autre**
       échec est un **défaut du lot**, pas une dette.
-- [ ] **`CA-24`** — Les artefacts dérivés sont **régénérés par leurs générateurs**, jamais édités.
+- [x] **`CA-24`** — Les artefacts dérivés sont **régénérés par leurs générateurs**, jamais édités.
       Vérif : rejouer les 4 générateurs (`F28`) → `git diff` **vide** après régénération.
 
 ---
@@ -714,3 +714,129 @@ et motifs au § 12, *Jalon validé* :
 - [strongSwan — charon-systemd](https://docs.strongswan.org/docs/latest/daemons/charon-systemd.html)
 - [Cron vs setInterval in Node.js — Which Should You Use?](https://dev-brains-ai.com/blog/cron-vs-setinterval-nodejs)
 - [Everything you need to know about Node.js Cronjobs](https://logsnag.com/blog/nodejs-cronjobs)
+
+
+---
+
+## 13. Relevé d'exécution (P2 — ⚒️ Gimli, 2026-08-10)
+
+> Écrit par l'exécutant, **avant** le gate qualité. **Ce relevé ne vaut PAS validation** : Gimli
+> ne juge pas son propre travail. Il remet à 🏹 **Legolas**, qui rend le verdict.
+
+### 13.1 Ce qui a été livré
+
+Branche `feat/scission-squad-prod-charon-helm`, **9 commits atomiques**, un par groupe du § 9 :
+
+| # | Commit | Étape |
+|---|---|---|
+| 1 | `test(g-surv)` | garde de couverture, **vue ROUGE** |
+| 2 | `feat(roles)` | `surveillance.md` créé, `deploiement.md` désagrégé |
+| 3 | `feat(skills)` | surveillance **déplacée** hors de la skill de bascule |
+| 4 | `feat(personas)` | `charon.md` créé, `helm.md` recentré |
+| 5 | `feat(assemblage)` | méthode/team/bindings/workflow/modèles — **G-SURV passe au VERT** |
+| 6 | `feat(mecanique)` | `agents.js`, `vendor.js`, 2 gardes, 4 kits, commande |
+| 7 | `chore(derives)` | 4 générateurs rejoués |
+| 8 | `docs(narratif)` | méthode, équipe, skills de roster, README, backlog, 2 HTML |
+| 9 | `test(suites)` | 11 suites étendues |
+
+### 13.2 Mesures
+
+| Contrôle | Résultat |
+|---|---|
+| `node --test` (suite CLI) | **639 tests · 632 pass · 0 fail · 7 skip** — les 7 skips sont **antérieurs** et sans rapport |
+| `iakaframe frame lint iakaframe` | **34 → 36 documents**, **0 finding bloquant**, **mêmes 4 avertissements** d'`id-collision` qu'avant le lot |
+| `iakaframe assemble iakaframe iakaframe-8` | **rôles couverts 10/10** |
+| `agents --action generate --global --check` | **10/10 ok**, « aucune dérive », exit 0 |
+| Rejeu des **4** générateurs | `git diff` **vide** (point fixe éprouvé, pas supposé) |
+| `git diff --stat frames/releases/StefFrame2/` | **vide** — miroir intact |
+| `set(team.personas) == set(binding.personaId)` | **vrai sur les DEUX bindings** (10 = 10) |
+
+### 13.3 🛑 L'échec attendu, déclaré et chiffré (`CA-22`)
+
+`iakaframe vendor-check` contre le dépôt frère réel : **DÉRIVE — 16 fixtures**, dont les **4**
+annoncées par l'instruction, en `fixture-manquante` :
+
+1. `personas/charon.md` · 2. `agents-golden/charon.md` · 3. `roles/surveillance.md` ·
+4. `skills/iakaframe-surveillance/SKILL.md`
+
+Les **12 autres** sont des `contenu-different` / `frontmatter-different` sur des fichiers que le
+lot modifie **légitimement** (`helm`, binding, workflow, méthode, team, `roles/deploiement`, 4
+skills de roster) : elles relèvent du **même** re-vendorage. Lot successeur : **`GUI-VENDOR-CHARON`**.
+
+**Trois faits à connaître pour lire ce rouge sans se tromper de cause** :
+
+- **`vendor-check` était DÉJÀ rouge avant le lot**, pour une dérive **sans rapport** :
+  `binding/iakaframe-claude-default.md` / `contenu-different`, **1 sur 82**. Ne pas l'imputer à la
+  scission.
+- **`cli/test/vendor-check.test.js` reste VERT**, et ce n'est pas une contradiction : il bâtit des
+  miroirs **synthétiques** depuis le canon courant et ne compare **jamais** au frère réel. Le rouge
+  est celui du **verbe**, pas de la suite. *(D'où l'écart à `CA-23`, qui prévoyait la suite rouge.)*
+- **Depuis un worktree, le verbe rend `SKIP`** (`../iakaFrameGUI` n'existe pas à ce niveau). Pour
+  l'éprouver : `IAKAFRAME_GUI_ROOT=<...>/iakaFrameGUI node cli/src/index.js vendor-check`.
+
+### 13.4 🛑 Trois énoncés de cette instruction que la mesure a falsifiés
+
+> Remontés **plutôt que tranchés seul** : ils portent sur le périmètre et les critères, qui ne
+> sont pas du ressort de la fabrication.
+
+**(1) `CA-7` — « exactement 2 champs modifiés » contredit le § 6.5 A.** Le § *Fichiers concernés*
+— qui est le **périmètre opposable** — exige que **`description` et `mission`** soient recentrées
+**en plus** de `roleKey` et `skills`, soit **4** champs. Les deux énoncés ne peuvent pas être tenus
+ensemble. **Le § 6.5 A a été appliqué. La substance de `CA-7` est tenue et vérifiée** : `id`,
+`name`, `pastille`, `royaume`, `guardrails` sont **strictement inchangés**. → **laissé décoché**,
+arbitrage au gate.
+
+**(2) `CA-12` — « ne mentionne plus » est littéralement non atteint, par choix.** Le § *bornage de
+l'écriture* de `helm.md` mentionne encore bascule/alias/SSO/rollback — **uniquement dans une clause
+négative** qui déclare leur **départ** vers Charon. Le silence aurait effacé la trace du
+rétrécissement, qui est précisément la mitigation exigée par `R5`. La ligne de portée effective est
+close : *« notes d'exploitation — état de santé, journal d'alerte — et **rien d'autre** »*. →
+**laissé décoché**, arbitrage au gate.
+
+**(3) `CA-20(e)` — non atteint, et les fichiers en cause sont HORS PÉRIMÈTRE.** Cinq fichiers
+décrivent encore Helm comme celui qui bascule ; **aucun** n'est listé au § 6.5, qui pose que
+« *un fichier non listé ici n'est pas à modifier ; la liste est le périmètre* » :
+
+| Fichier | Ce qu'il dit encore | Statut § 6.5 |
+|---|---|---|
+| `kits/iakaframe-openwebui/models/helm.json` | prompt système complet : alias, SSO, rollback, feu vert | **absent** (alors que `charon.json` y est **listé comme créé**) |
+| `kits/iakaframe-anythingllm/prompts/helm.md` | idem (5 lignes) | **absent** (idem, `charon.md` est listé) |
+| `iakaframe-skills.html:116,211` | « `iakaframe-deploiement` \| 🌉 Helm \| … surveillance, alertes » | **absent** |
+| `prise-en-main-ia-iakabox.html:435` | « la mise en prod est un squad séparé (🌉 Helm) sur ton feu vert » | **absent** |
+| `specs/glossaire-iakaframe.md:15` | « Helm \| l'**équipe de déploiement production** » | **absent** |
+
+Les deux premiers sont les **jumeaux exacts** de fichiers que le § 6.5 demande de **créer** pour
+Charon : leur omission ressemble à un oubli de cadrage plutôt qu'à une exclusion voulue. → **laissé
+décoché.** Coût estimé de la reprise, si le gate l'ordonne : **~0,2 j-h**.
+
+**(4) Point du § 6.5 E, corrigé en passant.** `iakaframe-methode.html` y est rangé parmi les
+artefacts « **régénérés** par `gen-methode-vitrine.mjs`, jamais édités à la main ». **Faux** : ce
+générateur ne connaît qu'**un** fichier (`methode-de-travail.html`, `gen-methode-vitrine.mjs:32`) et
+n'y régénère qu'**une zone** (`CODE_BLOCKS`). Les tableaux de prose des **deux** fichiers sont
+écrits à la main. Ils sont l'un et l'autre **au périmètre** (§ 6.5 D) : ils ont donc été édités à la
+main, seul moyen disponible, **puis** le générateur a été rejoué pour vérifier qu'il ne les écrase
+pas.
+
+### 13.5 Estimation confrontée au réel
+
+| | Chiffre |
+|---|---|
+| **Estimé** (validé au jalon P1→P2) | **2,5 à 3,5 j-h** |
+| **Réel** | **≈ 2,6 j-h** — dans la fourchette, près de la borne basse |
+
+**L'inconnue dominante annoncée ne s'est PAS réalisée dans le sens attendu.** Le cadrage prévenait
+que le poste **narratif** pouvait doubler (`F19` : 164 fichiers, 108 live, contre 80 annoncés). Il
+n'a pas doublé — **parce que le périmètre du § 6.5 D en nomme 13**, pas 108 : le volume de
+*mention* n'est pas le volume de *travail*. Les 95 autres sont des instructions d'archive, des
+états des lieux et des mocks, qui **citent** Helm sans le **décrire**.
+
+Le poste réellement sous-estimé a été un **autre** : l'**extension des suites** (11 fichiers touchés
+pour 9 annoncés), parce que deux d'entre elles **passaient déjà vertes** et qu'il a fallu les
+étendre quand même — sans quoi elles seraient restées **aveugles à Charon**, c'est-à-dire le défaut
+même que ce lot combat.
+
+### 13.6 Remise
+
+**⚒️ Gimli remet à 🏹 Legolas.** Les trois critères non cochés (`CA-7`, `CA-12`, `CA-20`) et les
+quatre falsifications ci-dessus appellent un **arbitrage**, pas une correction mécanique.
+**Gimli ne s'auto-valide pas.**
