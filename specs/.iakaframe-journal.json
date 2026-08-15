@@ -688,5 +688,15 @@
     "dirty": true,
     "files": 1469,
     "note": "Verbe models : suggestions de modeles d'IA par roleKey + mise a disposition interactive (5 cibles), source unique models/suggestions.json, binding ollama, recette guidee. Reprise apres gate qualite FAIL."
+  },
+  {
+    "date": "2026-08-15 23:00",
+    "reason": "version",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "e6b568f merge(routage): fusion du lot correctif-routage-prod-vers-charon dans main",
+    "dirty": false,
+    "files": 1078,
+    "note": "Landing des trois lots empiles dans main par merges etages : models-par-rolekey, scission du squad prod (Charon passe / Helm veille), correctif de routage prod vers Charon. Gate qualite PASS avant merge (16 CA sur 16) et re-gate PASS apres merge. Version portee a 0.39.0. Reserves ouvertes : R-1/R-2 (garde de routage enumerante) en cadrage successeur ; R-5 (README:227 juste mais sous aucune garde) ; R-6 (skips de parite GUI trompeurs en worktree) ; derive vendor-check 0 -> 23 fixtures, successeur GUI-VENDOR-CHARON. Dette de tagging signalee, non traitee."
   }
 ]
