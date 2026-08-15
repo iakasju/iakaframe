@@ -29,4 +29,6 @@ n'est **pas** un credential. `tools` (par persona) ≠ `connectors` (par team, M
 
 Runner : **claude-code** pour toutes les personas. Les modèles (opus pour
 portefeuille/coordination/cadrage, sonnet pour dev/qualité/prod/design/doc) sont un **défaut
-suggéré**, surchargeable au cockpit. Source d'inspiration des affectations : `kits/*/MODELES.md`.
+suggéré**, surchargeable au cockpit. Source des affectations : **`models/suggestions.json`**
+(source unique, par `roleKey`) — *et non plus `kits/*/MODELES.md`, dont les tables sont périmées
+depuis le 2026-08-03 et ne décident plus.*

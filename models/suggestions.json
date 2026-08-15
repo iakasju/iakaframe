@@ -1,0 +1,162 @@
+{
+  "$comment": "SOURCE UNIQUE des suggestions de modeles d'IA par roleKey (instruction specs/instructions/models-par-rolekey.md, D2). Lue par cli/src/commands/models.js. Les anciennes tables (kits/iakaframe-ollama/MODELES.md et les instructions de 2026-06-24) sont des LECTEURS : elles renvoient ici, elles ne decident plus. DONNEE PURE, aucune logique. AUCUN hote ni IP ici (doctrine de neutralite du depot, cf. services.js) : les hotes viennent de IAKAFRAME_HOSTS / --hosts.",
+  "version": 1,
+  "updatedAt": "2026-08-03",
+  "hardware": {
+    "gpu": "NVIDIA GeForce RTX 3060, 12 Go de VRAM (mesure du 2026-08-03)",
+    "partage": "GPU PARTAGE avec un service de generation d'image (idle a ~0,1 Go, mais plusieurs Go en generation).",
+    "plafond": "Q4_K_M jusqu'a ~14B tient sur cette carte ; au-dela, quantization plus agressive ou deport CPU (-70 a -80 % de vitesse). Le parc actuel (3,3 a 9,6 Go) est DEJA a l'optimum de cette carte : les modeles superieurs recommandes par la veille (qwen3-coder:30b ~19 Go) NE TIENNENT PAS.",
+    "arbitrage": "gemma4:e4b (9,6 Go) tient seul, mais ne laisse presque rien au service d'image. Faire tourner un agent PENDANT une generation impose de choisir : `ollama stop` avant generation, ou un modele plus petit."
+  },
+  "veille": {
+    "date": "2026-08-03",
+    "methode": "Recherche web (etat de l'art 2026) CONFRONTEE a nos propres mesures. En cas de desaccord, nos mesures priment : elles portent sur NOS taches et NOTRE materiel.",
+    "constats": [
+      "CONFIRME — qwen2.5-coder:7b est le consensus 2026 pour le code en 7B (Ollama). Notre choix pour `dev` et `qualite` est aligne sur l'etat de l'art, sans changement.",
+      "EXPLIQUE NOTRE MESURE — Qwen3.5 est meilleur QUE SUR LE PAPIER : il mene SWE-bench / Terminal-Bench / TAU2 a PLEINE PRECISION, mais il est decrit comme 'flaky under quantization', la ou Gemma 4 reste consistant. Notre parc est en Q4_K_M : les classements pleine precision NE S'APPLIQUENT PAS a notre installation. C'est la cause probable de ce que nous avons mesure (gemma4 plus rapide ET plus docile que qwen3.5 sur nos deux taches).",
+      "A ARBITRER — l'etat de l'art place BGE-M3 et Qwen3-Embedding devant nomic-embed-text pour la recherche multilingue/hybride, mais nomic reste juge solide sur materiel modeste (contexte 8192). Aucun changement propose sans un besoin RAG reel : on ne tire pas un modele pour un usage qui n'existe pas encore.",
+      "SANS OBJET POUR NOUS — les meilleurs modeles de code 2026 (qwen3-coder:30b, gemma4 26B-A4B) depassent la VRAM disponible. La veille est lue a travers la contrainte materielle, sinon elle recommande l'inaccessible.",
+      "CLASSEMENT DE L'ARENE, CONFRONTE (2026-08-04, objectif coding) — le sommet est hors de portee : Kimi K3 mene le Frontend Code Arena (1679 Elo) avec 2 800 milliards de parametres ; GLM-5 mene chez les open-weights ; le meilleur open-weight n'est plus qu'a ~55 points Elo du meilleur modele proprietaire. Seule la categorie « sous 14B » nous concerne, et elle designait qwen2.5-coder:14b et phi-4:14b. VERDICT APRES MESURE : notre qwen2.5-coder:7b les egale ou les bat, deux fois plus vite. Un classement Elo mesure des preferences humaines sur des conversations, souvent sur des modeles qu'on ne peut pas faire tourner : il oriente la recherche, il ne decide pas a la place d'un banc execute.",
+      "gemma4:e4b ECARTE des alternatives de `dev` et `qualite` (il y figurait sans mesure) : 7/10 au banc 1, contre 10/10 pour les modeles de code. Il domine notre banc de REDACTION, il n'est pas un modele de code — les deux ne se deduisent pas l'un de l'autre.",
+      "PROTOCOLE — un run par modele NE CLASSE PAS. Ces modeles sont non deterministes meme a temperature 0.1 : sur le banc semver, le meme modele rate des cas differents d'une execution a l'autre. Constate a mes depens : une conclusion publiee le 2026-08-04 a du etre annulee le lendemain. Regle desormais : au moins 3 runs, et on regarde la DISPERSION autant que le score. Un modele regulier a 11/12 vaut mieux qu'un modele qui oscille entre 9 et 12."
+    ]
+  },
+  "source": "Parc mesure le 2026-08-03 sur l'Ollama de reference (GET /api/tags) et la passerelle LiteLLM (13 entrees, GET /v1/models). Pas de veille web a cette date : les suggestions ne recommandent QUE des modeles constates presents.",
+  "methodId": "iakaframe",
+  "roles": {
+    "portefeuille": {
+      "recommended": "qwen3.5:9b",
+      "alternatives": [
+        "gemma4:e4b"
+      ],
+      "requires": [
+        "tools",
+        "thinking"
+      ],
+      "sizeGb": 6.6,
+      "why": "Arbitrage transverse : a besoin d'outils et de raisonnement, pas de vision."
+    },
+    "coordination": {
+      "recommended": "qwen3.5:9b",
+      "alternatives": [
+        "gemma4:e4b"
+      ],
+      "requires": [
+        "tools",
+        "thinking"
+      ],
+      "sizeGb": 6.6,
+      "why": "Dispatch et suivi : appelle des outils, doit tenir un fil long."
+    },
+    "cadrage": {
+      "recommended": "gemma4:e4b",
+      "alternatives": [
+        "qwen3.5:9b"
+      ],
+      "requires": [
+        "tools",
+        "thinking"
+      ],
+      "sizeGb": 9.6,
+      "why": "Le plus gros modele du parc. EPROUVE le 2026-08-03 sur une vraie tache de cadrage (epingler une image sur son digest) : structure tenue, AUCUN fait invente (digest repris exactement), et de vraies questions au decideur. MAIS il a RATE le seul risque qui comptait — verifier que le digest est encore recuperable AVANT de modifier — et a propose comme rollback un retour au tag flottant, qui est precisement le faux filet. BROUILLON de cadrage, jamais cadrage valide."
+    },
+    "dev": {
+      "recommended": "qwen2.5-coder:14b",
+      "alternatives": [
+        "qwen2.5-coder:7b",
+        "phi4:14b"
+      ],
+      "requires": [
+        "tools"
+      ],
+      "sizeGb": 9.0,
+      "why": "Modele de code dedie, le seul du parc a porter la completion de code (insert). CORRIGE LE 2026-08-05 APRES MESURE DE VARIANCE — et cette correction annule celle de la veille, qui reposait sur UN SEUL RUN par modele. Rejouer le banc a montre que ces modeles ne sont PAS deterministes, meme a temperature 0.1 : deux executions, deux bugs differents. Trois runs par modele sur le banc semver (12 assertions, code EXECUTE) : qwen2.5-coder:14b = 11, 11, 11 (parfaitement stable, rate toujours le meme cas « 1.2 vs 1.2.0 », donc previsible) ; qwen2.5-coder:7b = 9, 9, 10 (dispersion, bugs variables). Le 14B marque MIEUX et surtout REGULIEREMENT. Ecart de vitesse a chaud : ~13 s contre ~9 s — les « 76 s contre 38 s » d'hier incluaient le chargement en VRAM et exageraient l'ecart d'un facteur 5. Cout : +4,3 Go (9,0 Go), qui tiennent dans la carte. LECON : le 12/12 du 7B au premier banc etait un coup de chance, et j'avais bati une conclusion dessus — puis rejete la recommandation de l'arene, qui avait raison. Un run unique ne classe pas."
+    },
+    "qualite": {
+      "recommended": "qwen2.5-coder:14b",
+      "alternatives": [
+        "qwen2.5-coder:7b",
+        "phi4:14b"
+      ],
+      "requires": [
+        "tools"
+      ],
+      "sizeGb": 9.0,
+      "why": "Lit du code et des traces de test : meme profil que dev, jamais la meme instance. CORRIGE LE 2026-08-05 APRES MESURE DE VARIANCE — et cette correction annule celle de la veille, qui reposait sur UN SEUL RUN par modele. Rejouer le banc a montre que ces modeles ne sont PAS deterministes, meme a temperature 0.1 : deux executions, deux bugs differents. Trois runs par modele sur le banc semver (12 assertions, code EXECUTE) : qwen2.5-coder:14b = 11, 11, 11 (parfaitement stable, rate toujours le meme cas « 1.2 vs 1.2.0 », donc previsible) ; qwen2.5-coder:7b = 9, 9, 10 (dispersion, bugs variables). Le 14B marque MIEUX et surtout REGULIEREMENT. Ecart de vitesse a chaud : ~13 s contre ~9 s — les « 76 s contre 38 s » d'hier incluaient le chargement en VRAM et exageraient l'ecart d'un facteur 5. Cout : +4,3 Go (9,0 Go), qui tiennent dans la carte. LECON : le 12/12 du 7B au premier banc etait un coup de chance, et j'avais bati une conclusion dessus — puis rejete la recommandation de l'arene, qui avait raison. Un run unique ne classe pas."
+    },
+    "deploiement": {
+      "recommended": "qwen3.5:9b",
+      "alternatives": [
+        "gemma4:e4b"
+      ],
+      "requires": [
+        "tools"
+      ],
+      "sizeGb": 6.6,
+      "why": "Ops : enchaine des appels d'outils. mistral:7b est ECARTE ici — il ne porte PAS le tool-calling."
+    },
+    "design": {
+      "recommended": "qwen3.5:9b",
+      "alternatives": [
+        "qwen3-vl-4b"
+      ],
+      "requires": [
+        "vision",
+        "tools"
+      ],
+      "sizeGb": 6.6,
+      "why": "Seul poste ou la vision est requise (lecture de maquettes). qwen3-vl-4b = repli leger 3,3 Go."
+    },
+    "documentation": {
+      "recommended": "gemma4:e4b",
+      "alternatives": [
+        "qwen3.5:9b",
+        "mistral:7b-instruct-q4_K_M"
+      ],
+      "requires": [],
+      "sizeGb": 9.6,
+      "why": "CORRIGE DEUX FOIS LE MEME JOUR (2026-08-03), et la seconde fois parce que la premiere mesure etait TROP ETROITE. (1) Suggestion d'origine : mistral, choisi sur sa taille, sans aucune observation. (2) Premiere correction : qwen3.5, apres un duel mistral/qwen3.5 — mais gemma4 n'avait pas ete teste sur cette tache. (3) Banc complet sur les 7 modeles du parc : gemma4 rend 138 mots en 4,7 s (limite 150, tenue) contre 182 mots en 25 s pour qwen3.5 (hors limite) et 321 mots en 39 s pour mistral, qui recopie en plus la liste des options malgre l'interdiction. gemma4 est le plus rapide ET le plus docile, alors qu'il est le PLUS GROS du parc. Bonus operationnel : il sert deja `cadrage` et `frame`, donc un seul modele reste charge dans une VRAM partagee au lieu de deux. IMPERATIF : appeler avec `think: false` (cf. notes). Lecon de methode : corriger une intuition par une mesure partielle produit une autre intuition."
+    },
+    "frame": {
+      "recommended": "gemma4:e4b",
+      "alternatives": [
+        "qwen3.5:9b"
+      ],
+      "requires": [
+        "tools",
+        "thinking"
+      ],
+      "sizeGb": 9.6,
+      "why": "Erudition du modele de frame : meme profil de raisonnement que le cadrage."
+    }
+  },
+  "embedding": {
+    "recommended": "nomic-embed-text",
+    "alternatives": [],
+    "dimensions": 768,
+    "why": "Seul modele d'embedding du parc ; expose aussi sous les alias OpenAI de la passerelle."
+  },
+  "notes": [
+    "Modeles *thinking* (gemma4, qwen3.5) : avec un budget de tokens serre, `content` revient VIDE (tout part dans `reasoning_content`). Prevoir >= 300 tokens pour toute verification, sinon un modele sain se lit comme un echec.",
+    "MESURE DU 2026-08-03, plus dure que la note ci-dessus : augmenter le budget NE SUFFIT PAS. Sur une tache de redaction, qwen3.5 a consomme 4000 tokens (2193 mots de raisonnement) et rendu ZERO mot de reponse. La vraie parade est `think: false` — avec elle, le MEME modele rend un guide complet en 6 s.",
+    "LE RAISONNEMENT N'A PAS PROUVE SA VALEUR SUR NOS TACHES (mesure du 2026-08-03, meme modele, meme prompt, meme tache de cadrage) : AVEC raisonnement = 64 s, 485 mots de reflexion, reponse en depassement (511 mots pour 400 demandes) ; SANS raisonnement (`think: false`) = 13 s et 380 mots, limite RESPECTEE, meme qualite de fond. 5x plus rapide et plus docile. Par defaut, appeler `think: false` — y compris sur les postes de raisonnement — et ne rallumer le thinking que si une tache prouve qu'elle y gagne.",
+    "CORRIGE LE 2026-08-03 (une note precedente affirmait le contraire, a tort) : la passerelle LiteLLM 1.82.6 TRANSMET BIEN `think: false`. Test de controle, meme modele, meme prompt, meme voie : AVEC le parametre = 1,9 s et 37 mots ; SANS = 13,2 s, 366 mots de raisonnement et ZERO mot de reponse. Le facteur n'est donc PAS le chemin (passerelle vs direct) mais le PARAMETRE : il faut l'envoyer, explicitement, quelle que soit la voie. La conclusion pratique ne change pas — `think: false` par defaut — mais son motif si : ne pas eviter la passerelle pour cette raison.",
+    "mistral:7b-instruct-q4_K_M ne porte PAS le tool-calling (capabilities: completion seule) : ne jamais le suggerer pour un roleKey qui appelle des outils.",
+    "Cout de chargement : ~30-50 s a froid (VRAM), ~10 s a chaud. Le GPU peut etre partage avec un service d'image : ne pas eprouver plusieurs modeles en parallele."
+  ],
+  "familles": {
+    "$comment": "Couverture par FAMILLE de modeles, exigence du decideur (2026-08-04) : « au minimum litellm doit pouvoir servir un kimi, un gemma, un deepseek, qwen, GLM ». Distinct des suggestions par roleKey : une famille servie n'est pas forcement recommandee pour un role.",
+    "servies": {
+      "Gemma": "gemma4:e4b (9,6 Go) — tools + thinking. Meilleur du parc au banc d'essai.",
+      "Qwen": "qwen3.5:9b (6,6 Go, vision+tools+thinking) et qwen2.5-coder:7b (4,7 Go, code).",
+      "DeepSeek": "deepseek-r1:8b (5,2 Go) — distill Llama 8B. PAS de tool-calling. Emet son raisonnement MEME avec `think: false` (c'est son template) : prevoir un budget large. Ajoute et eprouve le 2026-08-04.",
+      "GLM": "glm4:9b (5,5 Go, contexte 128K) — PAS de tool-calling, PAS de raisonnement. Le plus rapide des quatre a repondre. POURQUOI PAS GLM-5.x : verifie au registre Ollama le 2026-08-04, manifeste par manifeste, pas suppose. `glm-5.1` -> MANIFEST_UNKNOWN (aucun poids local, cloud-only) ; `glm-5.2` -> cloud-only aussi (MoE 744B, ~223 Go meme en 1-bit, aucun GPU seul ne le fait tourner) ; `glm-4.7-flash` -> local mais 19,0 Go de poids, soit au-dessus des 12 Go de la carte : il ne tiendrait qu'en debordant sur le CPU (-70 a -80 % de vitesse). `glm4:9b` n'est donc pas un choix par defaut, c'est LE SEUL GLM executable sur ce materiel."
+    },
+    "non_servie": {
+      "Kimi": "IMPOSSIBLE EN LOCAL, et ce n'est pas une question de reglage : Kimi K2 est un MoE de 1000 milliards de parametres (~600 Go en Q4, ~250 Go meme en 1-bit). Ollama ne le distribue QU'EN TAG `:cloud` (kimi-k2.6:cloud) — il n'existe aucun poids local a tirer, quelle que soit la carte. Deux voies possibles, TOUTES DEUX distantes et payantes, a arbitrer par le decideur : (a) API Moonshot via LiteLLM (`moonshot/...` + cle), (b) Ollama Cloud (`:cloud` + compte). Servir Kimi signifie donc sortir du self-hosted — arbitrage, pas detail technique.",
+      "GLM-5.x": "Meme mur que Kimi, pour la meme raison : les flagships recents sont des MoE que le registre Ollama ne distribue qu'en `:cloud`. Servir GLM-5.x demanderait la voie distante (Ollama Cloud ou API Z.ai) — arbitrage du decideur, pas tache d'execution. La famille GLM reste servie en local par `glm4:9b`."
+    },
+    "eprouve_le": "2026-08-04",
+    "methode": "Chaque famille servie a ete verifiee par un APPEL REEL a travers la passerelle, pas par la presence d'une ligne au catalogue."
+  }
+}

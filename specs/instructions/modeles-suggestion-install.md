@@ -1,5 +1,10 @@
 # Instruction : Suggestion & installation de modèles (Ollama / ComfyUI)
 
+> ⚠️ **ARCHIVE (2026-08-03) — le volet LLM est remplacé par `models-par-rolekey.md`** (livré :
+> verbe `iakaframe models`, suggestions par `roleKey`, gate humain conservé). Conservée pour la
+> trace. **Le volet ComfyUI / modèles image reste ouvert et non traité** : il est explicitement
+> hors périmètre du lot de 2026-08-03 — **différé, pas annulé**.
+>
 > Phase cadrage (🧙 Gandalf). Statut : 🟡 **à valider / à planifier** (pour plus tard).
 > Étend la détection de services (`iakaframe-services.ps1`) vers la **gestion des modèles**.
 

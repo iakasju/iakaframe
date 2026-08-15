@@ -264,3 +264,39 @@ test('libraryRoot : IAKAFRAME_HOME distinct de IAKAFRAME_ROOT', () => {
   try { assert.equal(libraryRoot(), path.resolve('/srv/lib')); }
   finally { if (oldHome === undefined) delete process.env.IAKAFRAME_HOME; else process.env.IAKAFRAME_HOME = oldHome; }
 });
+
+// --- Auto-selection de binding quand une team en porte PLUSIEURS -----------------------------
+// Regression reelle (2026-08-03) : la selection ne tenait qu'a la CARDINALITE (`length === 1`),
+// hypothese vraie tant qu'un seul runner existait. L'ajout d'un binding `ollama` a cote du
+// binding `claude` a fait abandonner l'auto-selection en silence -> le kit assemble perdait son
+// `bindingId` et la parite byte-a-byte avec le golden a rougi. Un defaut se MARQUE, il ne se
+// deduit pas du fait d'etre seul.
+test('assemble : plusieurs bindings candidats -> celui marque forge-default', () => {
+  const dir = path.join(FIX, 'bindings');
+  const extra = path.join(dir, 'b_test_alt.md');
+  const canon = path.join(dir, 'b_test.md');
+  const before = fs.readFileSync(canon, 'utf8');
+  try {
+    // Le binding historique devient le defaut EXPLICITE ; un second candidat le rejoint.
+    fs.writeFileSync(canon, before.replace('teamId: t_full', 'teamId: t_full\norigin: forge-default'), 'utf8');
+    fs.writeFileSync(extra, [
+      '---', 'id: b_test_alt', 'methodId: m_test', 'teamId: t_full', 'origin: forge-alt',
+      'assignments:',
+      '  - { personaId: p_dev, runner: ollama-distant, model: "qwen2.5-coder:7b" }',
+      '---', '# binding alternatif', '',
+    ].join('\n'), 'utf8');
+
+    const r = assemble('m_test', 't_full', null, FIX);
+    assert.equal(r.ok, true, 'l\'assemblage doit rester possible avec deux candidats');
+    assert.equal(r.binding.id, 'b_test', 'le binding marque forge-default doit gagner');
+    assert.equal(r.descriptor.bindingId, 'b_test', 'le descripteur ne doit pas perdre son bindingId');
+
+    // Sans marque de defaut et a plusieurs, on ne devine pas : bindingId null, mais pas d'erreur.
+    fs.writeFileSync(canon, before, 'utf8');
+    const amb = assemble('m_test', 't_full', null, FIX);
+    assert.equal(amb.descriptor.bindingId, null, 'aucun defaut marque -> aucun binding devine');
+  } finally {
+    fs.rmSync(extra, { force: true });
+    fs.writeFileSync(canon, before, 'utf8');
+  }
+});

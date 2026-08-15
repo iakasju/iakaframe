@@ -9,6 +9,7 @@ import { runUpdate } from './commands/update.js';
 import { runRepo } from './commands/repo.js';
 import { runAgents } from './commands/agents.js';
 import { runSkills } from './commands/skills.js';
+import { runModels } from './commands/models.js';
 import { runGo } from './commands/go.js';
 import { runBanner } from './commands/banner.js';
 import { runBrief } from './commands/brief.js';
@@ -68,6 +69,11 @@ Commandes :
                         (sans --create : test + remote LOCAL seulement, jamais de creation)
   services            Sonde git(Forgejo) / Ollama / ComfyUI
                         --hosts a,b,c  --json (stdout)  --out <fichier>  --timeout <sec>
+  models              Modeles d'IA suggeres par roleKey + mise a disposition (INTERACTIF)
+                        etat des lieux -> suggestions -> installer/remplacer/retirer (sur gate)
+                        cibles : ollama-local | ollama-distant | litellm | claude | codex
+                        --json (etat des lieux, non interactif) --hosts a,b,c --timeout <sec>
+                        --path <projet> --root <bibliotheque>
   config              Ecrit/maj <projet>/iakaframe.json (runner + nœud)
                         --path <dir> --runner claude-code|ollama|litellm|codex --node <n>  --json
                         (alias legacy runner : ps, iakaide, aider - deprecies ; --target = alias de --node)
@@ -168,6 +174,7 @@ async function main() {
     case 'config':   runConfig(rest); break;
     case 'agents':   runAgents(rest); break;
     case 'skills':   runSkills(rest); break;
+    case 'models':   await runModels(rest); break;
     case 'go':       runGo(rest); break;
     case 'banner':   runBanner(rest); break;
     case 'brief':    runBrief(rest); break;

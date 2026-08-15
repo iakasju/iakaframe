@@ -1,5 +1,16 @@
 # Instruction : cible « ollama » (agents sur modèles locaux) + alternatives par agent
 
+> ⚠️ **ARCHIVE (2026-08-03) — remplacée par `models-par-rolekey.md`.** Conservée pour la trace ;
+> ne plus s'en servir comme source. **Deux corrections à connaître avant de la lire** :
+>
+> 1. **Le ✅ ci-dessous est FAUX.** `iakaframe-alternatives.ps1` est déclaré livré ; **le fichier
+>    n'existe plus dans le dépôt** — emporté par la bascule PowerShell → CLI Node, sans que
+>    l'item soit rouvert. Son geste est repris par le verbe **`iakaframe models`**.
+> 2. **La table modèle↔agent ci-dessous est PÉRIMÉE et n'est plus une source.** Elle recommande
+>    `qwen3`, `deepseek-r1`, `llama3.1`, `qwen2.5-vl` — mesure du 2026-08-03 : **aucun de ces
+>    modèles n'est présent** sur le parc. La source unique est désormais
+>    **`models/suggestions.json`**, indexée par `roleKey` (et non par nom de persona).
+>
 > Phase cadrage (🧙 Gandalf). Statut partiel : le **rapport d'alternatives est livré**, la
 > **cible `ollama`** complète reste à planifier.
 
