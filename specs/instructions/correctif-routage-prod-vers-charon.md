@@ -358,51 +358,51 @@ si le répertoire est absent (poste CI), **jamais échouer par absence** — et 
 
 **Gardes — la preuve d'abord**
 
-- [ ] **`CA-1`** — Les **trois** gardes ont été **vues ROUGES** avant correction, et le message de
+- [x] **`CA-1`** — Les **trois** gardes ont été **vues ROUGES** avant correction, et le message de
       commit consigne **le compte constaté** pour chacune. *Sans cette trace, le lot n'est pas fini.*
-- [ ] **`CA-2`** — `G-ROUTE-1` (réciprocité) : **verte**. Vérif : `prompts/helm.md` et
+- [x] **`CA-2`** — `G-ROUTE-1` (réciprocité) : **verte**. Vérif : `prompts/helm.md` et
       `models/helm.json` contiennent « Charon » ; `prompts/charon.md` et `models/charon.json`
       contiennent « Helm ».
-- [ ] **`CA-3`** — `G-ROUTE-2` (attribution) : **verte** sur les 11 fichiers de routage du § 7 A+B.
-- [ ] **`CA-4`** — 🛑 **`G-ROUTE-3` (CONTRATS DÉPLOYÉS) : verte.** Vérif directe :
+- [x] **`CA-3`** — `G-ROUTE-2` (attribution) : **verte** sur les 11 fichiers de routage du § 7 A+B.
+- [x] **`CA-4`** — 🛑 **`G-ROUTE-3` (CONTRATS DÉPLOYÉS) : verte.** Vérif directe :
       `~/.claude/agents/aragorn.md`, `gimli.md`, `legolas.md` ne routent plus la prod vers Helm ;
       `helm.md` et `charon.md` restent cohérents. **C'est le critère que le lot précédent n'avait pas.**
 
 **Canon**
 
-- [ ] **`CA-5`** — Les **9 sites** `F5`-`F13` sont corrigés, **un par un**, aux lignes du § 7 A.
-- [ ] **`CA-6`** — `aragorn.md:31` est **réécrit** et non substitué (`D7`) : l'exemple de lacune de
+- [x] **`CA-5`** — Les **9 sites** `F5`-`F13` sont corrigés, **un par un**, aux lignes du § 7 A.
+- [x] **`CA-6`** — `aragorn.md:31` est **réécrit** et non substitué (`D7`) : l'exemple de lacune de
       casting reste **pédagogiquement juste**, et n'écrit pas « Charon **ou** Helm ». Vérif : relecture.
-- [ ] **`CA-7`** — `library/personas/gimli.md:4` : le champ `description` ne route plus la prod vers
+- [x] **`CA-7`** — `library/personas/gimli.md:4` : le champ `description` ne route plus la prod vers
       Helm. Vérif : `grep -n "squad Helm" library/personas/gimli.md` → **0 ligne**.
 
 **Kits**
 
-- [ ] **`CA-8`** — 🛑 `models/helm.json` corrigé sur ses **TROIS zones**, vérifiées séparément :
+- [x] **`CA-8`** — 🛑 `models/helm.json` corrigé sur ses **TROIS zones**, vérifiées séparément :
       (a) `params.system` décrit la **veille** ; (b) `meta.description` ne dit plus « bascule…
       rollback… Feu vert humain OBLIGATOIRE » ; (c) **aucun `suggestion_prompts` ne propose une
       bascule ou un rollback**. Vérif : `grep -i "bascul\|rollback" models/helm.json` → **0**, hors
       une éventuelle mention renvoyant explicitement à Charon.
-- [ ] **`CA-9`** — `prompts/helm.md` est **entièrement** une charte de veille : plus de « Gate —
+- [x] **`CA-9`** — `prompts/helm.md` est **entièrement** une charte de veille : plus de « Gate —
       HUMAIN, non négociable », plus de « Tu fais : bascule… SSO… rollback ».
-- [ ] **`CA-10`** — `prompts/{aragorn,gimli,legolas}.md` et `models/{aragorn,gimli,legolas}.json`
+- [x] **`CA-10`** — `prompts/{aragorn,gimli,legolas}.md` et `models/{aragorn,gimli,legolas}.json`
       routent la prod vers **Charon**. Vérif : `G-ROUTE-2`.
-- [ ] **`CA-11`** — **Legolas est traité** (`F4`) : `library/personas/legolas.md:35,57`,
+- [x] **`CA-11`** — **Legolas est traité** (`F4`) : `library/personas/legolas.md:35,57`,
       `prompts/legolas.md:12` et `models/legolas.json`. *Critère explicite parce qu'il était absent
       des deux relevés d'origine.*
 
 **Dérivés, narratif, périmètre**
 
-- [ ] **`CA-12`** — Dérivés **régénérés par leurs générateurs**, jamais édités. Vérif : rejouer les
+- [x] **`CA-12`** — Dérivés **régénérés par leurs générateurs**, jamais édités. Vérif : rejouer les
       générateurs → `git diff` **vide** ; `agents generate --check` = **0**.
-- [ ] **`CA-13`** — `G-ROUTE-3` **SKIPpe proprement et le DIT** si `~/.claude/agents/` est absent —
+- [x] **`CA-13`** — `G-ROUTE-3` **SKIPpe proprement et le DIT** si `~/.claude/agents/` est absent —
       elle n'échoue **jamais** par absence (`R6`).
-- [ ] **`CA-14`** — Le **déplacement** du rouge de `vendor-check` est **déclaré** au message de
+- [x] **`CA-14`** — Le **déplacement** du rouge de `vendor-check` est **déclaré** au message de
       commit (nombre avant / après), et **`GUI-VENDOR-CHARON` est nommé** comme successeur (`D3`).
       Aucun **autre** test n'est en échec.
-- [ ] **`CA-15`** — `frames/releases/StefFrame2/` **byte-identique** : `git diff --stat` → vide.
+- [x] **`CA-15`** — `frames/releases/StefFrame2/` **byte-identique** : `git diff --stat` → vide.
       `docs/guide-stefframe2.html` **non modifié** (`D4`).
-- [ ] **`CA-16`** — La règle de rédaction `D6` figure dans
+- [x] **`CA-16`** — La règle de rédaction `D6` figure dans
       `library/skills/iakaframe-cadrage/SKILL.md` § *Garde-fous*.
 
 ---
@@ -482,3 +482,103 @@ si le répertoire est absent (poste CI), **jamais échouer par absence** — et 
    le rouge de `vendor-check` **se déplaçant** dans l'intervalle.
 2. **`D4`** — `docs/guide-stefframe2.html:604` **hors lot**, parce qu'il décrit fidèlement un
    miroir gelé.
+
+---
+
+## 13. Relevé d'exécution (P2 — ⚒️ Gimli, 2026-08-15)
+
+> **TRANSCRIPTION, PAS RÉÉVALUATION.** Toutes les mesures ci-dessous sont celles de 🏹 **Legolas**,
+> **refaites indépendamment par lui** au gate qualité, sur `feat/correctif-routage-prod-vers-charon`,
+> HEAD **`ece3bc1`**. Gimli les **reporte telles quelles** : il n'a rien rejoué « pour vérifier »,
+> rien reformulé, rien arrondi, et n'a **ajouté aucune mesure de son cru**.
+>
+> Ce relevé est **porté par Gimli parce que Legolas n'écrit pas** — c'est délibéré : il signale et
+> ne touche à rien. **Il ne vaut donc pas auto-validation** : le verdict transcrit ici appartient à
+> Legolas, pas à l'exécutant.
+
+**Verdict de 🏹 Legolas : `PASS`. 16 critères d'acceptation sur 16 satisfaits.** Les cases du § 10
+sont cochées **au titre de ce verdict**, pas d'un contrôle de l'exécutant.
+
+### 13.1 Ce qui a été livré
+
+Branche `feat/correctif-routage-prod-vers-charon`, au-dessus du cadrage `f4bee5c` (`D2`) —
+**5 commits atomiques**, un par groupe du § 6 :
+
+| # | Commit | Étape |
+|---|---|---|
+| 1 | `0b9d7fa` · `test(gardes)` | `G-ROUTE-1/2/3` écrites et **VUES ROUGES** avant toute correction, comptes constatés au message (§ 6.2, `D5`) |
+| 2 | `5a8a01a` · `fix(canon)` | **Groupe A** — les 3 routeurs, **9 sites un par un**, dont la réécriture de `F7` (`D7`) et `gimli.md:4` (§ 6.3) |
+| 3 | `47e8367` · `fix(kits)` | **Groupe B** — 8 fichiers, dont les **2 réécritures intégrales** `prompts/helm.md` et `models/helm.json`, 3 zones (`D8`, § 6.4) |
+| 4 | `cc726a1` · `docs(narratif+cadrage)` | **Groupe D** (`F25`) + la règle de rédaction `D6` inscrite au § *Garde-fous* de la skill de cadrage (§ 6.5, § 6.8) |
+| 5 | `ece3bc1` · `chore(derives)` | dérivés **RÉGÉNÉRÉS, jamais écrits** ; les **3 gardes passent au VERT** (§ 6.6, § 6.7) |
+
+### 13.2 Mesures — refaites **indépendamment** par 🏹 Legolas
+
+| Contrôle | Résultat mesuré par Legolas |
+|---|---|
+| `node --test` (suite CLI) | **642 tests · 0 échec**, contre **639 à la base** ; **7 skips inchangés** |
+| `G-ROUTE-1` · `G-ROUTE-2` · `G-ROUTE-3` | **vues ROUGES avec leurs comptes exacts**, **puis vertes** (`CA-1` → `CA-4`) |
+| 🛑 **Contrôle anti-complaisance** | le **code de la garde n'a pas bougé** entre le rouge et le vert — le vert vient de la correction, pas d'un assouplissement de la garde |
+| Rejeu des **4** générateurs | `git diff` **vide** (`CA-12`) |
+| `agents --action generate --global --check` | **0** (`CA-12`) |
+
+### 13.3 🛑 Lint et typage — **NON mesurés**, donc **PAS déclarés verts**
+
+**Le lint et le typage n'ont pas été mesurés.** Motif relevé par Legolas : **le dépôt ne porte ni
+`eslint` ni `tsconfig`** — il n'y a rien à exécuter.
+
+À leur place, Legolas a **substitué** un contrôle syntaxique : `node --check` et `JSON.parse` sur les
+**11 JSON** → **tous verts**.
+
+> ⚠️ **C'est une substitution, et elle est déclarée comme telle.** Elle **ne vaut pas** un lint ni un
+> typage réussis : elle prouve que rien n'est syntaxiquement cassé, pas que le code est conforme à
+> des règles de style ou à des types. L'écrire autrement serait déclarer vert un contrôle qui n'a
+> pas eu lieu.
+
+### 13.4 `vendor-check` — le rouge **se déplace**, comme annoncé (`D10`, `CA-14`)
+
+`vendor-check` passe de **16 à 23 fixtures en dérive**. C'est un **déplacement déclaré**, prévu par
+la décision **`D10`**, dont le successeur nommé est **`GUI-VENDOR-CHARON`**.
+
+> **Réserve connue — PAS un échec.** Le rouge était déjà validé par le décideur jusqu'à
+> `GUI-VENDOR-CHARON` ; il ne s'aggrave pas en nature, il change de périmètre.
+
+**Correction apportée par 🏹 Legolas au compte des fixtures manquantes côté GUI : elles sont
+**4**, et non 3 — `agents-golden/charon.md` s'ajoute.** La correction est celle de Legolas, relevée
+à son gate ; elle est transcrite ici sans être retouchée.
+
+### 13.5 🛑 Les quatre réserves de 🏹 Legolas
+
+**`R-1` — trois sites survivent au lot** :
+
+- `iakaframe-skills.html:116`
+- `iakaframe-skills.html:211`
+- `specs/glossaire-iakaframe.md:15`
+- `prise-en-main-ia-iakabox.html:476`
+
+**Deux d'entre eux figuraient déjà au `CA-20(e)` DÉCOCHÉ du gate précédent.** Ils n'ont été
+**ni traités, ni déclarés hors périmètre** — c'est ce double silence qui fait la réserve, plus que
+le nombre.
+
+**`R-2` — la cause de `R-1` : la garde est la copie de l'inventaire qu'elle vérifie.**
+Les constantes `ROUTAGE_A` / `ROUTAGE_B` de `G-ROUTE-2` (`cli/test/route-prod.test.js:110` et
+`:122`) sont une **liste en dur de 11 chemins**, c'est-à-dire **le § 7 lui-même**. Une garde bâtie
+sur l'inventaire ne peut pas dire que l'inventaire est incomplet : elle est verte **parce qu'elle
+ne regarde que ce qu'on lui a nommé**.
+
+**`R-3`** et **`R-4`** — **mineures et hors lot.**
+
+> **`R-1` + `R-2` appellent un lot successeur**, actuellement **en cadrage chez 🧙 Gandalf**.
+
+### 13.6 Estimation confrontée au réel
+
+| | Chiffre |
+|---|---|
+| **Estimé** (§ 11) | **1,6 à 2,2 j-h** |
+| **Réel** | **non relevé au gate** — aucun chiffre ne m'a été transmis, **rien n'est donc inscrit ici** |
+
+### 13.7 Suite
+
+Le gate qualité est **franchi** (`PASS`). Restent ouverts, **nommément et hors de ce lot** :
+`GUI-VENDOR-CHARON` (`D3`), `VENDOR-SYNTH` (`D10`), et le **lot successeur de `R-1`/`R-2`** en
+cadrage chez 🧙 Gandalf.
