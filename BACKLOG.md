@@ -105,6 +105,81 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
 - [x] **T-5 — résidu « clé non tranchée » (`role-frame-builder.md` L~407)** *(re-gate 2026-07-25)* : une note « ⚠️ non tranché… si le décideur préfère `frame-builder` » subsiste alors que la clé **est** tranchée (`frame`, arbitrage 2). Flag de réversibilité pré-amendement, pas un arbitrage ouvert. Lisibilité perfectible — à nettoyer. **✅ SOLDÉ (2f411fc, 2026-07-30, Gandalf)** : note reformulée « ✅ Tranché (arbitrage 2) : clé = `frame`, `frame-builder` abandonné » ; plus de décision en suspens.
 - [x] **T-6 — phrasé arbitrage 4 imprécis vs modèle réservoir (`role-frame-builder.md` en-tête L~20-21)** *(re-gate 2026-07-25)* : l'en-tête (section inchangée) dit « son objet n'est pas *le frame de ce dépôt* » ; or, dans le réservoir, **toutes** les frames vivent dans ce dépôt. L'intention (Fëanor ne forge pas le **default**, forge les **autres** frames) reste vraie et est réconciliée par § 2.1/N2 ; seul le résumé de tête garde la formulation pré-amendement. Résidu éditorial mineur. **✅ SOLDÉ (2f411fc, 2026-07-30, Gandalf)** : en-tête reformulé « pas la frame default (canon) du réservoir (reste à Gandalf/Gimli, cf. §2.1/N2), forge les AUTRES ».
 
+### Sauvegarde du portefeuille — dettes du lot 1 (posé le 2026-08-15)
+
+> Le lot 1 a livré : `restic` 0.19.1 sur le poste, un **dépôt chiffré** sur `bigserver`
+> (`/fast/backups/portefeuille`), la **clé sur `iakabox-apps`** (machine distincte de celle qui
+> porte le dépôt — garde de conception `D5`), et le verbe **`iaka range all|<projet>`**, **sur
+> commande uniquement**. Instruction : `specs/instructions/sauvegarde-portefeuille.md`.
+> Procédure de restauration : `docs/restauration-portefeuille.md`.
+>
+> 🛑 **Tout ce qui suit est OUVERT. Chaque ligne est une chose dont on n'est PAS protégé.**
+
+- [ ] **SAUV-1 — 🛑 la copie HORS LIGNE du mot de passe n'existe pas (copie 2 de `D5`).** Le mot de
+      passe n'a **qu'un seul exemplaire**, sur `iakabox-apps`. La perte de cette VM rend le dépôt
+      **définitivement illisible** — et ça se découvre **le jour où on en a besoin**, sans erreur ni
+      alerte. **C'est le point de défaillance unique de tout le dispositif.** *Arbitrage du
+      décideur* : où vit physiquement cette copie (gestionnaire de mots de passe, support
+      physique), et qui d'autre que lui peut y accéder. **Le lot 1 ne pouvait pas la poser** : elle
+      doit vivre hors du poste **et** hors de la box.
+- [ ] **SAUV-2 — la clé de secours indépendante n'existe pas (copie 3 de `D5`).** Une seconde clé
+      restic (`restic key add`, mot de passe différent, détenue ailleurs) permettrait de
+      **révoquer** la clé courante si `iakabox-apps` était compromise, **sans réécrire le dépôt**.
+      Non posée : elle exige un détenteur **distinct** de celui de la copie 1, donc l'arbitrage
+      `SAUV-1` d'abord.
+- [ ] **SAUV-3 — 🛑 `CA-10` (restauration après sinistre simulé) N'A PAS ÉTÉ DÉROULÉ,** et il ne
+      pouvait pas l'être : il exige la copie 2 (`SAUV-1`), qui n'existe pas. *Tant qu'il n'est pas
+      joué, la règle des copies reste une **intention**, pas une protection.* À dérouler depuis
+      **une autre machine**, sans rien emprunter au poste.
+- [ ] **SAUV-4 — aucune planification, aucun veilleur d'ABSENCE.** Décision du décideur pour ce lot
+      (« sur commande »). Conséquence à ne pas oublier : **si personne ne tape la commande, rien ne
+      se passe et personne ne le sait.** Le veilleur d'absence — un service tiers qui crie quand il
+      **ne reçoit pas** le signal attendu — est *plus important* que l'alerte d'échec, qui ne se
+      déclenche que si quelque chose tourne.
+- [ ] **SAUV-5 — aucun canal poussé.** Ni alerte d'échec (`CA-11`), ni alerte d'absence (`CA-12`).
+      Le portefeuille n'a toujours **aucun** canal poussé (constat que le ticket `SUP-1` de
+      `robby-immo` fait de son côté). Canal visé : **Discord**.
+- [ ] **SAUV-6 — aucune rétention, aucune vérification périodique.** `forget`/`prune` ne sont
+      **jamais** appelés — état volontaire et **sûr** au lot 1 (rien n'est supprimé), à rouvrir
+      quand l'occupation montera. `restic check` n'est pas planifié ; la couverture intégrale
+      (`--read-data-subset`) n'est pas bornée (`CA-13`).
+- [ ] **SAUV-7 — 🛑 le dépôt LONG n'existe pas, et le piège de son initialisation est ARMÉ.** Le
+      jour où on crée `hdd/backups-long`, il **doit** l'être avec `--copy-chunker-params` pointant
+      sur le dépôt court : sans cette option la déduplication entre les deux est cassée, les
+      données copiées peuvent occuper **jusqu'au double**, **les paramètres ne se changent plus**,
+      et **rien ne signale la faute au moment où on la commet**. Commande exacte et contrôle qui la
+      prouve : `docs/restauration-portefeuille.md` § 4.
+- [ ] **SAUV-8 — aucune copie HORS SITE.** Les deux niveaux prévus sont **deux datasets de la même
+      machine** : c'est une copie hors *dataset*, jamais hors *site*. Un incendie, un vol ou une
+      panne de `bigserver` emporte **tout**. *Écrit dans la documentation ; à arbitrer.*
+- [ ] **SAUV-9 — aucune sauvegarde de machine virtuelle.** `proxmox-backup-client` est installé,
+      **aucun job, dépôt vide**. Autre métier, autre lot. Consigné, non traité.
+- [ ] **SAUV-10 — bases de données et volumes Docker hors périmètre (lot 2).** Ce qui est ramassé,
+      ce sont les **fichiers** de `~/work` — donc un **dump** s'il s'y trouve, jamais une base
+      vivante. ⚠ On ne sauvegarde **jamais** un volume PostgreSQL à chaud par copie de fichiers :
+      l'image est incohérente **et paraît réussie**.
+- [ ] **SAUV-11 — `rest-server` en `append-only` (lot 3).** Seule parade **réelle** à « un poste
+      compromis efface ses propres sauvegardes ». Au lot 1, la seule atténuation est qu'aucune
+      commande destructive n'est câblée dans `iaka range` — ce qui n'empêche personne de lancer
+      `restic forget` à la main depuis le poste.
+- [ ] **SAUV-12 — la signature GPG du binaire `restic` n'a pas été vérifiée** : `gpg` est **absent
+      du poste** (et `brew` aussi, donc pas d'installation triviale). Ce qui **a** été vérifié :
+      la somme **SHA-256** de l'archive contre le fichier `SHA256SUMS` de la release, sur HTTPS —
+      **et le contrôle a été vu échouer** sur une archive altérée d'un octet. C'est une garantie
+      d'**intégrité**, pas d'**authenticité**. À solder en installant `gpg` et en vérifiant
+      `SHA256SUMS.asc`.
+- [ ] **SAUV-13 — `restic` n'est pas installé sur `iakabox-apps`,** alors que c'est le **seul**
+      poste où `restic mount` fonctionne (macOS exige macFUSE ou FUSE-T). L'exploration d'un
+      instantané sans restauration n'est donc pas disponible aujourd'hui.
+- [ ] **SAUV-14 — la procédure de restauration n'a pas été SUIVIE PAR UN TIERS (`CA-14`).** Elle
+      est écrite et versionnée (donc sur Forgejo, donc elle survit à la perte du poste), mais
+      **son auteur est le seul à l'avoir lue**. Une procédure jamais suivie par quelqu'un d'autre
+      n'est pas une procédure éprouvée.
+- [ ] **SAUV-15 — la croissance hebdomadaire n'est pas mesurée (`CA-6`).** Le tableau de `D4` (pire
+      cas ≈ 746 Go sur 1,4 To) reste un **encadrement**, pas une mesure. Il faut **4 passages**,
+      dont au moins un **après un build réel**. Tant qu'ils n'existent pas, ne pas conclure que
+      l'exclusion est inutile — le **raisonnement** tient, la **mesure** manque.
+
 ## Fait
 
 ### Soldés et vérifiés à la purge du 2026-07-23
