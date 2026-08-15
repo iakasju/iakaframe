@@ -31,7 +31,7 @@ import { parseFrontmatter } from './frontmatter.js';
 import { generateAgent, loadDefaultBinding } from './generate-agents.js';
 
 // Meme liste et meme ordre que le test d'inventaire de cli/test/parite-generateurs.test.js.
-export const IDS = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
+export const IDS = ['aragorn', 'charon', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
 
 // Pools plats a parseur vendorises au Lot 5b : l'ENSEMBLE REFERENCE par la methode canonique
 // (methods/iakaframe.md : principleIds/ritualIds/scaffoldIds) — pas tout le pool disque, exactement
@@ -53,24 +53,39 @@ export const SCAFFOLD_IDS = ['portefeuille', 'projet', 'recette-guidee'];
 //     `subskills` (mesuree sur le disque) — stockees en DOSSIER `<id>/SKILL.md` (le walk recursif de
 //     `listFixtureFiles` la supporte nativement ; chaque `skills/<id>/SKILL.md` est une copie valide).
 export const ROLE_KEYS = [
-  'portefeuille', 'coordination', 'cadrage', 'dev', 'qualite', 'deploiement', 'design',
-  'documentation', 'frame',
+  'portefeuille', 'coordination', 'cadrage', 'dev', 'qualite', 'deploiement', 'surveillance',
+  'design', 'documentation', 'frame',
 ];
 export const GUARDRAIL_IDS = ['identity', 'perimeter', 'delegation'];
 export const SKILL_IDS = [
-  // Union des `persona.skills` du casting (9 personas de teams/iakaframe-8.md) ...
+  // Union des `persona.skills` du casting (10 personas de teams/iakaframe-8.md) ...
   'iakaframe-aragorn', 'iakaframe-frame', 'iakaframe-cadrage', 'iakaframe-lecture-maquettes',
-  'iakaframe-fabrication', 'iakaframe-deploiement', 'iakaframe-qualite', 'iakaframe-naonedge',
-  'iakaframe-nathalie', 'iakaframe-memoire-humaine', 'iakaframe-odin', 'iakastart',
+  'iakaframe-fabrication', 'iakaframe-deploiement', 'iakaframe-surveillance', 'iakaframe-qualite',
+  'iakaframe-naonedge', 'iakaframe-nathalie', 'iakaframe-memoire-humaine', 'iakaframe-odin',
+  'iakastart',
   // ... + fermeture des `subskills` (mesuree) : jalon, gestion-de-source->git->forgejo,
   // conteneurisation->docker, appflowy-doc.
   'iakaframe-jalon', 'iakaframe-gestion-de-source', 'iakaframe-conteneurisation',
   'iakaframe-appflowy-doc', 'iakaframe-git', 'iakaframe-docker', 'iakaframe-forgejo',
 ];
 
-// 20 (9 personas + 9 goldens + 1 binding + 1 workflow) + 18 principles + 6 rituals + 3 scaffolds
-// + 9 roles + 3 guardrails + 19 skills (Lot 5c) = 78.
-export const EXPECTED_COPIES = 78;
+// 22 (10 personas + 10 goldens + 1 binding + 1 workflow) + 18 principles + 6 rituals
+// + 3 scaffolds + 10 roles + 3 guardrails + 20 skills (Lot 5c) = 82.
+//
+// 🛑 PORTE DE 78 A 82 PAR LA SCISSION DU SQUAD PROD (2026-08-08, D10 de
+// specs/instructions/scission-squad-prod-charon-helm.md). +4 : persona `charon`, golden
+// `charon`, role `surveillance`, skill `iakaframe-surveillance`.
+//
+// CETTE MONTEE REND `vendor-check` ROUGE, ET C'EST VOULU — arbitrage explicite du decideur.
+// Le depot frere iakaFrameGUI n'a pas encore ces 4 fixtures ; la garde les reclamera
+// (`fixture-manquante`) jusqu'au lot successeur `GUI-VENDOR-CHARON` (~0,5 j-h), qui les
+// vendorise et la remet au vert.
+// L'alternative — laisser les constantes a 9/9/19/78 pour garder le test vert — a ete
+// EXPLICITEMENT ECARTEE : la garde serait alors AVEUGLE a Charon, au role `surveillance` et a
+// la skill neuve, et personne ne saurait qu'elle a cesse de les couvrir. Dans les termes du
+// decideur : « une garde verte qui ne regarde plus rien est pire qu'une rouge ».
+// NE PAS « REPARER » EN REDESCENDANT CES CONSTANTES.
+export const EXPECTED_COPIES = 82;
 export const EXPECTED_DERIVED = 4;   // methode, methode wrapped, team, kit
 
 const FIXTURES_REL = path.join('packages', 'core', '__tests__', 'fixtures');

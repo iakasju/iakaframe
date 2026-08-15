@@ -1,7 +1,7 @@
 ---
 id: iakaframe-init
 name: iakaframe-init
-description: Amorce un projet avec la structure iakaframe complète — arborescence specs/, CLAUDE.md, les 8 personas d'agent (odin, aragorn, gandalf, gimli, legolas, helm, loki, nathalie), le cadrage du workflow et le script qualité. Utiliser cette skill quand l'utilisateur veut "démarrer un projet iakaframe", "mettre en place la méthode", "initialiser la structure", "déposer les contrats d'agent", "onboarder un dépôt", ou amorcer un nouveau projet (ou un projet existant) selon la méthode de l'équipe augmentée. À lancer une fois au début d'un projet.
+description: Amorce un projet avec la structure iakaframe complète — arborescence specs/, CLAUDE.md, les 9 personas d'agent (odin, aragorn, gandalf, gimli, legolas, charon, helm, loki, nathalie), le cadrage du workflow et le script qualité. Utiliser cette skill quand l'utilisateur veut "démarrer un projet iakaframe", "mettre en place la méthode", "initialiser la structure", "déposer les contrats d'agent", "onboarder un dépôt", ou amorcer un nouveau projet (ou un projet existant) selon la méthode de l'équipe augmentée. À lancer une fois au début d'un projet.
 subskills: [iakaframe-gestion-de-source, iakaframe-etat-des-lieux]
 ---
 
@@ -41,7 +41,8 @@ abandonné) :
 | **gandalf** | architecte-cadreur (P1 — écrit les instructions) |
 | **gimli** | développeur + devops (P2 réalisation → P3 staging) |
 | **legolas** | qualité / testeur (gate pass/fail + RQV à la version) |
-| **helm** | squad prod (promotion stage → prod, sur feu vert humain) |
+| **charon** | squad prod — le passeur (promotion stage → prod, sur feu vert humain) |
+| **helm** | squad prod — le veilleur (santé de la prod, alerte ; **sans ordre**) |
 | **loki** | studio de design (supports on-brand, catalogue `design-*/`) |
 | **nathalie** | guides utilisateurs & mémoire humaine AppFlowy |
 
@@ -80,5 +81,5 @@ abandonné) :
 - Cadrer une tâche → agent **Gandalf** (P1) → `specs/instructions/<feature>.md`
 - Développer → agent **Gimli** (P2/P3)
 - Vérifier la qualité → agent **Legolas** (gate pass/fail)
-- Déployer en prod → squad **Helm** (feu vert humain)
+- Déployer en prod → squad prod, **⛴️ Charon** (feu vert humain) ; puis **🌉 Helm** veille
 - Faire le point → `iakaframe snapshot` / `iakaframe recap`

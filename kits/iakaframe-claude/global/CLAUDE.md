@@ -57,9 +57,13 @@ qui manque (`specs/`, état des lieux) et appliquer la méthode dans le cadre ex
 
 Quand Stéphane dit **`iakastart`**, **`iakaframe`** ou **`odin`** — en **début** ou en
 **cours** de session → **invoquer la skill `iakastart`** (bootstrap team). Cette skill
-affiche le banner ASCII `IAKAFRAME` (via le CLI existant) + le **roster des 8 agents** (odin,
-aragorn, gandalf, gimli, legolas, helm, loki, nathalie) et **rend les agents prêts à
+affiche le banner ASCII `IAKAFRAME` (via le CLI existant) + le **roster des 9 agents** (odin,
+aragorn, gandalf, gimli, legolas, **charon**, helm, loki, nathalie) et **rend les agents prêts à
 dispatch — sans en spawner aucun**.
+
+> **Le squad prod a DEUX agents depuis le 2026-08-08** : **⛴️ Charon** fait passer stage → prod
+> (**sur ordre**, feu vert humain) ; **🌉 Helm** veille sur la production (**sans ordre**). Les
+> deux portent la pastille `🟣` — elle marque la **phase**, le nom désambiguïse.
 
 - **Sans hook** : le déclenchement repose uniquement sur (a) le champ `description` de la
   skill (mécanisme natif de découverte/invocation de skill) et (b) la présente règle du

@@ -224,7 +224,8 @@ le décideur → portefeuille (dossier chapeau) → coordination (par projet) �
 | **Cadrage** | Transforme un besoin en instruction fermée et vérifiable. N'écrit jamais de code. |
 | **Réalisation** | Lit l'instruction, code, build, teste, commite, déploie jusqu'au staging. |
 | **Qualité** | Tests, lint, typage, couverture — rend un verdict pass/fail. Ne corrige jamais le code. |
-| **Production** | Promotion en production et surveillance, avec feu vert humain obligatoire. |
+| **Déploiement** | Fait *passer* stage → production : bascule d'alias, accès (proxy, SSO), rollback. Agit **sur ordre** — feu vert humain non négociable. |
+| **Surveillance** | *Veille* sur la production : health-checks, disponibilité des endpoints, charge, et **alerte**. Agit **sans ordre** ; n'exécute jamais la reprise. |
 | **Design** | Supports visuels et UX, selon la charte du projet. |
 | **Documentation** | Guides et modes d'emploi destinés à l'utilisateur final. |
 

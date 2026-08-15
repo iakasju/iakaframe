@@ -16,7 +16,7 @@ import { parseFrontmatter } from '../src/lib/frontmatter.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..'); // depot iakaframe (vraie bibliotheque)
-const IDS = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
+const IDS = ['aragorn', 'charon', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
 
 // --- 1. renderAgentContract : rendu PUR, ordre de champs, golden --------------------------------
 
@@ -102,7 +102,7 @@ test('verbatimBody : sans frontmatter => texte tel quel', () => {
 
 test('toolsForPersona : renvoie le tools de l assignment homonyme du binding', () => {
   const binding = loadDefaultBinding(REPO);
-  // `Skill` en fin de liste des 9 assignments (R8 § 5.3, Fait 3 : invocation a la demande).
+  // `Skill` en fin de liste des 10 assignments (R8 § 5.3, Fait 3 : invocation a la demande).
   assert.deepEqual(toolsForPersona(binding, 'gandalf'), ['Read', 'Grep', 'Glob', 'Write', 'Edit', 'WebSearch', 'WebFetch', 'Skill']);
   assert.deepEqual(toolsForPersona(binding, 'gimli'), ['Read', 'Edit', 'Write', 'Bash', 'Grep', 'Glob', 'Skill']);
   // Task accorde a Odin (arbitrage CH-B, 2026-07-19) : rend actif son guardrail `delegation`.
@@ -117,20 +117,20 @@ test('toolsForPersona : persona absente du binding => [] (=> ligne omise en aval
 
 // --- 4. Anti-regression Lot 1 : projection fidele du canon reel ---------------------------------
 
-test('generateAll : produit un contrat par persona (9)', () => {
+test('generateAll : produit un contrat par persona (10)', () => {
   const m = generateAll({ root: REPO });
   assert.equal(m.size, IDS.length);
   for (const id of IDS) assert.ok(m.has(id), `manque ${id}`);
 });
 
-// C15 (mecanique) : la cible GLOBALE materialise le roster 9 — Fëanor INCLUS (activation explicite
-// != absence du runtime). personasForTarget(project=null) = les 9 personas dont agents generate
+// C15 (mecanique) : la cible GLOBALE materialise le roster 10 — Fëanor INCLUS (activation explicite
+// != absence du runtime). personasForTarget(project=null) = les 10 personas dont agents generate
 // --global + skills deploy --global partagent la definition. Le deploiement reel = phase (b).
-test('C15 roster 9 : personasForTarget(global) inclut feanor ET odin (materialisation globale)', () => {
+test('C15 roster 10 : personasForTarget(global) inclut feanor ET odin (materialisation globale)', () => {
   const ids = personasForTarget({ root: REPO, project: null });
   assert.ok(ids.includes('feanor'), 'feanor doit etre materialise globalement (activation explicite)');
   assert.ok(ids.includes('odin'), 'odin (portefeuille) fait partie de la cible globale');
-  assert.deepEqual([...ids].sort(), IDS, 'exactement le roster 9');
+  assert.deepEqual([...ids].sort(), IDS, 'exactement le roster 10');
 });
 
 test('C15bis feanor : contrat global porte skills: [frame, jalon] + Skill (prechargement + invocation)', () => {

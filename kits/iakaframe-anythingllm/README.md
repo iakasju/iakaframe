@@ -12,9 +12,10 @@ kit-anythingllm/
 ├── AGENTS.md                       ← contrat + rituel comportemental d'identité (3.4/3.5/3.6)
 ├── MODELES.md                      ← modèle par persona (un workspace = un LLM)
 ├── README.md                       ← ce fichier (install pas-à-pas)
-├── prompts/                        ← 8 System Prompts, un par persona (à coller dans un workspace)
+├── prompts/                        ← 9 System Prompts, un par persona (à coller dans un workspace)
 │   ├── odin.md      aragorn.md    gandalf.md    gimli.md
-│   └── legolas.md   helm.md       loki.md       nathalie.md
+│   ├── legolas.md   charon.md     helm.md       loki.md
+│   └── nathalie.md
 └── specs/
     ├── PROJET.md                   ← gabarit vision / décisions
     └── instructions/_TEMPLATE.md   ← gabarit d'instruction (cadrage avant code)
@@ -29,8 +30,8 @@ kit-anythingllm/
 > `http://192.168.2.12:3005`), et au moins un **fournisseur LLM** branché (cf. `MODELES.md`,
 > *Settings > AI Providers > LLM*).
 
-Pour **chacun** des 8 personas (`odin`, `aragorn`, `gandalf`, `gimli`, `legolas`, `helm`, `loki`,
-`nathalie`) :
+Pour **chacun** des 9 personas (`odin`, `aragorn`, `gandalf`, `gimli`, `legolas`, `charon`,
+`helm`, `loki`, `nathalie`) :
 
 1. **Créer un workspace** : barre latérale → **+ New Workspace** → le nommer du persona
    (ex. `gimli`).

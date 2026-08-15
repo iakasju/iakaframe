@@ -12,12 +12,15 @@ import { unionSkills, deploySkills, skillStatus } from '../src/lib/skills-deploy
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..'); // depot iakaframe (vraie bibliotheque)
 
-const UNION_19 = [
+// 19 -> 20 a la SCISSION DU SQUAD PROD (2026-08-08) : `iakaframe-surveillance` rejoint l'union
+// parce que `helm` la porte a son frontmatter. Les DEUX skills du squad prod y figurent
+// desormais — la bascule (chez charon) ET la veille (chez helm).
+const UNION_20 = [
   'iakaframe-odin', 'iakastart', 'iakaframe-aragorn', 'iakaframe-jalon', 'iakaframe-cadrage',
   'iakaframe-lecture-maquettes', 'iakaframe-fabrication', 'iakaframe-gestion-de-source',
   'iakaframe-git', 'iakaframe-forgejo', 'iakaframe-conteneurisation', 'iakaframe-docker',
-  'iakaframe-qualite', 'iakaframe-deploiement', 'iakaframe-naonedge', 'iakaframe-nathalie',
-  'iakaframe-memoire-humaine', 'iakaframe-appflowy-doc', 'iakaframe-frame',
+  'iakaframe-qualite', 'iakaframe-deploiement', 'iakaframe-surveillance', 'iakaframe-naonedge',
+  'iakaframe-nathalie', 'iakaframe-memoire-humaine', 'iakaframe-appflowy-doc', 'iakaframe-frame',
 ];
 
 function tmpProject() {
@@ -26,12 +29,16 @@ function tmpProject() {
 
 // --- 1. Union (C10) -----------------------------------------------------------------------------
 
-test('C10 unionSkills : exactement l union 19 (jalon/fabrication/frame/lecture-maquettes incluses)', () => {
+test('C10 unionSkills : exactement l union 20 (jalon/fabrication/frame/lecture-maquettes/surveillance incluses)', () => {
   const u = unionSkills({ root: REPO, project: null });
-  assert.equal(u.length, 19, 'union de taille 19');
-  assert.deepEqual([...u].sort(), [...UNION_19].sort());
+  assert.equal(u.length, 20, 'union de taille 20');
+  assert.deepEqual([...u].sort(), [...UNION_20].sort());
   for (const s of ['iakaframe-jalon', 'iakaframe-fabrication', 'iakaframe-frame', 'iakaframe-lecture-maquettes']) {
     assert.ok(u.includes(s), `union doit contenir ${s}`);
+  }
+  // Les DEUX postes du squad prod sont deployes : la scission ne doit pas en faire disparaitre un.
+  for (const s of ['iakaframe-deploiement', 'iakaframe-surveillance']) {
+    assert.ok(u.includes(s), `union doit contenir ${s} (squad prod scinde)`);
   }
 });
 
@@ -41,13 +48,13 @@ test('union deterministe : ordre stable sur deux appels', () => {
 
 // --- 2. Deploiement en dossier temporaire (C11, C12) --------------------------------------------
 
-test('C11 deploy (ecriture) : copie recursive fidele + count 19 + fichiers annexes', () => {
+test('C11 deploy (ecriture) : copie recursive fidele + count 20 + fichiers annexes', () => {
   const proj = tmpProject();
   const rep = deploySkills({ root: REPO, project: proj, global: false, check: false });
-  assert.equal(rep.count, 19);
+  assert.equal(rep.count, 20);
   const skillsDir = path.join(proj, '.claude', 'skills');
   // chaque skill de l'union est un dossier avec au moins SKILL.md, byte-identique au canon
-  for (const id of UNION_19) {
+  for (const id of UNION_20) {
     const dst = path.join(skillsDir, id, 'SKILL.md');
     assert.ok(fs.existsSync(dst), `${id}/SKILL.md deploye`);
     assert.equal(skillStatus(path.join(REPO, 'library', 'skills', id), path.join(skillsDir, id)), 'ok', `${id} fidele`);
@@ -103,7 +110,7 @@ test('C14 skill hors union => orphan, JAMAIS supprimee, FS inchange, --check ne 
   // signalee orphan
   assert.ok(chk.orphans.some((o) => o.skill === 'iakaframe-orpheline-test' && o.status === 'orphan'));
   // count reste l'union (jamais gonfle par l'orpheline)
-  assert.equal(chk.count, 19);
+  assert.equal(chk.count, 20);
   // --check ne casse pas sur orphan seul (drift issu des seules union skills, ici 0)
   assert.equal(chk.drift, 0);
   assert.equal(chk.ok, true);

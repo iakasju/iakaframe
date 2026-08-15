@@ -20,9 +20,10 @@ const REPO = path.join(HERE, '..', '..');
 // La library est PARTAGEE entre toutes les frames du reservoir : le compte de personas GROSSIT
 // legitimement a chaque frame rangee. Les tests de `list` ne figent donc AUCUN total (qui deriverait
 // a chaque frame) : ils asserent la COHERENCE avec le scan reel + une BORNE de sous-ensemble stable,
-// le roster iakaframe (les 9 personas casties dans teams/iakaframe-8.md). Mord toujours : desync
+// le roster iakaframe (les 10 personas casties dans teams/iakaframe-8.md). Mord toujours : desync
 // list<->scan, ou disparition d'une persona du roster -> rouge.
-const ROSTER_IAKAFRAME = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
+// 9 -> 10 a la SCISSION DU SQUAD PROD (2026-08-08) : `charon` rejoint le casting.
+const ROSTER_IAKAFRAME = ['aragorn', 'charon', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
 
 function run(args, opts = {}) {
   return execFileSync('node', [CLI, ...args], { cwd: REPO, encoding: 'utf8', ...opts });

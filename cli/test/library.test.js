@@ -177,29 +177,32 @@ test('assemble : auto-selection du binding par defaut (m_test+t_full)', () => {
 });
 
 // --- Controle sur la VRAIE bibliotheque du depot ---
-test('vraie bibliotheque : scan personas = reservoir PARTAGE (roster 9 present, trie, sans doublon), assemble iakaframe/iakaframe-8 = 9/9', () => {
+test('vraie bibliotheque : scan personas = reservoir PARTAGE (roster 10 present, trie, sans doublon), assemble iakaframe/iakaframe-8 = 10/10', () => {
   // La library est PARTAGEE entre toutes les frames du reservoir : elle grossit legitimement a
   // chaque frame rangee. On n'assert donc AUCUN total fige (12/34... derive a chaque frame) mais
   // des INVARIANTS stables du scan (invariant I2 : index par scan, trie, sans doublon) + une borne
   // de sous-ensemble : le roster iakaframe (les 9 personas casties dans teams/iakaframe-8.md).
   const ids = scan('personas', REPO).map(e => e.id);
-  const ROSTER_IAKAFRAME = ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
+  const ROSTER_IAKAFRAME = ['aragorn', 'charon', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'];
   for (const id of ROSTER_IAKAFRAME) assert.ok(ids.includes(id), `roster iakaframe manquant : ${id}`);
   assert.deepEqual([...ids].sort((a, b) => a.localeCompare(b)), ids, 'scan trie (invariant I2)');
   assert.equal(new Set(ids).size, ids.length, 'pas de doublon d id (invariant I2)');
-  // L'assemblage reste FRAME-SCOPE : la team iakaframe-8 = 9 personas couvrant 9 roles, inchange.
+  // L'assemblage reste FRAME-SCOPE : la team iakaframe-8 = 10 personas couvrant 10 roles.
   const r = assemble('iakaframe', 'iakaframe-8', null, REPO);
   assert.equal(r.ok, true);
   assert.deepEqual(r.orphans, []);
-  assert.equal(r.methodRoleKeys.length, 9); // + frame (9e role, en queue)
+  assert.equal(r.methodRoleKeys.length, 10); // + surveillance (10e role, scission du squad prod)
 });
 
-// --- Cas reel declencheur (2026-07-16) : team a 7 personas, helm retire ------------------
-// La vraie methode iakaframe requiert le role `deploiement` (persona helm). Une team ou helm
-// est retire mais qui garde un coordinateur (aragorn) doit desormais donner ok:true : aragorn
-// absorbe `deploiement`. On monte une racine temporaire qui reutilise la VRAIE bibliotheque du
-// depot (symlinks library/ + methods/) avec une team-fixture 7 personas (sans helm).
-test('vraie bibliotheque : team 7 personas (helm retire) + coordinator aragorn -> ok (aragorn absorbe deploiement)', () => {
+// --- Cas reel declencheur (2026-07-16) : team a 7 personas, squad prod retire ------------
+// La vraie methode iakaframe requiert les roles `deploiement` (charon) et `surveillance` (helm).
+// Une team ou les DEUX sont retires mais qui garde un coordinateur (aragorn) doit donner ok:true :
+// aragorn les absorbe. On monte une racine temporaire qui reutilise la VRAIE bibliotheque du
+// depot (symlinks library/ + methods/) avec une team-fixture 7 personas (sans le squad prod).
+// ⚠️ C'est le MECANISME QUE G-SURV EXISTE POUR SURVEILLER (cf. couverture-roles.test.js) : ici il
+// est teste comme comportement legitime d'une team volontairement incomplete ; la-bas il est
+// interdit sur la team REELLE. Les deux tests disent la meme chose de deux cotes.
+test('vraie bibliotheque : team 7 personas (squad prod retire) + coordinator aragorn -> ok (aragorn absorbe)', () => {
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-helm-'));
   try {
     fs.symlinkSync(path.join(REPO, 'library'), path.join(tmp, 'library'));
@@ -216,9 +219,9 @@ test('vraie bibliotheque : team 7 personas (helm retire) + coordinator aragorn -
     const r = assemble('iakaframe', 'iakaframe-7-no-helm', null, tmp);
     assert.equal(r.ok, true);
     assert.deepEqual(r.orphans, []);
-    // Cette fixture n'a NI helm NI feanor : deploiement ET frame (9e role) sont donc absorbes par
-    // le coordinateur aragorn. La garde teste le meme mecanisme (role sans persona dediee -> ok:true).
-    assert.deepEqual(r.coveredByCoordinator, ['deploiement', 'frame']);
+    // Cette fixture n'a NI charon NI helm NI feanor : deploiement, surveillance ET frame sont donc
+    // absorbes par le coordinateur aragorn (role sans persona dediee -> ok:true, orphans vide).
+    assert.deepEqual(r.coveredByCoordinator, ['deploiement', 'surveillance', 'frame']);
     assert.equal(r.coordinator, 'aragorn');
   } finally {
     fs.rmSync(tmp, { recursive: true, force: true });

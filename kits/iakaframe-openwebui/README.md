@@ -12,9 +12,10 @@ kit-openwebui/
 ├── AGENTS.md                       ← contrat + rituel comportemental d'identité (3.4/3.5/3.6)
 ├── MODELES.md                      ← base model par persona (Ollama/LiteLLM) + branchement
 ├── README.md                       ← ce fichier (install pas-à-pas)
-├── models/                         ← 8 Models, un par persona, IMPORTABLES dans Open WebUI 0.9.6
+├── models/                         ← 9 Models, un par persona, IMPORTABLES dans Open WebUI 0.9.6
 │   ├── odin.json      aragorn.json    gandalf.json    gimli.json
-│   └── legolas.json   helm.json       loki.json       nathalie.json
+│   ├── legolas.json   charon.json     helm.json       loki.json
+│   └── nathalie.json
 └── specs/
     ├── PROJET.md                   ← gabarit vision / décisions
     └── instructions/_TEMPLATE.md   ← gabarit d'instruction (cadrage avant code)
@@ -29,8 +30,8 @@ kit-openwebui/
 > `http://192.168.2.12:8099`), et au moins une **connexion** vers un fournisseur de base models
 > (*Admin Settings > Connections* → Ollama et/ou OpenAI-compatible ; cf. `MODELES.md`).
 
-Pour **chacun** des 8 personas (`odin`, `aragorn`, `gandalf`, `gimli`, `legolas`, `helm`, `loki`,
-`nathalie`) :
+Pour **chacun** des 9 personas (`odin`, `aragorn`, `gandalf`, `gimli`, `legolas`, `charon`,
+`helm`, `loki`, `nathalie`) :
 
 1. **Ouvrir l'atelier des Models** : barre latérale → **Workspace** → onglet **Models**.
 2. **Importer le JSON** : bouton **Import Models** (icône d'import en haut à droite) → choisir

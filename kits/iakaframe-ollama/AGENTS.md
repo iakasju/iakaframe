@@ -31,7 +31,8 @@ Tu joues **un rôle à la fois**, en le déclarant, **avec le modèle adapté** 
 | 🧙 Gandalf — cadrage | 🔵 P1 | raisonnement (`deepseek-r1` / `qwen3` / `gpt-oss`) |
 | ⚒️ Gimli — dev + devops | 🔴 P2 → 🟢 P3 | code (`qwen2.5-coder` / `deepseek-coder`) |
 | 🏹 Legolas — qualité | 🔴/🟢 | code (`qwen2.5-coder`) |
-| 🌉 Helm — squad prod | 🟣 | général (`llama3.1` / `qwen3`) |
+| ⛴️ Charon — squad prod, la bascule | 🟣 | général (`llama3.1` / `qwen3`) |
+| 🌉 Helm — squad prod, la veille | 🟣 | général (`llama3.1` / `qwen3`) |
 | 🦅 Odin — portefeuille | 🟡 | général/raisonnement (`qwen3`) |
 | 🎭 Loki — design | 🟠 | vision (`qwen2.5-vl`) |
 | 📖 Nathalie — guides | 🟠 | rédaction (`mistral` / `qwen3`) |
@@ -47,7 +48,8 @@ Tu joues **un rôle à la fois**, en le déclarant, **avec le modèle adapté** 
 | 🔴 P2 Réalisation | Gimli + Legolas | branche + commits + tests verts | **auto** |
 | 🟢 P3 Staging | Gimli (devops) + Legolas | build/déploiement staging | auto |
 
-La chaîne **s'arrête au staging** ; la **prod** (🌉 Helm) est un squad séparé, **sur feu vert**.
+La chaîne **s'arrête au staging** ; la **prod** est un squad séparé à **deux postes** :
+**⛴️ Charon** bascule **sur feu vert humain**, **🌉 Helm** veille **sans ordre**.
 
 ## Règle absolue — cadrage avant code
 
@@ -94,4 +96,5 @@ version/pause via `iakaframe snapshot` / `iakaframe update` (agnostiques de l'ag
 1. Vérifier services (`iakaframe services`) + modèles installés (`ollama list`).
 2. `ollama pull` des modèles manquants (cf. `MODELES.md`).
 3. Lancer ton outil agentique sur le repo (il lit `AGENTS.md`), modèle = celui du rôle courant.
-4. Cycle : Gandalf cadre → Gimli/Legolas réalisent → staging → (Helm prod sur feu vert).
+4. Cycle : Gandalf cadre → Gimli/Legolas réalisent → staging → (Charon prod sur feu vert,
+   puis Helm veille).

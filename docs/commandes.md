@@ -82,7 +82,8 @@ est porté par la skill `iakastart`** ; rappel synthétique :
 | **gandalf** | Architecte-cadreur : rédige les instructions (`specs/instructions/`), jamais de code. |
 | **gimli** | Développeur-devops : implémente, build, teste, commite. |
 | **legolas** | Qualité / gate : vérifie avant de livrer. |
-| **helm** | Sécurité / garde-fous. |
+| **charon** | Squad prod, le passeur : bascule stage → prod, accès/SSO, rollback — **sur feu vert humain**. |
+| **helm** | Squad prod, le veilleur : santé de la prod, charge, **alerte** — **sans ordre**. |
 | **loki** | Mise en forme visuelle / habillage (HTML, présentation). |
 | **nathalie** | Doc utilisateur + mémoire humaine (AppFlowy). |
 

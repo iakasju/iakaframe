@@ -48,9 +48,9 @@ test('slack : zero occurrence dans la zone regeneree (canon purge, non reintrodu
   assert.equal((zone.match(/slack/gi) || []).length, 0, 'slack reintroduit dans la zone');
 });
 
-test('roster 9 : le bloc agents porte les 9 personas dont feanor (contrat rendu)', () => {
+test('roster 10 : le bloc agents porte les 10 personas dont feanor ET charon (contrat rendu)', () => {
   const zone = buildZone({ root: REPO });
-  for (const id of ['aragorn', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin']) {
+  for (const id of ['aragorn', 'charon', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin']) {
     assert.ok(zone.includes(`id="code-agent-${id}"`), `carte agent manquante : ${id}`);
   }
 });

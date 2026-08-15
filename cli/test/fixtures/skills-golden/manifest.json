@@ -1,8 +1,8 @@
 {
   "_provenance": "iakaframe:skills-manifest-golden — NE PAS EDITER A LA MAIN. Reference : cli/src/lib/resolve-skills.js resolveSkills. Regenerer : node cli/scripts/gen-skills-golden.mjs",
   "counts": {
-    "skills": 26,
-    "personas": 9
+    "skills": 27,
+    "personas": 10
   },
   "skills": [
     {
@@ -13,7 +13,7 @@
     },
     {
       "id": "iakaframe-aragorn",
-      "sha256": "57d0c65409acf29593f7bbb95b261903358770ae0892abbf9cd6e8de17ce1821",
+      "sha256": "071370d73038f83d1e49edfe8b262bcf82d28aba37f6381b30d2ca9879e772fd",
       "subskills": [
         "iakaframe-jalon"
       ],
@@ -37,7 +37,7 @@
     },
     {
       "id": "iakaframe-deploiement",
-      "sha256": "1db2602e3efd7fa63449a2d50340c37e0e5c2adba0388036c064ed5320b524df",
+      "sha256": "3b1deec9ecf4ca74e236a87641f07418f5d23dde2de989c999f10861b81118dd",
       "subskills": [],
       "layer": null
     },
@@ -95,7 +95,7 @@
     },
     {
       "id": "iakaframe-init",
-      "sha256": "8decb575e54cc75a079268fa2364a229108830d42d82ba82eb6d21cd730bd7c1",
+      "sha256": "1f0fc34d12a9f0e28bb21834b1e8cd8070901e5242ef9dad2c0f49f1eadcefee",
       "subskills": [
         "iakaframe-gestion-de-source",
         "iakaframe-etat-des-lieux"
@@ -156,7 +156,7 @@
     },
     {
       "id": "iakaframe-odin",
-      "sha256": "0c0c355d87fdcd11a8772b82cee48540eae07f57326dae4e447c9a67734f702d",
+      "sha256": "af20a99116dcc825da82ed26b5b41d3e16083e24fe07b2e33f1d2fbc88e5324e",
       "subskills": [
         "iakastart"
       ],
@@ -175,6 +175,12 @@
       "layer": null
     },
     {
+      "id": "iakaframe-surveillance",
+      "sha256": "cedc469d49a278a8149b6786b2818f6dbaa9ee79f2580411d36497081503a475",
+      "subskills": [],
+      "layer": null
+    },
+    {
       "id": "iakaframe-update",
       "sha256": "f9ca551379aeeeba80c5ee847e0f373d00cb4969c6fe7d67187a75b1ee577321",
       "subskills": [
@@ -185,7 +191,7 @@
     },
     {
       "id": "iakastart",
-      "sha256": "57e6c12d716dfb367bd44f48d95db3ffc7a05765d8612156725f1f7110be08c0",
+      "sha256": "2683bd110b6e764c8f977919b6b8bb147d106f359409ec856cb5f1b8726cc338",
       "subskills": [],
       "layer": null
     }
@@ -194,6 +200,9 @@
     "aragorn": [
       "iakaframe-aragorn",
       "iakaframe-jalon"
+    ],
+    "charon": [
+      "iakaframe-deploiement"
     ],
     "feanor": [
       "iakaframe-frame",
@@ -214,7 +223,7 @@
       "iakaframe-jalon"
     ],
     "helm": [
-      "iakaframe-deploiement"
+      "iakaframe-surveillance"
     ],
     "legolas": [
       "iakaframe-qualite"

@@ -112,8 +112,12 @@ export const isPerimeterBlocking = (verdict) => verdict === "HORS" || verdict ==
 // semantique (refus = exit 2 chez Claude/Codex, journal verbatim, etc.).
 // ---------------------------------------------------------------------------
 
+// ⚠️ `feanor` MANQUE ICI, et ce n'est pas un oubli de la scission du squad prod : il manquait
+// DEJA. L'ajouter changerait le comportement de delegation de Fëanor (`Task(agent: feanor)` est
+// refuse aujourd'hui), ce que personne n'a demande — un changement non arbitre passe sous couvert
+// d'un autre lot. Constate, NON corrige. Ticket : `ROSTER-FEANOR`.
 export const ROSTER = Object.freeze([
-  "odin", "aragorn", "gandalf", "gimli", "legolas", "helm", "loki", "nathalie",
+  "odin", "aragorn", "gandalf", "gimli", "legolas", "charon", "helm", "loki", "nathalie",
 ]);
 // Sous-agents natifs toleres hors roster iakaframe (Claude Code, valeurs par defaut).
 export const BUILTINS = Object.freeze([

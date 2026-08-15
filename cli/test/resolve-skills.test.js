@@ -39,9 +39,12 @@ test('C4 resolveSkills(nathalie/odin/aragorn) : non-regression des ex-tables cod
   assert.deepEqual(resolveSkills('aragorn', { root: REPO }), ['iakaframe-aragorn', 'iakaframe-jalon']);
 });
 
-test('C4bis legolas/helm/loki : une skill seule (1)', () => {
+test('C4bis legolas/charon/helm/loki : une skill seule (1)', () => {
   assert.deepEqual(resolveSkills('legolas', { root: REPO }), ['iakaframe-qualite']);
-  assert.deepEqual(resolveSkills('helm', { root: REPO }), ['iakaframe-deploiement']);
+  // SCISSION DU SQUAD PROD (2026-08-08) : la bascule est a charon, la veille a helm. Asseres
+  // ensemble : chacun seul laisserait passer une scission a moitie faite.
+  assert.deepEqual(resolveSkills('charon', { root: REPO }), ['iakaframe-deploiement']);
+  assert.deepEqual(resolveSkills('helm', { root: REPO }), ['iakaframe-surveillance']);
   assert.deepEqual(resolveSkills('loki', { root: REPO }), ['iakaframe-naonedge']);
 });
 

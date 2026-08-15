@@ -396,7 +396,8 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
         <tr><td class="name">🧙 Gandalf</td><td>🔵</td><td>Architecte-cadreur&nbsp;: besoin → instruction fermée</td><td>P1 Cadrage</td><td><code>iakaframe-cadrage</code></td></tr>
         <tr><td class="name">⚒️ Gimli</td><td>🔴/🟢</td><td>Dev + devops&nbsp;: code, build, commits, déploiement jusqu'au staging (×N)</td><td>P2 → P3</td><td>CLAUDE.md</td></tr>
         <tr><td class="name">🏹 Legolas</td><td>🔴/🟢</td><td>Qualité / test&nbsp;: verdict PASS, gate auto</td><td>P2 / P3</td><td><code>iakaframe-qualite</code></td></tr>
-        <tr><td class="name">🌉 Helm</td><td>🟣</td><td>Squad prod&nbsp;: déploiement, accès, rollback, surveillance, alertes</td><td>Prod (squad)</td><td><code>iakaframe-deploiement</code></td></tr>
+        <tr><td class="name">⛴️ Charon</td><td>🟣</td><td>Squad prod, le passeur&nbsp;: bascule stage → prod, accès, rollback — <strong>sur ordre</strong></td><td>Prod (squad)</td><td><code>iakaframe-deploiement</code></td></tr>
+        <tr><td class="name">🌉 Helm</td><td>🟣</td><td>Squad prod, le veilleur&nbsp;: health-checks, disponibilité, charge, alerte — <strong>sans ordre</strong></td><td>Prod (squad)</td><td><code>iakaframe-surveillance</code></td></tr>
         <tr><td class="name">🎭 Loki</td><td>🟠</td><td>Design&nbsp;: supports on-brand (catalogue de chartes)</td><td>Transverse</td><td><code>iakaframe-naonedge</code></td></tr>
         <tr><td class="name">📖 Nathalie</td><td>🟠</td><td>Guides utilisateurs / documentation</td><td>Transverse</td><td><code>iakaframe-nathalie</code></td></tr>
       </tbody>
@@ -419,8 +420,8 @@ tr.grp td{background:rgba(var(--accent-rgb),.06);font-family:var(--mono);font-si
     <div class="scroll"><table>
       <thead><tr><th>Squad prod (feu vert humain)</th><th>Agent</th><th>Entrée → sortie</th><th>Gate</th></tr></thead>
       <tbody>
-        <tr><td class="num">🟣 Déploiement prod</td><td>🌉 Helm</td><td>rc + feu vert → prod via alias</td><td><span class="tag t-wait">humain</span></td></tr>
-        <tr><td class="num">🟣 Surveillance</td><td>🌉 Helm</td><td>prod → santé / alerte / rollback</td><td><span class="tag t-info">continu</span></td></tr>
+        <tr><td class="num">🟣 Déploiement prod</td><td>⛴️ Charon</td><td>rc + feu vert → prod via alias, rollback prêt</td><td><span class="tag t-wait">humain</span></td></tr>
+        <tr><td class="num">🟣 Veille de production</td><td>🌉 Helm</td><td>prod en service → santé / alerte motivée</td><td><span class="tag t-info">aucun — sans ordre</span></td></tr>
       </tbody>
     </table></div>
     <p class="legend"><b>Identité des agents</b>&nbsp;: en s'adressant à toi, un agent préfixe <code>&lt;pastille&gt; [ROYAUME][Agent]</code> — pastille = la phase (🔵 cadrage · 🔴 dev · 🟢 staging · 🟣 prod · 🟡 portefeuille), royaume en MAJUSCULE. Jamais sur les logs/traces de réflexion.</p>

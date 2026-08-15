@@ -19,7 +19,8 @@
 | 🧙 Gandalf | cadrage/raisonnement | `deepseek-r1` | qwen3, gpt-oss, kimi | `ollama pull deepseek-r1` |
 | ⚒️ Gimli | dev/code | `qwen2.5-coder` | deepseek-coder, codestral | `ollama pull qwen2.5-coder` |
 | 🏹 Legolas | qualité/tests | `qwen2.5-coder` | deepseek-coder | `ollama pull qwen2.5-coder` |
-| 🌉 Helm | prod/ops | `llama3.1` | qwen3, mistral | `ollama pull llama3.1` |
+| ⛴️ Charon | prod/bascule (**sur ordre**) | `llama3.1` | qwen3, mistral | `ollama pull llama3.1` |
+| 🌉 Helm | prod/veille (**sans ordre**) | `llama3.1` | qwen3, mistral | `ollama pull llama3.1` |
 | 🎭 Loki | design/vision | `qwen2.5-vl` | llava | `ollama pull qwen2.5-vl` |
 | 📖 Nathalie | guides/rédaction | `mistral` | qwen3, llama3.1 | `ollama pull mistral` |
 

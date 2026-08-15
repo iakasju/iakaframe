@@ -92,10 +92,21 @@ test('verdictDelegation : agent non precise -> ni known ni refuse', () => {
   assert.deepEqual(verdictDelegation(AGENT_UNSET), { known: false, refused: false });
   assert.deepEqual(verdictDelegation(null), { known: false, refused: false });
 });
-test('roster iakaframe = 8 agents attendus', () => {
+test('roster iakaframe = 9 agents attendus (charon depuis la scission du squad prod)', () => {
   assert.deepEqual([...ROSTER].sort(),
-    ['aragorn', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'].sort());
+    ['aragorn', 'charon', 'gandalf', 'gimli', 'helm', 'legolas', 'loki', 'nathalie', 'odin'].sort());
   assert.ok(BUILTINS.includes('general-purpose'));
+});
+
+// CA-19 : les DEUX postes du squad prod sont delegables, et `feanor` reste ABSENT — dette
+// `ROSTER-FEANOR`, ANTERIEURE a la scission. Elle est asseree ici pour qu'elle ne se corrige pas
+// en passant : `Task(agent: feanor)` est refuse aujourd'hui, et le corriger changerait le
+// comportement de delegation de Feanor, ce que personne n'a arbitre. Le jour ou ce sera decide,
+// CE TEST DOIT ROUGIR.
+test('CA-19 : charon et helm sont delegables ; feanor reste refuse (ROSTER-FEANOR)', () => {
+  assert.deepEqual(verdictDelegation('charon'), { known: true, refused: false });
+  assert.deepEqual(verdictDelegation('helm'), { known: true, refused: false });
+  assert.deepEqual(verdictDelegation('feanor'), { known: false, refused: true });
 });
 
 void here;
