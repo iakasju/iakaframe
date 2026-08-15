@@ -32,6 +32,7 @@ import { runReview } from './commands/review.js';
 import { runConsolidate } from './commands/consolidate.js';
 import { runObserve } from './commands/observe.js';
 import { runPortfolio } from './commands/portfolio.js';
+import { runRange } from './commands/range.js';
 import { resolveRoot } from './lib/root.js';
 import { packageVersion } from './lib/version.js';
 import { EXPECTED_COPIES, EXPECTED_DERIVED } from './lib/vendor.js';
@@ -134,6 +135,11 @@ Commandes :
                         --home <dir> (defaut <IAKAFRAME_ROOT>/.iaka/observation/)  --root  --json
   portfolio           Vue agregee du portefeuille (LECTURE SEULE) : def/version/arbre/commit/jalons
                         --root <chapeau>  --json  --ascii
+  range <all|projet>  Sauvegarde le portefeuille (depot restic chiffre). SUR COMMANDE : rien
+                        n'est planifie. "all" = tout le chapeau, SECRETS COMPRIS, sans exclusion ;
+                        un nom de projet inconnu est REFUSE (jamais un repli sur "all")
+                        --list --root <chapeau> --repository <url> --password-command <cmd>
+                        --exclude-file <f> --dry-run --json  (n'appelle jamais forget/prune)
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
@@ -193,6 +199,7 @@ async function main() {
     case 'consolidate': runConsolidate(rest); break;
     case 'observe':  runObserve(rest); break;
     case 'portfolio': runPortfolio(rest); break;
+    case 'range':    runRange(rest); break;
     case 'root': {
       const i = rest.indexOf('--root');
       console.log(resolveRoot(i >= 0 ? rest[i + 1] : undefined));
