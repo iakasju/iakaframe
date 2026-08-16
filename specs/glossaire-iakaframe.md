@@ -2,8 +2,9 @@
 
 > **Source de vérité des libellés de rôle.** En doc destinée à l'extérieur, employer le
 > **libellé de rôle** ci-dessous ; le **nom de code** (Odin, Aragorn, Gandalf, Gimli, Legolas,
-> Helm, Loki, Nathalie) n'apparaît **que** dans les artefacts internes (`agents/`, `skills/`).
-> Réf. roster : `methode-de-travail.md:104-113`.
+> Charon, Helm, Loki, Nathalie) n'apparaît **que** dans les artefacts internes (`agents/`,
+> `skills/`).
+> Réf. roster : `methode-de-travail.md:109-117`.
 
 | Nom de code (interne) | Libellé de rôle (doc externe) | Phase / portée |
 |---|---|---|
@@ -12,7 +13,8 @@
 | Gandalf | l'**architecte-cadreur** | Cadrage |
 | Gimli | le **développeur** (dev + devops) | Réalisation → staging |
 | Legolas | le **responsable qualité** (test) | Réalisation / staging |
-| Helm | l'**équipe de déploiement production** | Production |
+| Charon | l'**équipe de déploiement production** | Production |
+| Helm | la **veille de production** | Production |
 | Loki | le **studio design** | Transverse |
 | Nathalie | la **rédaction** (guides & documentation utilisateur) | Transverse |
 

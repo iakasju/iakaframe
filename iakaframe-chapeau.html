@@ -488,8 +488,13 @@
       </tr>
       <tr>
         <td class="name">Déploiement prod</td>
-        <td>Promeut une version candidate vers la prod par bascule d'alias (rollback prêt), sur feu vert humain tracé. Puis surveille.</td>
+        <td>Promeut une version candidate vers la prod par bascule d'alias (rollback prêt), sur feu vert humain tracé. <strong>Sur ordre</strong> — il ne surveille pas.</td>
         <td><code>iakaframe-deploiement</code></td>
+      </tr>
+      <tr>
+        <td class="name">Surveillance prod</td>
+        <td>Veille en continu sur ce qui a été déployé (health-checks, disponibilité, charge) et émet l'alerte. <strong>Sans ordre</strong> — aucun feu vert ne la précède.</td>
+        <td><code>iakaframe-surveillance</code></td>
       </tr>
       <tr>
         <td class="name">Amorçage</td>
@@ -640,6 +645,7 @@
         <tr><td class="name">Cadrage : format d'instruction</td><td class="num">skills/iakaframe-cadrage/SKILL.md:32-62</td></tr>
         <tr><td class="name">Qualité : verdict PASS/FAIL</td><td class="num">skills/iakaframe-qualite/SKILL.md:11-66</td></tr>
         <tr><td class="name">Déploiement : feu vert humain, rollback</td><td class="num">skills/iakaframe-deploiement/SKILL.md:11-87</td></tr>
+        <tr><td class="name">Surveillance : veille continue, alerte sans ordre</td><td class="num">skills/iakaframe-surveillance/SKILL.md</td></tr>
         <tr><td class="name">Forge : HTTP+token, auto-détection init↔update</td><td class="num">skills/iakaframe-forgejo/SKILL.md:14-71</td></tr>
         <tr><td class="name">Docker isolé (préfixes, ports décalés)</td><td class="num">skills/iakaframe-docker/SKILL.md:14-64</td></tr>
         <tr><td class="name">Mémoire humaine (modèle, idempotence)</td><td class="num">skills/iakaframe-appflowy-doc/SKILL.md:18-98</td></tr>

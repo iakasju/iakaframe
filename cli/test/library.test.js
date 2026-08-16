@@ -214,7 +214,7 @@ test('vraie bibliotheque : team 7 personas (squad prod retire) + coordinator ara
       'name: Compagnie sans Helm\n' +
       'personas: [odin, aragorn, gandalf, gimli, legolas, loki, nathalie]\n' +
       'coordinator: aragorn\n' +
-      '---\n# team 7 personas (helm retire) : deploiement pris par le coordinateur\n');
+      '---\n# team 7 personas (squad prod retire) : la traversee est prise par le coordinateur\n');
 
     const r = assemble('iakaframe', 'iakaframe-7-no-helm', null, tmp);
     assert.equal(r.ok, true);
