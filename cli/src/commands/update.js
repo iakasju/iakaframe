@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import { verifyFrame } from '../lib/frame.js';
 import { isRepo, run, hasChanges, currentBranch, hasRemoteOrigin } from '../lib/git.js';
 import { testRepo } from '../lib/forgejo.js';
-import { doSnapshot, normalizeVersion, versionErrorMessage } from './snapshot.js';
+import { doSnapshot, normalizeVersion, versionErrorMessage, provenance } from './snapshot.js';
 import { formatCadence } from '../lib/cadence.js';
 
 const USAGE = `Usage : iakaframe update [options]
@@ -97,6 +97,7 @@ export async function runUpdate(argv) {
   }
 
   console.log(`==== update iakaframe : ${root} ====`);
+  console.log(provenance(root));   // D7 : quel CLI, sur quelle racine
   console.log(`\n[1/3] Etat des lieux (${values.reason})`);
   const r = doSnapshot({ projectPath: root, reason: values.reason, version, note: values.note || '', home: values.home });
   console.log(`  snapshot version=${r.version} branche=${r.branch} fichiers=${r.fileCount}`);

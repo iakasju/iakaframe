@@ -2,11 +2,26 @@
 import { parseArgs } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { isRepo, out, run } from '../lib/git.js';
 import { now } from '../lib/date.js';
 import { runCadence, formatCadence, runProjectCadence, formatProjectCadence } from '../lib/cadence.js';
 
 const REASONS = ['version', 'pause', 'reprise', 'manual'];
+
+// D7 — PROVENANCE : quel CLI s'execute, sur quelle racine.
+//
+// Le wrapper de poste pointe en dur sur UNE racine (`~/work/<projet>/cli/src/index.js`) : lance
+// depuis un arbre lie, `iakaframe <verbe>` execute le CLI de la RACINE, pas celui de l'arbre. La
+// cause est hors depot et releve d'un arbitrage de strategie d'installation ; ce qui a produit
+// l'incident, ce n'est pas le chemin en dur, c'est le SILENCE — on a cru mesurer un lot en
+// executant autre chose.
+//
+// LES DEUX VALEURS, pas une seule : isolee, chacune a l'air normale ; c'est le COUPLE qui rend la
+// discordance lisible (une racine dans `.claude/worktrees/x` face a un `cli=` a la racine reelle).
+// Reserve aux deux verbes qui ECRIVENT — un bandeau sur les verbes de lecture polluerait pour rien.
+const CLI_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+export function provenance(root) { return `  cli=${CLI_DIR} root=${root}`; }
 
 const USAGE = `Usage : iakaframe snapshot [options]
 
@@ -325,7 +340,9 @@ export function runSnapshot(argv) {
   // D2 — meme forme de refus que `reason` ci-dessus : c'est l'asymetrie qu'on corrige.
   const v = normalizeVersion(values.version || '');
   if (!v.ok) { console.error(versionErrorMessage(v.value)); process.exitCode = 1; return; }
-  const r = doSnapshot({ projectPath: values.path || process.cwd(), reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
+  const root = path.resolve(values.path || process.cwd());
+  console.log(provenance(root));
+  const r = doSnapshot({ projectPath: root, reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
   console.log(`Snapshot OK (${values.reason}) -> specs/etat-des-lieux.md + .html`);
   console.log(`  version=${r.version} branche=${r.branch} fichiers=${r.fileCount}${r.dirty ? ' [arbre sale]' : ''}`);
   console.log(`  ${formatCadence(r.cadence)}`);
