@@ -21,14 +21,17 @@
 //   dispositif, quelle que soit la qualite de l'inventaire. README.md en est l'exemple vivant.
 //   Une garde honnete dit aussi ce qu'elle ne voit pas : c'est le registre des ANGLES MORTS.
 //
-// DEUX ARBITRAGES DE COORDINATION, PRIS SOUS AUTONOMIE DELEGUEE — ET REVERSIBLES :
-//   Le decideur a arbitre D4, D5, D11 et D14. Il n'a PAS enonce les deux points ci-dessous ; ils
+// TROIS ARBITRAGES DE COORDINATION, PRIS SOUS AUTONOMIE DELEGUEE — ET REVERSIBLES :
+//   Le decideur a arbitre D4, D5, D11 et D14. Il n'a PAS enonce les trois points ci-dessous ; ils
 //   ont ete tranches par la COORDINATION, en s'appuyant sur D5 et D11 qui sont de lui. Ils sont
 //   inscrits ici COMME TELS, et se reprennent en supprimant l'entree ou la constante concernee.
 //   (a) D6 niveau B mordait sur LE CANON (21 lignes rouges, ZERO defaut) -> EXEMPTION PERISSABLE
 //       du canon de Helm et de son golden, scopee au seul niveau B. Motif complet a l'entree.
 //   (b) La clause SYMETRIQUE de D7 (« charon <- surveillance ») -> ABANDONNEE, apres MESURE :
 //       0 capture sur 8, 6 faux positifs. Motif complet au bloc « SENS DU PREDICAT ».
+//   (c) Le volet SKILLS de D8 mordait sur BACKLOG.md, qui n'est PAS un catalogue mais un backlog
+//       CITANT UN CHEMIN DE FIXTURE -> EXEMPTION PERISSABLE, scopee au seul volet skills, et qui
+//       PERIRA D'ELLE-MEME a la cloture de GUI-VENDOR-CHARON. Motif complet a l'entree.
 //
 // DEUX REGISTRES, DEUX PEREMPTIONS INVERSES — le mecanisme anti-oubli du lot :
 //   - EXEMPTIONS   : ce que la garde accepte de ne pas corriger. Une exemption DEVENUE INUTILE
@@ -118,6 +121,42 @@ const EXEMPTIONS = [
       + 'D1 le voudrait semantique), l\'exemption tombe d\'elle-meme. REVERSIBLE A TOUT MOMENT sur '
       + 'reprise du decideur : supprimer cette entree restaure le comportement de D6 a la lettre.',
     portee: ['library/personas/helm.md', 'cli/test/fixtures/agents-golden/helm.md'],
+  },
+  {
+    // ------------------------------------------------------------------------------------------
+    // ARBITRAGE DE COORDINATION (c), PRIS SOUS AUTONOMIE DELEGUEE — PAS un feu vert du decideur.
+    // REVERSIBLE s'il le reprend, au meme titre que (a) et (b). Le decideur a arbitre D4, D5, D11
+    // et D14 ; il n'a PAS enonce celui-ci.
+    // ------------------------------------------------------------------------------------------
+    // LE FAIT, ET IL N'EST PAS CELUI QU'ON CROIT. Le message rendu est :
+    //   « BACKLOG.md -> nomme iakaframe-surveillance mais JAMAIS iakaframe-deploiement (skills) »
+    // Le SENS est INVERSE d'une lacune d'inventaire : BACKLOG.md:32 nomme le chemin
+    // `skills/iakaframe-surveillance/SKILL.md` comme une FIXTURE MANQUANTE de l'entree
+    // GUI-VENDOR-CHARON — pas comme une entree de catalogue. Le diagnostic « omission de niveau
+    // fichier » porte au § 14.1 du releve etait INEXACT ; il est corrige ici plutot que reconduit.
+    garde: 'G-ROUTE-1/skills',
+    motif: 'MOTIF 1 — FAUX POSITIF DE PORTEE, et c\'est le motif PRINCIPAL. D8 a ete concu sur '
+      + 'F10/F16, c\'est-a-dire sur les CATALOGUES qui ignorent l\'existence de la skill nee de la '
+      + 'scission. BACKLOG.md N\'EST PAS UN CATALOGUE : c\'est un backlog qui CITE UN CHEMIN DE '
+      + 'FICHIER (`skills/iakaframe-surveillance/SKILL.md`, :32), au titre des 4 fixtures que le '
+      + 'depot frere n\'a pas encore vendorees. Le « remede d\'une ligne » consisterait a inserer '
+      + '`iakaframe-deploiement` ARTIFICIELLEMENT, pour satisfaire une garde et non pour dire '
+      + 'quelque chose de vrai — c\'est precisement le cout que D11 a refuse de payer, et que '
+      + 'l\'arbitrage (b) vient d\'ecarter sur mesure. '
+      + 'MOTIF 2 — SUBORDONNE, MAIS REEL : le fichier est en cours de modification par le decideur '
+      + '(+75/-16 sur feat/sauvegarde-portefeuille, mesure et non suppose) ; y ecrire creerait un '
+      + 'conflit avec son travail. CE MOTIF SEUL N\'AURAIT PAS JUSTIFIE UNE EXEMPTION — il aurait '
+      + 'justifie un DIFFERE. C\'est le motif 1 qui fonde l\'exemption ; le motif 2 explique '
+      + 'seulement pourquoi on ne la contourne pas des maintenant.',
+    levee: 'AUTOMATIQUE par la peremption D5, et elle est DATABLE : l\'exemption tombe le jour ou '
+      + 'BACKLOG.md cesse de citer un chemin portant un nom de skill — concretement A LA CLOTURE DE '
+      + 'GUI-VENDOR-CHARON, quand l\'entree :32 et sa liste de fixtures disparaitront du backlog. '
+      + 'L\'exemption PERIRA DONC D\'ELLE-MEME, et D5 fera crier la garde a ce moment-la : c\'est le '
+      + 'mecanisme, pas un contournement. LEVEE MANUELLE : le jour ou le volet skills sait '
+      + 'distinguer un CHEMIN DE FICHIER cite d\'un jeton de skill ATTRIBUE, l\'entree tombe '
+      + 'd\'elle-meme. REVERSIBLE A TOUT MOMENT sur reprise du decideur : supprimer cette entree '
+      + 'restaure le comportement de D8 a la lettre.',
+    portee: ['BACKLOG.md'],
   },
 ];
 
@@ -332,6 +371,10 @@ test('G-ROUTE-1 : reciprocite Helm <-> Charon (personas ET skills) sur tout arte
   let vus = 0;
 
   // Volet PERSONA — artefacts par-persona, decouverts par nom de fichier.
+  // AUCUNE exemption n'y est honoree, et c'est DELIBERE : un artefact par-persona qui ne nomme
+  // jamais son jumeau est ANTERIEUR a la scission, sans exception concevable. Le registre ne porte
+  // donc pas de portee « G-ROUTE-1/persona » — s'il en fallait une un jour, il faudrait D'ABORD
+  // brancher estExempte ici, sinon elle serait ECRITE SANS ETRE EXECUTEE (l'oubli n° 1, exactement).
   for (const { id, doitNommer } of RECIPROQUES) {
     const fichiers = scanner(REPO, (nom) => nom === `${id}.md` || nom === `${id}.json`);
     assert.ok(fichiers.length > 0, `aucun artefact par-persona trouve pour « ${id} » — un scan qui `
@@ -352,7 +395,7 @@ test('G-ROUTE-1 : reciprocite Helm <-> Charon (personas ET skills) sur tout arte
   let vusSkills = 0;
   for (const abs of texte) {
     const rel = path.relative(REPO, abs);
-    if (estExempte(rel, 'G-ROUTE-1')) continue;
+    if (estExempte(rel, 'G-ROUTE-1/skills')) continue;
     const raw = contenu(abs);
     if (raw === null) continue;
     const presentes = SKILLS_SQUAD.filter((s) => raw.includes(s));
@@ -364,6 +407,17 @@ test('G-ROUTE-1 : reciprocite Helm <-> Charon (personas ET skills) sur tout arte
     }
   }
   assert.ok(vusSkills > 0, 'volet skills : aucun fichier ne nomme une skill du squad prod — ECHEC');
+
+  // PEREMPTION D5, PORTEE « G-ROUTE-1/skills » — l'exemption de BACKLOG.md perit DANS LA GARDE
+  // QU'ELLE EXEMPTE, mesuree AVEC LE PREDICAT DE CETTE GARDE (l'asymetrie de skills). Sans cet
+  // appel, l'entree serait EXEMPTANTE MAIS JAMAIS PERISSABLE — une exception ecrite qui ne peut pas
+  // pourrir bruyamment, c'est-a-dire l'oubli que D5 existe pour interdire.
+  const mortes = exemptionsMortes('G-ROUTE-1/skills');
+  assert.deepEqual(
+    mortes, [],
+    `G-ROUTE-1 ROUGE (peremption D5) : ${mortes.length} exemption(s) de volet skills devenue(s) `
+    + `inutile(s) :\n  - ${mortes.join('\n  - ')}`,
+  );
 
   assert.deepEqual(
     manquants, [],
@@ -427,16 +481,25 @@ function fautesNiveauB(abs, etiquette) {
 // l'entree est MORTE — seul remede : la SUPPRIMER.
 // La mesure se fait AVEC LE PREDICAT DE LA GARDE EXEMPTEE : une exemption de niveau B ne se juge
 // pas a l'aune de l'affectation, sans quoi elle serait declaree morte pour un motif faux.
+// ASYMETRIE DE SKILLS = le predicat du volet skills de G-ROUTE-1 (D8), isole pour que la
+// peremption puisse le rejouer SEUL. Un fichier qui nomme une moitie du squad prod sans l'autre.
+function asymetrieSkills(raw) {
+  const presentes = SKILLS_SQUAD.filter((s) => raw.includes(s));
+  return (presentes.length > 0 && presentes.length < SKILLS_SQUAD.length) ? 1 : 0;
+}
+
 function rougeurResiduelle(ex) {
   let n = 0;
   for (const rel of ex.portee) {
     const abs = path.join(REPO, rel);
     const raw = contenu(abs);
     if (raw === null) continue;
+    // Chaque portee de registre se mesure AVEC SON PROPRE PREDICAT — jamais avec celui d'une autre
+    // garde, sans quoi une exemption serait declaree morte (ou vivante) pour un motif faux.
     if (ex.garde === 'G-ROUTE-2/B') { n += fautesNiveauB(abs, rel).length; continue; }
-    n += fautesAffectation(lignesLogiques(raw, abs), rel).length;
-    const presentes = SKILLS_SQUAD.filter((s) => raw.includes(s));
-    if (presentes.length > 0 && presentes.length < SKILLS_SQUAD.length) n += 1;
+    if (ex.garde === 'G-ROUTE-1/skills') { n += asymetrieSkills(raw); continue; }
+    // Portee « * » : l'exemption vaut pour tout le dispositif, donc tous les predicats comptent.
+    n += fautesAffectation(lignesLogiques(raw, abs), rel).length + asymetrieSkills(raw);
   }
   return n;
 }
