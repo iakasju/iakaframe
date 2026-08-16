@@ -2,7 +2,7 @@
 import { parseArgs } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
-import { isRepo, out } from '../lib/git.js';
+import { isRepo, out, run } from '../lib/git.js';
 import { now } from '../lib/date.js';
 import { runCadence, formatCadence, runProjectCadence, formatProjectCadence } from '../lib/cadence.js';
 
@@ -107,6 +107,8 @@ export function projectName(root) {
   return (!name || name === '.') ? fallback : name;
 }
 
+// Parcours d'arbre : REPLI hors git seulement (cf. filesCount). Inchange, a dessein — les projets
+// hors git (onboard sur un dossier nu) doivent garder mot pour mot le comportement d'avant.
 function countFiles(dir) {
   let n = 0;
   const walk = (d) => {
@@ -120,6 +122,46 @@ function countFiles(dir) {
   walk(dir);
   return n;
 }
+
+// D3 — le compte de fichiers derive de l'INDEX GIT, le parcours devient le repli hors git.
+//
+// Le parcours n'appliquait pas une regle : il appliquait une LISTE DE DEUX NOMS ECRITE EN DUR
+// (`.git`, `node_modules`) qui a vieilli. `node_modules` et `target/` sont exactement la meme
+// chose — des dependances reconstructibles que le projet declare non versionnables — et il
+// excluait l'une en comptant l'autre. Mesure sur le depot frere iakaFrameGUI : 9 227 annonces
+// pour 469 fichiers suivis, dont 8 466 sous `src-tauri/target/`. A 92 %, le champ mesurait l'etat
+// du cache de build local de la machine qui a lance la commande, et l'inscrivait dans un journal
+// append-only cense servir de memoire de reprise.
+//
+// `--exclude-standard` delegue l'exclusion au .gitignore DU PROJET MESURE : la regle devient juste
+// sur un projet Rust, Go ou Java sans que personne n'ait a penser a `target/`. Elle est aussi la
+// seule definition INDEPENDANTE DE L'ARBRE DE MESURE : meme chiffre depuis la racine et depuis
+// n'importe quel arbre lie, et les worktrees sortent gratuitement (`.claude/` est ignore) sans
+// jamais coder « .claude/worktrees » en dur ici.
+//
+// `--others` en plus de `--cached` : un snapshot de `pause` se prend presque toujours sur un arbre
+// sale ; l'index seul manquerait les fichiers du lot en cours. La definition devient « les fichiers
+// que le projet versionne ou versionnera ». Contrepartie assumee : un brouillon non suivi et non
+// ignore est compte — c'est un defaut d'hygiene du depot RENDU VISIBLE, pas un defaut du compteur.
+//
+// Repli sur le SUCCES de la commande (`.ok`), jamais sur une sortie vide : un depot reellement
+// vide rend legitimement 0 et ne doit pas basculer sur le parcours.
+//
+// Mesure faite (git 2.50) : un arbre lie imbrique dans une zone NON ignoree n'est PAS parcouru par
+// `--others` ; git le rend comme UNE entree de repertoire (`sub/wt/`). Aucune exclusion explicite
+// n'est donc necessaire (R2/CA-9).
+function filesCount(root) {
+  if (isRepo(root)) {
+    const r = run(root, ['ls-files', '--cached', '--others', '--exclude-standard']);
+    if (r.ok) return { count: r.out.split(/\r?\n/).filter(l => l.trim() !== '').length, rule: 'git' };
+  }
+  return { count: countFiles(root), rule: 'walk' };
+}
+
+// Le LIBELLE est le marqueur de discontinuite : l'etat des lieux dit sur sa face quelle regle a
+// produit le nombre. Aucun champ machine supplementaire n'est necessaire.
+const FILES_LABEL = { git: 'Fichiers (suivis + non ignores)', walk: 'Fichiers (hors .git/node_modules)' };
+const FILES_LABEL_HTML = { git: 'suivis + non ignores', walk: 'hors .git / node_modules' };
 
 // Coeur reutilisable par onboard/update.
 // `home` (optionnel) cible le canon de la boucle d'apprentissage pour la CADENCE (T6, § 6) ; sinon
@@ -146,7 +188,8 @@ export function doSnapshot({ projectPath, reason = 'manual', version = '', note 
   if (!version) version = '-';
   const lastCommit = git ? (out(root, ['log', '-1', '--pretty=format:%h %s']) || '-') : '-';
   const dirty = git ? out(root, ['status', '--porcelain']) !== '' : false;
-  const fileCount = countFiles(root);
+  const files = filesCount(root);
+  const fileCount = files.count;
   const ts = now();
   const project = projectName(root);
 
@@ -175,7 +218,7 @@ export function doSnapshot({ projectPath, reason = 'manual', version = '', note 
   md.push(`| Branche | ${branch} |`);
   md.push(`| Dernier commit | ${lastCommit} |`);
   md.push(`| Arbre | ${dirty ? 'MODIFICATIONS NON COMMITEES' : 'propre'} |`);
-  md.push(`| Fichiers (hors .git/node_modules) | ${fileCount} |`);
+  md.push(`| ${FILES_LABEL[files.rule]} | ${fileCount} |`);
   if (note) md.push(`| Note | ${note} |`);
   md.push('');
   if (recent.length) {
@@ -232,7 +275,7 @@ footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#55
   <div class="k">Branche</div><div>${enc(branch)}</div>
   <div class="k">Dernier commit</div><div><code>${enc(lastCommit)}</code></div>
   <div class="k">Arbre</div><div>${dirtyTxt}</div>
-  <div class="k">Fichiers</div><div>${fileCount} (hors .git / node_modules)</div>
+  <div class="k">Fichiers</div><div>${fileCount} (${FILES_LABEL_HTML[files.rule]})</div>
   ${note ? `<div class='k'>Note</div><div>${enc(note)}</div>` : ''}
 </div>
 ${commitRows ? `<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr>${commitRows}</table>` : ''}
