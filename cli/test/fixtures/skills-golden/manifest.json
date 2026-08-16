@@ -55,7 +55,7 @@
     },
     {
       "id": "iakaframe-fabrication",
-      "sha256": "9b9511445d871a09932b353ca6db27d0b8ffd30fa87f7f3e783626146d367cae",
+      "sha256": "c1f1dad31a8c822f99f8cc43c62574ccc789a3a4251339dd92584eea349b8f44",
       "subskills": [
         "iakaframe-gestion-de-source",
         "iakaframe-conteneurisation",
