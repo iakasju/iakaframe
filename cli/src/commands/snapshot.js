@@ -61,6 +61,27 @@ function projectPackageVersion(root) {
   return '';
 }
 
+// D1 — le NOM affiche derive du depot PRINCIPAL, pas du dossier courant.
+// Le depot travaille couramment en worktrees : `path.basename(root)` y ecrivait le nom de l'arbre
+// lie (« merge-main »), ce qui obligeait l'appelant a corriger le titre a la main.
+// `--git-common-dir` rend `.git` (relatif) depuis l'arbre principal et un chemin ABSOLU depuis un
+// arbre lie : `path.resolve(root, …)` couvre les deux sans plancher de version git (pas de
+// `--path-format`, introduit seulement en git 2.31).
+// La garde `basename === '.git'` borne la regle aux deux cas nominaux : sous-module
+// (`…/.git/modules/<nom>`) et depot bare (`…/foo.git`) retombent sur le dossier courant.
+// FRONTIERE : cette fonction ne porte QUE le nom. Les ecritures restent dans `root` — rediriger un
+// worktree vers le depot principal ferait ecrire un arbre dans un autre (CA-4).
+export function projectName(root) {
+  const fallback = path.basename(root);
+  if (!isRepo(root)) return fallback;
+  const raw = out(root, ['rev-parse', '--git-common-dir']);
+  if (!raw) return fallback;
+  const commonDir = path.resolve(root, raw);
+  if (path.basename(commonDir) !== '.git') return fallback;
+  const name = path.basename(path.dirname(commonDir));
+  return (!name || name === '.') ? fallback : name;
+}
+
 function countFiles(dir) {
   let n = 0;
   const walk = (d) => {
@@ -94,7 +115,7 @@ export function doSnapshot({ projectPath, reason = 'manual', version = '', note 
   const dirty = git ? out(root, ['status', '--porcelain']) !== '' : false;
   const fileCount = countFiles(root);
   const ts = now();
-  const project = path.basename(root);
+  const project = projectName(root);
 
   const recent = [];
   if (git) {
