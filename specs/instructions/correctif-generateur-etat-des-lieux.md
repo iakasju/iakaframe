@@ -1,12 +1,14 @@
 # Correctif du générateur d'état des lieux — nom du projet, version, compte de fichiers
 
-> **Statut** : PROPOSÉE (cadrage 🧙 Gandalf, 2026-08-16) — **AMENDÉE le 2026-08-17** (🧙 Gandalf).
+> **Statut** : PROPOSÉE (cadrage 🧙 Gandalf, 2026-08-16) — **AMENDÉE le 2026-08-17** (🧙 Gandalf),
+> puis **RECTIFIÉE le 2026-08-17 après le gate qualité** (🧙 Gandalf, sur `FAIL` de périmètre
+> rendu par 🏹 Legolas : **D6 retirée**, cardinal ramené à **19** CA).
 > Attend l'arbitrage du décideur sur **A-1** seul ; le reste est exécutable.
 > **Périmètre technique** : `cli/src/commands/snapshot.js` et son entourage direct.
 > **Voisins jamais absorbés** : `garde-balayante-routage-prod` (livré depuis, merge `3111230`),
 > `GUI-VENDOR-CHARON`, `ROLE-VOCAB-CANON`, `GUI-PARITE-WORKTREE`, dette de tagging,
-> et les **trois successeurs neufs** nommés en § 5 (`CHECKPOINT-NARRATIF`,
-> `VENDOR-REMEDE-CARDINAL`, `CLI-WRAPPER-RACINE`).
+> et les **trois successeurs neufs** nommés en § 5 (`CHECKPOINT-NARRATIF` — qui porte
+> **désormais D6**, `VENDOR-REMEDE-CARDINAL`, `CLI-WRAPPER-RACINE`).
 
 > ### Amendement du 2026-08-17 — ce qui a changé, et pourquoi
 >
@@ -17,14 +19,34 @@
 > |---|---|
 > | **§ 2.6 neuf** — mesure sur le dépôt frère `iakaFrameGUI` | Le défaut (3) change de nature : la règle d'exclusion est **incohérente avec elle-même**. |
 > | **D3 requalifiée** (décision **inchangée**) | Le remède écrit tenait déjà ; c'est le **diagnostic** qui était trop étroit. |
-> | **D5 devient SANS OBJET** | La note fausse a **disparu** d'elle-même — et c'est la preuve de D6. |
-> | **D6 neuve** | `update` avertit avant tout `git add` quand le narratif est resté en placeholders. |
+> | **D5 devient SANS OBJET** | La note fausse a **disparu** d'elle-même — ~~et c'est la preuve de D6~~ **et c'est la preuve du DÉFAUT** (§ 2.7 a). Preuve du défaut, **pas** validité du remède : cf. rectification post-gate. |
+> | ~~**D6 neuve**~~ | ~~`update` avertit avant tout `git add` quand le narratif est resté en placeholders.~~ **RETIRÉE le jour même** par la rectification post-gate ci-dessous — la mesure de 🏹 Legolas l'a réfutée. |
 > | **D7 neuve** | `snapshot`/`update` disent **quel CLI** s'exécute et **sur quelle racine**. |
 > | **§ 5 rectifiée** | Une affirmation de vendorage du cadrage initial était **imprécise**. |
 > | **Estimation** | **0,5 → 0,75 j-h**. Motif détaillé en § 10. |
 >
 > **Ce que cet amendement N'a PAS fait**, à dessein : `A-1` reste ouvert, `D4` tient, la structure
 > et les décisions D1/D2/D3 ne sont pas refaites. Les refus argumentés sont en § 11.
+
+> ### Rectification post-gate du 2026-08-17 — **D6 retirée**, cardinal ramené à 19
+>
+> 🏹 **Legolas a rendu `FAIL` de PÉRIMÈTRE, pas de défaut** : *« il n'y a rien à corriger dans le
+> code — le récepteur de ce jalon n'est pas Gimli »*. Le défaut était **dans cette instruction**,
+> et il me revient. Ce qui bouge, et **rien d'autre** :
+>
+> | Mouvement | Portée |
+> |---|---|
+> | **D6 devient SANS OBJET** | Non pas « trop chère » : **telle qu'écrite, elle produit une fausse imputation**. Mesure de 🏹 Legolas en D6. |
+> | **`CA-18a/b/c` retirés** | Ils sortent avec D6, dont ils étaient les seuls critères. |
+> | **Cardinal : 22 → 19** | Le § Statut affirmait « `D1, D2, D3, D6, D7` fermées » et « 22 critères » face à un code qui en honore 19. **C'était faux, et c'est mot pour mot le défaut que ce lot corrige.** |
+> | **`CA-8` / `CA-9` désambiguïsés** | Contradiction relevée par 🏹 Legolas, **tranchée dans le texte**, sans exiger une ligne de code neuve. |
+> | **Gardes : cinq → quatre** | D1, D2, D3, D7. `CA-13`, `CA-15` et les étapes suivent. |
+> | **Estimation** | **0,75 → 0,6 j-h** (§ 10). |
+>
+> **Ce que cette rectification NE fait PAS, et c'est délibéré** : `D1`, `D2`, `D3`, `D7` ne sont
+> **pas rouvertes** — 🏹 Legolas les a mesurées et ne leur oppose **aucun** défaut ; les rouvrir
+> serait détruire du travail vérifié. `A-1` reste **ouvert et non tranché**. `D4`, `D5` et la
+> structure ne bougent pas. **Aucune ligne de code n'est demandée par cette rectification.**
 
 > ### Note de méthode — ce que j'ai pu vérifier moi-même, et ce que je n'ai pas pu
 >
@@ -209,7 +231,11 @@ merge du 2026-08-16.
   (« la section « Reprise du travail » est **ecrasee par des placeholders** […] le checkpoint a donc
   ete **decompose** »). L'outil impose une décomposition manuelle du verbe — cousin exact des
   défauts (1) et (3), où l'appelant corrige à la main ce que le code devrait tenir.
-- **Verdict de périmètre : moitié dedans (D6), moitié dehors (`CHECKPOINT-NARRATIF`).** Motivé en D6.
+- ~~**Verdict de périmètre : moitié dedans (D6), moitié dehors (`CHECKPOINT-NARRATIF`).**~~
+  **Verdict rectifié (2026-08-17, post-gate) : DEHORS EN ENTIER.** La moitié que je croyais
+  détachable (avertir sur narratif vide) **ne l'est pas** : à l'endroit du flux où elle se poserait,
+  le récit vide qu'elle signalerait vient d'être produit par la commande elle-même. Démonstration
+  et mesure en **D6**. Successeur **`CHECKPOINT-NARRATIF`**, qui reçoit le tout.
 
 **(b) `vendor-check` affirme une correspondance qu'il n'honore pas.**
 - `cli/src/commands/vendor-check.js:228` — `REMEDE - ${remediation.length} geste(s), **un par derive
@@ -344,6 +370,31 @@ sinon :
   discontinuité** : l'état des lieux dit désormais, sur sa face, quelle règle a produit le nombre.
   Aucun champ machine supplémentaire n'est nécessaire.
 
+**(rectification post-gate 2026-08-17) Portée EXACTE de la propriété « indépendante de l'arbre de
+mesure » — et pourquoi `CA-8` et `CA-9` n'assertionnent pas la même chose.**
+
+🏹 Legolas a relevé que `CA-9` disait « même assertion » que `CA-8` alors qu'elle assertionne moins,
+et il a **mesuré la moitié omise** : en zone **non ignorée**, `4` depuis la racine contre `3` depuis
+l'arbre lié. Il a raison sur le fait ; l'erreur est **dans mon texte**, pas dans le code. Je tranche
+ici, et le partage est le suivant :
+
+- **En zone IGNORÉE — égalité STRICTE, et c'est la propriété que D3 promet.** L'arbre lié est ignoré
+  du dépôt principal : `--exclude-standard` l'écarte, la racine et l'arbre lié rendent **le même
+  nombre**. C'est le cas **nominal des deux dépôts du portefeuille** (`iakaframe` : `.gitignore:2`
+  → `/.claude/` ; `iakaFrameGUI` : même convention). → `CA-8`.
+- **En zone NON IGNORÉE — l'égalité n'est PAS attendue, et l'exiger serait une faute de cadrage.**
+  Un arbre lié posé hors zone ignorée **est** un répertoire non suivi et non ignoré du dépôt
+  principal : la racine le compte légitimement, `git ls-files --others` s'arrêtant à la frontière du
+  dépôt imbriqué et le rendant comme **une seule** entrée. Vu de l'arbre lié, cette entrée n'existe
+  pas. L'écart `4` / `3` mesuré par 🏹 Legolas est donc **le comportement correct**, pas un défaut.
+  Ce que `CA-9` a à établir, c'est **R2** — que git ne **descend pas** dans l'imbriqué — donc une
+  borne (`≤ 1`), jamais une égalité. → `CA-9`.
+
+**Ce que je refuse de faire de cette réserve** : demander une ligne de code. La propriété tient là où
+elle est promise, la dégradation hors convention est **bornée, connue et nommée** (au plus 1 entrée),
+et le gate est ouvert. Corriger le **texte** suffit ; toucher au code pour honorer une phrase que
+j'ai mal écrite serait faire payer au lot ma propre imprécision.
+
 **(amendement 2026-08-17) Écarté — « compter les fichiers SUIVIS seuls » (`git ls-files` nu).**
 La piste m'a été proposée sans m'être imposée ; je la refuse, et voici pourquoi.
 
@@ -410,50 +461,64 @@ versionnée — c'est suffisant.
 > 🛑 **Ce qui vient de se passer EST le constat (a) du § 2.7, en acte.** Une correction cadrée, datée
 > et argumentée a été **effacée sans que personne la retire** — simplement parce que la section n'a
 > aucune continuité d'un checkpoint à l'autre. Ni le décideur ni moi n'avons décidé de l'abandonner ;
-> elle est tombée. C'est la démonstration la plus nette qu'on puisse produire du défaut, et c'est ce
-> qui fonde **D6**.
+> elle est tombée. C'est la démonstration la plus nette qu'on puisse produire du défaut.
 >
-> Elle fonde aussi, en creux, un **refus** : cette même démonstration pourrait servir à réclamer que
-> le générateur **préserve** le narratif. Ce serait la mauvaise conclusion, et D6 dit pourquoi.
+> **Ce que cette démonstration fonde — rectifié le 2026-08-17, post-gate.** Elle fondait D6 ; elle
+> ne le fait plus. Elle établit **la réalité du défaut**, pas la validité du remède : le défaut est
+> réel, et c'est **`CHECKPOINT-NARRATIF`** qui en hérite **en entier** (D6). Elle fonde aussi, en
+> creux, un **refus** qui, lui, tient toujours : cette même démonstration pourrait servir à réclamer
+> que le générateur **préserve** le narratif. Ce serait la mauvaise conclusion — le motif est
+> conservé en D6 et versé au successeur.
 
-### D6 (neuve — amendement 2026-08-17) — `update` ne peut plus committer un narratif vide **en silence**
+### D6 ~~(neuve — amendement 2026-08-17) — `update` ne peut plus committer un narratif vide **en silence**~~ → **SANS OBJET** (rectification post-gate 2026-08-17)
 
-**Retenu, et délibérément PARTIEL.** Le défaut (a) du § 2.7 a deux moitiés, qui n'ont pas le même
-statut : l'une est un **bug incontestable**, l'autre est une **décision de flux**. Je ne fais entrer
-que la première.
+**Retirée du périmètre — non pas parce qu'elle coûte trop cher, mais parce que, telle qu'écrite,
+elle produit une FAUSSE IMPUTATION.** Retirée, pas effacée : le motif est ci-dessous, et il est
+**versé à `CHECKPOINT-NARRATIF`** parce qu'il **élimine une option d'emblée**.
 
-**Ce qui entre — le silence.** `runUpdate` gagne un avertissement, posé **entre `doSnapshot`
-(`update.js:95`) et `git add -A` (`update.js:100`)**, exactement là où `warnFrameLeak` est déjà
-appelé (`:98`) : si la section « Reprise du travail » du MD qui vient d'être écrit ne contient que
-des placeholders, la commande le **dit**, nomme le fichier, et **continue**.
+**Ce que D6 demandait** (conservé pour mémoire) : `runUpdate` gagnait un avertissement, posé **entre
+`doSnapshot` (`update.js:95`) et `git add -A` (`update.js:100`)**, là où `warnFrameLeak` est déjà
+appelé (`:98`) ; si la section « Reprise du travail » du MD ne contenait que des placeholders, la
+commande le **disait**, nommait le fichier, et **continuait** (non bloquant, par la doctrine
+`update.js:29-36`).
 
-- **Non bloquant, et ce n'est pas une timidité** : `update.js:29-36` porte une doctrine explicite et
-  argumentée — *« y placer un gate bloquant transformerait le geste de sauvegarde en geste de
-  publication, et la première fois qu'il empêcherait de sauvegarder du travail en cours, il serait
-  contourné ou désactivé »*. Je m'y range plutôt que de la contredire dans un lot de correctif.
-  Le même fichier porte déjà le précédent : l'avertissement de fuite de miroir.
-- **Ce que ça change réellement** : le checkpoint peut toujours partir avec un récit vide — mais
-  **plus jamais sans qu'on l'ait su au moment de le faire**. C'est le passage de *défaut silencieux*
-  à *défaut déclaré*, qui est la doctrine de tout ce lot (D2 refuse une fausse version, D3 nomme sa
-  règle dans le libellé, D7 nomme sa provenance).
+#### Le fait qui la réfute — mesure de 🏹 Legolas (scénario `CA-18b`, dépôt tmp, en trois temps)
 
-**Ce qui NE rentre PAS — la refonte du flux, et pourquoi je ne la tranche pas ici.** Le remède
-« évident » est de faire **préserver** le narratif par le générateur au lieu de l'écraser. Je refuse
-de le glisser dans un lot d'exécution, parce qu'il a un **contre-argument qui le rend nuisible** :
+> (1) après un `snapshot` neuf, la section vaut `"<!-- ... -->"` ; (2) je **renseigne** le narratif à
+> la main et je le commite ; (3) au **point exact où `D6` pose l'avertissement** (après `doSnapshot`,
+> avant `git add`), la section est **revenue aux placeholders**.
+
+**Ce que cette mesure établit, et qui va plus loin que « `CA-18b` est inatteignable ».** À ce point du
+flux, le récit vide que D6 s'apprêtait à signaler, **c'est la commande elle-même qui vient de le
+produire, une ligne plus haut** (`snapshot.js:132-136` réécrit la section à chaque appel, sans jamais
+lire ce qui s'y trouvait). Un D6 littéral ne serait donc pas un avertissement bruyant : ce serait un
+avertissement qui **impute à l'opérateur un état que l'outil a créé**. Il dirait « ton récit est
+vide » à quelqu'un qui **venait de le remplir**.
+
+**Ce n'est plus un faux positif, c'est une fausse imputation** — et c'est disqualifiant pour ce lot
+en particulier : tout le reste du lot consiste à faire **dire vrai** à un artefact (D2 refuse une
+fausse version, D3 nomme sa règle dans le libellé, D7 nomme sa provenance). Livrer, dans le même
+lot, un avertissement qui accuse l'opérateur de ce que fait l'outil serait **contredire la doctrine
+du lot par son propre contenu**.
+
+#### Ce que je maintiens, et qui part avec elle
+
+Le **défaut (a) du § 2.7 reste entier et réel** : le narratif est écrasé, le checkpoint part en
+commentaires vides, D5 en est la démonstration en acte. Rien de cela n'est retiré — seul le **remède
+D6** l'est. Le défaut, son option space et la mesure ci-dessus vont **en entier** à
+**`CHECKPOINT-NARRATIF`** (§ 5), avec son titulaire.
+
+Le **contre-argument au remède « préserver »** est conservé tel quel, car il tient toujours :
 
 > la section décrit un **instant** (« ce qui vient d'être fait », « prochaine étape »). La préserver
 > ferait **présenter comme courant** un récit périmé. Or un récit périmé qui se donne pour frais est
 > **pire** qu'un placeholder, qui est au moins honnête sur son vide. On échangerait un défaut visible
 > contre un défaut crédible.
 
-Il y a au moins quatre options défendables (préserver ; préserver **en datant** la section du
-checkpoint qui l'a écrite ; décomposer le verbe `update` avec un point d'arrêt ; ne rien changer et
-vivre avec D6). Choisir entre elles est un **arbitrage de flux de travail du décideur**, pas une
-étape d'implémentation. → successeur **`CHECKPOINT-NARRATIF`** (§ 5), option space déjà instruit
-ci-dessus pour qu'il ne reparte pas de zéro.
-
-**Coût** : ~10 lignes dans `update.js` + une garde. **Aucune** modification de `snapshot.js` au titre
-de D6 — la détection lit le MD produit, elle ne change pas la génération.
+**Conséquences mécaniques de la retraite** : `CA-18a/b/c` sortent (§ 9) ; les gardes passent de
+**cinq à quatre** (D1, D2, D3, D7) ; l'étape **4bis** est supprimée (§ 6) ; `update.js` ne reçoit
+plus que le refus de version et le message normalisé (§ 5, § 7) ; `docs/commandes.md` ne documente
+**pas** l'avertissement (§ 9, `CA-15`) ; `R8` devient sans objet (§ 8).
 
 ### D7 (neuve — amendement 2026-08-17) — `snapshot` et `update` disent **quel CLI** s'exécute, et **sur quelle racine**
 
@@ -514,15 +579,17 @@ touche `git describe`, que D2 laisse justement verbatim — les deux sujets ne s
 - `cli/src/commands/snapshot.js` : résolution du nom (D1), normalisation/validation de version (D2),
   comptage (D3), libellés MD + HTML.
 - `cli/src/commands/update.js` : refus sur `--version` mal formé avant tout commit ; message de commit
-  bâti sur la valeur **normalisée** (`update.js:103`) ; **avertissement narratif vide (D6)** posé
-  entre `:95` et `:100`.
+  bâti sur la valeur **normalisée** (`update.js:103`). ~~**avertissement narratif vide (D6)** posé
+  entre `:95` et `:100`~~ — **RETIRÉ (post-gate 2026-08-17)**, cf. D6.
 - **Ligne de provenance (D7)** dans `runSnapshot` et `runUpdate`.
-- **Cinq tests de garde** — un par défaut : D1, D2, D3, D6, D7 — chacun **vu rouge avant d'être
-  vert** (§ 9). *(Le cadrage initial en annonçait trois ; D6 et D7 en ajoutent deux.)*
+- **Quatre tests de garde** — un par défaut : D1, D2, D3, D7 — chacun **vu rouge avant d'être
+  vert** (§ 9). *(Le cadrage initial en annonçait trois ; D7 en ajoutait un ; D6 en ajoutait un
+  cinquième, **retiré post-gate**.)*
 - `docs/commandes.md:121` : la ligne `snapshot` documente déjà la cascade de version ; elle est
-  complétée par la règle de forme (D2) et la règle de comptage (D3). **Y ajouter l'avertissement
-  D6** sur la ligne `update` (cf. mémoire « doc des commandes à jour » : toute commande dont le
-  comportement observable change est répercutée **dans le même lot**).
+  complétée par la règle de forme (D2) et la règle de comptage (D3) — cf. mémoire « doc des
+  commandes à jour » : toute commande dont le comportement observable change est répercutée **dans
+  le même lot**. ~~Y ajouter l'avertissement D6 sur la ligne `update`.~~ **RETIRÉ** : D6 n'existe
+  pas, et **documenter un avertissement qui n'existe pas serait pire que le trou**.
 - ~~`specs/etat-des-lieux.md:79-82` : correction en place de la note fausse (D5).~~
   **RETIRÉ (2026-08-17)** — cible inexistante, cf. D5. **Ne rien écrire dans
   `specs/etat-des-lieux.md` sous ce lot.**
@@ -569,7 +636,7 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
 
 | Code | Ce que c'est | Dépôt / fichier | Estimation | Titulaire |
 |---|---|---|---|---|
-| **`CHECKPOINT-NARRATIF`** | Trancher le flux du checkpoint face au narratif écrasé (§ 2.7 a, D6) : préserver / préserver+dater / décomposer le verbe / statu quo. **Les 4 options et leur contre-argument sont déjà écrits en D6** — le cadrage part chargé. | `iakaframe` — `snapshot.js:132-136`, `update.js:95-111` | **cadrage 0,25 j-h**, dev **0,5 à 1 j-h** selon l'option | **cadrage 🧙 Gandalf → arbitrage DÉCIDEUR → dev ⚒️ Gimli** |
+| **`CHECKPOINT-NARRATIF`** | Trancher le flux du checkpoint face au narratif écrasé (§ 2.7 a). **Reçoit D6 EN ENTIER** depuis la rectification post-gate. Options : préserver / préserver+dater / décomposer le verbe / statu quo — **écrites avec leur contre-argument en D6**, le cadrage part chargé. **⚠️ Une option est déjà ÉLIMINÉE, par la mesure : « avertir après `doSnapshot` » est mort-né** — à ce point du flux, le récit vide vient d'être produit par la commande une ligne plus haut, l'avertissement **imputerait à l'opérateur un état créé par l'outil** (fausse imputation, scénario `CA-18b` reproduit par 🏹 Legolas sur dépôt tmp, cf. D6). **Ne pas la re-instruire.** Corollaire directement exploitable : tout remède qui n'agit **qu'en aval** de `snapshot.js:132-136` est disqualifié par construction — le geste utile est **dans la génération**, pas après elle. | `iakaframe` — `snapshot.js:132-136`, `update.js:95-111` | **cadrage 0,25 j-h** (allégé : une option en moins et le fait mesuré), dev **0,5 à 1 j-h** selon l'option | **cadrage 🧙 Gandalf** (titulaire du cadrage) **→ arbitrage DÉCIDEUR** (le choix de flux lui appartient) **→ dev ⚒️ Gimli** |
 | **`VENDOR-REMEDE-CARDINAL`** | La phrase « un par derive constatee » ment dès que la déduplication mord (§ 2.7 b). Remède pré-mâché : cesser d'affirmer une bijection et rendre les **deux** cardinaux — `REMEDE - N geste(s) pour M derive(s) constatee(s)` — en corrigeant **aussi** le commentaire `:223-224` qui porte le même faux invariant. | `iakaframe` — `cli/src/commands/vendor-check.js:223-228`, garde dans `cli/test/vendor-check.test.js` | **0,25 j-h** | ⚒️ **Gimli**, déclenché par 🤴 Aragorn — **à grouper avec `GUI-VENDOR-CHARON`** : même opérateur, même session, et c'est **ce bloc-là** qu'il lira pour vendoriser les 4 fixtures manquantes |
 | **`CLI-WRAPPER-RACINE`** | `~/.local/bin/iakaframe` pointe en dur sur la racine (§ 2.7 c). **Pourquoi ce n'est pas une correction évidente** : le remède naïf — résoudre le CLI depuis le dépôt courant — ferait exécuter le code de **n'importe quel clone** où l'on se trouve, ce qui échange un piège contre un pire. C'est un **arbitrage sur la stratégie d'installation**, pas un bug à écraser. | **Hors dépôt** — `/Users/sjupin/.local/bin/iakaframe` (artefact de poste, non versionné) | **0,25 j-h** une fois l'option choisie | **arbitrage DÉCIDEUR** (stratégie d'install), exécution ⚒️ **Gimli** — et l'écriture étant **hors de tout worktree**, elle ne peut se faire sous aucun lot borné à un dépôt |
 
@@ -577,9 +644,10 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
 
 ## 6. Étapes d'implémentation
 
-1. **Rouge d'abord.** Écrire `cli/test/snapshot-generateur.test.js` avec les **cinq** familles de
-   gardes (§ 9), **lancer la suite, constater les cinq échecs**, et **noter la sortie rouge** dans
+1. **Rouge d'abord.** Écrire `cli/test/snapshot-generateur.test.js` avec les **quatre** familles de
+   gardes (§ 9), **lancer la suite, constater les échecs**, et **noter la sortie rouge** dans
    le compte rendu de lot. Un test qui n'a jamais été vu rouge ne prouve rien.
+   *(Rectification post-gate : **quatre** familles — D1, D2, D3, D7 — et non cinq ; D6 est retirée.)*
 2. **D1** — extraire `projectName(root)` dans `snapshot.js` (garde `basename === '.git'` + replis),
    la brancher en `:97`. Vérifier que `:116`, `:150`, `:173` consomment la nouvelle valeur.
 3. **D2** — ajouter `normalizeVersion(raw)`, l'appeler dans `doSnapshot` (lève sur invalide) et dans
@@ -587,22 +655,21 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
    valeur réinjectée dans le message de commit (`update.js:103`). Ne **pas** toucher `:90` ni `:92`.
 4. **D3** — réécrire `countFiles` en `filesCount(root)` : voie git (`run(...).ok`) puis repli parcours.
    Adapter les libellés `:124` et `:181`.
-4bis. **D6** — ajouter dans `update.js` une fonction d'avertissement **calquée sur `warnFrameLeak`**
-   (même forme, même ceinture `try/catch`, même registre de message), appelée **après `:98` et avant
-   `:100`**. Elle relit `specs/etat-des-lieux.md`, isole la section `## Reprise du travail`, et
-   avertit si le corps ne contient que des placeholders. **Elle ne lève jamais et ne retourne
-   jamais** — un checkpoint ne doit pas échouer à cause d'elle.
+4bis. ~~**D6** — avertissement narratif vide dans `update.js`.~~ **ÉTAPE SUPPRIMÉE (post-gate
+   2026-08-17)** — D6 est sans objet (fausse imputation, cf. D6). **Ne rien ajouter dans
+   `update.js` au titre de D6.**
 4ter. **D7** — ajouter la ligne de provenance dans `runSnapshot` et `runUpdate`. Si une garde
    existante capture ce flux, **retirer D7 et le déclarer** (clause d'échappement, D7).
-5. **Vert.** Relancer `node --test` depuis `cli/` : les cinq gardes passent, **et la suite complète
+5. **Vert.** Relancer `node --test` depuis `cli/` : les quatre gardes passent, **et la suite complète
    reste verte** — attention particulière à `guard-version-source-unique.test.js` (5 appels à
    `doSnapshot` sur des dépôts tmp), `cadence.test.js`, `switch-flags-guard.test.js`,
    `vendor-check.test.js` (il compare des miroirs au canon : vérifier qu'aucune fixture ne se met à
    dériver du fait de ce lot).
 6. ~~**D5** — corriger en place `specs/etat-des-lieux.md:79-82`.~~ **ÉTAPE SUPPRIMÉE (2026-08-17)** —
    la cible n'existe plus (D5). **Ne rien écrire dans `specs/etat-des-lieux.md`.**
-7. **Doc** — compléter `docs/commandes.md:121` (règle de forme `--version` + définition du compte)
-   **et** la ligne `update` (avertissement D6).
+7. **Doc** — compléter `docs/commandes.md:121` : règle de forme `--version` + définition du compte.
+   ~~**et** la ligne `update` (avertissement D6).~~ **RETIRÉ (post-gate)** — D6 n'existe pas ;
+   ne **rien** écrire à son sujet dans la doc.
 8. **Ne pas régénérer l'état des lieux sous ce lot** : le premier `snapshot` post-correctif changera
    le libellé et le compte, et il doit être **posé sciemment** par le décideur, pas tombé d'un test.
 
@@ -613,10 +680,10 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
 - `cli/src/commands/snapshot.js` — `projectName()` (D1), `normalizeVersion()` (D2), `filesCount()` (D3),
   libellés `:124` / `:181`, ligne de provenance dans `runSnapshot` (D7).
 - `cli/src/commands/update.js` — refus avant commit + message normalisé (`:95`, `:103`),
-  avertissement narratif entre `:98` et `:100` (D6), ligne de provenance (D7).
-- `cli/test/snapshot-generateur.test.js` — **nouveau**, les **cinq** gardes.
-- `docs/commandes.md:121` — règle de forme de `--version`, définition du compte de fichiers,
-  avertissement D6 sur `update`.
+  ligne de provenance (D7). ~~avertissement narratif entre `:98` et `:100` (D6)~~ — **retiré**.
+- `cli/test/snapshot-generateur.test.js` — **nouveau**, les **quatre** gardes (D1, D2, D3, D7).
+- `docs/commandes.md:121` — règle de forme de `--version`, définition du compte de fichiers.
+  ~~avertissement D6 sur `update`~~ — **retiré**.
 
 **Fichiers qu'il ne faut PAS toucher, et qu'on pourrait croire concernés :**
 
@@ -640,8 +707,9 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
 | R5 | Le libellé MD change → un consommateur inconnu casse. | Vérifié : `lib/etat.js` n'indexe que `Version`/`Note`/`Dernier commit` ; aucun test n'assertionne `fileCount` ni le libellé. Risque résiduel faible, tenu par la suite complète (étape 5). |
 | R6 | Le lot touche le **même fichier de journal/état des lieux** que d'autres travaux en cours. | ~~n'y toucher qu'aux lignes 79-82 (D5)~~ **Simplifié (2026-08-17)** : D5 étant retirée, le lot **n'écrit plus du tout** dans `specs/etat-des-lieux.md`. Le partage de fichier disparaît, et avec lui le risque. |
 | R7 | **(neuf)** L'implémenteur voit `frames/releases/StefFrame2/cli/src/commands/snapshot.js` diverger du canon et « répare » la release. | La divergence est **antérieure et voulue** (la release ignore déjà 3 fonctions du canon). CA-19 la verrouille : le fichier doit sortir du lot **byte-identique**. |
-| R8 | **(neuf)** D6 lit `specs/etat-des-lieux.md` pour détecter les placeholders → couplage du checkpoint à un format de fichier. | Détection **volontairement grossière** (présence du marqueur `<!-- ` dans le corps de la section) et **entièrement ceinturée** : format inattendu ⇒ pas d'avertissement, jamais d'erreur. Un faux négatif est acceptable ; un `update` qui casse ne l'est pas (doctrine `update.js:29-36`). |
+| ~~R8~~ | ~~**(neuf)** D6 lit `specs/etat-des-lieux.md` pour détecter les placeholders → couplage du checkpoint à un format de fichier.~~ | **SANS OBJET (post-gate 2026-08-17)** — D6 est retirée, le risque disparaît avec elle. Il **repart avec le défaut** vers `CHECKPOINT-NARRATIF`, à qui il reste dû : tout remède qui lit le MD pour en juger le contenu portera ce couplage. |
 | R9 | **(neuf)** D7 ajoute deux lignes de sortie → une garde inconnue capture le flux et rougit. | Vérifié qu'aucun test n'assertionne la sortie de ces deux verbes. Si ça se produit malgré tout : **retirer D7**, ne pas modifier le test (CA-14 prime sur CA-18d). |
+| R10 | **(neuf, post-gate)** L'implémenteur lit une version antérieure de cette instruction (ou son message de commit) et **ré-implémente D6**, croyant combler un trou. | D6 est **marquée SANS OBJET avec son motif dans le fichier lui-même**, pas seulement retirée : le motif (fausse imputation, mesuré) est lisible là où on cherchera. C'est exactement la faute que ce lot corrige — un artefact maintenu vrai par la seule vigilance de qui a lu le message de commit — et elle ne doit pas être commise **par** ce lot. |
 
 ---
 
@@ -650,7 +718,13 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
 > **Numérotation non contiguë, à dessein.** Les critères neufs de l'amendement (CA-17, CA-18a→d,
 > CA-19) sont **ajoutés en fin de série**, jamais intercalés : renuméroter aurait invalidé les
 > renvois déjà écrits ailleurs dans cette instruction (R1→CA-19, R2→CA-7, R9→CA-14…). Lire par
-> **section**, pas par ordre numérique. **22 critères au total.**
+> **section**, pas par ordre numérique.
+>
+> **Cardinal — ~~22~~ → 19 critères au total** (rectification post-gate 2026-08-17). `CA-18a`,
+> `CA-18b` et `CA-18c` sortent avec **D6** ; `CA-18d` (D7) **reste**. Détail du compte :
+> `CA-1`→`CA-17` = 17, plus `CA-18d`, plus `CA-19` = **19**. Les trous de numérotation
+> (`CA-18a/b/c`) sont **laissés visibles** plutôt que refermés : un critère retiré avec son motif
+> se relit, un critère renuméroté s'oublie.
 
 ### D1 — nom du projet
 - [ ] **CA-1** — Depuis un **arbre lié** (`git worktree add`) d'un dépôt tmp nommé `projet-alpha`,
@@ -673,11 +747,24 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
       `guard-version-source-unique.test.js` restent **vertes sans modification**.
 
 ### D3 — compte de fichiers
-- [ ] **CA-8** — Sur un dépôt tmp, le compte est **identique** depuis la racine et depuis un arbre
-      lié placé dans un dossier **ignoré**, et **aucun** fichier interne de l'arbre lié n'est compté
-      (au pire l'arbre lié pèse **≤ 1** entrée).
-- [ ] **CA-9** — Même assertion avec l'arbre lié dans un dossier **non ignoré** (R2). Si git compte
-      malgré tout l'imbriqué, une exclusion explicite est ajoutée **et documentée** en commentaire.
+- [ ] **CA-8** *(énoncé désambiguïsé post-gate — deux assertions distinctes, ne pas les fondre)* —
+      Sur un dépôt tmp dont l'arbre lié est placé dans un dossier **ignoré** :
+      **(i)** le compte est **strictement identique** depuis la racine et depuis l'arbre lié — c'est
+      **la** propriété de D3, et elle n'admet pas de tolérance ; **(ii)** face au compte pris
+      **avant** la création de l'arbre lié, l'arbre lié pèse **≤ 1** entrée.
+      **La tolérance `≤ 1` de (ii) porte sur la référence pré-worktree, jamais sur la comparaison
+      racine/arbre lié de (i)** — c'est cette confusion, dans ma rédaction d'origine, qui rendait
+      `CA-8` et `CA-9` contradictoires.
+- [ ] **CA-9** *(énoncé rectifié post-gate — « Même assertion » RETIRÉ)* — Arbre lié dans un dossier
+      **non ignoré** : vu **depuis la racine**, l'arbre lié pèse **≤ 1** entrée (R2 : `git ls-files
+      --others` ne descend pas dans le dépôt imbriqué). Si git compte malgré tout l'imbriqué, une
+      exclusion explicite est ajoutée **et documentée** en commentaire.
+      **`CA-9` n'assertionne PAS l'égalité racine / arbre lié, et ne le doit pas** : hors zone
+      ignorée, l'arbre lié **est** un répertoire non suivi non ignoré du dépôt principal, donc la
+      racine le compte à bon droit. 🏹 Legolas a mesuré `4` depuis la racine contre `3` depuis
+      l'arbre lié : c'est le **comportement correct**, pas un défaut. Motif complet en **D3**
+      § « Portée exacte de la propriété ». **Impact réel nul** sur les deux dépôts du portefeuille,
+      dont les arbres liés vivent en zone ignorée (`CA-8`).
 - [ ] **CA-10** — Un fichier **non suivi et non ignoré** est compté ; un fichier **ignoré** ne l'est
       pas ; `node_modules` ignoré ne l'est pas.
 - [ ] **CA-11** — Sur un dossier **hors git**, le compte est celui du parcours actuel, **inchangé**.
@@ -689,13 +776,20 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
       assertion pour un `dist/` ignoré. **C'est la garde qui prouve que la règle a cessé d'être une
       liste de deux noms en dur** — sans elle, le correctif du GUI n'est pas démontré.
 
-### D6 — narratif vide (neuf)
-- [ ] **CA-18a** — `update` sur un dépôt tmp dont la section « Reprise du travail » ne contient que
-      des placeholders : la sortie porte un avertissement **nommant le fichier**, il apparaît
-      **avant** la ligne de commit, et **le commit a bien lieu** (non bloquant).
-- [ ] **CA-18b** — Même `update` avec une section renseignée : **aucun** avertissement.
-- [ ] **CA-18c** — `specs/etat-des-lieux.md` illisible, absent, ou sans section reconnaissable :
-      `update` **se termine normalement**, sans avertissement et **sans erreur**. La ceinture tient.
+### ~~D6 — narratif vide (neuf)~~ → **CRITÈRES RETIRÉS** (post-gate 2026-08-17)
+
+> **`CA-18a`, `CA-18b`, `CA-18c` sortent du lot avec D6.** Motif en **D6** : le remède produisait une
+> **fausse imputation**. `CA-18b` en portait la preuve sans que je le voie — 🏹 Legolas l'a joué et
+> a constaté qu'au point où D6 se posait, **la section venait d'être réécrite en placeholders par la
+> commande elle-même**. Un critère qu'aucune implémentation honnête ne peut satisfaire n'est pas un
+> critère : c'est une erreur de cadrage. **Rien à implémenter, rien à cocher.**
+>
+> - [x] ~~**CA-18a**~~ — retiré avec D6.
+> - [x] ~~**CA-18b**~~ — retiré avec D6 ; **c'est lui qui a révélé le défaut de cadrage**.
+> - [x] ~~**CA-18c**~~ — retiré avec D6.
+>
+> Ces trois exigences repartent **avec le défaut** vers `CHECKPOINT-NARRATIF` (§ 5), qui les
+> recadrera **après** avoir tranché le flux — jamais avant.
 
 ### D7 — provenance (neuf)
 - [ ] **CA-18d** — `snapshot` et `update` affichent tous deux `cli=<…>` et `root=<…>`. Lancés depuis
@@ -703,12 +797,16 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
       sortie. *(Ou : D7 retiré, avec son motif écrit au compte rendu — clause d'échappement.)*
 
 ### Transverse
-- [ ] **CA-13** — Les **cinq** gardes (D1, D2, D3, D6, D7) ont été **vues rouges** avant d'être
+- [ ] **CA-13** — Les **quatre** gardes (D1, D2, D3, D7) ont été **vues rouges** avant d'être
       vertes ; les sorties rouges figurent dans le compte rendu du lot.
+      *(Rectifié post-gate : ~~cinq (D1, D2, D3, D6, D7)~~ — D6 retirée.)*
 - [ ] **CA-14** — `node --test` depuis `cli/` : **0 échec**, aucun test existant modifié pour
       accommoder le correctif. **CA-14 prime sur CA-18d** : plutôt retirer D7 que toucher un test.
-- [ ] **CA-15** — `docs/commandes.md:121` énonce la règle de forme de `--version`, la définition du
-      compte, et l'avertissement D6 sur `update`.
+- [ ] **CA-15** *(mis en cohérence avec un lot à 19 CA — post-gate 2026-08-17)* —
+      `docs/commandes.md:121` énonce **exactement deux** choses : la **règle de forme** de
+      `--version` (D2) et la **définition du compte** de fichiers (D3). **Rien de plus.**
+      ~~et l'avertissement D6 sur `update`~~ — **retiré avec D6**, et la doc **ne doit pas** le
+      mentionner : *documenter un avertissement qui n'existe pas serait pire que le trou.*
       ~~`specs/etat-des-lieux.md:79-82` ne porte plus l'explication causale fausse~~ — **retiré**
       (D5 sans objet ; la note a disparu d'elle-même).
 - [ ] **CA-16** — Aucun `specs/etat-des-lieux.md` / `.html` / `.iakaframe-journal.json` **régénéré
@@ -722,28 +820,39 @@ et j'ai manqué une copie **dans ce dépôt-ci**. Deux corrections :
 
 > **Révisée le 2026-08-17 : 0,5 → 0,75 j-h.** Le glissement est **déclaré et décomposé** ci-dessous
 > plutôt que fondu dans un nouveau chiffre.
+>
+> **Re-révisée le 2026-08-17 après le gate : 0,75 → 0,6 j-h.** D6 sort, et avec elle **−1 h**
+> (l'avertissement + ses trois gardes `CA-18a/b/c`). Le mouvement est **déclaré à la baisse** avec
+> la même discipline qu'à la hausse : une estimation qui ne descend jamais n'est pas une estimation.
+> **À confronter au temps réel à la clôture du lot** — en sachant que le temps réel inclura le
+> coût, non estimé et à mesurer, du **tour de gate supplémentaire** que mon erreur de cadrage a
+> imposé (⚒️ Gimli bloqué, 🏹 Legolas mobilisé sur une reproduction, cette rectification).
 
 | Composante | Valeur |
 |---|---|
-| **Équivalent jour-homme** | **0,75 j-h** (≈ 5 à 6 h) — dont ~2 h de tests, toujours la partie longue. Les correctifs pèsent une **quarantaine** de lignes de production. |
-| **Complexité / risque** | **Faible en complexité, MOYEN en risque** — inchangé. La complexité n'augmente pas : D6 et D7 sont additifs, locaux, non bloquants. Le risque **reste** celui de D3, mais son amplitude est désormais **connue et chiffrée** (−95 % sur le GUI) au lieu d'être supposée : c'est un risque **mieux tenu**, pas un risque plus grand. |
-| **Inconnues susceptibles de faire glisser** | (a) **R2** — comportement de `git ls-files --others` face à un dépôt imbriqué non ignoré : si l'hypothèse tombe, +1 h. (b) **Effets de bord sur la suite existante** : ~640 tests, dont 5 appels directs à `doSnapshot` ; aucun n'assertionne `fileCount` ni la sortie des deux verbes (vérifié), mais un test qui compterait indirectement coûterait +1 h. (c) **A-1** — si le décideur veut une note de discontinuité, +15 min **par dépôt** concerné, et c'est un geste sur la mémoire, pas sur le code. (d) ~~effet cross-repo par vendorage~~ **requalifié** : `snapshot.js` n'est pas vendorisé vers le GUI, mais le GUI **exécute le même code** — l'effet cross-repo est **certain**, pas hypothétique, et il ne coûte rien au lot (il coûte un checkpoint posé sciemment, § 11). (e) **(neuve)** D6 doit isoler une section markdown : si le format se révèle plus capricieux que prévu, la ceinture de R8 permet de **livrer une détection imparfaite** plutôt que de faire glisser le lot. |
+| **Équivalent jour-homme** | **0,6 j-h** (≈ 4 à 5 h) — dont ~1,5 h de tests, toujours la partie longue. Les correctifs pèsent une **trentaine** de lignes de production. *(~~0,75 j-h~~ avant retrait de D6.)* |
+| **Complexité / risque** | **Faible en complexité, MOYEN en risque** — inchangé. La complexité n'augmente pas : D7 est additif, local, non bloquant *(D6 l'était aussi — elle est **retirée**, cf. D6)*. Le risque **reste** celui de D3, mais son amplitude est désormais **connue et chiffrée** (−95 % sur le GUI) au lieu d'être supposée : c'est un risque **mieux tenu**, pas un risque plus grand. |
+| **Inconnues susceptibles de faire glisser** | (a) **R2** — comportement de `git ls-files --others` face à un dépôt imbriqué non ignoré : si l'hypothèse tombe, +1 h. (b) **Effets de bord sur la suite existante** : ~640 tests, dont 5 appels directs à `doSnapshot` ; aucun n'assertionne `fileCount` ni la sortie des deux verbes (vérifié), mais un test qui compterait indirectement coûterait +1 h. (c) **A-1** — si le décideur veut une note de discontinuité, +15 min **par dépôt** concerné, et c'est un geste sur la mémoire, pas sur le code. (d) ~~effet cross-repo par vendorage~~ **requalifié** : `snapshot.js` n'est pas vendorisé vers le GUI, mais le GUI **exécute le même code** — l'effet cross-repo est **certain**, pas hypothétique, et il ne coûte rien au lot (il coûte un checkpoint posé sciemment, § 11). ~~(e) **(neuve)** D6 doit isoler une section markdown…~~ **inconnue SUPPRIMÉE post-gate** : D6 est retirée, l'inconnue part avec elle vers `CHECKPOINT-NARRATIF`. |
 
 ### Détail du glissement +0,25 j-h — ce qui monte, ce qui descend
 
 | Mouvement | Effet |
 |---|---|
-| **D6** — avertissement narratif + 3 gardes (CA-18a/b/c) | **+1 h** |
+| **D6** — avertissement narratif + 3 gardes (CA-18a/b/c) | ~~**+1 h**~~ → **0 h**, D6 **retirée** post-gate : le +1 h est **rendu**, et il repart avec le défaut vers `CHECKPOINT-NARRATIF` |
 | **D7** — ligne de provenance + garde (CA-18d) | **+0,25 h** |
 | **CA-17** — garde du cas `target/` ignoré (§ 2.6) | **+0,25 h** |
 | **CA-19** — vérification de la release gelée | **+0,1 h** |
 | **D5 retirée** — une édition et une étape en moins | **−0,25 h** |
 | **R6 dissous** — plus de fichier partagé, donc plus de précaution de coexistence | **−0,1 h** |
-| **Net** | **≈ +1,25 h, soit +0,25 j-h** |
+| **Net (amendement)** | **≈ +1,25 h, soit +0,25 j-h** |
+| **Net (après rectification post-gate)** | **≈ +0,25 h, soit +0,1 j-h** face au cadrage initial → **0,6 j-h** |
 
 **Ce que le glissement n'achète PAS** : aucune des trois décisions d'origine n'a été refaite. D1, D2
 et D3 sortent de l'amendement **inchangées dans leur remède** ; seul le **motif** de D3 s'est élargi.
-Le surcoût est intégralement dû à **deux défauts neufs** et **une garde neuve**, pas à une révision.
+Le surcoût était intégralement dû à **deux défauts neufs** et **une garde neuve**, pas à une révision.
+**Après la rectification post-gate, il n'en reste qu'un** (D7) plus la garde `CA-17` : D6 est sortie.
+D1, D2, D3 et D7 **n'ont été rouvertes ni par l'amendement, ni par la rectification** — 🏹 Legolas
+les a mesurées et ne leur oppose aucun défaut ; les rouvrir serait détruire du travail vérifié.
 
 Ordre de grandeur assumé et révisable, **pas un engagement ferme** ; à confronter au temps réel à
 la clôture du lot.
@@ -773,6 +882,7 @@ la clôture du lot.
 | Ce qui sort | Vers qui |
 |---|---|
 | Refonte du flux du checkpoint face au narratif écrasé | **`CHECKPOINT-NARRATIF`** — cadrage 🧙 Gandalf → arbitrage décideur → dev ⚒️ Gimli |
+| **`D6` — l'avertissement sur narratif vide** *(post-gate : sortait « à moitié dedans », sort désormais **en entier**)* | **`CHECKPOINT-NARRATIF`** — **même titulaire**, et il part **chargé de la mesure qui élimine l'option « avertir après `doSnapshot` »** (cf. D6) |
 | La phrase fausse de `vendor-check` (23 gestes / 24 dérives) | **`VENDOR-REMEDE-CARDINAL`** — ⚒️ Gimli, groupé avec `GUI-VENDOR-CHARON` |
 | Le wrapper `~/.local/bin/iakaframe` | **`CLI-WRAPPER-RACINE`** — décideur (option) puis ⚒️ Gimli (exécution hors dépôt) |
 | Réécriture rétroactive des journaux (`iakaframe` **et** `iakaFrameGUI`) | **Personne — refusé** (D4, précédent du décideur du 2026-07-31) |
@@ -787,11 +897,38 @@ la clôture du lot.
 
 ### ✅ Ce qui est PRÊT
 
-D1, D2, D3, D6, D7 sont fermées et exécutables. **22** critères d'acceptation testables (§ 9).
+~~D1, D2, D3, D6, D7 sont fermées et exécutables. **22** critères d'acceptation testables (§ 9).~~
+
+**Rectifié le 2026-08-17 après le gate — cette phrase était FAUSSE, et c'est le motif du `FAIL`.**
+
+**`D1`, `D2`, `D3`, `D7`** sont fermées et exécutables. **19** critères d'acceptation testables
+(§ 9). **`D6` est SANS OBJET** (fausse imputation, cf. D6) et **`CA-18a/b/c` sont retirés**.
 Aucune décision d'architecture n'attend, hors A-1 dont le défaut est explicite et sans conséquence.
+
+> **Pourquoi cette ligne devait être rectifiée avant tout merge, et pas expliquée dans un message de
+> commit.** Telle qu'elle était écrite, elle annonçait **5 décisions fermées et 22 critères** face à
+> un code qui en honore **4 et 19**. Merger cela aurait laissé dans le dépôt **un artefact versionné
+> dont le nom ne décrit pas le contenu, maintenu vrai par la seule vigilance de qui a lu le message
+> de commit** — c'est-à-dire, **mot pour mot, le défaut que ce lot corrige**. Le dépôt en avait déjà
+> la démonstration : `D5`, cadrée et argumentée, **est tombée toute seule** parce que rien ne la
+> tenait (cf. D5). Une instruction qui ment sur son propre périmètre n'est pas un détail de forme :
+> c'est la même faute, un étage plus haut.
 
 > **Vérification de clôture (`preuve-avant-declaration`)** : ce fichier a été **relu intégralement
 > sur le disque** après les treize éditions partielles de l'amendement. Trois défauts de mon propre
 > fait y ont été trouvés et corrigés — un renvoi `chemin:ligne` périmé en § 2.1, un renvoi `CA-18`
 > ambigu en R9, et un cardinal de critères faux ici même (`19` → `22`). Aucun doublon de section ni
 > résidu d'ancienne rédaction. C'est le constat, pas le souvenir d'avoir écrit.
+>
+> **Vérification de clôture n°2 (rectification post-gate 2026-08-17)** : fichier **relu sur le
+> disque** après les dix-huit éditions partielles de la rectification ; **toutes** les occurrences
+> de `D6` et de `CA-18a/b/c` ont été reprises une à une (§ 2.7 a, D5, D6, § 5 ×3, § 6 ×3, § 7 ×2,
+> § 8 R8, § 9 ×4, § 10 ×4, § 11 ×2). Aucun doublon de section, aucun résidu.
+>
+> **Et l'aveu qui va avec** : le cardinal corrigé lors de la vérification n°1 (`19` → `22`) était
+> une correction **dans le mauvais sens**. J'avais aligné le chiffre sur ce que l'instruction
+> **disait**, au lieu de vérifier ce qu'elle **pouvait tenir**. Compter juste des critères dont l'un
+> était intenable, c'est rendre un artefact faux **plus cohérent avec lui-même** — soit exactement
+> la façon dont ce genre de défaut survit à une relecture. C'est 🏹 Legolas qui l'a vu, en jouant le
+> critère au lieu de le lire. **La preuve, c'est l'exécution, pas la relecture** — y compris quand
+> c'est le cadrage qu'on relit.
