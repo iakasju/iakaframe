@@ -21,6 +21,15 @@
 //   dispositif, quelle que soit la qualite de l'inventaire. README.md en est l'exemple vivant.
 //   Une garde honnete dit aussi ce qu'elle ne voit pas : c'est le registre des ANGLES MORTS.
 //
+// DEUX ARBITRAGES DE COORDINATION, PRIS SOUS AUTONOMIE DELEGUEE — ET REVERSIBLES :
+//   Le decideur a arbitre D4, D5, D11 et D14. Il n'a PAS enonce les deux points ci-dessous ; ils
+//   ont ete tranches par la COORDINATION, en s'appuyant sur D5 et D11 qui sont de lui. Ils sont
+//   inscrits ici COMME TELS, et se reprennent en supprimant l'entree ou la constante concernee.
+//   (a) D6 niveau B mordait sur LE CANON (21 lignes rouges, ZERO defaut) -> EXEMPTION PERISSABLE
+//       du canon de Helm et de son golden, scopee au seul niveau B. Motif complet a l'entree.
+//   (b) La clause SYMETRIQUE de D7 (« charon <- surveillance ») -> ABANDONNEE, apres MESURE :
+//       0 capture sur 8, 6 faux positifs. Motif complet au bloc « SENS DU PREDICAT ».
+//
 // DEUX REGISTRES, DEUX PEREMPTIONS INVERSES — le mecanisme anti-oubli du lot :
 //   - EXEMPTIONS   : ce que la garde accepte de ne pas corriger. Une exemption DEVENUE INUTILE
 //                    (le site n'est plus rouge) FAIT ECHOUER la garde. Elle ne peut pas pourrir.
@@ -52,21 +61,63 @@ const REPO = path.resolve(HERE, '..', '..');
 const EXCLUS = ['.git', 'node_modules', 'frames/releases', 'specs/instructions'];
 
 // EXEMPTIONS (D5 + D9) — chacune porte ses TROIS champs obligatoires : motif, levee, portee.
-// PEREMPTION : une exemption dont la portee n'est PLUS rouge est MORTE -> G-ROUTE-4 devient ROUGE
-// et le seul remede est de SUPPRIMER l'entree. C'est la clause qui interdit l'oubli n° 3.
+// PEREMPTION : une exemption dont la portee n'est PLUS rouge est MORTE -> la garde qu'elle exempte
+// devient ROUGE et le seul remede est de SUPPRIMER l'entree. C'est la clause qui interdit l'oubli
+// n° 3. `garde` = PORTEE DE REGISTRE : « * » vaut pour tout le dispositif, une valeur nommee ne
+// vaut que pour la garde citee. Une exemption perit donc DANS LA GARDE QU'ELLE EXEMPTE, mesuree
+// avec LE PREDICAT DE CETTE GARDE — une exemption de niveau B ne se mesure pas a l'affectation.
 const EXEMPTIONS = [
   {
+    garde: '*',
     motif: 'traces datees APPEND-ONLY (F25) : les reecrire falsifierait le journal. Exacte meme '
       + 'nature que specs/instructions/, deja exclu structurellement.',
     levee: 'AUCUNE — permanent, par nature.',
     portee: ['specs/etat-des-lieux.md', 'specs/etat-des-lieux.html', 'specs/.iakaframe-journal.json'],
   },
   {
+    garde: '*',
     motif: 'documentent le MIROIR GELE StefFrame2 (F24) : les corriger les ferait MENTIR sur '
       + "l'artefact qu'ils decrivent. D4 du lot de routage, etendu ici au jumeau .md qui n'y etait "
       + 'pas nomme.',
     levee: 'ticket RESYNC-SF2 (resync-stefframe2-miroir-live.md) — a la resynchronisation du miroir.',
     portee: ['docs/guide-stefframe2.md', 'docs/guide-stefframe2.html'],
+  },
+  {
+    // ------------------------------------------------------------------------------------------
+    // ARBITRAGE DE COORDINATION, PRIS SOUS AUTONOMIE DELEGUEE — PAS un feu vert du decideur.
+    // REVERSIBLE si le decideur le reprend. Le decideur a arbitre D4, D5, D11 et D14 ; il n'a PAS
+    // enonce celui-ci. Il s'APPUIE sur D5 et D11, qui sont de lui.
+    // ------------------------------------------------------------------------------------------
+    // LE FAIT : D6 etend la decouverte du niveau B a « tout fichier nomme helm.{md,json} ». La
+    // population passe de 2 artefacts de kit a 4, en absorbant LE CANON et son golden derive. La
+    // regle du niveau B (« toute ligne portant une notion de traversee doit nommer Charon ») y rend
+    // 21 lignes rouges dont ZERO defaut — et F20 cite NOMMEMENT agents-golden/helm.md:20 comme faux
+    // positif LEGITIME (cause « cesure de ligne », Charon etant a :19).
+    //
+    // LES TROIS ISSUES NE SE VALENT PAS : restreindre la population reintroduirait une enumeration
+    // partielle (CONTRE D6 — soigner le mal par le mal) ; relacher la regle perdrait de la
+    // couverture reelle pour un probleme qui N'EST PAS de couverture. Reste l'exemption, et elle
+    // n'est pas dangereuse ICI PRECISEMENT : D5 la rend PERISSABLE. Le « la nouvelle liste
+    // oubliee » que redoute R3 est EXACTEMENT ce que D5 a ete concu pour empecher. On utilise le
+    // mecanisme qu'on vient de se donner plutot que de le contourner.
+    garde: 'G-ROUTE-2/B',
+    motif: 'UNE PERSONA DE REFERENCE DECRIT UN ROLE AU LIEU DE L\'ATTRIBUER. Le niveau B est une '
+      + "regle d'ATTRIBUTION : elle vaut pour un artefact qui ADRESSE la traversee (les prompts et "
+      + 'modeles de kit, ou « Helm » est une revendication). Le CANON de Helm — library/personas/'
+      + 'helm.md — et son GOLDEN derive cli/test/fixtures/agents-golden/helm.md ne revendiquent '
+      + 'rien : ils DECRIVENT le poste, y compris en disant ce que Helm ne fait PLUS (« il ne '
+      + 'bascule ni ne rollback »), ce que CA-12 du lot de scission a EXIGE de conserver. Applique '
+      + 'la, la regle rend 21 lignes rouges pour ZERO defaut, dont celle que F20 declare elle-meme '
+      + 'innocente (golden helm.md:20, Charon etant a :19). Atteindre le vert exigerait de REFLOWER '
+      + 'INTEGRALEMENT le canon — sur des lignes comme helm.md:48 (« Recoit : rien, et c\'est le '
+      + "point. Il n'attend ni version, ni feu vert, ni demande »), l'exigence n'a AUCUN sens "
+      + 'semantique. C\'est precisement le cout que D11 a refuse de payer.',
+    levee: 'AUTOMATIQUE par la peremption D5 — si la portee cesse d\'etre rouge au niveau B, '
+      + "l'entree est MORTE et la garde le dit. LEVEE MANUELLE : le jour ou le niveau B est remplace "
+      + "par un predicat capable de distinguer DECRIRE d'ATTRIBUER (le present prédicat est lexical, "
+      + 'D1 le voudrait semantique), l\'exemption tombe d\'elle-meme. REVERSIBLE A TOUT MOMENT sur '
+      + 'reprise du decideur : supprimer cette entree restaure le comportement de D6 a la lettre.',
+    portee: ['library/personas/helm.md', 'cli/test/fixtures/agents-golden/helm.md'],
   },
 ];
 
@@ -110,9 +161,18 @@ function estExclu(rel) {
   return EXCLUS.some((x) => p === x || p.startsWith(`${x}/`));
 }
 
-const CHEMINS_EXEMPTES = new Set(EXEMPTIONS.flatMap((e) => e.portee));
-function estExempte(rel) {
-  return CHEMINS_EXEMPTES.has(rel.split(path.sep).join('/'));
+// `garde` = identifiant de la garde appelante. Une exemption « * » vaut partout ; une exemption
+// nommee ne vaut QUE dans la garde qu'elle cite. Un chemin exempte du niveau B reste donc
+// pleinement balaye par G-ROUTE-1 et G-ROUTE-4 : on n'exempte jamais un FICHIER, on exempte un
+// fichier D'UN PREDICAT.
+function estExempte(rel, garde) {
+  const p = rel.split(path.sep).join('/');
+  return EXEMPTIONS.some((e) => (e.garde === '*' || e.garde === garde) && e.portee.includes(p));
+}
+
+function cheminsExemptes(garde) {
+  return new Set(EXEMPTIONS.filter((e) => e.garde === '*' || e.garde === garde)
+    .flatMap((e) => e.portee));
 }
 
 // Extensions BINAIRES : blocklist (et non allowlist), pour que le balayage reste balayant — un
@@ -187,12 +247,53 @@ function lireCanon(id) {
 
 const CANON = SQUAD_PROD.map(lireCanon);
 
+// ------------------------------------------------------------------------------------------------
+// SENS DU PREDICAT — ASYMETRIQUE. LA CLAUSE SYMETRIQUE DE D7 EST ABANDONNEE.
+// ------------------------------------------------------------------------------------------------
+// ARBITRAGE DE COORDINATION, PRIS SOUS AUTONOMIE DELEGUEE — PAS un feu vert du decideur.
+// REVERSIBLE s'il le reprend. Il s'appuie sur D11, qui est de lui.
+//
+// D7 exigeait la symetrie : « ni, symetriquement, charon au role surveillance ou a
+// iakaframe-surveillance ». Or F17 — la mesure qui FONDE D10 et le « un seul faux positif » — n'a
+// jamais porte que sur la moitie ASYMETRIQUE. La moitie symetrique a ete ECRITE, EXECUTEE et
+// MESUREE avant d'etre ecartee : c'est ce qui distingue un ABANDON d'un RENONCEMENT.
+//
+// (Les jetons ne sont PAS ecrits ci-dessous : cette garde ne doit pas mordre sur la prose qu'elle
+//  vient d'ecrire — c'est F27, et le remede est la REFORMULATION, jamais l'auto-exemption.)
+//
+//   Direction du predicat                                        | Attrapes | Faux positifs
+//   ------------------------------------------------------------ | -------- | -------------
+//   helm <- role/skill de TRAVERSEE, dus a Charon    (F17)        |  8 / 8   |      1
+//   charon <- role/skill de VEILLE, dus a Helm  (JAMAIS MESUREE)  |  0 / 8   |      6
+//
+// DEUX MOTIFS INDEPENDANTS, CHACUN SUFFIRAIT :
+//  1. LA MESURE — 0 capture sur 8, 6 faux positifs : le profil EXACT que D11 a ecarte, et le
+//     decideur a dit oui a D11 EN CONNAISSANCE DE CAUSE. Appliquer son propre critere a cette
+//     donnee neuve DISQUALIFIE la clause. Les 6 sont d'une cause unique — la prose qui ENUMERE les
+//     artefacts nes de la scission (charon, surveillance, iakaframe-surveillance cites dans le meme
+//     souffle) est lexicalement indiscernable, ligne a ligne, d'une affectation. C'est la cause F21
+//     (renvoi croise implicite), que D11 declare LEGITIME.
+//  2. LA CONTRADICTION DURE — kits/iakaframe-openwebui/models/helm.json:47 est l'artefact de Helm
+//     lui-meme, dont G-ROUTE-1 EXIGE qu'il nomme Charon ; la clause symetrique PUNIRAIT de l'avoir
+//     ecrit a proximite du mot `surveillance`. Deux gardes qui s'annulent ne protegent rien : elles
+//     fabriquent du bruit et usent la confiance.
+//
+// CE QUI RESTE ANCRE SUR LE CANON, ET C'EST L'ESSENTIEL : seul le SENS est declare ici. Les VALEURS
+// (`deploiement`, `iakaframe-deploiement`) sont toujours LUES dans le frontmatter de Charon a
+// l'execution. Si le canon renomme le role ou la skill, la garde suit sans edition.
+const PORTEUR_TRAVERSEE = 'charon'; // le titulaire dont les jetons peuvent etre USURPES.
+
 // jeton (role ou skill) -> id de la persona qui en est le TITULAIRE LEGITIME, d'apres le canon.
 const TITULAIRE = new Map();
-for (const p of CANON) {
+for (const p of CANON.filter((c) => c.id === PORTEUR_TRAVERSEE)) {
   TITULAIRE.set(normaliser(p.roleKey), p.id);
   for (const s of p.skills) TITULAIRE.set(normaliser(s), p.id);
 }
+assert.ok(TITULAIRE.size > 0, 'aucun jeton controle : le canon de « ' + PORTEUR_TRAVERSEE + ' » '
+  + "n'a rendu ni roleKey ni skills — un predicat qui ne controle rien est un ECHEC, pas un vert");
+
+// La RECIPROCITE (G-ROUTE-1, D8) reste SYMETRIQUE, elle : c'est une regle de niveau FICHIER, pas
+// une regle d'affectation ligne a ligne. L'abandon ci-dessus ne la touche pas.
 const SKILLS_SQUAD = CANON.flatMap((p) => p.skills);
 
 // Comparaison INSENSIBLE AUX ACCENTS ET A LA CASSE : « Deploiement » ≡ « deploiement ».
@@ -251,7 +352,7 @@ test('G-ROUTE-1 : reciprocite Helm <-> Charon (personas ET skills) sur tout arte
   let vusSkills = 0;
   for (const abs of texte) {
     const rel = path.relative(REPO, abs);
-    if (estExempte(rel)) continue;
+    if (estExempte(rel, 'G-ROUTE-1')) continue;
     const raw = contenu(abs);
     if (raw === null) continue;
     const presentes = SKILLS_SQUAD.filter((s) => raw.includes(s));
@@ -320,6 +421,41 @@ function fautesNiveauB(abs, etiquette) {
   return fautes;
 }
 
+// --- PEREMPTION DES EXEMPTIONS (D5) --------------------------------------------------------------
+// Une exemption devenue INUTILE fait ECHOUER la garde. Motif : une liste d'exceptions qui ne peut
+// pas pourrir en silence est le contraire d'une liste oubliee. Si le site exempte n'est plus rouge,
+// l'entree est MORTE — seul remede : la SUPPRIMER.
+// La mesure se fait AVEC LE PREDICAT DE LA GARDE EXEMPTEE : une exemption de niveau B ne se juge
+// pas a l'aune de l'affectation, sans quoi elle serait declaree morte pour un motif faux.
+function rougeurResiduelle(ex) {
+  let n = 0;
+  for (const rel of ex.portee) {
+    const abs = path.join(REPO, rel);
+    const raw = contenu(abs);
+    if (raw === null) continue;
+    if (ex.garde === 'G-ROUTE-2/B') { n += fautesNiveauB(abs, rel).length; continue; }
+    n += fautesAffectation(lignesLogiques(raw, abs), rel).length;
+    const presentes = SKILLS_SQUAD.filter((s) => raw.includes(s));
+    if (presentes.length > 0 && presentes.length < SKILLS_SQUAD.length) n += 1;
+  }
+  return n;
+}
+
+function exemptionsMortes(garde) {
+  const mortes = [];
+  for (const ex of EXEMPTIONS.filter((e) => e.garde === garde)) {
+    assert.ok(ex.motif && ex.levee && Array.isArray(ex.portee) && ex.portee.length > 0,
+      'exemption incomplete : motif, levee et portee sont les TROIS champs obligatoires (D5)');
+    if (rougeurResiduelle(ex) === 0) {
+      mortes.push(`exemption MORTE sur [${ex.portee.join(', ')}] (portee de registre « ${ex.garde} `
+        + `») — plus aucune ligne rouge : l'exemption ne sert plus a rien. Motif declare : `
+        + `« ${ex.motif.slice(0, 90)}... » — levee : ${ex.levee.slice(0, 90)}. `
+        + "SEUL REMEDE : SUPPRIMER L'ENTREE.");
+    }
+  }
+  return mortes;
+}
+
 test('G-ROUTE-2 : attribution — populations DECOUVERTES, les routeurs adressent la prod a Charon', () => {
   const fautes = [];
 
@@ -327,21 +463,35 @@ test('G-ROUTE-2 : attribution — populations DECOUVERTES, les routeurs adressen
   assert.ok(niveauA.length > 0, 'niveau A : aucun artefact de routage decouvert — un scan qui ne '
     + 'trouve rien est un ECHEC (le mode de panne d\'un balayage est de ne rien balayer)');
   for (const abs of niveauA) {
-    if (estExempte(path.relative(REPO, abs))) continue;
+    if (estExempte(path.relative(REPO, abs), 'G-ROUTE-2/A')) continue;
     fautes.push(...fautesNiveauA(abs, path.relative(REPO, abs)));
   }
 
   const niveauB = parPersona(['helm']);
   assert.ok(niveauB.length > 0, 'niveau B : aucun artefact par-persona de Helm decouvert — ECHEC');
+  let vusB = 0;
   for (const abs of niveauB) {
-    if (estExempte(path.relative(REPO, abs))) continue;
+    if (estExempte(path.relative(REPO, abs), 'G-ROUTE-2/B')) continue;
+    vusB += 1;
     fautes.push(...fautesNiveauB(abs, path.relative(REPO, abs)));
   }
+  assert.ok(vusB > 0, 'niveau B : TOUS les artefacts decouverts sont exemptes — le niveau B ne '
+    + 'controle plus rien. Un predicat integralement exempte est un ECHEC, pas un vert.');
 
+  // PEREMPTION D5, PORTEE « G-ROUTE-2/B » — l'exemption du canon perit DANS LA GARDE QU'ELLE
+  // EXEMPTE, mesuree AVEC LE PREDICAT DE CETTE GARDE (le niveau B), jamais avec celui d'une autre.
+  const mortes = exemptionsMortes('G-ROUTE-2/B');
+
+  assert.deepEqual(
+    mortes, [],
+    `G-ROUTE-2 ROUGE (peremption D5) : ${mortes.length} exemption(s) de niveau B devenue(s) `
+    + `inutile(s) :\n  - ${mortes.join('\n  - ')}`,
+  );
   assert.deepEqual(
     fautes, [],
     `G-ROUTE-2 ROUGE : ${fautes.length} site(s) d'attribution sur ${niveauA.length} artefact(s) de `
-    + `routage + ${niveauB.length} artefact(s) de Helm, tous DECOUVERTS :\n  - ${fautes.join('\n  - ')}`,
+    + `routage + ${vusB} artefact(s) de Helm controles (${niveauB.length} decouverts), tous `
+    + `DECOUVERTS :\n  - ${fautes.join('\n  - ')}`,
   );
 });
 
@@ -433,7 +583,7 @@ test('G-ROUTE-4 : affectation role/skill ancree sur le canon, balayee sur tout l
   let vus = 0;
   for (const abs of texte) {
     const rel = path.relative(REPO, abs);
-    if (estExempte(rel)) continue;
+    if (estExempte(rel, 'G-ROUTE-4')) continue;
     const raw = contenu(abs);
     if (raw === null) continue;
     vus += 1;
@@ -441,28 +591,8 @@ test('G-ROUTE-4 : affectation role/skill ancree sur le canon, balayee sur tout l
   }
   assert.ok(vus > 0, 'G-ROUTE-4 : aucun fichier lu — ECHEC');
 
-  // --- PEREMPTION DES EXEMPTIONS (D5) : une exemption devenue INUTILE fait ECHOUER la garde.
-  // Motif : une liste d'exceptions qui ne peut pas pourrir en silence est le contraire d'une liste
-  // oubliee. Si le site exempte n'est plus rouge, l'entree est MORTE — seul remede : la supprimer.
-  const mortes = [];
-  for (const ex of EXEMPTIONS) {
-    assert.ok(ex.motif && ex.levee && Array.isArray(ex.portee) && ex.portee.length > 0,
-      'exemption incomplete : motif, levee et portee sont les TROIS champs obligatoires (D5)');
-    let encoreRouge = 0;
-    for (const rel of ex.portee) {
-      const abs = path.join(REPO, rel);
-      const raw = contenu(abs);
-      if (raw === null) continue;
-      encoreRouge += fautesAffectation(lignesLogiques(raw, abs), rel).length;
-      const presentes = SKILLS_SQUAD.filter((s) => raw.includes(s));
-      if (presentes.length > 0 && presentes.length < SKILLS_SQUAD.length) encoreRouge += 1;
-    }
-    if (encoreRouge === 0) {
-      mortes.push(`exemption MORTE sur [${ex.portee.join(', ')}] — plus aucune ligne rouge : `
-        + `l'exemption ne sert plus a rien. Motif declare : « ${ex.motif.slice(0, 90)}... » — `
-        + `levee : ${ex.levee}. SEUL REMEDE : SUPPRIMER L'ENTREE.`);
-    }
-  }
+  // PEREMPTION D5, portee « * » — les exemptions valables pour tout le dispositif.
+  const mortes = exemptionsMortes('*');
 
   assert.deepEqual(
     mortes, [],
@@ -472,7 +602,7 @@ test('G-ROUTE-4 : affectation role/skill ancree sur le canon, balayee sur tout l
   assert.deepEqual(
     fautes, [],
     `G-ROUTE-4 ROUGE : ${fautes.length} site(s) d'affectation sur ${vus} fichier(s) texte balayes `
-    + `(hors ${CHEMINS_EXEMPTES.size} chemin(s) exempte(s)) :\n  - ${fautes.join('\n  - ')}`,
+    + `(hors ${cheminsExemptes('G-ROUTE-4').size} chemin(s) exempte(s)) :\n  - ${fautes.join('\n  - ')}`,
   );
 });
 
