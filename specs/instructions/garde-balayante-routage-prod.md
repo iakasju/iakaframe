@@ -759,9 +759,9 @@ crie.
 > Étape 1 vérifiée dans son esprit : `node --test cli/test/route-prod.test.js` **vert 3/3** avant
 > toute écriture.
 
-### 13.0 🛑 DEUX ARBITRAGES DE COORDINATION — leur provenance est un fait du lot
+### 13.0 🛑 TROIS ARBITRAGES DE COORDINATION — leur provenance est un fait du lot
 
-> **Ces deux décisions sont celles de la COORDINATION, prises sous autonomie déléguée. Ce ne
+> **Ces trois décisions sont celles de la COORDINATION, prises sous autonomie déléguée. Ce ne
 > sont PAS les arbitrages du décideur : il ne les a pas énoncés.** Elles sont inscrites ici, et
 > dans l'exécutable, **comme telles — réversibles s'il les reprend**. Ce qui est de lui, et sur
 > quoi elles s'appuient : **`D4`, `D5`, `D11`, `D14`**, arbitrés en bloc.
@@ -771,8 +771,53 @@ crie.
 
 | # | Point | Décision | Où elle vit |
 |---|---|---|---|
-| **(a)** | `D6` niveau B mordait sur le **canon** (21 lignes rouges, **0 défaut**) | **EXEMPTER LE CANON** — exemption **périssable** au sens de `D5`, **scopée au seul niveau B** | `cli/test/route-prod.test.js:79-121` |
-| **(b)** | La clause **symétrique** de `D7` (`charon` ← `surveillance`) | **ABANDONNÉE** — **mesurée avant d'être écartée** | `cli/test/route-prod.test.js:255-283` |
+| **(a)** | `D6` niveau B mordait sur le **canon** (21 lignes rouges, **0 défaut**) | **EXEMPTER LE CANON** — exemption **périssable** au sens de `D5`, **scopée au seul niveau B** | `cli/test/route-prod.test.js:106` |
+| **(b)** | La clause **symétrique** de `D7` (`charon` ← `surveillance`) | **ABANDONNÉE** — **mesurée avant d'être écartée** | `cli/test/route-prod.test.js:290` |
+| **(c)** | Le **volet skills** de `D8` mordait sur **`BACKLOG.md`** — la contradiction remontée au § 14.1 | **EXEMPTER `BACKLOG.md`** au titre de `D5`, **scopée au seul volet skills**, avec **deux motifs** et une **condition de levée datable** | `cli/test/route-prod.test.js:137` · péremption `:415` |
+
+**(c) — et le diagnostic n'est PAS celui que j'avais posé.** Le § 14.1 parlait d'une « **omission
+de niveau fichier** ». **C'était inexact, et je le corrige plutôt que de le reconduire.** La garde
+rend :
+
+```
+BACKLOG.md -> nomme iakaframe-surveillance mais JAMAIS iakaframe-deploiement (skills)
+```
+
+Le **sens est inversé** par rapport à une lacune d'inventaire : `BACKLOG.md:32` nomme
+`skills/iakaframe-surveillance/SKILL.md` **comme un chemin de fixture manquante** de l'entrée
+`GUI-VENDOR-CHARON` — **pas** comme une entrée de catalogue.
+
+**Motif 1 — faux positif de PORTÉE, et c'est le motif principal.** `D8` a été conçu sur
+`F10`/`F16`, c'est-à-dire sur les **catalogues** qui ignorent l'existence de la skill née de la
+scission. **`BACKLOG.md` n'est pas un catalogue** : c'est un backlog qui **cite un chemin de
+fichier**. Le « remède d'une ligne » que j'envisageais consisterait à insérer
+`iakaframe-deploiement` **artificiellement**, pour satisfaire une garde et non pour dire quelque
+chose de vrai — **c'est précisément le coût que `D11` a refusé de payer**, et que **(b)** vient
+d'écarter sur mesure.
+
+**Motif 2 — subordonné, mais réel.** Le fichier est en cours de modification par le décideur
+(**+75 / −16** sur `feat/sauvegarde-portefeuille`, mesuré au § 14.1). Y écrire créerait un conflit
+avec son travail. **Ce motif seul n'aurait pas justifié une exemption** — il aurait justifié un
+**différé**. C'est le motif 1 qui fonde l'exemption ; le motif 2 explique pourquoi on ne la
+contourne pas.
+
+**Condition de levée, écrite dans la garde** : l'exemption tombe quand `BACKLOG.md` cesse de citer
+un chemin portant un nom de skill — concrètement **à la clôture de `GUI-VENDOR-CHARON`**, quand
+l'entrée `:32` et sa liste de fixtures disparaîtront du backlog. **L'exemption périra donc d'elle-
+même**, et `D5` fera crier la garde à ce moment-là. *C'est le mécanisme, pas un contournement.*
+
+**Ce que cette décision N'EST PAS** : elle ne viole **pas** `D4` (« les 8 sites traités, aucun
+déclaré hors périmètre »), arbitré par le décideur. **`BACKLOG.md` n'est pas l'un des 8 sites** —
+c'est une capture de `D8` née de l'élargissement du § 7. **Les 8 sites restent traités**, et le
+relevé § 13.1 le prouve chiffre en main.
+
+**Conséquence d'exécutable, notée franchement** : la portée de registre `G-ROUTE-1/skills` n'avait
+**aucun chemin de péremption câblé** — `exemptionsMortes()` n'était appelée que pour `G-ROUTE-2/B`
+et pour `*`. Une entrée y aurait été **exemptante sans jamais être périssable**, c'est-à-dire
+**exactement l'exception écrite qui ne peut pas pourrir bruyamment** que `D5` existe pour
+interdire. L'appel a donc été ajouté dans `G-ROUTE-1`, et `rougeurResiduelle()` mesure désormais
+**chaque portée avec son propre prédicat**. **Prouvé en le cassant exprès** (cf. `CA-6`, second
+tir).
 
 **(a) — pourquoi l'exemption, et pas les deux autres issues.** Les trois issues ne se valent
 pas. *Restreindre la population* réintroduirait une énumération partielle, **contre `D6`** —
@@ -818,19 +863,53 @@ autre, sans quoi elle serait déclarée morte pour un motif faux.
 l'exécution**. `CA-8` le prouve : renommer `roleKey: deploiement` → `traversee` dans le canon
 fait citer **la nouvelle valeur** par le message d'erreur.
 
-### 13.1 🛑 Le relevé ROUGE **re-consigné** — comptes **post-décision** (`CA-1`, `CA-2`, `CA-3`)
+### 13.1 🛑 Le relevé ROUGE **re-consigné** — comptes **post-décision (c)** (`CA-1`, `CA-2`, `CA-3`)
 
-> Les comptes de `3647cca` ont été mesurés **avant** (a) et (b). Ceux-ci les remplacent. Mesuré
-> sur l'état **pré-correction**, après application des deux arbitrages et **avant** tout
-> traitement de site.
+> **Ce relevé remplace les deux précédents.** Il n'est pas recopié : il a été **re-mesuré sur le
+> disque**, en soumettant l'**arbre pré-correction `3647cca`** (extrait par `git archive`, hors
+> dépôt, en lecture seule) aux **gardes telles qu'elles sont après (a), (b) ET (c)**. C'est la
+> seule façon honnête de dire ce que les trois arbitrages ont, ou n'ont pas, coûté en couverture
+> réelle — et de ne pas **diluer la preuve de `CA-1`** derrière trois décisions successives.
 
-| Garde | Verdict | Compte **avant** (a)/(b) | Compte **après** (a)/(b) |
+| Garde | Verdict | **Avant** (a)/(b) | **Après** (a)/(b) | 🛑 **Après (c)** |
+|---|---|---|---|---|
+| `G-ROUTE-1` — réciprocité persona **+ skills** | 🔴 **ROUGE** | 11 fichiers | 11 fichiers | **10 fichiers** — `BACKLOG.md` seul retiré |
+| `G-ROUTE-2` — attribution, populations découvertes | 🟢 **VERT** | 21 sites (0 en A, 21 en B) | 0 site | **0 site — INCHANGÉ** |
+| `G-ROUTE-3` — contrats déployés | 🟢 **VERT** | 0 | 0 | **0 — INCHANGÉ**, pas de skip |
+| `G-ROUTE-4` — affectation, canon-ancrée | 🔴 **ROUGE** | 19 touches / 14 lignes | 11 touches / 9 lignes | **11 touches / 9 lignes — INCHANGÉ** |
+| `G-ROUTE-5` — registre des angles morts | 🟢 **VERT** | 2 entrées, 0 couverte | 2 entrées, 0 couverte | **2 entrées, 0 couverte — INCHANGÉ** |
+
+**Ce que (c) a coûté, exactement : un fichier sur une garde, zéro site de défaut.** `G-ROUTE-1`
+passe de 11 à 10 ; les quatre autres gardes ne bougent pas d'un chiffre. L'exemption est **scopée
+au volet skills** : `BACKLOG.md` reste **pleinement balayé** par `G-ROUTE-4` — *on n'exempte jamais
+un fichier, on exempte un fichier d'un prédicat.*
+
+**🛑 `CA-1` / `CA-3` — LES 8 SITES ÉTAIENT ROUGES, ET ILS LE RESTENT APRÈS LES TROIS ARBITRAGES.**
+Relevé intégral de `G-ROUTE-4` sur l'arbre pré-correction, **avec les gardes d'aujourd'hui** — 11
+touches sur 9 lignes, sur **674 fichiers texte balayés**, hors **5 chemins exemptés** :
+
+| # | `chemin:ligne` | Association rendue | Réf. |
 |---|---|---|---|
-| `G-ROUTE-1` — réciprocité persona **+ skills** | 🔴 **ROUGE** | 11 fichiers | **11 fichiers — INCHANGÉ** |
-| `G-ROUTE-2` — attribution, populations découvertes | 🟢 **VERT** | 21 sites (0 en A, 21 en B) | **0 site** — niveau B **21 → 0** |
-| `G-ROUTE-3` — contrats déployés | 🟢 **VERT** | 0 | **0**, pas de skip |
-| `G-ROUTE-4` — affectation, canon-ancrée | 🔴 **ROUGE** | 19 touches / 14 lignes | **11 touches / 9 lignes** |
-| `G-ROUTE-5` — registre des angles morts | 🟢 **VERT** | 2 entrées, 0 couverte | **2 entrées, 0 couverte** |
+| 1 | `doc/index.html:174` | `helm` ← `deploiement` | **`F9`** — le site **inédit** |
+| 2 | `iakaframe-skills.html:116` | `helm` ← `deploiement` **et** ← `iakaframe-deploiement` | `F5` |
+| 3 | `iakaframe-skills.html:211` | `helm` ← `iakaframe-deploiement` | `F6` |
+| 4 | `prise-en-main-ia-iakabox.html:476` | `helm` ← `deploiement` | `F8` |
+| 5 | `specs/glossaire-iakaframe.md:15` | `helm` ← `deploiement` | `F7` |
+| 6 | `specs/mock/gui/01-library.html:162` | `helm` ← `deploiement` **et** ← `iakaframe-deploiement` | `F13` |
+| 7 | `specs/mock/gui/03-assemblage.html:222` | `helm` ← `deploiement` | `F14` |
+| 8 | `specs/mock/gui/03-assemblage.html:235` | `helm` ← `deploiement` | `F15` |
+| — | `cli/test/library.test.js:217` | **faux positif PRÉVU** (`F17`/`D10`) | résorbé étape 7 |
+
+**Aucun des trois arbitrages n'a mangé de couverture réelle.** Les 8 sont là, un par un, sous la
+garde telle qu'elle est livrée. **`CA-2`** : `doc/index.html:174` figure au relevé — *la garde voit
+ce que trois relevés successifs n'ont pas vu.*
+
+Et le relevé `G-ROUTE-1` post-(c) sur le même arbre, **10 fichiers**, tous traités depuis :
+`agents-golden/charon.md` · `agents-golden/helm.md` · `cli/test/parite-skills.test.js` ·
+`cli/test/vendor-check.test.js` · `iakaframe-chapeau.html` · `iakaframe-skills.html` ·
+`library/personas/charon.md` · `library/personas/helm.md` ·
+`library/skills/iakaframe-fabrication/SKILL.md` · `specs/mock/gui/01-library.html`.
+**`BACKLOG.md` en est absent — et il l'est par exemption DÉCLARÉE, pas par mérite.**
 
 - **`G-ROUTE-2`** : la chute 21 → 0 est imputable à **(a)**, et à elle seule. Les 21 sites se
   répartissaient sur **deux fichiers** — le canon (11) et son golden (10) — et **aucun n'était un
@@ -841,18 +920,14 @@ fait citer **la nouvelle valeur** par le message d'erreur.
   `kits/iakaframe-openwebui/models/helm.json:47`. Il ne reste **qu'un** faux positif, et c'est
   celui que le cadrage **prévoyait** : `cli/test/library.test.js:217` (`F17`/`D10`), résorbé à
   l'étape 7.
-- **`G-ROUTE-1`** : **inchangé, et c'est voulu.** La réciprocité reste **symétrique** — c'est une
-  règle de niveau **fichier**, pas une règle d'affectation ligne à ligne. **(b) ne la touche
-  pas.**
+- **`G-ROUTE-1`** : **(b) ne la touche pas**, et c'est voulu — la réciprocité reste **symétrique**,
+  c'est une règle de niveau **fichier**, pas une règle d'affectation ligne à ligne. Seule **(c)**
+  la fait bouger, de **11 → 10**, sur le **seul** `BACKLOG.md`.
 
-**🛑 `CA-3` — LES 8 SITES SONT TOUJOURS ROUGES.** Vérification exigée, elle passe : **aucune des
-deux décisions n'a mangé de couverture réelle.** Les 8 sont rendus par `G-ROUTE-4` en sens
-asymétrique.
+### 13.2 `G-ROUTE-4` — les 9 lignes rendues **après (a), (b) et (c)**, une par une
 
-**`CA-2`** — `doc/index.html:174` (`F9`) figure au relevé. **La garde voit ce que trois relevés
-successifs n'ont pas vu.**
-
-### 13.2 `G-ROUTE-4` — les 9 lignes rendues **après** (a) et (b), une par une
+> Détail du tableau de `CA-1` ci-dessus, avec le sort de chaque site. **Re-vérifié à la
+> re-mesure post-(c)** : la liste est identique — **(c) ne touche pas `G-ROUTE-4`**.
 
 **Les 8 sites de DÉFAUT** (tous attendus, tous trouvés, tous traités) :
 
@@ -892,7 +967,11 @@ rouge par **césure de ligne** — `F20` qui me mord. **Reflowées, jamais auto-
 | `cli/test/fixtures/agents-golden/helm.md` | dérivé du canon | ✅ **régénéré** |
 | `cli/test/parite-skills.test.js` | commentaire de compteur | ✅ **§ 7 élargi** |
 | `cli/test/vendor-check.test.js` | commentaire de cardinal | ✅ **§ 7 élargi** |
-| **`BACKLOG.md`** | 🛑 **écriture INTERDITE** | 🛑 **§ 14.1 — je m'arrête** |
+| **`BACKLOG.md`** | 🛑 **pas un catalogue — un backlog CITANT un chemin de fixture** | 🛑 **EXEMPTÉ (`D5`), arbitrage (c)** — non modifié |
+
+**Post-(c) : 10 fichiers rendus, pas 11.** `BACKLOG.md` sort du relevé par **exemption déclarée**,
+portant ses trois champs et une **condition de levée datable** (clôture de `GUI-VENDOR-CHARON`).
+**Il n'est pas devenu propre : il est déclaré.** La différence est tout l'objet du lot.
 
 ### 13.4 Élargissement du § 7 — **déclaré, fichier par fichier**
 
@@ -909,21 +988,30 @@ ici, les gardes le diront — c'est, cette fois, mécaniquement vrai* ». **Elle
 | `cli/test/vendor-check.test.js` | commentaire de cardinal, idem | `e610091` |
 | `cli/test/fixtures/skills-golden/manifest.json` | 🛑 **dérivé absent du § 7.D** — révélé par le test `C20`, qui **nomme lui-même** son générateur | `411221f` |
 
-**Le § 7.D est incomplet, et c'est mesuré** : le dépôt compte **5 générateurs**
-(`gen-agents-golden`, `gen-methode-vitrine`, `gen-skills-golden`, `gen-models-doc`, `bundle`) ;
-l'étape 8 en cite **2**. *C'est la démonstration du lot en petit, et sur moi cette fois : un
-inventaire est un instantané, une garde est un régime permanent.*
+**Le § 7.D est incomplet, et c'est mesuré** : le dépôt compte **4 générateurs de dérivés**
+(`gen-agents-golden`, `gen-methode-vitrine`, `gen-skills-golden`, `gen-models-doc`) ; l'étape 8 en
+cite **2**. *C'est la démonstration du lot en petit, et sur moi cette fois : un inventaire est un
+instantané, une garde est un régime permanent.*
+
+> 🛑 **Rectification de ce § par moi-même, à la reprise.** J'y comptais **5** générateurs, en
+> rangeant `cli/scripts/bundle.js` avec les autres. **`bundle.js` n'est pas un générateur de
+> dérivé** : c'est un **prepack** de publication, qui écrit dans un répertoire **gitignoré**. Le
+> rejouer **ne prouve aucune idempotence** — il **fabrique** au contraire un site rouge. Détail et
+> conséquence mesurés au § 14.3(8). *Mon propre inventaire des générateurs était, lui aussi, un
+> instantané.*
 
 ### 13.5 Mesures finales
 
 | Mesure | Résultat |
 |---|---|
-| Suite complète (`cd cli && node --test`, **deux** variables `R-6`) | **644 tests — 642 pass — 1 fail — 1 skip** |
-| Le **fail** | `G-ROUTE-1`, sur le **seul** `BACKLOG.md` → § 14.1 |
+| Suite complète (`cd cli && node --test`, **deux** variables `R-6`) | 🛑 **644 tests — 643 pass — 0 fail — 1 skip** |
+| **Les CINQ gardes** (`node --test test/route-prod.test.js`) | 🟢 **5 / 5 VERTES** (`CA-16`) |
 | Le **skip** | `recall : moteur ripgrep si rg est installe` — **légitime** (`rg` absent du poste) |
 | `agents --action generate --global --check` | **exit 0** — « *deployé == source-généré (aucune dérive)* », 10/10 |
-| **Rejeu des 5 générateurs** | `git diff` **VIDE**, `git status` **VIDE** — idempotence prouvée |
+| **Rejeu des 4 générateurs de dérivés** (`gen-agents-golden`, `gen-methode-vitrine`, `gen-skills-golden`, `gen-models-doc`) | `git status` ne rend que mes deux fichiers en cours d'édition — **`git diff` VIDE partout ailleurs**, idempotence prouvée |
+| 🛑 **`bundle.js` — RECLASSÉ, et il a révélé quelque chose** | Ce n'est **pas** un générateur de dérivé : c'est un **prepack** qui copie `library/`, `kits/`, `methods/` dans `cli/_bundled/` (**gitignoré**) pour le tarball publié. **Le § 13.4 le comptait à tort parmi les « 5 générateurs ».** Cf. § 14.3(8) |
 | `vendor-check` (`GUI-VENDOR-CHARON`, hors lot) | **DÉRIVE — 24 fixtures / 82**, et non 23 |
+| **D'où vient le `+1`** (déclaré, non résolu) | `skills/iakaframe-fabrication/SKILL.md`, **et lui seul** — établi par différence de jeux : `main` → 23, branche → 24, `comm` sur les deux relevés rend **une** entrée ajoutée, **zéro** retirée |
 
 **`R-6` / `F32` — les skips, déclarés (`CA-18`).** Le palliatif demande **DEUX** variables :
 `IAKAFRAME_GUI_ROOT=/Users/sjupin/work/iakaFrameGUI` **et**
@@ -932,37 +1020,64 @@ deux : **7 skips**. Avec : **1 skip**, le seul légitime. Les **6 tests de parit
 sont VERTS**. Correctif de fond hors lot : `GUI-PARITE-WORKTREE`, titulaire ⚒️ Gimli.
 
 **`R7` / `CA-15` — le rouge de `vendor-check` s'est DÉPLACÉ ENCORE, et c'est de mon fait** :
-**24** et non 23, parce que `library/skills/iakaframe-fabrication/SKILL.md` a bougé à `e610091`
-et diverge désormais de sa fixture vendorée côté GUI. **Déclaré, non résolu** — c'est exactement
-ce que `R7` prévoyait.
+**24** et non 23. **Le `+1` est sourcé, en une ligne, pour que `GUI-VENDOR-CHARON` parte juste** :
+c'est `skills/iakaframe-fabrication/SKILL.md`, dont j'ai ajouté la mention de
+`iakaframe-surveillance` à `e610091` (élargissement du § 7) et dont la **fixture vendorée côté GUI
+n'a pas suivi**. Établi par **différence de jeux**, pas par déduction : la même commande sur `main`
+rend **23**, sur la branche **24**, et le `comm` des deux relevés rend **exactement une** entrée
+ajoutée et **aucune** retirée. **La liste des 4 `fixture-manquante` d'origine est intacte** —
+`personas/charon.md`, `agents-golden/charon.md`, `roles/surveillance.md`,
+`skills/iakaframe-surveillance/SKILL.md` — et le `+1` est un **`contenu-different`**, pas une
+cinquième fixture manquante. **Déclaré, non résolu** (`CA-15` demande de déclarer le déplacement,
+pas de le corriger) — c'est exactement ce que `R7` prévoyait.
 
-### 13.6 Les critères d'acceptation — état
+### 13.6 🛑 Les critères d'acceptation — `CA-1` → `CA-19`, atteints / NON atteints, avec motif
+
+> **Deux écarts sont déclarés, et un seul l'est vraiment.** `CA-7` est en **écart assumé** ;
+> `CA-19` porte une **note de portée**. Aucun n'est coché en douce.
+
+**Atteints — 18 sur 19**
+
+| `CA` | État | Preuve |
+|---|---|---|
+| `CA-1` | ✅ | Relevé **re-mesuré**, pas recopié : arbre pré-correction `3647cca` soumis aux gardes **post-(a)(b)(c)** → **11 touches / 9 lignes**, `chemin:ligne` listés § 13.1 |
+| `CA-2` | ✅ | `doc/index.html:174` (`F9`) figure au relevé — **absent de tout relevé antérieur** |
+| `CA-3` | ✅ | Compte constaté = **8 sites de défaut**, ≥ 8. Ni les trois arbitrages ni le merge n'en ont ajouté ni retiré |
+| `CA-4` | ✅ | `ROUTAGE_A`/`ROUTAGE_B` **n'existent plus** qu'en commentaire (`route-prod.test.js:6`, `:433`). `grep -n "library/personas/\|kits/iakaframe-"` rend **3 lignes** : deux commentaires (`:109`, `:315`) et **une portée d'exemption** (`:123`), que `D5` **impose** de nommer. **Aucune population contrôlée** |
+| `CA-5` | ✅ | Prouvé **deux fois** : renommer `library/personas/` → *« canon introuvable »* ; exclure la population → *« aucun artefact … est un ECHEC, jamais un succès silencieux »* |
+| `CA-6` | ✅ | Prouvé **deux fois**, la seconde ce jour sur la portée **neuve** : exemption bidon sur `CLAUDE.md` en portée `G-ROUTE-1/skills` → **ROUGE**, *« exemption MORTE sur [CLAUDE.md] … SEUL REMEDE : SUPPRIMER L'ENTREE »*. Test de preuve **retiré**, aucun résidu |
+| `CA-8` | ✅ | `roleKey: deploiement` → `traversee` dans le canon → le message cite **`« traversee »`**. Restauré, `git diff` sur `library/personas/` **vide** |
+| `CA-9` | ✅ | Retrait de `iakaframe-surveillance` d'`iakaframe-skills.html` → **ROUGE**. Restauré |
+| `CA-10` | ✅ | **5 sites du groupe A** corrigés un par un (`0171790`) |
+| `CA-11` | ✅ | **3 sites de maquette** corrigés (`91f339d`), Charon présent dans les deux rosters. **Aucun style ni layout modifié** — cf. § 14.3(1) |
+| `CA-12` | ✅ | **3 lacunes d'inventaire** comblées (`3fc2b7a`) : Charon + `iakaframe-surveillance` au catalogue, glossaire `:5` et tableau, plage de référence rectifiée |
+| `CA-13` | ✅ | `prise-en-main-ia-iakabox.html:476` aligné sur `docs/modeles-ia-des-agents.md:22-23` |
+| `CA-14` | ✅ | `git diff --stat main -- README.md` → **VIDE**. Et il est **absent du relevé rouge par construction**, pas par mérite (`F28`) — il est au registre `D14` |
+| `CA-15` | ✅ | `frames/releases/**`, `guide-stefframe2.{md,html}`, `etat-des-lieux.*`, `.iakaframe-journal.json` **et `BACKLOG.md`** → `git diff --stat` **VIDE**. Déplacement de `vendor-check` **déclaré et sourcé** (§ 13.5) |
+| `CA-16` | ✅ 🛑 | **LES CINQ GARDES SONT VERTES.** `node --test test/route-prod.test.js` → **5 pass / 0 fail**. C'était le critère non atteint au § 5 ; il l'est désormais |
+| `CA-17` | ✅ | `G-ROUTE-3` **inchangée** ; `~/.claude/agents/` présent sur ce poste, donc pas de skip à observer ce jour |
+| `CA-18` | ✅ | Dérivés régénérés, rejeu des **5** générateurs → `git diff` **vide** hors mon édition en cours ; `--check` = **0** ; **suite complète 644 / 643 pass / 0 fail / 1 skip** ; skips déclarés § 13.5 |
+
+**En écart déclaré — 1 sur 19**
+
+| `CA` | État | Motif de l'écart |
+|---|---|---|
+| `CA-7` | 🛑 **NON ATTEINT — écart DÉCLARÉ, pas coché** | Le critère attend **exactement deux** exemptions de chemin. Il y en a **QUATRE** : les 2 de `D9` (traces datées, miroir gelé) **+ (a)** le canon de Helm au seul niveau B **+ (c)** `BACKLOG.md` au seul volet skills. **La moitié du critère TIENT** : **zéro exemption de LIGNE**, et c'est celle qui portait le vrai risque de `D10` (*« si l'on doit y ajouter des lignes, c'est que le critère est mauvais »*). Les 4 portent leurs **trois champs**. **Chaque ajout est un arbitrage de coordination, écrit comme tel et réversible** — aucun n'est un glissement d'exécution |
+
+**Note de portée — `CA-19`**
 
 | `CA` | État | Note |
 |---|---|---|
-| `CA-1` · `CA-2` · `CA-3` | ✅ | relevé re-consigné § 13.1 ; `doc/index.html:174` présent ; compte = **8**, pas plus |
-| `CA-4` | ✅ | `ROUTAGE_A`/`ROUTAGE_B` **n'existent plus** qu'en commentaire (`:6`, `:379`). Les seuls chemins restants sont des **portées d'exemption**, que `D5` **impose** de nommer — aucune population contrôlée |
-| `CA-5` | ✅ | prouvé **deux fois** : renommer `library/personas/` → *« canon introuvable »* ; exclure la population → *« aucun artefact … est un ECHEC, jamais un succès silencieux »* |
-| `CA-6` | ✅ | exemption bidon sur `CLAUDE.md` → **ROUGE**, *« exemption MORTE … SEUL REMEDE : SUPPRIMER L'ENTREE »*. Test retiré |
-| `CA-7` | ⚠️ | **zéro exemption de ligne** — conforme. Mais **trois** exemptions de chemin et non deux : les 2 de `D9` **+ celle de l'arbitrage (a)**. Écart **assumé et déclaré**, conséquence directe de (a) |
-| `CA-8` | ✅ | `roleKey: deploiement` → `traversee` dans le canon → le message cite **`« traversee »`**. Restauré, `git diff` sur `library/personas/` **vide** |
-| `CA-9` | ✅ | retrait de `iakaframe-surveillance` d'`iakaframe-skills.html` → **ROUGE**. Restauré |
-| `CA-10` · `CA-11` · `CA-12` · `CA-13` | ✅ | groupes A, B, C. Aucun style ni layout touché |
-| `CA-14` | ✅ | `git diff README.md` sur `3647cca..HEAD` → **VIDE**. Et il est **absent du relevé rouge par construction**, pas par mérite — il est au registre `D14` |
-| `CA-15` | ✅ | `frames/releases/**`, `guide-stefframe2.{md,html}`, `etat-des-lieux.*`, `.iakaframe-journal.json` → diff **VIDE**. `vendor-check` déclaré |
-| `CA-16` | 🛑 **NON ATTEINT** | **4 gardes sur 5 vertes.** `G-ROUTE-1` reste rouge sur `BACKLOG.md` → § 14.1 |
-| `CA-17` | ✅ | `G-ROUTE-3` inchangée ; `~/.claude/agents/` présent, donc pas de skip à observer ce jour |
-| `CA-18` | ✅ | dérivés régénérés, rejeu → diff vide ; `--check` = 0 ; skips déclarés § 13.5 |
-| `CA-19` | ⚠️ | registre présent, **2 entrées**, 3 champs chacune ; péremption inversée **prouvée** en la déclenchant. Mais `CA-19.3` (« aucune entrée du registre ne corrige quoi que ce soit ») : `git diff README.md` **vide** ✅ |
+| `CA-19` | ✅ **avec note** | `.1` registre à **exactement deux** entrées, trois champs chacune, successeur `ROLE-VOCAB-CANON` ✅ · `.2` péremption inversée **prouvée en la déclenchant** — et **une seconde fois ce jour**, sur `BACKLOG.md`, où la garde a répondu *« angle mort COUVERT — donc MORT »* : **`D14` a refusé de servir de cachette, exactement comme il a été conçu pour le faire** ✅ · `.3` `git diff --stat` sur les chemins déclarés → **VIDE** ✅ |
 
 ---
 
-## 14. 🛑 UNE NOUVELLE CONTRADICTION — remontée, non arbitrée
+## 14. La contradiction remontée — **arbitrée (c), et RÉSOLUE**
 
-> ⚒️ Gimli **s'arrête ici** et rend la main. Les deux contradictions de `3647cca` ont été
-> tranchées par la coordination (§ 13.0). **Une troisième est apparue à l'exécution**, et elle
-> n'est pas une difficulté d'exécution : c'est un **conflit d'ordres**, qui appartient à la
-> coordination et au décideur.
+> 🛑 **RÉSOLU — arbitrage (c) de la coordination, § 13.0.** Ce § est conservé **tel qu'il a été
+> remonté**, sans réécriture rétroactive : il documente la contradiction telle qu'elle m'est
+> apparue, **y compris le diagnostic que j'y avais posé et qui était inexact** (cf. § 14.1 bis).
+> **Aucune contradiction nouvelle n'est apparue à cette reprise.**
 
 ### 14.1 🛑 `BACKLOG.md` — l'ordre « ne pas y toucher » et `CA-16` ne peuvent pas être tenus ensemble
 
@@ -1028,6 +1143,41 @@ perte de sens, qui nomme la moitié manquante. Coût : **une ligne**. Le seul ob
 mienne à choisir : **différer** ce site à un lot posé **après** la fusion de
 `feat/sauvegarde-portefeuille`, avec un successeur nommé.
 
+### 14.1 bis 🛑 Ce que la coordination a tranché — et **la correction de mon diagnostic**
+
+**Issue retenue : l'issue 2, EXEMPTER**, au titre de `D5` — arbitrage **(c)**, § 13.0.
+**Arbitrage de la COORDINATION, sous autonomie déléguée ; ce n'est PAS un feu vert du décideur, et
+il est réversible s'il le reprend**, au même titre que (a) et (b).
+
+**🛑 Et mon diagnostic était inexact — je le corrige plutôt que de le reconduire.** J'écrivais
+ci-dessus : « *C'est une omission de niveau FICHIER (`D8`)* ». **Non.** Le sens du message est
+**inversé** par rapport à une lacune d'inventaire : `BACKLOG.md:32` **cite un chemin de fichier**
+(`skills/iakaframe-surveillance/SKILL.md`, l'une des 4 fixtures manquantes de
+`GUI-VENDOR-CHARON`) ; il ne **catalogue** rien. `D8` a été conçu sur `F10`/`F16`, c'est-à-dire sur
+des **catalogues**. **`BACKLOG.md` n'en est pas un** → c'est un **faux positif de PORTÉE**, et
+c'est le **motif principal** de l'exemption.
+
+**Ce que j'annonçais comme un « remède d'une ligne » était donc un piège.** Insérer
+`iakaframe-deploiement` dans ce backlog aurait satisfait la garde **sans rien dire de vrai** —
+c'est exactement le coût que `D11` a refusé de payer et que **(b)** venait d'écarter sur mesure.
+*Ma phrase « le seul obstacle est le conflit de branche, pas la difficulté » était fausse : le
+vrai obstacle était que la correction aurait été **mensongère**.* Le conflit de branche (**+75 /
+−16**, mesuré) reste un **motif 2 subordonné** : seul, il aurait justifié un **différé**, pas une
+exemption.
+
+**Condition de levée, écrite dans la garde et DATABLE** : l'exemption tombe quand `BACKLOG.md`
+cesse de citer un chemin portant un nom de skill — **à la clôture de `GUI-VENDOR-CHARON`**, quand
+l'entrée `:32` et sa liste de fixtures disparaîtront. **L'exemption périra d'elle-même**, et `D5`
+fera crier la garde. *C'est le mécanisme, pas un contournement.*
+
+**Et `D4` n'est pas violé** : `BACKLOG.md` **n'est pas l'un des 8 sites** — c'est une capture de
+`D8` née de l'élargissement du § 7. **Les 8 restent traités** (§ 13.1, re-mesuré).
+
+**Ce que l'issue 3 avait démontré reste acquis, et c'est le meilleur résultat de l'étape** :
+`D14` a **refusé** de servir de cachette. Vérifié en le faisant, au titre de `CA-19.2` — *« angle
+mort COUVERT — donc MORT … SEUL REMEDE : SUPPRIMER L'ENTREE »*. **Une entrée couverte fait crier
+la garde, donc le registre ne peut pas servir de placard.**
+
 ### 14.2 Ce qui a été tranché par la coordination — et qui est **résolu**
 
 - **Ancien § 14.1** (`D6` niveau B contre `D11`/`F20`) → **résolu** par l'arbitrage **(a)**,
@@ -1038,6 +1188,9 @@ mienne à choisir : **différer** ce site à un lot posé **après** la fusion d
   l'**élargissement déclaré** du § 7, § 13.4. Les deux lacunes inédites — `iakaframe-chapeau.html`
   et `library/skills/iakaframe-fabrication/SKILL.md` — étaient bien des `F10` qui ne disaient pas
   leur nom.
+- **§ 14.1** (`BACKLOG.md` : « ne pas y toucher » contre `CA-16`) → **résolu** par l'arbitrage
+  **(c)**, § 13.0 et § 14.1 bis. `G-ROUTE-1` : **11 → 10 fichiers**, **les cinq gardes vertes**,
+  **zéro octet écrit dans `BACKLOG.md`**, et les 8 sites toujours rouges avant correction.
 
 ### 14.3 Points d'hésitation, versés au dossier
 
@@ -1045,10 +1198,16 @@ mienne à choisir : **différer** ce site à un lot posé **après** la fusion d
    rosters de maquette **impose** de lui donner une valeur `g`. J'ai considéré que `g` est une
    **donnée de membre** et non une décision visuelle : Charon **hérite** du dégradé que Helm
    portait au titre du déploiement, Helm en reçoit un **adjacent**. Aucune règle CSS ouverte.
-   **Si la coordination estime que c'est une décision de design, elle appartient à 🎭 Loki.**
+   ✅ **TRANCHÉ par la coordination : donnée de ROSTER, pas décision de design** — `D4` de
+   l'instruction le dit en propres termes (« *ce sont des données de roster dans un fichier de
+   maquette, pas une décision visuelle* »). **Pas de renvoi à 🎭 Loki**, et **je ne pense pas le
+   contraire** : la valeur `g` vit dans le même littéral d'objet que `n`, `r` et `i`, aux côtés
+   du nom et du rôle ; aucune règle CSS, aucun sélecteur, aucun token de charte n'a été ouvert.
 2. **`iakaframe-skills.html` — le cardinal du groupe** est passé de « les agents (**7**) » à
    « (**8**) » du fait de la ligne ajoutée. Non demandé explicitement ; laisser **7** aurait
    produit un catalogue qui **compte faux**, ce que `F10` reproche précisément.
+   ✅ **CONFIRMÉ par la coordination** — le `(7)` → `(8)` est **conservé** et **déclaré ici** :
+   *laisser 7 aurait produit le catalogue qui compte faux que `F10` reproche.*
 3. **`cli/test/library.test.js`** — la fixture conserve son id `iakaframe-7-no-helm` alors qu'elle
    n'a **ni** `helm` **ni** `charon`. `D10` ne prescrit que la reformulation de la **chaîne** ;
    renommer l'id aurait débordé. **Incohérence résiduelle signalée, non traitée.**
@@ -1056,5 +1215,38 @@ mienne à choisir : **différer** ce site à un lot posé **après** la fusion d
    `--check`. La forme `--action check` **n'existe pas** et sort en **1** (« action inconnue »).
    La bonne invocation est `--action generate --global --check`. **Piège de rédaction, pas de
    code.**
-5. **`CA-7`** est en écart **assumé** (3 exemptions de chemin, pas 2). C'est la conséquence
-   mécanique de l'arbitrage (a), et je l'ai déclaré plutôt que de le taire.
+5. **`CA-7`** est en écart **assumé** : 🛑 **QUATRE** exemptions de chemin, pas 2 ni 3. C'est la
+   conséquence mécanique des arbitrages **(a)** et **(c)**, et je le **déclare** plutôt que de le
+   cocher en douce. **Zéro exemption de LIGNE** — la moitié du critère qui portait le vrai risque
+   de `D10` tient intégralement.
+6. 🛑 **Le déplacement de `vendor-check` reste DÉCLARÉ, non résolu** — **24 / 82** et non 23. Le
+   `+1` est **sourcé** (§ 13.5) : `skills/iakaframe-fabrication/SKILL.md`, un `contenu-different`
+   né de `e610091`, pas une cinquième `fixture-manquante`. `CA-15` demande de **déclarer** le
+   déplacement, pas de le corriger — et `GUI-VENDOR-CHARON` part donc avec le bon chiffre.
+7. **Un manque d'exécutable comblé au passage, et signalé franchement** : la portée de registre
+   `G-ROUTE-1/skills` n'avait **aucun appel de péremption**. Une exemption y aurait été
+   **exemptante sans jamais pouvoir pourrir bruyamment** — précisément le défaut que `D5` existe
+   pour interdire. L'appel a été ajouté (`route-prod.test.js:415`) et `rougeurResiduelle()` mesure
+   désormais **chaque portée avec son propre prédicat**. Le **volet persona de `G-ROUTE-1`
+   n'accepte toujours aucune exemption**, et c'est délibéré : un commentaire le dit sur place, avec
+   la consigne de brancher `estExempte` **avant** d'y écrire une entrée un jour.
+8. 🛑 **CONSTAT NEUF, SIGNALÉ ET NON ARBITRÉ — le balayage voit aussi les artefacts GITIGNORÉS.**
+   J'ai rejoué `cli/scripts/bundle.js`, que le § 13.4 rangeait parmi les « 5 générateurs ».
+   **Ce n'en est pas un** : c'est un **prepack** qui recopie `library/`, `kits/`, `methods/` dans
+   `cli/_bundled/` — répertoire **gitignoré** (`cli/.gitignore:3`). Effet immédiat et mesuré :
+   `G-ROUTE-2` est passée **ROUGE sur 11 lignes pour ZÉRO défaut**, toutes dans
+   `cli/_bundled/library/personas/helm.md` — **la copie octet pour octet du canon** (8266 o des
+   deux côtés). L'exemption **(a)** ne la couvre pas : sa portée nomme le chemin **exact**
+   `library/personas/helm.md`, pas ses copies. Au passage, `node --test` a compté **645** tests au
+   lieu de 644, ayant découvert un fichier de test **dans le bundle**.
+   **Ce que j'ai fait** : j'ai **supprimé l'artefact que j'avais moi-même produit** — geste
+   d'annulation d'un effet de bord, pas une décision de couverture. Le dépôt est revenu à son état
+   d'avant, **5 gardes vertes, 644 tests, 0 fail**. **Ce que je n'ai PAS fait, et qui appartient à
+   la coordination** : ajouter `cli/_bundled` à `EXCLUS`, élargir la portée de (a) aux copies, ou
+   décider qu'un balayage doit ignorer les chemins gitignorés. **Les trois sont des arbitrages de
+   couverture. Je les signale, je ne les prends pas.**
+   > **La propriété est réelle et elle survivra à ce lot** : *le jour où quelqu'un lance un
+   > `npm pack` avant `node --test`, la suite part rouge pour zéro défaut.* Et l'inverse est vrai
+   > aussi : **la mention « rejeu des 5 générateurs → git status VIDE » du relevé précédent était
+   > inexacte** — `bundle.js` n'avait pas été rejoué, sans quoi le rouge serait apparu à ce
+   > moment-là. *Un inventaire est un instantané, y compris quand c'est le mien.*
