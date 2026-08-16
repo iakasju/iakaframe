@@ -61,6 +61,31 @@ function projectPackageVersion(root) {
   return '';
 }
 
+// D2 — forme de `--version` : validee STRICTEMENT, prefixe `v` normalise.
+// Asymetrie corrigee : `--reason` est deja valide avec sortie en erreur, alors que `--version`,
+// qui alimente un fichier VERSIONNE, traversait sans aucun controle jusqu'au journal.
+// Le partage refus/normalisation n'est pas un « l'un ou l'autre » :
+//   - un `v` manquant n'est pas une faute de frappe mais une VARIANTE DE NOTATION de la meme
+//     valeur (3 des 4 branches de la cascade le forcent deja) -> on normalise, en silence ;
+//   - `v0.39`, `0.39.O`, `derniere` SONT des fautes -> elles mordent.
+// Consequence voulue : aucun appel legitime ne casse ; seuls cassent ceux qui inscrivaient deja
+// de la fausse donnee.
+// NE S'APPLIQUE QU'A L'ENTREE EXPLICITE. La sortie de `git describe` reste verbatim : un tag est
+// un NOM, pas un litteral de version (un projet tiers peut taguer `2026.08`), et lui coller un `v`
+// serait renommer son tag dans son propre etat des lieux.
+const VERSION_FORME = /^v?\d+\.\d+\.\d+([-+][0-9A-Za-z.+-]*)?$/;
+
+export function normalizeVersion(raw) {
+  const s = String(raw == null ? '' : raw).trim();
+  if (s === '') return { ok: true, value: '' };           // absente : la cascade s'applique
+  if (!VERSION_FORME.test(s)) return { ok: false, value: s };
+  return { ok: true, value: s.startsWith('v') ? s : 'v' + s };
+}
+
+export function versionErrorMessage(v) {
+  return `version invalide : ${v} (attendu: vX.Y.Z ou X.Y.Z, suffixe -rc.1/+build tolere)`;
+}
+
 // D1 — le NOM affiche derive du depot PRINCIPAL, pas du dossier courant.
 // Le depot travaille couramment en worktrees : `path.basename(root)` y ecrivait le nom de l'arbre
 // lie (« merge-main »), ce qui obligeait l'appelant a corriger le titre a la main.
@@ -100,6 +125,14 @@ function countFiles(dir) {
 // `home` (optionnel) cible le canon de la boucle d'apprentissage pour la CADENCE (T6, § 6) ; sinon
 // IAKA_MEMORY_HOME, sinon ~/.iaka/memory/. `cadenceRun` est un point d'injection (defaut = runCadence).
 export function doSnapshot({ projectPath, reason = 'manual', version = '', note = '', home, cadenceRun = runCadence, projectCadenceRun = runProjectCadence }) {
+  // D2 — le refus arrive AVANT toute ecriture (pas meme le mkdir de specs/). Un seul endroit
+  // decide (normalizeVersion), deux couches l'appliquent : ici on LEVE, pour que les appels
+  // PROGRAMMATIQUES (update.js, onboard.js, tests) ne puissent pas contourner la regle ; les
+  // couches CLI, elles, rendent un message + exitCode 1.
+  const vNorm = normalizeVersion(version);
+  if (!vNorm.ok) throw new Error(versionErrorMessage(vNorm.value));
+  version = vNorm.value;
+
   const root = path.resolve(projectPath);
   const specs = path.join(root, 'specs');
   fs.mkdirSync(specs, { recursive: true });
@@ -246,6 +279,9 @@ export function runSnapshot(argv) {
   if (!REASONS.includes(values.reason)) {
     console.error(`reason invalide : ${values.reason} (attendu: ${REASONS.join('|')})`); process.exitCode = 1; return;
   }
+  // D2 — meme forme de refus que `reason` ci-dessus : c'est l'asymetrie qu'on corrige.
+  const v = normalizeVersion(values.version || '');
+  if (!v.ok) { console.error(versionErrorMessage(v.value)); process.exitCode = 1; return; }
   const r = doSnapshot({ projectPath: values.path || process.cwd(), reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
   console.log(`Snapshot OK (${values.reason}) -> specs/etat-des-lieux.md + .html`);
   console.log(`  version=${r.version} branche=${r.branch} fichiers=${r.fileCount}${r.dirty ? ' [arbre sale]' : ''}`);
