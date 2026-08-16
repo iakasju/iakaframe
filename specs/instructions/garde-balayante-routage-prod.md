@@ -1284,7 +1284,7 @@ la garde, donc le registre ne peut pas servir de placard.**
 
 | # | Point | Décision | Où elle vit |
 |---|---|---|---|
-| **(d)** | Le balayage descendait dans les **artefacts de build gitignorés** — `cli/_bundled/library/personas/helm.md`, copie octet pour octet du canon, **11 lignes rouges pour ZÉRO défaut** | **LE BALAYAGE NE DESCEND PLUS DANS CE QUE GIT IGNORE** — frontière **structurelle**, portée **dynamique**, jamais énumérée | `cli/test/route-prod.test.js:63` (frontière) · `:140` (3 régimes) · `:262` (branchement dans `scanner`) |
+| **(d)** | Le balayage descendait dans les **artefacts de build gitignorés** — `cli/_bundled/library/personas/helm.md`, copie octet pour octet du canon, **11 lignes rouges pour ZÉRO défaut** | **LE BALAYAGE NE DESCEND PLUS DANS CE QUE GIT IGNORE** — frontière **structurelle**, portée **dynamique**, jamais énumérée | `cli/test/route-prod.test.js:72` (frontière, motif complet) · `:118` (les trois champs) · `:143` (les trois régimes) · `:424` (branchement dans `scanner`) |
 
 **Pourquoi cette voie CONTRE les deux autres — c'est la doctrine du lot qui tranche.**
 
@@ -1320,7 +1320,7 @@ fenêtre en croyant fermer la porte. Les deux artefacts de preuve ont été **su
 point est le seul de la reprise qui n'a pas pu être exécuté à la lettre.
 
 **3. La frontière porte son motif, sa portée et sa condition de levée** au sens de `D5`
-(`route-prod.test.js:117-135`), et son triplet est **contrôlé par `assert`** (`:136`) — *une
+(`route-prod.test.js:119-135`), et son triplet est **contrôlé par `assert`** (`:138`) — *une
 frontière de scan posée sans motif écrit est une énumération silencieuse de plus.*
 
 > **Pourquoi elle n'est PAS rangée dans `EXEMPTIONS`, et c'est délibéré.** La péremption `D5`
@@ -1374,7 +1374,7 @@ relatifs à **sa** racine — *un périmètre juste en apparence et faux en fait
 > 🛑 **Écart de lecture assumé, et je le rends à la coordination.** Tenue **à la lettre**, la
 > consigne « `EXCLUS` seul » rend la reproduction du gate **rouge**. Je ne tranche **aucune**
 > question de couverture ici — je corrige un **fait**. **RÉVERSIBLE en un geste** : supprimer le
-> régime `SANS DEPOT` (`route-prod.test.js:189-205`) restaure le repli à la lettre — et la
+> régime `SANS DEPOT` (`route-prod.test.js:200-216`) restaure le repli à la lettre — et la
 > reproduction du gate **repartira rouge**.
 
 **Le régime `DEGRADE` se déclare bruyamment**, vérifié en le provoquant (`PATH` sans `git`) :
