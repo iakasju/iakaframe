@@ -5,7 +5,7 @@ import fs from 'node:fs';
 import { verifyFrame } from '../lib/frame.js';
 import { isRepo, run, hasChanges, currentBranch, hasRemoteOrigin } from '../lib/git.js';
 import { testRepo } from '../lib/forgejo.js';
-import { doSnapshot } from './snapshot.js';
+import { doSnapshot, normalizeVersion, versionErrorMessage, provenance } from './snapshot.js';
 import { formatCadence } from '../lib/cadence.js';
 
 const USAGE = `Usage : iakaframe update [options]
@@ -64,6 +64,12 @@ export async function runUpdate(argv) {
     },
   });
   if (values.help) { console.log(USAGE); return; }
+  // D2 — la forme de --version est refusee AVANT tout : avant le routage, avant le snapshot,
+  // et donc tres avant le `git add -A` / `commit`. Un checkpoint ne doit jamais graver une
+  // fausse version dans un fichier versionne.
+  const vNorm = normalizeVersion(values.version || '');
+  if (!vNorm.ok) { console.error(versionErrorMessage(vNorm.value)); process.exitCode = 1; return; }
+  const version = vNorm.value;   // '' si absente : la cascade de doSnapshot s'applique
   // Drapeaux REELLEMENT tapes par l'humain (distingue un defaut d'une valeur fournie) : c'est ce qui
   // permet de ne propager/declarer que ce qu'il a demande, sans forcer un defaut a la bascule.
   const passed = new Set(tokens.filter(t => t.kind === 'option').map(t => t.name));
@@ -81,7 +87,7 @@ export async function runUpdate(argv) {
     // --from-update = marqueur d'origine : la creation de depot distant devient un acte a confirmer.
     const fwd = ['--path', root, '--repo', repo, '--from-update'];
     if (values['no-push']) fwd.push('--no-push');
-    if (values.version) fwd.push('--version', values.version);
+    if (version) fwd.push('--version', version);
     if (values.home) fwd.push('--home', values.home);
     if (values['autoriser-creation-depot']) fwd.push('--autoriser-creation-depot');
     // Drapeaux sans objet pour un onboarding : DECLARES, jamais jetes en silence (§ 4.3).
@@ -91,8 +97,9 @@ export async function runUpdate(argv) {
   }
 
   console.log(`==== update iakaframe : ${root} ====`);
+  console.log(provenance(root));   // D7 : quel CLI, sur quelle racine
   console.log(`\n[1/3] Etat des lieux (${values.reason})`);
-  const r = doSnapshot({ projectPath: root, reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
+  const r = doSnapshot({ projectPath: root, reason: values.reason, version, note: values.note || '', home: values.home });
   console.log(`  snapshot version=${r.version} branche=${r.branch} fichiers=${r.fileCount}`);
   console.log(`  ${formatCadence(r.cadence)}`);
   warnFrameLeak(root);
@@ -100,7 +107,7 @@ export async function runUpdate(argv) {
   run(root, ['add', '-A']);
   if (!hasChanges(root)) { console.log('\n[2/3] Rien a committer (arbre propre).'); return; }
   let msg = values.message;
-  if (!msg) { const v = values.version ? ` ${values.version}` : ''; msg = `chore(iakaframe): update etat des lieux + commit global (${values.reason}${v})`; }
+  if (!msg) { const v = version ? ` ${version}` : ''; msg = `chore(iakaframe): update etat des lieux + commit global (${values.reason}${v})`; }
   run(root, ['commit', '-m', msg]);
   console.log(`\n[2/3] Commit global cree : ${msg}`);
 

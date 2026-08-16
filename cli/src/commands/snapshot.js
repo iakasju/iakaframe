@@ -2,11 +2,26 @@
 import { parseArgs } from 'node:util';
 import fs from 'node:fs';
 import path from 'node:path';
-import { isRepo, out } from '../lib/git.js';
+import { fileURLToPath } from 'node:url';
+import { isRepo, out, run } from '../lib/git.js';
 import { now } from '../lib/date.js';
 import { runCadence, formatCadence, runProjectCadence, formatProjectCadence } from '../lib/cadence.js';
 
 const REASONS = ['version', 'pause', 'reprise', 'manual'];
+
+// D7 — PROVENANCE : quel CLI s'execute, sur quelle racine.
+//
+// Le wrapper de poste pointe en dur sur UNE racine (`~/work/<projet>/cli/src/index.js`) : lance
+// depuis un arbre lie, `iakaframe <verbe>` execute le CLI de la RACINE, pas celui de l'arbre. La
+// cause est hors depot et releve d'un arbitrage de strategie d'installation ; ce qui a produit
+// l'incident, ce n'est pas le chemin en dur, c'est le SILENCE — on a cru mesurer un lot en
+// executant autre chose.
+//
+// LES DEUX VALEURS, pas une seule : isolee, chacune a l'air normale ; c'est le COUPLE qui rend la
+// discordance lisible (une racine dans `.claude/worktrees/x` face a un `cli=` a la racine reelle).
+// Reserve aux deux verbes qui ECRIVENT — un bandeau sur les verbes de lecture polluerait pour rien.
+const CLI_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
+export function provenance(root) { return `  cli=${CLI_DIR} root=${root}`; }
 
 const USAGE = `Usage : iakaframe snapshot [options]
 
@@ -61,6 +76,54 @@ function projectPackageVersion(root) {
   return '';
 }
 
+// D2 — forme de `--version` : validee STRICTEMENT, prefixe `v` normalise.
+// Asymetrie corrigee : `--reason` est deja valide avec sortie en erreur, alors que `--version`,
+// qui alimente un fichier VERSIONNE, traversait sans aucun controle jusqu'au journal.
+// Le partage refus/normalisation n'est pas un « l'un ou l'autre » :
+//   - un `v` manquant n'est pas une faute de frappe mais une VARIANTE DE NOTATION de la meme
+//     valeur (3 des 4 branches de la cascade le forcent deja) -> on normalise, en silence ;
+//   - `v0.39`, `0.39.O`, `derniere` SONT des fautes -> elles mordent.
+// Consequence voulue : aucun appel legitime ne casse ; seuls cassent ceux qui inscrivaient deja
+// de la fausse donnee.
+// NE S'APPLIQUE QU'A L'ENTREE EXPLICITE. La sortie de `git describe` reste verbatim : un tag est
+// un NOM, pas un litteral de version (un projet tiers peut taguer `2026.08`), et lui coller un `v`
+// serait renommer son tag dans son propre etat des lieux.
+const VERSION_FORME = /^v?\d+\.\d+\.\d+([-+][0-9A-Za-z.+-]*)?$/;
+
+export function normalizeVersion(raw) {
+  const s = String(raw == null ? '' : raw).trim();
+  if (s === '') return { ok: true, value: '' };           // absente : la cascade s'applique
+  if (!VERSION_FORME.test(s)) return { ok: false, value: s };
+  return { ok: true, value: s.startsWith('v') ? s : 'v' + s };
+}
+
+export function versionErrorMessage(v) {
+  return `version invalide : ${v} (attendu: vX.Y.Z ou X.Y.Z, suffixe -rc.1/+build tolere)`;
+}
+
+// D1 — le NOM affiche derive du depot PRINCIPAL, pas du dossier courant.
+// Le depot travaille couramment en worktrees : `path.basename(root)` y ecrivait le nom de l'arbre
+// lie (« merge-main »), ce qui obligeait l'appelant a corriger le titre a la main.
+// `--git-common-dir` rend `.git` (relatif) depuis l'arbre principal et un chemin ABSOLU depuis un
+// arbre lie : `path.resolve(root, …)` couvre les deux sans plancher de version git (pas de
+// `--path-format`, introduit seulement en git 2.31).
+// La garde `basename === '.git'` borne la regle aux deux cas nominaux : sous-module
+// (`…/.git/modules/<nom>`) et depot bare (`…/foo.git`) retombent sur le dossier courant.
+// FRONTIERE : cette fonction ne porte QUE le nom. Les ecritures restent dans `root` — rediriger un
+// worktree vers le depot principal ferait ecrire un arbre dans un autre (CA-4).
+export function projectName(root) {
+  const fallback = path.basename(root);
+  if (!isRepo(root)) return fallback;
+  const raw = out(root, ['rev-parse', '--git-common-dir']);
+  if (!raw) return fallback;
+  const commonDir = path.resolve(root, raw);
+  if (path.basename(commonDir) !== '.git') return fallback;
+  const name = path.basename(path.dirname(commonDir));
+  return (!name || name === '.') ? fallback : name;
+}
+
+// Parcours d'arbre : REPLI hors git seulement (cf. filesCount). Inchange, a dessein — les projets
+// hors git (onboard sur un dossier nu) doivent garder mot pour mot le comportement d'avant.
 function countFiles(dir) {
   let n = 0;
   const walk = (d) => {
@@ -75,10 +138,58 @@ function countFiles(dir) {
   return n;
 }
 
+// D3 — le compte de fichiers derive de l'INDEX GIT, le parcours devient le repli hors git.
+//
+// Le parcours n'appliquait pas une regle : il appliquait une LISTE DE DEUX NOMS ECRITE EN DUR
+// (`.git`, `node_modules`) qui a vieilli. `node_modules` et `target/` sont exactement la meme
+// chose — des dependances reconstructibles que le projet declare non versionnables — et il
+// excluait l'une en comptant l'autre. Mesure sur le depot frere iakaFrameGUI : 9 227 annonces
+// pour 469 fichiers suivis, dont 8 466 sous `src-tauri/target/`. A 92 %, le champ mesurait l'etat
+// du cache de build local de la machine qui a lance la commande, et l'inscrivait dans un journal
+// append-only cense servir de memoire de reprise.
+//
+// `--exclude-standard` delegue l'exclusion au .gitignore DU PROJET MESURE : la regle devient juste
+// sur un projet Rust, Go ou Java sans que personne n'ait a penser a `target/`. Elle est aussi la
+// seule definition INDEPENDANTE DE L'ARBRE DE MESURE : meme chiffre depuis la racine et depuis
+// n'importe quel arbre lie, et les worktrees sortent gratuitement (`.claude/` est ignore) sans
+// jamais coder « .claude/worktrees » en dur ici.
+//
+// `--others` en plus de `--cached` : un snapshot de `pause` se prend presque toujours sur un arbre
+// sale ; l'index seul manquerait les fichiers du lot en cours. La definition devient « les fichiers
+// que le projet versionne ou versionnera ». Contrepartie assumee : un brouillon non suivi et non
+// ignore est compte — c'est un defaut d'hygiene du depot RENDU VISIBLE, pas un defaut du compteur.
+//
+// Repli sur le SUCCES de la commande (`.ok`), jamais sur une sortie vide : un depot reellement
+// vide rend legitimement 0 et ne doit pas basculer sur le parcours.
+//
+// Mesure faite (git 2.50) : un arbre lie imbrique dans une zone NON ignoree n'est PAS parcouru par
+// `--others` ; git le rend comme UNE entree de repertoire (`sub/wt/`). Aucune exclusion explicite
+// n'est donc necessaire (R2/CA-9).
+function filesCount(root) {
+  if (isRepo(root)) {
+    const r = run(root, ['ls-files', '--cached', '--others', '--exclude-standard']);
+    if (r.ok) return { count: r.out.split(/\r?\n/).filter(l => l.trim() !== '').length, rule: 'git' };
+  }
+  return { count: countFiles(root), rule: 'walk' };
+}
+
+// Le LIBELLE est le marqueur de discontinuite : l'etat des lieux dit sur sa face quelle regle a
+// produit le nombre. Aucun champ machine supplementaire n'est necessaire.
+const FILES_LABEL = { git: 'Fichiers (suivis + non ignores)', walk: 'Fichiers (hors .git/node_modules)' };
+const FILES_LABEL_HTML = { git: 'suivis + non ignores', walk: 'hors .git / node_modules' };
+
 // Coeur reutilisable par onboard/update.
 // `home` (optionnel) cible le canon de la boucle d'apprentissage pour la CADENCE (T6, § 6) ; sinon
 // IAKA_MEMORY_HOME, sinon ~/.iaka/memory/. `cadenceRun` est un point d'injection (defaut = runCadence).
 export function doSnapshot({ projectPath, reason = 'manual', version = '', note = '', home, cadenceRun = runCadence, projectCadenceRun = runProjectCadence }) {
+  // D2 — le refus arrive AVANT toute ecriture (pas meme le mkdir de specs/). Un seul endroit
+  // decide (normalizeVersion), deux couches l'appliquent : ici on LEVE, pour que les appels
+  // PROGRAMMATIQUES (update.js, onboard.js, tests) ne puissent pas contourner la regle ; les
+  // couches CLI, elles, rendent un message + exitCode 1.
+  const vNorm = normalizeVersion(version);
+  if (!vNorm.ok) throw new Error(versionErrorMessage(vNorm.value));
+  version = vNorm.value;
+
   const root = path.resolve(projectPath);
   const specs = path.join(root, 'specs');
   fs.mkdirSync(specs, { recursive: true });
@@ -92,9 +203,10 @@ export function doSnapshot({ projectPath, reason = 'manual', version = '', note 
   if (!version) version = '-';
   const lastCommit = git ? (out(root, ['log', '-1', '--pretty=format:%h %s']) || '-') : '-';
   const dirty = git ? out(root, ['status', '--porcelain']) !== '' : false;
-  const fileCount = countFiles(root);
+  const files = filesCount(root);
+  const fileCount = files.count;
   const ts = now();
-  const project = path.basename(root);
+  const project = projectName(root);
 
   const recent = [];
   if (git) {
@@ -121,7 +233,7 @@ export function doSnapshot({ projectPath, reason = 'manual', version = '', note 
   md.push(`| Branche | ${branch} |`);
   md.push(`| Dernier commit | ${lastCommit} |`);
   md.push(`| Arbre | ${dirty ? 'MODIFICATIONS NON COMMITEES' : 'propre'} |`);
-  md.push(`| Fichiers (hors .git/node_modules) | ${fileCount} |`);
+  md.push(`| ${FILES_LABEL[files.rule]} | ${fileCount} |`);
   if (note) md.push(`| Note | ${note} |`);
   md.push('');
   if (recent.length) {
@@ -178,7 +290,7 @@ footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#55
   <div class="k">Branche</div><div>${enc(branch)}</div>
   <div class="k">Dernier commit</div><div><code>${enc(lastCommit)}</code></div>
   <div class="k">Arbre</div><div>${dirtyTxt}</div>
-  <div class="k">Fichiers</div><div>${fileCount} (hors .git / node_modules)</div>
+  <div class="k">Fichiers</div><div>${fileCount} (${FILES_LABEL_HTML[files.rule]})</div>
   ${note ? `<div class='k'>Note</div><div>${enc(note)}</div>` : ''}
 </div>
 ${commitRows ? `<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr>${commitRows}</table>` : ''}
@@ -225,7 +337,12 @@ export function runSnapshot(argv) {
   if (!REASONS.includes(values.reason)) {
     console.error(`reason invalide : ${values.reason} (attendu: ${REASONS.join('|')})`); process.exitCode = 1; return;
   }
-  const r = doSnapshot({ projectPath: values.path || process.cwd(), reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
+  // D2 — meme forme de refus que `reason` ci-dessus : c'est l'asymetrie qu'on corrige.
+  const v = normalizeVersion(values.version || '');
+  if (!v.ok) { console.error(versionErrorMessage(v.value)); process.exitCode = 1; return; }
+  const root = path.resolve(values.path || process.cwd());
+  console.log(provenance(root));
+  const r = doSnapshot({ projectPath: root, reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
   console.log(`Snapshot OK (${values.reason}) -> specs/etat-des-lieux.md + .html`);
   console.log(`  version=${r.version} branche=${r.branch} fichiers=${r.fileCount}${r.dirty ? ' [arbre sale]' : ''}`);
   console.log(`  ${formatCadence(r.cadence)}`);
