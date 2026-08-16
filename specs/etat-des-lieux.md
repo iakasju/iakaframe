@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-08-16 22:27 (motif: manual).
+> Genere par iakaframe (CLI) le 2026-08-17 01:01 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,90 +9,93 @@
 |---|---|
 | Version | v0.39.0 |
 | Branche | main |
-| Dernier commit | 3111230 merge(garde): fusion du lot garde-balayante-routage-prod dans main |
+| Dernier commit | 3d14b95 merge(snapshot): fusion du lot correctif-generateur-etat-des-lieux dans main |
 | Arbre | propre |
-| Fichiers (hors .git/node_modules) | 1079 |
-| Note | Lot garde-balayante-routage-prod : les gardes de routage cessent d'enumerer et se mettent a balayer. 8 sites de defaut corriges dont 1 inedit (doc/index.html) que trois releves successifs avaient manque. 5 gardes : G-ROUTE-2 de-enumeree, G-ROUTE-1 elargie aux skills, G-ROUTE-4 (affectation ancree sur le canon) et G-ROUTE-5 (registre des angles morts) neuves. Gate Legolas PASS apres un FAIL leve (artefact de build gitignore rendait la suite rouge en permanence). QUATRE arbitrages de coordination inscrits REVERSIBLES, non enonces par le decideur : (a) exemption du canon, (b) abandon de la clause symetrique de D7, (c) exemption de BACKLOG.md, (d) frontiere git-ignore. Reserves ouvertes : sur-affirmation "couverture identique au bit pres", perimetre dependant du core.excludesFile de la machine, frontiere non perissable. Successeurs nommes : GUI-VENDOR-CHARON (0 -> 24 fixtures dont 4 manquantes), ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE, correctif du generateur d'etat des lieux. Dette de tagging signalee, non traitee. |
+| Fichiers (suivis + non ignores) | 1081 |
+| Note | Lot correctif-generateur-etat-des-lieux : le generateur cesse de deviner. Nom du projet derive de --git-common-dir (plus du basename du dossier), --version validee et normalisee, compte de fichiers derive de l'INDEX GIT (la liste en dur .git/node_modules avait vieilli : elle ne couvrait ni target/ ni dist/), et ligne de provenance cli=/root= qui rend visible quel CLI s'execute sur quel arbre. Gate Legolas PASS apres un FAIL de PERIMETRE (le code etait mur, c'est l'instruction qui mentait). D6 (avertissement narratif) RETIREE et versee a CHECKPOINT-NARRATIF : telle qu'ecrite elle produisait une fausse imputation, accusant l'operateur d'un recit vide que la commande venait de produire. Cardinal 22 -> 19 CA. A-1 NON TRANCHE, appartient au decideur. Effet cross-repo assume : iakaFrameGUI passera de 9232 a 474 (-94,9%) a son prochain checkpoint, geste de son operateur. RUPTURE DU COMPTE DE FICHIERS a cette entree, historique non reecrit (D4, precedent du decideur du 2026-07-31). Successeurs nommes : CHECKPOINT-NARRATIF, VENDOR-REMEDE-CARDINAL, CLI-WRAPPER-RACINE, CRITERE-BACKLOG-D10, GUI-VENDOR-CHARON, ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE. Dette de tagging signalee, non traitee. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `3111230` | 2026-08-16 | merge(garde): fusion du lot garde-balayante-routage-prod dans main |
-| `cef9e29` | 2026-08-16 | docs(instruction): § 15.3 - reproduction re-verifiee sur le HEAD final |
-| `a24e4a9` | 2026-08-16 | docs(instruction): § 15 - chemin:ligne exacts vers la frontiere et les trois regimes |
-| `44720e4` | 2026-08-16 | docs(instruction): § 15 - reprise sur FAIL, arbitrage (d) consigne, contradiction de l'ordre rendue, releve corrige |
-| `61c1634` | 2026-08-16 | fix(garde): repli SANS DEPOT - « pas de depot » n'est pas « pas de git » |
-| `2babe04` | 2026-08-16 | fix(garde): QUATRIEME ARBITRAGE (d) - le balayage ne descend plus dans ce que GIT IGNORE |
-| `3967a04` | 2026-08-16 | docs(instruction): releve RE-MESURE post-(c), CA-1..CA-19 deroules, et UN CONSTAT NEUF non arbitre |
-| `f1fe2e2` | 2026-08-16 | fix(garde): TROISIEME ARBITRAGE (c) - BACKLOG.md exempte au titre de D5, faux positif de PORTEE |
-| `9d0cf66` | 2026-08-16 | docs(instruction): releve RE-CONSIGNE post-decision + UNE NOUVELLE CONTRADICTION remontee (BACKLOG.md) |
-| `411221f` | 2026-08-16 | chore(derives): etape 8 (suite) - un TROISIEME generateur que le § 7 ne listait pas |
+| `3d14b95` | 2026-08-17 | merge(snapshot): fusion du lot correctif-generateur-etat-des-lieux dans main |
+| `b86dc1d` | 2026-08-17 | docs(instruction): retirer D6 du correctif generateur, cardinal 22 -> 19 CA |
+| `2aa3c4d` | 2026-08-17 | docs(commandes): forme de --version, definition du compte de fichiers, provenance |
+| `df3e7bc` | 2026-08-17 | feat(snapshot): annoncer quel CLI s'execute et sur quelle racine (D7) |
+| `e9d8695` | 2026-08-17 | fix(snapshot): le compte de fichiers derive de l'index git, le parcours devient le repli (D3) |
+| `b940929` | 2026-08-17 | fix(snapshot): valider la forme de --version et normaliser le seul prefixe v (D2) |
+| `b97e0fa` | 2026-08-17 | fix(snapshot): le nom du projet derive du depot principal, pas du dossier courant (D1) |
+| `46a83fc` | 2026-08-17 | test(snapshot): gardes du generateur d'etat des lieux, VUES ROUGES |
+| `667d748` | 2026-08-17 | docs(instruction): amendement Gandalf du cadrage generateur etat des lieux |
+| `2d94eb2` | 2026-08-16 | docs(instruction): cadrage du correctif du generateur d'etat des lieux |
 
 ## Reprise du travail (a completer par Cowork)
 
-- **Ce qui vient d'etre fait (2026-08-16 - landing du lot `garde-balayante-routage-prod`)** : le lot
-  a ete fusionne dans `main` par un merge **`--no-ff` DELIBERE** (`3111230`), alors qu'un fast-forward
-  etait techniquement possible (`main` etait ancetre, 19 commits, tete `cef9e29`). Le choix est
-  assume : trois gates franchis et quatre arbitrages subis meritent un point d'ancrage nomme dans
-  l'histoire plutot que 19 commits fondus dans la ligne. Contenu : **les gardes de routage cessent
-  d'enumerer et se mettent a balayer** - 8 sites de defaut corriges dont **1 inedit** (`doc/index.html`)
-  que trois releves successifs avaient manque ; 5 gardes (`G-ROUTE-2` de-enumeree, `G-ROUTE-1` elargie
-  aux skills, `G-ROUTE-4` affectation ancree sur le canon et `G-ROUTE-5` registre des angles morts,
-  toutes deux neuves). Aucun conflit au merge : `main` n'avait pas bouge depuis `b6b500d`.
-
-- **Le verdict qui autorise ce merge** : gate **Legolas PASS** sur `cef9e29`, branche declaree
-  **mergeable franchement**, apres un **FAIL leve** (un artefact de build gitignore rendait la suite
-  rouge en permanence). Mesures refaites par le gate : suite **644 / 643 pass / 0 fail / 1 skip** ;
-  **differentiel causal prouve** (`3967a04` pass 4 / fail 1 contre `cef9e29` pass 5 / fail 0, artefact
-  de build present dans les deux cas) ; couverture **675 = 675**, non regressee et superieure a celle
-  de `main` ; `GIT_DIR` jetable **n'ecrit rien** (1487 fichiers haches avant/apres, diff vide) ;
-  anti-complaisance **passe** (asserts 23 -> 24, aucun retire).
-
-- **Ce qui a ete MESURE - et ce qui ne l'a PAS ete** : **lint, typage et couverture ne sont PAS
-  mesures** - le depot ne porte ni eslint ni tsconfig. Legolas a **SUBSTITUE** `node --check`
-  (210 fichiers) et `JSON.parse` (37 fichiers), et l'a **declare comme une substitution**. Ne jamais
-  relire ces deux passes comme un lint vert.
-
-- **`vendor-check` : 24 / 82 sur la branche contre 23 sur `main`** - le `+1` est **source**
-  (`[copy] skills/iakaframe-fabrication/SKILL.md <- contenu-different`). C'est une **reserve declaree
-  (`D10`), pas un echec**. Consequence de perimetre : le successeur **GUI-VENDOR-CHARON** ne part plus
-  de `OK` / 0 derive mais de **24**, dont **4 fixtures manquantes**.
-
-- **QUATRE arbitrages de coordination, inscrits REVERSIBLES** : (a) exemption du canon, (b) abandon
-  de la clause symetrique de D7, (c) exemption de `BACKLOG.md`, (d) frontiere git-ignore. Ils ont ete
-  pris **sous autonomie deleguee** et **ne sont PAS enonces par le decideur** : chacun reste ouvert a
-  revision. Reserves encore ouvertes : sur-affirmation *"couverture identique au bit pres"* ; perimetre
-  du balayage **dependant du `core.excludesFile` de la machine** ; frontiere **non perissable**.
-
-- **En cours / a reprendre** : successeurs nommes par le lot - **GUI-VENDOR-CHARON** (derive
-  vendor-check 0 -> 24 fixtures dont 4 manquantes), **ROLE-VOCAB-CANON**, **GUI-PARITE-WORKTREE**, et
-  le **correctif du generateur d'etat des lieux** (cadre dans
-  `specs/instructions/correctif-generateur-etat-des-lieux.md`, branche `specs/cadrage-snapshot-defauts`,
-  **non corrige a ce jour**). **Dette de tagging** signalee et **non traitee** : le dernier tag est
-  `v0.20.4` face a une version d'autorite `0.39.0` - chantier distinct, hors de ce lot, **aucun tag
-  pose ici**.
-
-- **Prochaine etape concrete** : engager l'un des successeurs nommes - le plus contraint est
-  **GUI-VENDOR-CHARON** (les 4 fixtures manquantes bloquent le retour a drift 0), le moins couteux est
-  le **correctif du generateur d'etat des lieux** (deja cadre, il supprime deux contournements subis a
-  chaque checkpoint).
-
-- **Pieges connus** : (1) le generateur derive le nom du projet de `path.basename(root)`
-  (`cli/src/commands/snapshot.js:97`) - un checkpoint lance depuis un worktree mal nomme **titre l'etat
-  des lieux au nom du worktree** ; ce lot a ete versionne depuis un worktree nomme `iakaframe`
-  **a dessein**, sans symlink ni contournement. (2) `--version` **n'est pas normalise** : passer `0.39.0`
-  ecrirait `0.39.0` sans le `v`, en rupture avec toutes les entrees anterieures du journal - toujours
-  passer **`v0.39.0`**. (3) La section « Reprise du travail » est **ecrasee par des placeholders** a
-  chaque regeneration : lancer `iakaframe update` d'un bloc commiterait le narratif vide. Ici le
-  checkpoint a donc ete **decompose** (`snapshot` -> redaction du narratif -> `commit` -> `push`) pour
-  ne produire **qu'un seul** commit d'etat des lieux. (4) Un **artefact de build gitignore** peut
-  rendre la suite rouge en permanence : c'est la cause du FAIL initial de ce lot.
+- **Ce qui vient d'etre fait** : merge `--no-ff` du lot **correctif-generateur-etat-des-lieux**
+  (`3d14b95`), fast-forward possible mais refuse par le decideur — le lot a franchi deux passages
+  au gate et une rectification d'instruction, son atterrissage reste un point d'ancrage nomme.
+  Le generateur d'etat des lieux **cesse de deviner**, sur quatre points : le **nom du projet**
+  derive de `git rev-parse --git-common-dir` et non plus du `basename` du dossier (D1) — un
+  checkpoint pris depuis un arbre lie porte desormais le nom du **depot principal** ; `--version`
+  est **validee et normalisee** (D2) — une forme mal ecrite **leve avant toute ecriture**, y
+  compris dans `update`, avant tout `git add`/commit ; le **compte de fichiers** derive de
+  **l'index git** (D3), le parcours du systeme de fichiers devenant le repli hors depot — la
+  liste d'exclusions en dur (`.git`, `node_modules`) avait vieilli et ne couvrait ni `target/`
+  ni `dist/` ; et une **ligne de provenance** `cli=<...> root=<...>` (D7) rend enfin visible
+  quel CLI s'execute sur quel arbre. **D6** (avertissement narratif) a ete **retiree du lot** et
+  versee au successeur `CHECKPOINT-NARRATIF` : telle qu'ecrite, elle produisait une **fausse
+  imputation**, accusant l'operateur d'un recit vide que la commande venait elle-meme de
+  produire. Cardinal du lot : **22 -> 19 CA**.
+- **Gate qualite (Legolas)** : **PASS** sur `b86dc1d`, apres un premier **FAIL de PERIMETRE** —
+  le code etait mur, c'est **l'instruction qui mentait**. Reserve n°1 (`CA-8`/`CA-9`) **levee** ;
+  ecart `CA-15` tranche **non bloquant** et verse a un successeur de cadrage : le vrai ecart est
+  ligne **121** de l'instruction et il est **anterieur au lot**, aucune retouche du lot ne
+  l'aurait rendu vrai. **Mesures attribuees a Legolas** : couverture `cli/src/commands/snapshot.js`
+  **99,14 %**, `cli/src/commands/update.js` **77,31 %**. **Lint, typage et couverture globale NON
+  MESURES** — ni `eslint` ni `tsconfig` dans ce depot ; Legolas a **substitue** `node --check` et
+  l'a **declare comme substitution**, ce n'est pas un equivalent.
+- **En cours / a reprendre** : **`A-1` reste NON TRANCHE — il appartient au decideur** : faut-il
+  poser une note humaine au point de rupture du compte de fichiers ? Rien n'a ete fait au-dela du
+  signalement. **Sept successeurs nommes**, aucun engage : `CHECKPOINT-NARRATIF`,
+  `VENDOR-REMEDE-CARDINAL`, `CLI-WRAPPER-RACINE`, `CRITERE-BACKLOG-D10`, `GUI-VENDOR-CHARON`,
+  `ROLE-VOCAB-CANON`, `GUI-PARITE-WORKTREE`.
+- **Prochaine etape concrete** : trancher `A-1`, puis cadrer `CHECKPOINT-NARRATIF` — le defaut
+  **subsiste** apres ce lot (voir Pieges).
+- **Pieges connus** :
+  1. **`iakaframe update` d'un bloc commite un narratif VIDE.** Le generateur **ecrase** la
+     section « Reprise du travail » avec ses placeholders, et `update` enchaine `git add`/commit
+     **dans le meme processus** : le narratif n'a aucune fenetre pour etre ecrit. C'est
+     `CHECKPOINT-NARRATIF`, **non corrige par ce lot**. **Contournement obligatoire** : decomposer
+     en `snapshot` -> **redaction du narratif** -> `git add`/commit -> push, pour n'obtenir qu'un
+     seul commit propre.
+  2. **La « rupture du compte de fichiers » n'est PAS observable sur cette entree.** Le compte
+     passe de **1079 a 1081**, soit **+2** — exactement les deux fichiers ajoutes par le merge
+     (`cli/test/snapshot-generateur.test.js`, `specs/instructions/correctif-generateur-etat-des-lieux.md`).
+     Raison : ce worktree ne contient **ni `node_modules`, ni `target/`, ni `dist/`**, donc
+     l'ancien algorithme et le nouveau **convergent** ici (parcours simule : 1082, dont le fichier
+     `.git` d'arbre lie que l'ancien filtre ne retirait pas ; index git : 1081). La chute reelle
+     **1469 -> 1078 a eu lieu le 2026-08-15**, et elle s'explique par le **changement d'arbre
+     d'execution** (worktree epure vs racine peuplee), **pas** par le changement d'algorithme.
+     L'effet de D3 se verra sur un arbre qui porte reellement ces dossiers — cote iakaFrameGUI,
+     annonce a **9232 -> 474**, geste de son operateur. **Historique non reecrit** (D4, precedent
+     du decideur du 2026-07-31) : les entrees anciennes restent vraies a leur date.
+  3. **Le titre de ce checkpoint n'est pas une preuve de D1.** Le worktree se nomme `iakaframe`
+     (c'etait le contournement du defaut), et le depot principal aussi : `basename` et
+     `--git-common-dir` donnent **le meme resultat**, l'execution n'est donc **pas
+     discriminante**. D1 est prouve par le **harnais** — `CA-1` (arbre lie -> nom du depot
+     principal) et `CA-2` (racine -> titre identique), suite `cli/test/snapshot-generateur.test.js`
+     **16/16 verte**.
+  4. **N'appelez pas le binaire global `iakaframe <verbe>` depuis un worktree** : il vise la
+     racine du depot, pas l'arbre courant. Passer par `node cli/src/index.js`. C'est le successeur
+     nomme `CLI-WRAPPER-RACINE`.
+  5. **Dette de tagging** : le dernier tag git est `v0.20.4` face a une version declaree
+     **`0.39.0`**. **Signalee, non traitee** — aucun tag pose sur ce lot.
 
 ## Journal (versions & pauses)
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-08-17 01:01 | version | v0.39.0 | main | Lot correctif-generateur-etat-des-lieux : le generateur cesse de deviner. Nom du projet derive de --git-common-dir (plus du basename du dossier), --version validee et normalisee, compte de fichiers derive de l'INDEX GIT (la liste en dur .git/node_modules avait vieilli : elle ne couvrait ni target/ ni dist/), et ligne de provenance cli=/root= qui rend visible quel CLI s'execute sur quel arbre. Gate Legolas PASS apres un FAIL de PERIMETRE (le code etait mur, c'est l'instruction qui mentait). D6 (avertissement narratif) RETIREE et versee a CHECKPOINT-NARRATIF : telle qu'ecrite elle produisait une fausse imputation, accusant l'operateur d'un recit vide que la commande venait de produire. Cardinal 22 -> 19 CA. A-1 NON TRANCHE, appartient au decideur. Effet cross-repo assume : iakaFrameGUI passera de 9232 a 474 (-94,9%) a son prochain checkpoint, geste de son operateur. RUPTURE DU COMPTE DE FICHIERS a cette entree, historique non reecrit (D4, precedent du decideur du 2026-07-31). Successeurs nommes : CHECKPOINT-NARRATIF, VENDOR-REMEDE-CARDINAL, CLI-WRAPPER-RACINE, CRITERE-BACKLOG-D10, GUI-VENDOR-CHARON, ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE. Dette de tagging signalee, non traitee. |
 | 2026-08-16 22:27 | manual | v0.39.0 | main | Lot garde-balayante-routage-prod : les gardes de routage cessent d'enumerer et se mettent a balayer. 8 sites de defaut corriges dont 1 inedit (doc/index.html) que trois releves successifs avaient manque. 5 gardes : G-ROUTE-2 de-enumeree, G-ROUTE-1 elargie aux skills, G-ROUTE-4 (affectation ancree sur le canon) et G-ROUTE-5 (registre des angles morts) neuves. Gate Legolas PASS apres un FAIL leve (artefact de build gitignore rendait la suite rouge en permanence). QUATRE arbitrages de coordination inscrits REVERSIBLES, non enonces par le decideur : (a) exemption du canon, (b) abandon de la clause symetrique de D7, (c) exemption de BACKLOG.md, (d) frontiere git-ignore. Reserves ouvertes : sur-affirmation "couverture identique au bit pres", perimetre dependant du core.excludesFile de la machine, frontiere non perissable. Successeurs nommes : GUI-VENDOR-CHARON (0 -> 24 fixtures dont 4 manquantes), ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE, correctif du generateur d'etat des lieux. Dette de tagging signalee, non traitee. |
 | 2026-08-15 23:00 | version | v0.39.0 | main | Landing des trois lots empiles dans main par merges etages : models-par-rolekey, scission du squad prod (Charon passe / Helm veille), correctif de routage prod vers Charon. Gate qualite PASS avant merge (16 CA sur 16) et re-gate PASS apres merge. Version portee a 0.39.0. Reserves ouvertes : R-1/R-2 (garde de routage enumerante) en cadrage successeur ; R-5 (README:227 juste mais sous aucune garde) ; R-6 (skips de parite GUI trompeurs en worktree) ; derive vendor-check 0 -> 23 fixtures, successeur GUI-VENDOR-CHARON. Dette de tagging signalee, non traitee. |
 | 2026-08-03 21:04 | version | v0.39.0 | feat/models-par-rolekey | Verbe models : suggestions de modeles d'IA par roleKey + mise a disposition interactive (5 cibles), source unique models/suggestions.json, binding ollama, recette guidee. Reprise apres gate qualite FAIL. |
