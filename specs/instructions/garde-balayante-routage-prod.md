@@ -747,3 +747,188 @@ crie.
 | **`ROLEKEY-HELM`** — `cli/src/lib/agents.js:43` | dossier `decision-rolekey-reconciliation.md` | déjà instruit |
 | **`RESYNC-SF2`** — `docs/guide-stefframe2.{md,html}` | exemption **portée par la garde**, avec condition de levée (`D9`) | ⚒️ **Gimli**, à la levée |
 | **Dette de tagging** (`v0.20.4` vs `0.39.0`) | sans rapport avec le routage | 🤝 **Aragorn** (coordination) |
+
+---
+
+## 13. Relevé d'exécution — ⚒️ Gimli (P2), 2026-08-16
+
+> Base réelle : worktree `/Users/sjupin/work/iakaframe/.claude/worktrees/garde-balayante`,
+> branche `feat/garde-balayante-routage-prod`, issue de `main` à jour (`b6b500d`) — **et non**
+> le worktree `cadrage-balayante` de `D2`, dont la base était antérieure au merge des trois lots.
+> Étape 1 vérifiée dans son esprit : `node --test cli/test/route-prod.test.js` **vert 3/3** avant
+> toute écriture.
+
+### 13.1 🛑 Le relevé ROUGE (`CA-1`, `CA-2`, `CA-3`) — comptes constatés par garde
+
+Mesuré sur l'état **pré-correction**, après refonte des gardes et **avant** tout traitement de site.
+
+| Garde | Verdict | Compte constaté |
+|---|---|---|
+| `G-ROUTE-1` — réciprocité persona **+ volet skills** | 🔴 **ROUGE** | **11 fichiers** — 0 au volet persona (8 artefacts par-persona vus), **11 au volet skills** (25 porteurs de skill vus) |
+| `G-ROUTE-2` — attribution, populations **découvertes** | 🔴 **ROUGE** | **21 sites** — **0 au niveau A** (12 artefacts de routage découverts, contre 9 énumérés), **21 au niveau B** (4 artefacts de Helm découverts, contre 2 énumérés) |
+| `G-ROUTE-3` — contrats déployés | 🟢 **VERT** | 0 site ; `~/.claude/agents/` présent, pas de skip |
+| `G-ROUTE-4` — affectation, canon-ancrée | 🔴 **ROUGE** | **19 touches / 14 lignes distinctes**, sur **674 fichiers texte** balayés, hors **5 chemins exemptés** |
+| `G-ROUTE-5` — registre des angles morts | 🟢 **VERT** | 2 entrées, **aucune couverte** — les deux aveuglements tiennent encore |
+
+**`CA-2` — la garde voit ce que les listes n'ont pas vu** : `doc/index.html:174` figure au relevé.
+**`CA-3` — le compte est exactement 8**, ni plus ni moins : les 8 sites de défaut annoncés
+(`F5`-`F9`, `F13`-`F15`) sont **tous** rendus par `G-ROUTE-4`, **aucun site de défaut inédit**
+au-delà de ceux du § 2.2. Les lignes `R10` (glissement post-merge) n'ont produit **aucun** site neuf.
+
+### 13.2 `G-ROUTE-4` — les 14 lignes rendues, une par une
+
+**Les 8 sites de DÉFAUT** (tous attendus, tous trouvés) :
+
+| `chemin:ligne` | Association rendue | Réf. |
+|---|---|---|
+| `doc/index.html:174` | `helm` ← `deploiement` | **`F9`** — le site inédit |
+| `iakaframe-skills.html:116` | `helm` ← `deploiement` **et** ← `iakaframe-deploiement` | `F5` |
+| `iakaframe-skills.html:211` | `helm` ← `iakaframe-deploiement` | `F6` |
+| `prise-en-main-ia-iakabox.html:476` | `helm` ← `deploiement` | `F8` |
+| `specs/glossaire-iakaframe.md:15` | `helm` ← `deploiement` | `F7` |
+| `specs/mock/gui/01-library.html:162` | `helm` ← `deploiement` **et** ← `iakaframe-deploiement` | `F13` |
+| `specs/mock/gui/03-assemblage.html:222` | `helm` ← `deploiement` | `F14` |
+| `specs/mock/gui/03-assemblage.html:235` | `helm` ← `deploiement` | `F15` |
+
+**Les 6 lignes de FAUX POSITIF** :
+
+| `chemin:ligne` | Association rendue | Prévu par le cadrage ? |
+|---|---|---|
+| `cli/test/library.test.js:217` | `helm` ← `deploiement` | ✅ **oui** — `F17`/`D10`, réformulation prévue à l'étape 7 |
+| `BACKLOG.md:32` | `charon` ← `surveillance` **et** ← `iakaframe-surveillance` | ❌ **non** |
+| `BACKLOG.md:33` | `charon` ← `surveillance` | ❌ **non** |
+| `cli/src/lib/vendor.js:77` | `charon` ← `surveillance` **et** ← `iakaframe-surveillance` | ❌ **non** |
+| `cli/src/lib/vendor.js:84` | `charon` ← `surveillance` | ❌ **non** |
+| `cli/test/parite-skills.test.js:40` | `charon` ← `iakaframe-surveillance` | ❌ **non** |
+| `kits/iakaframe-openwebui/models/helm.json:47` *(ligne logique)* | `charon` ← `surveillance` | ❌ **non** |
+
+*(Note d'instrument : `cli/test/route-prod.test.js:98` et `:101` étaient rendus au premier tir —
+autocitation née de mes **propres** commentaires de refonte, `F27`. Résorbée par reformulation
+**avant** figeage du relevé : une garde ne doit pas mordre sur la prose qu'elle vient d'écrire.)*
+
+### 13.3 `G-ROUTE-1` volet skills — les 11 fichiers rendus
+
+| `chemin` | Nomme | Ignore |
+|---|---|---|
+| `iakaframe-skills.html` | `iakaframe-deploiement` | `iakaframe-surveillance` — **`F10`, attendu** |
+| `specs/mock/gui/01-library.html` | `iakaframe-deploiement` | `iakaframe-surveillance` — **`F16`, attendu** |
+| `iakaframe-chapeau.html` | `iakaframe-deploiement` | `iakaframe-surveillance` — **inédit**, même nature que `F10` |
+| `library/skills/iakaframe-fabrication/SKILL.md` | `iakaframe-deploiement` | `iakaframe-surveillance` — **inédit**, même nature |
+| `library/personas/charon.md` | `iakaframe-deploiement` | `iakaframe-surveillance` — **le CANON** |
+| `library/personas/helm.md` | `iakaframe-surveillance` | `iakaframe-deploiement` — **le CANON** |
+| `cli/test/fixtures/agents-golden/charon.md` | `iakaframe-deploiement` | `iakaframe-surveillance` — dérivé du canon |
+| `cli/test/fixtures/agents-golden/helm.md` | `iakaframe-surveillance` | `iakaframe-deploiement` — dérivé du canon |
+| `BACKLOG.md` | `iakaframe-surveillance` | `iakaframe-deploiement` |
+| `cli/test/parite-skills.test.js` | `iakaframe-surveillance` | `iakaframe-deploiement` |
+| `cli/test/vendor-check.test.js` | `iakaframe-surveillance` | `iakaframe-deploiement` |
+
+### 13.4 `G-ROUTE-2` niveau B — les 21 sites rendus
+
+**Aucun n'est un défaut.** Ils se répartissent sur **deux fichiers, et deux seulement** :
+
+- `library/personas/helm.md` — `:5` · `:19` · `:28` · `:33` · `:44` · `:48` · `:51` · `:67` ·
+  `:69` · `:80` · `:86` *(11 sites)*
+- `cli/test/fixtures/agents-golden/helm.md` — `:20` · `:29` · `:34` · `:45` · `:49` · `:52` ·
+  `:68` · `:70` · `:81` · `:87` *(10 sites — le golden, dérivé du précédent)*
+
+Les **2 artefacts de kit** qui composaient `ROUTAGE_B` (`prompts/helm.md`, `models/helm.json`)
+restent **verts**.
+
+---
+
+## 14. 🛑 DEUX CONTRADICTIONS DE CADRAGE — remontées, non tranchées
+
+> ⚒️ Gimli **s'arrête ici** et rend la main. Les deux points ci-dessous ne sont pas des difficultés
+> d'exécution : ce sont des **décisions de périmètre et de couverture**, qui appartiennent au
+> cadrage et au décideur. Conformément à la méthode, l'exécution **n'improvise pas** une décision
+> qu'elle ne détient pas. Les gardes sont écrites, exécutées et **vues rouges** ; **aucun site n'a
+> été corrigé.**
+
+### 14.1 🛑 BLOQUANT — `D6` niveau B contredit `D11`/`F20`, et le lot ne peut pas converger
+
+**Le fait.** `D6` étend la découverte du niveau B à *« tout fichier nommé `helm.{md,json}`, où
+qu'il soit »*. La population passe de **2** fichiers (les deux artefacts de kit) à **4** — en
+absorbant `library/personas/helm.md`, **le canon**, et son golden dérivé.
+
+La **règle** du niveau B, elle, est inchangée : *toute ligne portant une notion de traversée doit
+nommer Charon*. Appliquée à la persona canon, elle rend **21 lignes rouges, dont zéro défaut**.
+
+**La contradiction est interne à l'instruction, et elle est nommée.** `F20` cite **explicitement**
+`cli/test/fixtures/agents-golden/helm.md:20` comme **faux positif légitime** du prédicat narratif
+(cause « césure de ligne », Charon étant à `:19`). Cette ligne **est** au relevé rouge de `G-ROUTE-2`
+ci-dessus. Autrement dit : `D6` rend rouge exactement la ligne que `D11`/`F20` déclarent
+innocente — et `D11` **rejette** ce prédicat en balayage général au motif que le tenir
+*« demanderait de reflower la vitrine entière »*.
+
+**Pourquoi ça bloque.** Atteindre `CA-16` (les cinq gardes vertes) exigerait de **reflower
+intégralement `library/personas/helm.md`** pour que chaque ligne portant `feu vert`, `rollback`,
+`bascule`, `alias`, `SSO` ou `déployé` nomme aussi Charon. Sur des lignes comme
+`library/personas/helm.md:48` — « *Reçoit : **rien, et c'est le point.** Il n'attend ni version,
+ni feu vert, ni demande* » — l'exigence n'a **aucun sens sémantique**. C'est précisément le coût
+que `D11` a refusé de payer.
+
+**Ce que ⚒️ Gimli ne fait pas** : restreindre le niveau B aux seuls artefacts de kit
+(= réintroduire une énumération, contre `D6`), relâcher la règle du niveau B (= décision de
+couverture), ou exempter le canon (= contre `D9`, *« une garde qui s'auto-exclut peut se cacher »*).
+**Les trois sont des arbitrages, pas des gestes d'exécution.**
+
+### 14.2 🛑 La clause SYMÉTRIQUE de `D7` n'a jamais été mesurée — 0 capture, 6 faux positifs
+
+**Le fait.** `D7` exige la symétrie : *« ni, symétriquement, `charon` au rôle `surveillance` ou à
+`iakaframe-surveillance` »*. Or `F17` — la mesure qui **fonde** `D10` et le *« un seul faux
+positif »* — a été prise sur le prédicat **asymétrique** seul (« ligne portant `helm` **et**
+`deploiement` **sans** `charon` »). **La moitié symétrique du prédicat retenu n'a jamais été
+soumise à la mesure.**
+
+**Mesure faite ce jour**, sur l'arbre vivant :
+
+| Direction du prédicat | Défauts attrapés | Faux positifs |
+|---|---|---|
+| `helm` ← `deploiement` / `iakaframe-deploiement` (mesurée par `F17`) | **8 / 8** | **1** — `cli/test/library.test.js:217` |
+| `charon` ← `surveillance` / `iakaframe-surveillance` (**jamais mesurée**) | 🛑 **0 / 8** | 🛑 **6** |
+
+Les 6 sont d'une **cause unique** : la prose qui **énumère les artefacts nés de la scission**
+(`charon`, `surveillance`, `iakaframe-surveillance` cités dans le même souffle) est
+lexicalement indiscernable, ligne à ligne, d'une affectation.
+
+**Et l'un des six est structurel, pas rédactionnel** :
+`kits/iakaframe-openwebui/models/helm.json:47` est **l'artefact de Helm lui-même**, dont
+`G-ROUTE-1` **exige** qu'il nomme Charon. La réciprocité oblige à écrire « Charon » ; l'affectation
+symétrique **punit** de l'avoir écrit à proximité du mot `surveillance`. **Les deux gardes se
+mordent.** C'est la cause `F21` (renvoi croisé implicite), que `D11` déclare légitime.
+
+**Ce profil — 0 capture, faux positifs de causes `F19`/`F21` — est celui que `D11` a REJETÉ.**
+
+**Ce que ⚒️ Gimli ne fait pas** : retirer la clause symétrique (contre `D7`), ni reformuler
+`BACKLOG.md`, `cli/src/lib/vendor.js`, `cli/test/parite-skills.test.js` et la description de
+`models/helm.json` — **quatre fichiers absents du § 7**, dont un commentaire de `vendor.js` que le
+décideur a lui-même fait écrire (« *une garde verte qui ne regarde plus rien est pire qu'une
+rouge* »). Réécrire cette prose **pour plaire à une garde** est un arbitrage, pas une correction.
+
+### 14.3 Point mineur, versé au dossier : `D8` mord sur le canon
+
+Le volet skills rend **11 fichiers**, dont **9 hors du § 7** — parmi lesquels **les deux personas
+canon** et leurs deux goldens : une persona qui nomme **sa propre** skill est désormais tenue de
+nommer aussi celle de son jumeau. Le remède est **cheap et sans perte de sens** (les descriptions
+nomment déjà le jumeau *persona*, il suffit d'y ajouter le nom de **skill**), et **`F10` en donne
+la doctrine** — un catalogue partiel est un catalogue périmé. **Ce point n'est pas bloquant** : il
+est signalé parce qu'il **élargit le § 7 déclaré exhaustif**, pas parce qu'il fait débat.
+
+Deux fichiers **inédits** y apparaissent, de la nature exacte de `F10` :
+`iakaframe-chapeau.html` et `library/skills/iakaframe-fabrication/SKILL.md`.
+
+### 14.4 Mesures d'instrument, prises et déclarées
+
+- **`R-6` / `F32` — le palliatif demande DEUX variables, pas une.** `IAKAFRAME_GUI_ROOT` seule
+  laisse `cli/test/vocab-parity.test.js` skippé : ce fichier lit `IAKAFRAME_CORE_VOCAB`.
+  Mesuré : **sans override → 7 skips / 634 pass** ; **avec les deux → 1 skip / 640 pass**.
+  Le seul skip restant est **légitime** (`ripgrep` absent). Les **6 tests de parité GUI récupérés
+  sont VERTS**. → à verser à `GUI-PARITE-WORKTREE`.
+- **`R7` / `CA-15` — `GUI-VENDOR-CHARON`, chiffre confirmé.** `iakaframe vendor-check` (avec
+  `IAKAFRAME_GUI_ROOT`) : **DÉRIVE — 23 fixtures sur 82**, dont **4 `fixture-manquante`** :
+  `agents-golden/charon.md`, `personas/charon.md`, `roles/surveillance.md`,
+  `skills/iakaframe-surveillance/SKILL.md`. **Déplacement déclaré, non résolu** — hors lot.
+  *Sans* l'override, le verbe rend **`SKIP` et sort en 0** : un vert qui ne prouve rien.
+- **Suite complète** : `644` tests — `640 pass`, `3 fail` (les trois gardes rouges **voulues** de
+  ce lot), `1 skip` (ripgrep). **Aucun autre rouge.**
+
