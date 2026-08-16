@@ -129,47 +129,106 @@ const FRONTIERE_GIT_IGNORE = {
     + 'porte le bon routage), cette frontiere devrait etre levee POUR CETTE GARDE-LA — et non '
     + 'globalement.',
   portee: 'DYNAMIQUE, jamais enumeree : tout chemin que `git ls-files --others --ignored '
-    + '--exclude-standard --directory` rend depuis la racine du depot. Ce que git IGNORE, jamais '
-    + 'ce que git ne SUIT pas : un fichier neuf non encore ajoute reste balaye. En l\'absence de '
-    + 'git, la portee est VIDE et le balayage se rabat sur EXCLUS seul, EN LE DISANT.',
+    + '--exclude-standard --directory` rend depuis la racine de l\'arbre mesure. Ce que git IGNORE, '
+    + 'jamais ce que git ne SUIT pas : un fichier neuf non encore ajoute reste balaye. Sans DEPOT '
+    + 'mais avec le BINAIRE git, la portee est la MEME, lue via un GIT_DIR jetable (regime SANS '
+    + 'DEPOT). Sans le BINAIRE git, la portee est VIDE et le balayage se rabat sur EXCLUS seul, EN '
+    + 'LE DISANT (regime DEGRADE).',
 };
 assert.ok(FRONTIERE_GIT_IGNORE.motif && FRONTIERE_GIT_IGNORE.levee && FRONTIERE_GIT_IGNORE.portee,
   'frontiere incomplete : motif, levee et portee sont les TROIS champs obligatoires (D5) — une '
   + 'frontiere de scan posee sans motif ecrit est une enumeration silencieuse de plus');
 
-function chargerIgnoresGit() {
-  let r;
+// ------------------------------------------------------------------------------------------------
+// TROIS REGIMES, PARCE QUE « PAS DE DEPOT » N'EST PAS « PAS DE GIT ».
+// ------------------------------------------------------------------------------------------------
+// Le repli avait ete pense pour un arbre extrait par `git archive | tar -x` — donc SANS `.git`. Mesure
+// faite : dans cet arbre, `bundle.js` est rejoue, et un repli sur EXCLUS SEUL y laisse revenir les 11
+// lignes rouges. Le repli prescrit rendait donc le correctif INOPERANT DANS L'EXACTE SITUATION DE
+// MESURE DU GATE — c'est-a-dire invisible de qui doit le verifier.
+//
+// LA PREMISSE ETAIT FAUSSE, ET C'EST TOUT : dans cet arbre, git LE BINAIRE est present (c'est lui qui
+// a produit l'extraction) ; seul le DEPOT manque. Or les `.gitignore` sont VERSIONNES : ils sont DANS
+// le tarball. On demande donc a git lui-meme d'evaluer SES PROPRES regles, via un GIT_DIR jetable
+// monte HORS de l'arbre mesure (aucun octet ecrit dans l'arbre : une garde ne mute jamais ce qu'elle
+// mesure). LA COUVERTURE EST IDENTIQUE AU BIT PRES — meme commande, memes regles, meme critere
+// « ignore et non non-suivi ». Seul change le CHEMIN D'ACCES a la reponse. Ce n'est pas un
+// elargissement de perimetre : c'est la correction d'une premisse.
+//
+// Le regime DEGRADE — EXCLUS SEUL, tel que prescrit — subsiste pour le cas ou le BINAIRE git manque
+// vraiment. Il se DECLARE bruyamment : un vert degrade qui ne se declare pas est un vert qui ne
+// prouve rien.
+//
+// NOMINAL exige en outre que la racine git soit L'ARBRE MESURE : une extraction posee par megarde
+// SOUS un autre depot ferait autrement repondre le depot PARENT, avec des chemins relatifs a SA
+// racine — un perimetre juste en apparence et faux en fait. Dans ce cas on bascule en SANS DEPOT.
+const ARGS_IGNORES = ['ls-files', '-z', '--others', '--ignored', '--exclude-standard', '--directory'];
+
+function lancerGit(args) {
   try {
-    r = spawnSync('git', ['-C', REPO, 'ls-files', '-z', '--others', '--ignored',
-      '--exclude-standard', '--directory'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    const r = spawnSync('git', args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+    if (r.error) return { ok: false, motif: `binaire git injoignable (${r.error.code || r.error.message})` };
+    if (r.status !== 0) {
+      return { ok: false, motif: String(r.stderr || '').trim().split('\n')[0] || `code de sortie ${r.status}` };
+    }
+    return { ok: true, stdout: String(r.stdout) };
   } catch (e) {
-    return { actif: false, motif: `git injoignable (${e.code || e.message})`, chemins: [] };
+    return { ok: false, motif: `binaire git injoignable (${e.code || e.message})` };
   }
-  if (r.error) {
-    return { actif: false, motif: `git injoignable (${r.error.code || r.error.message})`, chemins: [] };
+}
+
+// `-z` : separateur NUL, donc AUCUN echappement des chemins non-ASCII (le depot en porte).
+// Les repertoires entierement ignores reviennent avec un `/` final, qu'on normalise.
+function decouperIgnores(stdout) {
+  return stdout.split('\0').map((s) => s.replace(/\/+$/, '')).filter(Boolean);
+}
+
+function memeArbre(a, b) {
+  try { return fs.realpathSync(a) === fs.realpathSync(b); } catch { return false; }
+}
+
+function chargerIgnoresGit() {
+  // 1. NOMINAL — un depot git dont la racine EST l'arbre mesure.
+  const top = lancerGit(['-C', REPO, 'rev-parse', '--show-toplevel']);
+  if (top.ok && memeArbre(top.stdout.trim(), REPO)) {
+    const r = lancerGit(['-C', REPO, ...ARGS_IGNORES]);
+    if (r.ok) {
+      return { actif: true, regime: 'NOMINAL', detail: 'depot git, racine == arbre mesure',
+        chemins: decouperIgnores(r.stdout) };
+    }
   }
-  if (r.status !== 0) {
-    const premiere = String(r.stderr || '').trim().split('\n')[0] || `code de sortie ${r.status}`;
-    return { actif: false, motif: `git n'a pas repondu sur ${REPO} (${premiere})`, chemins: [] };
+  // 2. SANS DEPOT — git est la, le depot n'y est pas (ou sa racine n'est pas l'arbre mesure).
+  //    GIT_DIR jetable monte HORS de l'arbre ; les `.gitignore` VERSIONNES de l'arbre font foi.
+  let shim = null;
+  try {
+    shim = fs.mkdtempSync(path.join(os.tmpdir(), 'g-route-ignore-'));
+    if (lancerGit(['init', '--bare', '-q', shim]).ok) {
+      const r = lancerGit(['--git-dir', shim, '--work-tree', REPO, '-C', REPO, ...ARGS_IGNORES]);
+      if (r.ok) {
+        return { actif: true, regime: 'SANS DEPOT',
+          detail: `aucun depot sur l'arbre mesure (${top.ok ? 'racine git != arbre mesure' : top.motif})`
+            + ' — regles lues par git via un GIT_DIR jetable, arbre NON modifie',
+          chemins: decouperIgnores(r.stdout) };
+      }
+    }
+  } catch { /* le repli 3 traite le cas */ } finally {
+    if (shim) { try { fs.rmSync(shim, { recursive: true, force: true }); } catch { /* ignore */ } }
   }
-  // `-z` : separateur NUL, donc AUCUN echappement des chemins non-ASCII (le depot en porte).
-  // Les repertoires entierement ignores reviennent avec un `/` final, qu'on normalise.
-  const chemins = String(r.stdout).split('\0')
-    .map((s) => s.replace(/\/+$/, ''))
-    .filter(Boolean);
-  return { actif: true, motif: null, chemins };
+  // 3. DEGRADE — le BINAIRE git manque : EXCLUS SEUL, et on le crie.
+  return { actif: false, regime: 'DEGRADE', detail: top.motif || 'git indisponible', chemins: [] };
 }
 
 const IGNORES_GIT = chargerIgnoresGit();
 const IGNORES_SET = new Set(IGNORES_GIT.chemins);
 
 // La garde DIT dans quel regime elle tourne — a chaque execution, vert compris. Un perimetre qui
-// change en silence selon la presence de git est un vert qui ne prouve rien.
+// change en silence selon la disponibilite de git est un vert qui ne prouve rien.
 const REGIME_PERIMETRE = IGNORES_GIT.actif
-  ? `[G-ROUTE] perimetre NOMINAL : EXCLUS (${EXCLUS.length} entree(s)) + ce que GIT IGNORE `
-    + `(${IGNORES_GIT.chemins.length} entree(s) racine). Les fichiers NEUFS non encore ajoutes `
-    + 'restent balayes (critere = ignore, PAS non-suivi).'
-  : `[G-ROUTE] *** MODE DEGRADE *** : ${IGNORES_GIT.motif}. Le balayage se rabat sur EXCLUS SEUL `
+  ? `[G-ROUTE] perimetre ${IGNORES_GIT.regime} (${IGNORES_GIT.detail}) : EXCLUS `
+    + `(${EXCLUS.length} entree(s)) + ce que GIT IGNORE (${IGNORES_GIT.chemins.length} entree(s) `
+    + 'racine). Les fichiers NEUFS non encore ajoutes restent balayes : le critere est IGNORE, '
+    + 'PAS non-suivi.'
+  : `[G-ROUTE] *** MODE DEGRADE *** : ${IGNORES_GIT.detail}. Le balayage se rabat sur EXCLUS SEUL `
     + `(${EXCLUS.length} entree(s)) : un artefact de build present dans l'arbre SERA balaye, et un `
     + 'vert obtenu ici ne prouve RIEN sur les chemins gitignores.';
 console.log(REGIME_PERIMETRE);
