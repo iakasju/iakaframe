@@ -698,5 +698,15 @@
     "dirty": false,
     "files": 1078,
     "note": "Landing des trois lots empiles dans main par merges etages : models-par-rolekey, scission du squad prod (Charon passe / Helm veille), correctif de routage prod vers Charon. Gate qualite PASS avant merge (16 CA sur 16) et re-gate PASS apres merge. Version portee a 0.39.0. Reserves ouvertes : R-1/R-2 (garde de routage enumerante) en cadrage successeur ; R-5 (README:227 juste mais sous aucune garde) ; R-6 (skips de parite GUI trompeurs en worktree) ; derive vendor-check 0 -> 23 fixtures, successeur GUI-VENDOR-CHARON. Dette de tagging signalee, non traitee."
+  },
+  {
+    "date": "2026-08-16 22:27",
+    "reason": "manual",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "3111230 merge(garde): fusion du lot garde-balayante-routage-prod dans main",
+    "dirty": false,
+    "files": 1079,
+    "note": "Lot garde-balayante-routage-prod : les gardes de routage cessent d'enumerer et se mettent a balayer. 8 sites de defaut corriges dont 1 inedit (doc/index.html) que trois releves successifs avaient manque. 5 gardes : G-ROUTE-2 de-enumeree, G-ROUTE-1 elargie aux skills, G-ROUTE-4 (affectation ancree sur le canon) et G-ROUTE-5 (registre des angles morts) neuves. Gate Legolas PASS apres un FAIL leve (artefact de build gitignore rendait la suite rouge en permanence). QUATRE arbitrages de coordination inscrits REVERSIBLES, non enonces par le decideur : (a) exemption du canon, (b) abandon de la clause symetrique de D7, (c) exemption de BACKLOG.md, (d) frontiere git-ignore. Reserves ouvertes : sur-affirmation \"couverture identique au bit pres\", perimetre dependant du core.excludesFile de la machine, frontiere non perissable. Successeurs nommes : GUI-VENDOR-CHARON (0 -> 24 fixtures dont 4 manquantes), ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE, correctif du generateur d'etat des lieux. Dette de tagging signalee, non traitee."
   }
 ]

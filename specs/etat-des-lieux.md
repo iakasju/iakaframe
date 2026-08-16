@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-08-15 23:00 (motif: version).
+> Genere par iakaframe (CLI) le 2026-08-16 22:27 (motif: manual).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,91 +9,91 @@
 |---|---|
 | Version | v0.39.0 |
 | Branche | main |
-| Dernier commit | e6b568f merge(routage): fusion du lot correctif-routage-prod-vers-charon dans main |
+| Dernier commit | 3111230 merge(garde): fusion du lot garde-balayante-routage-prod dans main |
 | Arbre | propre |
-| Fichiers (hors .git/node_modules) | 1078 |
-| Note | Landing des trois lots empiles dans main par merges etages : models-par-rolekey, scission du squad prod (Charon passe / Helm veille), correctif de routage prod vers Charon. Gate qualite PASS avant merge (16 CA sur 16) et re-gate PASS apres merge. Version portee a 0.39.0. Reserves ouvertes : R-1/R-2 (garde de routage enumerante) en cadrage successeur ; R-5 (README:227 juste mais sous aucune garde) ; R-6 (skips de parite GUI trompeurs en worktree) ; derive vendor-check 0 -> 23 fixtures, successeur GUI-VENDOR-CHARON. Dette de tagging signalee, non traitee. |
+| Fichiers (hors .git/node_modules) | 1079 |
+| Note | Lot garde-balayante-routage-prod : les gardes de routage cessent d'enumerer et se mettent a balayer. 8 sites de defaut corriges dont 1 inedit (doc/index.html) que trois releves successifs avaient manque. 5 gardes : G-ROUTE-2 de-enumeree, G-ROUTE-1 elargie aux skills, G-ROUTE-4 (affectation ancree sur le canon) et G-ROUTE-5 (registre des angles morts) neuves. Gate Legolas PASS apres un FAIL leve (artefact de build gitignore rendait la suite rouge en permanence). QUATRE arbitrages de coordination inscrits REVERSIBLES, non enonces par le decideur : (a) exemption du canon, (b) abandon de la clause symetrique de D7, (c) exemption de BACKLOG.md, (d) frontiere git-ignore. Reserves ouvertes : sur-affirmation "couverture identique au bit pres", perimetre dependant du core.excludesFile de la machine, frontiere non perissable. Successeurs nommes : GUI-VENDOR-CHARON (0 -> 24 fixtures dont 4 manquantes), ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE, correctif du generateur d'etat des lieux. Dette de tagging signalee, non traitee. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `e6b568f` | 2026-08-15 | merge(routage): fusion du lot correctif-routage-prod-vers-charon dans main |
-| `6e93d8c` | 2026-08-15 | merge(scission): fusion du lot scission-squad-prod-charon-helm dans main |
-| `4f68034` | 2026-08-15 | merge(models): fusion du lot models-par-rolekey dans main |
-| `82cbc56` | 2026-08-15 | docs(instruction): releve d'execution - 16 CA coches, verdict PASS de Legolas |
-| `ece3bc1` | 2026-08-10 | chore(derives): goldens, manifeste et vitrine REGENERES - jamais ecrits |
-| `cc726a1` | 2026-08-10 | docs(narratif+cadrage): le squad prod a deux adresses, et la regle qui l'a rate |
-| `47e8367` | 2026-08-10 | fix(kits): les artefacts par-persona cessent d'etre pre-scission - 2 reecrits |
-| `5a8a01a` | 2026-08-10 | fix(canon): les 3 routeurs adressent la prod a Charon - 9 sites, un par un |
-| `0b9d7fa` | 2026-08-10 | test(gardes): G-ROUTE-1/2/3 ecrites et VUES ROUGES avant toute correction |
-| `f4bee5c` | 2026-08-10 | docs(methode): cadrage du correctif de routage prod vers Charon |
+| `3111230` | 2026-08-16 | merge(garde): fusion du lot garde-balayante-routage-prod dans main |
+| `cef9e29` | 2026-08-16 | docs(instruction): § 15.3 - reproduction re-verifiee sur le HEAD final |
+| `a24e4a9` | 2026-08-16 | docs(instruction): § 15 - chemin:ligne exacts vers la frontiere et les trois regimes |
+| `44720e4` | 2026-08-16 | docs(instruction): § 15 - reprise sur FAIL, arbitrage (d) consigne, contradiction de l'ordre rendue, releve corrige |
+| `61c1634` | 2026-08-16 | fix(garde): repli SANS DEPOT - « pas de depot » n'est pas « pas de git » |
+| `2babe04` | 2026-08-16 | fix(garde): QUATRIEME ARBITRAGE (d) - le balayage ne descend plus dans ce que GIT IGNORE |
+| `3967a04` | 2026-08-16 | docs(instruction): releve RE-MESURE post-(c), CA-1..CA-19 deroules, et UN CONSTAT NEUF non arbitre |
+| `f1fe2e2` | 2026-08-16 | fix(garde): TROISIEME ARBITRAGE (c) - BACKLOG.md exempte au titre de D5, faux positif de PORTEE |
+| `9d0cf66` | 2026-08-16 | docs(instruction): releve RE-CONSIGNE post-decision + UNE NOUVELLE CONTRADICTION remontee (BACKLOG.md) |
+| `411221f` | 2026-08-16 | chore(derives): etape 8 (suite) - un TROISIEME generateur que le § 7 ne listait pas |
 
 ## Reprise du travail (a completer par Cowork)
 
-- **Ce qui vient d'etre fait (2026-08-15 - landing des 3 lots empiles sur `main`)** : trois lots
-  fusionnes par merges etages, dans cet ordre - `models-par-rolekey` (`4f68034`), scission du squad
-  prod (`6e93d8c` : **Charon passe** en production, **Helm veille** sur ce qui est deploye), correctif
-  de routage prod vers Charon (`e6b568f` : les 3 routeurs adressent la prod a Charon, 9 sites repris
-  un par un, gardes `G-ROUTE-1/2/3` ecrites et **VUES ROUGES** avant toute correction). Gate qualite
-  Legolas **PASS** avant merge (**16 criteres d'acceptation sur 16**) **et re-gate PASS apres merge**.
-  `main` poussee sur `origin` en **fast-forward** : `ccdbd9a..e6b568f`, 48 commits. Version portee a
-  **v0.39.0** (autorite `cli/package.json`).
+- **Ce qui vient d'etre fait (2026-08-16 - landing du lot `garde-balayante-routage-prod`)** : le lot
+  a ete fusionne dans `main` par un merge **`--no-ff` DELIBERE** (`3111230`), alors qu'un fast-forward
+  etait techniquement possible (`main` etait ancetre, 19 commits, tete `cef9e29`). Le choix est
+  assume : trois gates franchis et quatre arbitrages subis meritent un point d'ancrage nomme dans
+  l'histoire plutot que 19 commits fondus dans la ligne. Contenu : **les gardes de routage cessent
+  d'enumerer et se mettent a balayer** - 8 sites de defaut corriges dont **1 inedit** (`doc/index.html`)
+  que trois releves successifs avaient manque ; 5 gardes (`G-ROUTE-2` de-enumeree, `G-ROUTE-1` elargie
+  aux skills, `G-ROUTE-4` affectation ancree sur le canon et `G-ROUTE-5` registre des angles morts,
+  toutes deux neuves). Aucun conflit au merge : `main` n'avait pas bouge depuis `b6b500d`.
 
-- **Ce qui a ete MESURE - et ce qui ne l'a PAS ete** : mesure par Legolas sur l'etat merge -
-  `node --test` **642 tests / 635 pass / 0 fail / 7 skipped** ; `iakaframe agents --check` **exit 0** ;
-  rejeu des 4 generateurs -> **diff vide** (les derivees sont bien REGENEREES, jamais ecrites) ;
-  combined-diff des 3 merges -> **2 lignes de matiere humaine** en tout. En revanche **lint, typage et
-  couverture ne sont PAS mesures** : le depot ne porte ni eslint ni tsconfig. Legolas a **SUBSTITUE**
-  `node --check` (210 fichiers, 0 echec) et `JSON.parse` (37 fichiers, 0 echec), et l'a declare
-  **comme une substitution**. Ce n'est pas un lint vert : ne jamais le relire comme tel.
+- **Le verdict qui autorise ce merge** : gate **Legolas PASS** sur `cef9e29`, branche declaree
+  **mergeable franchement**, apres un **FAIL leve** (un artefact de build gitignore rendait la suite
+  rouge en permanence). Mesures refaites par le gate : suite **644 / 643 pass / 0 fail / 1 skip** ;
+  **differentiel causal prouve** (`3967a04` pass 4 / fail 1 contre `cef9e29` pass 5 / fail 0, artefact
+  de build present dans les deux cas) ; couverture **675 = 675**, non regressee et superieure a celle
+  de `main` ; `GIT_DIR` jetable **n'ecrit rien** (1487 fichiers haches avant/apres, diff vide) ;
+  anti-complaisance **passe** (asserts 23 -> 24, aucun retire).
 
-- **En cours / a reprendre (reserves ouvertes, aucune bloquante)** :
-  - **R-1 / R-2 - garde de routage enumerante** : les gardes `G-ROUTE` livrees nomment les sites un
-    par un ; une garde **balayante** reste a instruire. Renvoyees a un **cadrage successeur**, en
-    cours au moment de ce checkpoint (worktree `cadrage-balayante`, branche
-    `specs/cadrage-garde-routage-balayante`).
-  - **R-5 - `README.md:227`** : l'enonce est **juste**, mais il n'est tenu par **aucune garde** - rien
-    n'empeche qu'il redevienne faux en silence.
-  - **R-6 - skips de parite GUI trompeurs en worktree** : **confirmee independamment ce jour**
-    (cf. Pieges connus, point 3).
-  - **D10 - derive de vendorage `0 -> 23 fixtures`** : la ligne de base reelle etait **`OK`, 0 derive**
-    au commit `ccdbd9a` ; apres landing, `vendor-check` remonte **DERIVE - 23 fixture(s) sur 82
-    verifiee(s)** (re-verifie ce jour). C'est la consequence **attendue** de la scission Charon/Helm
-    cote canon : 3 fixtures manquantes (`personas/charon.md`, `roles/surveillance.md`,
-    `skills/iakaframe-surveillance/SKILL.md`) + 20 contenus differents. **Reserve declaree, PAS un
-    echec** ; successeur **`GUI-VENDOR-CHARON`** = re-vendoriser le miroir `iakaFrameGUI`.
+- **Ce qui a ete MESURE - et ce qui ne l'a PAS ete** : **lint, typage et couverture ne sont PAS
+  mesures** - le depot ne porte ni eslint ni tsconfig. Legolas a **SUBSTITUE** `node --check`
+  (210 fichiers) et `JSON.parse` (37 fichiers), et l'a **declare comme une substitution**. Ne jamais
+  relire ces deux passes comme un lint vert.
 
-- **Prochaine etape concrete** : laisser aboutir le **cadrage de la garde de routage balayante**
-  (R-1/R-2), deja engage dans son propre worktree - ne pas y toucher en parallele. Le premier lot de
-  dev actionnable ensuite est **`GUI-VENDOR-CHARON`** (re-vendorisation du miroir `iakaFrameGUI` pour
-  ramener `vendor-check` a 0 derive). La **dette de tagging** (ci-dessous) est un chantier **distinct**,
-  a arbitrer par le decideur.
+- **`vendor-check` : 24 / 82 sur la branche contre 23 sur `main`** - le `+1` est **source**
+  (`[copy] skills/iakaframe-fabrication/SKILL.md <- contenu-different`). C'est une **reserve declaree
+  (`D10`), pas un echec**. Consequence de perimetre : le successeur **GUI-VENDOR-CHARON** ne part plus
+  de `OK` / 0 derive mais de **24**, dont **4 fixtures manquantes**.
 
-- **Pieges connus** :
-  1. **`snapshot` nomme le projet d'apres le DOSSIER** : `const project = path.basename(root)`
-     (`cli/src/commands/snapshot.js:97`). Genere depuis un worktree, l'etat des lieux s'intitule donc
-     « Etat des lieux - merge-main ». Contourne ce jour par une **racine symlinkee nommee `iakaframe`**,
-     de sorte que la sortie du generateur est **canonique et non retouchee a la main**. Defaut a
-     instruire : le nom devrait venir du canon, pas du chemin.
-  2. **Le compte « Fichiers » chute de 1469 a 1078** sans qu'aucun fichier ait disparu : `countFiles`
-     n'exclut que `.git` et `node_modules`, donc genere depuis la racine reelle il compte **aussi les
-     worktrees** sous `.claude/worktrees/`. **1078 est le compte honnete** du seul arbre `iakaframe` ;
-     les valeurs anterieures etaient gonflees.
-  3. **`vendor-check` lance depuis un worktree rend `SKIP` et `exit 0`** : il cherche `iakaFrameGUI`
-     **a cote du worktree**, ne le trouve pas, et **ne compare rien** - un vert qui ne prouve RIEN.
-     Toujours forcer `IAKAFRAME_GUI_ROOT=/Users/sjupin/work/iakaFrameGUI`. C'est **R-6**, reproduite.
-  4. **Dette de tagging CONSTATEE, NON TRAITEE** : `git describe --tags` rend `v0.20.4-213-ge6b568f`
-     face a une version d'autorite `0.39.0` (8 tags au total, le dernier `v0.20.4`). **Aucun tag n'a
-     ete pose sous ce lot, a dessein.**
-  5. **Hygiene** : le remote `origin` porte le **token en clair** dans le `.git/config` local (visible
-     dans toute sortie `git remote -v`). Hors suivi git, donc jamais commite - mais tout copier-coller
-     de sortie git le divulgue. Constat consigne, non bloquant.
+- **QUATRE arbitrages de coordination, inscrits REVERSIBLES** : (a) exemption du canon, (b) abandon
+  de la clause symetrique de D7, (c) exemption de `BACKLOG.md`, (d) frontiere git-ignore. Ils ont ete
+  pris **sous autonomie deleguee** et **ne sont PAS enonces par le decideur** : chacun reste ouvert a
+  revision. Reserves encore ouvertes : sur-affirmation *"couverture identique au bit pres"* ; perimetre
+  du balayage **dependant du `core.excludesFile` de la machine** ; frontiere **non perissable**.
+
+- **En cours / a reprendre** : successeurs nommes par le lot - **GUI-VENDOR-CHARON** (derive
+  vendor-check 0 -> 24 fixtures dont 4 manquantes), **ROLE-VOCAB-CANON**, **GUI-PARITE-WORKTREE**, et
+  le **correctif du generateur d'etat des lieux** (cadre dans
+  `specs/instructions/correctif-generateur-etat-des-lieux.md`, branche `specs/cadrage-snapshot-defauts`,
+  **non corrige a ce jour**). **Dette de tagging** signalee et **non traitee** : le dernier tag est
+  `v0.20.4` face a une version d'autorite `0.39.0` - chantier distinct, hors de ce lot, **aucun tag
+  pose ici**.
+
+- **Prochaine etape concrete** : engager l'un des successeurs nommes - le plus contraint est
+  **GUI-VENDOR-CHARON** (les 4 fixtures manquantes bloquent le retour a drift 0), le moins couteux est
+  le **correctif du generateur d'etat des lieux** (deja cadre, il supprime deux contournements subis a
+  chaque checkpoint).
+
+- **Pieges connus** : (1) le generateur derive le nom du projet de `path.basename(root)`
+  (`cli/src/commands/snapshot.js:97`) - un checkpoint lance depuis un worktree mal nomme **titre l'etat
+  des lieux au nom du worktree** ; ce lot a ete versionne depuis un worktree nomme `iakaframe`
+  **a dessein**, sans symlink ni contournement. (2) `--version` **n'est pas normalise** : passer `0.39.0`
+  ecrirait `0.39.0` sans le `v`, en rupture avec toutes les entrees anterieures du journal - toujours
+  passer **`v0.39.0`**. (3) La section « Reprise du travail » est **ecrasee par des placeholders** a
+  chaque regeneration : lancer `iakaframe update` d'un bloc commiterait le narratif vide. Ici le
+  checkpoint a donc ete **decompose** (`snapshot` -> redaction du narratif -> `commit` -> `push`) pour
+  ne produire **qu'un seul** commit d'etat des lieux. (4) Un **artefact de build gitignore** peut
+  rendre la suite rouge en permanence : c'est la cause du FAIL initial de ce lot.
 
 ## Journal (versions & pauses)
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-08-16 22:27 | manual | v0.39.0 | main | Lot garde-balayante-routage-prod : les gardes de routage cessent d'enumerer et se mettent a balayer. 8 sites de defaut corriges dont 1 inedit (doc/index.html) que trois releves successifs avaient manque. 5 gardes : G-ROUTE-2 de-enumeree, G-ROUTE-1 elargie aux skills, G-ROUTE-4 (affectation ancree sur le canon) et G-ROUTE-5 (registre des angles morts) neuves. Gate Legolas PASS apres un FAIL leve (artefact de build gitignore rendait la suite rouge en permanence). QUATRE arbitrages de coordination inscrits REVERSIBLES, non enonces par le decideur : (a) exemption du canon, (b) abandon de la clause symetrique de D7, (c) exemption de BACKLOG.md, (d) frontiere git-ignore. Reserves ouvertes : sur-affirmation "couverture identique au bit pres", perimetre dependant du core.excludesFile de la machine, frontiere non perissable. Successeurs nommes : GUI-VENDOR-CHARON (0 -> 24 fixtures dont 4 manquantes), ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE, correctif du generateur d'etat des lieux. Dette de tagging signalee, non traitee. |
 | 2026-08-15 23:00 | version | v0.39.0 | main | Landing des trois lots empiles dans main par merges etages : models-par-rolekey, scission du squad prod (Charon passe / Helm veille), correctif de routage prod vers Charon. Gate qualite PASS avant merge (16 CA sur 16) et re-gate PASS apres merge. Version portee a 0.39.0. Reserves ouvertes : R-1/R-2 (garde de routage enumerante) en cadrage successeur ; R-5 (README:227 juste mais sous aucune garde) ; R-6 (skips de parite GUI trompeurs en worktree) ; derive vendor-check 0 -> 23 fixtures, successeur GUI-VENDOR-CHARON. Dette de tagging signalee, non traitee. |
 | 2026-08-03 21:04 | version | v0.39.0 | feat/models-par-rolekey | Verbe models : suggestions de modeles d'IA par roleKey + mise a disposition interactive (5 cibles), source unique models/suggestions.json, binding ollama, recette guidee. Reprise apres gate qualite FAIL. |
 | 2026-07-31 22:50 | pause | v0.38.0 | main | Lot livre : snapshot derive desormais la version du package.json des projets NON TAGUES. Cause tracee dans le code - authorityVersion() ne derivait que si pkg.name valait '@naonedge/iakaframe', donc pour iakaframe lui-meme ; tout autre projet retombait sur git describe --tags, et un projet sans tag n avait plus rien (constate en cloturant iakaFrameGUI : 'Version : -' alors que package.json portait 0.1.4). Touchait tout le portefeuille, pas seulement le GUI. CASCADE COMPLETE : --version explicite -> autorite cli/package.json -> git describe --tags -> package.json du projet -> '-'. Le nouveau repli est place APRES git describe A DESSEIN : un projet qui tague garde son comportement mot pour mot, le repli n ajoute du renseigne que la ou il n y avait rien, aucun projet existant ne change de version. Effet de bord corrige : le '// -' du repli git court-circuitait toute cascade ulterieure, il rend maintenant '' pour laisser la main. TESTS : 3 gardes G4 ajoutees a guard-version-source-unique (tiers sans tag -> package.json ; tiers avec tag ET package.json -> le tag prime, non-regression ; ni tag ni version exploitable -> tiret maintenu, jamais de version inventee). Suite CLI 597 pass / 0 fail. docs/commandes.md documente la cascade. RAPPEL DE LA SESSION : l aide vendor-check derive aussi son compte du manifeste (82 = 78+4) au lieu de le recopier - meme geste, meme cause de fond, un chiffre duplique a la main finit par mentir. RESTE OUVERT, sans urgence : specs/instructions/outillage-scrub-miroir-frame.md est PROPOSEE depuis le 21/07, jamais engagee (3 arbitrages ouverts au § 9) ; son critere C7 cite litteralement 'OK - 17 copies + 4 derivees', ecriture perimee dont l intention reste valide - a recalculer au dispatch ou a archiver. |
