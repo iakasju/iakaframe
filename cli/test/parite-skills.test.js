@@ -37,7 +37,9 @@ test('C19 jalon declare layer: capacity (source vivante)', () => {
 });
 
 // 26 -> 27 skills et 9 -> 10 personas a la SCISSION DU SQUAD PROD (2026-08-08) :
-// `iakaframe-surveillance` (skill neuve) et `charon` (persona neuve).
+// `iakaframe-surveillance` (skill neuve, veille) et `charon` (persona neuve, qui reprend
+// `iakaframe-deploiement`) : la scission a coupe l'ancien poste prod en DEUX, il faut donc
+// nommer les DEUX moities — un compteur qui n'en connait qu'une compte un roster perime.
 test('compteurs : domaine iakaframe = 27 skills, roster = 10 personas', () => {
   const m = JSON.parse(fs.readFileSync(GOLDEN, 'utf8'));
   assert.equal(m.counts.skills, 27);
