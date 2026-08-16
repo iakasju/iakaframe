@@ -761,6 +761,12 @@ crie.
 
 ### 13.0 🛑 TROIS ARBITRAGES DE COORDINATION — leur provenance est un fait du lot
 
+> 🛑 **Ils sont désormais QUATRE.** Un **quatrième** — **(d)**, *le balayage ne descend pas dans
+> ce que git ignore* — a été pris à la **reprise sur `FAIL`** du gate qualité, et il est consigné
+> au **§ 15**, avec les mêmes exigences de provenance et de réversibilité. Le présent § garde son
+> titre d'origine parce qu'il **date** : il consigne l'état à la remise. *Une trace ne se réécrit
+> pas ; elle se complète et se renvoie.*
+
 > **Ces trois décisions sont celles de la COORDINATION, prises sous autonomie déléguée. Ce ne
 > sont PAS les arbitrages du décideur : il ne les a pas énoncés.** Elles sont inscrites ici, et
 > dans l'exécutable, **comme telles — réversibles s'il les reprend**. Ce qui est de lui, et sur
@@ -1250,3 +1256,183 @@ la garde, donc le registre ne peut pas servir de placard.**
    > aussi : **la mention « rejeu des 5 générateurs → git status VIDE » du relevé précédent était
    > inexacte** — `bundle.js` n'avait pas été rejoué, sans quoi le rouge serait apparu à ce
    > moment-là. *Un inventaire est un instantané, y compris quand c'est le mien.*
+
+---
+
+## 15. Reprise sur `FAIL` — ⚒️ Gimli (P2), 2026-08-16
+
+> 🏹 **Le gate qualité a rendu `FAIL` sur un motif unique**, et c'est celui que j'avais remonté
+> **sans l'arbitrer** au § 14.3(8). Il l'a qualifié, mesuré, et établi que c'est une **régression
+> par rapport à `main`** :
+>
+> | Arbre | après `node cli/scripts/bundle.js` |
+> |---|---|
+> | `main` (`b6b500d`) | `tests 3 · pass 3 · fail 0` |
+> | branche (`3967a04`) | `tests 5 · pass 4 · **fail 1**` |
+>
+> Ce qui rend le motif **dur** : `bundle.js` est câblé en **`prepack` ET `prepublishOnly`**
+> (`cli/package.json:21-22`). Un `npm pack` ou un `npm publish` le déclenche **tout seul**, et
+> `cli/_bundled/` étant **gitignoré**, l'artefact **persiste** — la suite reste rouge **en
+> permanence** jusqu'à suppression manuelle.
+
+### 15.0 🛑 ARBITRAGE **(d)** DE COORDINATION — provenance et réversibilité
+
+> **Quatrième arbitrage de la COORDINATION, sous autonomie déléguée. Ce n'est PAS un arbitrage du
+> décideur** — il ne l'a pas énoncé. Inscrit **réversible**, comme les trois autres. Ce qui est de
+> lui et sur quoi il s'appuie : **`D6`** (dé-énumération) et **`D7`** (ancrage sur la source de
+> vérité), tous deux dans la doctrine validée en bloc.
+
+| # | Point | Décision | Où elle vit |
+|---|---|---|---|
+| **(d)** | Le balayage descendait dans les **artefacts de build gitignorés** — `cli/_bundled/library/personas/helm.md`, copie octet pour octet du canon, **11 lignes rouges pour ZÉRO défaut** | **LE BALAYAGE NE DESCEND PLUS DANS CE QUE GIT IGNORE** — frontière **structurelle**, portée **dynamique**, jamais énumérée | `cli/test/route-prod.test.js:63` (frontière) · `:140` (3 régimes) · `:262` (branchement dans `scanner`) |
+
+**Pourquoi cette voie CONTRE les deux autres — c'est la doctrine du lot qui tranche.**
+
+- *Ajouter `cli/_bundled` à `EXCLUS`* serait **ré-énumérer**, exactement le défaut que ce lot
+  abolit. Ça ne couvrirait que **ce** build ; le prochain artefact gitignoré repasserait dessous,
+  et on aurait écrit une **quatrième liste oubliée**.
+- *Élargir la portée de **(a)** aux copies* traite le symptôme **sur un seul fichier** et laisse
+  passer toute autre copie d'un autre canon.
+- *Ignorer ce que git ignore* est **la seule voie anti-énumérante** : la garde **tire son
+  périmètre d'une source de vérité** au lieu de le réciter — le geste exact de `D7`. Et `EXCLUS`
+  contenait déjà `.git` et `node_modules`, **tous deux gitignorés** : cette voie ne fait pas
+  qu'ajouter une règle, elle **remplace une énumération partielle par sa source**.
+
+**Un artefact gitignoré n'est pas du contenu du dépôt** : c'est une **sortie**, dérivée et jamais
+versionnée. Une garde qui vérifie ce que le dépôt **dit** n'a pas à juger ce qu'un build
+**fabrique**.
+
+### 15.1 Les trois exigences de forme — tenues, et **prouvées**
+
+**1. On exclut ce que git IGNORE, pas ce que git ne SUIT pas.** `git ls-files --others --ignored
+--exclude-standard --directory` ne rend **que** l'ignoré. **Prouvé par bascule**, à contenu
+**identique** :
+
+| Le même fichier, même contenu fautif | Statut git | Verdict des gardes |
+|---|---|---|
+| `docs/_preuve-untracked-non-ignore.md` | `??` untracked, **non ignoré** (`git check-ignore` → exit 1) | 🔴 **2 gardes ROUGES** — `G-ROUTE-4` (`:2  « helm » associé à « iakaframe-deploiement »`) **et** `G-ROUTE-1/skills` |
+| `cli/_bundled/_preuve-ignore.md` | **ignoré** (`cli/.gitignore:3:_bundled/`) | 🟢 **5 gardes vertes** |
+
+*Un fichier neuf non encore ajouté reste pleinement balayé.* On ne rouvre pas un angle mort par la
+fenêtre en croyant fermer la porte. Les deux artefacts de preuve ont été **supprimés**.
+
+**2. Repli si git est absent — et 🛑 LA PRÉMISSE DE LA CONSIGNE ÉTAIT FAUSSE.** Voir § 15.2 : ce
+point est le seul de la reprise qui n'a pas pu être exécuté à la lettre.
+
+**3. La frontière porte son motif, sa portée et sa condition de levée** au sens de `D5`
+(`route-prod.test.js:117-135`), et son triplet est **contrôlé par `assert`** (`:136`) — *une
+frontière de scan posée sans motif écrit est une énumération silencieuse de plus.*
+
+> **Pourquoi elle n'est PAS rangée dans `EXEMPTIONS`, et c'est délibéré.** La péremption `D5`
+> mesure une **rougeur résiduelle** sur une **portée de chemins FIXES**. Ici la portée est
+> **dynamique** et **vide par construction** dans un arbre propre (aucun build en cours) :
+> l'entrée serait déclarée **MORTE à la seconde où on l'écrit**, et la garde exigerait de
+> supprimer la frontière qu'elle vient de poser. **Une exemption pardonne un CONTENU jugé ; une
+> frontière dit où le scan S'ARRÊTE** — c'est la nature d'`EXCLUS`, pas celle d'`EXEMPTIONS`. Le
+> motif est écrit sur place.
+
+### 15.2 🛑 CONTRADICTION DANS L'ORDRE DE REPRISE — signalée, et **résolue sur une prémisse de fait**
+
+**Les deux exigences ne peuvent pas tenir ensemble telles qu'écrites.** L'ordre demande :
+
+- *exigence de forme n° 2* — « l'absence de git **dégrade proprement** : le balayage continue,
+  **sur `EXCLUS` seul** » ;
+- *tâche n° 2* — « la reproduction du gate doit **repartir VERTE** », reproduction qui s'exécute
+  sur `git archive | tar -x`, donc dans un arbre **sans `.git`**.
+
+**Mesuré, pas supposé.** Repli sur `EXCLUS` seul + arbre sans `.git` + `bundle.js` rejoué = **les
+11 lignes rouges reviennent intégralement**. Le repli prescrit rendait donc le correctif
+**inopérant dans l'exacte situation de mesure du gate** — c'est-à-dire **invisible de qui doit le
+vérifier**. Sortie obtenue sur `2babe04`, avant correction :
+
+```
+✖ G-ROUTE-2 : ... actual: [ 'cli/_bundled/library/personas/helm.md:5  ...', ... 11 entrées ]
+```
+
+**Ce que j'ai corrigé, et ce n'est PAS une question de couverture : « pas de dépôt » n'est pas
+« pas de git ».** Dans cet arbre, **git le binaire est présent** — c'est lui qui a produit
+l'extraction. Seul le **dépôt** manque. Et les `.gitignore` sont **versionnés**, donc **dans le
+tarball**. On demande donc à **git lui-même** d'évaluer **ses propres règles**, via un `GIT_DIR`
+**jetable monté hors de l'arbre mesuré** — *aucun octet écrit dans l'arbre : une garde ne mute
+jamais ce qu'elle mesure.*
+
+| Régime | Condition | Périmètre | Déclaré sur `stdout` |
+|---|---|---|---|
+| **`NOMINAL`** | dépôt git dont la **racine est l'arbre mesuré** | `EXCLUS` + ce que git ignore | ✅ |
+| **`SANS DEPOT`** | binaire git présent, **pas de dépôt** (ou racine ≠ arbre mesuré) | **identique au bit près** — même commande, mêmes règles, même critère | ✅ |
+| **`DEGRADE`** | le **binaire** git manque | `EXCLUS` **seul**, tel que prescrit | ✅ **crié** |
+
+**La couverture est identique au bit près entre `NOMINAL` et `SANS DEPOT`** : même commande, mêmes
+règles, même critère *« ignoré et non non-suivi »*. Seul change le **chemin d'accès** à la réponse.
+**Ce n'est pas un élargissement de périmètre : c'est la correction d'une prémisse.**
+
+`NOMINAL` exige **en plus** que la racine git soit **l'arbre mesuré** : une extraction posée par
+mégarde **sous un autre dépôt** ferait sinon répondre le dépôt **parent**, avec des chemins
+relatifs à **sa** racine — *un périmètre juste en apparence et faux en fait*. Ce cas bascule en
+`SANS DEPOT`.
+
+> 🛑 **Écart de lecture assumé, et je le rends à la coordination.** Tenue **à la lettre**, la
+> consigne « `EXCLUS` seul » rend la reproduction du gate **rouge**. Je ne tranche **aucune**
+> question de couverture ici — je corrige un **fait**. **RÉVERSIBLE en un geste** : supprimer le
+> régime `SANS DEPOT` (`route-prod.test.js:189-205`) restaure le repli à la lettre — et la
+> reproduction du gate **repartira rouge**.
+
+**Le régime `DEGRADE` se déclare bruyamment**, vérifié en le provoquant (`PATH` sans `git`) :
+
+```
+[G-ROUTE] *** MODE DEGRADE *** : binaire git injoignable (ENOENT). Le balayage se rabat sur
+EXCLUS SEUL (4 entree(s)) : un artefact de build present dans l'arbre SERA balaye, et un vert
+obtenu ici ne prouve RIEN sur les chemins gitignores.
+```
+
+*Un vert obtenu en mode dégradé qui ne se déclare pas est exactement le « vert qui ne prouve
+rien » reproché à `vendor-check`.* Le régime est **imprimé à chaque exécution, vert compris**, et
+**repris dans le message d'échec** de `G-ROUTE-4`.
+
+### 15.3 🛑 La reproduction du gate, **rejouée par moi, VERTE**
+
+Telle que le gate l'a écrite, avec le nouveau `HEAD` :
+
+```
+$ git archive 61c1634 | tar -x -C <tmp> && cd <tmp>
+$ node cli/scripts/bundle.js
+  + _bundled/kits · + _bundled/library · + _bundled/methods · + _bundled/design-naonedge
+  bundle OK : 4 asset(s) -> _bundled/ (version v0.39.0)
+$ node --test cli/test/route-prod.test.js
+[G-ROUTE] perimetre SANS DEPOT (aucun depot sur l'arbre mesure — regles lues par git via un
+GIT_DIR jetable, arbre NON modifie) : EXCLUS (4 entree(s)) + ce que GIT IGNORE (2 entree(s)
+racine). Les fichiers NEUFS non encore ajoutes restent balayes : le critere est IGNORE, PAS
+non-suivi.
+✔ G-ROUTE-1 ✔ G-ROUTE-2 ✔ G-ROUTE-3 ✔ G-ROUTE-4 ✔ G-ROUTE-5
+ℹ tests 5 · pass 5 · fail 0
+```
+
+**`tests 5 · pass 5 · fail 0`** — contre `pass 4 / fail 1` avant. **La régression est levée**, et
+elle l'est **avec l'artefact de build présent dans l'arbre**, pas en l'ayant effacé. Le
+`cli/_bundled/` généré dans le worktree pour mesurer a été **supprimé** : il est gitignoré, il ne
+serait pas parti au commit, il aurait empoisonné la mesure suivante.
+
+### 15.4 Les deux inexactitudes de relevé — **corrigées dans le même lot**
+
+| Où | Ce qui était écrit | Ce qui est écrit | Nature |
+|---|---|---|---|
+| § 13.1, ligne `G-ROUTE-4`, colonne **Avant (a)/(b)** | `19 touches / **14** lignes` | `19 touches / **15** lignes` | **Quatrième comptage inexact de la série** — chiffre **pré-arbitrage** d'une mesure **abandonnée**, sans conséquence sur le verdict. *Dans un lot dont c'est le sujet.* |
+| § 13.6, ligne **`CA-18`** | « rejeu des **5** générateurs » | « rejeu des **4** générateurs (`bundle.js` **exclu** — prepack, pas générateur) » | **Trace fausse restée en place à un endroit** : le § 13.4 et le § 14.3(8) rectifiaient déjà à **4**, `CA-18` disait encore **5**. *Une rectification qui ne balaie pas ses propres traces n'est pas une rectification.* |
+
+### 15.5 Mesures finales de la reprise
+
+| Mesure | Résultat |
+|---|---|
+| **Reproduction du gate** (extraction + `bundle.js` + `node --test`) | 🟢 **5 tests / 5 pass / 0 fail** — régime `SANS DEPOT` déclaré |
+| **Les cinq gardes**, worktree, arbre propre | 🟢 **5 / 5** — régime `NOMINAL` déclaré, `674` fichiers balayés |
+| **Les cinq gardes**, worktree, **`cli/_bundled/` présent** | 🟢 **5 / 5** — l'artefact de build n'est plus balayé |
+| Suite complète (`cd cli && node --test`, **deux** variables `R-6`) | 🟢 **644 tests — 643 pass — 0 fail — 1 skip** (`rg` absent, légitime) — **inchangé** |
+| `agents --action generate --global --check` | **exit 0** — « *deployé == source-généré (aucune dérive)* », 10/10 |
+| **Rejeu des 4 générateurs** (`gen-agents-golden`, `gen-methode-vitrine`, `gen-skills-golden`, `gen-models-doc`) | `git status` ne rend **que** mes deux fichiers en cours d'édition — **idempotence prouvée** |
+| Régime `DEGRADE` (`PATH` sans `git`) | **se déclare**, 5 gardes vertes sur arbre propre |
+
+**Ce que je n'ai PAS touché, conformément à l'ordre** : le **critère** du volet skills (l'arbitrage
+**(c)** reste **en l'état, déclaré réversible**, sa reprise étant remontée au décideur) ;
+`BACKLOG.md` ; `main` ; aucun tag ; rien vers `github` ; aucun workflow CI.
+
+**Je ne m'auto-valide pas.** Le verdict appartient au gate qualité, qui re-gate après moi.
