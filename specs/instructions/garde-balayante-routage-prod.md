@@ -876,7 +876,7 @@ fait citer **la nouvelle valeur** par le message d'erreur.
 | `G-ROUTE-1` — réciprocité persona **+ skills** | 🔴 **ROUGE** | 11 fichiers | 11 fichiers | **10 fichiers** — `BACKLOG.md` seul retiré |
 | `G-ROUTE-2` — attribution, populations découvertes | 🟢 **VERT** | 21 sites (0 en A, 21 en B) | 0 site | **0 site — INCHANGÉ** |
 | `G-ROUTE-3` — contrats déployés | 🟢 **VERT** | 0 | 0 | **0 — INCHANGÉ**, pas de skip |
-| `G-ROUTE-4` — affectation, canon-ancrée | 🔴 **ROUGE** | 19 touches / 14 lignes | 11 touches / 9 lignes | **11 touches / 9 lignes — INCHANGÉ** |
+| `G-ROUTE-4` — affectation, canon-ancrée | 🔴 **ROUGE** | 19 touches / **15** lignes | 11 touches / 9 lignes | **11 touches / 9 lignes — INCHANGÉ** |
 | `G-ROUTE-5` — registre des angles morts | 🟢 **VERT** | 2 entrées, 0 couverte | 2 entrées, 0 couverte | **2 entrées, 0 couverte — INCHANGÉ** |
 
 **Ce que (c) a coûté, exactement : un fichier sur une garde, zéro site de défaut.** `G-ROUTE-1`
@@ -1056,7 +1056,7 @@ pas de le corriger) — c'est exactement ce que `R7` prévoyait.
 | `CA-15` | ✅ | `frames/releases/**`, `guide-stefframe2.{md,html}`, `etat-des-lieux.*`, `.iakaframe-journal.json` **et `BACKLOG.md`** → `git diff --stat` **VIDE**. Déplacement de `vendor-check` **déclaré et sourcé** (§ 13.5) |
 | `CA-16` | ✅ 🛑 | **LES CINQ GARDES SONT VERTES.** `node --test test/route-prod.test.js` → **5 pass / 0 fail**. C'était le critère non atteint au § 5 ; il l'est désormais |
 | `CA-17` | ✅ | `G-ROUTE-3` **inchangée** ; `~/.claude/agents/` présent sur ce poste, donc pas de skip à observer ce jour |
-| `CA-18` | ✅ | Dérivés régénérés, rejeu des **5** générateurs → `git diff` **vide** hors mon édition en cours ; `--check` = **0** ; **suite complète 644 / 643 pass / 0 fail / 1 skip** ; skips déclarés § 13.5 |
+| `CA-18` | ✅ | Dérivés régénérés, rejeu des **4** générateurs (`bundle.js` **exclu** — prepack, pas générateur de dérivé : cf. § 13.4 et § 14.3(8)) → `git diff` **vide** hors mon édition en cours ; `--check` = **0** ; **suite complète 644 / 643 pass / 0 fail / 1 skip** ; skips déclarés § 13.5 |
 
 **En écart déclaré — 1 sur 19**
 

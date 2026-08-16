@@ -21,10 +21,11 @@
 //   dispositif, quelle que soit la qualite de l'inventaire. README.md en est l'exemple vivant.
 //   Une garde honnete dit aussi ce qu'elle ne voit pas : c'est le registre des ANGLES MORTS.
 //
-// TROIS ARBITRAGES DE COORDINATION, PRIS SOUS AUTONOMIE DELEGUEE — ET REVERSIBLES :
-//   Le decideur a arbitre D4, D5, D11 et D14. Il n'a PAS enonce les trois points ci-dessous ; ils
-//   ont ete tranches par la COORDINATION, en s'appuyant sur D5 et D11 qui sont de lui. Ils sont
-//   inscrits ici COMME TELS, et se reprennent en supprimant l'entree ou la constante concernee.
+// QUATRE ARBITRAGES DE COORDINATION, PRIS SOUS AUTONOMIE DELEGUEE — ET REVERSIBLES :
+//   Le decideur a arbitre D4, D5, D11 et D14. Il n'a PAS enonce les quatre points ci-dessous ; ils
+//   ont ete tranches par la COORDINATION, en s'appuyant sur D5, D6, D7 et D11 qui sont de lui. Ils
+//   sont inscrits ici COMME TELS, et se reprennent en supprimant l'entree ou la constante
+//   concernee.
 //   (a) D6 niveau B mordait sur LE CANON (21 lignes rouges, ZERO defaut) -> EXEMPTION PERISSABLE
 //       du canon de Helm et de son golden, scopee au seul niveau B. Motif complet a l'entree.
 //   (b) La clause SYMETRIQUE de D7 (« charon <- surveillance ») -> ABANDONNEE, apres MESURE :
@@ -32,6 +33,9 @@
 //   (c) Le volet SKILLS de D8 mordait sur BACKLOG.md, qui n'est PAS un catalogue mais un backlog
 //       CITANT UN CHEMIN DE FIXTURE -> EXEMPTION PERISSABLE, scopee au seul volet skills, et qui
 //       PERIRA D'ELLE-MEME a la cloture de GUI-VENDOR-CHARON. Motif complet a l'entree.
+//   (d) Le balayage descendait dans les ARTEFACTS DE BUILD GITIGNORES (cli/_bundled/, fabrique par
+//       le prepack de publication) -> LE BALAYAGE NE DESCEND PLUS DANS CE QUE GIT IGNORE. Motif
+//       complet au bloc « FRONTIERE GIT-IGNORE ». Se reprend en supprimant cette frontiere.
 //
 // DEUX REGISTRES, DEUX PEREMPTIONS INVERSES — le mecanisme anti-oubli du lot :
 //   - EXEMPTIONS   : ce que la garde accepte de ne pas corriger. Une exemption DEVENUE INUTILE
@@ -50,6 +54,7 @@
 // `chemin:ligne` exacts sur tout le depot.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -62,6 +67,123 @@ const REPO = path.resolve(HERE, '..', '..');
 // EXCLUS = frontiere STRUCTURELLE du scan (D9, existant conserve tel quel). Ce ne sont pas des
 // exemptions au sens de D5 : ils ne portent aucun jugement sur un contenu.
 const EXCLUS = ['.git', 'node_modules', 'frames/releases', 'specs/instructions'];
+
+// ------------------------------------------------------------------------------------------------
+// FRONTIERE GIT-IGNORE (d) — ARBITRAGE DE COORDINATION, PRIS SOUS AUTONOMIE DELEGUEE.
+// PAS un feu vert du decideur. REVERSIBLE s'il le reprend, au meme titre que (a), (b) et (c).
+// Le decideur a arbitre D4, D5, D11 et D14 ; il n'a PAS enonce celui-ci. Il s'APPUIE sur D6 et D7,
+// qui sont de lui.
+// ------------------------------------------------------------------------------------------------
+// LE FAIT, MESURE : `cli/scripts/bundle.js` est cable en `prepack` ET `prepublishOnly`
+// (cli/package.json:21-22). Un `npm pack` ou un `npm publish` le declenche TOUT SEUL et recopie
+// library/, kits/, methods/ dans `cli/_bundled/` — repertoire GITIGNORE (cli/.gitignore:3), donc
+// PERSISTANT : l'artefact ne part pas au commit, et la suite reste rouge jusqu'a suppression
+// manuelle. Le balayage y voyait alors `cli/_bundled/library/personas/helm.md`, COPIE OCTET POUR
+// OCTET du canon, et rendait 11 lignes rouges pour ZERO defaut — l'exemption (a) ne la couvre pas,
+// sa portee nommant le chemin LITTERAL `library/personas/helm.md` et non ses copies. Mesure sur
+// arbre extrait : main -> 3 tests / 3 pass ; branche -> 5 tests / 4 pass / 1 FAIL. Regression.
+//
+// LES TROIS ISSUES NE SE VALENT PAS, ET C'EST LA DOCTRINE DU LOT QUI TRANCHE :
+//   - ajouter `cli/_bundled` a EXCLUS serait RE-ENUMERER — le defaut meme que ce lot abolit. Ca ne
+//     couvrirait que CE build ; le prochain artefact gitignore repasserait dessous, et on aurait
+//     ecrit une QUATRIEME liste oubliee ;
+//   - elargir la portee de (a) aux copies traiterait le symptome SUR UN SEUL FICHIER, en laissant
+//     passer toute autre copie d'un autre canon ;
+//   - IGNORER CE QUE GIT IGNORE est la seule voie ANTI-ENUMERANTE : la garde TIRE SON PERIMETRE
+//     D'UNE SOURCE DE VERITE au lieu de le reciter — le geste exact de D7, qui tire son attente du
+//     canon plutot que de la coder en dur. Noter que EXCLUS contient deja `.git` et `node_modules`,
+//     TOUS DEUX GITIGNORES : cette frontiere n'ajoute pas une regle, elle REMPLACE UNE ENUMERATION
+//     PARTIELLE PAR SA SOURCE.
+//
+// DEUX EXIGENCES DE FORME, TENUES :
+//   1. ON EXCLUT CE QUE GIT *IGNORE*, PAS CE QUE GIT NE *SUIT* PAS. `git ls-files --others
+//      --ignored --exclude-standard` ne rend QUE les chemins ignores. Un fichier NEUF, non encore
+//      ajoute (untracked mais NON ignore), reste PLEINEMENT BALAYE — sinon on rouvrirait un angle
+//      mort par la fenetre en croyant fermer la porte.
+//   2. REPLI GRACIEUX SI GIT EST ABSENT, ET IL NE L'EST PAS QUE EN THEORIE : le gate qualite rejoue
+//      sur extraction `git archive | tar -x`, c'est-a-dire dans un arbre SANS `.git`. Si la regle
+//      exigeait git, sa reproduction casserait et le correctif deviendrait invisible du gate.
+//      L'absence de git DEGRADE donc PROPREMENT — le balayage continue, sur EXCLUS SEUL — et la
+//      garde LE DIT sur stdout. Un vert obtenu en mode degrade qui ne se declare pas est exactement
+//      le « vert qui ne prouve rien » reproche a vendor-check.
+//
+// POURQUOI CETTE ENTREE N'EST PAS DANS `EXEMPTIONS` : elle porte ses TROIS champs au sens de D5,
+// mais elle n'est PAS perissable au sens de D5 — et l'y mettre serait un PIEGE. La peremption D5
+// mesure une ROUGEUR RESIDUELLE sur une PORTEE DE CHEMINS FIXES ; ici la portee est DYNAMIQUE et
+// VIDE PAR CONSTRUCTION dans un arbre propre (aucun build en cours). L'entree serait donc declaree
+// MORTE a la seconde ou on l'ecrit, et la garde exigerait de supprimer la frontiere qu'elle vient
+// de poser. Une exemption pardonne un CONTENU juge ; une frontiere dit ou le scan S'ARRETE — c'est
+// la nature d'EXCLUS, pas celle d'EXEMPTIONS. Elle est donc rangee avec EXCLUS, et son triplet est
+// CONTROLE (assert plus bas), pour qu'aucune frontiere ne soit posee sans motif ecrit.
+const FRONTIERE_GIT_IGNORE = {
+  motif: 'un artefact GITIGNORE n\'est pas du contenu du depot : c\'est une SORTIE, derivee et '
+    + 'jamais versionnee. Une garde qui verifie ce que le depot DIT n\'a pas a juger ce qu\'un '
+    + 'build FABRIQUE. Cas mesure : le prepack cli/scripts/bundle.js (cable en prepack ET '
+    + 'prepublishOnly, cli/package.json:21-22) copie le canon dans cli/_bundled/ et y fait rendre '
+    + '11 lignes rouges pour ZERO defaut, de facon PERSISTANTE puisque l\'artefact ne part pas au '
+    + 'commit. Voie retenue CONTRE les deux autres parce qu\'elle est la seule qui ne RE-ENUMERE '
+    + 'pas : le perimetre est TIRE de git (source de verite, D7) au lieu d\'etre recite (D6).',
+  levee: 'REVERSIBLE A TOUT MOMENT sur reprise du decideur : supprimer cette frontiere restaure le '
+    + 'balayage integral, y compris dans les artefacts de build. LEVEE MOTIVEE : le jour ou une '
+    + 'garde devrait justement controler un artefact GENERE (p. ex. verifier que le tarball publie '
+    + 'porte le bon routage), cette frontiere devrait etre levee POUR CETTE GARDE-LA — et non '
+    + 'globalement.',
+  portee: 'DYNAMIQUE, jamais enumeree : tout chemin que `git ls-files --others --ignored '
+    + '--exclude-standard --directory` rend depuis la racine du depot. Ce que git IGNORE, jamais '
+    + 'ce que git ne SUIT pas : un fichier neuf non encore ajoute reste balaye. En l\'absence de '
+    + 'git, la portee est VIDE et le balayage se rabat sur EXCLUS seul, EN LE DISANT.',
+};
+assert.ok(FRONTIERE_GIT_IGNORE.motif && FRONTIERE_GIT_IGNORE.levee && FRONTIERE_GIT_IGNORE.portee,
+  'frontiere incomplete : motif, levee et portee sont les TROIS champs obligatoires (D5) — une '
+  + 'frontiere de scan posee sans motif ecrit est une enumeration silencieuse de plus');
+
+function chargerIgnoresGit() {
+  let r;
+  try {
+    r = spawnSync('git', ['-C', REPO, 'ls-files', '-z', '--others', '--ignored',
+      '--exclude-standard', '--directory'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  } catch (e) {
+    return { actif: false, motif: `git injoignable (${e.code || e.message})`, chemins: [] };
+  }
+  if (r.error) {
+    return { actif: false, motif: `git injoignable (${r.error.code || r.error.message})`, chemins: [] };
+  }
+  if (r.status !== 0) {
+    const premiere = String(r.stderr || '').trim().split('\n')[0] || `code de sortie ${r.status}`;
+    return { actif: false, motif: `git n'a pas repondu sur ${REPO} (${premiere})`, chemins: [] };
+  }
+  // `-z` : separateur NUL, donc AUCUN echappement des chemins non-ASCII (le depot en porte).
+  // Les repertoires entierement ignores reviennent avec un `/` final, qu'on normalise.
+  const chemins = String(r.stdout).split('\0')
+    .map((s) => s.replace(/\/+$/, ''))
+    .filter(Boolean);
+  return { actif: true, motif: null, chemins };
+}
+
+const IGNORES_GIT = chargerIgnoresGit();
+const IGNORES_SET = new Set(IGNORES_GIT.chemins);
+
+// La garde DIT dans quel regime elle tourne — a chaque execution, vert compris. Un perimetre qui
+// change en silence selon la presence de git est un vert qui ne prouve rien.
+const REGIME_PERIMETRE = IGNORES_GIT.actif
+  ? `[G-ROUTE] perimetre NOMINAL : EXCLUS (${EXCLUS.length} entree(s)) + ce que GIT IGNORE `
+    + `(${IGNORES_GIT.chemins.length} entree(s) racine). Les fichiers NEUFS non encore ajoutes `
+    + 'restent balayes (critere = ignore, PAS non-suivi).'
+  : `[G-ROUTE] *** MODE DEGRADE *** : ${IGNORES_GIT.motif}. Le balayage se rabat sur EXCLUS SEUL `
+    + `(${EXCLUS.length} entree(s)) : un artefact de build present dans l'arbre SERA balaye, et un `
+    + 'vert obtenu ici ne prouve RIEN sur les chemins gitignores.';
+console.log(REGIME_PERIMETRE);
+
+function estIgnoreParGit(rel) {
+  if (!IGNORES_GIT.actif) return false;
+  const p = rel.split(path.sep).join('/');
+  if (IGNORES_SET.has(p)) return true;
+  // Un ancetre ignore ignore toute sa descendance (cas `cli/_bundled/`).
+  for (let i = p.indexOf('/'); i !== -1; i = p.indexOf('/', i + 1)) {
+    if (IGNORES_SET.has(p.slice(0, i))) return true;
+  }
+  return false;
+}
 
 // EXEMPTIONS (D5 + D9) — chacune porte ses TROIS champs obligatoires : motif, levee, portee.
 // PEREMPTION : une exemption dont la portee n'est PLUS rouge est MORTE -> la garde qu'elle exempte
@@ -239,7 +361,10 @@ function scanner(racine, predicat, acc = [], base = racine) {
   for (const e of entrees) {
     const abs = path.join(racine, e.name);
     const rel = path.relative(base, abs);
-    if (estExclu(path.relative(REPO, abs))) continue;
+    const depuisRepo = path.relative(REPO, abs);
+    // Frontiere STRUCTURELLE (EXCLUS, plancher toujours actif) PUIS frontiere GIT-IGNORE (d), qui
+    // tire son perimetre de git au lieu de le reciter. En mode degrade, seule la premiere joue.
+    if (estExclu(depuisRepo) || estIgnoreParGit(depuisRepo)) continue;
     if (e.isDirectory()) scanner(abs, predicat, acc, base);
     else if (predicat(e.name, rel)) acc.push(abs);
   }
@@ -665,7 +790,8 @@ test('G-ROUTE-4 : affectation role/skill ancree sur le canon, balayee sur tout l
   assert.deepEqual(
     fautes, [],
     `G-ROUTE-4 ROUGE : ${fautes.length} site(s) d'affectation sur ${vus} fichier(s) texte balayes `
-    + `(hors ${cheminsExemptes('G-ROUTE-4').size} chemin(s) exempte(s)) :\n  - ${fautes.join('\n  - ')}`,
+    + `(hors ${cheminsExemptes('G-ROUTE-4').size} chemin(s) exempte(s)) :\n  - ${fautes.join('\n  - ')}`
+    + `\n  ${REGIME_PERIMETRE}`,
   );
 });
 
