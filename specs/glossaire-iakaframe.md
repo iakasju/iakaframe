@@ -12,7 +12,7 @@
 | Gandalf | l'**architecte-cadreur** | Cadrage |
 | Gimli | le **développeur** (dev + devops) | Réalisation → staging |
 | Legolas | le **responsable qualité** (test) | Réalisation / staging |
-| Helm | l'**équipe de déploiement production** | Production |
+| Helm | la **veille de production** | Production |
 | Loki | le **studio design** | Transverse |
 | Nathalie | la **rédaction** (guides & documentation utilisateur) | Transverse |
 
