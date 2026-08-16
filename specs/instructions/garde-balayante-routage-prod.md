@@ -1407,7 +1407,9 @@ non-suivi.
 ℹ tests 5 · pass 5 · fail 0
 ```
 
-**`tests 5 · pass 5 · fail 0`** — contre `pass 4 / fail 1` avant. **La régression est levée**, et
+**`tests 5 · pass 5 · fail 0`** — contre `pass 4 / fail 1` avant. **Rejouée à l'identique sur
+`a24e4a9`** et sur chaque `HEAD` ultérieur, les commits suivants étant **purement
+documentaires** (aucune ligne d'exécutable touchée après `61c1634`). **La régression est levée**, et
 elle l'est **avec l'artefact de build présent dans l'arbre**, pas en l'ayant effacé. Le
 `cli/_bundled/` généré dans le worktree pour mesurer a été **supprimé** : il est gitignoré, il ne
 serait pas parti au commit, il aurait empoisonné la mesure suivante.
