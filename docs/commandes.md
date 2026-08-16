@@ -118,12 +118,17 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 |---|---|---|
 | `onboard` | `--path <dir> --node claude\|codex\|ollama-localhost\|ollama-lan --repo <nom> --description "ascii" --version vX.Y.Z --skip-forgejo --no-push --force` | Met en place la méthode : structure + dépôt Forgejo + commit + état des lieux + push. Mode **umbrella** : `onboard --umbrella --path <chapeau> [--init-projects]`. |
 | `init` | `--path <dir> --node <n> --force` | Déploie le kit + le marqueur `.iakaframe` (**non destructif**). |
-| `snapshot` | `--path <dir> --reason version\|pause\|reprise\|manual --version --note` | État des lieux (journal + MD + HTML). **Résolution de la version**, dans l'ordre : `--version` explicite → autorité `cli/package.json` (le projet `iakaframe` lui-même) → `git describe --tags` → **`package.json` du projet** → `-`. Le dernier repli évite le « Version : `-` » muet des projets non tagués ; un projet qui tague garde son comportement. |
-| `update` | `--path <dir> --reason --version --note --message --no-push` | Checkpoint : snapshot + commit global + push. |
+| `snapshot` | `--path <dir> --reason version\|pause\|reprise\|manual --version --note` | État des lieux (journal + MD + HTML). **Résolution de la version**, dans l'ordre : `--version` explicite → autorité `cli/package.json` (le projet `iakaframe` lui-même) → `git describe --tags` → **`package.json` du projet** → `-`. Le dernier repli évite le « Version : `-` » muet des projets non tagués ; un projet qui tague garde son comportement. **Forme de `--version`** : `vX.Y.Z` ou `X.Y.Z` (suffixe `-rc.1` / `+build` toléré) ; le préfixe `v` est **normalisé** (`0.39.0` → `v0.39.0`), toute autre forme est **refusée** (message + code de sortie 1, rien n'est écrit) — même refus via `update`, **avant** tout `git add`. La sortie de `git describe` reste **verbatim** (un tag est un nom, pas un littéral de version). **Compte de fichiers** : sur un dépôt git, `git ls-files --cached --others --exclude-standard`, soit *les fichiers que le projet versionne ou versionnera* — l'exclusion suit le `.gitignore` du projet mesuré (donc `target/`, `dist/`, `node_modules/`…), et le chiffre ne dépend plus de l'arbre depuis lequel on tire. Hors git, parcours d'arbre inchangé (hors `.git`/`node_modules`). Le **libellé** de l'état des lieux annonce la règle appliquée. |
+| `update` | `--path <dir> --reason --version --note --message --no-push` | Checkpoint : snapshot + commit global + push. Refuse une `--version` mal formée **avant** tout `git add`/`commit` (cf. `snapshot`). |
 | `config` | `--path <dir> --runner claude-code\|ollama\|litellm\|codex --node <n> --aider-model <m>` | Écrit/màj `<projet>/iakaframe.json` (runner + nœud). |
 
 > `--target` = alias **déprécié** de `--node` (onboard/init/config). Alias runner legacy
 > (`ps`, `iakaide`, `aider`) également dépréciés.
+
+> **Provenance (`snapshot` et `update`)** — les deux verbes qui *écrivent* annoncent, sur une
+> ligne, `cli=<dossier du CLI réellement exécuté> root=<racine visée>`. C'est le **couple** qui
+> compte : lancé depuis un arbre lié, le lanceur de poste peut exécuter le CLI d'un **autre**
+> dépôt, et la discordance n'est lisible que si les deux chemins sont affichés ensemble.
 
 ## B.2 Diagnostic & exécution
 
