@@ -180,6 +180,48 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
       dont au moins un **après un build réel**. Tant qu'ils n'existent pas, ne pas conclure que
       l'exclusion est inutile — le **raisonnement** tient, la **mesure** manque.
 
+### Signalement des branches sans copie distante — dettes du lot successeur (posé le 2026-08-17)
+
+> Consigné par l'exécution du lot (étape 12 de l'instruction
+> `specs/instructions/signalement-branches-sans-copie-distante.md`). Chaque item est un **constat
+> mesuré**, pas une intention.
+
+- [ ] **SIGN-1 — 🛑 6 branches locales sur 16 n'ont AUCUN upstream configuré (`V5`, re-mesuré).**
+      `appflowy-doc-wip`, `docs/successeur-critere-backlog-d10`,
+      `feat/correctif-generateur-etat-des-lieux`, `feat/garde-balayante-routage-prod`,
+      `specs/cadrage-garde-routage-balayante`, `specs/cadrage-snapshot-defauts` : une ref distante
+      homonyme existe, la **configuration** de suivi n'existe pas. Poser leurs upstreams est un
+      **geste de dépôt**, pas de fabrication — il appartient au décideur. Piste de fond :
+      **`push.autoSetupRemote`** (git ≥ 2.37, `F3`, **non activé par défaut**), qui supprimerait la
+      cause au lieu de traiter les 6 cas. *Le signalement de ce lot ne les voit pas — et c'est
+      voulu : elles ont bien une copie distante.*
+- [ ] **SIGN-2 — 🛑 deux dépôts du chapeau n'ont AUCUNE copie distante de leur `main`** (mesure du
+      premier passage réel, 2026-08-17) : **`iaka-demo`** (5 commits, 13 j) et **`iakaCMyPix`**
+      (4 commits, 13 j). C'est **exactement la classe d'incident** qui a motivé le lot, trouvée dès
+      le premier balayage. Le geste (`git push -u origin main`, ou la décision de ne pas les
+      publier) appartient au décideur — le verbe `range` **signale**, il ne pousse rien.
+- [ ] **SIGN-3 — l'exclusion « verbe CLI » du § *Périmètre* du lot 1 est démentie par le code
+      (`V10`).** `specs/instructions/sauvegarde-portefeuille.md:399` exclut nommément « un verbe
+      `iakaframe backup` dans le CLI », alors que `range` **existe** et a été étendu par ce lot.
+      L'écart est **consigné, pas maquillé** : corriger une instruction validée par le décideur ne
+      relève pas de la fabrication.
+- [ ] **SIGN-4 — les compteurs d'en-tête de `docs/commandes.md` sont faux.** Le fichier annonce
+      « **29 / 29** verbes distincts, +1 alias = 30 `case` » ; `grep -cE "^\s+case '" cli/src/index.js`
+      rend **36**. Ce lot n'a ajouté **qu'une ligne** `range` (périmètre fermé) : le recomptage
+      complet + la date de mise à jour sont un lot de doc à part entière, la règle de maintenance du
+      fichier exigeant de revérifier **tous** les compteurs dans le même geste.
+- [ ] **SIGN-5 — la durée du balayage est à la limite du seuil (`CA-9`, `R2`).** Mesuré sur le
+      chapeau réel : **1 793 / 1 818 / 1 830 / 1 883 ms** de balayage (45 dépôts, 68 branches
+      examinées), soit ~**2,05 s** au chronomètre en incluant le démarrage de Node. Le seuil
+      d'arbitrage de l'instruction est **2 s**. Aucun raccourci n'a été codé : une piste de cache
+      (comparer le sha de tête aux refs de suivi avant tout `rev-list`) a été **écartée** parce
+      qu'elle rendrait les sabotages du prédicat indétectables. **À arbitrer, jamais à taire.**
+- [ ] **SIGN-6 — 8 répertoires de premier niveau du chapeau ne sont pas des dépôts git** :
+      `brasserie-le-chaudron`, `divers`, `doc`, `iakaframegui-workspace`, `le-chaudron`,
+      `le-chaudron2`, `LesPetitsPlats`, `quitapis`. Ils sont **comptés et nommés** dans la sortie
+      (jamais avalés), mais **aucune branche n'y est examinée** : rien ne dit si leur contenu est
+      répliqué ailleurs. Constat, pas action.
+
 ## Fait
 
 ### Soldés et vérifiés à la purge du 2026-07-23
