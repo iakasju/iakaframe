@@ -157,6 +157,179 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
 - [x] **T-5 — résidu « clé non tranchée » (`role-frame-builder.md` L~407)** *(re-gate 2026-07-25)* : une note « ⚠️ non tranché… si le décideur préfère `frame-builder` » subsiste alors que la clé **est** tranchée (`frame`, arbitrage 2). Flag de réversibilité pré-amendement, pas un arbitrage ouvert. Lisibilité perfectible — à nettoyer. **✅ SOLDÉ (2f411fc, 2026-07-30, Gandalf)** : note reformulée « ✅ Tranché (arbitrage 2) : clé = `frame`, `frame-builder` abandonné » ; plus de décision en suspens.
 - [x] **T-6 — phrasé arbitrage 4 imprécis vs modèle réservoir (`role-frame-builder.md` en-tête L~20-21)** *(re-gate 2026-07-25)* : l'en-tête (section inchangée) dit « son objet n'est pas *le frame de ce dépôt* » ; or, dans le réservoir, **toutes** les frames vivent dans ce dépôt. L'intention (Fëanor ne forge pas le **default**, forge les **autres** frames) reste vraie et est réconciliée par § 2.1/N2 ; seul le résumé de tête garde la formulation pré-amendement. Résidu éditorial mineur. **✅ SOLDÉ (2f411fc, 2026-07-30, Gandalf)** : en-tête reformulé « pas la frame default (canon) du réservoir (reste à Gandalf/Gimli, cf. §2.1/N2), forge les AUTRES ».
 
+### Sauvegarde du portefeuille — dettes du lot 1 (posé le 2026-08-15)
+
+> Le lot 1 a livré : `restic` 0.19.1 sur le poste, un **dépôt chiffré** sur `bigserver`
+> (`/fast/backups/portefeuille`), la **clé sur `iakabox-apps`** (machine distincte de celle qui
+> porte le dépôt — garde de conception `D5`), et le verbe **`iaka range all|<projet>`**, **sur
+> commande uniquement**. Instruction : `specs/instructions/sauvegarde-portefeuille.md`.
+> Procédure de restauration : `docs/restauration-portefeuille.md`.
+>
+> 🛑 **Tout ce qui suit est OUVERT. Chaque ligne est une chose dont on n'est PAS protégé.**
+
+- [ ] **SAUV-1 — 🛑 la copie HORS LIGNE du mot de passe n'existe pas (copie 2 de `D5`).** Le mot de
+      passe n'a **qu'un seul exemplaire**, sur `iakabox-apps`. La perte de cette VM rend le dépôt
+      **définitivement illisible** — et ça se découvre **le jour où on en a besoin**, sans erreur ni
+      alerte. **C'est le point de défaillance unique de tout le dispositif.** *Arbitrage du
+      décideur* : où vit physiquement cette copie (gestionnaire de mots de passe, support
+      physique), et qui d'autre que lui peut y accéder. **Le lot 1 ne pouvait pas la poser** : elle
+      doit vivre hors du poste **et** hors de la box.
+- [ ] **SAUV-2 — la clé de secours indépendante n'existe pas (copie 3 de `D5`).** Une seconde clé
+      restic (`restic key add`, mot de passe différent, détenue ailleurs) permettrait de
+      **révoquer** la clé courante si `iakabox-apps` était compromise, **sans réécrire le dépôt**.
+      Non posée : elle exige un détenteur **distinct** de celui de la copie 1, donc l'arbitrage
+      `SAUV-1` d'abord.
+- [ ] **SAUV-3 — 🛑 `CA-10` (restauration après sinistre simulé) N'A PAS ÉTÉ DÉROULÉ,** et il ne
+      pouvait pas l'être : il exige la copie 2 (`SAUV-1`), qui n'existe pas. *Tant qu'il n'est pas
+      joué, la règle des copies reste une **intention**, pas une protection.* À dérouler depuis
+      **une autre machine**, sans rien emprunter au poste.
+- [ ] **SAUV-4 — aucune planification, aucun veilleur d'ABSENCE.** Décision du décideur pour ce lot
+      (« sur commande »). Conséquence à ne pas oublier : **si personne ne tape la commande, rien ne
+      se passe et personne ne le sait.** Le veilleur d'absence — un service tiers qui crie quand il
+      **ne reçoit pas** le signal attendu — est *plus important* que l'alerte d'échec, qui ne se
+      déclenche que si quelque chose tourne.
+- [ ] **SAUV-5 — aucun canal poussé.** Ni alerte d'échec (`CA-11`), ni alerte d'absence (`CA-12`).
+      Le portefeuille n'a toujours **aucun** canal poussé (constat que le ticket `SUP-1` de
+      `robby-immo` fait de son côté). Canal visé : **Discord**.
+- [ ] **SAUV-6 — aucune rétention, aucune vérification périodique.** `forget`/`prune` ne sont
+      **jamais** appelés — état volontaire et **sûr** au lot 1 (rien n'est supprimé), à rouvrir
+      quand l'occupation montera. `restic check` n'est pas planifié ; la couverture intégrale
+      (`--read-data-subset`) n'est pas bornée (`CA-13`).
+- [ ] **SAUV-7 — 🛑 le dépôt LONG n'existe pas, et le piège de son initialisation est ARMÉ.** Le
+      jour où on crée `hdd/backups-long`, il **doit** l'être avec `--copy-chunker-params` pointant
+      sur le dépôt court : sans cette option la déduplication entre les deux est cassée, les
+      données copiées peuvent occuper **jusqu'au double**, **les paramètres ne se changent plus**,
+      et **rien ne signale la faute au moment où on la commet**. Commande exacte et contrôle qui la
+      prouve : `docs/restauration-portefeuille.md` § 4.
+- [ ] **SAUV-8 — aucune copie HORS SITE.** Les deux niveaux prévus sont **deux datasets de la même
+      machine** : c'est une copie hors *dataset*, jamais hors *site*. Un incendie, un vol ou une
+      panne de `bigserver` emporte **tout**. *Écrit dans la documentation ; à arbitrer.*
+- [ ] **SAUV-9 — aucune sauvegarde de machine virtuelle.** `proxmox-backup-client` est installé,
+      **aucun job, dépôt vide**. Autre métier, autre lot. Consigné, non traité.
+- [ ] **SAUV-10 — bases de données et volumes Docker hors périmètre (lot 2).** Ce qui est ramassé,
+      ce sont les **fichiers** de `~/work` — donc un **dump** s'il s'y trouve, jamais une base
+      vivante. ⚠ On ne sauvegarde **jamais** un volume PostgreSQL à chaud par copie de fichiers :
+      l'image est incohérente **et paraît réussie**.
+- [ ] **SAUV-11 — `rest-server` en `append-only` (lot 3).** Seule parade **réelle** à « un poste
+      compromis efface ses propres sauvegardes ». Au lot 1, la seule atténuation est qu'aucune
+      commande destructive n'est câblée dans `iaka range` — ce qui n'empêche personne de lancer
+      `restic forget` à la main depuis le poste.
+- [ ] **SAUV-12 — la signature GPG du binaire `restic` n'a pas été vérifiée** : `gpg` est **absent
+      du poste** (et `brew` aussi, donc pas d'installation triviale). Ce qui **a** été vérifié :
+      la somme **SHA-256** de l'archive contre le fichier `SHA256SUMS` de la release, sur HTTPS —
+      **et le contrôle a été vu échouer** sur une archive altérée d'un octet. C'est une garantie
+      d'**intégrité**, pas d'**authenticité**. À solder en installant `gpg` et en vérifiant
+      `SHA256SUMS.asc`.
+- [ ] **SAUV-13 — `restic` n'est pas installé sur `iakabox-apps`,** alors que c'est le **seul**
+      poste où `restic mount` fonctionne (macOS exige macFUSE ou FUSE-T). L'exploration d'un
+      instantané sans restauration n'est donc pas disponible aujourd'hui.
+- [ ] **SAUV-14 — la procédure de restauration n'a pas été SUIVIE PAR UN TIERS (`CA-14`).** Elle
+      est écrite et versionnée (donc sur Forgejo, donc elle survit à la perte du poste), mais
+      **son auteur est le seul à l'avoir lue**. Une procédure jamais suivie par quelqu'un d'autre
+      n'est pas une procédure éprouvée.
+- [ ] **SAUV-15 — la croissance hebdomadaire n'est pas mesurée (`CA-6`).** Le tableau de `D4` (pire
+      cas ≈ 746 Go sur 1,4 To) reste un **encadrement**, pas une mesure. Il faut **4 passages**,
+      dont au moins un **après un build réel**. Tant qu'ils n'existent pas, ne pas conclure que
+      l'exclusion est inutile — le **raisonnement** tient, la **mesure** manque.
+
+### Signalement des branches sans copie distante — dettes du lot successeur (posé le 2026-08-17)
+
+> Consigné par l'exécution du lot (étape 12 de l'instruction
+> `specs/instructions/signalement-branches-sans-copie-distante.md`), puis **complété le 2026-08-17**
+> par le lot successeur `specs/instructions/temoins-manquants-signalement-branches.md` (étape 14) :
+> `SIGN-5` re-mesuré, `SIGN-7` et `SIGN-8` ajoutés, puis **`SIGN-9` sur réserve `M-1` du gate**.
+> Chaque item est un **constat mesuré**, pas une intention.
+
+- [ ] **SIGN-1 — 🛑 6 branches locales sur 16 n'ont AUCUN upstream configuré (`V5`, re-mesuré).**
+      `appflowy-doc-wip`, `docs/successeur-critere-backlog-d10`,
+      `feat/correctif-generateur-etat-des-lieux`, `feat/garde-balayante-routage-prod`,
+      `specs/cadrage-garde-routage-balayante`, `specs/cadrage-snapshot-defauts` : une ref distante
+      homonyme existe, la **configuration** de suivi n'existe pas. Poser leurs upstreams est un
+      **geste de dépôt**, pas de fabrication — il appartient au décideur. Piste de fond :
+      **`push.autoSetupRemote`** (git ≥ 2.37, `F3`, **non activé par défaut**), qui supprimerait la
+      cause au lieu de traiter les 6 cas. *Le signalement de ce lot ne les voit pas — et c'est
+      voulu : elles ont bien une copie distante.*
+- [ ] **SIGN-2 — 🛑 deux dépôts du chapeau n'ont AUCUNE copie distante de leur `main`** (mesure du
+      premier passage réel, 2026-08-17) : **`iaka-demo`** (5 commits, 13 j) et **`iakaCMyPix`**
+      (4 commits, 13 j). C'est **exactement la classe d'incident** qui a motivé le lot, trouvée dès
+      le premier balayage. Le geste (`git push -u origin main`, ou la décision de ne pas les
+      publier) appartient au décideur — le verbe `range` **signale**, il ne pousse rien.
+- [ ] **SIGN-3 — l'exclusion « verbe CLI » du § *Périmètre* du lot 1 est démentie par le code
+      (`V10`).** `specs/instructions/sauvegarde-portefeuille.md:399` exclut nommément « un verbe
+      `iakaframe backup` dans le CLI », alors que `range` **existe** et a été étendu par ce lot.
+      L'écart est **consigné, pas maquillé** : corriger une instruction validée par le décideur ne
+      relève pas de la fabrication.
+- [ ] **SIGN-4 — les compteurs d'en-tête de `docs/commandes.md` sont faux.** Le fichier annonce
+      « **29 / 29** verbes distincts, +1 alias = 30 `case` » ; `grep -cE "^\s+case '" cli/src/index.js`
+      rend **36**. Ce lot n'a ajouté **qu'une ligne** `range` (périmètre fermé) : le recomptage
+      complet + la date de mise à jour sont un lot de doc à part entière, la règle de maintenance du
+      fichier exigeant de revérifier **tous** les compteurs dans le même geste.
+- [ ] **SIGN-5 — la durée du balayage est à la limite du seuil (`CA-9`, `R2`).** Mesuré sur le
+      chapeau réel : **1 793 / 1 818 / 1 830 / 1 883 ms** de balayage (45 dépôts, 68 branches
+      examinées), soit ~**2,05 s** au chronomètre en incluant le démarrage de Node. Le seuil
+      d'arbitrage de l'instruction est **2 s**. Aucun raccourci n'a été codé : une piste de cache
+      (comparer le sha de tête aux refs de suivi avant tout `rev-list`) a été **écartée** parce
+      qu'elle rendrait les sabotages du prédicat indétectables. **À arbitrer, jamais à taire.**
+      🔁 **Re-mesuré le 2026-08-17 au lot des témoins manquants : 1 943 ms** (45 dépôts, **69**
+      branches examinées — une de plus). Le seuil de 2 s est donc **approché de plus près**, sans être
+      franchi. Le gate a jugé cette dette **distincte et sans urgence** ; le lot successeur l'a
+      **explicitement exclue de son périmètre** (ni cache, ni regroupement d'appels, ni `--branches`
+      conditionnel). Pente établie par 🏹 Legolas : **≈ 11 ms par processus git**, croissance
+      **linéaire** avec le portefeuille — c'est le nombre de *branches*, pas de dépôts, qui commande.
+- [ ] **SIGN-6 — 8 répertoires de premier niveau du chapeau ne sont pas des dépôts git** :
+      `brasserie-le-chaudron`, `divers`, `doc`, `iakaframegui-workspace`, `le-chaudron`,
+      `le-chaudron2`, `LesPetitsPlats`, `quitapis`. Ils sont **comptés et nommés** dans la sortie
+      (jamais avalés), mais **aucune branche n'y est examinée** : rien ne dit si leur contenu est
+      répliqué ailleurs. Constat, pas action.
+- [ ] **SIGN-7 — le commit `8b2e236` a un corps VIDE, et il ne sera PAS réécrit** (`W13` du lot des
+      témoins manquants). Les sept autres commits du lot 2 sont renseignés ; celui-là porte son sujet
+      seul. **C'est de l'histoire, et elle est poussée sur `origin`** — jamais de réécriture côté IA.
+      La **compensation est faite, pas promise** : le relevé d'exécution appendu à
+      `specs/instructions/signalement-branches-sans-copie-distante.md` porte ce que le corps ne
+      portait pas. *Item laissé ouvert comme mémoire du défaut, pas comme travail à faire : le seul
+      geste possible serait une réécriture d'historique, qui est interdite.*
+- [ ] **SIGN-8 — la capture verbatim du témoin négatif de `CA-15` (lot 2) est introuvable au
+      dossier.** La chronologie est opposable au reflog (50 s entre la capture possible et le
+      `push -u`, 19 min 45 s d'exposition totale, `W14`), mais **aucun corps de commit ne porte la
+      sortie** montrant la branche du lot 2 signalée `absente` **avant** son push. Verdict inscrit au
+      relevé : **`vert (dégradé)`**, part dégradée **dite**. La règle qui empêche la répétition est
+      **gravée** (`DH` : capturer dès que la garde répond, pousser `-u` immédiatement après, plafond
+      écrit de 30 min) et **tenue au lot suivant** (exposition mesurée : **9 min 41 s**). *Constat de
+      dossier, sans action possible en amont — on ne fabrique pas après coup une sortie qu'on n'a pas
+      capturée.*
+- [ ] **SIGN-9 — 🛑 une branche à la fois ÉCARTÉE par motif et INDÉTERMINÉE est nommée dans
+      `indeterminees`, et NON comptée dans `branchesEcartees`.** La garde `if (n === null)` de `DG` est,
+      **comme l'instruction le prescrit**, placée **avant** `classer`
+      (`cli/src/lib/branches-locales.js:167`) — donc **avant** `estEcartee`, qui n'intervient qu'après
+      le classement. Une branche que le décideur a délibérément écartée réapparaît donc **nommée** dès
+      lors que son prédicat n'est pas calculable. **Conforme à l'instruction, mesuré, et non tranché** :
+      le cas n'est nommé nulle part dans le cadrage, ⚒️ Gimli l'a **remonté** au lieu de décider à la
+      place du décideur, et 🏹 Legolas l'a **reproduit** au gate avec un motif `archive/*` actif —
+      comportement exactement celui décrit.
+      🪤 **Ce qui rend l'item important, et c'est la seule raison de l'écrire** : il est **inatteignable
+      aujourd'hui** — `config/sauvegarde-branches-ignorees.txt` porte **0 motif actif** (vérifié le
+      2026-08-17), donc `estEcartee` ne peut jamais mordre — et il devient **atteignable au PREMIER
+      motif ajouté**. C'est une porte qui s'ouvre le jour où quelqu'un se sert du point de débrayage,
+      c'est-à-dire précisément quand plus personne n'y pensera. **À arbitrer avant le premier motif,
+      pas après** : soit l'indéterminée l'emporte (état actuel, « écarter n'est jamais taire » poussé
+      jusqu'au bout), soit l'écartement l'emporte (une branche que le décideur a écartée reste muette
+      même sans mesure). Aucune des deux n'est évidente — d'où l'arbitrage.
+      ⚠️ **Consigné ici parce qu'il ne l'était pas** : ce constat n'a d'abord vécu que dans le message
+      de remise de ⚒️ Gimli — **c'est-à-dire exactement le défaut `L-4` que ce lot répare, reproduit
+      sur son propre constat**. Relevé par 🏹 Legolas au gate (`M-1`).
+
+- [ ] **SIGN-10 — RQV à co-produire avec 📖 Nathalie à la promotion de version.** Les deux lots du
+      signalement des branches (`signalement-branches-sans-copie-distante`, puis
+      `temoins-manquants-signalement-branches`) relèvent d'une **version mineure** : la campagne
+      complète était due et a été menée. 🏹 Legolas note au gate que la **RQV** reste à produire, et
+      qu'elle se co-produit avec 📖 Nathalie — elle n'est ni un état des lieux ni un relevé
+      d'exécution. À faire **au moment de la promotion de version**, pas avant.
+      ⚠️ **Consigné ici sur la remarque de ⚒️ Gimli, et il avait raison** : cette consigne ne vivait
+      que dans un message de conversation d'🔵 Odin — **le support exact que `SIGN-9` vient d'être
+      puni d'avoir utilisé**. Il a refusé de se l'octroyer sans commande (l'ordre disait « rien
+      d'autre ») et l'a remontée au lieu de la garder : geste juste des deux côtés, l'omission
+      était la mienne.
+
 ## Fait
 
 ### Soldés et vérifiés à la purge du 2026-07-23

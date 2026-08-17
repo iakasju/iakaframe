@@ -1,0 +1,43 @@
+# Fichier d'exclusion de la sauvegarde du portefeuille (`iakaframe range`).
+#
+# ===========================================================================
+#  IL EST VOLONTAIREMENT SANS AUCUN MOTIF. Ce n'est pas un oubli.
+# ===========================================================================
+#
+# Decision `D4` de specs/instructions/sauvegarde-portefeuille.md : ON N'EXCLUT RIEN
+# au lot 1. C'est la demande du decideur -- « un backup prend tout le repertoire,
+# secrets et tous les fichiers compris » -- et c'est conforme au principe
+# d'arbitrage : *ordonner, oui ; ecarter, seulement si ca se debraye ; supprimer,
+# jamais.*
+#
+# Ce fichier existe donc AVANT d'en avoir besoin : il est le POINT DE DEBRAYAGE.
+# Le jour ou une exclusion devient necessaire, c'est un AJOUT DE LIGNE ici, pas un
+# chantier -- et le geste est lisible, date et versionne.
+#
+# Pourquoi l'exclusion est INUTILE aujourd'hui, arithmetiquement (`D4`) : ce n'est
+# pas l'exclusion qui borne l'occupation, c'est la RETENTION. Le pire cas plausible
+# (les ~14 Go regenerables reecrits integralement chaque semaine, 52 instantanes
+# conserves) tient a ~746 Go sur les 1,4 To du reservoir.
+#
+# -------------------------------------------------------------------------
+#  ⚠ CE QU'UNE EXCLUSION FAIT VRAIMENT -- a lire avant d'ajouter une ligne
+# -------------------------------------------------------------------------
+# Une exclusion restic n'est PAS un masquage d'affichage : la donnee exclue
+# N'ENTRE JAMAIS dans l'instantane. Elle est donc :
+#   - debrayable POUR L'AVENIR (retirer la ligne => l'instantane suivant la reprend) ;
+#   - JAMAIS retroactive (les instantanes deja pris ne la contiennent pas, et ne
+#     la contiendront jamais).
+# C'est pour cela que toute ligne ajoutee ici appartient au DECIDEUR, pas a la
+# fabrication.
+#
+# -------------------------------------------------------------------------
+#  Format (restic --exclude-file)
+# -------------------------------------------------------------------------
+# Un motif par ligne. Les lignes vides et celles commencant par `#` sont ignorees.
+# Exemples (a NE PAS decommenter sans arbitrage) :
+#   **/node_modules
+#   **/.venv
+#   /Users/sjupin/work/iakavod/release
+#
+# Rouvrir `D4` devant le decideur si, et seulement si, la mesure de croissance
+# (`CA-6`, 4 passages) dement le tableau de l'instruction. Jamais en silence.

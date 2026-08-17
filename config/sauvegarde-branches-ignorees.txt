@@ -1,0 +1,42 @@
+# Motifs de branches ECARTEES du signalement « branches sans copie distante »
+# (`iakaframe range`, option `--branches`).
+#
+# ===========================================================================
+#  IL EST VOLONTAIREMENT SANS AUCUN MOTIF. Ce n'est pas un oubli.
+# ===========================================================================
+#
+# Decision `DE` de specs/instructions/signalement-branches-sans-copie-distante.md,
+# sur le modele exact de `D4` du lot 1 : une branche jetable, un essai, un
+# `archive/*` sont LEGITIMEMENT locaux -- mais AUCUNE branche de ce genre n'existe
+# aujourd'hui sur ce depot. L'exclusion est donc une PROVISION, pas un besoin
+# mesure : elle ne sera pas codee en dur dans le CLI.
+#
+# Ce fichier existe AVANT d'en avoir besoin : il est le POINT DE DEBRAYAGE. Le jour
+# ou une branche doit etre ecartee, c'est un AJOUT DE LIGNE ici -- date, versionne,
+# et il appartient au DECIDEUR, pas a la fabrication.
+#
+# -------------------------------------------------------------------------
+#  🛑 ECARTER N'EST JAMAIS TAIRE
+# -------------------------------------------------------------------------
+# Un motif retire la branche de la LISTE affichee, JAMAIS des compteurs :
+#   - `branchesEcartees` monte d'autant (affiche a l'ecran ET en `--json`) ;
+#   - le CHEMIN de ce fichier figure dans la sortie machine (`motifsIgnores`)
+#     et s'affiche des qu'une branche est ecartee.
+# Une garde qui masque sans le dire est le defaut qu'on corrige, pas celui qu'on
+# reproduit. C'est pourquoi il n'existe aucun moyen d'ecarter EN SILENCE.
+#
+# -------------------------------------------------------------------------
+#  Format
+# -------------------------------------------------------------------------
+# Un glob de NOM DE BRANCHE par ligne. Lignes vides et lignes commencant par `#`
+# ignorees. `*` = n'importe quoi, `?` = un caractere, correspondance ENTIERE
+# (`archive` ne masque pas `archive/x` : ecrire `archive/*`).
+#
+# Exemples (a NE PAS decommenter sans arbitrage) :
+#   archive/*
+#   wip/essai-*
+#   brouillon
+#
+# Rappel de ce que ce fichier NE fait PAS : il n'exclut rien de l'instantane
+# (ca, c'est config/sauvegarde-exclusions.txt). Il ne fait que retirer une branche
+# de la LISTE d'un signalement en lecture seule.
