@@ -456,7 +456,7 @@ test('CA-14 : l\'aide documente `--branches` et le signalement', () => {
 
 test('CA-14 : `docs/commandes.md` porte la ligne `range` (absente avant ce lot, V9)', () => {
   const doc = fs.readFileSync(path.join(RACINE, 'docs', 'commandes.md'), 'utf8');
-  assert.match(doc, /\|\s*`range`/, 'une ligne de tableau pour le verbe `range`');
+  assert.match(doc, /\|\s*`range[ <`]/, 'une ligne de tableau pour le verbe `range`');
   assert.match(doc, /sans copie distante/, 'et elle mentionne le signalement');
 });
 

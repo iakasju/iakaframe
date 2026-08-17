@@ -140,6 +140,11 @@ Commandes :
                         un nom de projet inconnu est REFUSE (jamais un repli sur "all")
                         --list --root <chapeau> --repository <url> --password-command <cmd>
                         --exclude-file <f> --dry-run --json  (n'appelle jamais forget/prune)
+                        SIGNALE les branches locales sans copie distante (avant restic, puis en
+                        rappel apres le OK) : celles dont des commits n'existent sur AUCUNE ref
+                        distante. Jamais bloquant. Motifs a ecarter dans
+                        config/sauvegarde-branches-ignorees.txt (vide ; ecarter n'est pas taire)
+                        --branches  BALAYAGE SEUL, sans lancer restic (lecture seule, exit 0)
   root                Affiche le dossier chapeau resolu (~/work | C:\\work)
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
