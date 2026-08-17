@@ -266,6 +266,18 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
       de remise de ⚒️ Gimli — **c'est-à-dire exactement le défaut `L-4` que ce lot répare, reproduit
       sur son propre constat**. Relevé par 🏹 Legolas au gate (`M-1`).
 
+- [ ] **SIGN-10 — RQV à co-produire avec 📖 Nathalie à la promotion de version.** Les deux lots du
+      signalement des branches (`signalement-branches-sans-copie-distante`, puis
+      `temoins-manquants-signalement-branches`) relèvent d'une **version mineure** : la campagne
+      complète était due et a été menée. 🏹 Legolas note au gate que la **RQV** reste à produire, et
+      qu'elle se co-produit avec 📖 Nathalie — elle n'est ni un état des lieux ni un relevé
+      d'exécution. À faire **au moment de la promotion de version**, pas avant.
+      ⚠️ **Consigné ici sur la remarque de ⚒️ Gimli, et il avait raison** : cette consigne ne vivait
+      que dans un message de conversation d'🔵 Odin — **le support exact que `SIGN-9` vient d'être
+      puni d'avoir utilisé**. Il a refusé de se l'octroyer sans commande (l'ordre disait « rien
+      d'autre ») et l'a remontée au lieu de la garder : geste juste des deux côtés, l'omission
+      était la mienne.
+
 ## Fait
 
 ### Soldés et vérifiés à la purge du 2026-07-23
