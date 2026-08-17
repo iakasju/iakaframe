@@ -328,8 +328,17 @@ dire est le défaut qu'on corrige, pas celui qu'on reproduit.
 2. **Établir quel binaire répond à `iakaframe`** (`R4`) : `which -a iakaframe`, et **écrire** la
    réponse au dossier. Tant que ce n'est pas écrit, toute recette est ambiguë.
 3. **Créer le worktree** : branche `feat/signalement-branches-sans-copie-distante` depuis
-   `feat/sauvegarde-portefeuille`, **hors** de la racine. **Pousser avec `-u` au premier commit** —
+   `feat/sauvegarde-portefeuille`, **hors** de la racine. ~~**Pousser avec `-u` au premier commit**~~ —
    ce lot **se mange lui-même** : sa propre branche ne doit pas devenir le prochain incident.
+   🛑 **RECTIFICATION DATÉE — 2026-08-17, 🔵 Gandalf, arbitrage instruit par 🏹 Legolas.** « `push -u`
+   au premier commit » était **logiquement inconciliable** avec `CA-15`, qui exige la capture du
+   témoin négatif **avant** ce push — or `--branches` ne répond qu'au **câblage**. **`CA-15` gagne, et
+   cette étape cède** : `CA-15` est la preuve que la garde mord, le push au premier commit n'en était
+   qu'un moyen. La règle de remplacement, **gravée pour cette famille de lots**, est `DH` de
+   `specs/instructions/temoins-manquants-signalement-branches.md` : **capturer dès que la garde
+   répond, pousser `-u` immédiatement après, plafond d'exposition écrit de 30 minutes.** Mesure au
+   reflog de ce lot-ci : **50 s** entre le 6ᵉ commit et le push, **19 min 45 s** d'exposition totale —
+   l'esprit a été tenu sans avoir été écrit.
 4. **Écrire `cli/src/lib/branches-locales.js`** : fonctions **pures** pour tout ce qui est
    décidable sans git (classement, plafond d'affichage, lecture/évaluation des motifs, rendu texte),
    et **une seule** frontière d'exécution git (`lib/git.js:run`, déjà en place).
@@ -364,7 +373,7 @@ VERBATIM**, rétablir, relancer au vert. Les sorties rouges sont consignées :
 Sabotages **nommés** (ce sont eux qui prouvent que le prédicat mord) :
 | Sabotage | Ce qui doit rougir |
 |---|---|
-| remplacer `--not --remotes` par `--not @{upstream}` | la branche poussée **sans** `-u` (`V5`) redevient un faux positif |
+| `S1` — remplacer `--not --remotes` par `--not @{upstream}` | ~~la branche poussée **sans** `-u` (`V5`) redevient un faux positif~~ → 🛑 **FAUX, rectifié le 2026-08-17** : la branche devient **MUETTE** (git échoue faute d'upstream → prédicat `null` → aucun compteur). `S1` est attrapé par 8 autres gardes, **pas** par `CA-2`. Détail et refermeture : § `CA-2` et `temoins-manquants-signalement-branches.md` |
 | retirer `--remotes` (compter tous les commits) | **toute** branche est signalée |
 | faire du plafond d'affichage un plafond de **comptage** | le compteur cesse d'être exact |
 | rendre le balayage **muet** quand il n'y a rien à dire | la garde « il parle toujours » (`CA-5`) |
@@ -433,8 +442,23 @@ signale lui-même dès qu'il tourne.
 
 - [ ] **`CA-2` — 🛑 le faux positif mesuré en `V5` NE se produit PAS.** Dépôt jetable, branche poussée
       **sans `-u`** (donc `%(upstream)` vide, `F2`/`F3`) : elle **n'est pas** signalée.
-      **Témoin négatif** : le sabotage `--not @{upstream}` la fait réapparaître — la garde doit
-      **rougir** dans ce cas, et cette sortie rouge est **consignée verbatim**.
+      **Témoin négatif** : ~~le sabotage `--not @{upstream}` la fait réapparaître — la garde doit
+      **rougir** dans ce cas, et cette sortie rouge est **consignée verbatim**.~~
+      🛑 **RECTIFICATION DATÉE — 2026-08-17, 🔵 Gandalf, sur mesure de 🏹 Legolas. Ce témoin négatif
+      était FAUX, et le texte barré ci-dessus est de ma main.** Legolas a joué le sabotage : **`CA-2`
+      reste VERT**. Mécanisme mesuré, et c'est un faux **négatif**, pas un faux positif : privée
+      d'upstream, la révision `<B>@{upstream}` **n'est pas résoluble** (`fatal: no upstream configured
+      for branch`, code 128) → `lib/git.js:run` rend `ok:false` → `compterCommitsSansCopie` rend
+      `null` (`branches-locales.js:144`) → `classer(null, …)` rend `null` (`:98`) → `analyserDepot`
+      fait `continue` (`:164`). **La branche ne réapparaît pas : elle devient MUETTE**, et ne figure
+      dans **aucun** compteur. Le sabotage est bien attrapé — **par 8 autres gardes, pas par
+      celle-ci.** *Ce que `CA-2` prouve réellement* : le prédicat mesure une **copie** et non une
+      **configuration** (c'est juste, et vérifié). *Ce qu'il ne prouve pas* : qu'un prédicat
+      non calculable se voie. Cette classe de panne — **un `null` qui produit du silence** — est
+      reprise et refermée par le lot successeur
+      `specs/instructions/temoins-manquants-signalement-branches.md` (`DG`, `CB-1`, `CB-2`), qui exige
+      que le sabotage rougisse **sur la garde qui le décrit**. Le verdict PASS du gate n'est pas
+      modifié : il portait sur le périmètre qui lui était présenté.
 
 - [ ] **`CA-3` — l'état `en-avance` est distingué de `absente`.** Branche présente sur le distant mais
       avec `N` commits locaux en plus → état `en-avance`, `N` exact, **remote nommé**.
@@ -539,3 +563,51 @@ la bonne conscience d'être couvert.
 - [git-for-each-ref — `%(upstream)`, `:track`, `[gone]`](https://git-scm.com/docs/git-for-each-ref)
 - [`push.autoSetupRemote` — introduit en git 2.37, non activé par défaut](https://adamj.eu/tech/2022/10/31/git-how-to-automatically-create-upstream-branches/)
 - [`push.autoSetupRemote` — texte de la configuration et portée (`push.default` simple/upstream/current)](https://leonardomontini.dev/git-push-auto-setup-remote/)
+
+**Ajoutées à la rectification du 2026-08-17** (mécanisme du faux négatif de `CA-2`) :
+- [gitrevisions — `<branchname>@{upstream}` : la révision n'est pas résoluble sans upstream configuré](https://git-scm.com/docs/gitrevisions)
+- [git — `t/t1507-rev-parse-upstream.sh` : le cas d'erreur « no upstream » est couvert par la suite de tests de git](https://github.com/git/git/blob/master/t/t1507-rev-parse-upstream.sh)
+
+---
+
+## Relevé d'exécution
+
+> **Appendu le 2026-08-17**, forme prescrite par `DI` de
+> `specs/instructions/temoins-manquants-signalement-branches.md`. **Appendu, jamais substitué** : le
+> corps de l'instruction ci-dessus n'est pas réécrit pour coïncider avec ce qui a été fait — l'écart
+> entre le cadrage et l'exécution **est une information**.
+>
+> ⚒️ **Tableau à remplir par Gimli**, qui détient les verdicts et les sorties rouges (corps des
+> **8 commits** du lot, `c53e51e`…`8b2e236`, mergés en `98026b1`). **Une case du § *Critères
+> d'acceptation* ne se coche qu'avec une ligne de preuve nommée ici** — une case cochée sans preuve
+> est un manquement, pas un raccourci. Verdicts autorisés : **`vert`** / **`vert (dégradé)`** /
+> **`non tenu`** / **`sans objet`**. « OK » n'est pas un verdict ; « rapide » n'est pas un chiffre.
+
+| Critère | Verdict | Preuve (`fichier:ligne`, commit, ou chiffre mesuré) | Note |
+|---|---|---|---|
+| `CA-1` | | | |
+| `CA-2` | | | ⚠ témoin négatif **rectifié** le 2026-08-17 — voir le § *Critères d'acceptation* |
+| `CA-3` | | | |
+| `CA-4` | | | |
+| `CA-5` | | | |
+| `CA-6` | | | |
+| `CA-7` | | | |
+| `CA-8` | | | |
+| `CA-9` | | | 4 chiffres exigés : durée, dépôts, branches examinées, branches signalées |
+| `CA-10` | | | |
+| `CA-11` | | | ⚠ gardé sur le chemin `code !== 0` **seulement** — chemin exception repris par `CB-4` du lot successeur |
+| `CA-12` | | | |
+| `CA-13` | | | |
+| `CA-14` | | | |
+| `CA-15` | | | chronologie au reflog : capture, `push -u`, exposition totale |
+
+**Réserves du gate 🏹 Legolas (2026-08-17) — PASS, mergé `98026b1`.** Quatre réserves relevées, dont
+trois portées par le **lot successeur** `specs/instructions/temoins-manquants-signalement-branches.md` :
+`L-1` (ordre de rendu non gardé → `CB-3`), `L-2` (`DD-7` gardé sur un seul chemin → `CB-4`),
+`L-3` (témoin de `CA-2` faux + le `null` muet → rectification ci-dessus, `DG`/`CB-1`/`CB-2`),
+`L-4` (relevé absent → ce tableau, `CB-7`). Deux points mineurs : l'accord de « depot(s) »
+(→ `CB-5`) et le corps vide de `8b2e236` (**de l'histoire, non réécrit** ; ce relevé porte ce que le
+corps ne portait pas). Dette laissée **distincte et sans urgence** : `SIGN-5` (pente du coût,
+≈ 11 ms par processus git, croissance linéaire avec le portefeuille).
+
+**Confrontation estimation ↔ temps réel** — estimé **≈ 0,8 j-h** · réel : `…` · écart et motif : `…`
