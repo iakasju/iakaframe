@@ -766,3 +766,56 @@ test('🛑 CB-3 (b) de bout en bout : via `balayer` sur un depot REEL de 12 bran
     assert.match(bloc.join('\n'), /et 2 autres \(voir --json\)/, 'le reste est annonce, pas escamote');
   } finally { rm(t.base); }
 });
+
+// --- CB-4 : le chemin EXCEPTION de `DD-7` a son temoin (reserve `L-2`) ----------------------------
+
+// 🪤 POURQUOI `--exclude-file <inexistant>`, ET RIEN D'AUTRE. `CA-11` du lot 2 croyait garder
+// `DD-7` ; elle n'en gardait qu'UN des deux chemins. Mecanisme etabli par Legolas : restic etant
+// installe au poste, `lancerSauvegarde` NE LEVE PAS, elle rend `code 10` — la garde emprunte donc
+// `if (r.code !== 0)` (`commands/range.js:145`) et le `catch` (`:129`) n'a AUCUN temoin. Sur une
+// machine SANS restic, la regression passerait MUETTE : precisement le contexte ou l'information
+// compte.
+//   Lu dans le code (`W9`) : `lancerSauvegarde` LEVE sur un fichier d'exclusion absent, et AVANT
+// tout appel a restic (`lib/range.js:141-147` ; le `spawnSync` n'est qu'en `:152`). Ce levier atteint
+// donc le chemin exception SUR TOUTE MACHINE, avec ou sans restic, et SANS JAMAIS risquer une
+// ecriture.
+//   ⛔ Neutraliser le `PATH` n'est PAS viable (`W11`) : `git` y disparaitrait aussi, tout deviendrait
+// indetermine et le rapport n'aurait plus rien a porter.
+test('🛑 CB-4 : le chemin EXCEPTION porte QUAND MEME le signalement (--exclude-file inexistant)', () => {
+  const t = chapeauTrois('iaka-branches-cb4-');
+  try {
+    const env = envJetable(t.base);
+    const absent = path.join(t.base, 'exclusions-qui-n-existent-pas.txt');
+    assert.ok(!fs.existsSync(absent), 'montage : le fichier d\'exclusion est bien ABSENT');
+
+    const r = spawnSync(process.execPath,
+      [CLI, 'range', 'alpha', '--root', t.chapeau, '--exclude-file', absent, '--json'],
+      { encoding: 'utf8', env });
+
+    assert.equal(r.status, 1, 'sortie 1');
+    const o = JSON.parse(r.stdout);
+    assert.equal(o.ok, false);
+
+    // 🛑 ASSERTION DISCRIMINANTE (`RB-4`) : elle prouve que c'est bien le chemin EXCEPTION qui a ete
+    // emprunte, et non `if (r.code !== 0)`. Sans elle, la garde pourrait passer POUR LA MAUVAISE
+    // RAISON — c'est-a-dire etre un decor. Le message doit matcher un des deux `throw` de
+    // `lib/range.js`, et surtout PAS le message du chemin « restic a repondu ».
+    assert.match(o.error, /fichier d'exclusion introuvable|restic est introuvable dans le PATH/,
+      'le message vient d\'un `throw` de lib/range.js : c\'est le chemin EXCEPTION');
+    assert.doesNotMatch(o.error, /restic a echoue \(code/,
+      'si ce message apparaissait, la garde aurait emprunte `if (r.code !== 0)` et ne prouverait RIEN');
+
+    // Le signalement voyage dans la charge d'ECHEC (`DD-7`), chemin exception compris.
+    assert.ok(Array.isArray(o.branchesSansCopieDistante), 'la liste est la');
+    assert.equal(o.branchesSansCopieDistanteCount, 1, 'son frere compteur aussi (regle 3 C-JSON)');
+    assert.equal(o.branchesSansCopieDistante.length, o.branchesSansCopieDistanteCount);
+    assert.ok(o.scanBranches && Array.isArray(o.scanBranches.limites), 'et scanBranches entier');
+    assert.equal(o.scanBranches.branchesIndeterminees, 0,
+      'le champ neuf de `DG` voyage lui aussi, sans avoir coute une ligne a range.js');
+
+    // Zero ecriture : le `throw` precede tout `spawnSync` (`W9`).
+    assert.ok(!fs.existsSync(env.IAKA_RANGE_REPOSITORY), 'AUCUN depot restic cree');
+    assert.ok(!String(o.repository || '').startsWith('sftp:'), 'jamais le depot de production');
+    assert.equal(r.stderr.trim(), '', 'rien d\'humain sur stderr en mode --json');
+  } finally { rm(t.base); }
+});
