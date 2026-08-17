@@ -568,6 +568,22 @@ bon chemin.
 **Recette sur le chapeau réel** (`range --branches --json`, `node <worktree>/cli/src/index.js`, jamais
 `iakaframe` — piège `R4`) : **45 dépôts scannés**, **8 non-git**, **0 illisible**, **69 branches
 examinées**, **0 écartée**, **3 signalées**, **`branchesIndeterminees` = 0**, **1 943 ms**.
+
+> 🛑 **CAUSE DU « 3 », ajoutée le 2026-08-17 sur réserve `M-3` du gate 🏹 Legolas — parce qu'un chiffre
+> sans sa cause n'est pas opposable.** Legolas en mesure **2**, et il a raison : le chiffre brut
+> ci-dessus **n'est pas reproductible tel quel**. Décomposition exacte, vérifiée au reflog :
+> **2 signalements stables** — `iaka-demo:main` (5 commits, `absente`) et `iakaCMyPix:main`
+> (4 commits, `absente`), les deux dettes `SIGN-2` du lot 2 — **plus la branche de CE lot elle-même**,
+> alors `en-avance` de **4 commits** sur `origin` (`origin` était à `35970d2`, `HEAD` à `20366c6` au
+> moment de la mesure), **et un `en-avance` est signalé** — c'est `DB`, non rouvert. Après le push
+> final (`d05f57c`), la même commande rend **2**, ce qui est le chiffre à retenir.
+> **Le « 3 » était juste à l'instant de la mesure et faux dès le push suivant** : c'est la garde qui
+> fonctionne sur son propre lot, pas une anomalie. La forme opposable du relevé est donc
+> **« 2 + la branche du lot tant qu'elle n'est pas à jour sur `origin` »**.
+> *Note de mesure attenante* : la durée re-relevée au même passage vaut **1 891 ms** (contre 1 943 ms),
+> soit un **troisième point** dans la fourchette de `SIGN-5` — la variance entre passages est du même
+> ordre que l'écart au lot 2, ce qui **confirme que le seuil de 2 s se joue à la variance près**. Fait
+> consigné, **pas corrigé** : `SIGN-5` reste hors périmètre.
 - ✅ **L'inconnue 2 du chiffrage est levée sans constat neuf** : `branchesIndeterminees` valait **0**
   au premier passage, comme attendu. Rien à remonter au décideur de ce côté.
 - ⚠️ **Un chiffre à signaler, pas à corriger** : **1 943 ms** contre **1 793–1 883 ms** au lot 2, pour
