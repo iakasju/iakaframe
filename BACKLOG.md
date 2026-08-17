@@ -183,8 +183,10 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
 ### Signalement des branches sans copie distante — dettes du lot successeur (posé le 2026-08-17)
 
 > Consigné par l'exécution du lot (étape 12 de l'instruction
-> `specs/instructions/signalement-branches-sans-copie-distante.md`). Chaque item est un **constat
-> mesuré**, pas une intention.
+> `specs/instructions/signalement-branches-sans-copie-distante.md`), puis **complété le 2026-08-17**
+> par le lot successeur `specs/instructions/temoins-manquants-signalement-branches.md` (étape 14) :
+> `SIGN-5` re-mesuré, `SIGN-7` et `SIGN-8` ajoutés. Chaque item est un **constat mesuré**, pas une
+> intention.
 
 - [ ] **SIGN-1 — 🛑 6 branches locales sur 16 n'ont AUCUN upstream configuré (`V5`, re-mesuré).**
       `appflowy-doc-wip`, `docs/successeur-critere-backlog-d10`,
@@ -216,11 +218,33 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
       d'arbitrage de l'instruction est **2 s**. Aucun raccourci n'a été codé : une piste de cache
       (comparer le sha de tête aux refs de suivi avant tout `rev-list`) a été **écartée** parce
       qu'elle rendrait les sabotages du prédicat indétectables. **À arbitrer, jamais à taire.**
+      🔁 **Re-mesuré le 2026-08-17 au lot des témoins manquants : 1 943 ms** (45 dépôts, **69**
+      branches examinées — une de plus). Le seuil de 2 s est donc **approché de plus près**, sans être
+      franchi. Le gate a jugé cette dette **distincte et sans urgence** ; le lot successeur l'a
+      **explicitement exclue de son périmètre** (ni cache, ni regroupement d'appels, ni `--branches`
+      conditionnel). Pente établie par 🏹 Legolas : **≈ 11 ms par processus git**, croissance
+      **linéaire** avec le portefeuille — c'est le nombre de *branches*, pas de dépôts, qui commande.
 - [ ] **SIGN-6 — 8 répertoires de premier niveau du chapeau ne sont pas des dépôts git** :
       `brasserie-le-chaudron`, `divers`, `doc`, `iakaframegui-workspace`, `le-chaudron`,
       `le-chaudron2`, `LesPetitsPlats`, `quitapis`. Ils sont **comptés et nommés** dans la sortie
       (jamais avalés), mais **aucune branche n'y est examinée** : rien ne dit si leur contenu est
       répliqué ailleurs. Constat, pas action.
+- [ ] **SIGN-7 — le commit `8b2e236` a un corps VIDE, et il ne sera PAS réécrit** (`W13` du lot des
+      témoins manquants). Les sept autres commits du lot 2 sont renseignés ; celui-là porte son sujet
+      seul. **C'est de l'histoire, et elle est poussée sur `origin`** — jamais de réécriture côté IA.
+      La **compensation est faite, pas promise** : le relevé d'exécution appendu à
+      `specs/instructions/signalement-branches-sans-copie-distante.md` porte ce que le corps ne
+      portait pas. *Item laissé ouvert comme mémoire du défaut, pas comme travail à faire : le seul
+      geste possible serait une réécriture d'historique, qui est interdite.*
+- [ ] **SIGN-8 — la capture verbatim du témoin négatif de `CA-15` (lot 2) est introuvable au
+      dossier.** La chronologie est opposable au reflog (50 s entre la capture possible et le
+      `push -u`, 19 min 45 s d'exposition totale, `W14`), mais **aucun corps de commit ne porte la
+      sortie** montrant la branche du lot 2 signalée `absente` **avant** son push. Verdict inscrit au
+      relevé : **`vert (dégradé)`**, part dégradée **dite**. La règle qui empêche la répétition est
+      **gravée** (`DH` : capturer dès que la garde répond, pousser `-u` immédiatement après, plafond
+      écrit de 30 min) et **tenue au lot suivant** (exposition mesurée : **9 min 41 s**). *Constat de
+      dossier, sans action possible en amont — on ne fabrique pas après coup une sortie qu'on n'a pas
+      capturée.*
 
 ## Fait
 
