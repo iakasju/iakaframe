@@ -21,7 +21,7 @@ import { run } from '../src/lib/git.js';
 import {
   CONSEIL, LIBELLE, LIBELLES_FIXES, LIMITES, PLAFOND_AFFICHAGE,
   ageEnJours, analyserDepot, balayer, classer, defaultIgnoreFile,
-  estEcartee, ligneRappel, lireMotifsIgnores, motifCorrespond, rendreBloc,
+  estEcartee, ligneRappel, lireMotifsIgnores, motifCorrespond, ordonner, rendreBloc,
 } from '../src/lib/branches-locales.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -527,4 +527,162 @@ test('ageEnJours : affiche pour trier, JAMAIS utilise comme filtre', () => {
   assert.equal(ageEnJours('pas une date', t), null);
   // le filtre n'existe pas : une branche vieille de 0 jour est signalee comme les autres
   assert.equal(classer(1, []), 'absente');
+});
+
+// =================================================================================================
+// LOT 3 — temoins manquants du signalement des branches
+// specs/instructions/temoins-manquants-signalement-branches.md (gardes `CB-1` a `CB-8`).
+//
+// 🛑 CE QUE CE BLOC REPARE. Le lot 2 tenait trois promesses que RIEN ne gardait, et Legolas l'a
+// mesure au gate : (`L-1`) l'ordre de rendu etait promis en commentaire, l'inverser laissait la
+// suite VERTE (26 pass, 0 fail) ; (`L-2`) le chemin EXCEPTION de `DD-7` n'avait aucun temoin ;
+// (`L-3`) un predicat qui rend `null` produisait du SILENCE, et le temoin negatif de `CA-2` decrivait
+// ce mecanisme A L'ENVERS. Les gardes ci-dessous sont ces trois temoins, plus l'accord de « depot(s) »
+// et l'honnetete du releve d'execution.
+// =================================================================================================
+
+// --- CB-1 / CB-2 : le predicat non calculable est COMPTE, NOMME, et la sortie ne mente plus -------
+
+// La couture `compter` de `DG`, cablee sur un predicat qui NE SAIT PAS repondre. Elle atteint la
+// classe de panne de `L-3` SANS casser la source — parce qu'une classe de panne qu'on ne peut
+// atteindre que par sabotage est une classe de panne sans temoin.
+const compterMuet = () => null;
+
+// 🛑 LE SABOTAGE `S1` REJOUE, ET RENDU PERMANENT. Legolas l'avait joue a la main : `CA-2` restait
+// VERT. Le voici cable en dur, avec le VRAI predicat sabote (`--not <B>@{upstream}` au lieu de
+// `--not --remotes`). Mecanisme (fait verifie `F4`) : prive d'upstream configure, `<B>@{upstream}`
+// n'est pas une revision resoluble — git rend `fatal: no upstream configured for branch`, code 128
+// — donc `git.js:run` rend `ok:false` et le predicat rend `null`. AVANT `DG`, la branche devenait
+// MUETTE et la sortie annoncait « aucune » : un mensonge. C'est la reserve `L-3`.
+function compterS1(cwd, branche) {
+  const r = run(cwd, ['rev-list', '--count', `refs/heads/${branche}`, '--not', `${branche}@{upstream}`]);
+  if (!r.ok) return null;
+  const n = Number.parseInt(r.out, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Le terrain de `V5` : UN depot dont une branche est poussee SANS `-u`. Le vrai predicat SAIT
+// repondre dessus (il mesure une COPIE, pas une CONFIGURATION) ; le predicat sabote par `S1`, non.
+function chapeauPousseSansU(prefix) {
+  const t = terrain(prefix);
+  const { depot } = depotAvecDistant(t, 'alpha');
+  run(depot, ['checkout', '-q', '-b', 'pousse-sans-u']);
+  commit(depot, 'un');
+  run(depot, ['push', '-q', 'origin', 'pousse-sans-u']);   // SANS `-u` : aucun upstream configure
+  return t;
+}
+
+test('🛑 CB-1 : une branche au predicat NON CALCULABLE est COMPTEE et NOMMEE (fin du silence)', () => {
+  const t = chapeauTrois('iaka-branches-cb1-');
+  try {
+    const r = balayer(perimetreAll(t.chapeau),
+      { root: t.chapeau, ignoreFile: motifsVides(t.base), compter: compterMuet });
+
+    // 3 depots x 2 branches (`main` + `wip/<nom>`) : AUCUNE mesurable, donc AUCUNE avalee.
+    assert.equal(r.scanBranches.branchesIndeterminees, 6, 'le nombre est EXACT, pas approche');
+    assert.equal(r.branchesSansCopieDistanteCount, 0, 'rien de mesurable, donc rien de signale');
+    assert.deepEqual(r.scanBranches.branchesIndetermineesNoms.slice().sort(),
+      ['alpha:main', 'alpha:wip/alpha', 'beta:main', 'beta:wip/beta', 'gamma:main', 'gamma:wip/gamma'],
+      'chaque branche est NOMMEE `projet:branche`');
+    // Le `:` est INTERDIT dans un nom de ref git (`git-check-ref-format` regle 4, fait `F5`) :
+    // le separateur est donc NON AMBIGU, ce que le `/` n'aurait pas ete.
+    for (const nom of r.scanBranches.branchesIndetermineesNoms) {
+      assert.equal(nom.split(':').length, 2, `separateur non ambigu : ${nom}`);
+    }
+    assert.match(rendreBloc(r).join('\n'), /indeterminees : alpha:main/,
+      'la sortie humaine les NOMME : « aucune » qualifiee sans dire LAQUELLE laisse sans prise');
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-1 : la branche indeterminee entre AUSSI dans branchesExaminees (aucun compteur perdu)', () => {
+  const t = chapeauTrois('iaka-branches-cb1b-');
+  try {
+    const opts = { root: t.chapeau, ignoreFile: motifsVides(t.base) };
+    const normal = balayer(perimetreAll(t.chapeau), opts);
+    const muet = balayer(perimetreAll(t.chapeau), { ...opts, compter: compterMuet });
+    assert.equal(muet.scanBranches.branchesExaminees, normal.scanBranches.branchesExaminees,
+      'le meme nombre de branches est EXAMINE : seul le resultat de la mesure change');
+    assert.equal(muet.scanBranches.depotsScannes, 3, 'les depots restent lisibles : ce n\'est pas eux');
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-1 TEMOIN NEGATIF : en fonctionnement NORMAL (couture non utilisee), le compteur vaut 0', () => {
+  const t = chapeauPousseSansU('iaka-branches-cb1n-');
+  try {
+    // 🛑 C'EST LA GARDE QUE LE SABOTAGE `S1` FAIT ROUGIR. Sur ce terrain (celui de `V5`), le vrai
+    // predicat SAIT repondre ; `S1` le rend non calculable, ce compteur monte et cette garde tombe.
+    const r = balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile: motifsVides(t.base) });
+    assert.equal(r.scanBranches.branchesIndeterminees, 0,
+      'le predicat mesure une COPIE : il sait repondre meme sans upstream configure');
+    assert.deepEqual(r.scanBranches.branchesIndetermineesNoms, []);
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-1 TEMOIN NEGATIF : `range` n\'expose AUCUN moyen de fixer `compter` (RB-1)', () => {
+  const dir = path.join(HERE, '..', 'src', 'commands');
+  const coupables = [];
+  for (const f of fs.readdirSync(dir)) {
+    if (!f.endsWith('.js')) continue;
+    if (/compter/.test(fs.readFileSync(path.join(dir, f), 'utf8'))) coupables.push(f);
+  }
+  assert.deepEqual(coupables, [],
+    'une couture de test qui devient un chemin de production est une porte ouverte : aucun drapeau, aucune variable d\'environnement');
+});
+
+test('🛑 CB-2 : la sortie ne dit PLUS « aucune » quand elle n\'a RIEN PU MESURER', () => {
+  const t = chapeauTrois('iaka-branches-cb2-');
+  try {
+    const r = balayer(perimetreAll(t.chapeau),
+      { root: t.chapeau, ignoreFile: motifsVides(t.base), compter: compterMuet });
+    assert.equal(r.branchesSansCopieDistanteCount, 0, 'zero signalement...');
+    assert.ok(r.scanBranches.branchesIndeterminees > 0, '...mais des indeterminees');
+
+    const bloc = rendreBloc(r);
+    // `aucune (` est la forme NON QUALIFIEE d'avant ce lot — celle qui mentait.
+    assert.doesNotMatch(bloc[0], /aucune \(/, 'plus aucune affirmation « aucune » NON QUALIFIEE');
+    assert.match(bloc[0], /INDETERMIN/, 'elle dit « je n\'ai pas pu mesurer »');
+
+    // La ligne de rappel de `DD-3` suit la MEME regle : deux emplacements, une seule honnetete.
+    const rap = ligneRappel(r);
+    assert.doesNotMatch(rap, /aucune \(/, 'le rappel non plus ne pretend pas « aucune »');
+    assert.match(rap, /INDETERMIN/);
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-2 : le sabotage `S1` REJOUE est attrape par la garde qui le DECRIT (reserve L-3 refermee)', () => {
+  const t = chapeauPousseSansU('iaka-branches-cb2s1-');
+  try {
+    const r = balayer(perimetreAll(t.chapeau),
+      { root: t.chapeau, ignoreFile: motifsVides(t.base), compter: compterS1 });
+
+    assert.ok(r.scanBranches.branchesIndeterminees >= 1, '`S1` rend le predicat non calculable...');
+    assert.match(r.scanBranches.branchesIndetermineesNoms.join(','), /alpha:pousse-sans-u/,
+      '...et c\'est bien LA branche de `V5` qui devient indeterminee');
+
+    const bloc = rendreBloc(r);
+    assert.doesNotMatch(bloc[0], /aucune \(/,
+      'AVANT ce lot, cette situation exacte rendait « aucune » : un MENSONGE. C\'est `L-3`.');
+    assert.match(bloc[0], /INDETERMIN/, '`S1` rougit desormais sur la garde qui le decrit');
+    assert.match(bloc.join('\n'), /indeterminees : alpha:pousse-sans-u/);
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-2 TEMOIN NEGATIF : tout mesurable => « aucune » NON qualifiee et AUCUN « INDETERMIN »', () => {
+  const t = chapeauPousseSansU('iaka-branches-cb2n-');
+  try {
+    // Seconde garde que `S1` fait rougir : ici la sortie DOIT dire « aucune » tout court, parce
+    // qu'on a REELLEMENT mesure. Confondre les deux etats est precisement ce qu'on interdit.
+    const r = balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile: motifsVides(t.base) });
+    const bloc = rendreBloc(r);
+    assert.match(bloc[0], /aucune \(/, '« aucune » NON qualifiee : la mesure a bien eu lieu');
+    assert.doesNotMatch(bloc.join('\n'), /INDETERMIN/, 'rien d\'indetermine a annoncer');
+    assert.doesNotMatch(ligneRappel(r), /INDETERMIN/);
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-2 : classer reste INCHANGEE — un chiffre non lu n\'est toujours pas invente', () => {
+  // `DG` repare le COMPTE RENDU, pas le CLASSEMENT. Le contrat de `classer` etait juste : on ne
+  // casse pas une garde correcte pour reparer ailleurs (ecarte nommement par `DG`).
+  assert.equal(classer(null, []), null);
+  assert.equal(classer(null, ['origin']), null, 'aucun troisieme etat `indetermine` dans classer');
 });
