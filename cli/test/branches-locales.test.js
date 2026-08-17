@@ -476,6 +476,29 @@ function faux(n) {
   };
 }
 
+// 🛑 GARDE NEE D'UN SABOTAGE QUI N'A PAS ROUGI. La falsification « faire du plafond d'affichage
+// un plafond de COMPTAGE » (`branchesSansCopieDistanteCount: Math.min(n, 10)`) est passee INAPERCUE :
+// la garde ci-dessous fabriquait son rapport a la main, sans traverser `balayer`, et les gardes CLI
+// n'avaient que 3 branches. Un compteur faux au-dela de 10 branches serait donc passe en prod.
+// Cette garde compte VRAIMENT, sur un depot reel de 12 branches locales-seules.
+test('🛑 plafond : le COMPTEUR de `balayer` reste exact au-dela du plafond (12 > 10)', () => {
+  const t = terrain('iaka-branches-plafond-');
+  try {
+    const { depot } = depotAvecDistant(t, 'alpha');
+    for (let i = 0; i < 12; i += 1) {
+      run(depot, ['checkout', '-q', '-b', `wip/b${i}`, 'main']);
+      commit(depot, `local ${i}`);
+    }
+    const r = balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile: motifsVides(t.base) });
+    assert.equal(r.branchesSansCopieDistanteCount, 12, 'le compteur compte 12, pas 10');
+    assert.equal(r.branchesSansCopieDistante.length, 12, 'la LISTE machine est complete (--json ne tronque pas)');
+    const bloc = rendreBloc(r);
+    assert.equal(bloc.filter((l) => /wip\/b\d+/.test(l)).length, PLAFOND_AFFICHAGE,
+      'seul l\'AFFICHAGE est borne a 10');
+    assert.match(bloc[0], new RegExp(`${LIBELLE} : 12 sur`));
+  } finally { rm(t.base); }
+});
+
 test('🛑 plafond : 10 lignes de detail au plus, mais le COMPTEUR reste exact', () => {
   const bloc = rendreBloc(faux(12));
   const details = bloc.filter((l) => /wip\/b\d+/.test(l));
