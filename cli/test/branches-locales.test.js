@@ -861,3 +861,63 @@ test('🛑 CB-5 TEMOIN NEGATIF : une recherche de « 1 depots » dans la sortie 
     assert.doesNotMatch(rendus, /1 depot scannes/, 'ni « 1 depot scannes » : le participe accorde aussi');
   } finally { rm(t.base); }
 });
+
+// --- CB-7 : le releve d'execution existe et il est HONNETE (`DI`, reserve `L-4`) -------------------
+
+// 🛑 POURQUOI UNE GARDE SUR DU MARKDOWN. `L-4` : la tracabilite instruction <-> critere ne vivait que
+// dans le message de remise, donc VOLATILE. La partie durable existait (les sorties rouges sont dans
+// les corps de commits) mais DISPERSEE, et personne ne la retrouvait depuis l'instruction. Un tableau
+// de 15 lignes coche a la chaine ne vaudrait rien non plus (`RB-7`) : cette garde interdit la case
+// cochee SANS preuve nommee, et autorise explicitement le verdict `non tenu` — un critere non tenu et
+// DIT vaut mieux qu'une case cochee par politesse.
+const VERDICTS = ['vert', 'vert (dégradé)', 'non tenu', 'sans objet'];
+const INSTRUCTIONS = path.join(RACINE, 'specs', 'instructions');
+
+// Rend { cases: Map<id, boolean coche>, releve: Map<id, {verdict, preuve}> } pour un fichier.
+function lireDossier(fichier, prefixe, attendus) {
+  const txt = fs.readFileSync(path.join(INSTRUCTIONS, fichier), 'utf8');
+  const cases = new Map();
+  for (const m of txt.matchAll(/^- \[( |x)\] \*\*`(\w+-\d+)`/gm)) {
+    if (m[2].startsWith(`${prefixe}-`)) cases.set(m[2], m[1] === 'x');
+  }
+  // Le releve est la DERNIERE section du fichier (`DI`) : on ne lit que ce qui suit son titre.
+  const i = txt.lastIndexOf('## Relev');
+  assert.ok(i > 0, `${fichier} : le releve d'execution est en DERNIERE section (DI)`);
+  const releve = new Map();
+  for (const m of txt.slice(i).matchAll(/^\|\s*`(\w+-\d+)`\s*\|([^|]*)\|([^|]*)\|/gm)) {
+    releve.set(m[1], { verdict: m[2].trim(), preuve: m[3].trim() });
+  }
+  assert.deepEqual([...cases.keys()], attendus, `${fichier} : les ${attendus.length} criteres sont la`);
+  assert.deepEqual([...releve.keys()], attendus, `${fichier} : une ligne de releve PAR critere`);
+  return { cases, releve };
+}
+
+function verifierHonnetete(fichier, prefixe, attendus) {
+  const { cases, releve } = lireDossier(fichier, prefixe, attendus);
+  for (const id of attendus) {
+    const { verdict, preuve } = releve.get(id);
+    assert.ok(VERDICTS.includes(verdict),
+      `${id} : verdict « ${verdict} » hors des quatre autorises (${VERDICTS.join(' / ')}) — « OK » n'en est pas un`);
+    assert.ok(preuve.length > 0, `${id} : une ligne de releve SANS preuve nommee ne vaut rien (DI-2)`);
+    assert.doesNotMatch(preuve, /^rapide$/i, `${id} : « rapide » n'est pas un chiffre (CA-9)`);
+    // Une case cochee EXIGE un verdict tenu ; une case non cochee EXIGE un `non tenu` assume.
+    if (cases.get(id)) {
+      assert.notEqual(verdict, 'non tenu', `${id} : case cochee alors que le verdict est « non tenu »`);
+    } else {
+      assert.equal(verdict, 'non tenu',
+        `${id} : case NON cochee — le seul verdict honnete est « non tenu » assume, pas un blanc`);
+    }
+  }
+}
+
+test('🛑 CB-7 : le releve d\'execution du LOT 2 existe, 15 lignes, verdicts et preuves nommees', () => {
+  verifierHonnetete('signalement-branches-sans-copie-distante.md', 'CA',
+    Array.from({ length: 15 }, (_, i) => `CA-${i + 1}`));
+});
+
+test('🛑 CB-7 : le releve d\'execution de CE LOT existe, 8 lignes, memes regles', () => {
+  // `DI-1` : appendu, jamais substitue. La garde ne verifie pas le corps de l'instruction — l'ecart
+  // entre le cadrage et l'execution EST une information, on ne le maquille pas.
+  verifierHonnetete('temoins-manquants-signalement-branches.md', 'CB',
+    Array.from({ length: 8 }, (_, i) => `CB-${i + 1}`));
+});
