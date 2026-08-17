@@ -432,7 +432,7 @@ par politesse. *Témoin* : `CB-7`.
 > Chaque critère porte son **témoin négatif** : ce qu'on doit voir **échouer** pour savoir que le
 > contrôle mord. Numérotés **`CB-*`** pour ne pas se confondre avec les `CA-*` du lot 2.
 
-- [ ] **`CB-1` — 🛑 une branche dont le prédicat n'est pas calculable est COMPTÉE et NOMMÉE** (`DG`).
+- [x] **`CB-1` — 🛑 une branche dont le prédicat n'est pas calculable est COMPTÉE et NOMMÉE** (`DG`).
       Via la couture `compter`, sur un chapeau factice : `scanBranches.branchesIndeterminees` vaut le
       nombre exact, `branchesIndetermineesNoms` porte `projet:branche` (`F5`), et le bloc humain
       affiche la ligne `indeterminees : …`. En fonctionnement **normal** (couture non utilisée), le
@@ -442,7 +442,7 @@ par politesse. *Témoin* : `CB-7`.
       **aucun** moyen (drapeau, variable d'environnement) de fixer `compter` — une recherche dans
       `cli/src/commands/` rend **zéro** occurrence.
 
-- [ ] **`CB-2` — 🛑 la sortie ne dit plus `aucune` quand elle n'a rien pu mesurer.** Avec
+- [x] **`CB-2` — 🛑 la sortie ne dit plus `aucune` quand elle n'a rien pu mesurer.** Avec
       `branchesIndeterminees > 0` et **zéro** signalement, la première ligne du bloc **ne contient
       pas** une affirmation `aucune` non qualifiée, et contient `INDETERMIN`. La ligne de rappel de
       `DD-3` suit la même règle.
@@ -451,7 +451,7 @@ par politesse. *Témoin* : `CB-7`.
       verbatim**. *C'est la réserve `L-3` refermée : `S1` est attrapé par la garde qui le décrit, pas
       seulement par ses voisines.*
 
-- [ ] **`CB-3` — l'ordre de rendu est GARDÉ, pas promis** (`L-1`). Deux niveaux : (a) unitaire —
+- [x] **`CB-3` — l'ordre de rendu est GARDÉ, pas promis** (`L-1`). Deux niveaux : (a) unitaire —
       `ordonner` place **tous** les `absente` avant **tout** `en-avance`, quel que soit le nombre de
       commits ; (b) de bout en bout — via `balayer` sur un dépôt réel de **12 branches** (10
       `en-avance` à fort nombre de commits, 2 `absente` à 1 commit), les **2 lignes `absente`
@@ -459,7 +459,7 @@ par politesse. *Témoin* : `CB-7`.
       **Témoin négatif** : inverser le rang dans `ordonner` doit faire rougir **les deux** — Legolas a
       mesuré **26 pass, 0 fail** avant ce lot ; ce chiffre doit devenir un échec.
 
-- [ ] **`CB-4` — le chemin EXCEPTION de `DD-7` a son témoin** (`L-2`). `range <projet>
+- [x] **`CB-4` — le chemin EXCEPTION de `DD-7` a son témoin** (`L-2`). `range <projet>
       --exclude-file <chemin inexistant> --json` sur un chapeau factice : sortie **1**,
       `{ ok:false, … }` portant **`branchesSansCopieDistante`**, son **compteur** et
       **`scanBranches`** ; **aucun** dépôt restic créé.
@@ -468,19 +468,19 @@ par politesse. *Témoin* : `CB-7`.
       `lib/range.js` et **ne pas** matcher `restic a echoue (code` — sinon le test a emprunté le
       **mauvais chemin** et ne prouve rien (`RB-4`).
 
-- [ ] **`CB-5` — la grammaire ne boite plus** (`W12`). En périmètre ciblé, l'en-tête rend
+- [x] **`CB-5` — la grammaire ne boite plus** (`W12`). En périmètre ciblé, l'en-tête rend
       **« sur 1 depot »** ; à 2 dépôts et plus, **« depots »**. Idem pour « depots scannes ».
       **Témoin négatif** : une recherche de `1 depots` dans la sortie rendue doit rendre **zéro** ;
       remettre le littéral invariable doit faire rougir.
 
-- [ ] **`CB-6` — aucune régression, et le périmètre est tenu au fichier près.** `node --test` depuis
+- [x] **`CB-6` — aucune régression, et le périmètre est tenu au fichier près.** `node --test` depuis
       `cli/` : **vert**, les **26** gardes du lot 2 comprises. `git diff` rend **zéro ligne** sur
       `cli/src/commands/range.js`, `cli/test/range.test.js`, `cli/test/guard-json-output.test.js`,
       `docs/commandes.md`, `config/sauvegarde-branches-ignorees.txt`.
       **Témoin négatif** : une seule ligne de diff sur l'un de ces cinq fichiers **invalide le lot** —
       `DG` a été conçu pour n'en toucher aucun.
 
-- [ ] **`CB-7` — le relevé d'exécution du lot 2 existe et il est HONNÊTE** (`DI`, `L-4`). Le fichier
+- [x] **`CB-7` — le relevé d'exécution du lot 2 existe et il est HONNÊTE** (`DI`, `L-4`). Le fichier
       `signalement-branches-sans-copie-distante.md` porte, **en dernière section**, un tableau de
       **15 lignes** (`CA-1`…`CA-15`) avec verdict ∈ {`vert`, `vert (dégradé)`, `non tenu`, `sans
       objet`} et **preuve nommée** (`fichier:ligne`, commit, ou chiffre). Les **15 cases** sont
@@ -488,7 +488,7 @@ par politesse. *Témoin* : `CB-7`.
       **Témoin négatif** : une case cochée **sans** ligne de relevé, ou une ligne de relevé sans
       preuve, **invalide le critère**. « OK » n'est pas un verdict ; « rapide » n'est pas un chiffre.
 
-- [ ] **`CB-8` — ce lot s'applique à lui-même selon `DH`.** Sa branche a une **ref distante** avant la
+- [x] **`CB-8` — ce lot s'applique à lui-même selon `DH`.** Sa branche a une **ref distante** avant la
       remise ; `--branches` **ne la signale plus** ; et l'**exposition mesurée au reflog** (création →
       premier push) est **inférieure à 30 minutes**, chiffre **écrit** dans la remise.
       **Témoin négatif** : **avant** le `push -u`, elle **doit** apparaître dans le signalement —
@@ -546,21 +546,58 @@ bon chemin.
 
 ## Relevé d'exécution
 
-> ⚒️ **À remplir par Gimli en fin de lot** (`DI`), **appendu** — jamais substitué au corps ci-dessus.
-> Tant que cette section porte cet encadré, le lot n'est pas remis.
+> ⚒️ **Rempli par Gimli le 2026-08-17**, **appendu** — jamais substitué au corps ci-dessus. Les
+> verdicts ci-dessous sont des **mesures**, pas un avis : ⚒️ Gimli ne juge pas sa propre qualité et ne
+> s'auto-certifie pas. Le **verdict de gate appartient à 🏹 Legolas**, seul émetteur du PASS.
 
 | Critère | Verdict | Preuve (`fichier:ligne`, commit, ou chiffre mesuré) | Note |
 |---|---|---|---|
-| `CB-1` | | | |
-| `CB-2` | | | |
-| `CB-3` | | | |
-| `CB-4` | | | |
-| `CB-5` | | | |
-| `CB-6` | | | |
-| `CB-7` | | | |
-| `CB-8` | | | |
+| `CB-1` | vert | `cli/test/branches-locales.test.js:579` (6 indéterminées **nommées** `projet:branche`), `:601` (aucun compteur perdu), témoins négatifs `:613` et `:625` — commit `84d40e6`. Code : `cli/src/lib/branches-locales.js` garde `if (n === null)` avant `classer`, agrégats `branchesIndeterminees` / `branchesIndetermineesNoms` — commit `35970d2` | En fonctionnement **normal** sur le chapeau réel, le compteur vaut **0** (recette du 2026-08-17). Recherche de `compter` dans `cli/src/commands/` : **zéro** occurrence — la couture n'est atteignable par aucun chemin de production (`RB-1`) |
+| `CB-2` | vert | `cli/test/branches-locales.test.js:636` (plus d'`aucune` non qualifiée, `INDETERMIN` présent, ligne de rappel `DD-3` incluse), `:656` (**`S1` rejoué, câblé en dur**), témoin négatif `:674` — commit `84d40e6` | 🛑 **Réserve `L-3` refermée** : sous `S1`, la sortie mesurée est `branches sans copie distante : aucune de MESURABLE — 1 branche INDETERMINEE (predicat non calculable) (…)`. Avant `DG`, la même situation rendait `aucune (…)` — un mensonge. Sortie rouge verbatim dans le corps de `84d40e6` |
+| `CB-3` | vert | `cli/test/branches-locales.test.js:696` (unitaire : rang **domine** le nombre de commits, 1 vs 99) et `:747` (**de bout en bout via `balayer` sur un dépôt réel de 12 branches** : 10 `en-avance` à 5 commits, 2 `absente` à 1 commit) — commit `629733f` | Falsification : inversion du rang → **36 tests, 34 pass, 2 fail**, les **deux** niveaux rouges, le bout-en-bout sur `0 !== 2` (les `absente` sont **éjectées** de l'affichage, pas mal triées). Le **montage lui-même** est assertionné (12 / 10 / 2 / 5 > 1) pour qu'une garde ne puisse pas passer pour la mauvaise raison (`RB-3`). Coût : **~1,5 s** pour les deux gardes — le repli 12 → 11 branches n'a pas été nécessaire |
+| `CB-4` | vert | `cli/test/branches-locales.test.js:788` — commit `3fbf41e`. Harnais : `--exclude-file <inexistant>`, qui lève **avant** tout `spawnSync` (`cli/src/lib/range.js:141-147`, constat `W9`) | Falsification, les **deux** témoins joués : (a) retrait de `...champsScan` du `catch` (`commands/range.js:129`) → 1 fail, « la liste est la » ; (b) **l'assertion discriminante porte** — `lancerSauvegarde` sabotée pour ne plus lever fait tomber **uniquement** cette assertion, `actual: 'restic a echoue (code 10) : …'`. Sans elle, le test passait en ne prouvant rien (`RB-4`). Restic **est** installé au poste (0.19.1), donc le levier `PATH` n'aurait pas été viable (`W11`) |
+| `CB-5` | vert | `cli/test/branches-locales.test.js:829` (« sur 1 depot » / « sur 3 depots » / « 0 depots scannes ») et témoin négatif `:849` (`1 depots` **et** `1 depot scannes` → zéro) — commit `20366c6` | 🪤 **Constat fait en corrigeant, pas supposé** : accorder le seul substantif produit « 1 depot scannes » — la grammaire boite alors **par le participe**. L'accord porte donc sur l'expression entière (source unique `phraseDepotsScannes`). **Conséquence déclarée** : l'assertion `/depots scannes/` de `CA-5` devenait insatisfiable et a été **resserrée** en `/1 depot scanne(?!s)/` — elle rejette désormais ce que l'ancienne acceptait. Recette réelle : `1 sur 1 depot` (elle disait `1 sur 1 depots`) |
+| `CB-6` | vert | `node --test` depuis `cli/` : **655 tests, 648 pass, 0 fail, 7 skipped**. `cli/test/range.test.js` : **17 pass**, `cli/test/guard-json-output.test.js` : **24 pass**. `git diff feat/sauvegarde-portefeuille` rend **0 ligne** sur les cinq fichiers interdits — `cli/src/commands/range.js`, `cli/test/range.test.js`, `cli/test/guard-json-output.test.js`, `docs/commandes.md`, `config/sauvegarde-branches-ignorees.txt` — **et** sur `cli/src/lib/range.js` | `DG` a été conçu pour n'en toucher aucun : `scanBranches` voyageait **déjà** dans `champsScan` (`commands/range.js:86-90`), en charge de succès comme d'échec. **Zéro ligne** dans `range.js` est un critère, pas une intention. 🛑 **RECTIFICATION DE VOCABULAIRE — 2026-08-17, sur réserve `M-2` du gate 🏹 Legolas.** Le corps de ce cadrage écrit « les **26** gardes du lot 2 vertes, **inchangées** » (étape 10) et « les **26** gardes du lot 2 comprises » (`CB-6`). Le mot **« inchangées » est FAUX au sens strict** : les **26** gardes sont **conservées et vertes**, mais **l'une d'elles porte une assertion resserrée** — `CA-5`, dont `/depots scannes/` est devenu `/1 depot scanne(?!s)/`, conséquence inévitable de l'accord de `CB-5`. La formulation juste est donc : **26 gardes conservées et vertes, dont une assertion resserrée**. Le resserrement est **accepté au gate**, prouvé **empiriquement** par Legolas (littéral invariable remis → `CA-5` **rouge**) et non par lecture ; déplacer le fixture aurait été **pire**, le cas à un seul dépôt restant alors sans garde. ⚠️ **Le corps ci-dessus n'est PAS réécrit** (`DI-1` : appendu, jamais substitué) : la rectification vit **ici**, dans le relevé, qui est l'endroit prévu pour l'écart entre le cadrage et l'exécution. Aucune dissimulation n'était en cause — l'amendement de `CA-5` est déclaré dans le fichier de test, dans le corps du commit `20366c6` et dans le relevé de `CB-5` — seul le **mot** était faux |
+| `CB-7` | vert | `cli/test/branches-locales.test.js:913` (les 15 lignes du lot 2) et `:918` (les 8 lignes de ce lot) | La garde a été écrite **avant** le remplissage et vue **rouge** sur les deux relevés vides (`verdict «  » hors des quatre autorisés`). Elle interdit la case cochée sans preuve nommée, exige un `non tenu` **assumé** pour toute case non cochée, et refuse « OK » comme verdict et « rapide » comme chiffre (`RB-7`) |
+| `CB-8` | vert | Chronologie **mesurée au reflog** : branche créée à `1786969214` (14:20:14), premier commit `35970d2` à `1786969777` (14:29:37), **capture du témoin négatif** à `1786969786` (14:29:46), **`push -u`** à `1786969795` (14:29:55). **Exposition totale : 9 min 41 s** — plafond écrit : 30 min. Capture verbatim de la branche signalée `absente` avant le push : dans la remise | Le repli de `DH-4` **n'a pas servi** : la garde `--branches` répondait déjà sur la branche parente (`W1`), donc la capture a été possible dès le premier commit. **9 s** entre la capture et le `push -u` |
 
-**Chiffres de `DH`** — création de la branche : `…` · capture de `CB-8` : `…` · `push -u` : `…` ·
-**exposition totale** : `…` (plafond écrit : 30 min).
+**Chiffres de `DH`** — création de la branche : **14:20:14** (`1786969214`) · capture de `CB-8` :
+**14:29:46** (`1786969786`) · `push -u` : **14:29:55** (`1786969795`) · **exposition totale** :
+**9 min 41 s** (581 s) — plafond écrit : 30 min, tenu avec **20 min 19 s** de marge.
 
-**Confrontation estimation ↔ temps réel** — estimé **0,65 j-h** · réel : `…` · écart et motif : `…`
+**Recette sur le chapeau réel** (`range --branches --json`, `node <worktree>/cli/src/index.js`, jamais
+`iakaframe` — piège `R4`) : **45 dépôts scannés**, **8 non-git**, **0 illisible**, **69 branches
+examinées**, **0 écartée**, **3 signalées**, **`branchesIndeterminees` = 0**, **1 943 ms**.
+
+> 🛑 **CAUSE DU « 3 », ajoutée le 2026-08-17 sur réserve `M-3` du gate 🏹 Legolas — parce qu'un chiffre
+> sans sa cause n'est pas opposable.** Legolas en mesure **2**, et il a raison : le chiffre brut
+> ci-dessus **n'est pas reproductible tel quel**. Décomposition exacte, vérifiée au reflog :
+> **2 signalements stables** — `iaka-demo:main` (5 commits, `absente`) et `iakaCMyPix:main`
+> (4 commits, `absente`), les deux dettes `SIGN-2` du lot 2 — **plus la branche de CE lot elle-même**,
+> alors `en-avance` de **4 commits** sur `origin` (`origin` était à `35970d2`, `HEAD` à `20366c6` au
+> moment de la mesure), **et un `en-avance` est signalé** — c'est `DB`, non rouvert. Après le push
+> final (`d05f57c`), la même commande rend **2**, ce qui est le chiffre à retenir.
+> **Le « 3 » était juste à l'instant de la mesure et faux dès le push suivant** : c'est la garde qui
+> fonctionne sur son propre lot, pas une anomalie. La forme opposable du relevé est donc
+> **« 2 + la branche du lot tant qu'elle n'est pas à jour sur `origin` »**.
+> *Note de mesure attenante* : la durée re-relevée au même passage vaut **1 891 ms** (contre 1 943 ms),
+> soit un **troisième point** dans la fourchette de `SIGN-5` — la variance entre passages est du même
+> ordre que l'écart au lot 2, ce qui **confirme que le seuil de 2 s se joue à la variance près**. Fait
+> consigné, **pas corrigé** : `SIGN-5` reste hors périmètre.
+- ✅ **L'inconnue 2 du chiffrage est levée sans constat neuf** : `branchesIndeterminees` valait **0**
+  au premier passage, comme attendu. Rien à remonter au décideur de ce côté.
+- ⚠️ **Un chiffre à signaler, pas à corriger** : **1 943 ms** contre **1 793–1 883 ms** au lot 2, pour
+  **une** branche examinée de plus. Le seuil d'arbitrage de `CA-9` (**2 s**) est **approché de plus
+  près** qu'au lot 2, sans être franchi. C'est la pente de `SIGN-5`, **hors périmètre de ce lot** — ni
+  cache, ni regroupement d'appels n'ont été codés.
+
+**Confrontation estimation ↔ temps réel** — estimé **0,65 j-h** · réel : **≈ 0,30 j-h** (2 h 25 de
+bout en bout, de la lecture de l'instruction à la remise) · écart et motif : **−0,35 j-h, soit ~54 %
+sous l'estimation**. Trois causes, toutes nommées : (1) `DG` a coûté ce qui était annoncé (une garde,
+deux compteurs, une phrase) ; (2) le harnais de `CB-4` était **déjà tranché au cadrage** (`W9`/`W10`/
+`W11`) — aucune exploration à refaire, et c'est le poste où le lot 2 avait perdu du temps ; (3) la
+couture `compter` a rendu `CB-1`/`CB-2` **testables sans sabotage manuel**, donc rapides à écrire.
+🛑 **Un écart favorable n'est pas une bonne nouvelle en soi** : il dit surtout que **le cadrage avait
+fait le travail d'enquête en amont** — les deux trouvailles de harnais lues dans le code, et non
+supposées, sont ce qui a compressé le lot. Le seul dépassement local est le **+0,05 j-h** de
+l'inconnue 1 (le dépôt réel de 12 branches), absorbé sans réduire le fixture.

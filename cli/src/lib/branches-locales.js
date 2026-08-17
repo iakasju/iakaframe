@@ -50,6 +50,7 @@ export const LIMITES = [
   'hors du perimetre demande : rien n\'est dit des autres depots',
   'les motifs d\'exclusion de l\'instantane ne sont pas recoupes',
   'les branches ecartees par motif sortent de la LISTE, pas des compteurs',
+  'une branche dont le predicat n\'est pas CALCULABLE est comptee et NOMMEE (branchesIndeterminees), jamais avalee',
 ];
 
 // Forme courte de ces limites a l'ecran (deux lignes, pour ne pas noyer l'en-tete).
@@ -149,17 +150,34 @@ export function compterCommitsSansCopie(cwd, branche) {
 // --- balayage ---------------------------------------------------------------------------------
 
 // Analyse UN depot. Rend les branches signalees + les compteurs de ce depot.
-export function analyserDepot(chemin, { projet, motifs = [], maintenant = Date.now() } = {}) {
+//
+// 🛑 `compter` EST UNE COUTURE DE TEST, ET RIEN D'AUTRE (`DG`, risque `RB-1`). Parametre
+// OPTIONNEL, defaut = la vraie fonction. Elle existe parce qu'*une classe de panne qu'on ne peut
+// atteindre que par sabotage est une classe de panne sans temoin* : sans elle, le cas « predicat
+// non calculable » ne serait eprouvable qu'en cassant la source. Elle n'est JAMAIS lue depuis
+// `process.env` ni depuis un drapeau CLI, et aucun chemin de production ne l'atteint (`CB-1`).
+export function analyserDepot(chemin, {
+  projet, motifs = [], maintenant = Date.now(), compter = compterCommitsSansCopie,
+} = {}) {
   const branches = lireBranches(chemin);
   if (branches === null) return null;                      // illisible => l'appelant le compte comme ignore
   const refs = lireRefsDistantes(chemin);
   const signalees = [];
+  const indeterminees = [];
   let examinees = 0;
   let ecartees = 0;
 
   for (const b of branches) {
     examinees += 1;
-    const n = compterCommitsSansCopie(chemin, b.nom);
+    const n = compter(chemin, b.nom);
+    // 🛑 LE SILENCE CESSE ICI (`DG`, reserve `L-3`). Avant ce lot, un predicat non calculable
+    // (`null`) traversait `classer` — qui rend `null` a juste titre, son contrat est de ne JAMAIS
+    // inventer un chiffre non lu — puis tombait dans le `continue` ci-dessous : la branche n'etait
+    // ni signalee, ni comptee, ni nommee, et l'en-tete annoncait sereinement « aucune ». C'etait
+    // le defaut du lot 2 DANS le lot 2 : le niveau DEPOT etait deja honnete (un depot illisible est
+    // compte et nomme), le niveau BRANCHE ne l'etait pas. Une asymetrie, pas un choix.
+    // La garde est AVANT `classer` : on ne casse pas une garde juste pour reparer ailleurs.
+    if (n === null) { indeterminees.push(b.nom); continue; }
     const etat = classer(n, refs[b.nom] || []);
     if (!etat) continue;
     if (estEcartee(b.nom, motifs)) { ecartees += 1; continue; }
@@ -173,7 +191,7 @@ export function analyserDepot(chemin, { projet, motifs = [], maintenant = Date.n
       ageJours: ageEnJours(b.dernierCommit, maintenant),
     });
   }
-  return { signalees, examinees, ecartees };
+  return { signalees, examinees, ecartees, indeterminees };
 }
 
 // Ordre de rendu : le plus grave d'abord (`absente` avant `en-avance`), puis le plus de commits.
@@ -189,7 +207,9 @@ export function ordonner(liste) {
 
 // Balaye le perimetre DEMANDE — celui de l'instantane, jamais celui du repertoire courant (`DC`).
 // `perimetre` = l'objet rendu par `resoudrePerimetre` de lib/range.js ({ portee, projet, chemin }).
-export function balayer(perimetre, { root, ignoreFile, maintenant = Date.now() } = {}) {
+export function balayer(perimetre, {
+  root, ignoreFile, maintenant = Date.now(), compter,
+} = {}) {
   const debut = Date.now();
   const { fichier, motifs } = lireMotifsIgnores(ignoreFile ?? defaultIgnoreFile());
 
@@ -203,14 +223,20 @@ export function balayer(perimetre, { root, ignoreFile, maintenant = Date.now() }
   let branchesEcartees = 0;
   const depotsNonGitNoms = [];
   const depotsIgnoresNoms = [];
+  const branchesIndetermineesNoms = [];
 
   for (const c of candidats) {
     if (!isRepo(c.chemin)) { depotsNonGitNoms.push(c.nom); continue; }   // compte ET nomme (`CA-8`)
-    const r = analyserDepot(c.chemin, { projet: c.nom, motifs, maintenant });
+    // `compter` n'est transmis que s'il est fourni : sinon `analyserDepot` retient son defaut.
+    const r = analyserDepot(c.chemin, { projet: c.nom, motifs, maintenant, ...(compter ? { compter } : {}) });
     if (r === null) { depotsIgnoresNoms.push(c.nom); continue; }
     depotsScannes += 1;
     branchesExaminees += r.examinees;
     branchesEcartees += r.ecartees;
+    // `projet:branche` — le `:` est INTERDIT dans un nom de ref git (`git-check-ref-format`,
+    // regle 4, fait verifie `F5`), donc ce separateur est NON AMBIGU. Le `/` ne l'aurait pas ete :
+    // les noms de branches en contiennent.
+    for (const nom of r.indeterminees) branchesIndetermineesNoms.push(`${c.nom}:${nom}`);
     signalees = signalees.concat(r.signalees);
   }
 
@@ -231,6 +257,12 @@ export function balayer(perimetre, { root, ignoreFile, maintenant = Date.now() }
       depotsIgnoresNoms,
       branchesExaminees,
       branchesEcartees,
+      // 🛑 Ajout SEUL, a l'interieur de `scanBranches` (deja niche), sur le patron exact de
+      // `depotsNonGit` / `depotsNonGitNoms` : aucune cle existante renommee, deplacee ni supprimee
+      // (`RB-2`). Ce champ voyage donc DEJA dans `champsScan` de `commands/range.js:86-90`, en
+      // charge de succes comme d'echec — ZERO ligne a ecrire dans `range.js` (`CB-6`).
+      branchesIndeterminees: branchesIndetermineesNoms.length,
+      branchesIndetermineesNoms,
       motifsIgnores: fichier,
       dureeMs: Date.now() - debut,
       limites: LIMITES,
@@ -248,11 +280,20 @@ export function rendreBloc(rapport, { plafond = PLAFOND_AFFICHAGE, indent = '  '
   const total = rapport.branchesSansCopieDistanteCount;
   const compteurs = `${s.depotsIgnores} ignore, ${s.depotsNonGit} non-git, ${s.branchesExaminees} branches examinees`;
   const lignes = [];
+  const indet = s.branchesIndeterminees ?? 0;
+  // 🛑 LA PHRASE QUI NE MENT PLUS (`DG`, `CB-2`). Sous le sabotage `S1`, la sortie disait
+  // « aucune » — un MENSONGE : elle n'avait rien pu mesurer. Elle dit desormais « je n'ai pas pu
+  // mesurer ». Ce n'est pas cosmetique : c'est la difference entre une garde et un decor.
+  const suffixeIndet = indet > 0
+    ? ` — ${indet} branche${indet > 1 ? 's' : ''} INDETERMINEE${indet > 1 ? 'S' : ''} (predicat non calculable)`
+    : '';
 
   if (total === 0) {
-    lignes.push(`${indent}${LIBELLE} : aucune (${s.depotsScannes} depots scannes, ${compteurs})`);
+    // Quand rien n'a pu etre mesure, « aucune » ne tient plus seule : elle est QUALIFIEE.
+    const tete = indet > 0 ? 'aucune de MESURABLE' : 'aucune';
+    lignes.push(`${indent}${LIBELLE} : ${tete}${suffixeIndet} (${phraseDepotsScannes(s.depotsScannes)}, ${compteurs})`);
   } else {
-    lignes.push(`${indent}${LIBELLE} : ${total} sur ${s.depotsScannes} depots (${compteurs})`);
+    lignes.push(`${indent}${LIBELLE} : ${total} sur ${s.depotsScannes} ${motDepots(s.depotsScannes)}${suffixeIndet} (${compteurs})`);
     const montrees = rapport.branchesSansCopieDistante.slice(0, plafond);
     const lp = Math.max(...montrees.map((e) => String(e.projet).length));
     const lb = Math.max(...montrees.map((e) => String(e.branche).length));
@@ -272,6 +313,11 @@ export function rendreBloc(rapport, { plafond = PLAFOND_AFFICHAGE, indent = '  '
     lignes.push(`${indent}  ${CONSEIL}`);
   }
 
+  // Le predicat non calculable est NOMME, pas seulement compte : « aucune » qualifiee sans dire
+  // LAQUELLE laisserait le lecteur sans prise (`DG`).
+  if (indet > 0) {
+    lignes.push(`${indent}  indeterminees : ${s.branchesIndetermineesNoms.join(', ')}`);
+  }
   // Ecarter n'est jamais taire : le compteur ET le chemin du fichier de motifs restent visibles.
   if (s.branchesEcartees > 0) {
     lignes.push(`${indent}  ecartees par motif : ${s.branchesEcartees} (motifs : ${s.motifsIgnores})`);
@@ -291,16 +337,35 @@ export function rendreBloc(rapport, { plafond = PLAFOND_AFFICHAGE, indent = '  '
   return lignes;
 }
 
+// Accord de « depot(s) » (`W12`, `CB-5`). Un en-tete qui ecrit « 2 sur 1 depots » a l'air d'un
+// rapport que personne n'a relu : la confiance dans un signal se joue aussi la.
+export function motDepots(n) { return n === 1 ? 'depot' : 'depots'; }
+
+// 🪤 CONSTAT FAIT EN CORRIGEANT L'ACCORD, pas suppose : accorder le seul substantif produit
+// « 1 depot scannes » — la grammaire boite alors AUTREMENT, par le PARTICIPE. « Idem pour
+// "depots scannes" » (`CB-5`) porte donc sur l'expression ENTIERE. Source unique, pour que les deux
+// emplacements (en-tete et ligne de rappel) ne puissent pas deriver l'un de l'autre.
+export function phraseDepotsScannes(n) { return `${n} ${motDepots(n)} scanne${n === 1 ? '' : 's'}`; }
+
 // Rappel APRES le `OK` final : UNE seule ligne, le compteur — pas la liste (`DD-3`).
 export function ligneRappel(rapport) {
   const total = rapport.branchesSansCopieDistanteCount;
   const s = rapport.scanBranches;
-  if (total === 0) return `${LIBELLE} : aucune (${s.depotsScannes} depots scannes)`;
-  return `${LIBELLE} : ${total} (${CONSEIL})`;
+  const indet = s.branchesIndeterminees ?? 0;
+  // Meme regle qu'a l'en-tete (`CB-2`) : le rappel non plus ne dit pas « aucune » quand il n'a
+  // rien pu mesurer. Deux emplacements, une seule honnetete.
+  const suffixeIndet = indet > 0 ? ` — ${indet} INDETERMINEE${indet > 1 ? 'S' : ''}` : '';
+  if (total === 0) {
+    const tete = indet > 0 ? 'aucune de MESURABLE' : 'aucune';
+    return `${LIBELLE} : ${tete}${suffixeIndet} (${phraseDepotsScannes(s.depotsScannes)})`;
+  }
+  return `${LIBELLE} : ${total}${suffixeIndet} (${CONSEIL})`;
 }
 
 // Les LIBELLES fixes du signalement, exposes pour que la garde `CA-7` puisse verifier qu'aucun
 // d'entre eux ne parle de « sauvegarde » : le signal ne dit pas ce qu'il ne mesure pas.
 export const LIBELLES_FIXES = [LIBELLE, CONSEIL, ...LIMITES, ...LIMITES_COURTES,
   'AUCUNE ref distante', 'en avance sur', 'ecartees par motif', 'non suivis par git',
-  'depots illisibles', 'branches examinees', 'et N autres (voir --json)'];
+  'depots illisibles', 'branches examinees', 'et N autres (voir --json)',
+  // Libelles nes de `DG` : eux aussi doivent passer `CA-7` (ne jamais parler de « sauvegarde »).
+  'aucune de MESURABLE', 'INDETERMINEE', 'predicat non calculable', 'indeterminees'];

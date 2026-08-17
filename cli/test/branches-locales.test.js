@@ -21,7 +21,7 @@ import { run } from '../src/lib/git.js';
 import {
   CONSEIL, LIBELLE, LIBELLES_FIXES, LIMITES, PLAFOND_AFFICHAGE,
   ageEnJours, analyserDepot, balayer, classer, defaultIgnoreFile,
-  estEcartee, ligneRappel, lireMotifsIgnores, motifCorrespond, rendreBloc,
+  estEcartee, ligneRappel, lireMotifsIgnores, motifCorrespond, ordonner, rendreBloc,
 } from '../src/lib/branches-locales.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -236,7 +236,11 @@ test('🛑 CA-5 : tout pousse => il parle QUAND MEME, avec ses compteurs', () =>
     const bloc = rendreBloc(r);
     assert.ok(bloc.length >= 1, 'AU MOINS une ligne : sinon « rien a signaler » = « garde cassee »');
     assert.match(bloc[0], new RegExp(`${LIBELLE} : aucune`));
-    assert.match(bloc[0], /depots scannes/);
+    // 🪤 ASSERTION AMENDEE PAR LE LOT 3, ET C'EST DECLARE — pas glisse. Elle disait
+    // `/depots scannes/` ; l'accord de « depot(s) » (`W12`, `CB-5`) rend ce littéral invariable
+    // IMPOSSIBLE sur ce chapeau d'UN depot. Elle n'est pas affaiblie mais RESSERREE : elle rejette
+    // desormais « 1 depot scannes ». Le reste de la garde `CA-5` est intact.
+    assert.match(bloc[0], /1 depot scanne(?!s)/, 'le compteur est dit ET accorde (CB-5)');
     assert.match(bloc[0], /branches examinees/, 'les compteurs sont dits, pas juste « aucune »');
     assert.match(ligneRappel(r), /aucune/);
   } finally { rm(t.base); }
@@ -527,4 +531,393 @@ test('ageEnJours : affiche pour trier, JAMAIS utilise comme filtre', () => {
   assert.equal(ageEnJours('pas une date', t), null);
   // le filtre n'existe pas : une branche vieille de 0 jour est signalee comme les autres
   assert.equal(classer(1, []), 'absente');
+});
+
+// =================================================================================================
+// LOT 3 — temoins manquants du signalement des branches
+// specs/instructions/temoins-manquants-signalement-branches.md (gardes `CB-1` a `CB-8`).
+//
+// 🛑 CE QUE CE BLOC REPARE. Le lot 2 tenait trois promesses que RIEN ne gardait, et Legolas l'a
+// mesure au gate : (`L-1`) l'ordre de rendu etait promis en commentaire, l'inverser laissait la
+// suite VERTE (26 pass, 0 fail) ; (`L-2`) le chemin EXCEPTION de `DD-7` n'avait aucun temoin ;
+// (`L-3`) un predicat qui rend `null` produisait du SILENCE, et le temoin negatif de `CA-2` decrivait
+// ce mecanisme A L'ENVERS. Les gardes ci-dessous sont ces trois temoins, plus l'accord de « depot(s) »
+// et l'honnetete du releve d'execution.
+// =================================================================================================
+
+// --- CB-1 / CB-2 : le predicat non calculable est COMPTE, NOMME, et la sortie ne mente plus -------
+
+// La couture `compter` de `DG`, cablee sur un predicat qui NE SAIT PAS repondre. Elle atteint la
+// classe de panne de `L-3` SANS casser la source — parce qu'une classe de panne qu'on ne peut
+// atteindre que par sabotage est une classe de panne sans temoin.
+const compterMuet = () => null;
+
+// 🛑 LE SABOTAGE `S1` REJOUE, ET RENDU PERMANENT. Legolas l'avait joue a la main : `CA-2` restait
+// VERT. Le voici cable en dur, avec le VRAI predicat sabote (`--not <B>@{upstream}` au lieu de
+// `--not --remotes`). Mecanisme (fait verifie `F4`) : prive d'upstream configure, `<B>@{upstream}`
+// n'est pas une revision resoluble — git rend `fatal: no upstream configured for branch`, code 128
+// — donc `git.js:run` rend `ok:false` et le predicat rend `null`. AVANT `DG`, la branche devenait
+// MUETTE et la sortie annoncait « aucune » : un mensonge. C'est la reserve `L-3`.
+function compterS1(cwd, branche) {
+  const r = run(cwd, ['rev-list', '--count', `refs/heads/${branche}`, '--not', `${branche}@{upstream}`]);
+  if (!r.ok) return null;
+  const n = Number.parseInt(r.out, 10);
+  return Number.isFinite(n) ? n : null;
+}
+
+// Le terrain de `V5` : UN depot dont une branche est poussee SANS `-u`. Le vrai predicat SAIT
+// repondre dessus (il mesure une COPIE, pas une CONFIGURATION) ; le predicat sabote par `S1`, non.
+function chapeauPousseSansU(prefix) {
+  const t = terrain(prefix);
+  const { depot } = depotAvecDistant(t, 'alpha');
+  run(depot, ['checkout', '-q', '-b', 'pousse-sans-u']);
+  commit(depot, 'un');
+  run(depot, ['push', '-q', 'origin', 'pousse-sans-u']);   // SANS `-u` : aucun upstream configure
+  return t;
+}
+
+test('🛑 CB-1 : une branche au predicat NON CALCULABLE est COMPTEE et NOMMEE (fin du silence)', () => {
+  const t = chapeauTrois('iaka-branches-cb1-');
+  try {
+    const r = balayer(perimetreAll(t.chapeau),
+      { root: t.chapeau, ignoreFile: motifsVides(t.base), compter: compterMuet });
+
+    // 3 depots x 2 branches (`main` + `wip/<nom>`) : AUCUNE mesurable, donc AUCUNE avalee.
+    assert.equal(r.scanBranches.branchesIndeterminees, 6, 'le nombre est EXACT, pas approche');
+    assert.equal(r.branchesSansCopieDistanteCount, 0, 'rien de mesurable, donc rien de signale');
+    assert.deepEqual(r.scanBranches.branchesIndetermineesNoms.slice().sort(),
+      ['alpha:main', 'alpha:wip/alpha', 'beta:main', 'beta:wip/beta', 'gamma:main', 'gamma:wip/gamma'],
+      'chaque branche est NOMMEE `projet:branche`');
+    // Le `:` est INTERDIT dans un nom de ref git (`git-check-ref-format` regle 4, fait `F5`) :
+    // le separateur est donc NON AMBIGU, ce que le `/` n'aurait pas ete.
+    for (const nom of r.scanBranches.branchesIndetermineesNoms) {
+      assert.equal(nom.split(':').length, 2, `separateur non ambigu : ${nom}`);
+    }
+    assert.match(rendreBloc(r).join('\n'), /indeterminees : alpha:main/,
+      'la sortie humaine les NOMME : « aucune » qualifiee sans dire LAQUELLE laisse sans prise');
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-1 : la branche indeterminee entre AUSSI dans branchesExaminees (aucun compteur perdu)', () => {
+  const t = chapeauTrois('iaka-branches-cb1b-');
+  try {
+    const opts = { root: t.chapeau, ignoreFile: motifsVides(t.base) };
+    const normal = balayer(perimetreAll(t.chapeau), opts);
+    const muet = balayer(perimetreAll(t.chapeau), { ...opts, compter: compterMuet });
+    assert.equal(muet.scanBranches.branchesExaminees, normal.scanBranches.branchesExaminees,
+      'le meme nombre de branches est EXAMINE : seul le resultat de la mesure change');
+    assert.equal(muet.scanBranches.depotsScannes, 3, 'les depots restent lisibles : ce n\'est pas eux');
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-1 TEMOIN NEGATIF : en fonctionnement NORMAL (couture non utilisee), le compteur vaut 0', () => {
+  const t = chapeauPousseSansU('iaka-branches-cb1n-');
+  try {
+    // 🛑 C'EST LA GARDE QUE LE SABOTAGE `S1` FAIT ROUGIR. Sur ce terrain (celui de `V5`), le vrai
+    // predicat SAIT repondre ; `S1` le rend non calculable, ce compteur monte et cette garde tombe.
+    const r = balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile: motifsVides(t.base) });
+    assert.equal(r.scanBranches.branchesIndeterminees, 0,
+      'le predicat mesure une COPIE : il sait repondre meme sans upstream configure');
+    assert.deepEqual(r.scanBranches.branchesIndetermineesNoms, []);
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-1 TEMOIN NEGATIF : `range` n\'expose AUCUN moyen de fixer `compter` (RB-1)', () => {
+  const dir = path.join(HERE, '..', 'src', 'commands');
+  const coupables = [];
+  for (const f of fs.readdirSync(dir)) {
+    if (!f.endsWith('.js')) continue;
+    if (/compter/.test(fs.readFileSync(path.join(dir, f), 'utf8'))) coupables.push(f);
+  }
+  assert.deepEqual(coupables, [],
+    'une couture de test qui devient un chemin de production est une porte ouverte : aucun drapeau, aucune variable d\'environnement');
+});
+
+test('🛑 CB-2 : la sortie ne dit PLUS « aucune » quand elle n\'a RIEN PU MESURER', () => {
+  const t = chapeauTrois('iaka-branches-cb2-');
+  try {
+    const r = balayer(perimetreAll(t.chapeau),
+      { root: t.chapeau, ignoreFile: motifsVides(t.base), compter: compterMuet });
+    assert.equal(r.branchesSansCopieDistanteCount, 0, 'zero signalement...');
+    assert.ok(r.scanBranches.branchesIndeterminees > 0, '...mais des indeterminees');
+
+    const bloc = rendreBloc(r);
+    // `aucune (` est la forme NON QUALIFIEE d'avant ce lot — celle qui mentait.
+    assert.doesNotMatch(bloc[0], /aucune \(/, 'plus aucune affirmation « aucune » NON QUALIFIEE');
+    assert.match(bloc[0], /INDETERMIN/, 'elle dit « je n\'ai pas pu mesurer »');
+
+    // La ligne de rappel de `DD-3` suit la MEME regle : deux emplacements, une seule honnetete.
+    const rap = ligneRappel(r);
+    assert.doesNotMatch(rap, /aucune \(/, 'le rappel non plus ne pretend pas « aucune »');
+    assert.match(rap, /INDETERMIN/);
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-2 : le sabotage `S1` REJOUE est attrape par la garde qui le DECRIT (reserve L-3 refermee)', () => {
+  const t = chapeauPousseSansU('iaka-branches-cb2s1-');
+  try {
+    const r = balayer(perimetreAll(t.chapeau),
+      { root: t.chapeau, ignoreFile: motifsVides(t.base), compter: compterS1 });
+
+    assert.ok(r.scanBranches.branchesIndeterminees >= 1, '`S1` rend le predicat non calculable...');
+    assert.match(r.scanBranches.branchesIndetermineesNoms.join(','), /alpha:pousse-sans-u/,
+      '...et c\'est bien LA branche de `V5` qui devient indeterminee');
+
+    const bloc = rendreBloc(r);
+    assert.doesNotMatch(bloc[0], /aucune \(/,
+      'AVANT ce lot, cette situation exacte rendait « aucune » : un MENSONGE. C\'est `L-3`.');
+    assert.match(bloc[0], /INDETERMIN/, '`S1` rougit desormais sur la garde qui le decrit');
+    assert.match(bloc.join('\n'), /indeterminees : alpha:pousse-sans-u/);
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-2 TEMOIN NEGATIF : tout mesurable => « aucune » NON qualifiee et AUCUN « INDETERMIN »', () => {
+  const t = chapeauPousseSansU('iaka-branches-cb2n-');
+  try {
+    // Seconde garde que `S1` fait rougir : ici la sortie DOIT dire « aucune » tout court, parce
+    // qu'on a REELLEMENT mesure. Confondre les deux etats est precisement ce qu'on interdit.
+    const r = balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile: motifsVides(t.base) });
+    const bloc = rendreBloc(r);
+    assert.match(bloc[0], /aucune \(/, '« aucune » NON qualifiee : la mesure a bien eu lieu');
+    assert.doesNotMatch(bloc.join('\n'), /INDETERMIN/, 'rien d\'indetermine a annoncer');
+    assert.doesNotMatch(ligneRappel(r), /INDETERMIN/);
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-2 : classer reste INCHANGEE — un chiffre non lu n\'est toujours pas invente', () => {
+  // `DG` repare le COMPTE RENDU, pas le CLASSEMENT. Le contrat de `classer` etait juste : on ne
+  // casse pas une garde correcte pour reparer ailleurs (ecarte nommement par `DG`).
+  assert.equal(classer(null, []), null);
+  assert.equal(classer(null, ['origin']), null, 'aucun troisieme etat `indetermine` dans classer');
+});
+
+// --- CB-3 : l'ordre de rendu est GARDE, pas promis (reserve `L-1`) --------------------------------
+
+test('CB-3 (a) unitaire : `ordonner` place TOUS les `absente` avant TOUT `en-avance`', () => {
+  // Le rang DOMINE le nombre de commits. Un `absente` a 1 commit passe devant un `en-avance` a 99 :
+  // c'est le sens meme de la promesse « le plafond d'AFFICHAGE ne cache jamais le cas le plus grave ».
+  const liste = [
+    { projet: 'p', branche: 'av/1', commitsLocaux: 99, etat: 'en-avance', refsDistantes: ['origin'] },
+    { projet: 'p', branche: 'abs/1', commitsLocaux: 1, etat: 'absente', refsDistantes: [] },
+    { projet: 'p', branche: 'av/2', commitsLocaux: 50, etat: 'en-avance', refsDistantes: ['origin'] },
+    { projet: 'p', branche: 'abs/2', commitsLocaux: 1, etat: 'absente', refsDistantes: [] },
+  ];
+  const etats = ordonner(liste).map((e) => e.etat);
+  assert.deepEqual(etats, ['absente', 'absente', 'en-avance', 'en-avance']);
+  assert.ok(etats.lastIndexOf('absente') < etats.indexOf('en-avance'),
+    'AUCUN `en-avance` ne precede un `absente`, quel que soit le nombre de commits');
+  // Determinisme complet : a etat et nombre de commits egaux, projet puis branche departagent.
+  const egaux = [
+    { projet: 'b', branche: 'z', commitsLocaux: 1, etat: 'absente' },
+    { projet: 'a', branche: 'y', commitsLocaux: 1, etat: 'absente' },
+  ];
+  assert.deepEqual(ordonner(egaux).map((e) => e.projet), ['a', 'b'], 'ordre STABLE, pas au hasard');
+});
+
+// 🛑 UN RAPPORT FABRIQUE A LA MAIN NE SUFFIT PAS, ET C'EST MESURE. La garde du plafond du lot 2
+// fabriquait son rapport (`faux(12)`) : le sabotage « plafond de comptage » est passe INAPERCU
+// (voir le commentaire de `branches-locales.test.js:479`). Legolas a inverse le rang de `ordonner`
+// et la suite est restee VERTE : 26 pass, 0 fail. Ce terrain-ci TRAVERSE `balayer` sur un depot
+// REEL, avec des nombres de commits CHOISIS pour que l'inversion EJECTE les `absente` hors des dix
+// lignes affichees. Sans cela, le temoin ne mordrait pas (`RB-3`).
+//
+// 12 branches signalees : 10 `en-avance` a 5 commits + 2 `absente` a 1 commit. Ordre correct =>
+// les 2 `absente` occupent les 2 premieres des 10 lignes. Rang inverse => les 10 `en-avance`
+// remplissent exactement le plafond et les 2 `absente` DISPARAISSENT de l'affichage.
+function chapeauOrdre(prefix) {
+  const t = terrain(prefix);
+  const { depot } = depotAvecDistant(t, 'alpha');
+
+  // 10 `en-avance` : meme pointe, 5 commits au-dessus de `main`...
+  run(depot, ['checkout', '-q', '-b', 'av/0', 'main']);
+  for (let i = 0; i < 5; i += 1) commit(depot, `avance ${i}`);
+  for (let i = 1; i < 10; i += 1) run(depot, ['branch', `av/${i}`, 'av/0']);
+  // ...et une ref distante posee A LA POSITION DE `main` : la copie existe, elle est en retard de 5.
+  const refspecs = Array.from({ length: 10 }, (_, i) => `main:refs/heads/av/${i}`);
+  run(depot, ['push', '-q', 'origin', ...refspecs]);
+
+  // 2 `absente` : 1 seul commit, AUCUNE ref distante.
+  for (let i = 0; i < 2; i += 1) {
+    run(depot, ['checkout', '-q', '-b', `abs/${i}`, 'main']);
+    commit(depot, `absente ${i}`);
+  }
+  return t;
+}
+
+test('🛑 CB-3 (b) de bout en bout : via `balayer` sur un depot REEL de 12 branches, les `absente` restent AFFICHES', () => {
+  const t = chapeauOrdre('iaka-branches-cb3-');
+  try {
+    const r = balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile: motifsVides(t.base) });
+
+    // Montage valide : sans cela le temoin ne prouverait rien.
+    assert.equal(r.branchesSansCopieDistanteCount, 12, 'montage : 12 branches signalees');
+    const parEtat = (e) => r.branchesSansCopieDistante.filter((x) => x.etat === e);
+    assert.equal(parEtat('en-avance').length, 10, 'montage : 10 `en-avance`');
+    assert.equal(parEtat('absente').length, 2, 'montage : 2 `absente`');
+    assert.equal(parEtat('en-avance')[0].commitsLocaux, 5, 'montage : les `en-avance` ont PLUS de commits');
+    assert.equal(parEtat('absente')[0].commitsLocaux, 1, 'montage : les `absente` en ont MOINS');
+    assert.ok(parEtat('en-avance')[0].commitsLocaux > parEtat('absente')[0].commitsLocaux,
+      'montage : sans cet ecart, l\'inversion du rang ne changerait rien et le temoin serait un decor');
+
+    // LA garde : le plafond d'affichage ne cache PAS le cas le plus grave.
+    const bloc = rendreBloc(r);
+    const details = bloc.filter((l) => /\s(abs|av)\/\d+\s/.test(l));
+    assert.equal(details.length, PLAFOND_AFFICHAGE, 'affichage borne a 10 lignes');
+    assert.equal(details.filter((l) => /abs\/\d+/.test(l)).length, 2,
+      'les 2 `absente` — la classe EXACTE de l\'incident — figurent dans les 10 lignes affichees');
+    assert.match(details[0], /abs\/\d+/, 'et elles viennent EN TETE');
+    assert.match(details[1], /abs\/\d+/);
+    assert.match(bloc.join('\n'), /et 2 autres \(voir --json\)/, 'le reste est annonce, pas escamote');
+  } finally { rm(t.base); }
+});
+
+// --- CB-4 : le chemin EXCEPTION de `DD-7` a son temoin (reserve `L-2`) ----------------------------
+
+// 🪤 POURQUOI `--exclude-file <inexistant>`, ET RIEN D'AUTRE. `CA-11` du lot 2 croyait garder
+// `DD-7` ; elle n'en gardait qu'UN des deux chemins. Mecanisme etabli par Legolas : restic etant
+// installe au poste, `lancerSauvegarde` NE LEVE PAS, elle rend `code 10` — la garde emprunte donc
+// `if (r.code !== 0)` (`commands/range.js:145`) et le `catch` (`:129`) n'a AUCUN temoin. Sur une
+// machine SANS restic, la regression passerait MUETTE : precisement le contexte ou l'information
+// compte.
+//   Lu dans le code (`W9`) : `lancerSauvegarde` LEVE sur un fichier d'exclusion absent, et AVANT
+// tout appel a restic (`lib/range.js:141-147` ; le `spawnSync` n'est qu'en `:152`). Ce levier atteint
+// donc le chemin exception SUR TOUTE MACHINE, avec ou sans restic, et SANS JAMAIS risquer une
+// ecriture.
+//   ⛔ Neutraliser le `PATH` n'est PAS viable (`W11`) : `git` y disparaitrait aussi, tout deviendrait
+// indetermine et le rapport n'aurait plus rien a porter.
+test('🛑 CB-4 : le chemin EXCEPTION porte QUAND MEME le signalement (--exclude-file inexistant)', () => {
+  const t = chapeauTrois('iaka-branches-cb4-');
+  try {
+    const env = envJetable(t.base);
+    const absent = path.join(t.base, 'exclusions-qui-n-existent-pas.txt');
+    assert.ok(!fs.existsSync(absent), 'montage : le fichier d\'exclusion est bien ABSENT');
+
+    const r = spawnSync(process.execPath,
+      [CLI, 'range', 'alpha', '--root', t.chapeau, '--exclude-file', absent, '--json'],
+      { encoding: 'utf8', env });
+
+    assert.equal(r.status, 1, 'sortie 1');
+    const o = JSON.parse(r.stdout);
+    assert.equal(o.ok, false);
+
+    // 🛑 ASSERTION DISCRIMINANTE (`RB-4`) : elle prouve que c'est bien le chemin EXCEPTION qui a ete
+    // emprunte, et non `if (r.code !== 0)`. Sans elle, la garde pourrait passer POUR LA MAUVAISE
+    // RAISON — c'est-a-dire etre un decor. Le message doit matcher un des deux `throw` de
+    // `lib/range.js`, et surtout PAS le message du chemin « restic a repondu ».
+    assert.match(o.error, /fichier d'exclusion introuvable|restic est introuvable dans le PATH/,
+      'le message vient d\'un `throw` de lib/range.js : c\'est le chemin EXCEPTION');
+    assert.doesNotMatch(o.error, /restic a echoue \(code/,
+      'si ce message apparaissait, la garde aurait emprunte `if (r.code !== 0)` et ne prouverait RIEN');
+
+    // Le signalement voyage dans la charge d'ECHEC (`DD-7`), chemin exception compris.
+    assert.ok(Array.isArray(o.branchesSansCopieDistante), 'la liste est la');
+    assert.equal(o.branchesSansCopieDistanteCount, 1, 'son frere compteur aussi (regle 3 C-JSON)');
+    assert.equal(o.branchesSansCopieDistante.length, o.branchesSansCopieDistanteCount);
+    assert.ok(o.scanBranches && Array.isArray(o.scanBranches.limites), 'et scanBranches entier');
+    assert.equal(o.scanBranches.branchesIndeterminees, 0,
+      'le champ neuf de `DG` voyage lui aussi, sans avoir coute une ligne a range.js');
+
+    // Zero ecriture : le `throw` precede tout `spawnSync` (`W9`).
+    assert.ok(!fs.existsSync(env.IAKA_RANGE_REPOSITORY), 'AUCUN depot restic cree');
+    assert.ok(!String(o.repository || '').startsWith('sftp:'), 'jamais le depot de production');
+    assert.equal(r.stderr.trim(), '', 'rien d\'humain sur stderr en mode --json');
+  } finally { rm(t.base); }
+});
+
+// --- CB-5 : la grammaire ne boite plus (`W12`) ----------------------------------------------------
+
+test('CB-5 : l\'en-tete ACCORDE « depot(s) » — « sur 1 depot » au singulier, « depots » au-dela', () => {
+  const t = chapeauTrois('iaka-branches-cb5-');
+  try {
+    const ignoreFile = motifsVides(t.base);
+
+    // Perimetre CIBLE : UN seul depot balaye. C'est le cas ou l'en-tete ecrivait « 2 sur 1 depots ».
+    const un = rendreBloc(balayer(perimetreProjet(t.chapeau, 'alpha'), { root: t.chapeau, ignoreFile }));
+    assert.match(un[0], /sur 1 depot(?!s)/, 'singulier : « sur 1 depot »');
+
+    // Perimetre `all` : 3 depots.
+    const trois = rendreBloc(balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile }));
+    assert.match(trois[0], /sur 3 depots/, 'pluriel des 2 depots et au-dela');
+
+    // « depots scannes » suit la MEME regle, participe compris (constat fait en corrigeant).
+    const rien = balayer(perimetreProjet(t.chapeau, 'pas-un-depot'), { root: t.chapeau, ignoreFile });
+    assert.match(rendreBloc(rien)[0], /0 depots scannes/, 'zero prend le pluriel en francais');
+    assert.match(ligneRappel(rien), /0 depots scannes/, 'la ligne de rappel accorde aussi');
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-5 TEMOIN NEGATIF : une recherche de « 1 depots » dans la sortie rendue rend ZERO', () => {
+  const t = chapeauTrois('iaka-branches-cb5n-');
+  try {
+    const ignoreFile = motifsVides(t.base);
+    // Toutes les sorties du signalement, tous les cardinaux atteignables sur ce terrain.
+    const rendus = [
+      ...rendreBloc(balayer(perimetreProjet(t.chapeau, 'alpha'), { root: t.chapeau, ignoreFile })),
+      ...rendreBloc(balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile })),
+      ligneRappel(balayer(perimetreProjet(t.chapeau, 'alpha'), { root: t.chapeau, ignoreFile })),
+      ligneRappel(balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile })),
+    ].join('\n');
+    assert.doesNotMatch(rendus, /1 depots/, 'jamais « 1 depots »');
+    assert.doesNotMatch(rendus, /1 depot scannes/, 'ni « 1 depot scannes » : le participe accorde aussi');
+  } finally { rm(t.base); }
+});
+
+// --- CB-7 : le releve d'execution existe et il est HONNETE (`DI`, reserve `L-4`) -------------------
+
+// 🛑 POURQUOI UNE GARDE SUR DU MARKDOWN. `L-4` : la tracabilite instruction <-> critere ne vivait que
+// dans le message de remise, donc VOLATILE. La partie durable existait (les sorties rouges sont dans
+// les corps de commits) mais DISPERSEE, et personne ne la retrouvait depuis l'instruction. Un tableau
+// de 15 lignes coche a la chaine ne vaudrait rien non plus (`RB-7`) : cette garde interdit la case
+// cochee SANS preuve nommee, et autorise explicitement le verdict `non tenu` — un critere non tenu et
+// DIT vaut mieux qu'une case cochee par politesse.
+const VERDICTS = ['vert', 'vert (dégradé)', 'non tenu', 'sans objet'];
+const INSTRUCTIONS = path.join(RACINE, 'specs', 'instructions');
+
+// Rend { cases: Map<id, boolean coche>, releve: Map<id, {verdict, preuve}> } pour un fichier.
+function lireDossier(fichier, prefixe, attendus) {
+  const txt = fs.readFileSync(path.join(INSTRUCTIONS, fichier), 'utf8');
+  const cases = new Map();
+  for (const m of txt.matchAll(/^- \[( |x)\] \*\*`(\w+-\d+)`/gm)) {
+    if (m[2].startsWith(`${prefixe}-`)) cases.set(m[2], m[1] === 'x');
+  }
+  // Le releve est la DERNIERE section du fichier (`DI`) : on ne lit que ce qui suit son titre.
+  const i = txt.lastIndexOf('## Relev');
+  assert.ok(i > 0, `${fichier} : le releve d'execution est en DERNIERE section (DI)`);
+  const releve = new Map();
+  for (const m of txt.slice(i).matchAll(/^\|\s*`(\w+-\d+)`\s*\|([^|]*)\|([^|]*)\|/gm)) {
+    releve.set(m[1], { verdict: m[2].trim(), preuve: m[3].trim() });
+  }
+  assert.deepEqual([...cases.keys()], attendus, `${fichier} : les ${attendus.length} criteres sont la`);
+  assert.deepEqual([...releve.keys()], attendus, `${fichier} : une ligne de releve PAR critere`);
+  return { cases, releve };
+}
+
+function verifierHonnetete(fichier, prefixe, attendus) {
+  const { cases, releve } = lireDossier(fichier, prefixe, attendus);
+  for (const id of attendus) {
+    const { verdict, preuve } = releve.get(id);
+    assert.ok(VERDICTS.includes(verdict),
+      `${id} : verdict « ${verdict} » hors des quatre autorises (${VERDICTS.join(' / ')}) — « OK » n'en est pas un`);
+    assert.ok(preuve.length > 0, `${id} : une ligne de releve SANS preuve nommee ne vaut rien (DI-2)`);
+    assert.doesNotMatch(preuve, /^rapide$/i, `${id} : « rapide » n'est pas un chiffre (CA-9)`);
+    // Une case cochee EXIGE un verdict tenu ; une case non cochee EXIGE un `non tenu` assume.
+    if (cases.get(id)) {
+      assert.notEqual(verdict, 'non tenu', `${id} : case cochee alors que le verdict est « non tenu »`);
+    } else {
+      assert.equal(verdict, 'non tenu',
+        `${id} : case NON cochee — le seul verdict honnete est « non tenu » assume, pas un blanc`);
+    }
+  }
+}
+
+test('🛑 CB-7 : le releve d\'execution du LOT 2 existe, 15 lignes, verdicts et preuves nommees', () => {
+  verifierHonnetete('signalement-branches-sans-copie-distante.md', 'CA',
+    Array.from({ length: 15 }, (_, i) => `CA-${i + 1}`));
+});
+
+test('🛑 CB-7 : le releve d\'execution de CE LOT existe, 8 lignes, memes regles', () => {
+  // `DI-1` : appendu, jamais substitue. La garde ne verifie pas le corps de l'instruction — l'ecart
+  // entre le cadrage et l'execution EST une information, on ne le maquille pas.
+  verifierHonnetete('temoins-manquants-signalement-branches.md', 'CB',
+    Array.from({ length: 8 }, (_, i) => `CB-${i + 1}`));
 });

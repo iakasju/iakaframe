@@ -434,13 +434,13 @@ signale lui-même dès qu'il tourne.
 > Chaque critère porte son **témoin négatif** : ce qu'on doit voir **échouer** pour savoir que le
 > contrôle mord.
 
-- [ ] **`CA-1` — le cas de l'incident est détecté.** Sur un dépôt jetable ayant une branche locale
+- [x] **`CA-1` — le cas de l'incident est détecté.** Sur un dépôt jetable ayant une branche locale
       avec des commits et **aucune** ref distante, le signalement la rend avec l'état **`absente`** et
       le **nombre exact** de commits.
       **Témoin négatif** : la même branche **poussée** vers un dépôt nu local **disparaît** du
       signalement — sinon le contrôle crie toujours et ne mesure rien.
 
-- [ ] **`CA-2` — 🛑 le faux positif mesuré en `V5` NE se produit PAS.** Dépôt jetable, branche poussée
+- [x] **`CA-2` — 🛑 le faux positif mesuré en `V5` NE se produit PAS.** Dépôt jetable, branche poussée
       **sans `-u`** (donc `%(upstream)` vide, `F2`/`F3`) : elle **n'est pas** signalée.
       **Témoin négatif** : ~~le sabotage `--not @{upstream}` la fait réapparaître — la garde doit
       **rougir** dans ce cas, et cette sortie rouge est **consignée verbatim**.~~
@@ -460,67 +460,67 @@ signale lui-même dès qu'il tourne.
       que le sabotage rougisse **sur la garde qui le décrit**. Le verdict PASS du gate n'est pas
       modifié : il portait sur le périmètre qui lui était présenté.
 
-- [ ] **`CA-3` — l'état `en-avance` est distingué de `absente`.** Branche présente sur le distant mais
+- [x] **`CA-3` — l'état `en-avance` est distingué de `absente`.** Branche présente sur le distant mais
       avec `N` commits locaux en plus → état `en-avance`, `N` exact, **remote nommé**.
       **Témoin négatif** : une branche **strictement en retard** (behind) n'est **pas** signalée —
       elle est intégralement répliquée.
 
-- [ ] **`CA-4` — le périmètre du balayage suit celui de la sauvegarde** (`DC`) : `--branches` sur un
+- [x] **`CA-4` — le périmètre du balayage suit celui de la sauvegarde** (`DC`) : `--branches` sur un
       chapeau factice de 3 dépôts en signale les 3 ; ciblé sur **un** projet, il n'en signale **qu'un**.
       **Témoin négatif** : le ciblage ne doit **rien** dire d'un **autre** dépôt du chapeau, et la
       sortie doit **le déclarer** — un silence non déclaré passerait pour un « tout va bien ».
 
-- [ ] **`CA-5` — il parle même quand il n'a rien à signaler.** Chapeau dont tout est poussé → une ligne
+- [x] **`CA-5` — il parle même quand il n'a rien à signaler.** Chapeau dont tout est poussé → une ligne
       `branches sans copie distante : aucune (…)` avec les compteurs.
       **Témoin négatif** : rendre ce cas **muet** doit faire rougir la garde. *On ne doit jamais
       pouvoir confondre « rien à signaler » avec « la garde est cassée ».*
 
-- [ ] **`CA-6` — jamais bloquant.** `range --branches` sur un chapeau où **3** branches sont signalées
+- [x] **`CA-6` — jamais bloquant.** `range --branches` sur un chapeau où **3** branches sont signalées
       sort en **0**. La sauvegarde n'est **jamais** refusée à cause d'un signalement.
       **Témoin négatif** : un code de sortie non nul dans ce cas est un **échec** du critère.
 
-- [ ] **`CA-7` — le libellé ne ment pas** (`R5`) : la sortie humaine et les clés JSON portent
+- [x] **`CA-7` — le libellé ne ment pas** (`R5`) : la sortie humaine et les clés JSON portent
       **« sans copie distante »**. Aucune occurrence de « non sauvegardé » / « non sauvegardee ».
       **Témoin négatif** : une recherche de la chaîne « sauvegard » dans les libellés du signalement
       rend **zéro** — sinon le signal contredit `§ ne voit pas` point 8.
 
-- [ ] **`CA-8` — 🛑 les angles morts sont RENDUS, pas commentés** : la sortie humaine porte le bloc
+- [x] **`CA-8` — 🛑 les angles morts sont RENDUS, pas commentés** : la sortie humaine porte le bloc
       `ce balayage ne voit pas : …` et `--json` porte `scanBranches.limites` **non vide**, ainsi que
       `depotsNonGit` et `branchesEcartees`.
       **Témoin négatif** : un répertoire **non-git** placé dans le chapeau factice fait **monter**
       `depotsNonGit` — s'il reste à 0, le balayage avale en silence.
 
-- [ ] **`CA-9` — le coût est MESURÉ sur le chapeau réel** : durée du balayage, nombre de dépôts,
+- [x] **`CA-9` — le coût est MESURÉ sur le chapeau réel** : durée du balayage, nombre de dépôts,
       de branches examinées, de branches signalées — **quatre chiffres écrits**. Au-delà de **2 s**,
       le point est **rouvert devant le décideur**, pas corrigé par un silence.
       **Témoin négatif** : « rapide » n'est pas une mesure ; l'absence de chiffre invalide le critère.
 
-- [ ] **`CA-10` — le débrayage existe et se voit** (`DE`) : `config/sauvegarde-branches-ignorees.txt`
+- [x] **`CA-10` — le débrayage existe et se voit** (`DE`) : `config/sauvegarde-branches-ignorees.txt`
       est versionné, **sans motif**, commenté. Un motif ajouté retire la branche de la **liste** et
       fait monter `branchesEcartees`.
       **Témoin négatif** : avec un motif actif, `branchesEcartees` **ne doit pas** rester à 0 — une
       exclusion invisible est interdite.
 
-- [ ] **`CA-11` — le signalement survit à l'échec de restic** (`DD-7`) : en `--json`, sur un dépôt
+- [x] **`CA-11` — le signalement survit à l'échec de restic** (`DD-7`) : en `--json`, sur un dépôt
       restic inexistant, la charge `{ ok:false, … }` porte **quand même** `branchesSansCopieDistante`.
       **Témoin négatif** : le retirer de la charge d'échec doit faire rougir la garde — c'est
       exactement le moment où l'information compte.
 
-- [ ] **`CA-12` — aucune régression** : les **17** gardes de `cli/test/range.test.js` passent, fichier
+- [x] **`CA-12` — aucune régression** : les **17** gardes de `cli/test/range.test.js` passent, fichier
       **inchangé** ; `cli/test/guard-json-output.test.js` **inchangé** et vert ; `node --test` vert.
       **Témoin négatif** : `git diff` sur ces deux fichiers rend **zéro ligne**.
 
-- [ ] **`CA-13` — zéro réseau, zéro écriture** : aucune garde n'appelle `ls-remote`, `fetch`, `push`
+- [x] **`CA-13` — zéro réseau, zéro écriture** : aucune garde n'appelle `ls-remote`, `fetch`, `push`
       ni `restic`. Le balayage n'écrit **rien** (aucun fichier créé/modifié dans les dépôts scannés).
       **Témoin négatif** : la comparaison avant/après sur un dépôt scanné rend **zéro fichier
       modifié** — « je n'y touche pas » n'est pas un constat.
 
-- [ ] **`CA-14` — l'aide et l'inventaire disent la même chose que le code** : `range --help`/`--help`
+- [x] **`CA-14` — l'aide et l'inventaire disent la même chose que le code** : `range --help`/`--help`
       documentent `--branches` et le signalement ; `docs/commandes.md` porte la ligne `range` (`V9`).
       **Témoin négatif** : la ligne doit **manquer** avant le lot (elle manque, `V9`) et **exister**
       après.
 
-- [ ] **`CA-15` — le lot s'applique à lui-même** : sa propre branche a une **ref distante** avant la
+- [x] **`CA-15` — le lot s'applique à lui-même** : sa propre branche a une **ref distante** avant la
       remise, et `--branches` **ne la signale plus**.
       **Témoin négatif** : avant le `push -u`, elle **doit** apparaître — capture de cette sortie
       **verbatim** dans la remise. *C'est la preuve que la garde aurait attrapé l'incident.*
@@ -585,21 +585,21 @@ la bonne conscience d'être couvert.
 
 | Critère | Verdict | Preuve (`fichier:ligne`, commit, ou chiffre mesuré) | Note |
 |---|---|---|---|
-| `CA-1` | | | |
-| `CA-2` | | | ⚠ témoin négatif **rectifié** le 2026-08-17 — voir le § *Critères d'acceptation* |
-| `CA-3` | | | |
-| `CA-4` | | | |
-| `CA-5` | | | |
-| `CA-6` | | | |
-| `CA-7` | | | |
-| `CA-8` | | | |
-| `CA-9` | | | 4 chiffres exigés : durée, dépôts, branches examinées, branches signalées |
-| `CA-10` | | | |
-| `CA-11` | | | ⚠ gardé sur le chemin `code !== 0` **seulement** — chemin exception repris par `CB-4` du lot successeur |
-| `CA-12` | | | |
-| `CA-13` | | | |
-| `CA-14` | | | |
-| `CA-15` | | | chronologie au reflog : capture, `push -u`, exposition totale |
+| `CA-1` | vert | `cli/test/branches-locales.test.js:93` + témoin négatif `:111` (commit `9de75a0`) | état `absente`, 3 commits exacts ; la branche poussée disparaît |
+| `CA-2` | vert (dégradé) | `cli/test/branches-locales.test.js:127` (commit `9de75a0`) ; montage prouvé dans la garde (`%(upstream)` vide **et** ref distante présente) | 🛑 Le **critère** est vert et mesuré ; son **témoin négatif était FAUX** — rectifié le 2026-08-17 au § *Critères d'acceptation*. `S1` est attrapé par 8 autres gardes, pas par celle-ci. Refermé par `CB-1`/`CB-2` du lot successeur |
+| `CA-3` | vert | `cli/test/branches-locales.test.js:149` + témoin négatif `:166` (commit `9de75a0`) | 2 commits exacts, remote `origin` nommé ; une branche en retard reste muette |
+| `CA-4` | vert | `cli/test/branches-locales.test.js:197` + témoin négatif `:214` (commit `9de75a0`) | 3 dépôts en `all`, 1 en ciblé ; le silence sur les autres est **déclaré** |
+| `CA-5` | vert | `cli/test/branches-locales.test.js:226` + témoin négatif `:249` ; sabotage `S4` rouge consigné dans `1d75faf` : « AU MOINS une ligne : sinon "rien a signaler" = "garde cassee" » | l'assertion sur les compteurs a été **resserrée** par `CB-5` du lot successeur (accord de « depot(s) »), déclarée en place |
+| `CA-6` | vert | `cli/test/branches-locales.test.js:272` et `:291` ; rouge d'abord dans `9de75a0`, vert en `1548365` | sortie **0** avec 3 signalements ; `--branches` ne touche aucun dépôt restic |
+| `CA-7` | vert | `cli/test/branches-locales.test.js:306` (commit `9de75a0`) | zéro occurrence de « sauvegard » dans `LIBELLES_FIXES`, à l'écran, dans la ligne de rappel et dans les clés JSON |
+| `CA-8` | vert | `cli/test/branches-locales.test.js:332` + témoin négatif `:344` ; rouge **NON PRÉVU et juste** consigné dans `9de75a0` : « 4 !== 1 » sur `depotsNonGit` | ce rouge a produit **deux** corrections : la limite « dépôt nu » déclarée dans `LIMITES`, et la séparation chapeau / distants du harnais |
+| `CA-9` | vert | **1 793 / 1 818 / 1 830 / 1 883 ms** · **45 dépôts** · **68 branches examinées** · **2 branches signalées** (`BACKLOG.md:213-215`, `SIGN-5` ; les 2 signalées sont `SIGN-2`) | les 4 chiffres sont écrits. Seuil d'arbitrage de 2 s **approché, non franchi** → dette `SIGN-5`, laissée distincte et sans urgence par le gate. Re-mesure au lot successeur : **1 943 ms, 45 dépôts, 69 branches, 3 signalées** |
+| `CA-10` | vert | `config/sauvegarde-branches-ignorees.txt` (commit `a80f5cf`) ; `cli/test/branches-locales.test.js:356` + témoin négatif `:366` | fichier versionné, **sans motif actif**, commenté ; un motif actif fait monter `branchesEcartees` à 1 et le chemin du fichier s'affiche |
+| `CA-11` | vert (dégradé) | `cli/test/branches-locales.test.js:394` (commit `9de75a0`, rouge d'abord : « c'est exactement le moment ou l'information compte ») | 🛑 gardé sur le chemin `if (r.code !== 0)` **seulement** : restic étant installé au poste, `lancerSauvegarde` ne lève pas. Le chemin **exception** (`commands/range.js:129`) n'avait **aucun** témoin — réserve `L-2`, reprise par `CB-4` du lot successeur |
+| `CA-12` | vert | `cli/test/range.test.js` : **17 tests, 17 pass, 0 fail**, fichier **inchangé** (`git diff` = 0 ligne) ; `cli/test/guard-json-output.test.js` : **24 pass, 0 fail**, inchangé ; suite complète **639 tests, 0 échec** (`1548365`) | re-vérifié au lot successeur : les deux fichiers rendent toujours **0 ligne** de diff |
+| `CA-13` | vert | `cli/test/branches-locales.test.js:413` (aucun `ls-remote`/`fetch`/`push`/`restic` dans les argv construits) et `:424` (empreinte avant/après identique) | « je n'y touche pas » n'est pas un constat : l'empreinte de fichiers **et** `status --porcelain` sont comparés |
+| `CA-14` | vert | `cli/test/branches-locales.test.js:453` (aide) et `:461` (`docs/commandes.md`) ; commit `6e4f271` | la ligne manquait avant le lot (`V9`) et existe après — une ligne, rien d'autre dans ce fichier |
+| `CA-15` | vert (dégradé) | Chronologie **mesurée au reflog** (`W14`) : branche créée à `1786959205`, 6ᵉ commit `1d75faf` à `1786960340`, premier push à `1786960390` → **50 s** entre la capture possible et le push, **19 min 45 s** d'exposition totale. Ref distante présente (`W2`/`W3`) et `--branches` sur le chapeau réel **ne signale plus** `feat/signalement-branches-sans-copie-distante` (recette du 2026-08-17, 3 signalées, aucune n'est cette branche) | 🛑 **Part dégradée, et elle est dite** : la **capture verbatim** du témoin négatif avant le `push -u` n'est **retrouvable dans aucun corps de commit** — seule la chronologie au reflog est opposable. L'esprit a été tenu sans avoir été écrit. C'est exactement la raison d'être de `DH` (lot successeur), qui grave la règle et un plafond de 30 min |
 
 **Réserves du gate 🏹 Legolas (2026-08-17) — PASS, mergé `98026b1`.** Quatre réserves relevées, dont
 trois portées par le **lot successeur** `specs/instructions/temoins-manquants-signalement-branches.md` :
@@ -610,4 +610,4 @@ trois portées par le **lot successeur** `specs/instructions/temoins-manquants-s
 corps ne portait pas). Dette laissée **distincte et sans urgence** : `SIGN-5` (pente du coût,
 ≈ 11 ms par processus git, croissance linéaire avec le portefeuille).
 
-**Confrontation estimation ↔ temps réel** — estimé **≈ 0,8 j-h** · réel : `…` · écart et motif : `…`
+**Confrontation estimation ↔ temps réel** — estimé **≈ 0,8 j-h** · réel : **non mesuré au lot 2** (aucune durée n'a été relevée à l'époque, et on ne la reconstitue pas après coup : le reflog date les commits, pas le temps de travail) · écart et motif : **non calculable**. Ce qui est opposable, c'est l'**empan** de la branche au reflog — `1786959205` → `1786960390`, soit **19 min 45 s** entre sa création et son premier push — qui n'est *pas* le temps passé. Le lot successeur relève, lui, un temps réel.
