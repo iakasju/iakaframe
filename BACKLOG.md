@@ -185,8 +185,8 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
 > Consigné par l'exécution du lot (étape 12 de l'instruction
 > `specs/instructions/signalement-branches-sans-copie-distante.md`), puis **complété le 2026-08-17**
 > par le lot successeur `specs/instructions/temoins-manquants-signalement-branches.md` (étape 14) :
-> `SIGN-5` re-mesuré, `SIGN-7` et `SIGN-8` ajoutés. Chaque item est un **constat mesuré**, pas une
-> intention.
+> `SIGN-5` re-mesuré, `SIGN-7` et `SIGN-8` ajoutés, puis **`SIGN-9` sur réserve `M-1` du gate**.
+> Chaque item est un **constat mesuré**, pas une intention.
 
 - [ ] **SIGN-1 — 🛑 6 branches locales sur 16 n'ont AUCUN upstream configuré (`V5`, re-mesuré).**
       `appflowy-doc-wip`, `docs/successeur-critere-backlog-d10`,
@@ -245,6 +245,26 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
       écrit de 30 min) et **tenue au lot suivant** (exposition mesurée : **9 min 41 s**). *Constat de
       dossier, sans action possible en amont — on ne fabrique pas après coup une sortie qu'on n'a pas
       capturée.*
+- [ ] **SIGN-9 — 🛑 une branche à la fois ÉCARTÉE par motif et INDÉTERMINÉE est nommée dans
+      `indeterminees`, et NON comptée dans `branchesEcartees`.** La garde `if (n === null)` de `DG` est,
+      **comme l'instruction le prescrit**, placée **avant** `classer`
+      (`cli/src/lib/branches-locales.js:167`) — donc **avant** `estEcartee`, qui n'intervient qu'après
+      le classement. Une branche que le décideur a délibérément écartée réapparaît donc **nommée** dès
+      lors que son prédicat n'est pas calculable. **Conforme à l'instruction, mesuré, et non tranché** :
+      le cas n'est nommé nulle part dans le cadrage, ⚒️ Gimli l'a **remonté** au lieu de décider à la
+      place du décideur, et 🏹 Legolas l'a **reproduit** au gate avec un motif `archive/*` actif —
+      comportement exactement celui décrit.
+      🪤 **Ce qui rend l'item important, et c'est la seule raison de l'écrire** : il est **inatteignable
+      aujourd'hui** — `config/sauvegarde-branches-ignorees.txt` porte **0 motif actif** (vérifié le
+      2026-08-17), donc `estEcartee` ne peut jamais mordre — et il devient **atteignable au PREMIER
+      motif ajouté**. C'est une porte qui s'ouvre le jour où quelqu'un se sert du point de débrayage,
+      c'est-à-dire précisément quand plus personne n'y pensera. **À arbitrer avant le premier motif,
+      pas après** : soit l'indéterminée l'emporte (état actuel, « écarter n'est jamais taire » poussé
+      jusqu'au bout), soit l'écartement l'emporte (une branche que le décideur a écartée reste muette
+      même sans mesure). Aucune des deux n'est évidente — d'où l'arbitrage.
+      ⚠️ **Consigné ici parce qu'il ne l'était pas** : ce constat n'a d'abord vécu que dans le message
+      de remise de ⚒️ Gimli — **c'est-à-dire exactement le défaut `L-4` que ce lot répare, reproduit
+      sur son propre constat**. Relevé par 🏹 Legolas au gate (`M-1`).
 
 ## Fait
 
