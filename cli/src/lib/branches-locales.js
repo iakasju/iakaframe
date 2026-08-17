@@ -261,8 +261,11 @@ export function rendreBloc(rapport, { plafond = PLAFOND_AFFICHAGE, indent = '  '
         ? 'AUCUNE ref distante'
         : `en avance sur ${e.refsDistantes.join(', ')}`;
       const age = e.ageJours === null ? '' : `   (${e.ageJours} j)`;
+      // `commit ` (avec l'espace) plutot que `commits` au singulier : le pluriel ne mente pas, et
+      // la largeur de colonne reste constante.
+      const cs = `${String(e.commitsLocaux).padStart(3)} commit${e.commitsLocaux > 1 ? 's' : ' '}`;
       lignes.push(`${indent}  ${String(e.projet).padEnd(lp)}   ${String(e.branche).padEnd(lb)}   ` +
-        `${String(e.commitsLocaux).padStart(3)} commits   ${etat}${age}`);
+        `${cs}   ${etat}${age}`);
     }
     // On borne l'AFFICHAGE, jamais le compteur : le nombre ci-dessus reste exact.
     if (total > montrees.length) lignes.push(`${indent}  … et ${total - montrees.length} autres (voir --json)`);
