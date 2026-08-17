@@ -291,9 +291,9 @@ export function rendreBloc(rapport, { plafond = PLAFOND_AFFICHAGE, indent = '  '
   if (total === 0) {
     // Quand rien n'a pu etre mesure, « aucune » ne tient plus seule : elle est QUALIFIEE.
     const tete = indet > 0 ? 'aucune de MESURABLE' : 'aucune';
-    lignes.push(`${indent}${LIBELLE} : ${tete}${suffixeIndet} (${s.depotsScannes} depots scannes, ${compteurs})`);
+    lignes.push(`${indent}${LIBELLE} : ${tete}${suffixeIndet} (${phraseDepotsScannes(s.depotsScannes)}, ${compteurs})`);
   } else {
-    lignes.push(`${indent}${LIBELLE} : ${total} sur ${s.depotsScannes} depots${suffixeIndet} (${compteurs})`);
+    lignes.push(`${indent}${LIBELLE} : ${total} sur ${s.depotsScannes} ${motDepots(s.depotsScannes)}${suffixeIndet} (${compteurs})`);
     const montrees = rapport.branchesSansCopieDistante.slice(0, plafond);
     const lp = Math.max(...montrees.map((e) => String(e.projet).length));
     const lb = Math.max(...montrees.map((e) => String(e.branche).length));
@@ -337,6 +337,16 @@ export function rendreBloc(rapport, { plafond = PLAFOND_AFFICHAGE, indent = '  '
   return lignes;
 }
 
+// Accord de « depot(s) » (`W12`, `CB-5`). Un en-tete qui ecrit « 2 sur 1 depots » a l'air d'un
+// rapport que personne n'a relu : la confiance dans un signal se joue aussi la.
+export function motDepots(n) { return n === 1 ? 'depot' : 'depots'; }
+
+// 🪤 CONSTAT FAIT EN CORRIGEANT L'ACCORD, pas suppose : accorder le seul substantif produit
+// « 1 depot scannes » — la grammaire boite alors AUTREMENT, par le PARTICIPE. « Idem pour
+// "depots scannes" » (`CB-5`) porte donc sur l'expression ENTIERE. Source unique, pour que les deux
+// emplacements (en-tete et ligne de rappel) ne puissent pas deriver l'un de l'autre.
+export function phraseDepotsScannes(n) { return `${n} ${motDepots(n)} scanne${n === 1 ? '' : 's'}`; }
+
 // Rappel APRES le `OK` final : UNE seule ligne, le compteur — pas la liste (`DD-3`).
 export function ligneRappel(rapport) {
   const total = rapport.branchesSansCopieDistanteCount;
@@ -347,7 +357,7 @@ export function ligneRappel(rapport) {
   const suffixeIndet = indet > 0 ? ` — ${indet} INDETERMINEE${indet > 1 ? 'S' : ''}` : '';
   if (total === 0) {
     const tete = indet > 0 ? 'aucune de MESURABLE' : 'aucune';
-    return `${LIBELLE} : ${tete}${suffixeIndet} (${s.depotsScannes} depots scannes)`;
+    return `${LIBELLE} : ${tete}${suffixeIndet} (${phraseDepotsScannes(s.depotsScannes)})`;
   }
   return `${LIBELLE} : ${total}${suffixeIndet} (${CONSEIL})`;
 }

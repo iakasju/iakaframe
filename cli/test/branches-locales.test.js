@@ -236,7 +236,11 @@ test('🛑 CA-5 : tout pousse => il parle QUAND MEME, avec ses compteurs', () =>
     const bloc = rendreBloc(r);
     assert.ok(bloc.length >= 1, 'AU MOINS une ligne : sinon « rien a signaler » = « garde cassee »');
     assert.match(bloc[0], new RegExp(`${LIBELLE} : aucune`));
-    assert.match(bloc[0], /depots scannes/);
+    // 🪤 ASSERTION AMENDEE PAR LE LOT 3, ET C'EST DECLARE — pas glisse. Elle disait
+    // `/depots scannes/` ; l'accord de « depot(s) » (`W12`, `CB-5`) rend ce littéral invariable
+    // IMPOSSIBLE sur ce chapeau d'UN depot. Elle n'est pas affaiblie mais RESSERREE : elle rejette
+    // desormais « 1 depot scannes ». Le reste de la garde `CA-5` est intact.
+    assert.match(bloc[0], /1 depot scanne(?!s)/, 'le compteur est dit ET accorde (CB-5)');
     assert.match(bloc[0], /branches examinees/, 'les compteurs sont dits, pas juste « aucune »');
     assert.match(ligneRappel(r), /aucune/);
   } finally { rm(t.base); }
@@ -817,5 +821,43 @@ test('🛑 CB-4 : le chemin EXCEPTION porte QUAND MEME le signalement (--exclude
     assert.ok(!fs.existsSync(env.IAKA_RANGE_REPOSITORY), 'AUCUN depot restic cree');
     assert.ok(!String(o.repository || '').startsWith('sftp:'), 'jamais le depot de production');
     assert.equal(r.stderr.trim(), '', 'rien d\'humain sur stderr en mode --json');
+  } finally { rm(t.base); }
+});
+
+// --- CB-5 : la grammaire ne boite plus (`W12`) ----------------------------------------------------
+
+test('CB-5 : l\'en-tete ACCORDE « depot(s) » — « sur 1 depot » au singulier, « depots » au-dela', () => {
+  const t = chapeauTrois('iaka-branches-cb5-');
+  try {
+    const ignoreFile = motifsVides(t.base);
+
+    // Perimetre CIBLE : UN seul depot balaye. C'est le cas ou l'en-tete ecrivait « 2 sur 1 depots ».
+    const un = rendreBloc(balayer(perimetreProjet(t.chapeau, 'alpha'), { root: t.chapeau, ignoreFile }));
+    assert.match(un[0], /sur 1 depot(?!s)/, 'singulier : « sur 1 depot »');
+
+    // Perimetre `all` : 3 depots.
+    const trois = rendreBloc(balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile }));
+    assert.match(trois[0], /sur 3 depots/, 'pluriel des 2 depots et au-dela');
+
+    // « depots scannes » suit la MEME regle, participe compris (constat fait en corrigeant).
+    const rien = balayer(perimetreProjet(t.chapeau, 'pas-un-depot'), { root: t.chapeau, ignoreFile });
+    assert.match(rendreBloc(rien)[0], /0 depots scannes/, 'zero prend le pluriel en francais');
+    assert.match(ligneRappel(rien), /0 depots scannes/, 'la ligne de rappel accorde aussi');
+  } finally { rm(t.base); }
+});
+
+test('🛑 CB-5 TEMOIN NEGATIF : une recherche de « 1 depots » dans la sortie rendue rend ZERO', () => {
+  const t = chapeauTrois('iaka-branches-cb5n-');
+  try {
+    const ignoreFile = motifsVides(t.base);
+    // Toutes les sorties du signalement, tous les cardinaux atteignables sur ce terrain.
+    const rendus = [
+      ...rendreBloc(balayer(perimetreProjet(t.chapeau, 'alpha'), { root: t.chapeau, ignoreFile })),
+      ...rendreBloc(balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile })),
+      ligneRappel(balayer(perimetreProjet(t.chapeau, 'alpha'), { root: t.chapeau, ignoreFile })),
+      ligneRappel(balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile })),
+    ].join('\n');
+    assert.doesNotMatch(rendus, /1 depots/, 'jamais « 1 depots »');
+    assert.doesNotMatch(rendus, /1 depot scannes/, 'ni « 1 depot scannes » : le participe accorde aussi');
   } finally { rm(t.base); }
 });
