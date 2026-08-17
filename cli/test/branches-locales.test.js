@@ -686,3 +686,83 @@ test('🛑 CB-2 : classer reste INCHANGEE — un chiffre non lu n\'est toujours 
   assert.equal(classer(null, []), null);
   assert.equal(classer(null, ['origin']), null, 'aucun troisieme etat `indetermine` dans classer');
 });
+
+// --- CB-3 : l'ordre de rendu est GARDE, pas promis (reserve `L-1`) --------------------------------
+
+test('CB-3 (a) unitaire : `ordonner` place TOUS les `absente` avant TOUT `en-avance`', () => {
+  // Le rang DOMINE le nombre de commits. Un `absente` a 1 commit passe devant un `en-avance` a 99 :
+  // c'est le sens meme de la promesse « le plafond d'AFFICHAGE ne cache jamais le cas le plus grave ».
+  const liste = [
+    { projet: 'p', branche: 'av/1', commitsLocaux: 99, etat: 'en-avance', refsDistantes: ['origin'] },
+    { projet: 'p', branche: 'abs/1', commitsLocaux: 1, etat: 'absente', refsDistantes: [] },
+    { projet: 'p', branche: 'av/2', commitsLocaux: 50, etat: 'en-avance', refsDistantes: ['origin'] },
+    { projet: 'p', branche: 'abs/2', commitsLocaux: 1, etat: 'absente', refsDistantes: [] },
+  ];
+  const etats = ordonner(liste).map((e) => e.etat);
+  assert.deepEqual(etats, ['absente', 'absente', 'en-avance', 'en-avance']);
+  assert.ok(etats.lastIndexOf('absente') < etats.indexOf('en-avance'),
+    'AUCUN `en-avance` ne precede un `absente`, quel que soit le nombre de commits');
+  // Determinisme complet : a etat et nombre de commits egaux, projet puis branche departagent.
+  const egaux = [
+    { projet: 'b', branche: 'z', commitsLocaux: 1, etat: 'absente' },
+    { projet: 'a', branche: 'y', commitsLocaux: 1, etat: 'absente' },
+  ];
+  assert.deepEqual(ordonner(egaux).map((e) => e.projet), ['a', 'b'], 'ordre STABLE, pas au hasard');
+});
+
+// 🛑 UN RAPPORT FABRIQUE A LA MAIN NE SUFFIT PAS, ET C'EST MESURE. La garde du plafond du lot 2
+// fabriquait son rapport (`faux(12)`) : le sabotage « plafond de comptage » est passe INAPERCU
+// (voir le commentaire de `branches-locales.test.js:479`). Legolas a inverse le rang de `ordonner`
+// et la suite est restee VERTE : 26 pass, 0 fail. Ce terrain-ci TRAVERSE `balayer` sur un depot
+// REEL, avec des nombres de commits CHOISIS pour que l'inversion EJECTE les `absente` hors des dix
+// lignes affichees. Sans cela, le temoin ne mordrait pas (`RB-3`).
+//
+// 12 branches signalees : 10 `en-avance` a 5 commits + 2 `absente` a 1 commit. Ordre correct =>
+// les 2 `absente` occupent les 2 premieres des 10 lignes. Rang inverse => les 10 `en-avance`
+// remplissent exactement le plafond et les 2 `absente` DISPARAISSENT de l'affichage.
+function chapeauOrdre(prefix) {
+  const t = terrain(prefix);
+  const { depot } = depotAvecDistant(t, 'alpha');
+
+  // 10 `en-avance` : meme pointe, 5 commits au-dessus de `main`...
+  run(depot, ['checkout', '-q', '-b', 'av/0', 'main']);
+  for (let i = 0; i < 5; i += 1) commit(depot, `avance ${i}`);
+  for (let i = 1; i < 10; i += 1) run(depot, ['branch', `av/${i}`, 'av/0']);
+  // ...et une ref distante posee A LA POSITION DE `main` : la copie existe, elle est en retard de 5.
+  const refspecs = Array.from({ length: 10 }, (_, i) => `main:refs/heads/av/${i}`);
+  run(depot, ['push', '-q', 'origin', ...refspecs]);
+
+  // 2 `absente` : 1 seul commit, AUCUNE ref distante.
+  for (let i = 0; i < 2; i += 1) {
+    run(depot, ['checkout', '-q', '-b', `abs/${i}`, 'main']);
+    commit(depot, `absente ${i}`);
+  }
+  return t;
+}
+
+test('🛑 CB-3 (b) de bout en bout : via `balayer` sur un depot REEL de 12 branches, les `absente` restent AFFICHES', () => {
+  const t = chapeauOrdre('iaka-branches-cb3-');
+  try {
+    const r = balayer(perimetreAll(t.chapeau), { root: t.chapeau, ignoreFile: motifsVides(t.base) });
+
+    // Montage valide : sans cela le temoin ne prouverait rien.
+    assert.equal(r.branchesSansCopieDistanteCount, 12, 'montage : 12 branches signalees');
+    const parEtat = (e) => r.branchesSansCopieDistante.filter((x) => x.etat === e);
+    assert.equal(parEtat('en-avance').length, 10, 'montage : 10 `en-avance`');
+    assert.equal(parEtat('absente').length, 2, 'montage : 2 `absente`');
+    assert.equal(parEtat('en-avance')[0].commitsLocaux, 5, 'montage : les `en-avance` ont PLUS de commits');
+    assert.equal(parEtat('absente')[0].commitsLocaux, 1, 'montage : les `absente` en ont MOINS');
+    assert.ok(parEtat('en-avance')[0].commitsLocaux > parEtat('absente')[0].commitsLocaux,
+      'montage : sans cet ecart, l\'inversion du rang ne changerait rien et le temoin serait un decor');
+
+    // LA garde : le plafond d'affichage ne cache PAS le cas le plus grave.
+    const bloc = rendreBloc(r);
+    const details = bloc.filter((l) => /\s(abs|av)\/\d+\s/.test(l));
+    assert.equal(details.length, PLAFOND_AFFICHAGE, 'affichage borne a 10 lignes');
+    assert.equal(details.filter((l) => /abs\/\d+/.test(l)).length, 2,
+      'les 2 `absente` — la classe EXACTE de l\'incident — figurent dans les 10 lignes affichees');
+    assert.match(details[0], /abs\/\d+/, 'et elles viennent EN TETE');
+    assert.match(details[1], /abs\/\d+/);
+    assert.match(bloc.join('\n'), /et 2 autres \(voir --json\)/, 'le reste est annonce, pas escamote');
+  } finally { rm(t.base); }
+});
