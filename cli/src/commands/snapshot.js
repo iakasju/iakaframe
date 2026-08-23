@@ -124,6 +124,52 @@ export function projectName(root) {
 
 // Parcours d'arbre : REPLI hors git seulement (cf. filesCount). Inchange, a dessein — les projets
 // hors git (onboard sur un dossier nu) doivent garder mot pour mot le comportement d'avant.
+// ---- Bloc « Reprise du travail » : ecrit par l'HUMAIN, jamais par le CLI ----------------
+// Defaut repare : `doSnapshot` reecrivait le fichier ENTIER a chaque passage, gabarit vide
+// compris. Le recit de la pause precedente etait donc ECRASE a chaque checkpoint, et ne
+// restait lisible que par `git show <sha>:specs/etat-des-lieux.md`. Or ce bloc est la seule
+// partie du document que la machine ne sait pas reconstruire : les faits git se regenerent,
+// le recit non. On le RELIT donc avant d'ecrire, et on le REPORTE tel quel.
+const RECIT_HEADING = '## Reprise du travail (a completer par Cowork)';
+const RECIT_TEMPLATE = [
+  "- **Ce qui vient d'etre fait** : <!-- ... -->",
+  '- **En cours / a reprendre** : <!-- ... -->',
+  '- **Prochaine etape concrete** : <!-- premiere action a faire en reprenant -->',
+  '- **Pieges connus** : <!-- ... -->',
+];
+
+// Rend le CORPS du bloc recit d'un etat des lieux existant, ou '' s'il n'y a rien a preserver
+// (fichier absent, bloc absent, ou gabarit encore intact).
+// L'ancre est volontairement LARGE (`## Reprise du travail`) : le titre a pu etre retouche a
+// la main, et perdre le recit sur une virgule de titre serait exactement le defaut repare ici.
+// Un bloc PARTIELLEMENT rempli est conserve : des qu'une seule ligne n'est pas du gabarit,
+// c'est de la main humaine, donc ca se garde.
+export function extractRecit(mdText) {
+  if (!mdText) return '';
+  const lines = String(mdText).split(/\r?\n/);
+  const start = lines.findIndex((l) => /^##\s+Reprise du travail/.test(l));
+  if (start < 0) return '';
+  let end = lines.length;
+  for (let i = start + 1; i < lines.length; i++) { if (/^##\s/.test(lines[i])) { end = i; break; } }
+  const body = lines.slice(start + 1, end);
+  const human = body.filter((l) => l.trim() !== '' && !RECIT_TEMPLATE.includes(l.trim()));
+  if (!human.length) return '';
+  // Bornage aux lignes NON VIDES : l'ecriture reintroduit elle-meme la ligne vide qui suit le
+  // titre. Sans ce bornage, une ligne blanche s'accumulerait a chaque checkpoint (le report
+  // n'est fidele que s'il est IDEMPOTENT).
+  while (body.length && body[0].trim() === '') body.shift();
+  while (body.length && body[body.length - 1].trim() === '') body.pop();
+  return body.join('\n');
+}
+
+// Rend VISIBLE ce qu'il est advenu du recit : un report silencieux serait aussi opaque que
+// l'ecrasement silencieux qu'on repare.
+export function formatRecit(r) {
+  return r && r.preserved
+    ? `Recit de reprise : conserve (${r.lines} ligne${r.lines > 1 ? 's' : ''}).`
+    : 'Recit de reprise : gabarit vierge (a completer).';
+}
+
 function countFiles(dir) {
   let n = 0;
   const walk = (d) => {
@@ -195,6 +241,11 @@ export function doSnapshot({ projectPath, reason = 'manual', version = '', note 
   fs.mkdirSync(specs, { recursive: true });
   const journalFile = path.join(specs, '.iakaframe-journal.json');
 
+  const mdFile = path.join(specs, 'etat-des-lieux.md');
+  // Relecture AVANT toute ecriture : c'est le seul moment ou l'ancien recit existe encore.
+  let recit = '';
+  try { recit = extractRecit(fs.readFileSync(mdFile, 'utf8')); } catch { /* premier passage */ }
+
   const git = isRepo(root);
   const branch = git ? (out(root, ['rev-parse', '--abbrev-ref', 'HEAD']) || '-') : '-';
   if (!version) version = authorityVersion(root);
@@ -241,15 +292,12 @@ export function doSnapshot({ projectPath, reason = 'manual', version = '', note 
     for (const c of recent) md.push(`| \`${c.hash}\` | ${c.date} | ${c.subject} |`);
     md.push('');
   }
-  md.push('## Reprise du travail (a completer par Cowork)', '');
-  md.push("- **Ce qui vient d'etre fait** : <!-- ... -->");
-  md.push('- **En cours / a reprendre** : <!-- ... -->');
-  md.push('- **Prochaine etape concrete** : <!-- premiere action a faire en reprenant -->');
-  md.push('- **Pieges connus** : <!-- ... -->', '');
+  md.push(RECIT_HEADING, '');
+  md.push(...(recit ? recit.split('\n') : RECIT_TEMPLATE), '');
   md.push('## Journal (versions & pauses)', '', '| Date | Motif | Version | Branche | Note |', '|---|---|---|---|---|');
   for (const e of byDateDesc) md.push(`| ${e.date} | ${e.reason} | ${e.version} | ${e.branch} | ${String(e.note || '').replace(/\|/g, '/')} |`);
   md.push('');
-  fs.writeFileSync(path.join(specs, 'etat-des-lieux.md'), md.join('\n'), 'utf8');
+  fs.writeFileSync(mdFile, md.join('\n'), 'utf8');
 
   // ---- HTML ----
   let rows = '';
@@ -318,7 +366,8 @@ ${rows}</table>
   try { projectCadence = projectCadenceRun({ projectPath: root, reason, home }); }
   catch (e) { projectCadence = { triggered: false, skipped: 'guarded', reason, error: e.message }; }
 
-  return { version, branch, fileCount, dirty, cadence, projectCadence };
+  return { version, branch, fileCount, dirty, cadence, projectCadence,
+           recit: { preserved: recit !== '', lines: recit ? recit.split('\n').length : 0 } };
 }
 
 export function runSnapshot(argv) {
@@ -345,6 +394,7 @@ export function runSnapshot(argv) {
   const r = doSnapshot({ projectPath: root, reason: values.reason, version: values.version || '', note: values.note || '', home: values.home });
   console.log(`Snapshot OK (${values.reason}) -> specs/etat-des-lieux.md + .html`);
   console.log(`  version=${r.version} branche=${r.branch} fichiers=${r.fileCount}${r.dirty ? ' [arbre sale]' : ''}`);
+  console.log(`  ${formatRecit(r.recit)}`);
   console.log(`  ${formatCadence(r.cadence)}`);
   console.log(`  ${formatProjectCadence(r.projectCadence)}`);
 }
