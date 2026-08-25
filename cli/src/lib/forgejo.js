@@ -3,7 +3,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { resolveRoot } from './root.js';
 
-const DEF_URL = 'http://192.168.2.11:3001';
+// HOTE PAR DEFAUT : NAS Synology. L'ancienne iakabox (192.168.2.11) est HORS SERVICE et ne
+// repond plus (sonde du 2026-08-25) ; l'infra du portefeuille a ete rejouee sur le NAS. Ce
+// defaut ne mordait que hors variable d'environnement — donc precisement dans les contextes
+// non interactifs (script, hook, cron, CI, agent), ou l'echec est le plus difficile a voir.
+const DEF_URL = 'http://192.168.1.139:3001';
 const DEF_USER = 'sjupin';
 
 // Un placeholder de template est traite comme absent.
