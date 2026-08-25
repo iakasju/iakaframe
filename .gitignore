@@ -7,9 +7,12 @@ dist/
 build/
 target/
 
-# Secrets / env
+# Secrets / env — le motif DOIT couvrir les copies de sauvegarde :
+# un `.env.bak-*` cree a la main echappait a `.env` et partait au `git add -A`.
+# C'est exactement ce qui s'est produit (un FORGEJO_TOKEN a atterri dans l'historique).
 .env
-.env.local
+.env.*
+!.env.example
 *.token
 
 # OS
