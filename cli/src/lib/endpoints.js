@@ -154,3 +154,94 @@ export function formater(res, titre = '') {
   }
   return l;
 }
+
+// ---------------------------------------------------------------------------------------------
+// LES ARTEFACTS ANNONCES — le second demi-tour du canal de lecture.
+//
+// CE QUE LE MORCEAU REPARE. `sonder()` mesure si un endpoint SERT un manifeste. C'est la moitie
+// de la question. Le 2026-08-28, les deux apps servaient un manifeste valide sur deux canaux et
+// AUCUNE des cinq URL d'artefacts qu'il annoncait ne rendait autre chose que 404 ou 000 : l'app
+// VOYAIT la mise a jour et ne pouvait la TELECHARGER nulle part. Un canal qui sert un manifeste
+// dont rien n'est telechargeable n'est pas un canal — c'est une promesse.
+//
+// POURQUOI UNE MESURE SEPAREE. Le manifeste porte des URL ABSOLUES : elles ne pointent pas
+// forcement l'hote qui l'a servi, et c'est meme le montage retenu le 2026-08-28 (manifeste lu sur
+// la forge du LAN, artefacts telecharges sur un hebergeur public). Lire le manifeste ne dit donc
+// RIEN de la joignabilite de ses artefacts. Il faut ouvrir les connexions.
+//
+// HEAD, pas GET : on veut le code et la TAILLE, pas 6 Mo par plateforme. Un 200 sans octet est
+// suspect et sort comme tel (`vide`), jamais compte comme telechargeable.
+
+/** Mesure UN artefact annonce. Aucune exception ne remonte : un echec est un etat. */
+export async function sonderArtefact(url, { timeoutMs = DELAI_DEFAUT_S * 1000 } = {}) {
+  const t0 = Date.now();
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  let status = 0;
+  let octets = null;
+  try {
+    const r = await fetch(url, { method: 'HEAD', redirect: 'follow', signal: ctrl.signal });
+    status = r.status;
+    const len = r.headers.get('content-length');
+    octets = len === null ? null : Number(len);
+  } catch {
+    status = 0;
+  } finally {
+    clearTimeout(t);
+  }
+  const motif = status === 0 ? 'injoignable'
+    : status === 404 ? 'absent'
+      : status === 401 || status === 403 ? 'refus'
+        : status >= 400 ? `erreur-http-${status}`
+          : (octets === null || octets === 0) ? 'vide' : 'ok';
+  return { url, hote: hoteDe(url), status, octets, ok: motif === 'ok', motif, ms: Date.now() - t0 };
+}
+
+/**
+ * Mesure TOUS les artefacts annonces par un manifeste, plateforme par plateforme.
+ * Une plateforme ABSENTE du manifeste n'est pas mesuree : elle n'est pas annoncee, donc elle ne
+ * ment pas. C'est l'entree PRESENTE et non telechargeable qui est le defaut.
+ */
+export async function sonderArtefacts(manifeste, { timeoutMs = DELAI_DEFAUT_S * 1000 } = {}) {
+  const plats = (manifeste && manifeste.platforms) || {};
+  const out = [];
+  for (const [plateforme, p] of Object.entries(plats)) {
+    if (!p || typeof p.url !== 'string' || !p.url) {
+      out.push({ plateforme, url: null, hote: null, status: 0, octets: null, ok: false, motif: 'sans-url', ms: 0 });
+      continue;
+    }
+    out.push({ plateforme, ...(await sonderArtefact(p.url, { timeoutMs })) });
+  }
+  return out;
+}
+
+/**
+ * Verdict de TELECHARGEABILITE : le manifeste tient-il sa promesse ?
+ * `complet` distingue « toutes les plateformes annoncees sont telechargeables » de « certaines ».
+ * Aucune plateforme annoncee ne doit rester muette : c'est exactement l'etat du 2026-08-28.
+ */
+export function verdictArtefacts(mesures) {
+  const total = mesures.length;
+  const servent = mesures.filter((m) => m.ok);
+  return {
+    total,
+    telechargeables: servent.length,
+    complet: total > 0 && servent.length === total,
+    muets: mesures.filter((m) => !m.ok).map((m) => ({ plateforme: m.plateforme, motif: m.motif })),
+    hotes: [...new Set(servent.map((m) => m.hote))],
+  };
+}
+
+/** Rendu humain des artefacts (meme grammaire que `formater`). */
+export function formaterArtefacts(mesures) {
+  const v = verdictArtefacts(mesures);
+  const l = [`\nARTEFACTS ANNONCES : ${v.total} plateforme(s) mesuree(s)`];
+  for (const m of mesures) {
+    const marque = m.ok ? '[OK]' : m.motif === 'absent' ? '[404]' : m.motif === 'injoignable' ? '[--]' : '[!!]';
+    l.push(`  ${marque.padEnd(5)} ${String(m.plateforme).padEnd(16)} ${m.motif} (${m.status || 'pas de reponse'}${m.octets ? `, ${m.octets} octets` : ''}) ${m.hote || ''}`);
+  }
+  l.push(v.complet
+    ? `TELECHARGEABLE : ${v.telechargeables}/${v.total} — le manifeste tient sa promesse.`
+    : `TELECHARGEABLE : ${v.telechargeables}/${v.total} — une entree annoncee et non telechargeable fait VOIR une mise a jour qui ne s installera pas.`);
+  return l;
+}
