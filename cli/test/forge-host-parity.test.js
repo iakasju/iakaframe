@@ -32,17 +32,31 @@ function fromNpmrc() {
   assert.ok(line, '.npmrc doit declarer @naonedge:registry');
   return hostOf(line.split('=').slice(1).join('=').trim());
 }
-function fromForgejoLib() {
+// Depuis le lot 0 (« trois canaux synchrones »), forgejo.js porte une LISTE ordonnee et non
+// plus une adresse unique. La parite s'exerce donc sur le canal PRIMAIRE — celui vers lequel
+// on publie et celui qu'on interroge d'abord ; les suivants sont des SECOURS, qui ont le droit
+// (et le devoir) d'etre d'autres hotes.
+function canauxForgejoLib() {
   const src = fs.readFileSync(path.join(CLI, 'src', 'lib', 'forgejo.js'), 'utf8');
-  const m = src.match(/^const DEF_URL = '([^']+)';/m);
-  assert.ok(m, 'forgejo.js doit declarer DEF_URL');
-  return hostOf(m[1]);
+  const m = src.match(/^const DEF_URLS = \[([^\]]+)\];/m);
+  assert.ok(m, 'forgejo.js doit declarer DEF_URLS (liste ordonnee de canaux)');
+  const urls = [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]);
+  assert.ok(urls.length >= 1, 'DEF_URLS ne doit pas etre vide');
+  return urls;
+}
+function fromForgejoLib() {
+  return hostOf(canauxForgejoLib()[0]);
 }
 
-test('publishConfig, .npmrc et DEF_URL designent le meme hote de forge', () => {
+test('publishConfig, .npmrc et le canal PRIMAIRE designent le meme hote de forge', () => {
   const a = fromPackageJson(), b = fromNpmrc(), c = fromForgejoLib();
   assert.equal(a, b, `publishConfig (${a}) et .npmrc (${b}) divergent`);
-  assert.equal(a, c, `publishConfig (${a}) et forgejo.js DEF_URL (${c}) divergent`);
+  assert.equal(a, c, `publishConfig (${a}) et le canal primaire de forgejo.js (${c}) divergent`);
+});
+
+test('les canaux de secours sont DISTINCTS du primaire (une liste de doublons ne bascule rien)', () => {
+  const hosts = canauxForgejoLib().map(hostOf);
+  assert.equal(new Set(hosts).size, hosts.length, `canaux en doublon : ${hosts.join(', ')}`);
 });
 
 test('l hote declare n est plus l ancienne iakabox hors service', () => {
