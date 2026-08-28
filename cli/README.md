@@ -40,9 +40,29 @@ iakaframe init --path /chemin/projet --target claude
 iakaframe snapshot --reason version --version v0.2.0 --note "feature X livree"
 iakaframe snapshot --reason reprise
 
-# update : checkpoint (snapshot + commit global + push)
+# update : checkpoint (snapshot + commit global + push FAN-OUT sur tous les remotes)
 iakaframe update --reason pause --note "WIP : reprendre par les tests" --no-push
+iakaframe update --remotes origin,github --timeout 10   # cibles et delai explicites
 ```
+
+Le push d'`update` (et d'`onboard`) va vers **toutes** les cibles configurees, chacune
+reussissant ou echouant **independamment** et **nommee** dans la sortie. Une cible injoignable
+n'est pas une erreur : c'est un etat. Et rien n'est jamais annonce comme sauvegarde sans dire
+**qui** a recu.
+
+### Canaux synchrones
+
+```bash
+iakaframe canaux                      # etat MESURE EN DIRECT des depots, avec la date
+iakaframe canaux --branch main --json
+iakaframe canaux --rattraper          # pousse ce qui est une AVANCE RAPIDE, refuse le reste
+```
+
+Etats rendus : `a-jour`, `en-retard` de N, `en-avance` de M, `divergent`, `branche-absente`,
+`injoignable`, `inconnu`. Le dernier etat lu dans une **ref locale** est rendu **a part**
+(`dernierConnu` + date du dernier fetch) : un souvenir ne se confond jamais avec une mesure.
+`--rattraper` **refuse** tout ce qui n'est pas une avance rapide et **le dit** ; **jamais** de
+`--force`.
 
 ### Diagnostic & configuration
 
