@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-08-28 14:31 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-08-28 21:57 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -8,131 +8,112 @@
 | Champ | Valeur |
 |---|---|
 | Version | v0.39.0 |
-| Branche | feat/L0-trois-canaux-synchrones |
-| Dernier commit | 1cfa644 docs(cli): README — fan-out du push et verbe canaux |
+| Branche | main |
+| Dernier commit | cebd759 feat(endpoints): mesure le SECOND demi-tour — les artefacts que le manifeste annonce |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (suivis + non ignores) | 1103 |
-| Note | Recit de reprise redige (lot 0 complet, 3 depots). |
+| Fichiers (suivis + non ignores) | 1107 |
+| Note | Fin du lot 0 + L1 — auto-update reellement telechargeable |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `cebd759` | 2026-08-28 | feat(endpoints): mesure le SECOND demi-tour — les artefacts que le manifeste annonce |
+| `b569be0` | 2026-08-28 | feat(endpoints): la bascule de lecture se MESURE, elle ne se lit plus dans une config |
+| `a0a0d9e` | 2026-08-28 | fix(test): la cible « morte » du banc visait le vrai miroir de production |
+| `9e4dcb6` | 2026-08-28 | chore(journal): entrees de pause du checkpoint de reprise |
+| `be0dd4e` | 2026-08-28 | docs(etat-des-lieux): recit de reprise — lot 0 remis au gate, rien pousse (reseau coupe) |
 | `1cfa644` | 2026-08-28 | docs(cli): README — fan-out du push et verbe canaux |
 | `949a3fa` | 2026-08-28 | feat(registres): liste ordonnee des registres npm, sans inventer le troisieme |
 | `8a5643b` | 2026-08-28 | feat(canaux): verbe de synchronisation des trois depots |
 | `642fb49` | 2026-08-28 | feat(update+onboard): fan-out du push, chaque cible nommee |
 | `bb11e7f` | 2026-08-28 | feat(forgejo): liste ordonnee de canaux au lieu d une DEF_URL unique |
-| `257bcd8` | 2026-08-28 | docs(instruction): les 7 arbitrages tranches — 4 verdicts sur 7 contre la reco |
-| `6def25d` | 2026-08-28 | docs(instruction): trois canaux synchrones — le lot 0 n etait pas « repointer une URL » |
-| `886a56b` | 2026-08-19 | fix(forgejo): l'URL de la forge se replie sur <chapeau>/.env, comme le token |
-| `6b0386a` | 2026-08-25 | chore(licence+ignore): licence MIT sur main + motif env couvrant les sauvegardes |
-| `b78d685` | 2026-08-25 | fix(canal): repointe la forge sur le NAS — l ancienne iakabox ne repond plus |
 
 ## Reprise du travail (a completer par Cowork)
 
-- **Ce qui vient d'etre fait** : la session est partie d'une question de point de situation sur le
-  **« full install »** (la plateforme iaka en une installation) et s'est terminee par la
-  **livraison du lot 0**. Trois temps. **(1) Le point** : l'instruction
-  `specs/instructions/bundle-complet-install-4-composants.md` existait depuis le 25/08 mais etait
-  **EN ATTENTE D'ARBITRAGE et jamais lancee** — aucun verbe `install`, aucune branche. **(2) La
-  decision du decideur** : *trois depots synchrones — iakabox `192.168.2.11`, NAS `192.168.1.139`,
-  GitHub — quand les uns sont off, les autres sont le backup.* Elle tranche la question que le
-  cadrage laissait ouverte (sur quelle machine remettre le canal : **aucune en particulier, les
-  trois avec bascule**) et **agrandit le lot 0**. **(3) L'execution** : instruction amendee deux
-  fois, puis lot 0 realise par Gimli **dans les trois depots**.
-- **Les deux amendements de l'instruction** (sur `main`, **non pousses**) : `6def25d` — les trois
-  canaux, avec **quatre faits mesures** (A1 les trois remotes existent deja · A2 aucun n'etait
-  synchrone et **le seul allume etait le plus en retard** · A3 la cause racine mono-remote, ligne
-  par ligne · A4 le failover updater presque gratuit), lot 0 reecrit en quatre morceaux, **AR-7
-  neuf** (npm n'a pas de bascule native), estimation 0,5 -> 2 j pour le lot 0. Puis `257bcd8` —
-  **les 7 arbitrages tranches**, dont **4 contre la recommandation** (AR-1 (a) deploiement auto ·
-  AR-2 (c) le plus recent gagne · AR-3 (c) **installeur graphique** · AR-5 (c) **rollback
-  automatique**), estimation totale **8,5 -> 12,5 j-homme**.
-- **Rattrapage de GitHub, fait et verifie en direct** : GitHub accusait **6 commits** de retard sur
-  `iakaframe` et **15** sur `IakaCockpit`. Pousses en avance rapide (ancetre verifie avant chaque
-  poussee), les trois `main` etaient identiques sur GitHub a `13:2x`. Le reseau est tombe **apres**.
-- **Etat EXACT des trois depots, et c'est le point important de la reprise** : les trois sont sur
-  une branche **`feat/L0-trois-canaux-synchrones`**, **arbre propre**, **rien n'est pousse**.
-  `iakaframe` : 5 commits (`bb11e7f` -> `1cfa644`) par-dessus `257bcd8`, lui-meme **non pousse**.
-  `IakaCockpit` : 1 commit `f481ed9`. `iakaFrameGUI` : 1 commit `f49aa1b`. **Aucun `main` n'a ete
-  touche**, aucun push, aucun `--force`, aucun `reset --hard`.
-- **Ce que le lot 0 livre** : `lib/forgejo.js` passe d'une `DEF_URL` unique a une **liste ordonnee**
-  (`FORGEJO_URL/USER/TOKEN` acceptent le CSV, **retro-compat stricte** du mono-valeur) · `lib/canaux.js`
-  neuf (fan-out borne en temps, `GIT_TERMINAL_PROMPT=0`, motif classe) · `update`/`onboard` poussent
-  vers **toutes** les cibles, **chacune nommee** · le verbe **`canaux`** (etat mesure et **date**,
-  `--rattraper` **en avance rapide seulement**, jamais de `--force`) · `lib/registres.js` (liste npm,
-  **3e registre NON invente**) · les endpoints d'update passent a **3 URL ordonnees** cote Cockpit
-  **et** cote GUI (qui n'avait jamais ete repointe). **+45 tests neufs verts.**
-  **`range` n'est pas touche** (verifie : diff vide) — il reste zero-reseau par choix.
-- **Contexte reseau, indispensable a la relecture des chiffres** : **tout le TCP sortant du poste
-  est coupe**, *loopback compris* (`EADDRNOTAVAIL` vers `127.0.0.1`). Mesure du decideur depuis son
-  propre terminal : `NAS=000`, `iakabox=000`, `github=000`, et `example.com=000` — la rupture est
-  **en amont**, ni GitHub ni les forges ne sont en cause. L'ICMP passe (`1.1.1.1`, la passerelle et
-  **le NAS** repondent — le NAS s'est **allume** en cours de session ; l'iakabox reste muette meme
-  en ICMP, elle est eteinte).
-- **En cours / a reprendre** : **le gate 🏹 Legolas n'est PAS passe** — Gimli a remis, il ne s'est
-  pas auto-valide. Cinq points lui sont nommes : (1) les **13 rouges de baseline** sont-ils bien
-  environnementaux (ils le sont : ce sont les tests qui montent un faux serveur HTTP local, tues par
-  la coupure loopback ; **aucun echec nouveau**, prouve par diff de listes triees) ; (2) rejouer les
-  **4 contrefactuels de garde** ; (3) l'ordre des endpoints face aux gardes de parite des apps ;
-  (4) la reparation de la fuite de jeton sur toute la branche livree ; (5) la **recette reelle**,
-  impossible hors ligne.
-- **Prochaine etape concrete**, dans cet ordre : **(1)** lancer le gate Legolas sur ce qui est
-  verifiable **hors ligne** ; **(2)** au retour d'un canal : pousser `257bcd8` puis les trois
-  branches, et faire la **recette reelle** — `iakaframe canaux`, puis `--rattraper`, et le controle
-  d'acceptation du lot (**les trois `main` identiques, prouves par mesure en direct**) ; **(3)**
-  trancher les cinq decisions ci-dessous.
-- **Cinq decisions qui appartiennent au decideur, aucune tranchee** :
-  1. 🛑 **Le jeton iakabox.** Gimli a commite le **vrai jeton en clair** dans une fixture, l'a
-     detecte et repare **sans rien detruire** (branche fautive **conservee** sous
-     `feat/L0-CONTIENT-UN-JETON-NE-PAS-POUSSER`, jeton **absent** de l'historique livre). Rien n'est
-     sorti du poste. Reste : **supprimer la branche de sauvegarde** et **faire tourner le jeton** —
-     il vit de toute facon **en clair dans les `.git/config` des trois depots**.
-  2. **GitHub ne peut pas servir d'endpoint d'auto-update en l'etat** : les depots y sont **prives**,
-     `raw.githubusercontent.com` repondra **404** a l'updater Tauri qui ne sait pas s'authentifier.
-     **CA-11 n'est pas atteignable par cette voie.** *Defaut du cadrage, pas de l'execution* — l'entree
-     a ete posee et **ecrite comme telle**. Choix : rendre les depots publics, ou designer un autre
-     3e canal de lecture. **Deduction documentaire, non verifiee en direct** (reseau coupe).
-  3. **Le 3e registre npm reste non designe** (AR-7). Non invente, comme instruit ; un test **garde
-     l'arbitrage ouvert** et tombera le jour ou il sera tranche.
-  4. **Le fan-out pousse vers TOUS les remotes configures** — un remote de fork recevrait donc les
-     checkpoints. `--remotes` permet de borner. Faut-il plutot une **liste declaree** ?
-  5. **Quand les trois echouent, le processus sort en `0`** (lecture litterale de CA-9) avec un
-     message tres visible — **qu'un cron ou un hook ne lit pas**. Faut-il un **code de sortie
-     distinct** ?
-- **Successeurs nommes, aucun engage** (inchanges) : `CHECKPOINT-NARRATIF`, `VENDOR-REMEDE-CARDINAL`,
-  `CLI-WRAPPER-RACINE`, `CRITERE-BACKLOG-D10`, `GUI-VENDOR-CHARON`, `ROLE-VOCAB-CANON`,
-  `GUI-PARITE-WORKTREE`. `A-1` reste **non tranche**.
+- **Ce qui vient d'etre fait** : la session est partie d'une **reprise** (lot 0 remis au gate, rien
+  pousse, reseau coupe) et s'est terminee par la **livraison complete du lot 0 ET du lot L1**, les
+  trois depots fusionnes dans `main` et pousses. Le reseau etait revenu (`NAS 200`, `github 200`,
+  `iakabox 000` — eteinte, etat normal), ce qui a rendu mesurable ce qui ne l'etait pas.
+- **Le vrai defaut de la journee, que personne ne connaissait au reveil** : l'auto-update des deux
+  apps etait **entierement casse**. Les manifestes servis par `main` annoncaient des artefacts sur
+  l'**iakabox morte** (GUI) ou sur une release **sans asset** (Cockpit). Mesure : **`0/4` et `0/1`
+  telechargeables**. Les deux apps **voyaient** une mise a jour et **ne pouvaient la telecharger sur
+  aucune plateforme**. Le lot 0 disait « redondance : 2 canaux servent » — et c'etait **vrai** : il
+  ne mesurait que le manifeste, jamais les artefacts qu'il annonce. C'est ce **demi-tour manquant**
+  qui a laisse passer le defaut.
+- **Chronologie des gates — deux FAIL, et a chaque fois le gate a corrige l'executant** :
+  1. **Gate 1 : FAIL** sur le point 3 (endpoints face aux gardes de parite). Trois echecs : le GUI
+     n'avait **aucune** garde de parite d'hote ; son repointage ne fonctionnait pas et le message de
+     commit affirmait le contraire ; **CA-11 n'etait atteint nulle part**.
+  2. **Gate 2 : PASS**, apres correction. Legolas a **corrige la remise de Gimli sur un point de
+     fond** : « on telecharge sur 1 canal » etait faux, la mesure disait **sur 0**, et l'artefact de
+     la version annoncee du Cockpit **n'existait nulle part**.
+  3. **Gate 3 (lot L1) : PASS**, cinq residus nommes.
+  4. **Gate 4 (levee du hors-couverture) : PASS**, un residu neuf (R6).
+- **Les decisions du decideur, prises en cours de session** : (1) **tout passe en public** — les
+  trois depots sur le NAS **et** sur GitHub, parce qu'un updater Tauri ne sait pas s'authentifier et
+  qu'un depot prive rend **404** a l'utilisateur final ; (2) **les manifestes pointent sur les
+  releases GitHub**, et la release manquante du Cockpit est creee ; (3) **pousser**.
+- **Architecture retenue, et c'est la distinction qui manquait** : `FORGEJO_BASE` (ou l'on **LIT** le
+  manifeste — liste ordonnee NAS -> `raw.githubusercontent.com` -> iakabox en dernier secours) est
+  desormais **distinct** de `ARTEFACT_BASE` (ou l'on **TELECHARGE** — les releases GitHub, hote
+  **public**). L'ancien invariant de garde *« on lit d'abord la ou l'on publie »* presumait un
+  manifeste par canal alors qu'il n'y en a qu'**un**, recopie, aux URL absolues : il **n'interdisait
+  pas** l'URL de LAN, **il l'exigeait**. Preuve faite au gate : l'ancienne garde posee sur l'etat
+  corrige **rougit**, posee sur le defaut elle est **verte**. Elle devait etre **remplacee**, pas
+  corrigee.
+- **Etat final MESURE, en anonyme, sur ce que `main` sert** : GUI **`TELECHARGEABLE : 4/4`** ·
+  Cockpit **`TELECHARGEABLE : 2/2`** (darwin seulement — pas de build Linux/Windows depuis un Mac,
+  et une entree sans artefact est **interdite** par la garde). Les trois `main` sont **identiques**
+  entre NAS et GitHub.
+- **Ce qui a ete livre** : liste ordonnee de canaux (`lib/forgejo.js`, retro-compat mono-valeur) ·
+  `lib/canaux.js` (fan-out borne en temps) · verbe **`canaux`** (mesure datee, `--rattraper` en
+  avance rapide **seulement**, jamais de `--force`) · verbe **`endpoints`** et son **second
+  demi-tour** `--artefacts` / `--manifeste` (motifs `absent` / `injoignable` / **`vide`**) ·
+  `lib/registres.js` (3e registre npm **non invente**) · gardes de parite reecrites dans les deux
+  apps (I1 a I5, dont **I2 = hote PUBLIC, propriete testee**, jamais une liste en dur) · registre
+  `HORS_COUVERTURE` a **cliquet**. **+68 tests** au total sur les trois depots.
+- **Le cliquet a fonctionne en reel, et sa limite s'est vue le meme jour** : a la publication de la
+  release, la suite est restee **VERTE** — `I4` ne mesure pas le reseau, il compare le manifeste a
+  `updater/mesures.json`, **fichier versionne**. Le rouge n'est apparu **qu'apres remesure**, en
+  dictant l'ordre exact de sa propre levee. Le mecanisme est sain, **sa borne de fraicheur manque**.
+- **Actes de publication : refuses aux agents.** Le classifieur de permissions a refuse
+  `gh workflow disable` et le push de tag, a Gimli **et** a Odin. Le decideur les a tapes lui-meme
+  (prefixe `!`). **C'est le mode operatoire a retenir pour toute publication publique.**
+- **Prochaine etape concrete** : **(1)** un **lot successeur des residus de garde** — **R1** cliquet
+  passif sans borne de fraicheur · **R4** `estPrive` manque le nom d'hote nu (`nas:3001`) et casse
+  sur l'IPv6 litteral (`[::1]` -> `split(":")[0]` rend `"["`) · **R5** signature globale minisign non
+  controlee · **R6** `I4bis` devenu *vacuous* une fois le registre vide, la garde de la garde peut
+  etre supprimee en silence. **(2)** Les deux dettes de securite : **faire tourner le jeton iakabox**
+  et **supprimer la branche de quarantaine**. **(3)** Doter `iakaframe` d'un **eslint et d'un
+  tsconfig** — le gate a etabli qu'il n'en a **aucun**, alors qu'on croyait le contraire.
+- **Decisions ouvertes pour le decideur** : poser la **cle de signature du Cockpit** sur GitHub (sans
+  elle, `release.yml` reste desarme et il n'y a pas de build automatique des 4 plateformes) ; le
+  **3e registre npm** reste non designe (AR-7, un test garde l'arbitrage ouvert) ; le fan-out pousse
+  vers **tous** les remotes configures — faut-il une liste declaree ? ; quand les trois canaux
+  echouent, le processus sort en **`0`** — faut-il un code de sortie distinct pour un cron ?
 - **Pieges connus** :
-  1. 🛑 **NE JAMAIS POUSSER `feat/L0-CONTIENT-UN-JETON-NE-PAS-POUSSER`.** Elle contient le vrai
-     jeton iakabox en clair. Elle n'existe que pour ne rien detruire avant arbitrage.
-  2. **13 tests rouges dans le CLI = environnement, pas regression.** Ils sont **anterieurs** au lot
-     (mesures sur `257bcd8` en worktree detache) et causes par la coupure TCP **loopback**. Le compte
-     est **intermittent** (une execution sur cinq n'en a eu que 6). Au retour du reseau, **remesurer
-     la baseline avant de conclure quoi que ce soit**.
-  3. **Le trou du GUI n'est bouche qu'a moitie.** Son `updater/latest.json` porte **4 URL de
-     telechargement sur l'iakabox morte** et son `publish-update.mjs` a `FORGEJO_BASE` sur la meme
-     machine. Apres le lot, l'app **trouve** le manifeste sur le NAS et **telecharge depuis une
-     machine morte**. Les deux fichiers etaient **hors mandat** — a rattacher au lot A/B.
-  4. **`onboard` d'un projet NEUF ne fan-out que sur une cible.** A1 ne vaut que pour les depots
-     existants. Creer le depot sur les canaux 2 et 3 exige des **jetons par canal** et un
-     **adaptateur GitHub** (`providers.js` n'a que `forgejo`). Hors mandat, non fait.
-  5. **`FORGEJO_TOKEN` mono-valeur donnerait au 2e canal le jeton du 1er.** Les deux forges ont des
-     jetons **differents** ; la cle est desormais CSV-capable, mais **`<chapeau>/.env` n'en porte
-     qu'un** : aujourd'hui le canal de secours serait sonde avec le mauvais jeton.
-  6. **`iakaframe update` d'un bloc commite un narratif VIDE** (successeur `CHECKPOINT-NARRATIF`,
-     non corrige). **Contournement obligatoire** : `snapshot` -> redaction du narratif -> `git add`
-     /commit -> push.
-  7. **N'appelez pas le binaire global `iakaframe <verbe>` depuis un worktree** : il vise la racine
-     du depot, pas l'arbre courant. Passer par `node cli/src/index.js` (`CLI-WRAPPER-RACINE`).
-  8. **Dette de tagging** : dernier tag `v0.20.4` face a une version declaree **`0.39.0`**.
-     Signalee, non traitee.
+  1. **NE JAMAIS POUSSER `feat/L0-CONTIENT-UN-JETON-NE-PAS-POUSSER`.** Vrai jeton iakabox en clair.
+     Elle est **locale seulement** (verifie : 0 ref sur les 6 remotes) et **n'est pas un ancetre** des
+     branches livrees. **Les depots sont desormais PUBLICS : elle est plus dangereuse qu'avant.**
+  2. **`release.yml` du Cockpit est `disabled_manually`, et doit le rester** tant qu'aucun secret de
+     signature n'est pose (`gh secret list -R iakasju/IakaCockpit` rend **vide**). Le rearmer expose
+     a un build non signe ou en echec au prochain tag. **Desarmer AVANT de pousser un tag.**
+  3. **Les jetons Forgejo vivent en clair dans les `.git/config`** des trois depots. Hors historique
+     livre, donc hors livraison — mais toute copie de ces fichiers les expose.
+  4. **Verifier une signature sans minisign** (absent du Mac, LibreSSL d'Apple incapable d'Ed25519
+     brut) : format minisign `"ED"` = Ed25519 sur **blake2b-512 prehashe**. Verifier la signature
+     **ecrite dans le manifeste** (celle que l'updater utilise), sur **l'octet retelecharge**, jamais
+     sur le fichier local — et **valider l'instrument sur un temoin negatif** avant de conclure.
+  5. **Un `200` ne suffit pas** : un depot prive rend volontiers 200 + une page de connexion. Seul un
+     manifeste **au contrat** (`version` + `platforms`) compte comme servant.
 
 ## Journal (versions & pauses)
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-08-28 21:55 | pause | v0.39.0 | main | Fin du lot 0 (trois canaux synchrones) + L1 (publication des artefacts) — auto-update reellement telechargeable |
 | 2026-08-28 14:31 | pause | v0.39.0 | feat/L0-trois-canaux-synchrones | Recit de reprise redige (lot 0 complet, 3 depots). |
 | 2026-08-28 14:29 | pause | v0.39.0 | feat/L0-trois-canaux-synchrones | Lot 0 trois canaux synchrones livre par Gimli, remis au gate Legolas. Reseau totalement coupe (TCP sortant HS, loopback compris). Rien pousse. |
 | 2026-08-17 01:01 | version | v0.39.0 | main | Lot correctif-generateur-etat-des-lieux : le generateur cesse de deviner. Nom du projet derive de --git-common-dir (plus du basename du dossier), --version validee et normalisee, compte de fichiers derive de l'INDEX GIT (la liste en dur .git/node_modules avait vieilli : elle ne couvrait ni target/ ni dist/), et ligne de provenance cli=/root= qui rend visible quel CLI s'execute sur quel arbre. Gate Legolas PASS apres un FAIL de PERIMETRE (le code etait mur, c'est l'instruction qui mentait). D6 (avertissement narratif) RETIREE et versee a CHECKPOINT-NARRATIF : telle qu'ecrite elle produisait une fausse imputation, accusant l'operateur d'un recit vide que la commande venait de produire. Cardinal 22 -> 19 CA. A-1 NON TRANCHE, appartient au decideur. Le compte de fichiers passe de 1079 a 1081 : +2, les deux fichiers ajoutes par le merge. AUCUNE rupture d'algorithme visible a cette entree : ce worktree ne porte ni node_modules, ni target/, ni dist/, donc l'ancien parcours et le nouvel index git y convergent. L'effet de D3 se verra la ou ces dossiers existent : iakaFrameGUI passera de 9232 a 474 (-94,9%) a son prochain checkpoint, geste de son operateur. La chute 1469 -> 1078 du 2026-08-15 venait d'un changement d'ARBRE d'execution, pas d'algorithme. Historique des comptes non reecrit (D4, precedent du decideur du 2026-07-31). Successeurs nommes : CHECKPOINT-NARRATIF, VENDOR-REMEDE-CARDINAL, CLI-WRAPPER-RACINE, CRITERE-BACKLOG-D10, GUI-VENDOR-CHARON, ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE. Dette de tagging signalee, non traitee. |

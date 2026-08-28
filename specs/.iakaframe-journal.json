@@ -738,5 +738,25 @@
     "dirty": true,
     "files": 1103,
     "note": "Recit de reprise redige (lot 0 complet, 3 depots)."
+  },
+  {
+    "date": "2026-08-28 21:55",
+    "reason": "pause",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "cebd759 feat(endpoints): mesure le SECOND demi-tour — les artefacts que le manifeste annonce",
+    "dirty": false,
+    "files": 1107,
+    "note": "Fin du lot 0 (trois canaux synchrones) + L1 (publication des artefacts) — auto-update reellement telechargeable"
+  },
+  {
+    "date": "2026-08-28 21:57",
+    "reason": "pause",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "cebd759 feat(endpoints): mesure le SECOND demi-tour — les artefacts que le manifeste annonce",
+    "dirty": true,
+    "files": 1107,
+    "note": "Fin du lot 0 + L1 — auto-update reellement telechargeable"
   }
 ]
