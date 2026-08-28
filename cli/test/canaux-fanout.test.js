@@ -3,10 +3,10 @@
 //
 // ARENE. Aucun de ces cas n'est simule par un drapeau. Les cibles VIVANTES sont des depots
 // bare LOCAUX (chemin de fichier : git y pousse sans une once de reseau). Les cibles MORTES
-// sont les VRAIES adresses hors service du portefeuille — l'ancienne iakabox et GitHub —
-// mesurees injoignables depuis ce poste (tout le TCP sortant est coupe en amont, loopback
-// compris : une connexion locale rend EADDRNOTAVAIL). On n'imite donc pas une panne : on
-// s'en sert.
+// sont des adresses qui ne peuvent PAS repondre — une machine reellement eteinte et un hote
+// non routable par la norme (cf. MORTE_FORGE / MORTE_WEB ci-dessous). On n'imite pas une
+// panne : on s'en sert. Regle de surete qui en decoule : une cible de test n'est JAMAIS un
+// depot reel, meme repute injoignable — l'etat du reseau change, pas le contrat du banc.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -18,9 +18,22 @@ import {
   pousserFanout, listerRemotes,
 } from '../src/lib/canaux.js';
 
-// Adresses REELLEMENT hors service (faits F3 / A2 de l'instruction) — jamais un faux serveur.
-const MORTE_FORGE = 'http://192.168.2.11:3001/sjupin/iakaframe.git';   // ancienne iakabox
-const MORTE_WEB = 'https://github.com/iakasju/iakaframe.git';          // TCP sortant coupe
+// Cibles injoignables. Deux natures, et la difference est une regle de surete, pas un detail :
+//
+//  - MORTE_FORGE est une machine REELLEMENT hors service (l'ancienne iakabox, eteinte pour de
+//    bon) : la panne est vraie, jamais simulee par un drapeau, conformement au § 9 de
+//    l'instruction. Aucun depot n'y vit, aucun credential ne peut y repondre.
+//  - MORTE_WEB est une adresse VOLONTAIREMENT NON ROUTABLE : un hote en `.invalid`, TLD reserve
+//    par la RFC 2606 dont la norme garantit qu'il ne resout jamais. C'est une CORRECTION : ce
+//    banc pointait auparavant `https://github.com/iakasju/iakaframe.git` — le VRAI miroir de
+//    production — sous un commentaire « TCP sortant coupe » qui a cesse d'etre vrai quand le
+//    reseau est revenu. Des lors, chaque execution de la suite tentait une POUSSEE REELLE ET
+//    AUTHENTIFIEE (le trousseau repond) vers ce depot, et n'echouait que parce que le distant
+//    etait en avance : motif `refus-non-fast-forward` la ou le banc croyait lire `injoignable`.
+//    Rien n'a ete ecrit, mais un test ne doit JAMAIS avoir pour filet de securite l'avance du
+//    distant. Une cible morte doit etre morte par construction, pas par circonstance.
+const MORTE_FORGE = 'http://192.168.2.11:3001/sjupin/iakaframe.git';        // machine eteinte
+const MORTE_WEB = 'https://forge-hors-service.invalid/sjupin/iakaframe.git'; // RFC 2606 : ne resout jamais
 
 const tmp = (p) => fs.mkdtempSync(path.join(os.tmpdir(), p));
 const git = (cwd, args) => execFileSync('git', args, { cwd, encoding: 'utf8' });
@@ -139,6 +152,26 @@ test('CONTREFACTUEL 3 - LES TROIS off : rien n est pretendu sauvegarde (R7)', ()
   // Et aucun credential n'a fui au passage : on cherche la FORME « user:secret@hote », sans
   // avoir a citer un vrai jeton dans un fichier versionne.
   assert.ok(!/:\/\/[^\s/@:]+:[^\s/@*]+@/.test(txt), `credential en clair dans la sortie : ${txt}`);
+});
+
+// --- Garde de SURETE du banc lui-meme : une cible morte doit l'etre PAR CONSTRUCTION ---------
+
+test('SURETE : la cible morte du Web est non routable par la norme, jamais un depot reel', () => {
+  // Le defaut repare : viser un vrai depot en pariant sur l'etat du reseau. Un hote `.invalid`
+  // (RFC 2606) ne resout jamais — aucune poussee ne peut partir vers un distant qui existe.
+  const hote = new URL(MORTE_WEB).hostname;
+  assert.ok(hote.endsWith('.invalid'), `cible de test routable : ${hote}`);
+});
+
+test('SURETE : le motif rendu par la cible morte est bien injoignable (mesure, pas lecture)', () => {
+  const b = bareVivant();
+  const dir = depot([['origin', b], ['mort', MORTE_WEB]]);
+  const res = pousserFanout(dir, 'main', listerRemotes(dir), { timeoutMs: 15000 });
+  const mort = res.find((r) => r.remote === 'mort');
+  assert.equal(mort.ok, false);
+  // C'est CE motif qui etait faux avant la correction : le banc obtenait
+  // `refus-non-fast-forward`, preuve qu'une poussee authentifiee partait pour de bon.
+  assert.equal(mort.motif, 'injoignable', `motif inattendu : ${mort.motif} / ${mort.detail}`);
 });
 
 test('CHAQUE cible est independante : une morte au MILIEU n empeche pas la suivante', () => {
