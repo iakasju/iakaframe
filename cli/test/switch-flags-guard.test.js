@@ -236,12 +236,16 @@ test('C9 : depot avec git + forge 500 (null) -> update nominal, aucune bascule, 
 // =================================================================================================
 // C10 — update nominal intact : git + remote + forge 200 -> snapshot, commit, push
 // =================================================================================================
-test('C10 : update nominal (git + remote + forge 200) pousse sur origin', async () => {
+// Le libelle du push a CHANGE au lot 0 (fan-out) : plus de « Pousse sur origin/main » global,
+// mais UNE ligne par cible + un verdict qui NOMME les cibles servies (R7). Le fait garde est le
+// meme : le bare a bien recu.
+test('C10 : update nominal (git + remote + forge 200) pousse sur origin, cible nommee', async () => {
   const { dir, bare } = makeGitRepo({ withRemote: true });
   getStatus = 200;
   fs.writeFileSync(path.join(dir, 'change.txt'), 'x\n');     // de quoi committer
   const r = await runCli(['update', '--path', dir]);
-  assert.match(r.out, /Pousse sur origin\/main/, r.out);
+  assert.match(r.out, /\[OK\] origin <- main/, r.out);
+  assert.match(r.out, /Recu par : origin/, r.out);
   assert.equal(barePushed(bare), true, 'le bare doit avoir recu main');
 });
 

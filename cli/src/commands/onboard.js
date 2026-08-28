@@ -12,6 +12,7 @@ import { HARDWIRED_DEFAULT_FRAME, PORTFOLIO_MARKER, frameVersionOf, parseKeyValu
 import { hasCmd } from '../lib/which.js';
 import { runInit, resolveNode } from './init.js';
 import { doSnapshot } from './snapshot.js';
+import { listerRemotes, pousserFanout, formaterFanout } from '../lib/canaux.js';
 import readline from 'node:readline';
 
 const USAGE = `Usage : iakaframe onboard [options]
@@ -157,12 +158,18 @@ export async function runOnboard(argv) {
   run(root, ['add', '-A']);
   if (hasChanges(root)) { run(root, ['commit', '-m', 'docs: etat des lieux initial (iakaframe snapshot)']); console.log('  + docs commitees.'); }
 
-  // [5] Push
+  // [5] Push — FAN-OUT (lot 0, 0.a) : toutes les cibles configurees, chacune nommee.
+  // Sur un projet NEUF, `origin` est en general la seule ; sur une reprise, les trois canaux
+  // sont deja la (fait A1) et recevaient jusqu'ici en silence... un seul d'entre eux.
   console.log('\n[5/5] Push');
   if (values['no-push'] || values['skip-forgejo'] || refuseCreation) { console.log('  push ignore.'); }
   else {
-    const p = run(root, ['push', '-u', 'origin', 'main']);
-    console.log(p.ok ? '  + pousse sur origin/main.' : `  ! push echoue : ${p.err || 'voir git'}`);
+    const remotes = listerRemotes(root);
+    if (!remotes.length) console.log('  aucun remote configure : push ignore.');
+    else {
+      const res = pousserFanout(root, 'main', remotes, { amont: 'origin' });
+      for (const l of formaterFanout(res, 'main')) console.log(l);
+    }
   }
 
   console.log('\n==== Termine ====');

@@ -3,7 +3,9 @@ import { parseArgs } from 'node:util';
 import path from 'node:path';
 import fs from 'node:fs';
 import { verifyFrame } from '../lib/frame.js';
-import { isRepo, run, hasChanges, currentBranch, hasRemoteOrigin } from '../lib/git.js';
+import { isRepo, run, hasChanges, currentBranch } from '../lib/git.js';
+import { listerRemotes, pousserFanout, formaterFanout, verdictFanout, DELAI_DEFAUT_S } from '../lib/canaux.js';
+import { splitCanaux } from '../lib/forgejo.js';
 import { testRepo } from '../lib/forgejo.js';
 import { doSnapshot, formatRecit, normalizeVersion, versionErrorMessage, provenance } from './snapshot.js';
 import { formatCadence } from '../lib/cadence.js';
@@ -21,6 +23,8 @@ Options :
   --note <txt>       Note libre ajoutee au journal
   --message <txt>    Message de commit (sinon message chore(iakaframe) auto)
   --no-push          Commit local seulement, sans push
+  --remotes <a,b,c>  Cibles du push (defaut : TOUS les remotes configures, origin d'abord)
+  --timeout <sec>    Delai par cible du push (defaut : ${DELAI_DEFAUT_S})
   --home <dir>       Canon de cadence (sinon IAKA_MEMORY_HOME, sinon ~/.iaka/memory/)
   --autoriser-creation-depot  Autorise la creation d'un depot distant a la bascule onboard`;
 
@@ -57,6 +61,8 @@ export async function runUpdate(argv) {
       path: { type: 'string' }, reason: { type: 'string', default: 'manual' },
       version: { type: 'string' }, note: { type: 'string' }, message: { type: 'string' },
       repo: { type: 'string' }, 'no-push': { type: 'boolean', default: false },
+      // Fan-out d'ecriture (lot 0, 0.a) : le push n'est plus mono-cible.
+      remotes: { type: 'string' }, timeout: { type: 'string' },
       home: { type: 'string' },
       // Autorisation EXPLICITE de creation de depot lors d'une bascule vers onboard (§ 4.2/4.6).
       'autoriser-creation-depot': { type: 'boolean', default: false },
@@ -113,8 +119,19 @@ export async function runUpdate(argv) {
   console.log(`\n[2/3] Commit global cree : ${msg}`);
 
   if (values['no-push']) { console.log('[3/3] Push ignore (--no-push).'); return; }
-  if (!hasRemoteOrigin(root)) { console.log("[3/3] Pas de remote 'origin' : push ignore."); return; }
+
+  // FAN-OUT (lot 0, 0.a) : on pousse vers TOUTES les cibles configurees, chacune reussissant ou
+  // echouant INDEPENDAMMENT. Une cible injoignable n'est PAS un echec du checkpoint (CA-9) : le
+  // commit local est deja le filet de securite. Ce qui est interdit, c'est de laisser croire a une
+  // sauvegarde sans nommer QUI a recu (R7) — d'ou une ligne PAR cible.
   const branch = currentBranch(root);
-  const p = run(root, ['push', 'origin', branch]);
-  console.log(p.ok ? `[3/3] Pousse sur origin/${branch}.` : `[3/3] ECHEC du push (${p.err || 'voir git'}). Commit local conserve.`);
+  const remotes = values.remotes ? splitCanaux(values.remotes) : listerRemotes(root);
+  if (!remotes.length) { console.log('[3/3] Aucun remote configure : push ignore.'); return; }
+  const timeoutMs = Math.max(2, parseInt(values.timeout, 10) || DELAI_DEFAUT_S) * 1000;
+  console.log(`\n[3/3] Push sur ${remotes.length} cible(s) : ${remotes.join(', ')}`);
+  const res = pousserFanout(root, branch, remotes, { timeoutMs });
+  for (const l of formaterFanout(res, branch)) console.log(l);
+  if (verdictFanout(res).aucune) {
+    console.log('  Commit local conserve. Etat des canaux / rattrapage : iakaframe canaux --rattraper');
+  }
 }
