@@ -718,5 +718,25 @@
     "dirty": false,
     "files": 1081,
     "note": "Lot correctif-generateur-etat-des-lieux : le generateur cesse de deviner. Nom du projet derive de --git-common-dir (plus du basename du dossier), --version validee et normalisee, compte de fichiers derive de l'INDEX GIT (la liste en dur .git/node_modules avait vieilli : elle ne couvrait ni target/ ni dist/), et ligne de provenance cli=/root= qui rend visible quel CLI s'execute sur quel arbre. Gate Legolas PASS apres un FAIL de PERIMETRE (le code etait mur, c'est l'instruction qui mentait). D6 (avertissement narratif) RETIREE et versee a CHECKPOINT-NARRATIF : telle qu'ecrite elle produisait une fausse imputation, accusant l'operateur d'un recit vide que la commande venait de produire. Cardinal 22 -> 19 CA. A-1 NON TRANCHE, appartient au decideur. Le compte de fichiers passe de 1079 a 1081 : +2, les deux fichiers ajoutes par le merge. AUCUNE rupture d'algorithme visible a cette entree : ce worktree ne porte ni node_modules, ni target/, ni dist/, donc l'ancien parcours et le nouvel index git y convergent. L'effet de D3 se verra la ou ces dossiers existent : iakaFrameGUI passera de 9232 a 474 (-94,9%) a son prochain checkpoint, geste de son operateur. La chute 1469 -> 1078 du 2026-08-15 venait d'un changement d'ARBRE d'execution, pas d'algorithme. Historique des comptes non reecrit (D4, precedent du decideur du 2026-07-31). Successeurs nommes : CHECKPOINT-NARRATIF, VENDOR-REMEDE-CARDINAL, CLI-WRAPPER-RACINE, CRITERE-BACKLOG-D10, GUI-VENDOR-CHARON, ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE. Dette de tagging signalee, non traitee."
+  },
+  {
+    "date": "2026-08-28 14:29",
+    "reason": "pause",
+    "version": "v0.39.0",
+    "branch": "feat/L0-trois-canaux-synchrones",
+    "commit": "1cfa644 docs(cli): README — fan-out du push et verbe canaux",
+    "dirty": false,
+    "files": 1103,
+    "note": "Lot 0 trois canaux synchrones livre par Gimli, remis au gate Legolas. Reseau totalement coupe (TCP sortant HS, loopback compris). Rien pousse."
+  },
+  {
+    "date": "2026-08-28 14:31",
+    "reason": "pause",
+    "version": "v0.39.0",
+    "branch": "feat/L0-trois-canaux-synchrones",
+    "commit": "1cfa644 docs(cli): README — fan-out du push et verbe canaux",
+    "dirty": true,
+    "files": 1103,
+    "note": "Recit de reprise redige (lot 0 complet, 3 depots)."
   }
 ]
