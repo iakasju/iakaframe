@@ -64,6 +64,25 @@ Etats rendus : `a-jour`, `en-retard` de N, `en-avance` de M, `divergent`, `branc
 `--rattraper` **refuse** tout ce qui n'est pas une avance rapide et **le dit** ; **jamais** de
 `--force`.
 
+### Endpoints d'auto-update (le pendant en LECTURE de `canaux`)
+
+```bash
+iakaframe endpoints --app ../IakaCockpit     # etat MESURE de la liste declaree, avec la date
+iakaframe endpoints --app ../iakaFrameGUI --json
+iakaframe endpoints --url a,b,c --premier    # contrat exact de l'updater : le premier qui sert
+```
+
+`canaux` mesure l'**ecriture** (les depots recoivent-ils ?) ; `endpoints` mesure la **lecture**
+(les endpoints d'update servent-ils ?). Un code **200 ne suffit pas** : une forge dont le depot
+est prive rend volontiers 200 + une page de connexion. Un endpoint n'est compte comme **servant**
+que s'il rend un manifeste **au contrat** (`version` + `platforms`) — sinon la bascule continue.
+
+La sortie **nomme** chaque cible, son motif (`ok`, `injoignable`, `absent`, `refus`,
+`manifeste-illisible`), le canal **retenu**, et **combien** de canaux servent reellement : c'est ce
+chiffre — pas le nombre d'URL declarees — qui dit si CA-11 (« le premier endpoint peut mourir ») est
+tenu. Sans `--premier`, **toute** la liste est mesuree ; avec, la recherche s'arrete au premier qui
+sert et **aucun verdict de redondance n'est rendu** (on ne conclut pas sur ce qu'on n'a pas mesure).
+
 ### Diagnostic & configuration
 
 ```bash

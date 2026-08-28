@@ -35,6 +35,7 @@ import { runObserve } from './commands/observe.js';
 import { runPortfolio } from './commands/portfolio.js';
 import { runRange } from './commands/range.js';
 import { runCanaux } from './commands/canaux.js';
+import { runEndpoints } from './commands/endpoints.js';
 import { resolveRoot } from './lib/root.js';
 import { packageVersion } from './lib/version.js';
 import { EXPECTED_COPIES, EXPECTED_DERIVED } from './lib/vendor.js';
@@ -77,6 +78,11 @@ Commandes :
                         une AVANCE RAPIDE et REFUSE le reste en le disant (jamais de --force)
                         --path <dir> --remotes a,b,c --branch <nom> --rattraper --timeout <sec>
                         --json
+  endpoints           Pendant en LECTURE de canaux : etat MESURE des endpoints d'auto-update
+                        d'une app Tauri. Un 200 ne suffit pas (un depot prive rend 200 + page de
+                        connexion) : seul un manifeste au contrat compte comme servant. Dit
+                        lequel GAGNE et si la bascule CA-11 a sur quoi s'appuyer
+                        --app <dir> --conf <fichier> --url a,b,c --premier --timeout <sec> --json
   models              Modeles d'IA suggeres par roleKey + mise a disposition (INTERACTIF)
                         etat des lieux -> suggestions -> installer/remplacer/retirer (sur gate)
                         cibles : ollama-local | ollama-distant | litellm | claude | codex
@@ -190,6 +196,7 @@ async function main() {
     case 'repo':     await runRepo(rest); break;
     case 'services': await runServices(rest); break;
     case 'canaux':   runCanaux(rest); break;
+    case 'endpoints': await runEndpoints(rest); break;
     case 'config':   runConfig(rest); break;
     case 'agents':   runAgents(rest); break;
     case 'skills':   runSkills(rest); break;
