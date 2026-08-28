@@ -59,6 +59,24 @@ test('les canaux de secours sont DISTINCTS du primaire (une liste de doublons ne
   assert.equal(new Set(hosts).size, hosts.length, `canaux en doublon : ${hosts.join(', ')}`);
 });
 
+// --- Registres npm : la LISTE ordonnee du lot 0 (0.d / AR-7) --------------------------------
+
+test('le registre npm PRIMAIRE est le meme hote que publishConfig et .npmrc', async () => {
+  const { registrePrimaire, registresNpm } = await import('../src/lib/registres.js');
+  assert.equal(hostOf(registrePrimaire()), fromPackageJson());
+  const hosts = registresNpm().map(hostOf);
+  assert.equal(new Set(hosts).size, hosts.length, `registres npm en doublon : ${hosts.join(', ')}`);
+});
+
+test('🛑 le TROISIEME registre npm n est PAS invente : le manque est nomme, pas comble', async () => {
+  const m = await import('../src/lib/registres.js');
+  // Deux registres reels, et une constante qui DIT que le troisieme reste a designer. Le jour
+  // ou il est tranche, ce test tombe — c'est le but : il garde un ARBITRAGE ouvert, pas une
+  // valeur. Trois registres declares pour deux reels seraient le faux sentiment de securite R7.
+  assert.equal(m.registresNpm().length, 2, 'un 3e registre est apparu : l arbitrage AR-7 a-t-il ete tranche ?');
+  assert.match(m.TROISIEME_REGISTRE_A_DESIGNER, /non tranche|a designer|arbitrage/i);
+});
+
 test('l hote declare n est plus l ancienne iakabox hors service', () => {
   // Constat du 2026-08-25 : 192.168.2.11 ne repond plus (sonde HTTP sans reponse).
   // Le garder comme defaut, c'est promettre une publication qui ne peut pas aboutir.
