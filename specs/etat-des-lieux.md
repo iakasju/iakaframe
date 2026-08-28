@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-08-17 01:01 (motif: version).
+> Genere par iakaframe (CLI) le 2026-08-28 14:31 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -8,93 +8,133 @@
 | Champ | Valeur |
 |---|---|
 | Version | v0.39.0 |
-| Branche | main |
-| Dernier commit | 3d14b95 merge(snapshot): fusion du lot correctif-generateur-etat-des-lieux dans main |
-| Arbre | propre |
-| Fichiers (suivis + non ignores) | 1081 |
-| Note | Lot correctif-generateur-etat-des-lieux : le generateur cesse de deviner. Nom du projet derive de --git-common-dir (plus du basename du dossier), --version validee et normalisee, compte de fichiers derive de l'INDEX GIT (la liste en dur .git/node_modules avait vieilli : elle ne couvrait ni target/ ni dist/), et ligne de provenance cli=/root= qui rend visible quel CLI s'execute sur quel arbre. Gate Legolas PASS apres un FAIL de PERIMETRE (le code etait mur, c'est l'instruction qui mentait). D6 (avertissement narratif) RETIREE et versee a CHECKPOINT-NARRATIF : telle qu'ecrite elle produisait une fausse imputation, accusant l'operateur d'un recit vide que la commande venait de produire. Cardinal 22 -> 19 CA. A-1 NON TRANCHE, appartient au decideur. Le compte de fichiers passe de 1079 a 1081 : +2, les deux fichiers ajoutes par le merge. AUCUNE rupture d'algorithme visible a cette entree : ce worktree ne porte ni node_modules, ni target/, ni dist/, donc l'ancien parcours et le nouvel index git y convergent. L'effet de D3 se verra la ou ces dossiers existent : iakaFrameGUI passera de 9232 a 474 (-94,9%) a son prochain checkpoint, geste de son operateur. La chute 1469 -> 1078 du 2026-08-15 venait d'un changement d'ARBRE d'execution, pas d'algorithme. Historique des comptes non reecrit (D4, precedent du decideur du 2026-07-31). Successeurs nommes : CHECKPOINT-NARRATIF, VENDOR-REMEDE-CARDINAL, CLI-WRAPPER-RACINE, CRITERE-BACKLOG-D10, GUI-VENDOR-CHARON, ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE. Dette de tagging signalee, non traitee. |
+| Branche | feat/L0-trois-canaux-synchrones |
+| Dernier commit | 1cfa644 docs(cli): README — fan-out du push et verbe canaux |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (suivis + non ignores) | 1103 |
+| Note | Recit de reprise redige (lot 0 complet, 3 depots). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `3d14b95` | 2026-08-17 | merge(snapshot): fusion du lot correctif-generateur-etat-des-lieux dans main |
-| `b86dc1d` | 2026-08-17 | docs(instruction): retirer D6 du correctif generateur, cardinal 22 -> 19 CA |
-| `2aa3c4d` | 2026-08-17 | docs(commandes): forme de --version, definition du compte de fichiers, provenance |
-| `df3e7bc` | 2026-08-17 | feat(snapshot): annoncer quel CLI s'execute et sur quelle racine (D7) |
-| `e9d8695` | 2026-08-17 | fix(snapshot): le compte de fichiers derive de l'index git, le parcours devient le repli (D3) |
-| `b940929` | 2026-08-17 | fix(snapshot): valider la forme de --version et normaliser le seul prefixe v (D2) |
-| `b97e0fa` | 2026-08-17 | fix(snapshot): le nom du projet derive du depot principal, pas du dossier courant (D1) |
-| `46a83fc` | 2026-08-17 | test(snapshot): gardes du generateur d'etat des lieux, VUES ROUGES |
-| `667d748` | 2026-08-17 | docs(instruction): amendement Gandalf du cadrage generateur etat des lieux |
-| `2d94eb2` | 2026-08-16 | docs(instruction): cadrage du correctif du generateur d'etat des lieux |
+| `1cfa644` | 2026-08-28 | docs(cli): README — fan-out du push et verbe canaux |
+| `949a3fa` | 2026-08-28 | feat(registres): liste ordonnee des registres npm, sans inventer le troisieme |
+| `8a5643b` | 2026-08-28 | feat(canaux): verbe de synchronisation des trois depots |
+| `642fb49` | 2026-08-28 | feat(update+onboard): fan-out du push, chaque cible nommee |
+| `bb11e7f` | 2026-08-28 | feat(forgejo): liste ordonnee de canaux au lieu d une DEF_URL unique |
+| `257bcd8` | 2026-08-28 | docs(instruction): les 7 arbitrages tranches — 4 verdicts sur 7 contre la reco |
+| `6def25d` | 2026-08-28 | docs(instruction): trois canaux synchrones — le lot 0 n etait pas « repointer une URL » |
+| `886a56b` | 2026-08-19 | fix(forgejo): l'URL de la forge se replie sur <chapeau>/.env, comme le token |
+| `6b0386a` | 2026-08-25 | chore(licence+ignore): licence MIT sur main + motif env couvrant les sauvegardes |
+| `b78d685` | 2026-08-25 | fix(canal): repointe la forge sur le NAS — l ancienne iakabox ne repond plus |
 
 ## Reprise du travail (a completer par Cowork)
 
-- **Ce qui vient d'etre fait** : merge `--no-ff` du lot **correctif-generateur-etat-des-lieux**
-  (`3d14b95`), fast-forward possible mais refuse par le decideur — le lot a franchi deux passages
-  au gate et une rectification d'instruction, son atterrissage reste un point d'ancrage nomme.
-  Le generateur d'etat des lieux **cesse de deviner**, sur quatre points : le **nom du projet**
-  derive de `git rev-parse --git-common-dir` et non plus du `basename` du dossier (D1) — un
-  checkpoint pris depuis un arbre lie porte desormais le nom du **depot principal** ; `--version`
-  est **validee et normalisee** (D2) — une forme mal ecrite **leve avant toute ecriture**, y
-  compris dans `update`, avant tout `git add`/commit ; le **compte de fichiers** derive de
-  **l'index git** (D3), le parcours du systeme de fichiers devenant le repli hors depot — la
-  liste d'exclusions en dur (`.git`, `node_modules`) avait vieilli et ne couvrait ni `target/`
-  ni `dist/` ; et une **ligne de provenance** `cli=<...> root=<...>` (D7) rend enfin visible
-  quel CLI s'execute sur quel arbre. **D6** (avertissement narratif) a ete **retiree du lot** et
-  versee au successeur `CHECKPOINT-NARRATIF` : telle qu'ecrite, elle produisait une **fausse
-  imputation**, accusant l'operateur d'un recit vide que la commande venait elle-meme de
-  produire. Cardinal du lot : **22 -> 19 CA**.
-- **Gate qualite (Legolas)** : **PASS** sur `b86dc1d`, apres un premier **FAIL de PERIMETRE** —
-  le code etait mur, c'est **l'instruction qui mentait**. Reserve n°1 (`CA-8`/`CA-9`) **levee** ;
-  ecart `CA-15` tranche **non bloquant** et verse a un successeur de cadrage : le vrai ecart est
-  ligne **121** de l'instruction et il est **anterieur au lot**, aucune retouche du lot ne
-  l'aurait rendu vrai. **Mesures attribuees a Legolas** : couverture `cli/src/commands/snapshot.js`
-  **99,14 %**, `cli/src/commands/update.js` **77,31 %**. **Lint, typage et couverture globale NON
-  MESURES** — ni `eslint` ni `tsconfig` dans ce depot ; Legolas a **substitue** `node --check` et
-  l'a **declare comme substitution**, ce n'est pas un equivalent.
-- **En cours / a reprendre** : **`A-1` reste NON TRANCHE — il appartient au decideur** : faut-il
-  poser une note humaine au point de rupture du compte de fichiers ? Rien n'a ete fait au-dela du
-  signalement. **Sept successeurs nommes**, aucun engage : `CHECKPOINT-NARRATIF`,
-  `VENDOR-REMEDE-CARDINAL`, `CLI-WRAPPER-RACINE`, `CRITERE-BACKLOG-D10`, `GUI-VENDOR-CHARON`,
-  `ROLE-VOCAB-CANON`, `GUI-PARITE-WORKTREE`.
-- **Prochaine etape concrete** : trancher `A-1`, puis cadrer `CHECKPOINT-NARRATIF` — le defaut
-  **subsiste** apres ce lot (voir Pieges).
+- **Ce qui vient d'etre fait** : la session est partie d'une question de point de situation sur le
+  **« full install »** (la plateforme iaka en une installation) et s'est terminee par la
+  **livraison du lot 0**. Trois temps. **(1) Le point** : l'instruction
+  `specs/instructions/bundle-complet-install-4-composants.md` existait depuis le 25/08 mais etait
+  **EN ATTENTE D'ARBITRAGE et jamais lancee** — aucun verbe `install`, aucune branche. **(2) La
+  decision du decideur** : *trois depots synchrones — iakabox `192.168.2.11`, NAS `192.168.1.139`,
+  GitHub — quand les uns sont off, les autres sont le backup.* Elle tranche la question que le
+  cadrage laissait ouverte (sur quelle machine remettre le canal : **aucune en particulier, les
+  trois avec bascule**) et **agrandit le lot 0**. **(3) L'execution** : instruction amendee deux
+  fois, puis lot 0 realise par Gimli **dans les trois depots**.
+- **Les deux amendements de l'instruction** (sur `main`, **non pousses**) : `6def25d` — les trois
+  canaux, avec **quatre faits mesures** (A1 les trois remotes existent deja · A2 aucun n'etait
+  synchrone et **le seul allume etait le plus en retard** · A3 la cause racine mono-remote, ligne
+  par ligne · A4 le failover updater presque gratuit), lot 0 reecrit en quatre morceaux, **AR-7
+  neuf** (npm n'a pas de bascule native), estimation 0,5 -> 2 j pour le lot 0. Puis `257bcd8` —
+  **les 7 arbitrages tranches**, dont **4 contre la recommandation** (AR-1 (a) deploiement auto ·
+  AR-2 (c) le plus recent gagne · AR-3 (c) **installeur graphique** · AR-5 (c) **rollback
+  automatique**), estimation totale **8,5 -> 12,5 j-homme**.
+- **Rattrapage de GitHub, fait et verifie en direct** : GitHub accusait **6 commits** de retard sur
+  `iakaframe` et **15** sur `IakaCockpit`. Pousses en avance rapide (ancetre verifie avant chaque
+  poussee), les trois `main` etaient identiques sur GitHub a `13:2x`. Le reseau est tombe **apres**.
+- **Etat EXACT des trois depots, et c'est le point important de la reprise** : les trois sont sur
+  une branche **`feat/L0-trois-canaux-synchrones`**, **arbre propre**, **rien n'est pousse**.
+  `iakaframe` : 5 commits (`bb11e7f` -> `1cfa644`) par-dessus `257bcd8`, lui-meme **non pousse**.
+  `IakaCockpit` : 1 commit `f481ed9`. `iakaFrameGUI` : 1 commit `f49aa1b`. **Aucun `main` n'a ete
+  touche**, aucun push, aucun `--force`, aucun `reset --hard`.
+- **Ce que le lot 0 livre** : `lib/forgejo.js` passe d'une `DEF_URL` unique a une **liste ordonnee**
+  (`FORGEJO_URL/USER/TOKEN` acceptent le CSV, **retro-compat stricte** du mono-valeur) · `lib/canaux.js`
+  neuf (fan-out borne en temps, `GIT_TERMINAL_PROMPT=0`, motif classe) · `update`/`onboard` poussent
+  vers **toutes** les cibles, **chacune nommee** · le verbe **`canaux`** (etat mesure et **date**,
+  `--rattraper` **en avance rapide seulement**, jamais de `--force`) · `lib/registres.js` (liste npm,
+  **3e registre NON invente**) · les endpoints d'update passent a **3 URL ordonnees** cote Cockpit
+  **et** cote GUI (qui n'avait jamais ete repointe). **+45 tests neufs verts.**
+  **`range` n'est pas touche** (verifie : diff vide) — il reste zero-reseau par choix.
+- **Contexte reseau, indispensable a la relecture des chiffres** : **tout le TCP sortant du poste
+  est coupe**, *loopback compris* (`EADDRNOTAVAIL` vers `127.0.0.1`). Mesure du decideur depuis son
+  propre terminal : `NAS=000`, `iakabox=000`, `github=000`, et `example.com=000` — la rupture est
+  **en amont**, ni GitHub ni les forges ne sont en cause. L'ICMP passe (`1.1.1.1`, la passerelle et
+  **le NAS** repondent — le NAS s'est **allume** en cours de session ; l'iakabox reste muette meme
+  en ICMP, elle est eteinte).
+- **En cours / a reprendre** : **le gate 🏹 Legolas n'est PAS passe** — Gimli a remis, il ne s'est
+  pas auto-valide. Cinq points lui sont nommes : (1) les **13 rouges de baseline** sont-ils bien
+  environnementaux (ils le sont : ce sont les tests qui montent un faux serveur HTTP local, tues par
+  la coupure loopback ; **aucun echec nouveau**, prouve par diff de listes triees) ; (2) rejouer les
+  **4 contrefactuels de garde** ; (3) l'ordre des endpoints face aux gardes de parite des apps ;
+  (4) la reparation de la fuite de jeton sur toute la branche livree ; (5) la **recette reelle**,
+  impossible hors ligne.
+- **Prochaine etape concrete**, dans cet ordre : **(1)** lancer le gate Legolas sur ce qui est
+  verifiable **hors ligne** ; **(2)** au retour d'un canal : pousser `257bcd8` puis les trois
+  branches, et faire la **recette reelle** — `iakaframe canaux`, puis `--rattraper`, et le controle
+  d'acceptation du lot (**les trois `main` identiques, prouves par mesure en direct**) ; **(3)**
+  trancher les cinq decisions ci-dessous.
+- **Cinq decisions qui appartiennent au decideur, aucune tranchee** :
+  1. 🛑 **Le jeton iakabox.** Gimli a commite le **vrai jeton en clair** dans une fixture, l'a
+     detecte et repare **sans rien detruire** (branche fautive **conservee** sous
+     `feat/L0-CONTIENT-UN-JETON-NE-PAS-POUSSER`, jeton **absent** de l'historique livre). Rien n'est
+     sorti du poste. Reste : **supprimer la branche de sauvegarde** et **faire tourner le jeton** —
+     il vit de toute facon **en clair dans les `.git/config` des trois depots**.
+  2. **GitHub ne peut pas servir d'endpoint d'auto-update en l'etat** : les depots y sont **prives**,
+     `raw.githubusercontent.com` repondra **404** a l'updater Tauri qui ne sait pas s'authentifier.
+     **CA-11 n'est pas atteignable par cette voie.** *Defaut du cadrage, pas de l'execution* — l'entree
+     a ete posee et **ecrite comme telle**. Choix : rendre les depots publics, ou designer un autre
+     3e canal de lecture. **Deduction documentaire, non verifiee en direct** (reseau coupe).
+  3. **Le 3e registre npm reste non designe** (AR-7). Non invente, comme instruit ; un test **garde
+     l'arbitrage ouvert** et tombera le jour ou il sera tranche.
+  4. **Le fan-out pousse vers TOUS les remotes configures** — un remote de fork recevrait donc les
+     checkpoints. `--remotes` permet de borner. Faut-il plutot une **liste declaree** ?
+  5. **Quand les trois echouent, le processus sort en `0`** (lecture litterale de CA-9) avec un
+     message tres visible — **qu'un cron ou un hook ne lit pas**. Faut-il un **code de sortie
+     distinct** ?
+- **Successeurs nommes, aucun engage** (inchanges) : `CHECKPOINT-NARRATIF`, `VENDOR-REMEDE-CARDINAL`,
+  `CLI-WRAPPER-RACINE`, `CRITERE-BACKLOG-D10`, `GUI-VENDOR-CHARON`, `ROLE-VOCAB-CANON`,
+  `GUI-PARITE-WORKTREE`. `A-1` reste **non tranche**.
 - **Pieges connus** :
-  1. **`iakaframe update` d'un bloc commite un narratif VIDE.** Le generateur **ecrase** la
-     section « Reprise du travail » avec ses placeholders, et `update` enchaine `git add`/commit
-     **dans le meme processus** : le narratif n'a aucune fenetre pour etre ecrit. C'est
-     `CHECKPOINT-NARRATIF`, **non corrige par ce lot**. **Contournement obligatoire** : decomposer
-     en `snapshot` -> **redaction du narratif** -> `git add`/commit -> push, pour n'obtenir qu'un
-     seul commit propre.
-  2. **La « rupture du compte de fichiers » n'est PAS observable sur cette entree.** Le compte
-     passe de **1079 a 1081**, soit **+2** — exactement les deux fichiers ajoutes par le merge
-     (`cli/test/snapshot-generateur.test.js`, `specs/instructions/correctif-generateur-etat-des-lieux.md`).
-     Raison : ce worktree ne contient **ni `node_modules`, ni `target/`, ni `dist/`**, donc
-     l'ancien algorithme et le nouveau **convergent** ici (parcours simule : 1082, dont le fichier
-     `.git` d'arbre lie que l'ancien filtre ne retirait pas ; index git : 1081). La chute reelle
-     **1469 -> 1078 a eu lieu le 2026-08-15**, et elle s'explique par le **changement d'arbre
-     d'execution** (worktree epure vs racine peuplee), **pas** par le changement d'algorithme.
-     L'effet de D3 se verra sur un arbre qui porte reellement ces dossiers — cote iakaFrameGUI,
-     annonce a **9232 -> 474**, geste de son operateur. **Historique non reecrit** (D4, precedent
-     du decideur du 2026-07-31) : les entrees anciennes restent vraies a leur date.
-  3. **Le titre de ce checkpoint n'est pas une preuve de D1.** Le worktree se nomme `iakaframe`
-     (c'etait le contournement du defaut), et le depot principal aussi : `basename` et
-     `--git-common-dir` donnent **le meme resultat**, l'execution n'est donc **pas
-     discriminante**. D1 est prouve par le **harnais** — `CA-1` (arbre lie -> nom du depot
-     principal) et `CA-2` (racine -> titre identique), suite `cli/test/snapshot-generateur.test.js`
-     **16/16 verte**.
-  4. **N'appelez pas le binaire global `iakaframe <verbe>` depuis un worktree** : il vise la
-     racine du depot, pas l'arbre courant. Passer par `node cli/src/index.js`. C'est le successeur
-     nomme `CLI-WRAPPER-RACINE`.
-  5. **Dette de tagging** : le dernier tag git est `v0.20.4` face a une version declaree
-     **`0.39.0`**. **Signalee, non traitee** — aucun tag pose sur ce lot.
+  1. 🛑 **NE JAMAIS POUSSER `feat/L0-CONTIENT-UN-JETON-NE-PAS-POUSSER`.** Elle contient le vrai
+     jeton iakabox en clair. Elle n'existe que pour ne rien detruire avant arbitrage.
+  2. **13 tests rouges dans le CLI = environnement, pas regression.** Ils sont **anterieurs** au lot
+     (mesures sur `257bcd8` en worktree detache) et causes par la coupure TCP **loopback**. Le compte
+     est **intermittent** (une execution sur cinq n'en a eu que 6). Au retour du reseau, **remesurer
+     la baseline avant de conclure quoi que ce soit**.
+  3. **Le trou du GUI n'est bouche qu'a moitie.** Son `updater/latest.json` porte **4 URL de
+     telechargement sur l'iakabox morte** et son `publish-update.mjs` a `FORGEJO_BASE` sur la meme
+     machine. Apres le lot, l'app **trouve** le manifeste sur le NAS et **telecharge depuis une
+     machine morte**. Les deux fichiers etaient **hors mandat** — a rattacher au lot A/B.
+  4. **`onboard` d'un projet NEUF ne fan-out que sur une cible.** A1 ne vaut que pour les depots
+     existants. Creer le depot sur les canaux 2 et 3 exige des **jetons par canal** et un
+     **adaptateur GitHub** (`providers.js` n'a que `forgejo`). Hors mandat, non fait.
+  5. **`FORGEJO_TOKEN` mono-valeur donnerait au 2e canal le jeton du 1er.** Les deux forges ont des
+     jetons **differents** ; la cle est desormais CSV-capable, mais **`<chapeau>/.env` n'en porte
+     qu'un** : aujourd'hui le canal de secours serait sonde avec le mauvais jeton.
+  6. **`iakaframe update` d'un bloc commite un narratif VIDE** (successeur `CHECKPOINT-NARRATIF`,
+     non corrige). **Contournement obligatoire** : `snapshot` -> redaction du narratif -> `git add`
+     /commit -> push.
+  7. **N'appelez pas le binaire global `iakaframe <verbe>` depuis un worktree** : il vise la racine
+     du depot, pas l'arbre courant. Passer par `node cli/src/index.js` (`CLI-WRAPPER-RACINE`).
+  8. **Dette de tagging** : dernier tag `v0.20.4` face a une version declaree **`0.39.0`**.
+     Signalee, non traitee.
 
 ## Journal (versions & pauses)
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-08-28 14:31 | pause | v0.39.0 | feat/L0-trois-canaux-synchrones | Recit de reprise redige (lot 0 complet, 3 depots). |
+| 2026-08-28 14:29 | pause | v0.39.0 | feat/L0-trois-canaux-synchrones | Lot 0 trois canaux synchrones livre par Gimli, remis au gate Legolas. Reseau totalement coupe (TCP sortant HS, loopback compris). Rien pousse. |
 | 2026-08-17 01:01 | version | v0.39.0 | main | Lot correctif-generateur-etat-des-lieux : le generateur cesse de deviner. Nom du projet derive de --git-common-dir (plus du basename du dossier), --version validee et normalisee, compte de fichiers derive de l'INDEX GIT (la liste en dur .git/node_modules avait vieilli : elle ne couvrait ni target/ ni dist/), et ligne de provenance cli=/root= qui rend visible quel CLI s'execute sur quel arbre. Gate Legolas PASS apres un FAIL de PERIMETRE (le code etait mur, c'est l'instruction qui mentait). D6 (avertissement narratif) RETIREE et versee a CHECKPOINT-NARRATIF : telle qu'ecrite elle produisait une fausse imputation, accusant l'operateur d'un recit vide que la commande venait de produire. Cardinal 22 -> 19 CA. A-1 NON TRANCHE, appartient au decideur. Le compte de fichiers passe de 1079 a 1081 : +2, les deux fichiers ajoutes par le merge. AUCUNE rupture d'algorithme visible a cette entree : ce worktree ne porte ni node_modules, ni target/, ni dist/, donc l'ancien parcours et le nouvel index git y convergent. L'effet de D3 se verra la ou ces dossiers existent : iakaFrameGUI passera de 9232 a 474 (-94,9%) a son prochain checkpoint, geste de son operateur. La chute 1469 -> 1078 du 2026-08-15 venait d'un changement d'ARBRE d'execution, pas d'algorithme. Historique des comptes non reecrit (D4, precedent du decideur du 2026-07-31). Successeurs nommes : CHECKPOINT-NARRATIF, VENDOR-REMEDE-CARDINAL, CLI-WRAPPER-RACINE, CRITERE-BACKLOG-D10, GUI-VENDOR-CHARON, ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE. Dette de tagging signalee, non traitee. |
 | 2026-08-16 22:27 | manual | v0.39.0 | main | Lot garde-balayante-routage-prod : les gardes de routage cessent d'enumerer et se mettent a balayer. 8 sites de defaut corriges dont 1 inedit (doc/index.html) que trois releves successifs avaient manque. 5 gardes : G-ROUTE-2 de-enumeree, G-ROUTE-1 elargie aux skills, G-ROUTE-4 (affectation ancree sur le canon) et G-ROUTE-5 (registre des angles morts) neuves. Gate Legolas PASS apres un FAIL leve (artefact de build gitignore rendait la suite rouge en permanence). QUATRE arbitrages de coordination inscrits REVERSIBLES, non enonces par le decideur : (a) exemption du canon, (b) abandon de la clause symetrique de D7, (c) exemption de BACKLOG.md, (d) frontiere git-ignore. Reserves ouvertes : sur-affirmation "couverture identique au bit pres", perimetre dependant du core.excludesFile de la machine, frontiere non perissable. Successeurs nommes : GUI-VENDOR-CHARON (0 -> 24 fixtures dont 4 manquantes), ROLE-VOCAB-CANON, GUI-PARITE-WORKTREE, correctif du generateur d'etat des lieux. Dette de tagging signalee, non traitee. |
 | 2026-08-15 23:00 | version | v0.39.0 | main | Landing des trois lots empiles dans main par merges etages : models-par-rolekey, scission du squad prod (Charon passe / Helm veille), correctif de routage prod vers Charon. Gate qualite PASS avant merge (16 CA sur 16) et re-gate PASS apres merge. Version portee a 0.39.0. Reserves ouvertes : R-1/R-2 (garde de routage enumerante) en cadrage successeur ; R-5 (README:227 juste mais sous aucune garde) ; R-6 (skips de parite GUI trompeurs en worktree) ; derive vendor-check 0 -> 23 fixtures, successeur GUI-VENDOR-CHARON. Dette de tagging signalee, non traitee. |
