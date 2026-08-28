@@ -8,8 +8,10 @@
 > `iakaFrameGUI`, plus le kit hôte). Aucun d'eux ne peut le porter seul — d'où le cadrage au
 > niveau du chapeau.
 >
-> **EN ATTENTE D'ARBITRAGE** : 7 arbitrages (AR-1..AR-7) sont posés avec recommandation. Rien
-> ne part au dev avant que Stéphane les tranche.
+> ~~**EN ATTENTE D'ARBITRAGE**~~ → **ARBITRÉ le 2026-08-28.** Les **7** arbitrages (AR-1..AR-7)
+> ont été posés un par un et **tranchés par Stéphane**. Verdicts et conséquences en **§ 4.0**.
+> **Quatre verdicts sur sept vont contre la recommandation** — ils sont retenus tels quels, et
+> ce sont eux qui commandent la réévaluation de l'estimation (§ 8).
 
 ---
 
@@ -125,9 +127,64 @@ fonctionner en autonomie. Trois invariants à préserver :
 
 ---
 
-## 4. Arbitrages à trancher
+## 4. Arbitrages
 
-### AR-1 — Que signifie exactement « iakaframe activé par défaut » ?
+### 4.0 — Verdicts du 2026-08-28
+
+| # | Question | Verdict | vs reco |
+|---|---|---|---|
+| AR-1 | Sens de « activé par défaut » | **(a)** le CLI **déploie le kit au premier lancement**, sans demander | ≠ (c) |
+| AR-2 | Source du réservoir | **(c)** **le plus récent gagne** (vivant vs embarqué, par comparaison de version) | ≠ (a) |
+| AR-3 | Forme du bundle complet | **(c)** **installeur graphique** | ≠ (a) |
+| AR-4 | Sens de « après validation » | **(a)** **une validation par étape**, `--yes` les saute | = reco |
+| AR-5 | Échec partiel | **(c)** **rollback automatique** | ≠ (a) |
+| AR-6 | Plateformes | **les 4 d'emblée** (linux-x86_64, windows-x86_64, darwin-aarch64, darwin-x86_64) | reco élargie |
+| AR-7 | Redondance npm | **(a)** bascule **dans le verbe `install`**, + **(b)** publication en 3 passes | = reco |
+
+**Conséquences inscrites, par verdict :**
+
+- **AR-1 (a)** — Le déploiement automatique **ne devient jamais un rouleau compresseur** :
+  `install.mjs` **reste `--merge` par défaut** et **énonce** ce qu'il pose. **Couture avec AR-4**,
+  qui semble le contredire mais ne parle pas du même chemin : **AR-1 régit le CLI SEUL** (premier
+  lancement, kit absent → il pose), **AR-4 régit la CHAÎNE du bundle** (chaque étape s'annonce et
+  attend). Les deux coexistent sans conflit ; le lot A doit **écrire cette distinction**, faute de
+  quoi elle sera lue comme une incohérence.
+- **AR-2 (c)** — Deux obligations que (c) **rend nécessaires** : (1) **la ligne de provenance
+  devient OBLIGATOIRE**, pas une politesse — puisque la source peut basculer seule d'une commande
+  à l'autre, dire laquelle sert est ce qui rend (c) sûr ; (2) **la règle d'égalité reste à
+  fixer** (versions identiques → laquelle ?) — point ouvert du lot A, à ne pas laisser au hasard
+  de l'implémentation.
+- **AR-3 (c)** — **Réserve dite et maintenue** : l'installeur est **lui-même une app à
+  installer**, livrée en bundle signé par le canal qu'il est censé installer. Il **ne peut donc
+  pas être premier** dans la chaîne → **un amorçage minimal est requis** (`.dmg`/exécutable à
+  télécharger, ou une ligne de commande). **Hypothèse retenue faute d'objection : la GUI est une
+  FAÇADE au-dessus du moteur CLI** — les quatre étapes restent des verbes testables sans
+  interface — **et non une seconde implémentation** (sans quoi on hérite du défaut de l'option
+  (b) : plomberie dupliquée, plus une UI par-dessus).
+- **AR-4 (a)** — Chaque étape annonce **quoi, où, quelle version, ce qui existe déjà et sera
+  fusionné**, puis attend. `--yes` (ou « tout accepter » en GUI) saute l'ensemble.
+- **AR-5 (c)** — Le rollback n'est tenable qu'avec **trois gardes**, sans lesquelles le remède
+  coûte plus cher que le mal : (1) il **ne défait que ce qu'il peut PROUVER avoir changé** —
+  sauvegarde horodatée prise **avant** chaque étape (`install.mjs` a déjà `--backup-dir`) — et
+  **REFUSE explicitement de dérouler** si la sauvegarde manque, au lieu de supprimer à l'aveugle ;
+  (2) il **ne retire jamais ce qu'il n'a pas posé** — une app déjà présente est **restaurée**, pas
+  effacée ; (3) **le rollback peut lui-même échouer** : il énonce ce qu'il a su défaire **et ce
+  qu'il n'a pas su**, jamais un « restauré » global.
+- **AR-6 (4 plateformes)** — **Mesure du 28/08 qui rend ce verdict bien moins cher que l'option ne
+  l'annonçait** : le Cockpit possède **déjà** le même workflow de release à matrice 4 plateformes
+  que le FrameGUI (`.github/workflows/release.yml`, entrées `macos-arm64` / `macos-x64` / `linux`
+  / `windows`, structure identique dans les deux dépôts). **La chaîne de build n'est pas à
+  construire, elle est à faire tourner** — elle n'a simplement jamais été lancée pour le Cockpit,
+  dont le manifeste ne porte que `darwin-aarch64`. **Le seul trou réel est la RECETTE** sur
+  Windows, Linux et macOS Intel : *buildé et signé ne vaut pas recetté*, et aucune machine de ces
+  trois familles n'est disponible ici. À déclarer tel quel, jamais à présenter comme couvert.
+- **AR-7 (a) + (b)** — La bascule vit **dans notre code** (l'installeur essaie les registres dans
+  l'ordre et **dit lequel a répondu**), la publication en trois passes garantit qu'il y a bien
+  trois copies **synchrones** à essayer. **Point ouvert** : le troisième registre npm reste à
+  désigner — GitHub n'héberge pas de registre npm privé dans cette configuration (Packages GitHub,
+  ou repli tarball de l'option (c) si les droits de publication manquent sur une forge).
+
+### AR-1 — Que signifie exactement « iakaframe activé par défaut » ?  **→ TRANCHÉ : (a)**
 
 - **(a) Le CLI déploie le kit hôte au premier lancement**, si absent, sans rien demander.
 - **(b) `npm install -g` déclenche `install.mjs`** via un hook `postinstall`.
@@ -140,7 +197,7 @@ bloqué (`--ignore-scripts`), et surprenant. (a) a le même défaut sans l'excus
 complet (§ 5), cette étape est **pré-cochée** — c'est là que « par défaut » s'exprime.
 **→ Écarté : (b)**, incompatible avec `--ignore-scripts` et avec le principe « rien d'inattendu ».
 
-### AR-2 — Réservoir vivant ou bundle embarqué ?
+### AR-2 — Réservoir vivant ou bundle embarqué ?  **→ TRANCHÉ : (c)**
 
 Quand `<chapeau>/iakaframe` existe, deux sources coexistent.
 **Recommandation : le réservoir vivant PRIME**, `_bundled` sert de repli, et le CLI **dit laquelle
@@ -148,7 +205,7 @@ il utilise** (une ligne de provenance, comme le fait déjà `snapshot` avec `cli
 Motif : sur ce poste, le bundle avait **six mineures de retard** et il a fallu un incident pour
 s'en apercevoir. Une source silencieuse est une source qui dérive.
 
-### AR-3 — Quelle forme prend le « bundle complet » ?
+### AR-3 — Quelle forme prend le « bundle complet » ?  **→ TRANCHÉ : (c)**
 
 - **(a) Un verbe du CLI** : `iakaframe install --all`, qui orchestre les quatre étapes.
 - **(b) Un script autonome** `install-bundle.mjs` à la racine du réservoir.
@@ -161,7 +218,7 @@ multi-OS, sans dépendance, et il sait déjà sonder (`services`) et déployer (
 et posent un bundle signé** (F2). Le verbe doit donc être **honnête sur ce qu'il fait** par
 plateforme, et **refuser proprement** là où il ne sait pas faire, plutôt que simuler.
 
-### AR-4 — Que veut dire « après validation » ?
+### AR-4 — Que veut dire « après validation » ?  **→ TRANCHÉ : (a)**
 
 **Recommandation : une validation par étape, pas une seule au début.** Chaque composant s'annonce
 (quoi, où, quelle version, quoi d'existant sera fusionné), puis attend un feu vert. `--yes` saute
@@ -169,7 +226,7 @@ l'ensemble pour les usages non interactifs. Motif : les quatre composants écriv
 **très différents** (`/usr/local/lib`, `~/.claude`, `/Applications`) — un consentement global
 masquerait ce que chacun fait.
 
-### AR-5 — Ordre et échec partiel
+### AR-5 — Ordre et échec partiel  **→ TRANCHÉ : (c)**
 
 L'ordre est **imposé par les dépendances** : CLI → méthode → Cockpit → FrameGUI (les deux GUI
 consomment le réservoir posé par les étapes 1-2).
@@ -177,7 +234,7 @@ consomment le réservoir posé par les étapes 1-2).
 on **dit** ce qui est posé et ce qui ne l'est pas, et on donne la commande de reprise. Un rollback
 automatique de quatre installations hétérogènes serait plus dangereux que l'échec lui-même.
 
-### AR-6 — Périmètre des plateformes au premier lot
+### AR-6 — Périmètre des plateformes au premier lot  **→ TRANCHÉ : les 4 plateformes**
 
 *Recommandation initiale du 25/08 : « macOS arm64 d'abord ».* **Élargie le 28/08 sur mesure** —
 elle reposait sur « FrameGUI non relevé » (§ 2), et ce relevé manquant l'a rendue trop
@@ -193,7 +250,7 @@ pas** — il **réutilise le précédent FrameGUI** (build multi-plateforme + si
 déjà éprouvés). Les plateformes non couvertes restent **refusées explicitement**, jamais
 silencieusement ; ce qui change, c'est qu'elles ne sont plus présumées hors d'atteinte.
 
-### AR-7 — La redondance npm *(arbitrage neuf, ouvert par la décision du 28/08)*
+### AR-7 — La redondance npm *(arbitrage neuf, ouvert par la décision du 28/08)*  **→ TRANCHÉ : (a) + (b)**
 
 Le triple canal se transpose sans peine à **git** (trois remotes, fan-out) et à **l'auto-update**
 (liste ordonnée d'endpoints, A4). **npm est le point dur** : `publishConfig` désigne **un** seul
@@ -258,17 +315,33 @@ fetch** — `range` reste zéro-réseau par choix, ce verbe-ci **est** le chemin
 
 ### Lot B — Les deux apps
 
-Étapes 3 et 4 : téléchargement du bundle signé depuis Forgejo, **vérification de signature**, pose.
-Refus explicite hors plateforme couverte.
+Étapes 3 et 4 : téléchargement du bundle signé **depuis les trois canaux dans l'ordre** (0.b),
+**vérification de signature**, pose.
+*(AR-6 tranché : **4 plateformes**.)* Le workflow de release à matrice existe **déjà dans les deux
+dépôts** — le travail est de **le faire tourner pour le Cockpit** (il n'a jamais produit autre
+chose que `darwin-aarch64`) et d'aligner son manifeste. **La recette réelle Windows / Linux /
+macOS Intel est un gate humain non couvert ici** : il est **déclaré**, jamais présenté comme fait.
 
-### Lot C — La chaîne complète
+### Lot C — La chaîne complète, **et son installeur graphique**
 
-`iakaframe install --all` enchaîne les quatre, avec le comportement d'échec d'AR-5.
+*(AR-3 tranché : **(c)**, ce qui déplace le centre de gravité du lot.)*
+
+- **C.1 — Le moteur** : les quatre étapes enchaînées **comme verbes du CLI**, avec la validation
+  par étape (AR-4) et le **rollback automatique + ses trois gardes** (AR-5). **Testable sans
+  interface** — c'est la condition pour que la GUI reste une façade.
+- **C.2 — La façade graphique** : une app d'installation au-dessus de C.1. Elle **n'implémente
+  rien** de la logique d'installation ; elle affiche les annonces d'étape, recueille les feux
+  verts, et rend l'état d'échec/rollback lisible.
+- **C.3 — L'amorçage** : l'installeur étant lui-même une app, **il faut un chemin pour l'obtenir**
+  avant que quoi que ce soit ne soit installé — bundle téléchargeable depuis les trois canaux, ou
+  ligne de commande unique. **Sans C.3, la chaîne ne démarre pas.**
 
 ### Hors périmètre (tous lots)
 
-Installeur graphique · plateformes non couvertes (AR-6) · désinstallation · mise à jour des quatre
-composants en une passe (c'est un **autre** verbe, à cadrer séparément).
+~~Installeur graphique~~ *(entré au périmètre par AR-3 → lot C.2)* · ~~plateformes non
+couvertes~~ *(les 4 sont couvertes par AR-6 ; seule la **recette** des trois autres familles reste
+hors d'atteinte ici)* · désinstallation · mise à jour des quatre composants en une passe (c'est un
+**autre** verbe, à cadrer séparément).
 
 ---
 
@@ -318,10 +391,10 @@ composants en une passe (c'est un **autre** verbe, à cadrer séparément).
 | Lot | j-homme | Inconnues |
 |---|---|---|
 | 0 — trois canaux synchrones | **2** *(réévalué le 28/08 depuis 0,5)* | 3ᵉ canal npm à désigner (AR-7) ; forme de `FORGEJO_URL` multi-valeurs ; **les deux forges LAN sont hors service au moment du cadrage** — le lot ne sera recettable de bout en bout qu'à leur retour |
-| A — verbe install (1+2) | **2** | interactivité multi-OS, formats de validation |
-| B — les deux apps | **3** | signature, formats de bundle par OS, FrameGUI non relevé |
-| C — chaîne + échec partiel | **1,5** | états intermédiaires à décrire honnêtement |
-| **Total** | **≈ 8,5** (6–12) *(réévalué le 28/08)* | |
+| A — verbe install (1+2) | **2,5** *(+0,5)* | AR-2 (c) : comparaison de versions + provenance obligatoire + règle d'égalité ; AR-1 (a) : déploiement auto **et** non destructif |
+| B — les deux apps | **3,5** *(+0,5)* | AR-6 : le workflow matrice **existe déjà** (moins cher que prévu), mais 4 manifestes à produire ; **recette de 3 familles d'OS hors d'atteinte** |
+| C — moteur + **façade GUI** + amorçage | **4,5** *(+3)* | AR-3 (c) : une app d'installation à écrire, signer et distribuer ; **AR-5 (c) : rollback de 4 installations hétérogènes**, le morceau le plus délicat du lot ; C.3 amorçage |
+| **Total** | **≈ 12,5** (9–18) *(réévalué le 28/08 après arbitrage)* | |
 
 ---
 
