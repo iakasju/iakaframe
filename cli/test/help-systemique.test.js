@@ -14,7 +14,9 @@ const CLI = path.join(HERE, '..', 'src', 'index.js');
 const REPO = path.join(HERE, '..', '..');
 
 // Verbes qui plantaient sur --help avant ce lot (confirme par test reel "plantait avant").
-const VERBS = ['snapshot', 'update', 'onboard', 'repo', 'switch', 'list', 'show', 'add', 'assemble', 'banner'];
+// `canaux` (lot 0) rejoint la liste : tout verbe neuf doit naitre avec une aide propre, sinon la
+// garde ne serait qu'une photographie d'un lot passe.
+const VERBS = ['snapshot', 'update', 'onboard', 'repo', 'switch', 'list', 'show', 'add', 'assemble', 'banner', 'canaux'];
 
 function run(args) {
   return execFileSync('node', [CLI, ...args], { cwd: REPO, encoding: 'utf8' });

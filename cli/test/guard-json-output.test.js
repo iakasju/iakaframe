@@ -52,6 +52,20 @@ const OBS = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-obs-'));
 const EMPTY = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-empty-'));
 const PROJ = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-proj-'));
 
+// Depot git minimal + UNE cible locale : de quoi exercer `canaux --json` sans reseau (le verbe
+// est le chemin RESEAU du CLI ; sa conformite C-JSON, elle, se verifie hors reseau).
+const GITD = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-git-'));
+const BARE = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-bare-'));
+{
+  const g = (cwd, args) => spawnSync('git', args, { cwd, encoding: 'utf8' });
+  g(BARE, ['init', '--bare', '-q']);
+  g(GITD, ['init', '-q']); g(GITD, ['symbolic-ref', 'HEAD', 'refs/heads/main']);
+  g(GITD, ['config', 'user.email', 't@e.invalid']); g(GITD, ['config', 'user.name', 'T']);
+  fs.writeFileSync(path.join(GITD, 'a.txt'), 'a');
+  g(GITD, ['add', '-A']); g(GITD, ['commit', '-q', '-m', 'seed']);
+  g(GITD, ['remote', 'add', 'origin', BARE]); g(GITD, ['push', '-q', 'origin', 'main']);
+}
+
 // (nom, args, cle de collection attendue | null pour une ressource/rapport a plat)
 const NOMINAL = [
   ['list', ['list', '--json'], 'collections'],
@@ -72,6 +86,7 @@ const NOMINAL = [
   ['review list', ['review', 'list', '--json', '--home', HOME], 'proposals'],
   ['close', ['close', '--json', '--home', HOME], null],
   ['services', ['services', '--json', '--hosts', '127.0.0.1', '--timeout', '1'], 'services'],
+  ['canaux', ['canaux', '--json', '--path', GITD, '--timeout', '5'], 'canaux'],
 ];
 
 for (const [name, args, collKey] of NOMINAL) {
@@ -96,6 +111,7 @@ const ERRORS = [
   ['show <inexistant>', ['show', 'zzznope', '--json']],
   ['assemble <inconnus>', ['assemble', 'nope', 'nope', '--json']],
   ['memory list sans cible', ['memory', 'list', '--json', '--home', HOME]],
+  ['canaux hors depot git', ['canaux', '--json', '--path', EMPTY]],
 ];
 
 for (const [name, args] of ERRORS) {
@@ -111,5 +127,5 @@ for (const [name, args] of ERRORS) {
 }
 
 test.after(() => {
-  for (const d of [HOME, OBS, EMPTY, PROJ]) fs.rmSync(d, { recursive: true, force: true });
+  for (const d of [HOME, OBS, EMPTY, PROJ, GITD, BARE]) fs.rmSync(d, { recursive: true, force: true });
 });

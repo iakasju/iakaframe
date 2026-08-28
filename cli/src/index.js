@@ -34,6 +34,7 @@ import { runConsolidate } from './commands/consolidate.js';
 import { runObserve } from './commands/observe.js';
 import { runPortfolio } from './commands/portfolio.js';
 import { runRange } from './commands/range.js';
+import { runCanaux } from './commands/canaux.js';
 import { resolveRoot } from './lib/root.js';
 import { packageVersion } from './lib/version.js';
 import { EXPECTED_COPIES, EXPECTED_DERIVED } from './lib/vendor.js';
@@ -70,6 +71,12 @@ Commandes :
                         (sans --create : test + remote LOCAL seulement, jamais de creation)
   services            Sonde git(Forgejo) / Ollama / ComfyUI
                         --hosts a,b,c  --json (stdout)  --out <fichier>  --timeout <sec>
+  canaux              Etat des depots synchrones, MESURE EN DIRECT (a jour / en retard de N /
+                        en avance / divergent / injoignable) + date de la mesure. Une cible
+                        injoignable est un ETAT, pas une erreur. --rattraper pousse ce qui est
+                        une AVANCE RAPIDE et REFUSE le reste en le disant (jamais de --force)
+                        --path <dir> --remotes a,b,c --branch <nom> --rattraper --timeout <sec>
+                        --json
   models              Modeles d'IA suggeres par roleKey + mise a disposition (INTERACTIF)
                         etat des lieux -> suggestions -> installer/remplacer/retirer (sur gate)
                         cibles : ollama-local | ollama-distant | litellm | claude | codex
@@ -182,6 +189,7 @@ async function main() {
     case 'update':   await runUpdate(rest); break;
     case 'repo':     await runRepo(rest); break;
     case 'services': await runServices(rest); break;
+    case 'canaux':   runCanaux(rest); break;
     case 'config':   runConfig(rest); break;
     case 'agents':   runAgents(rest); break;
     case 'skills':   runSkills(rest); break;
