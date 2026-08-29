@@ -10,6 +10,33 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### L42 — Installer depuis rien : la vitrine dit ce que l'étagère porte (2026-08-29)
+
+- [ ] **`L42-INSTALLER-DEPUIS-RIEN` — le README est DÉRIVÉ, et le `latest` cesse d'être subi.**
+  **Instruction (copie UNIQUE, AR-5 = (b))** :
+  `/Users/sjupin/work/iakaframe/specs/instructions/installer-depuis-rien.md`.
+  Les deux dépôts jumeaux **n'en ont pas de copie** — le défaut vit dans une *convention de
+  portefeuille* appliquée à au moins quatre dépôts, pas dans deux implémentations jumelles ; et le
+  registre de convergence ne connaît que **deux** frères, donc une troisième copie serait la seule
+  **non gardée**, donc la première à diverger. Chemin absolu inscrit ici et dans
+  `IakaCockpit/CLAUDE.md` + `iakaFrameGUI/CLAUDE.md` — **une étape du lot, pas une politesse**.
+  **Livré côté ce dépôt** : générateur `cli/scripts/vitrine.js` (+ `cli/scripts/lib/vitrine.js`,
+  fonction pure), section *Installation* du `README.md` **racine** entre marqueurs
+  `<!-- vitrine:debut:installation -->`, garde **G5** dans
+  `cli/test/guard-version-source-unique.test.js`, face en ligne
+  `cli/scripts/vitrine-en-ligne.js` (anonyme, hors gate), `make_latest` **calculé** dans
+  `.github/workflows/release.yml`.
+  **RESTE DÛ — acte du décideur, refusé aux agents** : publier `v0.39.0` depuis la version
+  d'autorité, avec des notes qui **assument l'agrégat** (v0.21.0 … v0.39.0 non publiées
+  individuellement, détail dans le journal de `specs/etat-des-lieux.md`) — cf. **CA-7/CA-8** et
+  **AR-4 = (b)**. Tant que ce n'est pas fait, `npm run vitrine:en-ligne` (depuis `cli/`) **rougit**
+  sur E-2 **et E-3** : le README annonce `v0.39.0`, que GitHub ne connaît pas encore.
+  **Cette rougeur est voulue** — c'est la dette de publication rendue visible, et elle est **hors
+  gate**. ⚠️ **Effet de bord à connaître** : dans cet intervalle, le lien « page de la release » du
+  README mène à une **404** pour un visiteur. C'est le prix d'AR-1 = (a) (le README annonce ce que
+  le dépôt PORTE) ; la publication l'éteint.
+
+
 ### Successeurs nommés des lots « garde balayante » et « correctif générateur » (2026-08-17)
 
 > **Sept successeurs nommés au fil de deux lots gatés PASS, dispersés dans trois sources** —
