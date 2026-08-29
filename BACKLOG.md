@@ -54,6 +54,31 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   `ARTEFACT`). **Condition de levée** : la première publication réelle, après laquelle
   `actions/runs` sera non nul et l'asset portera `github-actions[bot]`.
 
+- [ ] **`D3-OBSERVABLE-ENREGISTREMENT` — une phrase dit « existe » là où la mesure dit
+  « enregistrement », et il existe une preuve plus dure ET locale.** *(nit relevé au gate 🏹 Legolas
+  du 2026-08-29 ; successeur immédiat de `CI-CLI-JAMAIS-EXECUTE`, dont il partage l'observable.)*
+  `cli/scripts/lib/vitrine.js:49` écrit « douze minutes AVANT que le workflow **n'existe** » : la
+  mesure, elle, porte sur la date d'**enregistrement** du workflow côté API
+  (`2026-08-05T15:36:53Z`) — ce n'est pas la même chose, et l'écart est une **imprécision de
+  formulation**, pas un fait faux. **Mais il y a mieux, plus dur, et sans réseau** : le commit qui
+  ajoute le workflow (`45a857b`, **2026-08-04**) **n'est pas un ancêtre du tag `v0.20.4`**
+  (`70adeb0`, **2026-07-23**) — vérifié localement par
+  `git merge-base --is-ancestor 45a857b v0.20.4` → **faux**. **Douze jours, pas douze minutes**, et
+  la preuve ne coûte **ni réseau ni quota d'API**. Le successeur remplace l'observable dans le
+  commentaire (et dans l'encadré du workflow s'il le reprend).
+
+- [ ] **`CI-RELEASE-AUCUN-EPINGLAGE` — le workflow de ce dépôt n'épingle RIEN.** *(SIGNALÉ au gate
+  🏹 Legolas du 2026-08-29 ; hors périmètre L42 — lot à part, l'épingler « tant qu'on y est » aurait
+  été un débordement.)* `.github/workflows/release.yml` emploie **trois tags flottants** :
+  `actions/checkout@v4` (l. 23), `actions/setup-node@v4` (l. 27), `softprops/action-gh-release@v2`
+  (l. 84). Les deux dépôts jumeaux ont reçu l'acquis de **L41** — épinglage au **SHA de 40
+  caractères** + cliquet `fixtures/tauri-action-pin.json` (référent : SHA, `sha256` de l'`action.yml`,
+  entrées déclarées, entrées vérifiées absentes) ; **ce dépôt-ci ne l'a pas**. Et c'est précisément
+  celui dont le workflow **n'a jamais tourné** (cf. `CI-CLI-JAMAIS-EXECUTE`) : la dérive d'une action
+  y entrerait sans que rien ne l'ait jamais éprouvée. Portée : épingler les trois, poser le référent
+  et son cliquet à l'image de L41, et **relire l'`action.yml` au SHA retenu** avant de déclarer une
+  entrée supportée — la leçon D-4 de L41, où `uploadUpdaterJson` était ignoré en silence.
+
 - [ ] **`README-REMOTE-IAKABOX-MORTE` — le README public cite un dépôt git qui n'existe plus.**
   *(SIGNALÉ, non traité — hors zone générée, hors L42 : lot à part.)* Le `README.md` de la racine
   désigne encore `http://192.168.2.11:3001/…` comme dépôt git par défaut : c'est l'**iakabox**, en
