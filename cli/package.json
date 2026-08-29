@@ -17,6 +17,10 @@
   "scripts": {
     "start": "node src/index.js",
     "test": "node --test",
+    "vitrine": "node scripts/vitrine.js --write",
+    "vitrine:check": "node scripts/vitrine.js --check",
+    "//vitrine:en-ligne": "FACE EN LIGNE du cliquet de vitrine (L42) — HORS `test`, DELIBEREMENT : sa mesure depend de l'API GitHub (interrogee en ANONYME), donc faillible sur une machine hors ligne. Sans reseau elle rend un SKIP explicite avec le code 3 — JAMAIS un vert. ELLE ROUGIT AUJOURD'HUI, ET C'EST VOULU : l'autorite est a 0.39.0 et la derniere release publiee est v0.20.4 (2026-08-04). C'est une DETTE DE PUBLICATION rendue visible ; elle informe, elle ne bloque aucun lot, et s'eteindra a la prochaine publication. Ce qui bloque, c'est la face LOCALE : G5 dans test/guard-version-source-unique.test.js.",
+    "vitrine:en-ligne": "node scripts/vitrine-en-ligne.js",
     "bundle": "node scripts/bundle.js",
     "prepack": "node scripts/bundle.js",
     "prepublishOnly": "node scripts/bundle.js"
