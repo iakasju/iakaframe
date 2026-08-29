@@ -15,6 +15,17 @@ import { fileURLToPath } from 'node:url';
 import { packageVersion, displayVersion } from '../src/lib/version.js';
 import { frameworkVersion } from '../src/lib/kit.js';
 import { doSnapshot } from '../src/commands/snapshot.js';
+// L42 — la vitrine (README de la racine) devient un lecteur GARDE de l'autorite : G5 ci-dessous.
+import {
+  debutZone,
+  ecartsDeVitrine,
+  ecrireZones,
+  lireZones,
+  nomArtefact,
+  rendreVitrine,
+  versionAnnoncee,
+} from '../scripts/lib/vitrine.js';
+import { contexteDuDepot } from '../scripts/vitrine.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, '..', 'src', 'index.js');
@@ -53,6 +64,70 @@ test('G1 : frameworkVersion() (stamp du kit deploye) est aligne sur l\'autorite'
   // Si l\'etat des lieux n\'a pas ete regenere apres un bump, ce test MORD (cf. critere 7 ci-dessous).
   assert.equal(frameworkVersion(REPO), displayVersion(), 'frameworkVersion === v + autorite');
   assert.equal(etatVersion(REPO), displayVersion(), 'champ Version de l\'etat des lieux === v + autorite');
+});
+
+// --- G5 (L42) : la VITRINE est un lecteur de l'autorite, plus une prose recopiee ------------------
+//
+// LE DEFAUT FERME. Le README de la RACINE — la seule page que voie un inconnu arrivant sur GitHub —
+// annoncait « v0.20.4 » (le dernier tag publie, du 2026-08-04) alors que l'autorite portait deja
+// 0.39.0. Dix-neuf mineures d'ecart, et CETTE SUITE ETAIT VERTE : 795 tests passaient sur une
+// vitrine qui envoyait le visiteur telecharger une version de trois semaines. G1..G4 gardaient les
+// lecteurs INTERNES de l'autorite (`-v`, kit, etat des lieux) ; personne ne gardait le lecteur
+// EXTERNE, celui qui compte pour quelqu'un qui installe depuis rien.
+//
+// Depuis L42, la section Installation est GENEREE entre marqueurs : elle ne s'edite plus a la main.
+
+test('G5 : le README de la RACINE annonce exactement `v` + l\'autorite', () => {
+  const nu = JSON.parse(fs.readFileSync(PKG, 'utf8')).version;
+  const readme = fs.readFileSync(path.join(REPO, 'README.md'), 'utf8');
+  assert.equal(versionAnnoncee(readme), nu,
+    `README.md de la racine annonce autre chose que cli/package.json (${nu}) — sortie : node cli/scripts/vitrine.js --write`);
+  assert.equal('v' + versionAnnoncee(readme), displayVersion(), 'README === v + autorite');
+});
+
+test('G5 : la section Installation du README est EXACTEMENT ce que le generateur produit', () => {
+  const readme = fs.readFileSync(path.join(REPO, 'README.md'), 'utf8');
+  const attendues = rendreVitrine(contexteDuDepot(path.join(REPO, 'cli')));
+  const ecarts = ecartsDeVitrine(lireZones(readme, Object.keys(attendues)), attendues);
+  const detail = ecarts
+    .map((e) => `  zone « ${e.zone} », ligne ${e.ligne}\n    lu      : ${e.lu}\n    attendu : ${e.attendu}`)
+    .join('\n');
+  assert.equal(detail, '',
+    'README.md a DERIVE : la section Installation ne s\'edite plus a la main.\nsortie : node cli/scripts/vitrine.js --write\n' + detail);
+});
+
+test('G5 : le README annonce l\'artefact `.tgz` que le CI produit, avec son nom EXACT', () => {
+  // Le second mensonge de la vitrine : la chaine de publication fabrique
+  // `naonedge-iakaframe-<v>.tgz` et le README n'en disait RIEN — il envoyait chercher l'archive
+  // source. Le chemin le plus court etait produit, puis tu.
+  const nu = JSON.parse(fs.readFileSync(PKG, 'utf8')).version;
+  const readme = fs.readFileSync(path.join(REPO, 'README.md'), 'utf8');
+  const attendu = nomArtefact(nu);
+  assert.equal(attendu, `naonedge-iakaframe-${nu}.tgz`);
+  assert.ok(readme.includes(attendu), `README.md doit annoncer l'asset ${attendu}`);
+  assert.ok(readme.includes(`npm install -g ${attendu}`), 'et la commande d\'installation qui va avec');
+});
+
+test('G5 CONTREFACTUEL : un README fige a une version anterieure fait ROUGIR, zone et ligne nommees', () => {
+  // Sur une FIXTURE en memoire, JAMAIS sur le vrai README.
+  const readme = fs.readFileSync(path.join(REPO, 'README.md'), 'utf8');
+  const perime = ecrireZones(readme, rendreVitrine({ version: '0.20.4', depot: 'iakasju/iakaframe' }));
+  assert.notEqual(perime, readme, 'la fixture doit bien differer du README courant');
+  assert.equal(versionAnnoncee(perime), '0.20.4');
+
+  const attendues = rendreVitrine(contexteDuDepot(path.join(REPO, 'cli')));
+  const ecarts = ecartsDeVitrine(lireZones(perime, Object.keys(attendues)), attendues);
+  assert.ok(ecarts.length > 0, 'un README desaligne DOIT produire au moins un ecart');
+  assert.equal(ecarts[0].zone, 'installation', 'l\'ecart NOMME sa zone');
+  assert.ok(ecarts[0].ligne > 0, 'l\'ecart NOMME sa ligne');
+  assert.match(ecarts[0].lu, /v0\.20\.4/);
+});
+
+test('G5 CONTREFACTUEL : retirer les marqueurs est un REFUS, pas une zone vide', () => {
+  // Le faux vert le plus facile a produire : supprimer les marqueurs et laisser la prose libre.
+  const readme = fs.readFileSync(path.join(REPO, 'README.md'), 'utf8');
+  const sansMarqueurs = readme.replaceAll(debutZone('installation'), '');
+  assert.throws(() => lireZones(sansMarqueurs, ['installation']), /introuvable/);
 });
 
 // --- Critere 7 : preuve que la garde MORD sur une divergence reintroduite --------------------------
