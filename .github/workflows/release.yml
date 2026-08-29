@@ -36,10 +36,67 @@ jobs:
         working-directory: cli
         run: npm pack --pack-destination ..
 
+      # ┌─ L42 — LE `latest` CESSE D'ETRE SUBI ──────────────────────────────────────────────────┐
+      # │ MECANISME REEL, verifie sur la doc REST et MESURE le 2026-08-29. GitHub ne classe PAS  │
+      # │ les releases par date de creation ni par numero de version : il obeit au drapeau       │
+      # │ `make_latest`, de DEFAUT `true`, REECRIT A CHAQUE creation ou mise a jour de release.  │
+      # │ Republier un tag ANCIEN VOLE donc le `latest` — c'est ce qui est arrive au depot frere │
+      # │ iakaFrameGUI (v0.1.7 publiee le 13/08, v0.1.5 et v0.1.6 republiees le 18/08, et        │
+      # │ `latest` designait v0.1.6). Laisser le defaut, c'est confier la vitrine au hasard de   │
+      # │ l'ordre de publication.                                                                │
+      # │                                                                                        │
+      # │ Contrairement aux deux applications — dont le SHA epingle de `tauri-action` n'expose   │
+      # │ AUCUNE entree de `latest` et exige donc une etape `gh` distincte —, `softprops`        │
+      # │ DECLARE `make_latest`. On le pose ici, CALCULE, jamais laisse au defaut.               │
+      # └────────────────────────────────────────────────────────────────────────────────────────┘
+      - name: Le tag publie est-il le plus haut semver ?
+        id: rang
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+          # Filtre `^v[0-9]+\.[0-9]+\.[0-9]+$` : un depot peut porter des tags qui ne sont pas des
+          # versions ; les compter ferait dire n'importe quoi a « le plus haut tag ».
+          PLUS_HAUT=$(gh api "repos/${{ github.repository }}/tags" --paginate --jq '.[].name' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          echo "tag publie      : $TAG"
+          echo "plus haut semver: $PLUS_HAUT"
+          if [ "$TAG" = "$PLUS_HAUT" ]; then
+            echo "DECISION : $TAG EST le plus haut -> make_latest=true"
+            echo "make_latest=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "DECISION : $TAG n'est PAS le plus haut ($PLUS_HAUT) -> make_latest=false."
+            echo "           Sans cette ligne, le defaut de l'API aurait VOLE le latest a $PLUS_HAUT."
+            echo "make_latest=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Attacher le tarball a la release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           files: '*.tgz'
+          # CALCULE a l'etape precedente. Ne JAMAIS remplacer par une constante : ce serait
+          # reintroduire le defaut sous une autre forme.
+          make_latest: ${{ steps.rang.outputs.make_latest }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # CA-6 — le workflow DIT ce qu'il a fait du latest, y compris quand il a decide de NE PAS le
+      # poser. Un « OK » muet ne se relit pas ; et si la designation a rate, l'echec NOMME la
+      # commande de rattrapage (R6). Le tarball, lui, est deja attache : rien n'est perdu.
+      - name: Verifier ce qu'est devenu le latest
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          PLUS_HAUT=$(gh api "repos/${{ github.repository }}/tags" --paginate --jq '.[].name' \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          EFFECTIF=$(gh api "repos/${{ github.repository }}/releases/latest" --jq '.tag_name')
+          echo "VERIFICATION : latest effectif = $EFFECTIF (attendu : $PLUS_HAUT)"
+          if [ "$EFFECTIF" != "$PLUS_HAUT" ]; then
+            echo "::error::le latest effectif ($EFFECTIF) n'est pas le plus haut semver ($PLUS_HAUT)."
+            echo "::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}"
+            exit 1
+          fi
+          echo "latest maitrise : $PLUS_HAUT"
