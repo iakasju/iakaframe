@@ -12,23 +12,40 @@ en place, au lieu de le réinventer à chaque fois.
 
 ## Installation
 
-La version scellée courante est **[v0.20.4](https://github.com/iakasju/iakaframe/releases/tag/v0.20.4)** — voir
+<!-- vitrine:debut:installation -->
+La version scellée courante est **[v0.39.0](https://github.com/iakasju/iakaframe/releases/tag/v0.39.0)** — voir
 [toutes les versions](https://github.com/iakasju/iakaframe/releases).
 
 **Prérequis :** Node.js **≥ 20** (rien d'autre : la CLI est en Node pur, **zéro
 dépendance** runtime, identique sous Windows, macOS et Linux).
 
-```bash
-# 1. Récupérer l'archive de la version depuis la page des releases
-#    (Assets > Source code), puis la décompresser
-cd iakaframe-0.20.4
+### Installer depuis la release — voie recommandée
 
-# 2. Installer la CLI globalement depuis le dossier cli/
-npm install -g ./cli
+Un seul fichier à télécharger sur la [page de la release](https://github.com/iakasju/iakaframe/releases/tag/v0.39.0) :
+
+| Fichier | Commande |
+|---|---|
+| `naonedge-iakaframe-0.39.0.tgz` | `npm install -g naonedge-iakaframe-0.39.0.tgz` |
+
+```bash
+# 1. Télécharger le fichier ci-dessus depuis la page de la release (Assets)
+# 2. L'installer globalement — identique sous Windows, macOS et Linux
+npm install -g naonedge-iakaframe-0.39.0.tgz
 
 # 3. Vérifier
 iakaframe --help
 iakaframe banner IAKAFRAME
+```
+
+### Depuis l'archive des sources
+
+```bash
+# 1. Récupérer l'archive de la version depuis la page des releases
+#    (Assets > Source code), puis la décompresser
+cd iakaframe-0.39.0
+
+# 2. Installer la CLI globalement depuis le dossier cli/
+npm install -g ./cli
 ```
 
 Sans installation globale, la CLI s'exécute directement depuis l'archive :
@@ -37,9 +54,10 @@ Sans installation globale, la CLI s'exécute directement depuis l'archive :
 node cli/src/index.js --help
 ```
 
-> **Sur le réseau interne**, le paquet est aussi publié sur le registre npm privé :
-> `npm install -g @naonedge/iakaframe` (registre `@naonedge` configuré sur Forgejo).
-> En dehors du LAN, passer par l'archive de la release ci-dessus.
+> **Réservé au réseau interne** — le paquet est aussi publié sur un registre npm privé :
+> `npm install -g @naonedge/iakaframe`. Ce registre n'est **pas accessible depuis
+> Internet** : hors du LAN, prendre le `.tgz` de la release ci-dessus.
+<!-- vitrine:fin:installation -->
 
 Première utilisation : se placer dans un dossier de projet et lancer `iakaframe init`
 (ou `iakaframe onboard` pour amorcer aussi le dépôt distant). La commande n'écrase
