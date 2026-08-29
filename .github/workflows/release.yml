@@ -48,6 +48,15 @@ jobs:
       # │ Contrairement aux deux applications — dont le SHA epingle de `tauri-action` n'expose   │
       # │ AUCUNE entree de `latest` et exige donc une etape `gh` distincte —, `softprops`        │
       # │ DECLARE `make_latest`. On le pose ici, CALCULE, jamais laisse au defaut.               │
+      # │                                                                                        │
+      # │ STATUT : ECRIT, NON EPROUVE. Mesure anonyme du 2026-08-29 :                            │
+      # │   GET /repos/iakasju/iakaframe/actions/runs -> total_count: 0                          │
+      # │ Ce workflow N'A JAMAIS ETE EXECUTE, pas une fois. L'unique .tgz publie (v0.20.4) a     │
+      # │ pour uploader `iakasju` et date du 2026-08-05T15:24:17Z, soit DOUZE MINUTES AVANT      │
+      # │ l'enregistrement de ce workflow (2026-08-05T15:36:53Z) : il a ete depose a la main.    │
+      # │ Le calcul de `make_latest` ci-dessous, comme la production du tarball, n'ont donc      │
+      # │ jamais tourne. CONDITION DE LEVEE : la premiere publication reelle (acte du decideur), │
+      # │ apres laquelle `actions/runs` sera non nul et l'asset portera `github-actions[bot]`.   │
       # └────────────────────────────────────────────────────────────────────────────────────────┘
       - name: Le tag publie est-il le plus haut semver ?
         id: rang
