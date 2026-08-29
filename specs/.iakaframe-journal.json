@@ -758,5 +758,15 @@
     "dirty": true,
     "files": 1107,
     "note": "Fin du lot 0 + L1 — auto-update reellement telechargeable"
+  },
+  {
+    "date": "2026-08-29 21:34",
+    "reason": "manual",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "53a1f20 docs(backlog): l'observable D3 a une preuve locale plus dure, et ce workflow n'epingle rien",
+    "dirty": false,
+    "files": 1112,
+    "note": "Lot L42 installer depuis rien livre : la vitrine ne promet plus ce qu elle n a pas. NAS injoignable, push GitHub seul."
   }
 ]
