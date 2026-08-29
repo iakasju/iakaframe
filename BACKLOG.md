@@ -32,9 +32,34 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   **AR-4 = (b)**. Tant que ce n'est pas fait, `npm run vitrine:en-ligne` (depuis `cli/`) **rougit**
   sur E-2 **et E-3** : le README annonce `v0.39.0`, que GitHub ne connaît pas encore.
   **Cette rougeur est voulue** — c'est la dette de publication rendue visible, et elle est **hors
-  gate**. ⚠️ **Effet de bord à connaître** : dans cet intervalle, le lien « page de la release » du
-  README mène à une **404** pour un visiteur. C'est le prix d'AR-1 = (a) (le README annonce ce que
-  le dépôt PORTE) ; la publication l'éteint.
+  gate**. ⚠️ **L'effet de bord est désormais DÉCLARÉ, plus subi** : dans cet intervalle, la page de
+  la release annoncée **n'existe pas** (mesuré le 2026-08-29, `GET releases/tags/v0.39.0` → **404**).
+  Le README ne la promet plus : il **déclare** les deux voies indisponibles (`tgz` et `archive`)
+  dans un bloc « ⚠️ Non fourni », avec motif, date et condition de levée
+  (`cli/fixtures/vitrine-locale.json`), renvoie vers la **page des versions** — qui, elle, dit la
+  vérité toute seule — et offre une voie qui **ne dépend d'aucune release** (`git clone` +
+  `npm install -g ./cli`, **éprouvée** sur un clone neuf). E-3 cesse donc de crier un fait déclaré,
+  et c'est **E-5** qui rougit dès que la déclaration devient fausse. Le prix d'AR-1 = (a) est
+  **payé, pas déguisé** ; la publication éteint le tout.
+
+- [ ] **`CI-CLI-JAMAIS-EXECUTE` — la chaîne de publication de la CLI est ÉCRITE, jamais ÉPROUVÉE.**
+  *(constat, pas correctif — il ne se lève que par un acte du décideur.)* Mesure anonyme du
+  2026-08-29 : `GET /repos/iakasju/iakaframe/actions/runs` → **`total_count: 0`**. Le workflow
+  `release` existe (enregistré le **2026-08-05T15:36:53Z**) mais **n'a jamais tourné, pas une
+  fois** ; l'unique `.tgz` de `v0.20.4` a pour `uploader.login` **`iakasju`** et date du
+  **2026-08-05T15:24:17Z**, soit **douze minutes avant** l'enregistrement du workflow — il a donc
+  été **déposé à la main**. Conséquence : le tarball recommandé au visiteur **et** le `make_latest`
+  calculé posé par L42 sont **non éprouvés**. Le statut est écrit là où on le lira —
+  `.github/workflows/release.yml` (encadré L42) et `cli/scripts/lib/vitrine.js` (constante
+  `ARTEFACT`). **Condition de levée** : la première publication réelle, après laquelle
+  `actions/runs` sera non nul et l'asset portera `github-actions[bot]`.
+
+- [ ] **`README-REMOTE-IAKABOX-MORTE` — le README public cite un dépôt git qui n'existe plus.**
+  *(SIGNALÉ, non traité — hors zone générée, hors L42 : lot à part.)* Le `README.md` de la racine
+  désigne encore `http://192.168.2.11:3001/…` comme dépôt git par défaut : c'est l'**iakabox**, en
+  panne, remplacée par la forge du NAS depuis le 2026-08-19. La ligne est **hors des marqueurs de
+  vitrine**, donc hors du périmètre du générateur et hors des critères de L42. Le corriger dans ce
+  lot serait un « tant qu'on y est ».
 
 
 ### Successeurs nommés des lots « garde balayante » et « correctif générateur » (2026-08-17)

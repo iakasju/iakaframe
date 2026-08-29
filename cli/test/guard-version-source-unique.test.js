@@ -23,7 +23,9 @@ import {
   lireZones,
   nomArtefact,
   rendreVitrine,
+  SENTINELLE_ABSENTS,
   versionAnnoncee,
+  VOIES,
 } from '../scripts/lib/vitrine.js';
 import { contexteDuDepot } from '../scripts/vitrine.js';
 
@@ -96,16 +98,107 @@ test('G5 : la section Installation du README est EXACTEMENT ce que le generateur
     'README.md a DERIVE : la section Installation ne s\'edite plus a la main.\nsortie : node cli/scripts/vitrine.js --write\n' + detail);
 });
 
-test('G5 : le README annonce l\'artefact `.tgz` que le CI produit, avec son nom EXACT', () => {
-  // Le second mensonge de la vitrine : la chaine de publication fabrique
+test('G5 : le README nomme l\'artefact `.tgz` avec son nom EXACT, promis OU declare absent', () => {
+  // Le second mensonge de la vitrine : la chaine de publication DECLARE fabriquer
   // `naonedge-iakaframe-<v>.tgz` et le README n'en disait RIEN — il envoyait chercher l'archive
-  // source. Le chemin le plus court etait produit, puis tu.
+  // source. Le chemin le plus court etait decrit, puis tu.
+  //
+  // CA-9 exige que le nom EXACT figure. Il exige de le NOMMER, pas de le PROMETTRE : selon que la
+  // voie est declaree absente ou non, il apparait dans le bloc « Non fourni » ou dans le tableau
+  // avec sa commande. Les deux etats sont couverts ci-dessous — aucun ne peut passer en silence.
   const nu = JSON.parse(fs.readFileSync(PKG, 'utf8')).version;
   const readme = fs.readFileSync(path.join(REPO, 'README.md'), 'utf8');
   const attendu = nomArtefact(nu);
   assert.equal(attendu, `naonedge-iakaframe-${nu}.tgz`);
-  assert.ok(readme.includes(attendu), `README.md doit annoncer l'asset ${attendu}`);
-  assert.ok(readme.includes(`npm install -g ${attendu}`), 'et la commande d\'installation qui va avec');
+  assert.ok(readme.includes(attendu), `README.md doit NOMMER l'asset ${attendu}`);
+
+  const ctx = contexteDuDepot(path.join(REPO, 'cli'));
+  const absente = ctx.absents.some((a) => a.cle === 'tgz');
+  if (absente) {
+    assert.ok(readme.includes(SENTINELLE_ABSENTS.trimStart()),
+      'une voie declaree absente DOIT apparaitre dans un bloc « Non fourni »');
+    assert.ok(!readme.includes(`npm install -g ${attendu}`),
+      'une voie declaree absente ne doit PAS etre accompagnee de sa commande d\'installation : ' +
+      'ce serait la promettre a l\'endroit meme ou on dit qu\'elle n\'existe pas');
+  } else {
+    assert.ok(readme.includes(`npm install -g ${attendu}`), 'et la commande d\'installation qui va avec');
+  }
+});
+
+// --- D2 (retour de gate) : la vitrine ne PROMET pas une page qui n'existe pas --------------------
+//
+// LE DEFAUT FERME ICI. Avant ce lot, le README annoncait v0.20.4 : page reelle, assets reels, un
+// chemin qui aboutissait. Apres, en devenant PORTEUR (AR-1 = a), il annoncait v0.39.0 — mesure le
+// 2026-08-29, `GET releases/tags/v0.39.0` -> HTTP 404. Pour le seul critere que l'instruction se
+// donne (« ce qu'un inconnu obtient en suivant ce qu'on lui montre »), le lot laissait le visiteur
+// PLUS MAL qu'il ne l'avait trouve. La face en ligne le criait, le BACKLOG l'inscrivait — le
+// visiteur ne voyait aucun des deux. V5 est au perimetre Inclus : une voie non produite est
+// DECLAREE MANQUANTE, JAMAIS PROMISE.
+
+test('G5/V5 : aucune voie DECLAREE ABSENTE n\'est presentee comme disponible', () => {
+  const ctx = contexteDuDepot(path.join(REPO, 'cli'));
+  const readme = fs.readFileSync(path.join(REPO, 'README.md'), 'utf8');
+  if (ctx.absents.length === 0) return; // rien de declare : rien a verifier ici.
+
+  const zone = lireZones(readme, ['installation']).installation;
+  assert.ok(zone.includes(SENTINELLE_ABSENTS.trimStart()),
+    'des voies sont declarees absentes : le bloc « Non fourni » DOIT etre rendu');
+  for (const a of ctx.absents) {
+    const v = VOIES[a.cle];
+    assert.ok(v, `voie « ${a.cle} » inconnue de la table`);
+    assert.ok(zone.includes(v.libelle), `la voie « ${a.cle} » doit etre NOMMEE, pas passee sous silence`);
+  }
+  // La voie `tgz` absente => ni tableau de telechargement, ni titre de « voie recommandee ».
+  if (ctx.absents.some((a) => a.cle === 'tgz')) {
+    assert.ok(!zone.includes('### Installer depuis la release'),
+      'la section « Installer depuis la release » promet une page absente : elle ne doit pas etre rendue');
+    assert.ok(!zone.includes('| Fichier | Commande |'),
+      'le tableau de telechargement promet un asset declare absent');
+  }
+  if (ctx.absents.some((a) => a.cle === 'archive')) {
+    assert.ok(!zone.includes('Assets > Source code), puis la décompresser'),
+      'l\'archive des sources est declaree absente : ne pas y envoyer le visiteur');
+  }
+  // ET IL RESTE UNE VOIE QUI MARCHE. Declarer une absence sans laisser de chemin, ce serait
+  // remplacer une fausse promesse par une impasse.
+  assert.ok(zone.includes('### Depuis le dépôt — sans dépendre d\'une release'),
+    'la voie qui ne depend d\'aucune release doit rester offerte');
+  assert.ok(zone.includes('npm install -g ./cli'), 'et sa commande doit y figurer');
+});
+
+test('G5/V5 : chaque absent declare porte sa voie connue, sa date, son motif ET sa condition de levee', () => {
+  const ctx = contexteDuDepot(path.join(REPO, 'cli'));
+  for (const a of ctx.absents) {
+    assert.ok(VOIES[a.cle], `absent « ${a.cle} » : voie inconnue de la table`);
+    assert.match(a.depuis, /^\d{4}-\d{2}-\d{2}$/, `${a.cle}.depuis doit etre une date`);
+    assert.match(String(a.constate_sur ?? ''), /\S/, `${a.cle}.constate_sur`);
+    // Un motif telegraphique laisse l'absence muette : c'est le defaut qu'on repare, pas un style.
+    assert.ok(String(a.motif_absence ?? '').trim().length > 40, `${a.cle}.motif_absence trop court`);
+    assert.ok(String(a.condition_de_levee ?? '').trim().length > 20,
+      `${a.cle}.condition_de_levee — une absence sans condition de levee est definitive`);
+  }
+});
+
+test('G5/V5 CONTREFACTUEL : declarer une absence sur une voie INCONNUE est un refus', () => {
+  assert.throws(() => rendreVitrine({
+    version: '0.39.0',
+    depot: 'iakasju/iakaframe',
+    absents: [{ cle: 'pigeon-voyageur', constate_sur: 'fixture', depuis: '2026-08-29',
+      motif_absence: 'voie imaginaire, pour exercer le refus sur une fixture en memoire',
+      condition_de_levee: 'aucune : elle n\'existe pas' }],
+  }), /voie inconnue/);
+});
+
+test('G5/V5 CONTREFACTUEL : liste d\'absents VIDE => la voie de la release revient, bloc disparu', () => {
+  // L'autre sens du cliquet : la declaration n'est pas une facon polie de retirer une section pour
+  // toujours. Des que la publication a lieu et que l'entree tombe, le tableau et sa commande
+  // reviennent, et le bloc « Non fourni » disparait. Rendu sur une FIXTURE, jamais sur le README.
+  const zone = rendreVitrine({ version: '0.39.0', depot: 'iakasju/iakaframe', absents: [] }).installation;
+  assert.ok(!zone.includes(SENTINELLE_ABSENTS.trimStart()), 'aucun absent => aucun bloc « Non fourni »');
+  assert.ok(zone.includes('### Installer depuis la release'), 'la voie recommandee revient');
+  assert.ok(zone.includes(`npm install -g ${nomArtefact('0.39.0')}`), 'avec sa commande exacte');
+  assert.ok(zone.includes('### Depuis le dépôt — sans dépendre d\'une release'),
+    'et la voie sans release reste offerte dans les deux etats');
 });
 
 test('G5 CONTREFACTUEL : un README fige a une version anterieure fait ROUGIR, zone et ligne nommees', () => {

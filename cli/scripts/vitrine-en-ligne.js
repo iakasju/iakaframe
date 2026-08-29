@@ -17,13 +17,20 @@
 // visible. Elle est HORS gate : elle informe, elle ne bloque aucun lot. Elle s'eteindra quand le
 // decideur publiera (l'acte de publication ne revient pas a l'execution).
 //
+// LES EGALITES MESUREES :
+//   E-1 : `latest` = le plus haut tag semver publie
+//   E-2 : la version annoncee par le README = `latest`   <- la dette de publication, rouge VOULU
+//   E-3 : la voie annoncee existe reellement sur la release annoncee
+//   E-4 : aucun asset installable de la release n'est absent du README
+//   E-5 : chaque VOIE DECLAREE ABSENTE est reellement absente  <- le cliquet auto-destructeur
+//
 // CODES DE SORTIE — 0 : mesure faite, tout concorde · 1 : mesure faite, ecart(s) · 2 : usage
 // · 3 : NON MESURE (reseau indisponible ou quota anonyme epuise). Le 3 est DISTINCT du 0 a dessein :
 // un controle qui rend « succes » alors qu'il n'a rien mesure est le pire des faux verts.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { nomArtefact, versionAnnoncee } from './lib/vitrine.js';
+import { nomArtefact, versionAnnoncee, VOIES } from './lib/vitrine.js';
 
 const NOM = 'vitrine:en-ligne';
 const CLI = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -67,6 +74,9 @@ async function api(chemin) {
 const readme = fs.readFileSync(path.join(RACINE, 'README.md'), 'utf8');
 const autorite = JSON.parse(fs.readFileSync(path.join(CLI, 'package.json'), 'utf8')).version;
 const annoncee = versionAnnoncee(readme);
+const LOCALE = JSON.parse(fs.readFileSync(path.join(CLI, 'fixtures', 'vitrine-locale.json'), 'utf8'));
+const ABSENTS = LOCALE.absents ?? [];
+const declareeAbsente = (cle) => ABSENTS.some((a) => a.cle === cle);
 
 const ecarts = [];
 const constats = [];
@@ -102,23 +112,45 @@ if (latest && annoncee && `v${annoncee}` !== latest) {
   );
 }
 
-// E-3 — l'artefact annonce existe REELLEMENT sur la release annoncee. Un `200` sur la page de la
-// release ne suffirait pas : on verifie l'existence de l'ASSET PAR SON NOM.
+// E-3 / E-5 — ce que le README ANNONCE existe, ce qu'il DECLARE ABSENT est bien absent.
+//
+// LA DISTINCTION QUI MANQUAIT. Le README est un PORTEUR (AR-1 = a) : il annonce la version que le
+// depot porte, meme si elle n'est pas encore publiee. Sans declaration, il envoyait donc le
+// visiteur vers une page 404 — et cette face-ci le criait en E-3, ce que le visiteur ne voit pas.
+// Le cri n'etait pas la reparation. Depuis, les voies indisponibles sont DECLAREES dans
+// `cli/fixtures/vitrine-locale.json` et VISIBLES dans le README : le 404 attendu devient un
+// CONSTAT (vert-avec-mention), et c'est sa DISPARITION qui devient un rouge — E-5, le cliquet
+// auto-destructeur, seul message actionnable des deux.
 const tagAnnonce = annoncee ? `v${annoncee}` : latest;
 if (tagAnnonce) {
+  const toutesAbsentes = Object.keys(VOIES).every((c) => declareeAbsente(c));
   const r = await api(`/repos/${DEPOT}/releases/tags/${tagAnnonce}`);
   if (r.absent) {
-    ecarts.push(
-      `E-3 : la release ${tagAnnonce}, que le README pointe, N'EXISTE PAS pour un visiteur anonyme ` +
-        '— le lien de la page d\'accueil mene a une 404',
-    );
+    if (toutesAbsentes) {
+      constats.push(
+        `release ${tagAnnonce} : ABSENTE (404) — CONFORME a ce que le README declare. Les ` +
+          `${ABSENTS.length} voie(s) qui en dependent y sont nommees non fournies, avec motif, ` +
+          'date et condition de levee ; le visiteur est renvoye vers la page des versions et vers ' +
+          "l'installation depuis le depot, qui ne depend d'aucune release.",
+      );
+    } else {
+      ecarts.push(
+        `E-3 : la release ${tagAnnonce}, que le README pointe, N'EXISTE PAS pour un visiteur anonyme ` +
+          "— le lien de la page d'accueil mene a une 404, et aucune declaration d'absence ne le dit",
+      );
+    }
   } else {
     const assets = (r.corps.assets ?? []).map((a) => a.name);
     constats.push(`assets sur ${tagAnnonce} : ${assets.length} (${assets.join(', ') || 'aucun'})`);
     const attendu = nomArtefact(annoncee ?? autorite);
-    if (!assets.includes(attendu)) {
+
+    // E-3 — l'artefact annonce existe REELLEMENT. Un `200` sur la page de la release ne suffirait
+    // pas : on verifie l'existence de l'ASSET PAR SON NOM. Muet si la voie est declaree absente :
+    // rougir sur une absence qu'on vient d'ecrire noir sur blanc, c'est punir l'honnetete.
+    if (!declareeAbsente('tgz') && !assets.includes(attendu)) {
       ecarts.push(`E-3 : le README annonce « ${attendu} », qui N'EST PAS un asset de ${tagAnnonce}`);
     }
+
     // E-4 — aucun asset installable passe sous silence.
     for (const nom of assets) {
       if (nom.endsWith('.tgz') && !readme.includes(nom)) {
@@ -127,6 +159,26 @@ if (tagAnnonce) {
             'README : la release livre plus que la vitrine ne montre',
         );
       }
+    }
+
+    // E-5 — CLIQUET AUTO-DESTRUCTEUR. Une declaration d'absence qui redevient fausse DOIT rougir,
+    // sinon elle survivrait a sa raison d'etre — le meme defaut, retourne. Le message porte la
+    // commande de rattrapage, parce que c'est lui qui commande le geste.
+    const rattrapage =
+      'retirer l\'entree de cli/fixtures/vitrine-locale.json puis rejouer ' +
+      'node cli/scripts/vitrine.js --write';
+    if (declareeAbsente('tgz') && assets.includes(attendu)) {
+      ecarts.push(
+        `E-5 : « ${attendu} » est declare ABSENT dans cli/fixtures/vitrine-locale.json mais il EST ` +
+          `present sur ${tagAnnonce}. La declaration a survecu a sa raison d'etre : ${rattrapage}`,
+      );
+    }
+    if (declareeAbsente('archive')) {
+      ecarts.push(
+        `E-5 : la voie « archive » est declaree ABSENTE, mais la release ${tagAnnonce} EXISTE — ` +
+          `GitHub y attache TOUJOURS l'archive des sources. La declaration est devenue fausse : ` +
+          `${rattrapage}`,
+      );
     }
   }
 }

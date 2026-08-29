@@ -18,10 +18,19 @@ const CLI = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const RACINE = path.resolve(CLI, '..');
 const README = path.join(RACINE, 'README.md');
 
+/**
+ * LE CONTEXTE DE RENDU — une version (l'autorite) et des CONSTATS (la part locale).
+ *
+ * `depot` et `absents` viennent de `cli/fixtures/vitrine-locale.json`, pas d'une constante : ce qui
+ * releve du constat doit etre DATE et SIGNE pour etre levable. Le nom du depot y descend avec, pour
+ * qu'il n'y ait qu'un seul endroit ou regarder.
+ */
 export function contexteDuDepot(cliDir = CLI) {
+  const locale = JSON.parse(fs.readFileSync(path.join(cliDir, 'fixtures', 'vitrine-locale.json'), 'utf8'));
   return {
     version: JSON.parse(fs.readFileSync(path.join(cliDir, 'package.json'), 'utf8')).version,
-    depot: 'iakasju/iakaframe',
+    depot: locale.depot,
+    absents: locale.absents ?? [],
   };
 }
 
