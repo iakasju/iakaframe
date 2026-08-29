@@ -543,10 +543,25 @@ la matrice de build du CI · `packages/core/package.json`.
 
 - [ ] **CA-4** — `gh api repos/iakasju/iakaFrameGUI/releases/latest --jq .tag_name` rend le **plus
       haut** tag publié (v0.1.7 au jour du cadrage, ou la version publiée à l'étape 7).
-- [ ] **CA-5** — **Contrefactuel du vol de `latest`** : republier un tag **antérieur** ne change
-      **pas** le `latest`. *Vérif* : relancer le workflow en `workflow_dispatch` sur un tag ancien,
-      puis re-mesurer CA-4 — la valeur est **inchangée**. Sans ce critère, V3 n'est pas prouvé, il
-      est espéré.
+- [ ] **CA-5** — **Contrefactuel du vol de `latest`** — **REQUALIFIÉ le 2026-08-29 (lot L43)**,
+      sur les arbitrages **AR-1** (prouver sur `IakaCockpit`, pas sur le GUI) et **AR-2**.
+      *Rédaction d'origine, conservée pour mémoire* : « republier un tag **antérieur** ne change
+      **pas** le `latest` ; *Vérif* : relancer le workflow en `workflow_dispatch` sur un tag ancien,
+      puis re-mesurer CA-4 ». **Cette rédaction est fausse sur deux points**, mesurés le 2026-08-29 :
+      (i) elle nomme `iakaFrameGUI` (sa *Vérif* renvoie à CA-4) alors que la preuve se fait **sur le
+      dépôt où elle a été faite**, ici `IakaCockpit` ; (ii) **republier** un tag dont la release
+      existe ne vole rien au SHA épinglé — c'est la **création** qui vole.
+      **État : PARTIELLEMENT PROUVÉ, sur banc seulement.** Prouvé (dépôt `iakasju/latest-contrefactuel`,
+      run `33277643229`) : une **création** sans `make_latest` **vole** le `latest` ; le tri
+      `sort -V` + filtre `^v…$` désigne bien `v0.10.0` face à `v0.9.0` et `archive/feat/x` ; et le
+      transport de preuve tient (`sha256` du bloc `latest:` identique au `raw` d'`IakaCockpit@main`).
+      **Non prouvé, et découvert faux** : `make_latest=false` est un **NO-OP** sur
+      `GET /releases/latest` — la branche `--latest=false` **ne rend pas** un `latest` volé. **V3
+      n'est donc pas une garde mais un détecteur**, et CA-5 ne peut pas être coché tel qu'écrit.
+      **Non fait** : la transposition au dépôt réel (voie V-C) — **acte du décideur**, procédure
+      écrite et **suspendue** dans `contrefactuel-ca5-procedure-decideur.md` § 5.
+      **Condition de levée** : que le décideur tranche entre (α) lancer V-C, (β) clore en
+      partiellement prouvé, (γ) re-cadrer la garde d'abord.
 - [ ] **CA-6** — Le workflow **dit** ce qu'il a fait du `latest` (ligne de log citée), y compris
       quand il a décidé de **ne pas** le poser.
 
