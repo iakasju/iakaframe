@@ -395,9 +395,16 @@ ils se périmeraient au premier commit. Ce qui suit est le **avant / après** pa
 | **11** | ⚠️ **un TROISIÈME état des lieux**, jamais pointé | `iakaframe/specs/etat-des-lieux.md` (H-2 **et** « Pièges connus » n° 1) | *« republier une version ancienne vole le latest »* + *« Remède : … ou le job conditionné au plus haut semver »* | le vol vient de la **CRÉATION** ; le job **n'est pas un remède** — il détecte, rougit, dicte | CORRIGÉ |
 | **12** | ⚠️ **un QUATRIÈME cartouche**, jamais rectifié | `iakaframe/.github/workflows/release.yml` | *« Republier un tag ANCIEN VOLE donc le `latest` »* + *« réécrit à chaque création **ou mise à jour** »* | daté et rectifié ; **et** la distinction d'acteur (`softprops`, **pas** `tauri-action`) est **écrite**, plus supposée | CORRIGÉ |
 | **13** | F4 et F5 de cette instruction | ce fichier | — | **inchangés** : F4 dit vrai (la **doc** ne tranche pas — c'est l'**élimination** qui tranche), F5 aussi | CONFORME |
-| **14** | *« c'est le seul détecteur »* | `IakaCockpit/CLAUDE.md:195`, `iakaFrameGUI/CLAUDE.md:176` | — | **inchangé** — la distinction tient, et **les lignes exactes sont `195` / `176`**, pas `194` / `175` | CONFORME |
+| **14** | *« c'est le seul détecteur »* | les 2 `CLAUDE.md` | — | **inchangé** — la distinction tient. Le gate avait raison sur les lignes : **`195` / `176`**, pas `194` / `175` — **à l'état qu'il lisait**. Ce passage les a déplacées à **`223` / `204`** : voir l'encadré ci-dessous | CONFORME |
 | **15** | `make_latest` calculé **non éprouvé** | `iakaframe/cli/scripts/lib/vitrine.js`, `iakaframe/BACKLOG.md` | — | **inchangé** : ils disent déjà « non éprouvé ». Inscrits pour qu'une promotion future se voie | CONFORME |
 | **16** | 🛑 le message **E-1** de la vitrine en ligne | `IakaCockpit/scripts/vitrine-en-ligne.mjs`, `iakaFrameGUI/…`, `iakaframe/cli/scripts/vitrine-en-ligne.js` | *« Republier un tag ancien **VOLE** le latest … **Rattrapage** : `gh release edit <plusHaut> --latest` »* | **INCHANGÉ — voir ci-dessous** | **CONSIGNÉ-NON-CORRIGÉ** |
+
+> 🪤 **L'entrée 14 démontre à elle seule pourquoi le registre garde les lignes, et pas la prose.**
+> Le gate a corrigé un `chemin:ligne` : `195` / `176`, et non `194` / `175`. Il avait raison **à
+> l'état qu'il lisait**. Les corrections de ce passage ont inséré des lignes au-dessus : le même
+> énoncé siège maintenant en **`223` / `204`**. **Aucune des deux paires n'est fausse ; les deux se
+> périment.** C'est exactement ce que **D-2** attrape — et c'est pourquoi les `chemin:ligne` de ce
+> registre vivent **dans le JSON**, régénérables par une commande, et **jamais recopiés en prose**.
 
 ### 🛑 L'entrée 16 — pourquoi elle n'est pas corrigée, et ce que ça coûte
 
