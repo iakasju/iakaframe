@@ -204,10 +204,20 @@ shasum -a 256 updater/latest.json
 ### 3.2 👤 — Poser le tag hors semver sur le commit de `v0.32.2`
 
 ```bash
-SHA=$(gh api repos/iakasju/IakaCockpit/git/ref/tags/v0.32.2 --jq .object.sha)
+SHA=$(git rev-list -n1 v0.32.2)          # eceb49847b7f025e8a32484d87f18c836f1c1c22
 git tag contrefactuel-ca5-2026-08-29 "$SHA"
 git push github contrefactuel-ca5-2026-08-29
 ```
+
+> 🪤 **Corrigé le 2026-08-30 — la ligne d'origine était inexécutable telle quelle.** Elle lisait
+> `SHA=$(gh api repos/iakasju/IakaCockpit/git/ref/tags/v0.32.2 --jq .object.sha)`. Or `v0.32.2`
+> est un tag **annoté** : `.object.type` vaut **`tag`**, et `.object.sha` rend **`3c354604…`**,
+> l'objet *tag*, **pas** le commit. Taguer ce SHA aurait posé un tag sur un objet tag. Le commit
+> est **`eceb4984…`** — vérifié des deux côtés le 2026-08-30, par
+> `git rev-list -n1 v0.32.2` en local **et** par déréférencement
+> `gh api repos/iakasju/IakaCockpit/git/tags/3c354604…  --jq .object.sha` côté API. Si l'on tient
+> à passer par l'API : `gh api …/git/tags/$(gh api …/git/ref/tags/v0.32.2 --jq .object.sha)
+> --jq .object.sha`. La forme locale d'une ligne est plus sûre.
 
 **Premier attendu mesurable** : *aucun run ne démarre* — le nom ne matche pas `push: tags: v*`.
 
