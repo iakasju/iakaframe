@@ -34,6 +34,25 @@
 > pas**, et ce qui la falsifie est **dans ce lot même** — **F4** de
 > `contrefactuel-du-vol-de-latest.md:171-173`. Voir l'encart **« Ce que la mesure ne permet PAS de
 > dire »** au § 1.
+>
+> ## ✅ TROISIÈME PASSAGE, 2026-08-30 — **le contrefactuel à coût nul A ÉTÉ JOUÉ par le décideur**
+>
+> Le geste que ce document réclamait **a eu lieu**, et sa sortie est **`v0.10.0`, inchangé**.
+> Croisée avec le run `33277643229`, elle **réfute huit des neuf règles de repli énumérées** ;
+> **seul le NO-OP survit**. Conséquence immédiate : l'encart **⛔** ci-dessous faisait reposer tout
+> son argument sur *« sous repli par `created_at`, le job réparerait sur `IakaCockpit` »* —
+> **cette hypothèse est réfutée**, et sous la seule règle survivante le job **ne répare pas**.
+> Détail, table et résidu : § 1, encart **« LE CONTREFACTUEL A ÉTÉ JOUÉ »**.
+>
+> ⚠️ **La limite, et elle se tient.** La phrase juste n'est **pas** « GitHub ne replie jamais ».
+> C'est : **« parmi les règles de repli énumérées, huit sont réfutées par mesure ; seule le NO-OP
+> survit — et rien n'exclut une règle non énumérée. »** Toute formulation qui laisse tomber la
+> liste ou le résidu **dépasse la preuve**, pour la quatrième fois.
+>
+> **Registre.** Les énoncés des trois dépôts qui affirment quoi que ce soit sur ce repli sont
+> désormais **énumérés une fois**, en `chemin:ligne`, dans
+> `contrefactuel-du-vol-de-latest.md` § « Registre des énoncés sur le repli du `latest` » — avec
+> une commande de balayage reproductible et un **vérificateur qui rougit** quand ils dérivent.
 
 ---
 
@@ -71,9 +90,9 @@ Plus un tag `archive/feat/x`, **sans** release.
 | a | `gh release edit v0.10.0 --latest` — état de référence | **non tracé** |
 | a′ | `git push origin v0.2.0` — le tag seul | **non tracé** |
 | b | `gh release create v0.2.0` — **sans** `--latest` : le vol | **non tracé** ; l'état d'**après** l'est, lui, par le log de (c) |
-| d | re-mesure 90 s plus tard *(hypothèse « propagation »)* | **non tracé** |
+| d | re-mesure 90 s plus tard *(hypothèse « propagation »)* | **non tracé** — mais l'hypothèse qu'il visait est **close** depuis le 2026-08-30 : la sortie du contrefactuel du décideur a été **re-lue bien après** le geste et n'a pas bougé (§ 1, règle **9**) |
 | e | `gh release edit v0.10.0 --latest` — le rattrapage | **non tracé** |
-| f | `gh release edit v0.10.0 --latest=false` *(`created_at` le plus **ancien**)* | **non tracé** — et c'est le geste **discriminant** ; à rejouer, cf. § contrefactuel |
+| f | `gh release edit v0.10.0 --latest=false` *(`created_at` le plus **ancien**)* | ✅ **REJOUÉ PAR LE DÉCIDEUR le 2026-08-30**, et c'est le geste **discriminant** : sortie `v0.10.0`, inchangée. Détail, table des règles et résidu à l'encart « LE CONTREFACTUEL A ÉTÉ JOUÉ » |
 | g | `PATCH /releases/379113276 -f make_latest=false` *(REST brut)* | **non tracé** |
 | h | `gh release edit v0.9.0 --latest` puis `--latest=false` | **non tracé**, et **incohérent** avec la topologie ci-dessus |
 | i | `gh release delete v0.2.0` | **non tracé** ; son effet est confondu avec celui de (e) |
@@ -135,70 +154,173 @@ VERIFICATION : latest effectif = v0.2.0 (attendu : v0.10.0)
 6. **« `make_latest=false` est un NO-OP », « il n'y a aucun repli ».** C'était écrit comme un
    **fait mesuré** dans **six fichiers — huit occurrences**, celui-ci compris : les deux `CLAUDE.md`
    (**deux fois chacun** : bloc `latest` **et** entrée de backlog), les deux `release.yml`, ce
-   document, et `installer-depuis-rien.md` *(compté à `git grep -c NO-OP` sur les commits d'avant
-   correctif : `IakaCockpit@895e74f`, `iakaFrameGUI@2b09615`, `iakaframe@26d096d`)*. Ça ne l'est
-   pas. La **seule** mesure
-   tracée est le point 2 — et **elle ne discrimine pas** : au moment où elle a été prise, la
-   release voleuse `v0.2.0` était **aussi la plus récente par `created_at`** (`22:20:00Z`, contre
-   `22:10:00Z` et `22:01:35Z`). « Le drapeau ne se retire pas » et « le drapeau se retire, et
-   GitHub replie par date » prédisent **exactement la même observation**. Les gestes qui
-   trancheraient — sur le `created_at` le plus **ancien**, et le `PATCH` REST brut — **n'ont ni
-   run ni log**.
-7. **« `gh release edit <PLUS_HAUT> --latest` répare, en moins de 3 s ».** Pas de trace non plus.
-   Le banc porte aujourd'hui `latest = v0.10.0` (**re-mesuré le 2026-08-30**), mais la
-   **suppression** de `v0.2.0` suffit à l'expliquer : les deux gestes sont confondus. Le chiffre
-   « < 3 s » est **retiré** de tous les emplacements canoniques.
+   document, et `installer-depuis-rien.md`.
+   🪤 **Reproduction du compte — CORRIGÉE le 2026-08-30 (troisième passage du gate).** Elle citait
+   `IakaCockpit@895e74f` et `iakaFrameGUI@2b09615` : **ces commits-là ne rendent que six
+   occurrences**, l'entrée de backlog n'y étant pas encore écrite. Les commits qui reproduisent
+   bien **huit occurrences sur six fichiers** sont **`IakaCockpit@58f4e6f`**,
+   **`iakaFrameGUI@589c4d6`** et **`iakaframe@26d096d`** — vérifiés un à un par
+   `git grep -c "NO-OP" <commit> -- '*.md' '*.yml'`, qui rend `release.yml:1` + `CLAUDE.md:2` de
+   chaque côté de la paire, et `contrefactuel-ca5-procedure-decideur.md:1` +
+   `installer-depuis-rien.md:1` pour `iakaframe`.
+   **La rétrogradation reste juste pour ce qui était écrit alors** : la **seule** mesure
+   tracée était le point 2 — et **elle ne discriminait pas**, la release voleuse `v0.2.0` étant
+   **aussi la plus récente par `created_at`** (`22:20:00Z`, contre `22:10:00Z` et `22:01:35Z`).
+   « Le drapeau ne se retire pas » et « le drapeau se retire, et GitHub replie par date »
+   prédisaient **exactement la même observation**.
+   ✅ **CE QUI A CHANGÉ LE MÊME JOUR** : le geste discriminant — `--latest=false` sur le
+   `created_at` le plus **ancien** — **a été joué par le décideur**. Croisé avec le run, il
+   **réfute huit des neuf règles de repli énumérées** et **laisse le NO-OP seul debout** (encart
+   « LE CONTREFACTUEL A ÉTÉ JOUÉ »). Le NO-OP cesse d'être une **déduction** ; il devient **la
+   seule règle survivante d'une énumération** — ce qui n'est **pas** la même chose qu'un fait
+   mesuré sans reste, et **le résidu est écrit**. Le `PATCH` REST **brut**, lui, **n'a toujours
+   ni run ni log**.
+7. **« `gh release edit <PLUS_HAUT> --latest` répare, en moins de 3 s ».** Pas de trace non plus,
+   **et le contrefactuel du 2026-08-30 n'y change rien**. Le banc porte aujourd'hui
+   `latest = v0.10.0` (**re-mesuré le 2026-08-30**), mais la **suppression** de `v0.2.0` suffit à
+   l'expliquer : les deux gestes sont confondus. Le chiffre « < 3 s » est **retiré** de tous les
+   emplacements canoniques.
+   ⚠️ **Et il ne se déduit pas de M2** : M2 ne mesure que l'écriture **`false`**. Que l'écriture
+   **`true`** — le rattrapage — produise, elle, un effet **reste sans trace**, et le NO-OP observé
+   sur `false` **ne se transpose pas d'office** à `true`, ni dans un sens ni dans l'autre. À
+   mesurer le jour où le geste est joué, pas à supposer.
 
-### ⛔ Ce que la mesure ne permet PAS de dire — bornage du 2026-08-30
+### ⛔ Ce que la mesure ne permettait PAS de dire — bornage du 2026-08-30, **puis levé le même jour**
 
-Le point 2 a été écrit, jusqu'ici, comme une **propriété de la branche** (« elle ne rend pas le
-`latest` »), puis promu en **verdict opérationnel** (« inutile comme réparation », « un détecteur,
-pas une garde »). **Les deux dépassent la preuve**, et ce qui les falsifie est **dans ce lot** :
-`contrefactuel-du-vol-de-latest.md:171-173` (**F4**) mesure que sur `IakaCockpit` **les deux règles
-de repli plausibles désignent la même release, `v0.32.2`**.
+> 🪤 **CET ENCART EST DATÉ, PAS EFFACÉ — et son argument est RÉFUTÉ.** Écrit au second passage du
+> gate, il faisait reposer tout son raisonnement sur la règle *« GitHub recalcule par `created_at`,
+> sans exclure la démarquée »*. **Le contrefactuel du décideur l'a réfutée** (encart suivant,
+> règle **2**). Ce qu'il conserve de juste : le run **seul** ne suffisait pas, et une conclusion
+> ne se transpose pas d'une topologie à l'autre sans qu'on le dise. Ce qu'il a de **faux** : sa
+> conclusion opérationnelle, qui reposait sur une hypothèse aujourd'hui morte.
 
-**Le déroulé, sous l'hypothèse qui survit au run.** Le run a **réfuté** une variante du repli —
-« GitHub recalcule le `latest` en **excluant** la release démarquée » : elle prédisait `v0.9.0`, on
-a observé `v0.2.0`. Celles qui **survivent** sont « le drapeau ne se retire pas » (NO-OP) **et**
-« GitHub recalcule par `created_at`, **sans** exclure la démarquée » — indiscernables **sur le
-banc**, où la voleuse était aussi la plus récente par date. Or **sur `IakaCockpit` elles
-divergent** : la voleuse y serait une release **créée sur un tag ancien** — le risque nommé dans
-les deux `CLAUDE.md`, *« 25 tags sur 29 ne portent aucune release »* — donc au `created_at` le plus
-**vieux**, puisque **F4** mesure que le `created_at` suit la date du **commit** du tag et non la
-publication (`v0.32.1` : `created_at 2026-08-10` pour un `published_at 2026-08-28`). Sous « repli
-par date », le recalcul désignerait donc **`v0.32.2`** — **qui est aussi le plus haut semver**. La
-ligne `VERIFICATION` serait **verte**, et le job aurait **réparé**.
+Le point 2 a été écrit, jusqu'au 2026-08-30, comme une **propriété de la branche** (« elle ne rend
+pas le `latest` »), puis promu en **verdict opérationnel** (« inutile comme réparation », « un
+détecteur, pas une garde »). **Les deux dépassaient la preuve du run seul.** Ce qui était opposé
+alors : `contrefactuel-du-vol-de-latest.md:171-173` (**F4**) mesure que sur `IakaCockpit` **les
+deux règles de repli plausibles désignent la même release, `v0.32.2`**.
 
-| | Formule |
+**Le déroulé, tel qu'il était écrit — et où il casse.** Le run avait **réfuté** une variante du
+repli — « GitHub recalcule en **excluant** la release démarquée » : elle prédisait `v0.9.0`, on a
+observé `v0.2.0`. Restaient « le drapeau ne se retire pas » (NO-OP) **et** « GitHub recalcule par
+`created_at`, **sans** exclure la démarquée » — indiscernables **sur le banc**, où la voleuse était
+aussi la plus récente par date. Sur `IakaCockpit` elles divergeaient : la voleuse y serait une
+release **créée sur un tag ancien** — le risque nommé dans les deux `CLAUDE.md`, *« 25 tags sur 29
+ne portent aucune release »* — donc au `created_at` le plus **vieux**, puisque **F4** mesure que le
+`created_at` suit la date du **commit** du tag et non la publication (`v0.32.1` : `created_at
+2026-08-10` pour un `published_at 2026-08-28`). Sous « repli par date », le recalcul aurait désigné
+**`v0.32.2`** — **aussi le plus haut semver** —, la ligne `VERIFICATION` aurait été **verte**, et
+le job aurait **réparé**. 🛑 **Cette branche du raisonnement est morte** : la règle qui la portait
+est réfutée par la mesure du décideur.
+
+| | Formule — **révisée le 2026-08-30, après le contrefactuel** |
 |---|---|
-| **Ce que la mesure établit** | *Sur la topologie du banc, où la voleuse était aussi la plus récente par `created_at`, la branche n'a pas rendu le `latest` au plus haut semver.* |
-| **Ce qui s'en déduit sans risque** | **On ne peut pas compter dessus.** Vrai sous les deux hypothèses. |
-| **Ce qui ne s'en déduit PAS** | « Elle est inutile comme réparation » · « le job n'est qu'un détecteur, pas une garde ». |
+| **Ce que la mesure établit** | *Sur la topologie du banc, la branche n'a pas rendu le `latest` au plus haut semver.* **Et, par croisement avec le contrefactuel : parmi neuf règles de repli énumérées, huit sont réfutées ; seul le NO-OP survit — et le NO-OP ne dépend d'aucune topologie.** |
+| **Ce qui s'en déduit sans risque** | **On ne peut pas compter dessus.** Vrai sous la règle survivante comme sous toute règle non énumérée qui expliquerait les deux mesures. |
+| **Ce qui s'en déduit désormais, DANS LES LIMITES ÉNUMÉRÉES** | *Sous la seule règle survivante, la branche **ne répare pas** ; le job **détecte, rougit et dicte le geste**.* |
+| **Ce qui ne s'en déduit TOUJOURS PAS** | « GitHub ne replie jamais » (une règle **non énumérée** reste possible) · quoi que ce soit sur **`IakaCockpit`** (autre dépôt, autre acteur, autres droits) · quoi que ce soit sur le **badge web** ou sur une **autre version de l'API**. |
 
-### 🔬 Le contrefactuel qui trancherait — à coût nul, et il appartient au décideur
+### 🔬 LE CONTREFACTUEL A ÉTÉ JOUÉ — 2026-08-30, par le décideur
+
+> ⚠️ **AVERTISSEMENTS — ILS PRÉCÈDENT LES COMMANDES, ET C'EST DÉLIBÉRÉ.** *(Au passage précédent
+> ils étaient placés **après** le bloc `bash` : un lecteur pouvait jouer le geste avant de lire ce
+> qu'il vaut. Relevé du gate, corrigé ici.)*
+>
+> 1. **Ce geste ne tranchait, SEUL, que dans UN sens.** Une sortie `v0.9.0` aurait été concluante à
+>    elle seule ; une sortie `v0.10.0` — celle qui a été observée — **ne conclut rien par
+>    elle-même**. Ce qui élimine, c'est le **croisement** avec le run `33277643229`. **Aucune
+>    conclusion ne se lit sur une seule des deux mesures.**
+> 2. **La première ligne est un ACTE DE RELEASE** (`gh release edit`), **refusé aux agents**. Elle
+>    a été jouée **par le décideur**. La seconde (`gh api … --jq`) est une **lecture**, sans effet,
+>    rejouable par quiconque — et c'est ce qui permet de la re-mesurer.
+> 3. **Il n'y a rien à restaurer** : le drapeau n'a pas bougé, et c'est **précisément le constat**.
 
 ```bash
 gh release edit v0.10.0 --latest=false --repo iakasju/latest-contrefactuel
-gh api repos/iakasju/latest-contrefactuel/releases/latest --jq .tag_name
+gh api  repos/iakasju/latest-contrefactuel/releases/latest --jq .tag_name
 ```
 
-Le banc ne porte plus que **deux** releases (mesure du 2026-08-30) : `v0.10.0` — plus haut semver,
-`created_at` le plus **ancien**, porteuse du `latest` — et `v0.9.0`, plus **récente** par date.
-Les hypothèses divergent enfin — mais **le geste ne tranche que dans UN sens**, et le décideur doit
-le savoir **avant** de le jouer :
+**Sortie observée : `v0.10.0` — INCHANGÉ.**
 
-| Sortie observée | Ce qu'elle tranche |
-|---|---|
-| **`v0.9.0`** | **CONCLUANT.** Le drapeau **se retire** et GitHub **replie par date**. La prose bornée ci-dessus devient franchement fausse dans son esprit opérationnel : sur la topologie d'`IakaCockpit`, ce repli **réparerait** le vol (encart ci-dessus). |
-| **`v0.10.0`** | **NE TRANCHE RIEN.** Compatible avec le **NO-OP**, avec un repli par **semver**, et avec un repli par **`published_at`** (l'ordre de publication du banc n'a pas été relevé). Trois hypothèses, une seule sortie. |
+**L'état du banc, re-mesuré en LECTURE SEULE le 2026-08-30** (`gh api …/releases`) — six valeurs
+relevées une à une, aucune déduite :
 
-*(Asymétrie relevée par le gate le 2026-08-30 et corrigée ici : ce document présentait les deux
-sorties comme également concluantes. Elles ne le sont pas.)*
+| Release | `id` | `created_at` | `published_at` | rang semver | `draft` / `prerelease` |
+|---|---|---|---|---|---|
+| `v0.10.0` | `379113276` | `2026-08-29T22:01:35Z` | `2026-08-29T22:03:11Z` | le plus **haut** | `false` / `false` |
+| `v0.9.0` | `379113280` | `2026-08-29T22:10:00Z` | `2026-08-29T22:03:13Z` | inférieur | `false` / `false` |
 
-C'est un **acte de release**, donc **refusé aux agents** : il n'a pas été joué. **Condition de
-levée de la réserve** : ce geste joué par le décideur, et sa sortie citée ici. Jusque-là, la prose
-des **six fichiers canoniques** est écrite pour rester **vraie dans les deux cas** — y compris
-celui où le job **réparerait**.
+**`v0.9.0` est plus récente sur les DEUX dates, et porte le plus grand `id`.** Les deux sont
+`draft: false` et `prerelease: false`, donc **toutes deux éligibles** au `latest` selon la doc REST.
+Le tag `v0.2.0` **subsiste sans release** ; son commit `368395f7…` porte la date
+`2026-08-29T22:20:00Z` — **mesurée ce jour sur le tag survivant**, ce qui fixe le `created_at`
+qu'avait sa release au moment du run.
+
+#### La table qui élimine — chaque règle confrontée aux DEUX mesures
+
+- **M1** = run `33277643229` : `--latest=false` posé sur `v0.2.0` → observé **`v0.2.0`**. L'`edit`
+  réussit (exit 0, URL imprimée à `22:04:24.85Z`) ; la lecture est faite à `22:04:25.50Z`, soit
+  **0,65 s plus tard**.
+- **M2** = le geste ci-dessus : `--latest=false` posé sur `v0.10.0` → observé **`v0.10.0`**,
+  **re-lu bien plus tard** et toujours `v0.10.0`.
+
+| # | Règle candidate | M1 prédit *(observé `v0.2.0`)* | M2 prédit *(observé `v0.10.0`)* | Verdict |
+|---|---|---|---|---|
+| **1** | **NO-OP** — le drapeau ne se retire pas | `v0.2.0` ✅ | `v0.10.0` ✅ | **SURVIT** |
+| 2 | repli par `created_at`, **sans** exclure la démarquée | `v0.2.0` ✅ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M2) |
+| 3 | repli par `created_at`, **en excluant** la démarquée | **`v0.9.0`** ❌ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M1 **et** M2) |
+| 4 | repli par `published_at`, **sans** exclure | `v0.2.0` ✅ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M2) |
+| 5 | repli par `published_at`, **en excluant** | **`v0.9.0`** ❌ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M1 **et** M2) |
+| 6 | repli par **semver** *(avec ou sans exclusion)* | **`v0.10.0`** ❌ | `v0.10.0` ✅ / `v0.9.0` ❌ | **RÉFUTÉE** (M1) |
+| 7 | repli par **plus grand `id`** | `v0.2.0` ✅ ⁽*⁾ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M2) |
+| 8 | repli par **ordre lexicographique** du tag | **`v0.9.0`** ❌ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M1 **et** M2) |
+| 9 | **repli différé** — le recalcul par date arrive après la lecture | `v0.2.0` ✅ | **`v0.9.0`** à terme ❌ | **RÉFUTÉE** (re-lecture tardive) |
+
+⁽*⁾ Pour M1, la règle 7 prédit `v0.2.0` **sous l'hypothèse non mesurée** que les `id` croissent
+avec la création : l'`id` de `v0.2.0` n'a jamais été relevé et sa release est supprimée. **Sans
+importance pour le verdict** : M2 la réfute à elle seule.
+
+**Pourquoi la règle 9 tombe, et pourquoi elle méritait d'être énumérée.** M1 lisait
+`releases/latest` **0,65 s** après l'`edit` : une consistance différée suffisait à expliquer son
+observation — c'est l'hypothèse « propagation », restée sans trace depuis le 2026-08-29 (geste
+**d** de la table sans trace). **M2 la ferme** : sa sortie a été **re-lue en lecture seule bien
+après** le geste, et rend encore `v0.10.0`. Un repli différé par date aurait eu tout le temps de
+désigner `v0.9.0`.
+
+#### Ce qui se conclut — et la limite, écrite avec
+
+Parmi les **neuf** règles énumérées ci-dessus, **huit sont réfutées par mesure ; seul le NO-OP
+survit.** Et cette règle-là, **contrairement à toutes les autres, ne dépend d'aucune topologie** :
+la conclusion cesse donc d'être bornée à l'**agencement** du banc. Elle reste bornée **au banc**
+(ce dépôt, cet acteur, ces droits, cette version de l'API) et **à l'énumération**.
+
+> 🛑 **La phrase juste n'est PAS « GitHub ne replie jamais ».** C'est : **« parmi les règles de
+> repli énumérées, huit sont réfutées par mesure ; seule le NO-OP survit. »** Écrire moins que la
+> liste, ou omettre le résidu ci-dessous, c'est refaire une quatrième fois la faute que ce lot a
+> commise trois fois — dans l'autre sens.
+
+#### LE RÉSIDU — ce que rien n'exclut
+
+1. **Une règle non énumérée reste possible.** Toute règle prédisant `v0.2.0` en M1 **et**
+   `v0.10.0` en M2 serait compatible avec les deux mesures. On n'en connaît pas ; **on n'a pas
+   montré qu'il n'en existe pas.** Les neuf éprouvées sont celles de la table, pas « toutes ».
+2. **Le NO-OP survivant est OBSERVATIONNEL, pas mécanique.** Il dit que `GET /releases/latest` ne
+   bouge pas. Il ne dit **pas où** le no-op se produit — client `gh`, écriture côté API, ou
+   lecture. **F3** a *lu* que `gh` envoie bien `make_latest: "false"` (`edit.go`) ; le `PATCH` REST
+   **brut** n'a toujours **ni run ni log** (geste **g**). Et `make_latest` **n'est pas relisible** :
+   aucune mesure ne distingue « écriture acceptée sans effet » de « écriture ignorée ».
+3. **Rien sur `IakaCockpit`** — autre dépôt, autre acteur (`tauri-action`, pas `gh release
+   create`), autres droits. **Inchangé.**
+4. **Rien sur le badge « Latest » de l'interface web** : jamais mesuré. Tout ce qui précède porte
+   sur `GET /repos/.../releases/latest`.
+5. **Rien pour une autre version de l'API.** Seule la ligne `VERIFICATION` du job le dira.
+
+#### Ce que ça retourne dans ce document
+
+L'encart **⛔** ci-dessus faisait reposer **tout** son argument sur la règle **2**. Elle est
+**réfutée**. **Sous la seule règle survivante, le job ne répare pas** — il **détecte, rougit et
+dicte le geste**. Ce qui **ne change pas** : « on ne peut pas compter dessus » reste vrai, et l'est
+désormais pour une raison **plus forte**, pas plus faible.
 
 ### Ce que ça ne prouve pas, quoi qu'il arrive
 
@@ -214,15 +336,22 @@ celui où le job **réparerait**.
 
 ## 2. Ce qui change dans les attendus de CA-5
 
-| Critère | Attendu au cadrage | Attendu **après la répétition** |
+> 🛑 **CE TABLEAU EST CONDITIONNEL — V-C N'A PAS EU LIEU ET N'AURA PAS LIEU DANS CE LOT.** La
+> décision **(γ)** du § 5 est ferme : aucun tag, aucune release, aucun `workflow_dispatch` sur
+> `IakaCockpit`. Ce tableau se lit donc **« ce que CA-5 exigerait SI le décideur rouvrait V-C »**,
+> jamais « ce qui va se passer ». *(Corrigé le 2026-08-30, troisième passage : il était rédigé au
+> **futur de l'indicatif** — « le job **sera** rouge », « vol observé ✅ » — c'est-à-dire qu'il
+> annonçait comme acquis le résultat d'une expérience **non exécutée**, contre le § 5.)*
+
+| Critère | Attendu au cadrage | Attendu **si V-C était rejouée**, après la répétition |
 |---|---|---|
-| **CA-5.1** — ligne `DECISION : … --latest=false` | présente | **inchangé** — elle sera là |
-| **CA-5.2** — job `latest` **vert**, `VERIFICATION … (attendu : v0.32.2)` | vert | **le job sera ROUGE**, et sa ligne dira `latest effectif = contrefactuel-ca5-… (attendu : v0.32.2)` |
+| **CA-5.1** — ligne `DECISION : … --latest=false` | présente | **inchangé** — elle serait là |
+| **CA-5.2** — job `latest` **vert**, `VERIFICATION … (attendu : v0.32.2)` | vert | **le job serait ROUGE**, et sa ligne dirait `latest effectif = contrefactuel-ca5-… (attendu : v0.32.2)` — **prédiction, non mesurée** |
 | **CA-5.3** — `latest` identique en 4.1 / 4.6 / 4.7 | identique **sans intervention** | identique **seulement après le rattrapage manuel** |
-| **CA-5.4** — vol observé puis réparé | réparé **par le job** | vol observé ✅ ; réparation **attendue du décideur**, pas du job — et **elle-même à mesurer**, cf. § 1 C-7 |
+| **CA-5.4** — vol observé puis réparé | réparé **par le job** | vol **attendu** (non observé sur ce dépôt) ; réparation **attendue du décideur**, pas du job — et **elle-même à mesurer**, cf. § 1 C-7 |
 | **CA-5.5 / 5.6 / 5.7** — rien d'abîmé | inchangé | **inchangé** |
 
-Autrement dit : **V-C ne peut plus valider CA-5 tel qu'il est écrit.** Elle validerait autre
+Autrement dit : **V-C ne pourrait plus valider CA-5 tel qu'il est écrit.** Elle validerait autre
 chose — que la répétition a déjà établi. Ce qu'elle ajouterait est **réel mais mince** : que le
 même comportement vaut sur le dépôt réel, avec le vrai acteur et les vrais droits.
 
@@ -294,9 +423,12 @@ while true; do
 done | tee /tmp/sonde-ca5.log
 ```
 
-**Attendu, corrigé par la répétition** : `v0.32.2`, puis **`contrefactuel-ca5-2026-08-29`** dès que
-`tauri-action` crée la release — **et ça n'en bouge plus**. Le job `latest` passera, dira
-`--latest=false`, et **le `latest` restera volé**.
+**Attendu — PRÉDICTION, pas mesure ; et cette séquence N'A PAS ÉTÉ EXÉCUTÉE (§ 5, décision γ)** :
+`v0.32.2`, puis **`contrefactuel-ca5-2026-08-29`** dès que `tauri-action` crée la release, et
+**ça n'en bougerait plus** — le job passerait, dirait `--latest=false`, et **le `latest`
+resterait volé**. *(Prédiction faite **sous la seule règle survivante** de l'énumération du § 1, le
+NO-OP ; une règle **non énumérée** la rendrait fausse. Corrigé le 2026-08-30, troisième passage :
+c'était écrit au futur de l'indicatif, comme si l'expérience allait avoir lieu.)*
 
 ### 3.5 👤 — **Rattraper immédiatement** (ne pas attendre la fin du run)
 
@@ -365,11 +497,17 @@ La répétition a déplacé le curseur. Le risque **reste borné** — un seul g
 | **(β)** Clore CA-5 en **« partiellement prouvé »**, déclaré et daté | zéro risque ; l'espéré est **écrit**, pas subi | la transposition n'est pas prouvée |
 | **(γ)** ✅ **RETENUE** — traiter d'abord le défaut découvert et re-cadrer la garde avant de la prouver | on cesse de prouver une garde qui ne garde pas | un lot de plus avant CA-5 |
 
-> 🪤 **Et V-C ne trancherait rien de plus que le banc.** Le tag contrefactuel de 3.2 pointerait le
-> commit de `v0.32.2` : la release neuve aurait donc le **même `created_at`** que `v0.32.2`. Sous
-> l'hypothèse « repli par date », le repli serait une **égalité** — comportement **indéfini**, donc
-> non concluant. La cible de V-C est **mal choisie pour discriminer** ; le contrefactuel à coût nul
-> du § 1 le fait mieux, et sans rien risquer. *(Relevé du gate le 2026-08-30, consigné.)*
+> 🪤 **Et V-C ne trancherait rien de plus que le banc — l'argument a changé, la conclusion non.**
+> *Rédaction du 2026-08-30, second passage, **datée et réfutée*** : « le tag contrefactuel de 3.2
+> pointerait le commit de `v0.32.2`, la release neuve aurait donc le même `created_at`, et sous
+> l'hypothèse *repli par date* le repli serait une **égalité**, comportement indéfini ».
+> **Cette hypothèse est réfutée** (§ 1, règles 2 à 5) : l'argument de l'égalité de `created_at`
+> **ne tient plus**, puisque plus aucune règle survivante ne regarde les dates.
+> **Ce qui reste vrai, pour une autre raison** : l'énumération des règles de repli est **déjà
+> close sur le banc**, et V-C n'en éprouverait aucune de plus. Ce qu'elle ajouterait — et c'est
+> **réel mais mince** — est la **transposition** : même comportement, sur le dépôt réel, avec le
+> vrai acteur (`tauri-action`) et les vrais droits. Le contrefactuel à coût nul du § 1 a fait le
+> travail de discrimination, **sans rien risquer**.
 
 ---
 
@@ -378,19 +516,30 @@ La répétition a déplacé le curseur. Le risque **reste borné** — un seul g
 1. **La garde n'empêche pas le vol — et on ne peut pas compter sur elle pour le réparer.**
    Qu'elle ne l'**empêche** pas est acquis : `tauri-action` crée la release (donc vole) **avant**
    que le job `latest` démarre (`src/index.ts` : `buildProject` → `getOrCreateRelease` →
-   `uploadReleaseAssets`). Pour la **réparation**, le banc n'a mesuré **qu'une topologie** — celle
-   où la voleuse était **aussi** la plus récente par `created_at` — et **là**, la branche
-   `--latest=false` n'a pas rendu le `latest` au plus haut semver (§ 1 A-2). **Sur la topologie
-   d'`IakaCockpit`, l'hypothèse du repli par date prédit l'inverse : elle réparerait** (encart
-   § 1). Ce qui tient donc sous les **deux** hypothèses : le job **détecte, rougit et dicte le
-   geste**, et **on ne peut pas compter sur lui pour réparer**. Ce qui **ne** tient **pas**, et qui
-   était écrit ici : « ce n'est pas une garde ». *(Bornage du 2026-08-30, second passage du
-   gate.)*
+   `uploadReleaseAssets`). Pour la **réparation** : le run seul n'avait mesuré **qu'une
+   topologie** — celle où la voleuse était **aussi** la plus récente par `created_at` — et **là**,
+   la branche `--latest=false` n'a pas rendu le `latest` au plus haut semver (§ 1 A-2).
+   ✅ **Le contrefactuel du 2026-08-30 a levé l'indétermination, dans les limites énumérées** :
+   croisé avec le run, il **réfute huit des neuf règles de repli** de la table du § 1 — **dont
+   celle du « repli par date » qui portait, au second passage, l'argument inverse**. **Seul le
+   NO-OP survit**, et lui ne dépend d'**aucune** topologie : sous cette règle, **le job ne répare
+   pas**. Ce qui tient donc, et se dit sans réserve nouvelle : le job **détecte, rougit et dicte
+   le geste**, et **on ne peut pas compter sur lui pour réparer**.
+   🛑 **Ce qui ne se dit toujours pas** : « GitHub ne replie jamais » — **une règle non énumérée
+   reste possible** (résidu, § 1). Et *« ce n'est pas une garde »* reste hors de portée pour une
+   **autre** raison, inchangée : rien de tout cela n'a été mesuré **sur `IakaCockpit`**, avec son
+   acteur et ses droits. *(Bornage du 2026-08-30, second passage ; levée partielle le même jour,
+   troisième passage.)*
 2. **Ce que fait GitHub après `make_latest=false` n'est pas documenté** — c'était l'inconnue F4.
-   **Elle N'EST PAS levée.** Ce document a écrit, du 2026-08-29 au 2026-08-30, « elle est désormais
-   mesurée : rien » ; c'était une **déduction déguisée en mesure**, et c'est le motif principal du
-   FAIL du gate. Ce qu'on sait : **le `latest` n'est pas revenu au plus haut semver**. Ce qu'on ne
-   sait pas : **pourquoi**. Le geste qui trancherait est écrit au § 1, il coûte zéro, et il
-   appartient au décideur. Ce qui **tient** en attendant : le job **mesure son propre résultat**
-   (ligne `VERIFICATION`) et **rougit en dictant le rattrapage** — **rien de tout cela n'est
-   garanti pour une autre version de l'API**, et seule la ligne `VERIFICATION` le dira.
+   **Elle est levée PAR ÉLIMINATION, pas par la doc, et pas sans reste.** Ce document a écrit, du
+   2026-08-29 au 2026-08-30, « elle est désormais mesurée : rien » ; c'était alors une **déduction
+   déguisée en mesure**, et c'est le motif principal du premier FAIL du gate. Depuis le
+   contrefactuel du décideur (§ 1) : **huit des neuf règles énumérées sont réfutées par mesure, et
+   seul le NO-OP survit**. On sait donc, **dans ces limites**, que le `latest` ne revient pas au
+   plus haut semver et **qu'aucune des huit règles éliminées n'explique pourquoi**.
+   🛑 **Le reste, écrit comme tel** : (a) **une règle non énumérée reste possible** ; (b) le NO-OP
+   survivant est **observationnel** — il ne dit pas **où** il se produit (`gh`, écriture API, ou
+   lecture), et `make_latest` **n'est pas relisible** ; (c) rien de tout cela n'est **garanti pour
+   une autre version de l'API**. Ce qui **tient** quoi qu'il arrive : le job **mesure son propre
+   résultat** (ligne `VERIFICATION`) et **rougit en dictant le rattrapage** — et **seule cette
+   ligne** dira que l'API a changé.
