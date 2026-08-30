@@ -558,8 +558,16 @@ la matrice de build du CI · `packages/core/package.json`.
       **Prouvé aussi, et c'est ce qui fait tomber CA-5 tel qu'écrit** : après que le job a posé
       `--latest=false` sur la release voleuse, `GET /releases/latest` rendait **encore** cette
       release, pas le plus haut semver — ligne `VERIFICATION : latest effectif = v0.2.0
-      (attendu : v0.10.0)`, job **rouge**. **La branche `--latest=false` ne rend pas** le `latest`
-      au plus haut semver ; **V3 n'est donc pas une garde mais un détecteur**.
+      (attendu : v0.10.0)`, job **rouge**. **Sur la topologie de ce banc** — où la voleuse était
+      **aussi** la plus récente par `created_at` — **la branche `--latest=false` n'a pas rendu** le
+      `latest` au plus haut semver. **Donc : on ne peut pas compter sur V3 pour réparer.**
+      ⚠️ **BORNAGE DU 2026-08-30 (second passage du gate)** : ce qui figurait ici — « **V3 n'est
+      donc pas une garde mais un détecteur** » — **dépassait la preuve**. Sur la topologie réelle
+      d'`IakaCockpit`, la voleuse serait créée sur un **tag ancien**, donc au `created_at` le plus
+      **vieux** ; sous l'hypothèse « repli par date » — la seule variante de repli qui **survive**
+      au run, celle « en excluant la démarquée » étant réfutée par lui — le `latest` retomberait sur
+      `v0.32.2`, **qui est aussi le plus haut semver**, et **V3 aurait réparé**. Détail : encart
+      « Ce que la mesure ne permet PAS de dire » de `contrefactuel-ca5-procedure-decideur.md`.
       ⚠️ **NON PROUVÉ — et écrit ici comme mesuré du 2026-08-29 au 2026-08-30 : le MÉCANISME.**
       « `make_latest=false` est un **NO-OP** » est une **déduction**, pas une mesure : la seule
       mesure tracée est celle ci-dessus, et **elle ne discrimine pas** « le drapeau ne se retire
