@@ -417,8 +417,24 @@ semver du dépôt), jamais laissé au défaut.
 `scripts/__tests__/pin-tauri-action.test.mjs` sont au registre de convergence et rougiraient — à
 raison.
 
-5.3 Documenter, dans les trois `CLAUDE.md`, la règle en une phrase : *republier un tag ancien vole le
-`latest` ; l'étape 5.2 est ce qui l'en empêche.*
+5.3 🛑 **RECTIFIÉE LE 2026-08-30 (L43) — CETTE ÉTAPE PRESCRIVAIT UNE PHRASE FAUSSE, ET ORDONNAIT DE
+LA RECOPIER DANS LES TROIS `CLAUDE.md`.** Il était écrit : *« Documenter, dans les trois
+`CLAUDE.md`, la règle en une phrase : republier un tag ancien vole le `latest` ; l'étape 5.2 est ce
+qui l'en empêche. »* **Ses deux moitiés sont réfutées par L43** :
+- **(a) Republier ne vole rien** au SHA épinglé : `getOrCreateRelease` rend la release existante
+  **sans aucun `updateRelease`** (F3, lu dans la source du SHA). C'est la **CRÉATION** d'une
+  release qui prend le drapeau — `createRelease` est appelé **sans** `make_latest`, donc au défaut
+  `true`. C'est R-1 de L43.
+- **(b) L'étape 5.2 n'empêche rien** : elle s'exécute **après** l'action, donc **après** la
+  création. Et elle ne répare pas davantage **sous la seule règle de repli survivante** au
+  contrefactuel du 2026-08-30 — huit des neuf règles énumérées y sont réfutées, le NO-OP survit
+  seul, **et une règle non énumérée reste possible**.
+
+**Ce qui est à documenter, et qui l'EST DÉJÀ** dans les trois `CLAUDE.md` rectifiés par ce lot :
+*créer une release prend le drapeau ; l'étape 5.2 ne l'empêche pas et, dans les limites énumérées,
+ne le répare pas — elle **détecte**, **rougit** et **dicte** le rattrapage.* Cette étape n'ordonne
+donc plus rien : elle **enregistre** ce que les trois fichiers portent, et **interdit** de
+réintroduire la phrase d'origine.
 
 ### Étape 6 — La CLI reprend sa ligne de publication (sous réserve d'AR-4)
 
