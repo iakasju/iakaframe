@@ -260,8 +260,15 @@ seul asset existant**.
   suite des versions et ne perturbera jamais un `PLUS_HAUT` futur.
 - **Pointé sur le commit de `v0.32.2`** : ce commit vient de bâtir **vert sur les 4 plateformes**
   (run `33273513846`), le build est donc connu bon. Effet de bord déclaré : le `created_at` de la
-  release contrefactuelle **égalera** celui de `v0.32.2` (F4) — sans conséquence, une release
-  exclue par `make_latest=false` ne peut pas être `latest`.
+  release contrefactuelle **égalera** celui de `v0.32.2` (F4).
+  ⚠️ **RÉFUTÉ LE 2026-08-30 — on date, on n'efface pas.** Ce point se poursuivait par : *« sans
+  conséquence, une release exclue par `make_latest=false` ne peut pas être `latest` »*. **Le run
+  `33277643229` l'a réfuté** : `v0.2.0`, sur laquelle le job venait de poser `--latest=false`,
+  **était** encore ce que rendait `GET /releases/latest`. C'est **la ligne qui justifiait le choix
+  de la cible de V-C** — elle tombe, et avec elle l'argument « effet de bord sans conséquence ».
+  La cible reste **mal choisie pour discriminer**, mais pour une **autre** raison : l'égalité des
+  `created_at` rendrait le repli par date **indéfini** (encart « V-C ne trancherait rien de plus »
+  de `contrefactuel-ca5-procedure-decideur.md`).
 - **`platforms: linux`** : un seul job, le plus court, donc la **fenêtre la plus étroite**.
 - **Dispatch depuis `main`** (R-5), jamais depuis le tag.
 - **Nettoyage** : `gh release delete <tag> --cleanup-tag` une fois les mesures prises.
