@@ -555,13 +555,28 @@ la matrice de build du CI · `packages/core/package.json`.
       run `33277643229`) : une **création** sans `make_latest` **vole** le `latest` ; le tri
       `sort -V` + filtre `^v…$` désigne bien `v0.10.0` face à `v0.9.0` et `archive/feat/x` ; et le
       transport de preuve tient (`sha256` du bloc `latest:` identique au `raw` d'`IakaCockpit@main`).
-      **Non prouvé, et découvert faux** : `make_latest=false` est un **NO-OP** sur
-      `GET /releases/latest` — la branche `--latest=false` **ne rend pas** un `latest` volé. **V3
-      n'est donc pas une garde mais un détecteur**, et CA-5 ne peut pas être coché tel qu'écrit.
+      **Prouvé aussi, et c'est ce qui fait tomber CA-5 tel qu'écrit** : après que le job a posé
+      `--latest=false` sur la release voleuse, `GET /releases/latest` rendait **encore** cette
+      release, pas le plus haut semver — ligne `VERIFICATION : latest effectif = v0.2.0
+      (attendu : v0.10.0)`, job **rouge**. **La branche `--latest=false` ne rend pas** le `latest`
+      au plus haut semver ; **V3 n'est donc pas une garde mais un détecteur**.
+      ⚠️ **NON PROUVÉ — et écrit ici comme mesuré du 2026-08-29 au 2026-08-30 : le MÉCANISME.**
+      « `make_latest=false` est un **NO-OP** » est une **déduction**, pas une mesure : la seule
+      mesure tracée est celle ci-dessus, et **elle ne discrimine pas** « le drapeau ne se retire
+      pas » de « le drapeau se retire et GitHub replie par date » — au moment où elle a été prise,
+      la release voleuse était **aussi** la plus récente par `created_at`. Le contrefactuel qui
+      trancherait coûte zéro et est **un acte de release**, donc hors des mains d'un agent :
+      `gh release edit v0.10.0 --latest=false` sur le banc, puis lecture de `releases/latest` —
+      **`v0.10.0` ⇒ drapeau inamovible**, **`v0.9.0` ⇒ repli par date**. Écrit au § 1 de
+      `contrefactuel-ca5-procedure-decideur.md`.
       **Non fait** : la transposition au dépôt réel (voie V-C) — **acte du décideur**, procédure
-      écrite et **suspendue** dans `contrefactuel-ca5-procedure-decideur.md` § 5.
-      **Condition de levée** : que le décideur tranche entre (α) lancer V-C, (β) clore en
-      partiellement prouvé, (γ) re-cadrer la garde d'abord.
+      écrite et **NON EXÉCUTÉE** dans `contrefactuel-ca5-procedure-decideur.md`. **Décision du
+      2026-08-30 : (γ)** — re-cadrer la garde d'abord, **aucun geste de release sur `IakaCockpit`**.
+      *(Et V-C ne discriminerait rien de plus : son tag contrefactuel pointerait le commit de
+      `v0.32.2`, donc **même `created_at`** — sous l'hypothèse « repli par date », une **égalité**,
+      comportement indéfini.)*
+      **Condition de levée** : le contrefactuel à coût nul ci-dessus joué par le décideur et sa
+      sortie citée (pour le **mécanisme**), puis une transposition au dépôt réel (pour **CA-5**).
 - [ ] **CA-6** — Le workflow **dit** ce qu'il a fait du `latest` (ligne de log citée), y compris
       quand il a décidé de **ne pas** le poser.
 
