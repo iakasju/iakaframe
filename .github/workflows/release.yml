@@ -37,13 +37,20 @@ jobs:
         run: npm pack --pack-destination ..
 
       # ┌─ L42 — LE `latest` CESSE D'ETRE SUBI ──────────────────────────────────────────────────┐
-      # │ MECANISME REEL, verifie sur la doc REST et MESURE le 2026-08-29. GitHub ne classe PAS  │
-      # │ les releases par date de creation ni par numero de version : il obeit au drapeau       │
-      # │ `make_latest`, de DEFAUT `true`, REECRIT A CHAQUE creation ou mise a jour de release.  │
-      # │ Republier un tag ANCIEN VOLE donc le `latest` — c'est ce qui est arrive au depot frere │
-      # │ iakaFrameGUI (v0.1.7 publiee le 13/08, v0.1.5 et v0.1.6 republiees le 18/08, et        │
-      # │ `latest` designait v0.1.6). Laisser le defaut, c'est confier la vitrine au hasard de   │
-      # │ l'ordre de publication.                                                                │
+      # │ MECANISME REEL, verifie sur la doc REST, MESURE le 2026-08-29, RECTIFIE le 2026-08-30  │
+      # │ (lot L43). GitHub ne classe pas les releases par numero de version : le `latest` suit  │
+      # │ le drapeau `make_latest`, de DEFAUT `true`.                                            │
+      # │                                                                                        │
+      # │ RECTIFICATION : ce cartouche disait « republier un tag ANCIEN VOLE donc le latest »,   │
+      # │ et « reecrit a chaque creation OU MISE A JOUR ». Or l'incident du depot frere          │
+      # │ iakaFrameGUI (v0.1.7 le 13/08, v0.1.5 et v0.1.6 le 18/08, `latest` sur v0.1.6) etait   │
+      # │ une CREATION, pas une republication : au SHA epingle de `tauri-action`, republier un   │
+      # │ tag dont la release EXISTE ne touche PAS au drapeau (R-1 de L43).                      │
+      # │                                                                                        │
+      # │ ICI l'acteur est `softprops`, PAS `tauri-action` : qu'il reecrive ou non le drapeau    │
+      # │ sur une release EXISTANTE n'a JAMAIS ete mesure — ce workflow n'a jamais tourne (voir  │
+      # │ STATUT). Laisser le defaut, c'est confier la vitrine au hasard de l'ordre de           │
+      # │ publication.                                                                           │
       # │                                                                                        │
       # │ Contrairement aux deux applications — dont le SHA epingle de `tauri-action` n'expose   │
       # │ AUCUNE entree de `latest` et exige donc une etape `gh` distincte —, `softprops`        │
@@ -57,6 +64,15 @@ jobs:
       # │ Le calcul de `make_latest` ci-dessous, comme la production du tarball, n'ont donc      │
       # │ jamais tourne. CONDITION DE LEVEE : la premiere publication reelle (acte du decideur), │
       # │ apres laquelle `actions/runs` sera non nul et l'asset portera `github-actions[bot]`.   │
+      # │                                                                                        │
+      # │ ET SI LE DRAPEAU EST DEJA VOLE, LA VERIFICATION FINALE NE LE REPARERA PAS. Sur le banc │
+      # │ iakasju/latest-contrefactuel, le contrefactuel joue par le decideur le 2026-08-30,     │
+      # │ croise avec le run 33277643229, REFUTE HUIT des NEUF regles de repli enumerees ; SEUL  │
+      # │ LE NO-OP SURVIT. RESIDU : une regle NON ENUMEREE reste possible, et ce NO-OP est       │
+      # │ OBSERVATIONNEL. L'etape « Verifier ce qu'est devenu le latest » DETECTE, ROUGIT et     │
+      # │ DICTE le rattrapage — dont le fonctionnement, lui, n'a AUCUNE trace. Liste des regles, │
+      # │ valeurs mesurees et residu :                                                           │
+      # │ specs/instructions/contrefactuel-ca5-procedure-decideur.md, § 1.                       │
       # └────────────────────────────────────────────────────────────────────────────────────────┘
       - name: Le tag publie est-il le plus haut semver ?
         id: rang
