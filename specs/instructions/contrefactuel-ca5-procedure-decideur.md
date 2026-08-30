@@ -269,7 +269,7 @@ qu'avait sa release au moment du run.
 | **1** | **NO-OP** — le drapeau ne se retire pas | `v0.2.0` ✅ | `v0.10.0` ✅ | **SURVIT** |
 | 2 | repli par `created_at`, **sans** exclure la démarquée | `v0.2.0` ✅ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M2) |
 | 3 | repli par `created_at`, **en excluant** la démarquée | **`v0.9.0`** ❌ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M1 **et** M2) |
-| 4 | repli par `published_at`, **sans** exclure | `v0.2.0` ✅ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M2) |
+| 4 | repli par `published_at`, **sans** exclure | `v0.2.0` ✅ ⁽**⁾ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M2) |
 | 5 | repli par `published_at`, **en excluant** | **`v0.9.0`** ❌ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M1 **et** M2) |
 | 6 | repli par **semver** *(avec ou sans exclusion)* | **`v0.10.0`** ❌ | `v0.10.0` ✅ / `v0.9.0` ❌ | **RÉFUTÉE** (M1) |
 | 7 | repli par **plus grand `id`** | `v0.2.0` ✅ ⁽*⁾ | **`v0.9.0`** ❌ | **RÉFUTÉE** (M2) |
@@ -279,6 +279,15 @@ qu'avait sa release au moment du run.
 ⁽*⁾ Pour M1, la règle 7 prédit `v0.2.0` **sous l'hypothèse non mesurée** que les `id` croissent
 avec la création : l'`id` de `v0.2.0` n'a jamais été relevé et sa release est supprimée. **Sans
 importance pour le verdict** : M2 la réfute à elle seule.
+
+⁽**⁾ **Même lacune, relevée le 2026-08-30 (cinquième passage du gate) : elle manquait à la règle
+4 alors qu'elle était portée par la 7.** Pour M1, la règle 4 prédit `v0.2.0` **sous une hypothèse
+non mesurée** : le `published_at` de `v0.2.0` **n'a jamais été relevé**, et sa release est
+supprimée (`404`) — la seule date qu'on ait d'elle est un `created_at` **reconstitué** depuis le
+commit du tag survivant (`22:20:00Z`). Cette case est donc une **prédiction sous hypothèse**, pas
+une mesure, dans un tableau dont c'est tout le régime. **Sans importance pour le verdict** : M2 la
+réfute à elle seule. *(La règle 5 n'en a pas besoin : en excluant la démarquée, elle ne compare que
+`v0.10.0` et `v0.9.0`, dont les deux `published_at` sont relevés.)*
 
 **Pourquoi la règle 9 tombe, et pourquoi elle méritait d'être énumérée.** M1 lisait
 `releases/latest` **0,65 s** après l'`edit` : une consistance différée suffisait à expliquer son
