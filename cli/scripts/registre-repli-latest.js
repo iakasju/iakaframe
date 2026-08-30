@@ -23,8 +23,8 @@
 //
 // CE QU'IL NE DETECTE PAS — DECLARE, PAS TU :
 //   H-1  une implication NEUVE, dans un fichier deja couvert, ECRITE SANS AUCUN mot du motif.
-//        C'est l'angle mort de tout balayage lexical. D-4 le reduit (une phrase sur le repli
-//        emploie presque toujours l'un de ces mots) sans le fermer. Il se ferme a la LECTURE.
+//        C'est l'angle mort de tout balayage lexical. D-4 le reduit POUR LE SEUL CAS D'UN AJOUT
+//        (le compte monte), sans le fermer. Il se ferme a la LECTURE.
 //   H-2  la JUSTESSE d'un enonce. Ce script compare des octets a un registre, il ne juge rien.
 //
 // CODES DE SORTIE — 0 : registre conforme · 1 : derive(s) · 2 : usage
@@ -55,6 +55,9 @@ const reg = JSON.parse(fs.readFileSync(REGISTRE, 'utf8'));
 // SENSIBLE A LA CASSE, DELIBEREMENT : en `i`, `NO-OP` attrape tous les `noop` du code
 // applicatif — 27 fichiers de bruit au lieu de 7. Le motif vise la PROSE, pas les identifiants.
 const MOTIF = new RegExp(reg.balayage.motif);
+// Variante globale : sert a COMPTER les occurrences (voir `occurrences` plus bas). `MOTIF` reste
+// non global — un `RegExp` global est a etat (`lastIndex`) et `test()` alterne alors vrai/faux.
+const MOTIF_GLOBAL = new RegExp(reg.balayage.motif, 'g');
 const EXTENSIONS = reg.balayage.extensions;
 const EXCLUS = reg.balayage.exclus;
 
@@ -86,14 +89,34 @@ function fichiersDuDepot(racineDepot) {
   return trouves.sort();
 }
 
+// ON COMPTE DES OCCURRENCES, PAS DES LIGNES — ET SUR LE TEXTE RECOLLE.
+// Corrige le 2026-08-30 (cinquieme passage du gate). La version d'origine faisait
+// `lignes.reduce((n, l) => n + (MOTIF.test(l) ? 1 : 0), 0)` : elle rendait UN par ligne touchee,
+// quel que soit le nombre d'enonces portes. DEUX defauts distincts, mesures :
+//
+//   (i)  MULTIPLICITE SUR UNE MEME LIGNE — 39 enonces sur le corpus couvert. Le compte etait de
+//        292 « occurrences » pour 331 matches reels. Une ligne qui porte deux affirmations sur le
+//        repli n'en valait qu'une : on pouvait en retourner une des deux sans que D-4 bouge.
+//        C'EST LA CAUSE DE LA QUASI-TOTALITE DE L'ECART, et elle n'a rien a voir avec la
+//        justification du texte.
+//   (ii) MOTIF COUPE PAR LE RETOUR A LA LIGNE — 2 enonces. Le corpus est justifie a 100 colonnes ;
+//        « … vole le \n `latest` … » ne matche NI la premiere ligne NI la seconde. L'un des deux
+//        etait `installer-depuis-rien.md` etape 5.3, une PRESCRIPTION VIVANTE qui ordonnait de
+//        recopier la phrase refutee dans les trois `CLAUDE.md` — invisible a quatre passages.
+//
+// LE RECOLLAGE (trim de chaque ligne, jointure par une espace) rend le texte tel qu'il se LIT, non
+// tel qu'il est justifie. Il peut en principe fabriquer un match a cheval sur deux paragraphes sans
+// rapport : ce serait un FAUX ROUGE — un enonce a trier —, jamais un faux vert. MESURE DU
+// 2026-08-30 : sur les trois depots, aucun fichier n'entre dans le vocabulaire par ce seul effet.
 function occurrences(abs) {
-  let lignes;
+  let brut;
   try {
-    lignes = fs.readFileSync(abs, 'utf8').split('\n');
+    brut = fs.readFileSync(abs, 'utf8');
   } catch {
     return null;
   }
-  return lignes.reduce((n, l) => n + (MOTIF.test(l) ? 1 : 0), 0);
+  const recolle = brut.split('\n').map((l) => l.trim()).join(' ');
+  return (recolle.match(MOTIF_GLOBAL) ?? []).length;
 }
 
 const derives = [];
