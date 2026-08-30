@@ -505,7 +505,9 @@ du JSON, pour qu'on puisse la contester sans lire le code) :
   en-tête de tableau, titre **non affirmatif**, ou motif du balayage cité en clair.
 
 **Issue** : **213** lignes inscrites, **40** déclarées hors couverture **une par une, chacune avec
-son motif** — aucune exclusion en masse, aucune plage, aucun glob. *Le défaut d'une garde n'est
+son motif** — aucune exclusion en masse, aucune plage, aucun glob. *(Le total du registre est de
+**41** déclarations : les 40 du tri, **plus une** pour la ligne du motif que la prose de ce lot
+ajoute — elle est passée par le même tri à la main, comme n'importe quelle autre.)* *Le défaut d'une garde n'est
 jamais la liste : c'est son mutisme.* Les 40 motifs vivent dans `depots.<dépôt>.lignesHorsCouverture`
 du JSON, avec l'empreinte du texte exclu.
 
