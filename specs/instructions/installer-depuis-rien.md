@@ -561,21 +561,27 @@ la matrice de build du CI · `packages/core/package.json`.
       (attendu : v0.10.0)`, job **rouge**. **Sur la topologie de ce banc** — où la voleuse était
       **aussi** la plus récente par `created_at` — **la branche `--latest=false` n'a pas rendu** le
       `latest` au plus haut semver. **Donc : on ne peut pas compter sur V3 pour réparer.**
-      ⚠️ **BORNAGE DU 2026-08-30 (second passage du gate)** : ce qui figurait ici — « **V3 n'est
-      donc pas une garde mais un détecteur** » — **dépassait la preuve**. Sur la topologie réelle
-      d'`IakaCockpit`, la voleuse serait créée sur un **tag ancien**, donc au `created_at` le plus
-      **vieux** ; sous l'hypothèse « repli par date » — la seule variante de repli qui **survive**
-      au run, celle « en excluant la démarquée » étant réfutée par lui — le `latest` retomberait sur
-      `v0.32.2`, **qui est aussi le plus haut semver**, et **V3 aurait réparé**. Détail : encart
-      « Ce que la mesure ne permet PAS de dire » de `contrefactuel-ca5-procedure-decideur.md`.
-      ⚠️ **NON PROUVÉ — et écrit ici comme mesuré du 2026-08-29 au 2026-08-30 : le MÉCANISME.**
-      « `make_latest=false` est un **NO-OP** » est une **déduction**, pas une mesure : la seule
-      mesure tracée est celle ci-dessus, et **elle ne discrimine pas** « le drapeau ne se retire
-      pas » de « le drapeau se retire et GitHub replie par date » — au moment où elle a été prise,
-      la release voleuse était **aussi** la plus récente par `created_at`. Le contrefactuel qui
-      trancherait coûte zéro et est **un acte de release**, donc hors des mains d'un agent :
-      `gh release edit v0.10.0 --latest=false` sur le banc, puis lecture de `releases/latest` —
-      **`v0.10.0` ⇒ drapeau inamovible**, **`v0.9.0` ⇒ repli par date**. Écrit au § 1 de
+      ⚠️ **BORNAGE DU 2026-08-30 (second passage du gate) — DATÉ, PUIS RÉFUTÉ LE MÊME JOUR.** Ce
+      qui figurait ici au premier jet — « **V3 n'est donc pas une garde mais un détecteur** » —
+      dépassait la preuve du run seul. Le bornage écrit ensuite la dépassait **dans l'autre sens** :
+      il affirmait que sur la topologie réelle d'`IakaCockpit`, la voleuse étant créée sur un **tag
+      ancien** donc au `created_at` le plus **vieux**, un « repli par date » aurait fait retomber le
+      `latest` sur `v0.32.2` et **V3 aurait réparé**. 🛑 **La règle qui portait cet argument est
+      réfutée** par le contrefactuel du décideur (ci-dessous). **Sous la seule règle survivante, V3
+      ne répare pas** — il **détecte, rougit et dicte le geste**.
+      ✅ **LE MÉCANISME — le contrefactuel a été JOUÉ le 2026-08-30 par le décideur.**
+      `gh release edit v0.10.0 --latest=false` sur le banc, puis lecture : **sortie `v0.10.0`,
+      inchangée**. ⚠️ **Cette sortie ne conclut RIEN à elle seule** — c'est son **croisement** avec
+      le run `33277643229` qui élimine. Croisées, les deux mesures **réfutent huit des neuf règles
+      de repli énumérées** (`created_at` et `published_at`, chacune avec et sans exclusion de la
+      démarquée · semver · plus grand `id` · ordre lexicographique · repli différé) ; **seul le
+      NO-OP survit**, et lui **ne dépend d'aucune topologie**.
+      🛑 **LE RÉSIDU, à porter avec la conclusion** : la phrase juste n'est **pas** « GitHub ne
+      replie jamais », c'est **« parmi les règles énumérées, huit sont réfutées ; seule le NO-OP
+      survit »** — **une règle non énumérée reste possible**, et le NO-OP survivant est
+      **observationnel** (il ne dit pas *où* il se produit : `gh`, écriture API, ou lecture ;
+      `make_latest` n'est pas relisible). Table complète des neuf règles, avec les six valeurs
+      mesurées du banc et le résidu : encart **« LE CONTREFACTUEL A ÉTÉ JOUÉ »** du § 1 de
       `contrefactuel-ca5-procedure-decideur.md`.
       **Non fait** : la transposition au dépôt réel (voie V-C) — **acte du décideur**, procédure
       écrite et **NON EXÉCUTÉE** dans `contrefactuel-ca5-procedure-decideur.md`. **Décision du
@@ -583,8 +589,10 @@ la matrice de build du CI · `packages/core/package.json`.
       *(Et V-C ne discriminerait rien de plus : son tag contrefactuel pointerait le commit de
       `v0.32.2`, donc **même `created_at`** — sous l'hypothèse « repli par date », une **égalité**,
       comportement indéfini.)*
-      **Condition de levée** : le contrefactuel à coût nul ci-dessus joué par le décideur et sa
-      sortie citée (pour le **mécanisme**), puis une transposition au dépôt réel (pour **CA-5**).
+      **Condition de levée — mise à jour du 2026-08-30** : le volet **mécanisme** est **levé par
+      élimination, dans les limites énumérées** (contrefactuel joué, sortie citée ci-dessus). Reste
+      dû pour **CA-5** : la **transposition au dépôt réel** — dépôt, acteur (`tauri-action`) et
+      droits différents —, qui demeure un **acte du décideur** et que **(γ)** a écartée de ce lot.
 - [ ] **CA-6** — Le workflow **dit** ce qu'il a fait du `latest` (ligne de log citée), y compris
       quand il a décidé de **ne pas** le poser.
 
