@@ -23,7 +23,14 @@
       "package-lock.json",
       ".next"
     ],
-    "//": "Commande equivalente, pour re-derivter le balayage a la main : git grep -n -I -E '<motif>' -- '*.md' '*.yml' '*.mjs' '*.js' '*.ts' '*.tsx' '*.sh'"
+    "//": "Commande equivalente, pour re-derivter le balayage a la main : git grep -n -I -E '<motif>' -- '*.md' '*.yml' '*.mjs' '*.js' '*.ts' '*.tsx' '*.sh'",
+    "completude": {
+      "//": "D-5 — CRITERE DE CLOTURE, ajoute au 6e passage (2026-08-30). Dans un fichier COUVERT, TOUTE ligne qui matche `motif` doit etre TENUE PAR UNE EMPREINTE : soit inscrite au § Registre (`entrees`), soit declaree ici, dans `depots.<depot>.lignesHorsCouverture`, AVEC SON MOTIF et l empreinte du texte exclu. Sinon : rouge. D-6 : une ligne declaree dont le TEXTE change est rouge — le motif d exclusion porte sur un texte, pas sur un numero de ligne. D-7 : une declaration qui ne couvre plus rien est rouge — une exclusion muette est une dette.",
+      "regleDeTri": "INSCRITE si la ligne AFFIRME quelque chose sur ce qu il advient du `latest` sous make_latest=false, sur la reparation, ou si elle porte un VERDICT ou un RESIDU — y compris quand c est un TITRE qui affirme (R-1, F3, F6, F7) ou un VERBATIM de log (le reecrire serait un faux). HORS COUVERTURE, avec son motif propre, si la ligne ne fait que PORTER LE VOCABULAIRE : commande reproduite, appel d API, ligne de code, cablage de $GITHUB_OUTPUT, chemin REST, en-tete de tableau, titre NON affirmatif, ou motif du balayage cite en clair.",
+      "ecrireNeFabriqueAucuneExclusion": "CLIQUET. `--ecrire` re-ancre les declarations existantes quand leur texte a GLISSE SANS CHANGER (position seule) ; il n en cree AUCUNE et n en supprime AUCUNE. Une ligne neuve du motif se TRIE A LA MAIN — sinon la voie de reparation documentee avalerait ce que le controle devait signaler.",
+      "mesureDEntree": "Avant ce lot : 309 lignes du motif dans les 16 fichiers couverts, 56 tenues par une empreinte, 253 non tenues. Issue du tri : 213 inscrites, 40 declarees hors couverture une par une. (+1 declaration pour la ligne du motif ajoutee par la prose de ce lot.)",
+      "ceQueDD5NeCouvrePas": "H-1. D-5 balaie les lignes QUI PORTENT LE MOTIF. Une ligne qui n en porte aucun lui est invisible : 7 des 22 enonces releves par le gate (IakaCockpit/CLAUDE.md:346, iakaFrameGUI/CLAUDE.md:426, contrefactuel-ca5-procedure-decideur.md:49,219,221,537,550) ne matchent pas le motif et ont ete inscrits A LA LECTURE. La completude de D-5 est celle du MOTIF, jamais celle du SENS."
+    }
   },
   "depots": {
     "IakaCockpit": {
@@ -37,6 +44,44 @@
         "scripts/test-convergence.mjs": "« aucun repli sur un autre depot » — repli de CHEMIN, rien a voir avec le drapeau `latest`.",
         "scripts/test-handoff-parity.mjs": "idem : repli de chemin autoritaire.",
         "scripts/test-reservoir-parity.mjs": "idem : repli de chemin autoritaire."
+      },
+      "lignesHorsCouverture": {
+        ".github/workflows/release.yml": {
+          "173": {
+            "motif": "Affectation shell `DECISION=\"--latest\"`, dans le job `latest` (147-199, sous quarantaine). Nomme la branche choisie, n'affirme rien sur le repli. Tenue par empreinte : le job n'est PAS modifie, mais il ne peut plus etre reecrit en silence.",
+            "extrait": "            DECISION=\"--latest\"",
+            "empreinte": "f151b5d1d482e58e16980961b2f0e159086783250d69760dd705218d303d9c6d"
+          },
+          "176": {
+            "motif": "Affectation shell `DECISION=\"--latest=false\"`, meme job sous quarantaine. Branche choisie, pas enonce sur le repli.",
+            "extrait": "            DECISION=\"--latest=false\"",
+            "empreinte": "2ae6606ad5e7bef6834d8e58d5fdf57dff8ab38fb4932172c2eda3d282b60ad8"
+          },
+          "192": {
+            "motif": "`EFFECTIF=$(gh api .../releases/latest)` — la MESURE que le job fait de son propre effet. Geste ; ce qu'elle etablit est porte par les lignes voisines, inscrites.",
+            "extrait": "          EFFECTIF=$(gh api \"repos/$DEPOT/releases/latest\" --jq '.tag_name')",
+            "empreinte": "a0f18a62a5ce0df4c2e776802d141cebada63475d69bca486ee3b619933d5ec0"
+          }
+        },
+        "CLAUDE.md": {
+          "188": {
+            "motif": "Commande du contrefactuel recopiee (`gh release edit v0.10.0 --latest=false --repo ...`). Geste reproductible ; sa sortie et sa portee sont inscrites au-dessus et au-dessous.",
+            "extrait": "#   gh release edit v0.10.0 --latest=false --repo iakasju/latest-contrefactuel",
+            "empreinte": "44f091d6c8c6ac1942e98afda159f197e04e790276e644dbb74bbbb62639a193"
+          },
+          "189": {
+            "motif": "Commande de lecture (`gh api .../releases/latest --jq .tag_name`) du meme bloc. Geste, pas enonce.",
+            "extrait": "#   gh api  repos/iakasju/latest-contrefactuel/releases/latest --jq .tag_name",
+            "empreinte": "340c782ad9b6ba29e58be9540b4d19ecab5a42906e11904875bd27d8d844370e"
+          }
+        },
+        "scripts/vitrine-en-ligne.mjs": {
+          "101": {
+            "motif": "Appel HTTP de la vitrine : elle lit `/releases/latest` pour l'egalite E-1. Ligne de CODE — elle CONSOMME le drapeau, elle n'enonce rien sur son repli. Le message que l'operateur lit, lui, est inscrit (`E-1/message/*`).",
+            "extrait": "const rLatest = await api(`/repos/${DEPOT}/releases/latest`);",
+            "empreinte": "21bccd5b7f3e3de7fdb1b34bbfcc9f146f91721c1991c27fc4fe74d6be987654"
+          }
+        }
       }
     },
     "iakaFrameGUI": {
@@ -51,6 +96,44 @@
         "scripts/publish-update.mjs": "« NO-OP propre » = republier un manifeste identique. Autre NO-OP, autre sujet.",
         "scripts/publish-update.test.mjs": "idem : le test du NO-OP de manifeste.",
         "src/forge/FramesGallery.tsx": "« NO-OP (D-3, A2) » = carte de frame active desactivee. Sans rapport."
+      },
+      "lignesHorsCouverture": {
+        ".github/workflows/release.yml": {
+          "173": {
+            "motif": "Jumeau exact de `IakaCockpit/.github/workflows/release.yml:173` — affectation shell dans le job sous quarantaine.",
+            "extrait": "            DECISION=\"--latest\"",
+            "empreinte": "f151b5d1d482e58e16980961b2f0e159086783250d69760dd705218d303d9c6d"
+          },
+          "176": {
+            "motif": "Jumeau exact de `IakaCockpit/.github/workflows/release.yml:176`.",
+            "extrait": "            DECISION=\"--latest=false\"",
+            "empreinte": "2ae6606ad5e7bef6834d8e58d5fdf57dff8ab38fb4932172c2eda3d282b60ad8"
+          },
+          "192": {
+            "motif": "Jumeau exact de `IakaCockpit/.github/workflows/release.yml:192` — mesure, pas enonce.",
+            "extrait": "          EFFECTIF=$(gh api \"repos/$DEPOT/releases/latest\" --jq '.tag_name')",
+            "empreinte": "a0f18a62a5ce0df4c2e776802d141cebada63475d69bca486ee3b619933d5ec0"
+          }
+        },
+        "CLAUDE.md": {
+          "169": {
+            "motif": "Jumeau exact de `IakaCockpit/CLAUDE.md:188` — commande du contrefactuel recopiee.",
+            "extrait": "#   gh release edit v0.10.0 --latest=false --repo iakasju/latest-contrefactuel",
+            "empreinte": "44f091d6c8c6ac1942e98afda159f197e04e790276e644dbb74bbbb62639a193"
+          },
+          "170": {
+            "motif": "Jumeau exact de `IakaCockpit/CLAUDE.md:189` — commande de lecture.",
+            "extrait": "#   gh api  repos/iakasju/latest-contrefactuel/releases/latest --jq .tag_name",
+            "empreinte": "340c782ad9b6ba29e58be9540b4d19ecab5a42906e11904875bd27d8d844370e"
+          }
+        },
+        "scripts/vitrine-en-ligne.mjs": {
+          "101": {
+            "motif": "Jumeau exact de `IakaCockpit/scripts/vitrine-en-ligne.mjs:101` (fichier convergent) — appel HTTP, pas enonce.",
+            "extrait": "const rLatest = await api(`/repos/${DEPOT}/releases/latest`);",
+            "empreinte": "21bccd5b7f3e3de7fdb1b34bbfcc9f146f91721c1991c27fc4fe74d6be987654"
+          }
+        }
       }
     },
     "iakaframe": {
@@ -61,7 +144,7 @@
         "cli/scripts/vitrine-en-ligne.js": 7,
         "specs/etat-des-lieux.md": 8,
         "specs/instructions/contrefactuel-ca5-procedure-decideur.md": 68,
-        "specs/instructions/contrefactuel-du-vol-de-latest.md": 76,
+        "specs/instructions/contrefactuel-du-vol-de-latest.md": 77,
         "specs/instructions/installer-depuis-rien.md": 43
       },
       "horsCouverture": {
@@ -71,10 +154,191 @@
         "library/skills/iakaframe-appflowy-doc/test.mjs": "idem.",
         "cli/_bundled/library/skills/iakaframe-appflowy-doc/appflowy-doc.mjs": "idem — copie bundlee.",
         "cli/_bundled/library/skills/iakaframe-appflowy-doc/test.mjs": "idem — copie bundlee."
+      },
+      "lignesHorsCouverture": {
+        ".github/workflows/release.yml": {
+          "92": {
+            "motif": "`echo \"make_latest=true\" >> $GITHUB_OUTPUT` — cablage de sortie de step. Transporte la decision, ne l'enonce pas ; la ligne 91 qui l'enonce est inscrite.",
+            "extrait": "            echo \"make_latest=true\" >> \"$GITHUB_OUTPUT\"",
+            "empreinte": "d409adddddd5f48d2c6b62b4a9147fa24565f840df03c3034b153edc1e3ad013"
+          },
+          "96": {
+            "motif": "Idem pour `make_latest=false` ; l'enonce correspondant est la ligne 94, inscrite.",
+            "extrait": "            echo \"make_latest=false\" >> \"$GITHUB_OUTPUT\"",
+            "empreinte": "1f63fa9f1f018749b7a98ec9d8574647b11d454b37c562d65e4c52c7668dc7f0"
+          },
+          "106": {
+            "motif": "`make_latest: ${{ steps.rang.outputs.make_latest }}` — cablage de l'input de l'action. Passe la valeur calculee, n'affirme rien.",
+            "extrait": "          make_latest: ${{ steps.rang.outputs.make_latest }}",
+            "empreinte": "15f50162bd608fd216a0cb707c8835072f78ce324c69db321b27374b7ae3e776"
+          },
+          "120": {
+            "motif": "`EFFECTIF=$(gh api .../releases/latest ...)` — mesure de l'effet reel par le job. Geste ; la conclusion est aux lignes voisines, inscrites.",
+            "extrait": "          EFFECTIF=$(gh api \"repos/${{ github.repository }}/releases/latest\" --jq '.tag_name')",
+            "empreinte": "e3d1c98b92423823cc586d58d88ad7b687221500da2c51e07aa2a308dc22707e"
+          }
+        },
+        "cli/scripts/vitrine-en-ligne.js": {
+          "84": {
+            "motif": "Meme appel HTTP dans la version `iakaframe` de la vitrine — lecture de `/releases/latest` pour E-1. Code, pas enonce.",
+            "extrait": "const rLatest = await api(`/repos/${DEPOT}/releases/latest`);",
+            "empreinte": "21bccd5b7f3e3de7fdb1b34bbfcc9f146f91721c1991c27fc4fe74d6be987654"
+          }
+        },
+        "specs/etat-des-lieux.md": {
+          "25": {
+            "motif": "Ligne du tableau d'historique git : libelle du commit `3198517` (`ci(release): make_latest CALCULE...`). Trace d'un commit — le libelle ne peut pas etre reecrit sans reecrire l'histoire, et il ne dit rien du repli.",
+            "extrait": "| `3198517` | 2026-08-29 | ci(release): make_latest CALCULE, jamais laisse au defaut |",
+            "empreinte": "0027902c7e44dffe56615ef5b373c7cad80f9bb8e1e7800571612109ccfb24b9"
+          }
+        },
+        "specs/instructions/contrefactuel-ca5-procedure-decideur.md": {
+          "54": {
+            "motif": "Renvoi bibliographique au § « Registre des enonces sur le repli du `latest` » de l'autre document. Reference, pas enonce.",
+            "extrait": "> `contrefactuel-du-vol-de-latest.md` § « Registre des énoncés sur le repli du `latest` » — avec",
+            "empreinte": "1114a74025e5df73a5e8faa018cf7de9bbd0ff7361efd37f57895178d91ad9a5"
+          },
+          "82": {
+            "motif": "En-tete du tableau des gestes (`| # | Geste | Trace | releases/latest observe apres |`). Ossature de tableau.",
+            "extrait": "| # | Geste | Trace | `releases/latest` observé **après** |",
+            "empreinte": "db1575a4aa54b0d3c4297d1c8f296eec86c9133e61de9b65c78f436ea2ba2c31"
+          },
+          "163": {
+            "motif": "Commande de reproduction du compte `NO-OP` (`git grep -c ...`). Geste de verification ; son resultat est enonce a la ligne suivante.",
+            "extrait": "   `git grep -c \"NO-OP\" <commit> -- '*.md' '*.yml'`, qui rend `release.yml:1` + `CLAUDE.md:2` de",
+            "empreinte": "e4614b4d6f13b1c310eee7cc0dc9e477794960d26cc748d014b335e80f0371c6"
+          },
+          "239": {
+            "motif": "Commande du contrefactuel rejoue par le decideur (`gh release edit v0.10.0 --latest=false ...`). Geste — le geste discriminant, mais un geste.",
+            "extrait": "gh release edit v0.10.0 --latest=false --repo iakasju/latest-contrefactuel",
+            "empreinte": "0279f82c0adc35feb11503126b59aafc03869324dd34af102943466805e2393d"
+          },
+          "240": {
+            "motif": "Commande de lecture de la sortie (`gh api .../releases/latest --jq .tag_name`). Geste ; la sortie et sa portee sont inscrites plus bas.",
+            "extrait": "gh api  repos/iakasju/latest-contrefactuel/releases/latest --jq .tag_name",
+            "empreinte": "cd2d34e34c0aecaea6f3d1a68965d67ce6eae96717a66a59aef73dedec7f6b63"
+          },
+          "378": {
+            "motif": "Commande de sonde anonyme (`env -u GITHUB_TOKEN ... gh api .../releases/latest`). Geste.",
+            "extrait": "env -u GITHUB_TOKEN -u GH_TOKEN gh api repos/iakasju/IakaCockpit/releases/latest --jq .tag_name",
+            "empreinte": "430d05b4461ae6e0a2299d261f4c406dd3ae3c7e8d2d3d2ee272297e65987f0a"
+          },
+          "430": {
+            "motif": "Commande imbriquee dans le bloc de sonde (`\"$(gh api .../releases/latest --jq .tag_name)\"`). Geste.",
+            "extrait": "    \"$(gh api repos/iakasju/IakaCockpit/releases/latest --jq .tag_name)\"",
+            "empreinte": "b7bc8964a3d234f677be9a4c1202261d4f99bd12b21293e3e7955596e2a3781b"
+          },
+          "445": {
+            "motif": "Commande de rattrapage a jouer (`gh release edit v0.32.2 --latest ...`). Geste ; QUE ce geste repare est un enonce NON TRACE, inscrit ailleurs.",
+            "extrait": "gh release edit v0.32.2 --latest --repo iakasju/IakaCockpit",
+            "empreinte": "f19a91a528fcb17eceb1000f1f7457a1428955e769657114fac8999b0dafdf5f"
+          },
+          "446": {
+            "motif": "Commande de re-lecture, avec son attendu en commentaire de fin de ligne. Geste.",
+            "extrait": "gh api repos/iakasju/IakaCockpit/releases/latest --jq .tag_name   # doit rendre v0.32.2",
+            "empreinte": "a17e88088c46fba3de7c45bcddfb88c8a996a300903e4d5642d547cb2f4f38a2"
+          },
+          "466": {
+            "motif": "Commande de re-mesure (`gh api .../releases/latest --jq .tag_name`). Geste.",
+            "extrait": "gh api repos/iakasju/IakaCockpit/releases/latest --jq .tag_name",
+            "empreinte": "1818d8083269a23640c1c3a407706df539d07273d68ec6063c831de1335d0b55"
+          }
+        },
+        "specs/instructions/contrefactuel-du-vol-de-latest.md": {
+          "283": {
+            "motif": "TITRE de la section « Registre des enonces sur le repli du `latest` ». C'est exactement le genre d'ancre qui a laisse passer H-3 : il est declare hors couverture POUR QUE ce soit le CORPS, ligne a ligne, qui soit tenu.",
+            "extrait": "## Registre des énoncés sur le repli du `latest` — **ajouté le 2026-08-30**",
+            "empreinte": "5257c60831ad94f644266c7444283826ea82a394c4f6f2994be37684ad70ce7a"
+          },
+          "303": {
+            "motif": "Prescription sur la CASSE du motif du balayage. Porte sur l'instrument, pas sur le repli.",
+            "extrait": "   **sensible à la casse**, faute de quoi `NO-OP` attrape tous les `noop` du code applicatif",
+            "empreinte": "09f58772a8441b2f438c51829d5b46c3783af21a5956afa77d0c446fedac4358"
+          },
+          "307": {
+            "motif": "Le motif du balayage recopie en clair (1/3). C'est l'instrument ; sa source de verite est `balayage.motif` du JSON.",
+            "extrait": "   make_latest|--latest|NO-OP|drapeau inamovible|repli par (date|semver|created_at|published_at)",
+            "empreinte": "9308a91e7a6134c5a79047820439c8f0f3ef4ba9b8a9862b4be383b2cc4a1920"
+          },
+          "308": {
+            "motif": "Le motif du balayage recopie en clair (2/3).",
+            "extrait": "   |aucun repli|repli du .?latest|[Vv]ole le .?latest|vol du .?latest",
+            "empreinte": "1484d279cbea7741a92a1ba58fb59e1035e5981a7ea2561ad198ade770e95e48"
+          },
+          "309": {
+            "motif": "Le motif du balayage recopie en clair (3/3).",
+            "extrait": "   |[Mm][eé]caniquement impossible|releases/latest",
+            "empreinte": "ebf4162c60a3f55edbba8ce991a47e3e96480bd72c2900f9b8a292b5306bb36d"
+          },
+          "500": {
+            "motif": "Enonce de la REGLE DE TRI du balayage de completude — elle nomme `make_latest=false` pour se definir. Porte sur l'instrument, pas sur le repli.",
+            "extrait": "  `make_latest=false`, sur la réparation, ou si elle porte un **verdict** ou un **résidu** — y",
+            "empreinte": "3d1572a6479597d638cf21a3bf1dd8cf348f678797a7215d72ae32b0e9f403b7"
+          },
+          "700": {
+            "motif": "Commande de sonde de l'etape 4 (`gh api .../releases/latest --jq .tag_name`). Geste.",
+            "extrait": "`gh api repos/iakasju/IakaCockpit/releases/latest --jq .tag_name` ·",
+            "empreinte": "899d5ede4e6f564dbd44a695e96450d6eaa1b8875ef5ff17eafb6f4e0c3e501b"
+          }
+        },
+        "specs/instructions/installer-depuis-rien.md": {
+          "310": {
+            "motif": "Commande de la procedure d'installation (`gh api repos/iakasju/<repo>/releases/latest --jq '.tag_name'`). Geste.",
+            "extrait": "gh api repos/iakasju/<repo>/releases/latest --jq '.tag_name'",
+            "empreinte": "2a105147e623f62b3344b3631e6e09eb9f56f9bcc8e79208f707e67ea4f91d56"
+          },
+          "556": {
+            "motif": "`*Verif*` de CA-3 : la commande a jouer. Geste ; le critere lui-meme est a la ligne au-dessus, inscrite.",
+            "extrait": "      *Vérif* : `gh api repos/iakasju/<repo>/releases/latest --jq .tag_name`, confronté au README.",
+            "empreinte": "33c00cca9d3c1afb241a9a6eebe526cca62b835c91ae872a22056f72de4c6983"
+          },
+          "621": {
+            "motif": "`*Verif*` de CA-7 (corps de la release). Geste.",
+            "extrait": "      *Vérif* : `gh api repos/iakasju/iakaframe/releases/latest --jq .body`.",
+            "empreinte": "37c678d02ea2e33d130dd51f688f863740b76daf5f32c3487e7ee7cbe4b06a5d"
+          },
+          "624": {
+            "motif": "`*Verif*` de CA-8 (noms d'assets). Geste.",
+            "extrait": "      *Vérif* : `gh api repos/iakasju/iakaframe/releases/latest --jq '.assets[].name'`, confronté au",
+            "empreinte": "a2cfe6ca1e048af63afbccfe8af21d5bd986484d7ccbfe2857a595cd1ad8643e"
+          },
+          "641": {
+            "motif": "`*Verif*` du compte de `latest.json` dans les assets. Geste.",
+            "extrait": "      *Vérif* : `gh api repos/iakasju/<repo>/releases/latest --jq '.assets[].name' | grep -c latest.json`",
+            "empreinte": "126a4ddfa61fd6ca27551c9fd32470240b280f5bde1d180b6e52e430a3b35aaf"
+          },
+          "821": {
+            "motif": "Enumeration de chemins d'API REST (`/releases`, `/releases/latest`, `/releases/tags/<tag>`) dans la liste des sources consultees. Chemins, pas enonce.",
+            "extrait": "  `/releases`, `/releases/latest`, `/releases/tags/<tag>` — et `/repos/iakasju/iakaTokenCounter`",
+            "empreinte": "c0983610ed5f55fd0a35641a6193cc17381e93c772b9278dc4a9c1b3d7516f78"
+          }
+        }
       }
     }
   },
   "entrees": [
+    {
+      "id": "IakaCockpit/balayage/release.yml/001",
+      "depot": "IakaCockpit",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 132,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  # │ `latest` vient de la CREATION d'une release : `createRelease` y est appele SANS `make_latest`,│",
+      "empreinte": "e452de923337b5726e179e9a5264adefa2bbeeb55f60f29d3744a25908f3e5d9",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/release.yml/002",
+      "depot": "IakaCockpit",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 135,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  # │ cartouche disait, jusqu'au 2026-08-29, « republier un tag ANCIEN vole le latest » ; FAUX ICI. │",
+      "empreinte": "e2aeae6a02cd6657e0af667deddf3bddc5eaf469577e7346cc27f9c1763908e9",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
     {
       "id": "IakaCockpit/cartouche/ne-repare-pas",
       "depot": "IakaCockpit",
@@ -131,6 +395,61 @@
       "note": "Ligne du bloc « cartouche/verdict-residu » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "IakaCockpit/balayage/release.yml/003",
+      "depot": "IakaCockpit",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 178,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "            echo \"           --latest=false. Sans cette ligne, le defaut make_latest=true de\"",
+      "empreinte": "ce2e5d4879b80bd14e3ee2c3dae174beef4d547ec7b810f02a5e1c3aafedcb8d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/release.yml/004",
+      "depot": "IakaCockpit",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 186,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "            echo \"::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo $DEPOT\"",
+      "empreinte": "e5b887e0d092ee309b7c6cc930154b279ae0177916bad578b9752614b7425b28",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/release.yml/005",
+      "depot": "IakaCockpit",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 196,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "            echo \"::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo $DEPOT\"",
+      "empreinte": "e5b887e0d092ee309b7c6cc930154b279ae0177916bad578b9752614b7425b28",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/001",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 142,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# `make_latest`, donc au defaut `true` ; mais `getOrCreateRelease` renvoie une release DEJA",
+      "empreinte": "306625bd68a84ffda6e9ba87ef1000a1c7e6ecf58677de19c9cf7d752d47b4d7",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/002",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 145,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# « REPUBLIER un tag ancien vole le latest » ; c'etait FAUX ici. L'incident iakaFrameGUI (v0.1.5 et",
+      "empreinte": "2ab5c763dd4b5935cd1fef740fad3d2b220fd87c38458507528dd9fa25ad5d2d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "IakaCockpit/bloc-latest/en-tete",
       "depot": "IakaCockpit",
       "chemin": "CLAUDE.md",
@@ -142,6 +461,61 @@
       "note": "Disait « RIEN N ETABLIT QU IL LE REPARE » : l indetermination est levee par elimination."
     },
     {
+      "id": "IakaCockpit/balayage/CLAUDE.md/003",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 155,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# du 2026-08-29 : apres un vol REEL (creation de `v0.2.0` sans `--latest`, le `latest` passe de",
+      "empreinte": "d3da93ae6966ab2ad6f7ca6c9b32ba08f4d20f202c953c1054eaa3e3625a80ab",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/004",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 156,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# `v0.10.0` a `v0.2.0`), le job a pose `--latest=false` sur la release voleuse, et",
+      "empreinte": "e0ee349c3feffe701a311cbe0c84fc10b1ca6d110474304c0428b33099c45334",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/005",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 157,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# `GET /repos/.../releases/latest` a rendu `v0.2.0` — ligne du log :",
+      "empreinte": "ade2a58c364fdb4c58753d95ced0852e5dbbb234409de9ec8efdff233a66ccc1",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/006",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 160,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# la plus recente par `created_at` — la branche `--latest=false` N'A PAS rendu le `latest` au",
+      "empreinte": "7a137aecdb8247db66008306a70773f39f880b7c74ec51b6263a33102e487c6d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/007",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 165,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# l'hypothese repli par date, le `latest` retomberait sur `v0.32.2`, qui est AUSSI le plus haut",
+      "empreinte": "1f79f81b12c561cf04022e322e4340a954d747960c6a1c650c1aada11e518321",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "IakaCockpit/bloc-latest/bornage-refute",
       "depot": "IakaCockpit",
       "chemin": "CLAUDE.md",
@@ -151,6 +525,17 @@
       "extrait": "# CET ARGUMENT EST REFUTEE (contrefactuel du decideur, plus bas) : plus AUCUNE regle survivante",
       "empreinte": "7f4472bdf01e48159f2a845d769ce944dad63c0b4f3288b0efa128ca095c2bcf",
       "note": "Portait « ICI, un repli par date REPARERAIT » : la regle est refutee. Date, pas efface."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/008",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 177,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# « `make_latest=false` est un NO-OP » a ete ecrit ici comme un fait MESURE jusqu'au 2026-08-30 ;",
+      "empreinte": "3ba6225cce2d0de3270bb8c90ec62ea5a24e4839915b7eeafd0fd8e653aecfc3",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "IakaCockpit/bloc-latest/avertissement-avant-commandes",
@@ -173,6 +558,17 @@
       "extrait": "# JOUE PAR LE DECIDEUR le 2026-08-30 -> sortie `v0.10.0`, INCHANGEE. Etat du banc, six valeurs",
       "empreinte": "64a4af6690cf441eed849fcbae1597515b9c76c0fb6800843b318dae6f48e344",
       "note": "Remplace « CE QUI TRANCHERAIT » et l inference « drapeau inamovible => v0.10.0 »."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/009",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 198,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# n'ayant eu lieu que 0,65 s apres l'edit). SEUL LE NO-OP SURVIT — et lui ne depend d'AUCUNE",
+      "empreinte": "fae2db23ed21a2ba4f57fdc81bda0007016ec56eac416aaefadae640a0489482",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "IakaCockpit/bloc-latest/residu",
@@ -263,6 +659,17 @@
       "note": "Ligne du bloc « bloc-latest/residu-corps » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "IakaCockpit/balayage/CLAUDE.md/010",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 215,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# effectif = ...`), ROUGIT, et DICTE le rattrapage `gh release edit <PLUS_HAUT> --latest --repo",
+      "empreinte": "1cc2bdd7c9ca807c489c537271e26ca3a975b3f51d7ffe1c0713b98943d7e61a",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "IakaCockpit/bloc-latest/rattrapage-sans-trace",
       "depot": "IakaCockpit",
       "chemin": "CLAUDE.md",
@@ -272,6 +679,17 @@
       "extrait": "# « fonctionne en < 3 s » qui figurait ici est retire. ⚠️ ET LE CONTREFACTUEL DU 2026-08-30 N'Y",
       "empreinte": "98a6d806635a6fd5f4bf6abc2d456a061a734191b0f0c01c348c83479ee4bda0",
       "note": "La mesure ne porte que sur l ecriture `false` ; `true` reste sans trace."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/011",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 221,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# produise un effet reste SANS TRACE, et le NO-OP observe sur `false` ne se transpose pas",
+      "empreinte": "d88ca63c338ad9e89e398e4a346368326a63ce6df8ba6d27529ea12c5cab98ec",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "IakaCockpit/bloc-latest/seul-detecteur",
@@ -285,6 +703,94 @@
       "note": "Enonce juste et inchange. Pointe par le gate en :195 / :176 — verifie."
     },
     {
+      "id": "IakaCockpit/balayage/CLAUDE.md/012",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 285,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `--latest=false` n'a PAS rendu le `latest` au plus haut semver**",
+      "empreinte": "f00a9ba2173729f67f4b55ca6bc49254a1dd53e8ea8fc74e37cc37d6251af1e6",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/bloc-latest/verdict-neuf-regles",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 290,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      *des neuf règles de repli énumérées, seul le NO-OP survit, et le bornage « à la topologie »*",
+      "empreinte": "30d5076e3d33319848d63efc10c0650d69ee1e14f13710fb982b54911e18e532",
+      "note": "LIGNE DE VERDICT du bloc : « des neuf regles de repli enumerees, seul le NO-OP survit ». C'est l'enonce que la mutation E-2 retournait en « les neuf regles survivent » — vert aux deux depots jusqu'au 6e passage. Tenue par empreinte."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/013",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 296,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      effaçant. (i) « Republier un tag ancien vole le `latest` » : FAUX au SHA épinglé — lu dans",
+      "empreinte": "2396f1e4adf13215bef0c8765d87471749f051a02e4cdd742e2e3e9756a066b7",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/014",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 298,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      sans `updateRelease` ; **le vol vient de la CRÉATION** (`createRelease` sans `make_latest`,",
+      "empreinte": "a5828ebe9da94d7bcb05e6adba3c66ea6c5327f10e10867927e6a5cefb5669a6",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/015",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 304,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      sans `--latest` → `releases/latest` passe de `v0.10.0` à `v0.2.0` (**le vol est réel**) ;",
+      "empreinte": "9f65213c96086fd3302ccf541bd19b8961e4fb0d0198fae9b880b8c2959d9a35",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/016",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 306,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `0.10`), `DECISION : v0.2.0 n'est PAS le plus haut` → `--latest=false` **accepté**, et",
+      "empreinte": "a92db5342faf6cef7f06dce2f8a901dbce92cfe67973f502611055b44693cbf0",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/017",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 309,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      release voleuse était **aussi** la plus récente par `created_at`, la branche `--latest=false`",
+      "empreinte": "a417e6e90b09523c98881b405480c1e36801ebc67bc7b65066d72736c51ed0b1",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/018",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 313,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      plus vieux ; sous l'hypothèse **repli par date**, le `latest` retomberait sur `v0.32.2`, qui",
+      "empreinte": "75cd7fc485e0356eb09e1855c92506b9e33d68dd80195001b9cde28b4c48337f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "IakaCockpit/backlog-L43/bornage-refute",
       "depot": "IakaCockpit",
       "chemin": "CLAUDE.md",
@@ -294,6 +800,17 @@
       "extrait": "**réparé** »*. 🛑 **La règle qui portait cet argument est réfutée** par le contrefactuel joué",
       "empreinte": "7c96686be0ca3b30a591d6b0b5e024e0d73915e76305f2fcdcd56654fb505ef5",
       "note": "Second exemplaire de l argument « un repli par date REPARERAIT »."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/019",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 326,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      ÉLIMINATION le même jour.** « `make_latest=false` est un NO-OP » était écrit ici comme un",
+      "empreinte": "962bc693737593d37793f28713e084ea1971fe33923bc6d7ee49e9edb31b8258",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "IakaCockpit/backlog-L43/contrefactuel-joue",
@@ -307,6 +824,39 @@
       "note": "Remplace l inference « drapeau inamovible ⇒ v0.10.0 · repli par date ⇒ v0.9.0 »."
     },
     {
+      "id": "IakaCockpit/balayage/CLAUDE.md/020",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 332,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `gh release edit v0.10.0 --latest=false --repo iakasju/latest-contrefactuel` puis lecture de",
+      "empreinte": "c59daa5a32e2411ea62226d58f8a7542084667096ca69c9a5a5f49f99de76a18",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/021",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 333,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `releases/latest` → **`v0.10.0`, inchangé**. ⚠️ **Cette sortie ne conclut rien à elle seule**",
+      "empreinte": "0d8a97e8331a89dba1ee5f3e73dc921343ed5cbad0dd61e293102e542a3e4bfe",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/bloc-latest/verdict-seul-le-no-op",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 342,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      après l'`edit`). **Seul le NO-OP survit**, et lui **ne dépend d'aucune topologie**.",
+      "empreinte": "7f806c25ac6334c42a68cba3df6e5fb270d4de2cbc1f1204c3b53bd037b15640",
+      "note": "LIGNE DE VERDICT : « Seul le NO-OP survit, et lui ne depend d aucune topologie ». Cible de la mutation E-2 — retournee en « les neuf regles survivent, aucune n est refutee », elle passait CONFORME dans les DEUX depots simultanement."
+    },
+    {
       "id": "IakaCockpit/backlog-L43/residu",
       "depot": "IakaCockpit",
       "chemin": "CLAUDE.md",
@@ -316,6 +866,105 @@
       "extrait": "🛑 **LE RÉSIDU, à porter avec la conclusion** : la phrase juste n'est **pas** « GitHub ne",
       "empreinte": "d27f21d2a92ed851e041bfbc429c0cabcb86662f1f8732d2264f7984cfd8302e",
       "note": "Cinq points, dont la regle non enumeree."
+    },
+    {
+      "id": "IakaCockpit/residu/corps/01",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 344,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      replie jamais », c'est **« parmi les règles énumérées, huit sont réfutées ; seule le NO-OP",
+      "empreinte": "884a5bbf1921660d49a064687a0e05510855020b696802f423d908b0b7fbaa82",
+      "note": "CORPS DU RESIDU (1/3) : « la phrase juste n'est pas GitHub ne replie jamais ». Sous un titre INSCRIT, et lui-meme inscrit nulle part avant le 6e passage — la forme exacte que la phrase d'ancrage pretendait avoir abolie."
+    },
+    {
+      "id": "IakaCockpit/residu/corps/02",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 345,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      survit »**. **(1)** Une règle **non énumérée** reste possible. **(2)** Le NO-OP survivant est",
+      "empreinte": "f1ea4b94efd2fb45b7f781daa83dfe92b31919dc998a44bb3e6788f493c63005",
+      "note": "CORPS DU RESIDU (2/3) : « (1) Une regle non enumeree reste possible. (2) Le NO-OP survivant est... ». C'est la ligne que la mutation E-1 retournait."
+    },
+    {
+      "id": "IakaCockpit/residu/corps/03",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 346,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      **observationnel** — il ne dit pas **où** il se produit (`gh`, écriture API, ou lecture), et",
+      "empreinte": "98a93b231003c5ff3e61eb76a3ad9a8ea0326b974e6198a33f8e963c9e75ed5f",
+      "note": "CORPS DU RESIDU (3/3) : « observationnel — il ne dit pas OU il se produit ». INVISIBLE AU MOTIF : la ligne ne porte aucun mot du vocabulaire. Inscrite A LA LECTURE — H-1 en acte, pas par le balayage."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/022",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 347,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `make_latest` **n'est pas relisible**. **(3)** Rien sur **ce dépôt-ci**. **(4)** Rien sur le",
+      "empreinte": "cb19f42fc9a1c8527f1e6c273b30714d1cfef921b2e1fb4038147ef1830aa9ba",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/023",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 351,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `gh release edit <PLUS_HAUT> --latest` **répare** — aucun run, aucun log ; l'état actuel du",
+      "empreinte": "387b666031042decee06080bf44440358ef39fe35996e60237304ad68faa1a4b",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/024",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 381,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      le commit de `v0.32.2`, donc **même `created_at`** — sous l'hypothèse « repli par date », le",
+      "empreinte": "2a7324af0e41fe7a39538c58c12600d8ee3f9a6eebdda6dab26d092bc8e712e7",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/025",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 411,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      (V3) **maîtrise du `latest`** — job `latest` du workflow, `--latest` / `--latest=false`",
+      "empreinte": "63e2b9479329a142294bd8e77c3dadb2d12f5a583683a4360b9dc82a7817bda4",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/026",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 455,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      **inchangé**. Ce run publie le **plus haut** tag : il exerce la branche `--latest`, jamais la",
+      "empreinte": "6efa7383498ad7dedec988a80db3c973b3754297b277c1e1ed6ab2da13f4f725",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/CLAUDE.md/027",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 456,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      branche `--latest=false`. Ce qui est acquis est **E-1 nominal** (`latest` = plus haut tag,",
+      "empreinte": "38d703200e745096bbc824dac9eadab54bb37cb01011e190207d0bfc4daec886",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "IakaCockpit/E-1/message/01",
@@ -516,6 +1165,28 @@
       "note": "Ligne du bloc « E-1/message » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "IakaCockpit/balayage/etat-des-lieux/001",
+      "depot": "IakaCockpit",
+      "chemin": "specs/etat-des-lieux.md",
+      "ligne": 37,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  la release : `assets 16 · sig 7 · latest.json 0 · dmg 2` · `releases/latest -> v0.32.2`.",
+      "empreinte": "bc83e759ed61a5387f24277c1da56be12323e1311fbe87b75795fd614498544e",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "IakaCockpit/balayage/etat-des-lieux/002",
+      "depot": "IakaCockpit",
+      "chemin": "specs/etat-des-lieux.md",
+      "ligne": 53,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "    `--latest` ; la branche **`--latest=false`** **n'a jamais ete executee sur ce depot**. Acquis :",
+      "empreinte": "068b182c1cb6b1b5ff659b22b69393e49bb56b7668c5158539786e886553f391",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "IakaCockpit/CA-5/mecaniquement-impossible",
       "depot": "IakaCockpit",
       "chemin": "specs/etat-des-lieux.md",
@@ -648,6 +1319,17 @@
       "note": "Prescrivait « republier un tag ancien » (contre R-1) et rouvrait CA-5 (contre la decision gamma)."
     },
     {
+      "id": "iakaframe/balayage/release.yml/001",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 42,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      # │ le drapeau `make_latest`, de DEFAUT `true`.                                            │",
+      "empreinte": "bf43dc18720e1a935d2d92ba8c047d2b1a99621172a1e7c8d57953cee0e2ccbd",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaframe/cartouche/rectification",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
@@ -701,6 +1383,28 @@
       "extrait": "      # │ tag dont la release EXISTE ne touche PAS au drapeau (R-1 de L43).                      │",
       "empreinte": "7d02336eff9a5db0e363a0887948dfe27292086fd8cd10d0e9c3549132dc5051",
       "note": "Ligne du bloc « cartouche/rectification » — motif d inscription a l entree 01 du meme bloc."
+    },
+    {
+      "id": "iakaframe/balayage/release.yml/002",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 57,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      # │ DECLARE `make_latest`. On le pose ici, CALCULE, jamais laisse au defaut.               │",
+      "empreinte": "7c0476a9dfbe6b0ecb836f25fdb02533dc37d83ef10cb66fe6fbd7777fcbfa52",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/release.yml/003",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 64,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      # │ Le calcul de `make_latest` ci-dessous, comme la production du tarball, n'ont donc      │",
+      "empreinte": "8a51f208b593fa193770ccec5a6d6b97c091636e4f567dfe35239da6c9bd1a94",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaframe/cartouche/ne-repare-pas",
@@ -789,6 +1493,61 @@
       "extrait": "      # │ specs/instructions/contrefactuel-ca5-procedure-decideur.md, § 1.                       │",
       "empreinte": "cce9b34585a4d94bb654b6a0083c83c5595e9acc83ee4111e00d9293b63757b4",
       "note": "Ligne du bloc « cartouche/residu » — motif d inscription a l entree 01 du meme bloc."
+    },
+    {
+      "id": "iakaframe/balayage/release.yml/004",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 91,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "            echo \"DECISION : $TAG EST le plus haut -> make_latest=true\"",
+      "empreinte": "48f6c945518c3b2b5fabe0f633f83313e2ee742abea156d94cd381df6ceca3e9",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/release.yml/005",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 94,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "            echo \"DECISION : $TAG n'est PAS le plus haut ($PLUS_HAUT) -> make_latest=false.\"",
+      "empreinte": "93098a728a07ec558c2dab798772d375fe497317c83bee3a36f78e2a3a3e229b",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/release.yml/006",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 124,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "            echo \"::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}\"",
+      "empreinte": "a113a894cf4a45e9664e820e0d9e90440f6444626bdaf8478f456cfe5f333880",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/BACKLOG/001",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 27,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `cli/scripts/vitrine-en-ligne.js` (anonyme, hors gate), `make_latest` **calculé** dans",
+      "empreinte": "ac6a60b69d29f54898a2cdc4afa20c512169b9b4b62bdb4f3c7bfdfbe7966407",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/BACKLOG/002",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 51,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  été **déposé à la main**. Conséquence : le tarball recommandé au visiteur **et** le `make_latest`",
+      "empreinte": "b54afb18d683a09df893b8554aa3fd1bbb85dd033c12ee2ad800637858bce489",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaframe/make_latest/non-eprouve",
@@ -1220,6 +1979,215 @@
       "note": "Ligne du bloc « piege-1/corps » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "iakaframe/balayage/ca5-procedure/001",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 21,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> Version du 2026-08-29 : *« `make_latest=false` est un NO-OP… il n'y a pas de repli du tout »*,",
+      "empreinte": "5f61cbd44384e07aec5809436141006eb878b313e18af2000dc9f5f368e47ccf",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/002",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 25,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> **sur la topologie du banc, la branche `--latest=false` n'a pas rendu le `latest` au plus haut",
+      "empreinte": "ff39f802c01f88fa074d32b91eac62478a0923c3c7bac8a10daca036ea8587aa",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/encart-tete/verdict-seul-le-no-op",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 42,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> **seul le NO-OP survit**. Conséquence immédiate : l'encart **⛔** ci-dessous faisait reposer tout",
+      "empreinte": "e753e863af42d2a4e58d1a698591635ee3911e1b62fbd038a4d608f3c92fa11b",
+      "note": "LIGNE DE VERDICT de l'encart de tete : « seul le NO-OP survit ». Document PRIMAIRE — la mutation E-3 la retournait avec :547 et :549 d'un coup, `CONFORME`, exit 0."
+    },
+    {
+      "id": "iakaframe/limite/formulation-juste/01",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 48,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> C'est : **« parmi les règles de repli énumérées, huit sont réfutées par mesure ; seule le NO-OP",
+      "empreinte": "8ea8549d76783643dd0b7306c5e668c5b1b885acd91c466252e10c0637eadd89",
+      "note": "La formulation juste, 1/2 : « parmi les regles de repli enumerees, huit sont refutees par mesure ; seule le NO-OP »."
+    },
+    {
+      "id": "iakaframe/limite/formulation-juste/02",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 49,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> survit — et rien n'exclut une règle non énumérée. »** Toute formulation qui laisse tomber la",
+      "empreinte": "987eeb6f41efefd943897a3a03277c099454409ed9db7e1be01e195fa938b0ab",
+      "note": "La formulation juste, 2/2 : « survit — et rien n'exclut une regle non enumeree ». INVISIBLE AU MOTIF : inscrite a la lecture."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/003",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 84,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **c** | job `latest`, `TAG=v0.2.0` → `gh release edit v0.2.0 --latest=false` | **run `33277643229`**, verbatim ci-dessous, job **rouge** | **`v0.2.0`** — alors que le plus haut semver est `v0.10.0`. **Le `latest` n'est pas rendu.** |",
+      "empreinte": "b825370e04949ad4b9eb4c8a6271f98667dc08b0a79bd91f1f563a8e8e6994ec",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/004",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 90,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| a | `gh release edit v0.10.0 --latest` — état de référence | **non tracé** |",
+      "empreinte": "3bcafa131f2d59f2aebb86d73e52c6d18187c4b38edfd6291e9a96e15c661d5f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/005",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 92,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| b | `gh release create v0.2.0` — **sans** `--latest` : le vol | **non tracé** ; l'état d'**après** l'est, lui, par le log de (c) |",
+      "empreinte": "5886498ee56c0ecae093c8775a4bea2310ace62e71401fbdd3e9144fe05bb74b",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/006",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 94,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| e | `gh release edit v0.10.0 --latest` — le rattrapage | **non tracé** |",
+      "empreinte": "e6a7d42dfc5c15de9fe4c9fcb886bf1847ebd17d0b74a6e856a64e48064b0b29",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/007",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 95,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| f | `gh release edit v0.10.0 --latest=false` *(`created_at` le plus **ancien**)* | ✅ **REJOUÉ PAR LE DÉCIDEUR le 2026-08-30**, et c'est le geste **discriminant** : sortie `v0.10.0`, inchangée. Détail, table des règles et résidu à l'encart « LE CONTREFACTUEL A ÉTÉ JOUÉ » |",
+      "empreinte": "0582f95e778c4c886016bb408b3ef2e1a9c3d09250133d9130c6add69e11c947",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/008",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 96,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| g | `PATCH /releases/379113276 -f make_latest=false` *(REST brut)* | **non tracé** |",
+      "empreinte": "54689a8aea9c9132ab6e27ea851aa4a66fbbfac9be950b733d2e7ebe9f2c5b0b",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/009",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 97,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| h | `gh release edit v0.9.0 --latest` puis `--latest=false` | **non tracé**, et **incohérent** avec la topologie ci-dessus |",
+      "empreinte": "4fedd502eee46a79e18bd4566b204fc4bcb8b716a2a95a25bd45f0328b4d2eda",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/010",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 102,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "(`22:10:00Z`, id `379113280`) ; `releases/latest` rend **`v0.10.0`** ; le tag `v0.2.0` subsiste",
+      "empreinte": "484ec1dfc30cf4249fa9cb8378034d6e44b2ccc446d8820c3b6f5a145a20043d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/011",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 112,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "           --latest=false. Sans cette ligne, le defaut make_latest=true de",
+      "empreinte": "9e73c4cea116fed8cb99a4ca76a84870d358248f215cf8dc764fba104417d536",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/012",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 117,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "##[error]RATTRAPAGE MANUEL : gh release edit v0.10.0 --latest --repo iakasju/latest-contrefactuel",
+      "empreinte": "e1ea1de08d0c6eb7aa5a1cbf179fa161bde6a1ee0488379681b8ee7d277aec9a",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/013",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 129,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "2. **Le job a posé `--latest=false` sur `v0.2.0`**, et **juste après**, `GET /releases/latest`",
+      "empreinte": "19bd37db2181d276874de6eb076b2017961ec27104ceaa1b8d9a816a2518ef84",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/014",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 132,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   `--latest=false` n'a pas rendu le `latest` au plus haut semver.** C'est la conclusion centrale,",
+      "empreinte": "9f6a84b3cbc8cfbd79f5675c73127278fdc032e16b6c32a7065901a6e7f0445a",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/015",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 149,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   `gh release create` (`cli/pkg/cmd/release/create/create.go:462`) **omettent** `make_latest`,",
+      "empreinte": "e97aca7e788fb3a9165ba02596bc58458f3e1dadebcbd3da6eddce2748a35daa",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/016",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 154,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "6. **« `make_latest=false` est un NO-OP », « il n'y a aucun repli ».** C'était écrit comme un",
+      "empreinte": "34c2708c059cebf4d9dfb8d06499913cfea72a3aa7a2235e22e4e0312a638382",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaframe/compte-no-op/commits",
       "depot": "iakaframe",
       "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
@@ -1229,6 +2197,61 @@
       "extrait": "**`iakaFrameGUI@589c4d6`** et **`iakaframe@26d096d`** — vérifiés un à un par",
       "empreinte": "667335d43ba2af823fb0e8e3e9491b59a1b843a7e9df562c5d078ea8e790504c",
       "note": "Les commits cites rendaient six occurrences, pas huit. Corriges et re-verifies."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/017",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 171,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   ✅ **CE QUI A CHANGÉ LE MÊME JOUR** : le geste discriminant — `--latest=false` sur le",
+      "empreinte": "eff3e10933400ccd4b3064aed9c5f730e8236796d8be9faa14c6f89f447d0cc5",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/018",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 173,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   **réfute huit des neuf règles de repli énumérées** et **laisse le NO-OP seul debout** (encart",
+      "empreinte": "a0ab36c27a9917c4fc5861a056b0f4816bbfb1907e9662d3890453c59befae50",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/019",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 174,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   « LE CONTREFACTUEL A ÉTÉ JOUÉ »). Le NO-OP cesse d'être une **déduction** ; il devient **la",
+      "empreinte": "a440acbb75b2a0590ccbf60d0cd7ae521eba736d2eaff59a32c179a1263b4212",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/020",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 178,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "7. **« `gh release edit <PLUS_HAUT> --latest` répare, en moins de 3 s ».** Pas de trace non plus,",
+      "empreinte": "8194754e6d9469a8dd9ba68aad54b9c3967ca8ec90953c42ce340b82c827789f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/021",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 184,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   **`true`** — le rattrapage — produise, elle, un effet **reste sans trace**, et le NO-OP observé",
+      "empreinte": "85aad8ded2f5e6ddcbf42f997e5d499eb2ce1e1db0125e7c2915ca87a1eceb7d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaframe/encart/bornage-date",
@@ -1242,6 +2265,61 @@
       "note": "L encart du second passage est conserve et refute, pas supprime."
     },
     {
+      "id": "iakaframe/balayage/ca5-procedure/022",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 205,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "observé `v0.2.0`. Restaient « le drapeau ne se retire pas » (NO-OP) **et** « GitHub recalcule par",
+      "empreinte": "d5ca3fcd08eb6f09e6306a950805249bc814e9e0b3f8521f4478e918eaa491cf",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/023",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 211,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "2026-08-10` pour un `published_at 2026-08-28`). Sous « repli par date », le recalcul aurait désigné",
+      "empreinte": "d6e2d9860b8bd2c3acb8392b43ecc0bdec2367f1158f08277c640e8968506bee",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/formule/ce-que-la-mesure-etablit",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 218,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **Ce que la mesure établit** | *Sur la topologie du banc, la branche n'a pas rendu le `latest` au plus haut semver.* **Et, par croisement avec le contrefactuel : parmi neuf règles de repli énumérées, huit sont réfutées ; seul le NO-OP survit — et le NO-OP ne dépend d'aucune topologie.** |",
+      "empreinte": "e3b506c51175e35805b3105a7835ce0416394d6f85759ca8989fcfb98bfd1329",
+      "note": "Ligne « Ce que la mesure etablit » de la formule revisee — le verdict tabule."
+    },
+    {
+      "id": "iakaframe/formule/deduit-sans-risque",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 219,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **Ce qui s'en déduit sans risque** | **On ne peut pas compter dessus.** Vrai sous la règle survivante comme sous toute règle non énumérée qui expliquerait les deux mesures. |",
+      "empreinte": "1782fe4fe3c51b86488b5b41524799e9d46586799b3e1abf6a9589d62759bd42",
+      "note": "Ligne « Ce qui s'en deduit sans risque » : « On ne peut pas compter dessus ». INVISIBLE AU MOTIF."
+    },
+    {
+      "id": "iakaframe/formule/ne-se-deduit-toujours-pas",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 221,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **Ce qui ne s'en déduit TOUJOURS PAS** | « GitHub ne replie jamais » (une règle **non énumérée** reste possible) · quoi que ce soit sur **`IakaCockpit`** (autre dépôt, autre acteur, autres droits) · quoi que ce soit sur le **badge web** ou sur une **autre version de l'API**. |",
+      "empreinte": "67a9a88549ceeb4143465834e7e81262bd4e77124ef6ef20fc7d7434fd11b236",
+      "note": "Ligne « Ce qui ne s'en deduit TOUJOURS PAS » — le residu tabule : « GitHub ne replie jamais » reste hors de portee. INVISIBLE AU MOTIF."
+    },
+    {
       "id": "iakaframe/encart/contrefactuel-joue",
       "depot": "iakaframe",
       "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
@@ -1251,6 +2329,28 @@
       "extrait": "### 🔬 LE CONTREFACTUEL A ÉTÉ JOUÉ — 2026-08-30, par le décideur",
       "empreinte": "2aa93cee9ac0d9ff011af830563f1a78b909054080050e83246f644f90429d77",
       "note": "Source canonique de la mesure. Avertissements AVANT le bloc bash."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/024",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 261,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "- **M1** = run `33277643229` : `--latest=false` posé sur `v0.2.0` → observé **`v0.2.0`**. L'`edit`",
+      "empreinte": "56725e530e90802ccbb8760f841b03aae50d93ade46ad8a52fac67df510c3b3c",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/025",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 264,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "- **M2** = le geste ci-dessus : `--latest=false` posé sur `v0.10.0` → observé **`v0.10.0`**,",
+      "empreinte": "840381a1dce070192baac36edab81c32792cd1158907e92b1e92df81a4b6b640",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaframe/encart/table-regle-1",
@@ -1352,6 +2452,17 @@
       "note": "Ligne du bloc « table-des-neuf » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "iakaframe/balayage/ca5-procedure/026",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 293,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`releases/latest` **0,65 s** après l'`edit` : une consistance différée suffisait à expliquer son",
+      "empreinte": "b1a6cd279297a31473e123226f883b9092158c2fef1e3b26f30b7033f005f864",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaframe/conclusion/01",
       "depot": "iakaframe",
       "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
@@ -1361,17 +2472,6 @@
       "extrait": "Parmi les **neuf** règles énumérées ci-dessus, **huit sont réfutées par mesure ; seul le NO-OP",
       "empreinte": "a71e4bcc40e7033f2fbb548b9530c127710a52068f0c7d81b59ff87919c86d94",
       "note": "La conclusion elle-meme. Ligne LIBRE dans un fichier COUVERT : elle se reecrivait en « GitHub ne replie JAMAIS » sans rien faire rougir."
-    },
-    {
-      "id": "iakaframe/encart/residu",
-      "depot": "iakaframe",
-      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
-      "ligne": 311,
-      "classe": "repli",
-      "statut": "CORRIGE",
-      "extrait": "#### LE RÉSIDU — ce que rien n'exclut",
-      "empreinte": "425d9f7964a179039aa88a086cfe24986ff1eacb1e2ac24ab9163c40b80f2dee",
-      "note": "Cinq points ; source des residus recopies ailleurs."
     },
     {
       "id": "iakaframe/conclusion/02",
@@ -1449,6 +2549,17 @@
       "extrait": "> commise trois fois — dans l'autre sens.",
       "empreinte": "4b005c156b8e99d22f66479159d542a322fd88606329cb0a26218f5936ef5d5d",
       "note": "Ligne du bloc « phrase-juste » — motif d inscription a l entree 01 du meme bloc."
+    },
+    {
+      "id": "iakaframe/encart/residu",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 311,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "#### LE RÉSIDU — ce que rien n'exclut",
+      "empreinte": "425d9f7964a179039aa88a086cfe24986ff1eacb1e2ac24ab9163c40b80f2dee",
+      "note": "Cinq points ; source des residus recopies ailleurs."
     },
     {
       "id": "iakaframe/residu/01",
@@ -1594,6 +2705,28 @@
       "note": "Ligne du bloc « residu » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "iakaframe/balayage/ca5-procedure/027",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 339,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "- **Le `gh release create` du banc est un substitut**, pas l'acteur. Il omet `make_latest` de la",
+      "empreinte": "56d38d2e5a8ca085eec00233f747370075285e346d8964a0e3fa2e6b60cb5fbd",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/028",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 342,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  sur `GET /repos/.../releases/latest`, la seule vue qu'un script consomme.",
+      "empreinte": "77ed156224d0b5ad365e5cb40e2f367e4a308c2056cccc4314cba1c0db2acb4f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaframe/section-2/conditionnel",
       "depot": "iakaframe",
       "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
@@ -1603,6 +2736,17 @@
       "extrait": "> 🛑 **CE TABLEAU EST CONDITIONNEL — V-C N'A PAS EU LIEU ET N'AURA PAS LIEU DANS CE LOT.** La",
       "empreinte": "9e03d300d65d9d78b98c9ed83bc606d7332ed6325ae4b1ce48d0dc6d43e2868f",
       "note": "Le tableau annoncait au futur le resultat d une experience non executee (contre le § 5)."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/029",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 357,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **CA-5.1** — ligne `DECISION : … --latest=false` | présente | **inchangé** — elle serait là |",
+      "empreinte": "1462131e03cdd2ffd25308358782fb0935dac1d256edddc059073d1793e38c6a",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaframe/section-3.4/prediction",
@@ -1616,6 +2760,50 @@
       "note": "Idem : « le job passera », « ca n en bouge plus » ecrits comme des faits."
     },
     {
+      "id": "iakaframe/balayage/ca5-procedure/030",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 437,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "**ça n'en bougerait plus** — le job passerait, dirait `--latest=false`, et **le `latest`",
+      "empreinte": "a2f6be15c27d82c539a54af1b4b6dfc17a6c88e55f382cecfa130775c80bb6d4",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/encart-interdit/regle-non-enumeree",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 439,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "NO-OP ; une règle **non énumérée** la rendrait fausse. Corrigé le 2026-08-30, troisième passage :",
+      "empreinte": "6c5358c5d64a7b710e3532115df9e7a6a1dafed1ac7fbad36dbdbcce7462e878",
+      "note": "« ... NO-OP ; une regle NON ENUMEREE la rendrait fausse. » Le residu porte a l'endroit exact ou l'encart concluait trop fort."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/031",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 478,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **Le `latest` est volé** *(certain, pas hypothétique)* | sonde 3.4, ou ligne `VERIFICATION` du log | `gh release edit v0.32.2 --latest --repo iakasju/IakaCockpit` | **non tracé — à mesurer le jour J** |",
+      "empreinte": "46cbde437ae422f2655edb786123fcbeb36f34d14db71b9cbaba991d88e54af1",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/032",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 512,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> l'hypothèse *repli par date* le repli serait une **égalité**, comportement indéfini ».",
+      "empreinte": "b9cc88328c452f4ee25d27446cb836510c318cc9c8f94740f15344373ae12a73",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaframe/reserve-1",
       "depot": "iakaframe",
       "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
@@ -1625,6 +2813,61 @@
       "extrait": "1. **La garde n'empêche pas le vol — et on ne peut pas compter sur elle pour le réparer.**",
       "empreinte": "9cd38777c727f92e5f41cabf6219da80b9b439c13acc729af345c5626c92dbab",
       "note": "Reserve 1 : levee partielle, residu porte."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/033",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 530,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   la branche `--latest=false` n'a pas rendu le `latest` au plus haut semver (§ 1 A-2).",
+      "empreinte": "b6bd5b46195e524daddc313957b70ceb39e45a67911d9deb9932b38baa117669",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/034",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 533,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   celle du « repli par date » qui portait, au second passage, l'argument inverse**. **Seul le",
+      "empreinte": "cf132266e6f8c642f44e09ff4885eb4bc1b1e9b2ea95aae6e3dc23d9ffc345cb",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/035",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 534,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   NO-OP survit**, et lui ne dépend d'**aucune** topologie : sous cette règle, **le job ne répare",
+      "empreinte": "283b9b6aaff2c8b15fd711e006300c3b68fd5916e7c067cf2d43c0838709e424",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/bornage/ce-qui-ne-se-dit-pas",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 537,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   🛑 **Ce qui ne se dit toujours pas** : « GitHub ne replie jamais » — **une règle non énumérée",
+      "empreinte": "fd7a3444f2ec6dbec8f2ae5b6cc3fe41457d4d025c0f009101d945f217c4f566",
+      "note": "« Ce qui ne se dit toujours pas : GitHub ne replie jamais — une regle non enumeree reste possible. » INVISIBLE AU MOTIF."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/036",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 542,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "2. **Ce que fait GitHub après `make_latest=false` n'est pas documenté** — c'était l'inconnue F4.",
+      "empreinte": "0ad058f5ad3f448d55608a380e8d09cfed4a61981f19f516d58954b9b6300e01",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaframe/reserve-2-F4",
@@ -1638,6 +2881,193 @@
       "note": "Disait « Elle N EST PAS levee ». Levee par elimination, dans les limites enumerees."
     },
     {
+      "id": "iakaframe/F4/dans-ces-limites",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 547,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   seul le NO-OP survit**. On sait donc, **dans ces limites**, que le `latest` ne revient pas au",
+      "empreinte": "71f87cdfdfa0348d81f6cc99ddfb23f9e1aa6394fcac8d5b976152bd244f4ef5",
+      "note": "« huit des neuf regles enumerees sont refutees par mesure, et seul le NO-OP survit. On sait donc, DANS CES LIMITES... » — verdict + bornage sur la meme ligne. Cible de E-3."
+    },
+    {
+      "id": "iakaframe/F4/residu/01",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 549,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   🛑 **Le reste, écrit comme tel** : (a) **une règle non énumérée reste possible** ; (b) le NO-OP",
+      "empreinte": "f20749cb036c689b084345497f7f49b078c1ac38e009bf15ece9e74773098b3c",
+      "note": "« Le reste, ecrit comme tel : (a) une regle non enumeree reste possible ; (b) le NO-OP... » — tete du residu de F4. Cible de E-3, dont la mutation « AUCUNE regle non enumeree n'est possible »."
+    },
+    {
+      "id": "iakaframe/F4/residu/02",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 550,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   survivant est **observationnel** — il ne dit pas **où** il se produit (`gh`, écriture API, ou",
+      "empreinte": "8d3e8215fb2afb6f96b1b55477e00dff1b2927454d420635dfc723e5a1f0f787",
+      "note": "Suite du residu de F4 : « survivant est OBSERVATIONNEL — il ne dit pas OU il se produit ». INVISIBLE AU MOTIF."
+    },
+    {
+      "id": "iakaframe/balayage/ca5-procedure/037",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 551,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   lecture), et `make_latest` **n'est pas relisible** ; (c) rien de tout cela n'est **garanti pour",
+      "empreinte": "9f6a6302195c73c3876e54d6dc6bf68b611d56c98d13398c605a93de5e45de58",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/001",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 22,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "La garde V3 de L42 — le job `latest` de `.github/workflows/release.yml` — décide `--latest` ou",
+      "empreinte": "cca4b4cb0e060094570913e3781daa1a1118c7f1f2b5be7216d52323b64e9e75",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/002",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 23,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`--latest=false` selon que le tag publié est, ou non, le plus haut semver du dépôt. **Seule la",
+      "empreinte": "c8700b7cf85aba4fd59fe67a3ed0d2a6ffdd7c4e66f7f39d5f15b4a52d7c325f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/003",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 24,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "branche `--latest` a jamais tourné.** La branche `--latest=false`, celle qui est censée rendre le",
+      "empreinte": "b939dcce3a31a5123c9ac1efd78b664625dd671ea95e762899a696ff3180e627",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/vol/branche-jamais-executee",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 25,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "vol du `latest` mécaniquement impossible, n'a **jamais été exécutée** — ni sur `IakaCockpit`, ni",
+      "empreinte": "fc4539c67d2796c332801efe75d0eabab85ec1f303b7dea91120df14c52efe7a",
+      "note": "« ...celle qui est censee rendre le vol du `latest` mecaniquement impossible, n'a JAMAIS ete executee » — l'enonce fondateur du lot, non inscrit jusqu'au 6e passage."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/004",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 43,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "### R-1 ⚠️ — « Republier un tag ancien vole le `latest` » est **faux au SHA épinglé**",
+      "empreinte": "4b7ff09f45b5b22eba3c3ec289b0524b999456a79ba5305eee1764bbe0fbde40",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/005",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 51,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `repos.updateRelease`, et `make_latest` n'est **jamais** passé.",
+      "empreinte": "805a75ff33728223cc265cccf401e45fd683b6708d5400c3fe88072066ee0f08",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/006",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 53,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `draft`, `prerelease`, `target_commitish`, `generate_release_notes` — **sans `make_latest`**,",
+      "empreinte": "173531e828a9b91ec9d51cb16a5485393d037d62a302b21642d49c698b0f87b2",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/007",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 56,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "**Conséquence directe** : le vol du `latest` n'est **pas** causé par la republication en soi, mais",
+      "empreinte": "0c9f5defc9f6651d1321fea306d238b8087c2efdc55ef25930d924ab4556f534",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/008",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 63,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`--latest=false` que sur un danger nul** — il n'y aurait aucun vol à réparer.",
+      "empreinte": "4adc1c8d028db61f71169450523536395f2b8529fe0283aa6387b2c9fd828b61",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/009",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 102,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`gh api repos/iakasju/iakaFrameGUI/releases/latest`. Le relevé reçu instruit CA-5 sur",
+      "empreinte": "027b42855d7484ef6fe5a4aa6db74b3d80bbc12446e3897065f8ae217edbc1c4",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/010",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 155,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "### F3 — `gh release edit --latest=false` existe et envoie bien `make_latest: \"false\"`",
+      "empreinte": "50ac8a8473c017c0eabfee6c30d2a42b3bab6f582e28fc6e3b7aefd7bcff0026",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/011",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 158,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "absent / vrai / faux) et la valeur part en `params[\"make_latest\"] = fmt.Sprintf(\"%v\", *IsLatest)`.",
+      "empreinte": "452761e422092768203ae062a1958148a9ed7519f4572059958ec8536c701af3",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/012",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 159,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`--latest=false` est donc **supporté** et envoie la chaîne `\"false\"`.",
+      "empreinte": "7c364afed470014ebbf2d60e5f2c6f0558228d7b5e60c2fe79cd1417e33469ad",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaframe/F4",
       "depot": "iakaframe",
       "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
@@ -1649,6 +3079,17 @@
       "note": "Enonce l inconnue. Toujours vrai : la DOC ne dit rien ; c est l elimination qui tranche."
     },
     {
+      "id": "iakaframe/balayage/contrefactuel/013",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 163,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "La doc REST donne `make_latest` (`true|false|legacy`, défaut **`true`**) et décrit le `latest`",
+      "empreinte": "573398e59d723a43c6e45074d72af45c18a6e48e1233ed71fbf8a11493a29342",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaframe/F5",
       "depot": "iakaframe",
       "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
@@ -1658,6 +3099,622 @@
       "extrait": "### F5 — La garde est **auto-instrumentée** : elle mesure son propre résultat",
       "empreinte": "b9670be1efcaf3d678304b22aa9ee7b6c04f256a4d204696f694b9179a35c484",
       "note": "Enonce juste et mesure (ligne VERIFICATION, run 33277643229)."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/014",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 179,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`gh api repos/$DEPOT/releases/latest --jq '.tag_name'`, **exige** l'égalité avec `PLUS_HAUT`, et en",
+      "empreinte": "e5ceeba181df7becc43a035f29d8125a6196aed8cd9c11b53f97f0663642dbe8",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/015",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 181,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "(`gh release edit <PLUS_HAUT> --latest --repo <DEPOT>`). Autrement dit : **si l'hypothèse F4 est",
+      "empreinte": "ad7eee853fcf9f4a5a11ad34eb095100e393be1414cdb484b937b8d4ad7867de",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/016",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 185,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "### F6 — Rien, dans la vitrine, ne dépend de `releases/latest` pour télécharger",
+      "empreinte": "973ca974ce079040946eba4d317f9f08b007e04b529c82e06ca725b0a5157336",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/017",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 188,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "occurrence de `/releases/latest/download` dans le dépôt. En revanche",
+      "empreinte": "4aa4f12ea59a8cb6d15aad75628ef55ae1fd2d7eed52402a7cf13bacf316e1ed",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/018",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 189,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`scripts/vitrine-en-ligne.mjs:101` lit `/repos/<depot>/releases/latest` pour son égalité **E-1** :",
+      "empreinte": "b03d05b5b709f2d03ccdb2a688a5bf79f3de47f8d2d59bef75f192f35b7f852f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/019",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 193,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "### F7 — Les clients de mise à jour ne lisent **pas** `releases/latest`",
+      "empreinte": "0c6240e770cce8cd83cbdd6fb6fa6928dee3939f12b4addf6db669496f863125",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/020",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 217,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> ayant reçu `make_latest=false`, laisse le `latest` sur la plus haute release »** — et, dans sa",
+      "empreinte": "abb33d63e11fae27c710e0235876cf72b78035bf088bf3d1a6f00ad52990475a",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/021",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 223,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **V-B** — `workflow_dispatch` sur un tag **dont la release existe** (`v0.31.2`) | la chaîne réelle de bout en bout : runner, `gh` présent, jeton, `contents: write`, API acceptant `--latest=false`, `latest` inchangé — **satisfait CA-5 à la lettre** | la **réparation** : au SHA épinglé, aucune création n'a lieu (R-1), donc aucun vol ne menaçait. Prouve la décision, pas l'effet | écrase les assets CI de `v0.31.2` (10 assets, tous `github-actions[bot]`, non référencés par le manifeste) et y **ajoute** des `.sig` qu'elle n'avait pas |",
+      "empreinte": "5dcab8ffb55c4376101b52a7a65f3985b9125745f2864a29efaa9b0125e0253d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/022",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 224,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **V-C** — `workflow_dispatch` sur un tag **neuf, hors semver**, dont la release **n'existe pas** | **tout V-B, plus la séquence complète vol → réparation** sur le dépôt réel, avec le vrai `tauri-action` au SHA épinglé | le comportement sur `iakaFrameGUI` (F8) ; la discrimination entre les deux règles de repli de F4 | **fenêtre de quelques minutes** (F2) où `releases/latest` désigne le tag contrefactuel. **Aucun asset existant touché** (release neuve) |",
+      "empreinte": "64829fcbfa6359986b7568baa3ce4806161de73b2a40ae76a924a51937d2e882",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/023",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 225,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **V-D** — dépôt **jetable**, job `latest` recopié, topologie fabriquée | le mécanisme : création sans `make_latest` ⇒ vol · `--latest=false` ⇒ restitution · `sort -V` + filtre sur `v0.9.0/v0.10.0/v0.2.0` + `archive/*`, cas que le dépôt réel **ne peut pas offrir** | que c'est **ce fichier-là** qui tourne sur `IakaCockpit` (atténuable : comparer le bloc au `raw` du dépôt réel) ; que `tauri-action` crée la release **de cette façon** (le `gh release create` du banc en est un **substitut**, pas l'acteur) ; les droits réels du dépôt | **nul sur le produit** |",
+      "empreinte": "7e75d20f29045b8ae713abf6a1cf9709293325af7ea9dedb2b00ff2384cec2cb",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/024",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 226,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **V-E** — dispatch avec un `tag` **inexistant** | le `checkout` échoue, `latest` tourne quand même (`if: always()`), la décision se prend sur des données réelles, et **le chemin d'erreur R6 s'exerce** — lui non plus n'a jamais tourné | l'appel `--latest=false` **réussi** : `gh release edit` échoue faute de release | nul, mais laisse **un run rouge** dans l'historique |",
+      "empreinte": "c6d5a0119b80e61529e1f02e7947cacc16715e0484bfbb6fe1b2a8b5c9767204",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/025",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 246,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "coût nul, ce que GitHub fait après `make_latest=false` (l'inconnue F4). V-C est la **preuve** :",
+      "empreinte": "e9ef786beade3ae7e900489c94f8e82a19e872be2ad74c8473df5591cefd3111",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/026",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 257,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `PLUS_HAUT`, donc la branche `--latest=false` est **déterministe** et non « choisie par",
+      "empreinte": "361aad11a68363472d3c0ea26d31504a74b03df72360694e9c7297d6eb2ff025",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/027",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 265,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  conséquence, une release exclue par `make_latest=false` ne peut pas être `latest` »*. **Le run",
+      "empreinte": "e2ec1260c31827849aefb6066c7a03cb4e99898a78717a31d4a17f668a358850",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/028",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 266,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `33277643229` l'a réfuté** : `v0.2.0`, sur laquelle le job venait de poser `--latest=false`,",
+      "empreinte": "c38fd33441b74cdfd0ac2e98536d5529b17c7e3ffdb8940e4865291b4d6565b0",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/029",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 267,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  **était** encore ce que rendait `GET /releases/latest`. C'est **la ligne qui justifiait le choix",
+      "empreinte": "3805cc2757f6ce719ab65200651fcd6957c41ed7820fc7a46a68e7804ea5cf9b",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/030",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 270,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `created_at` rendrait le repli par date **indéfini** (encart « V-C ne trancherait rien de plus »",
+      "empreinte": "10019a0fe71653a4af6ada087a56407258b0091bb5b4837fccfe7b0a9f643808",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/031",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 289,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> classe est une **chaîne** (`NO-OP`), un `grep` la balaie entièrement ; quand c'est une **forme",
+      "empreinte": "d14daf7bf7427cd5ea8d104dd72e57fa0f65f8283c11af729c9920d73118539f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/032",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 290,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> d'inférence** (`drapeau inamovible ⇒ v0.10.0`), il est aveugle — la phrase ne contient aucun des",
+      "empreinte": "2491841baf96b8f973005b7c31965e7296c672ae17aa5b020548cc9199eed04b",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/033",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 366,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| créer `iakaFrameGUI/specs/note-contrefactuelle.md` disant *« sous repli par date, le job reparerait »* | `D-3 … FICHIER NEUF dans le vocabulaire du repli (1 occurrence), absent du registre` | `1` |",
+      "empreinte": "da4429a1aa1e70bcd8bb44cd35652c598c654d5930356cea7649850f0484b3ff",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/034",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 367,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| ajouter une ligne `make_latest` à `iakaframe/specs/etat-des-lieux.md` | `D-4 … 9 occurrence(s) aujourd'hui, 8 a l'inscription : un enonce a ete AJOUTE` | `1` |",
+      "empreinte": "881222b8674c3d53516c2aa9de4347dc8683bbc3acb6de1502a32c493ba637a0",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/035",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 540,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **2** | le bornage « un repli par date **réparerait** ici » | les 2 `CLAUDE.md` (bloc **et** backlog), `installer-depuis-rien.md`, la procédure | donné comme la **seule variante survivante** | **daté et réfuté** : plus aucune règle survivante ne regarde les dates | CORRIGÉ |",
+      "empreinte": "0d7b04ea65e352e5ee5a0df9480dad20bbb683e97039d6074ab037c8efc3ac04",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/036",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 541,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **3** | l'inférence `drapeau inamovible ⇒ v0.10.0` | `IakaCockpit/CLAUDE.md` ×2, `iakaFrameGUI/CLAUDE.md` ×2, `installer-depuis-rien.md` | une conclusion tirée d'**une sortie unique**, celle dont le § voisin dit qu'elle **ne tranche rien** | la **table des neuf règles**, croisée sur **deux** mesures, et le **résidu** | CORRIGÉ |",
+      "empreinte": "54084e1a9dc46893ab274ae3a415d79733948648fbeb038f05c1894fa0067887",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/table/enonce-5-residu",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 543,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **5** | le résidu | partout où la conclusion est écrite | **absent** | 5 points, dont *« une règle non énumérée reste possible »* et *« le NO-OP est **observationnel** »* | CORRIGÉ |",
+      "empreinte": "57e74facead5171aca208207541fe99c91ac66f0afe8858d5d763b3c25842be4",
+      "note": "Ligne 5 de la table avant/apres : LE RESIDU lui-meme, avec ses 5 points. Le tableau qui recapitule les corrections n'etait pas tenu."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/037",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 544,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **6** | la reproduction du compte `NO-OP` | la procédure | commits `895e74f` / `2b09615` → **six** occurrences, pas huit | `58f4e6f` / `589c4d6` / `26d096d` → **huit sur six fichiers**, vérifiés un à un | CORRIGÉ |",
+      "empreinte": "778d63e29c9a74104364fe88a00dcf127dc92606701147c8229251c2c7f4a6af",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/038",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 546,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **8** | le cartouche du workflow | les 2 `release.yml` (**17 lignes**, job 147-199 intact) | *« ICI, voleuse = tag ANCIEN : un repli par date REPARERAIT »* | *« IL NE LE REPARE PAS »* + le résidu | CORRIGÉ |",
+      "empreinte": "e678710fdac3aaf6cb82179d498aaf4fe0d8ad4c6589bb4abbdb3ad30dc4cb93",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/table/enonce-9-mecaniquement-impossible",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 547,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **9** | *« celle qui rend le vol du `latest` **mécaniquement impossible** »* | `IakaCockpit/specs/etat-des-lieux.md`, `iakaFrameGUI/specs/etat-des-lieux.md` | **la forme la plus forte du corpus**, dans « Reprise du travail » — le **premier texte lu au prochain passage** | **réfutée en place** : elle n'empêche rien (§ F2) et ne répare pas (table des neuf règles) | CORRIGÉ |",
+      "empreinte": "0e5c0a48a718433c5f72842dbf82eef97a558c39d265d3c08c0559d4881cd852",
+      "note": "Ligne 9 de la table avant/apres : « celle qui rend le vol du `latest` mecaniquement impossible » — la forme la plus forte du corpus, et son refus."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/039",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 549,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **11** | ⚠️ **un TROISIÈME état des lieux**, jamais pointé | `iakaframe/specs/etat-des-lieux.md` (H-2 **et** « Pièges connus » n° 1) | *« republier une version ancienne vole le latest »* + *« Remède : … ou le job conditionné au plus haut semver »* | le vol vient de la **CRÉATION** ; le job **n'est pas un remède** — il détecte, rougit, dicte | CORRIGÉ |",
+      "empreinte": "f98497c8af0ca3894b4b64e1fcb77ddbb5509cd7b8194e319266fb5e44b7a0c6",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/040",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 553,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **15** | `make_latest` calculé **non éprouvé** | `iakaframe/cli/scripts/lib/vitrine.js`, `iakaframe/BACKLOG.md` | — | **inchangé** : ils disent déjà « non éprouvé ». Inscrits pour qu'une promotion future se voie | CONFORME |",
+      "empreinte": "1a1fcd85883c25e4f3cd132c0b4f88aa803f55518bb9150a4d538ac13609fb5a",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/041",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 554,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **16** | 🛑 le message **E-1** de la vitrine en ligne | `IakaCockpit/scripts/vitrine-en-ligne.mjs`, `iakaFrameGUI/…`, `iakaframe/cli/scripts/vitrine-en-ligne.js` | *« Republier un tag ancien **VOLE** le latest … **Rattrapage** : `gh release edit <plusHaut> --latest` »* | *« C'est la **CRÉATION** d'une release qui prend le drapeau … republier un tag dont la release **EXISTE** n'y touche pas (R-1) … **Rattrapage à TENTER** … **NON ÉPROUVÉ** : que cette écriture rende le latest n'a ni run ni log »* — **aux trois dépôts** | **CORRIGÉ** *(garde-fou levé par le décideur, 5ᵉ passage)* |",
+      "empreinte": "31741e0454dd9c5532ede7dbcaed49f6b843920f9729a3e2f4da7c5441dda821",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/042",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 592,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> Il ne promet **pas** que l'écriture `true` répare — le NO-OP mesuré porte sur `false` et **ne se",
+      "empreinte": "19123ada70384f93edfb98612c1d9d6db9b15241d8e8411fd56ad7405daa93da",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/043",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 649,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "**création** d'une release sans `make_latest` (défaut `true`), pas de la republication ; une",
+      "empreinte": "623394650acf9f3c3fc67a8892cc698d8ae00ff985114f61b59ac3d69830f649",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/044",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 689,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`gh release create v0.2.0` **sans** `make_latest` → mesurer : le `latest` **a-t-il été volé** ?",
+      "empreinte": "03cb38ca122441b89deaa056980a108b32b6cd78847e8212dc570b2b9bcdbd57",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/045",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 693,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "quoi GitHub retombe après `make_latest=false`.",
+      "empreinte": "756e21a6029881106aab222a8765478edc5f3894a1a5991c4a7db2a21f3355a3",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/046",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 716,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`gh api repos/iakasju/IakaCockpit/releases/latest --jq .tag_name`. **Attendu** : `v0.32.2`, puis",
+      "empreinte": "3e683cd4bb7bac71c1e09bf6a549a20509c87a41c9aef8846e06172c37217337",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/047",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 723,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "4.6 **Re-mesurer en anonyme** (point de vue du visiteur) : `releases/latest`, le nombre d'assets de",
+      "empreinte": "33dc5926138093aecd45ada232169ddbbe5a99dda60f92ef2605e3609f828d4c",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/048",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 728,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "iakasju/IakaCockpit`, puis **re-mesurer `releases/latest` une dernière fois** — supprimer une",
+      "empreinte": "614f7d15c2ee616bbb0cb6c6a2d5af66ca08d02255605203f9781db0e3d9e1aa",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/049",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 768,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `gh release edit v0.32.2 --latest --repo iakasju/IakaCockpit`, puis re-mesurer",
+      "empreinte": "d751e000107d7dae83bfd58e72bb38b4c01c24dc48afd83de4e5520386371f5d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/050",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 769,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `releases/latest --jq .tag_name` → doit rendre `v0.32.2`. Coût : quelques secondes.",
+      "empreinte": "0af8fe9249be9a94eceaaa4468cfcdbec13af6fecab520947e4e861e4a66322f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/051",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 804,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "### La branche `--latest=false` a réellement tourné",
+      "empreinte": "14eaffd312bed2796ba3f02dbcf19bb677e3b61cecf888bbd5666e6c8b7be8f8",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/052",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 808,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `--latest=false`. *Vérif* : `gh run view <id> --log --repo iakasju/IakaCockpit`, lignes citées",
+      "empreinte": "65359b0d1f951af56f1a5e3b281887d0e5648f3962e212681f7464a0eb97e6d7",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/053",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 817,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `gh api repos/iakasju/IakaCockpit/releases/latest --jq .tag_name` → `v0.32.2` en 4.1 **et** en",
+      "empreinte": "f880fcd56cc298ce8c265f8bba63c68793f53f98e94d7322d6a648d8a68e3bfc",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/054",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 820,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      relevé horodaté où `releases/latest` ≠ `v0.32.2`, suivi d'un relevé où il vaut de nouveau",
+      "empreinte": "f54d64af7d2d5b7bb93422202625864f5201c5b12a7a7ce1e7710496b5da45b5",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/055",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 843,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `latest` après `make_latest=false` est nommé, et la règle de repli observée est **décrite**",
+      "empreinte": "f82faa16b94a589e285778f711ccd57ab7419ddfba9c4838bf94636213f8cc20",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/056",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 881,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> SHA epingle (`getOrCreateRelease` renvoie la release existante telle quelle, `make_latest` jamais",
+      "empreinte": "94826264a0e704628d66169ec86b86e9f988e4423285eab28ac403dce49e8fe4",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/057",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 883,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> ne peut jamais etre le plus haut : la branche `--latest=false` devient **deterministe**, et il n'y",
+      "empreinte": "04f7a6b881275d6cdea1546ca7fa54db7ee1e7c2ecd4e920ae7a1cc0f26bd87b",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/contrefactuel/058",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 924,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "1. **F4 — le comportement de GitHub après `make_latest=false`.** C'est l'inconnue de fond. Si le",
+      "empreinte": "5d0baf01ba53d50d905d737810b111b1479a0bd5e9ffa9069cd095a1759e5d12",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/001",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 53,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`GET /repos/iakasju/iakaFrameGUI/releases/latest` (anonyme) → **`v0.1.6`**, alors que `v0.1.7`",
+      "empreinte": "2d69944074599f9ec4fb27f6ef3dddf49655ccf366dfbaca4251159f141af711",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/002",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 76,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "- « Create a release » et « Update a release » exposent un paramètre **`make_latest`**, valeurs",
+      "empreinte": "e0c8eef050928baf9da4f46e9a1154bbd001f098cfb73be1a10def34a47807f3",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/003",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 94,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  uploadPlainBinary, generateReleaseNotes`. **Aucune entrée `make_latest`.** On ne peut donc pas",
+      "empreinte": "5255266798ea68efc4bbdc94f50a2bbb21b57b12c12c13054435cda76e163c69",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/004",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 97,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `make_latest`** : *« Specifies whether this release should be set as the latest release for the",
+      "empreinte": "4f7191f06be2448cc4a303ac58924b21bbc9cac622d0393d5cdf09e68c3c8095",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/005",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 100,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "- `gh release edit <tag> --latest` — *« Explicitly mark the release as 'Latest' »*. Disponible sur",
+      "empreinte": "d58c6d406d36970e2d033adbc45cf063945e33f91afa4fed1a15afc4bbd0ae57",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/006",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 167,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   **drapeau explicite `make_latest`, de défaut `true`**, réécrit à chaque publication (F3). Il ne",
+      "empreinte": "70e245d22f83c4dc616bfd66b0e6e7a82fc3ea8569bda510d6a1b4fdcec18ded",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/007",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 170,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "   `latest`** — `make_latest` (API, et input de `softprops`), `gh release edit --latest` (CLI).",
+      "empreinte": "da65160774be78bae5a6a946d6aa5d894e807bd3f88ff709d57cd325eafd1cd0",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/008",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 410,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`make_latest` explicitement, **calculé** (vrai si et seulement si le tag publié est le plus haut",
+      "empreinte": "b1dd8dc6b9234992d3c665823b2be595a53267a475fbdc48836f8d60d4c0a75e",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/009",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 415,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "`gh release edit \"$TAG\" --latest` (ou `--latest=false` si le tag publié n'est pas le plus haut).",
+      "empreinte": "9edd2e7f16de79c60fbe79d7732951da980a32f9119b85d5dfd4c8d0aa038be6",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaframe/etape-5.3/01",
@@ -1847,6 +3904,83 @@
       "note": "Ligne du bloc « etape-5.3 » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "iakaframe/balayage/installer/010",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 471,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "- `.github/workflows/release.yml:39-45` — `make_latest` explicite sur `softprops/action-gh-release`.",
+      "empreinte": "79b94075fe1067764d7537b43525e6016c3c6948cb04b2474333a6f0a8881855",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/011",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 530,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  manuelle de rattrapage** (`gh release edit <tag> --latest`).",
+      "empreinte": "c735a09cc78b45d8d643d0e5bfad4fbb878d82e687155c6fd240ed98bea150e5",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/012",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 560,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "- [ ] **CA-4** — `gh api repos/iakasju/iakaFrameGUI/releases/latest --jq .tag_name` rend le **plus",
+      "empreinte": "a515b4e02346f9a2a3141ab47f9ab306d9db6f150e475bee5e83a449be8da4ed",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/013",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 571,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      run `33277643229`) : une **création** sans `make_latest` **vole** le `latest` ; le tri",
+      "empreinte": "ff2a8ffdff5ccdd62bcfa07dec4b076406172f27e981107f57ffffa1b34ff4c4",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/014",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 575,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `--latest=false` sur la release voleuse, `GET /releases/latest` rendait **encore** cette",
+      "empreinte": "747029d723dacd1d6a0b9f0eea9e4fcdb20cadb87084f8bceda32645bf90321c",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/015",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 578,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      **aussi** la plus récente par `created_at` — **la branche `--latest=false` n'a pas rendu** le",
+      "empreinte": "78391f0912b0d27e1fa5ddd6ffffe0d667a79641677589952180caf243d15e89",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/016",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 584,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      ancien** donc au `created_at` le plus **vieux**, un « repli par date » aurait fait retomber le",
+      "empreinte": "4ce509bca458ce7ea7883e4189657dc2d1e92643d2c35427a2de9e1ae34ff149",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaframe/CA-5/mecanisme",
       "depot": "iakaframe",
       "chemin": "specs/instructions/installer-depuis-rien.md",
@@ -1856,17 +3990,6 @@
       "extrait": "✅ **LE MÉCANISME — le contrefactuel a été JOUÉ le 2026-08-30 par le décideur.**",
       "empreinte": "7745a485f7e149ebec77e16dce7eab6e8ea90bb2fa12f8823bb72155bf183327",
       "note": "Remplace « v0.10.0 ⇒ drapeau inamovible » — inference tiree d une sortie unique, citant comme autorite le § qui la contredit."
-    },
-    {
-      "id": "iakaframe/CA-5/residu",
-      "depot": "iakaframe",
-      "chemin": "specs/instructions/installer-depuis-rien.md",
-      "ligne": 595,
-      "classe": "repli",
-      "statut": "CORRIGE",
-      "extrait": "🛑 **LE RÉSIDU, à porter avec la conclusion** : la phrase juste n'est **pas** « GitHub ne",
-      "empreinte": "d27f21d2a92ed851e041bfbc429c0cabcb86662f1f8732d2264f7984cfd8302e",
-      "note": "La limite est ecrite au meme endroit que la conclusion."
     },
     {
       "id": "iakaframe/CA-5/corps/02",
@@ -1935,6 +4058,17 @@
       "note": "Ligne du bloc « CA-5/corps » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "iakaframe/CA-5/residu",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 595,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "🛑 **LE RÉSIDU, à porter avec la conclusion** : la phrase juste n'est **pas** « GitHub ne",
+      "empreinte": "d27f21d2a92ed851e041bfbc429c0cabcb86662f1f8732d2264f7984cfd8302e",
+      "note": "La limite est ecrite au meme endroit que la conclusion."
+    },
+    {
       "id": "iakaframe/CA-5/corps/09",
       "depot": "iakaframe",
       "chemin": "specs/instructions/installer-depuis-rien.md",
@@ -2001,6 +4135,138 @@
       "note": "Ligne du bloc « CA-5/corps » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "iakaframe/balayage/installer/017",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 606,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `v0.32.2`, donc **même `created_at`** — sous l'hypothèse « repli par date », une **égalité**,",
+      "empreinte": "7b834593045eeed9d574cec1ac203076a25681a86c0595eae7afdf6a8f81f183",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/018",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 617,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "- [ ] **CA-7** — `gh api repos/iakasju/iakaframe/releases/latest --jq .tag_name` rend `v` +",
+      "empreinte": "2d7b3d50cb948edfb789c8e752fa4fb1ef7338a77a6270bf0d74c6bcba0ffa13",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/019",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 672,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "> **UN GESTE D'AR-3 EST DEJA FAIT, avant meme cette validation** : `gh release edit v0.1.7 --latest`",
+      "empreinte": "ec194bb896d6905f2d957a76edc9e1a5fd03ae4b7a9226b3fc80408363f19dd9",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/020",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 690,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **AR-1** | Le README décrit-il **le dépôt** ou **la dernière publication** ? | (a) **porteur** : il annonce la version que le dépôt porte — vérifiable **hors ligne**, au prix d'une fenêtre de quelques minutes où la release n'a pas encore ses binaires (R4) · (b) **sortie** : il annonce la dernière version publiée — toujours vrai, mais **invérifiable hors ligne**, donc dérive silencieuse : c'est **exactement l'état actuel** · (c) il ne nomme aucune version et ne pointe que `/releases/latest` — jamais faux, jamais utile, et incompatible avec un tableau de noms de fichiers versionnés | **(a)**. C'est la seule option qui rende le défaut **détectable dans le gate**, et elle réutilise deux gardes existantes sans en créer une troisième. (b) est le défaut qu'on répare. |",
+      "empreinte": "6ee796be9e1d1be7e7c319b1ccc3af924ad74c29112ea25d27886312517701dd",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/021",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 692,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "| **AR-3** | Comment maîtriser le `latest` ? | (a) discipline des dates (ne jamais republier un tag ancien) · (b) **désignation explicite** en fin de workflow, conditionnée au plus haut semver · (c) `make_latest: false` sur toute republication | **(b)**, qui **contient** (c). (a) est une règle qu'aucune mécanique ne porte — donc pas une garde. ⚠️ Le SHA de `tauri-action` **n'expose rien** : côté apps, (b) passe par une **étape `gh` distincte**, jamais par un dé-épinglage. |",
+      "empreinte": "8412ab2bc09707429de8439148c70234af4680719b69842e3f4477fc54677958",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/022",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 703,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `make_latest: true`) — il faudrait finir par la plus haute et le vérifier. On rejouerait H-2",
+      "empreinte": "d68f6888fbfb460b7ff4c8c03032c204a6662a608751762c42cbd965a7c6a047",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/023",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 757,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "1. **Re-désigner `iakaFrameGUI v0.1.7` comme `latest`** — `gh release edit v0.1.7 --latest`. Une",
+      "empreinte": "50b217ba22584ce154100dbe82f30628327ce5866fdc1e4860a78aad0bd9eae0",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/024",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 812,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  « Get the latest release » (formulation `created_at`) et le paramètre **`make_latest`**",
+      "empreinte": "fc356eb5358c20cd1e1111c7d3ff700ad820fd02729581f89e8fd778e20c46fd",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/025",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 815,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  `--latest` : *« Explicitly mark the release as 'Latest' »*.",
+      "empreinte": "32493ee74896d913488b00fb8cea19b0af41c7e967b353faa37d03a1bdc5b74f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaframe/balayage/installer/026",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 819,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  — input **`make_latest`** déclaré.",
+      "empreinte": "fa63b0dea74d2555b4e0f0b2e39d84d911fef5ca7f0155b218d8ee65ce877089",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/release.yml/001",
+      "depot": "iakaFrameGUI",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 132,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  # │ `latest` vient de la CREATION d'une release : `createRelease` y est appele SANS `make_latest`,│",
+      "empreinte": "e452de923337b5726e179e9a5264adefa2bbeeb55f60f29d3744a25908f3e5d9",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/release.yml/002",
+      "depot": "iakaFrameGUI",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 135,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  # │ cartouche disait, jusqu'au 2026-08-29, « republier un tag ANCIEN vole le latest » ; FAUX ICI. │",
+      "empreinte": "e2aeae6a02cd6657e0af667deddf3bddc5eaf469577e7346cc27f9c1763908e9",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaFrameGUI/cartouche/ne-repare-pas",
       "depot": "iakaFrameGUI",
       "chemin": ".github/workflows/release.yml",
@@ -2056,6 +4322,61 @@
       "note": "Ligne du bloc « cartouche/verdict-residu » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "iakaFrameGUI/balayage/release.yml/003",
+      "depot": "iakaFrameGUI",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 178,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "            echo \"           --latest=false. Sans cette ligne, le defaut make_latest=true de\"",
+      "empreinte": "ce2e5d4879b80bd14e3ee2c3dae174beef4d547ec7b810f02a5e1c3aafedcb8d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/release.yml/004",
+      "depot": "iakaFrameGUI",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 186,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "            echo \"::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo $DEPOT\"",
+      "empreinte": "e5b887e0d092ee309b7c6cc930154b279ae0177916bad578b9752614b7425b28",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/release.yml/005",
+      "depot": "iakaFrameGUI",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 196,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "            echo \"::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo $DEPOT\"",
+      "empreinte": "e5b887e0d092ee309b7c6cc930154b279ae0177916bad578b9752614b7425b28",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/001",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 123,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# `make_latest`, donc au defaut `true` ; mais `getOrCreateRelease` renvoie une release DEJA",
+      "empreinte": "306625bd68a84ffda6e9ba87ef1000a1c7e6ecf58677de19c9cf7d752d47b4d7",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/002",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 126,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# « REPUBLIER un tag ancien vole le latest » ; c'etait FAUX ici. L'incident iakaFrameGUI (v0.1.5 et",
+      "empreinte": "2ab5c763dd4b5935cd1fef740fad3d2b220fd87c38458507528dd9fa25ad5d2d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaFrameGUI/bloc-latest/en-tete",
       "depot": "iakaFrameGUI",
       "chemin": "CLAUDE.md",
@@ -2067,6 +4388,61 @@
       "note": "Disait « RIEN N ETABLIT QU IL LE REPARE » : l indetermination est levee par elimination."
     },
     {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/003",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 136,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# du 2026-08-29 : apres un vol REEL (creation de `v0.2.0` sans `--latest`, le `latest` passe de",
+      "empreinte": "d3da93ae6966ab2ad6f7ca6c9b32ba08f4d20f202c953c1054eaa3e3625a80ab",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/004",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 137,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# `v0.10.0` a `v0.2.0`), le job a pose `--latest=false` sur la release voleuse, et",
+      "empreinte": "e0ee349c3feffe701a311cbe0c84fc10b1ca6d110474304c0428b33099c45334",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/005",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 138,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# `GET /repos/.../releases/latest` a rendu `v0.2.0` — ligne du log :",
+      "empreinte": "ade2a58c364fdb4c58753d95ced0852e5dbbb234409de9ec8efdff233a66ccc1",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/006",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 141,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# la plus recente par `created_at` — la branche `--latest=false` N'A PAS rendu le `latest` au",
+      "empreinte": "7a137aecdb8247db66008306a70773f39f880b7c74ec51b6263a33102e487c6d",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/007",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 146,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# l'hypothese repli par date, le `latest` retomberait sur `v0.32.2`, qui est AUSSI le plus haut",
+      "empreinte": "1f79f81b12c561cf04022e322e4340a954d747960c6a1c650c1aada11e518321",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaFrameGUI/bloc-latest/bornage-refute",
       "depot": "iakaFrameGUI",
       "chemin": "CLAUDE.md",
@@ -2076,6 +4452,17 @@
       "extrait": "# CET ARGUMENT EST REFUTEE (contrefactuel du decideur, plus bas) : plus AUCUNE regle survivante",
       "empreinte": "7f4472bdf01e48159f2a845d769ce944dad63c0b4f3288b0efa128ca095c2bcf",
       "note": "Portait « ICI, un repli par date REPARERAIT » : la regle est refutee. Date, pas efface."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/008",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 158,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# « `make_latest=false` est un NO-OP » a ete ecrit ici comme un fait MESURE jusqu'au 2026-08-30 ;",
+      "empreinte": "3ba6225cce2d0de3270bb8c90ec62ea5a24e4839915b7eeafd0fd8e653aecfc3",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaFrameGUI/bloc-latest/avertissement-avant-commandes",
@@ -2098,6 +4485,17 @@
       "extrait": "# JOUE PAR LE DECIDEUR le 2026-08-30 -> sortie `v0.10.0`, INCHANGEE. Etat du banc, six valeurs",
       "empreinte": "64a4af6690cf441eed849fcbae1597515b9c76c0fb6800843b318dae6f48e344",
       "note": "Remplace « CE QUI TRANCHERAIT » et l inference « drapeau inamovible => v0.10.0 »."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/009",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 179,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# n'ayant eu lieu que 0,65 s apres l'edit). SEUL LE NO-OP SURVIT — et lui ne depend d'AUCUNE",
+      "empreinte": "fae2db23ed21a2ba4f57fdc81bda0007016ec56eac416aaefadae640a0489482",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaFrameGUI/bloc-latest/residu",
@@ -2188,6 +4586,17 @@
       "note": "Ligne du bloc « bloc-latest/residu-corps » — motif d inscription a l entree 01 du meme bloc."
     },
     {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/010",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 196,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# effectif = ...`), ROUGIT, et DICTE le rattrapage `gh release edit <PLUS_HAUT> --latest --repo",
+      "empreinte": "1cc2bdd7c9ca807c489c537271e26ca3a975b3f51d7ffe1c0713b98943d7e61a",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaFrameGUI/bloc-latest/rattrapage-sans-trace",
       "depot": "iakaFrameGUI",
       "chemin": "CLAUDE.md",
@@ -2197,6 +4606,17 @@
       "extrait": "# « fonctionne en < 3 s » qui figurait ici est retire. ⚠️ ET LE CONTREFACTUEL DU 2026-08-30 N'Y",
       "empreinte": "98a6d806635a6fd5f4bf6abc2d456a061a734191b0f0c01c348c83479ee4bda0",
       "note": "La mesure ne porte que sur l ecriture `false` ; `true` reste sans trace."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/011",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 202,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# produise un effet reste SANS TRACE, et le NO-OP observe sur `false` ne se transpose pas",
+      "empreinte": "d88ca63c338ad9e89e398e4a346368326a63ce6df8ba6d27529ea12c5cab98ec",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaFrameGUI/bloc-latest/seul-detecteur",
@@ -2210,6 +4630,94 @@
       "note": "Enonce juste et inchange. Pointe par le gate en :195 / :176 — verifie."
     },
     {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/012",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 365,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `--latest=false` n'a PAS rendu le `latest` au plus haut semver**",
+      "empreinte": "f00a9ba2173729f67f4b55ca6bc49254a1dd53e8ea8fc74e37cc37d6251af1e6",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/bloc-latest/verdict-neuf-regles",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 370,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      *des neuf règles de repli énumérées, seul le NO-OP survit, et le bornage « à la topologie »*",
+      "empreinte": "30d5076e3d33319848d63efc10c0650d69ee1e14f13710fb982b54911e18e532",
+      "note": "Jumeau de `IakaCockpit/CLAUDE.md:290` — ligne de verdict. E-2 la retournait dans les DEUX depots simultanement."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/013",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 376,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      effaçant. (i) « Republier un tag ancien vole le `latest` » : FAUX au SHA épinglé — lu dans",
+      "empreinte": "2396f1e4adf13215bef0c8765d87471749f051a02e4cdd742e2e3e9756a066b7",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/014",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 378,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      sans `updateRelease` ; **le vol vient de la CRÉATION** (`createRelease` sans `make_latest`,",
+      "empreinte": "a5828ebe9da94d7bcb05e6adba3c66ea6c5327f10e10867927e6a5cefb5669a6",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/015",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 384,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      sans `--latest` → `releases/latest` passe de `v0.10.0` à `v0.2.0` (**le vol est réel**) ;",
+      "empreinte": "9f65213c96086fd3302ccf541bd19b8961e4fb0d0198fae9b880b8c2959d9a35",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/016",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 386,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `0.10`), `DECISION : v0.2.0 n'est PAS le plus haut` → `--latest=false` **accepté**, et",
+      "empreinte": "a92db5342faf6cef7f06dce2f8a901dbce92cfe67973f502611055b44693cbf0",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/017",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 389,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      release voleuse était **aussi** la plus récente par `created_at`, la branche `--latest=false`",
+      "empreinte": "a417e6e90b09523c98881b405480c1e36801ebc67bc7b65066d72736c51ed0b1",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/018",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 393,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      plus vieux ; sous l'hypothèse **repli par date**, le `latest` retomberait sur `v0.32.2`, qui",
+      "empreinte": "75cd7fc485e0356eb09e1855c92506b9e33d68dd80195001b9cde28b4c48337f",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
       "id": "iakaFrameGUI/backlog-L43/bornage-refute",
       "depot": "iakaFrameGUI",
       "chemin": "CLAUDE.md",
@@ -2219,6 +4727,17 @@
       "extrait": "**réparé** »*. 🛑 **La règle qui portait cet argument est réfutée** par le contrefactuel joué",
       "empreinte": "7c96686be0ca3b30a591d6b0b5e024e0d73915e76305f2fcdcd56654fb505ef5",
       "note": "Second exemplaire de l argument « un repli par date REPARERAIT »."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/019",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 406,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      ÉLIMINATION le même jour.** « `make_latest=false` est un NO-OP » était écrit ici comme un",
+      "empreinte": "962bc693737593d37793f28713e084ea1971fe33923bc6d7ee49e9edb31b8258",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaFrameGUI/backlog-L43/contrefactuel-joue",
@@ -2232,6 +4751,39 @@
       "note": "Remplace l inference « drapeau inamovible ⇒ v0.10.0 · repli par date ⇒ v0.9.0 »."
     },
     {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/020",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 412,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `gh release edit v0.10.0 --latest=false --repo iakasju/latest-contrefactuel` puis lecture de",
+      "empreinte": "c59daa5a32e2411ea62226d58f8a7542084667096ca69c9a5a5f49f99de76a18",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/021",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 413,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `releases/latest` → **`v0.10.0`, inchangé**. ⚠️ **Cette sortie ne conclut rien à elle seule**",
+      "empreinte": "0d8a97e8331a89dba1ee5f3e73dc921343ed5cbad0dd61e293102e542a3e4bfe",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/bloc-latest/verdict-seul-le-no-op",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 422,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      après l'`edit`). **Seul le NO-OP survit**, et lui **ne dépend d'aucune topologie**.",
+      "empreinte": "7f806c25ac6334c42a68cba3df6e5fb270d4de2cbc1f1204c3b53bd037b15640",
+      "note": "Jumeau de `IakaCockpit/CLAUDE.md:342` — ligne de verdict, seconde moitie de la mutation E-2."
+    },
+    {
       "id": "iakaFrameGUI/backlog-L43/residu",
       "depot": "iakaFrameGUI",
       "chemin": "CLAUDE.md",
@@ -2241,6 +4793,94 @@
       "extrait": "🛑 **LE RÉSIDU, à porter avec la conclusion** : la phrase juste n'est **pas** « GitHub ne",
       "empreinte": "d27f21d2a92ed851e041bfbc429c0cabcb86662f1f8732d2264f7984cfd8302e",
       "note": "Cinq points, dont la regle non enumeree."
+    },
+    {
+      "id": "iakaFrameGUI/residu/corps/01",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 424,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      replie jamais », c'est **« parmi les règles énumérées, huit sont réfutées ; seule le NO-OP",
+      "empreinte": "884a5bbf1921660d49a064687a0e05510855020b696802f423d908b0b7fbaa82",
+      "note": "Jumeau de `IakaCockpit/CLAUDE.md:344` — corps du residu (1/3)."
+    },
+    {
+      "id": "iakaFrameGUI/residu/corps/02",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 425,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      survit »**. **(1)** Une règle **non énumérée** reste possible. **(2)** Le NO-OP survivant est",
+      "empreinte": "f1ea4b94efd2fb45b7f781daa83dfe92b31919dc998a44bb3e6788f493c63005",
+      "note": "Jumeau de `IakaCockpit/CLAUDE.md:345` — corps du residu (2/3)."
+    },
+    {
+      "id": "iakaFrameGUI/residu/corps/03",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 426,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      **observationnel** — il ne dit pas **où** il se produit (`gh`, écriture API, ou lecture), et",
+      "empreinte": "98a93b231003c5ff3e61eb76a3ad9a8ea0326b974e6198a33f8e963c9e75ed5f",
+      "note": "Jumeau de `IakaCockpit/CLAUDE.md:346` — corps du residu (3/3). INVISIBLE AU MOTIF, inscrite a la lecture."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/022",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 427,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `make_latest` **n'est pas relisible**. **(3)** Rien sur **ce dépôt-ci**. **(4)** Rien sur le",
+      "empreinte": "cb19f42fc9a1c8527f1e6c273b30714d1cfef921b2e1fb4038147ef1830aa9ba",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/023",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 431,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      `gh release edit <PLUS_HAUT> --latest` **répare** — aucun run, aucun log ; l'état actuel du",
+      "empreinte": "387b666031042decee06080bf44440358ef39fe35996e60237304ad68faa1a4b",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/024",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 461,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      le commit de `v0.32.2`, donc **même `created_at`** — sous l'hypothèse « repli par date », le",
+      "empreinte": "2a7324af0e41fe7a39538c58c12600d8ee3f9a6eebdda6dab26d092bc8e712e7",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/025",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 491,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      (V3) **maîtrise du `latest`** — job `latest` du workflow, `--latest` / `--latest=false`",
+      "empreinte": "63e2b9479329a142294bd8e77c3dadb2d12f5a583683a4360b9dc82a7817bda4",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/CLAUDE.md/026",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 511,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      **H-2 était déjà refermé sur ce dépôt** par le décideur (`gh release edit v0.1.7 --latest`) ;",
+      "empreinte": "4a810161ffd924671a83bf454346b5ab11266cc2f0482156dc38c71ea67ee80a",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaFrameGUI/E-1/message/01",
@@ -2439,6 +5079,28 @@
       "extrait": "      \"n'a ni run ni log.\",",
       "empreinte": "c7bf9a5da59e95c6d59817175b20850e489adf472c7a39af61b0ddacccd4d5bf",
       "note": "Ligne du bloc « E-1/message » — motif d inscription a l entree 01 du meme bloc."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/etat-des-lieux/001",
+      "depot": "iakaFrameGUI",
+      "chemin": "specs/etat-des-lieux.md",
+      "ligne": 49,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "- **`releases/latest` = `v0.1.8`** : le drapeau a suivi le plus haut semver (E-1 nominal).",
+      "empreinte": "5bd2dde0d4ca4fb40efa23c6b92e62bfdaacbfb8d635f2371047de4bb8a40bc9",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
+    },
+    {
+      "id": "iakaFrameGUI/balayage/etat-des-lieux/002",
+      "depot": "iakaFrameGUI",
+      "chemin": "specs/etat-des-lieux.md",
+      "ligne": 67,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "  1. **CA-5** — `v0.1.8` etant le plus haut semver, la branche **`--latest=false`** **n'a pas",
+      "empreinte": "ad628f2d3f6e93df4b883cce6b8372924c776be40b9e13056a67307ef030579c",
+      "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaFrameGUI/CA-5/impossible",

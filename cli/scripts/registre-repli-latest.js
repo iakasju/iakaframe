@@ -20,18 +20,46 @@
 //   D-2  un enonce inscrit a CHANGE DE LIGNE               -> rouge : `chemin:ligne` mentirait
 //   D-3  un FICHIER NEUF entre dans le vocabulaire         -> rouge : a trier, puis a inscrire
 //   D-4  un fichier COUVERT gagne des occurrences          -> rouge : un enonce a ete AJOUTE
+//   D-5  BALAYAGE DE COMPLETUDE — une ligne d'un fichier COUVERT porte le motif et n'est TENUE
+//        PAR AUCUNE EMPREINTE : ni inscrite au § Registre, ni declaree hors couverture avec son
+//        motif -> rouge. C'est le CRITERE DE CLOTURE du registre, ajoute au 6e passage.
+//   D-6  une ligne DECLAREE hors couverture a ete REECRITE (empreinte ligne a ligne differente)
+//        -> rouge : le motif d'exclusion portait sur UN TEXTE, pas sur un numero de ligne.
+//   D-7  une declaration hors couverture est PERIMEE (sa ligne ne porte plus le motif, ou pointe
+//        au-dela de la fin du fichier) -> rouge : une exclusion muette est une dette, pas un fait.
+//
+// POURQUOI D-5 EXISTE — L'INSCRIPTION PAR POINTEURS NE CLOT RIEN. Cinq passages ont inscrit
+// EXACTEMENT les lignes que le gate montrait, et cinq fois la classe a survecu a cote : une liste
+// de pointeurs, meme longue, reste un ECHANTILLON. Ce qui manquait n'etait pas une liste plus
+// grande, c'etait un CRITERE AUTO-VERIFIABLE. D-5 le pose : dans un fichier couvert, TOUTE ligne
+// du motif doit etre tenue par une empreinte — soit comme enonce inscrit, soit comme exclusion
+// DECLAREE AVEC SON MOTIF, ligne a ligne. Aucune exclusion en masse : une exclusion sans motif
+// ne vaut pas mieux qu'un `grep`. C'est, ligne a ligne, le geste que `fixtures/convergence.sha256`
+// fait fichier a fichier. MESURE AU 6e PASSAGE : 309 lignes du motif dans les 16 fichiers
+// couverts, 56 tenues par une empreinte — 253 ne l'etaient pas.
+// `--ecrire` NE FABRIQUE JAMAIS UNE EXCLUSION : il re-ancre celles qui existent (position seule,
+// par empreinte), jamais il n'en cree. Une ligne neuve du motif se TRIE A LA MAIN. C'est le
+// cliquet — sans lui, D-5 se refermerait tout seul en avalant ce qu'il devait signaler.
 //
 // CE QU'IL NE DETECTE PAS — DECLARE, PAS TU :
 //   H-1  une implication NEUVE, dans un fichier deja couvert, ECRITE SANS AUCUN mot du motif.
-//        C'est l'angle mort de tout balayage lexical. D-4 le reduit POUR LE SEUL CAS D'UN AJOUT
-//        (le compte monte), sans le fermer. Il se ferme a la LECTURE.
+//        C'est l'angle mort de tout balayage lexical, et D-5 NE LE FERME PAS — D-5 balaie les
+//        lignes QUI PORTENT LE MOTIF ; une ligne qui n'en porte aucun lui est invisible, quelle
+//        que soit sa completude sur le reste. MESURE, au 6e passage : sur les 22 enonces que le
+//        gate a releves comme non inscrits, 7 (`IakaCockpit/CLAUDE.md:346`, `iakaFrameGUI/
+//        CLAUDE.md:426`, `contrefactuel-ca5-procedure-decideur.md:49,219,221,537,550`) NE
+//        MATCHENT PAS le motif : ils ont ete inscrits A LA LECTURE, et par aucun balayage.
+//        H-1 RESTE OUVERT — ce n'est pas une dette, c'est la BORNE DE L'INSTRUMENT. La lecture
+//        reste dans la boucle.
 //   H-3  UN ENONCE RETOURNE EN SON CONTRAIRE A COMPTE CONSTANT — ajoute le 2026-08-30, cinquieme
 //        passage. D-4 ne voit qu'une VARIATION du compte ; substituer « SURVIT » a « REFUTEE »,
 //        ou retourner un residu en son inverse, laisse le compte INCHANGE et passe. Rectifier le
 //        comptage (occurrences au lieu de lignes) NE FERME PAS ce trou : la seule reponse est
-//        d'INSCRIRE l'enonce lui-meme, pour que D-1 le tienne par son empreinte. C'est pourquoi
-//        le registre ancre desormais les LIGNES DE VERDICT et les POINTS DE RESIDU, et non plus
-//        seulement les titres de section qui les surplombent.
+//        d'INSCRIRE l'enonce lui-meme, pour que D-1 le tienne par son empreinte.
+//        CE QUI EST ANCRE, ET RIEN DE PLUS : les lignes de verdict et les corps de residu QUI
+//        FIGURENT AU § REGISTRE, plus toute ligne du motif d'un fichier couvert (D-5). Les titres
+//        de section ne sont PAS « abolis » : plusieurs restent inscrits parce qu'ils AFFIRMENT
+//        (R-1, F3, F6, F7) ; ceux qui n'affirment rien sont declares hors couverture, avec motif.
 //   H-2  la JUSTESSE d'un enonce. Ce script compare des octets a un registre, il ne juge rien.
 //
 // CODES DE SORTIE — 0 : registre conforme · 1 : derive(s) · 2 : usage
@@ -44,6 +72,9 @@
 //        `--ecrire` reinscrit la POSITION (enonce retrouve ailleurs) ET LE CONTENU (empreinte +
 //        extrait, depuis la ligne d'ancrage) — et il DIT lequel des deux, entree par entree. Si
 //        l'ancre pointe au-dela de la fin du fichier, il n'ecrit RIEN et sort en 1.
+//        Sur les DECLARATIONS hors couverture, il ne fait qu'une chose : les RE-ANCRER a leur
+//        nouvelle ligne quand le texte exclu a bouge sans changer. Il n'en cree aucune, il n'en
+//        supprime aucune, et il n'avalise aucune reecriture (D-6 reste rouge).
 //   IAKA_RACINE=/chemin/vers/work node cli/scripts/registre-repli-latest.js
 import fs from 'node:fs';
 import path from 'node:path';
@@ -78,6 +109,9 @@ function nonMesure(raison) {
 }
 
 const sha = (s) => crypto.createHash('sha256').update(s, 'utf8').digest('hex');
+// Une declaration hors couverture DOIT porter un motif ; si elle n'en porte pas, on le DIT
+// plutot que d'imprimer `undefined` — le mutisme est precisement ce qu'on refuse ici.
+const dec2Motif = (x) => (x && x.motif) || '(MOTIF ABSENT — declaration muette)';
 
 // --- balayage : quels fichiers PARLENT du repli du `latest` ? ------------------------------------
 function fichiersDuDepot(racineDepot) {
@@ -140,6 +174,17 @@ const reinscrits = [];
 const deplaces = [];
 const irreparables = [];
 
+// LIGNES INSCRITES, INDEXEES PAR FICHIER — la matiere premiere du balayage de completude (D-5).
+// Une ligne est « tenue » des lors qu'une entree du § Registre l'ancre : c'est D-1 qui la garde.
+const lignesInscrites = new Map();
+for (const e of reg.entrees) {
+  const cle = `${e.depot}/${e.chemin}`;
+  if (!lignesInscrites.has(cle)) lignesInscrites.set(cle, new Set());
+  lignesInscrites.get(cle).add(e.ligne);
+}
+const bilanCompletude = { motif: 0, inscrites: 0, declarees: 0, nonTenues: 0 };
+const deplacesExclusions = [];
+
 // --- 1. chaque depot du registre existe-t-il ? ---------------------------------------------------
 for (const d of Object.keys(reg.depots)) {
   if (!fs.existsSync(path.join(RACINE, d))) nonMesure(`depot « ${d} » introuvable sous ${RACINE}`);
@@ -153,7 +198,13 @@ for (const e of reg.entrees) {
     continue;
   }
   const lignes = fs.readFileSync(abs, 'utf8').split('\n');
-  const idx = lignes.findIndex((l) => sha(l) === e.empreinte);
+  // L'ANCRE D'ABORD, LA RECHERCHE ENSUITE. Corrige le 2026-08-30 (sixieme passage) : la version
+  // d'origine cherchait toujours la PREMIERE ligne d'empreinte egale. Deux lignes IDENTIQUES dans
+  // un meme fichier — cas reel : les deux `RATTRAPAGE MANUEL` du job `latest` (186 et 196) — se
+  // faisaient alors mutuellement rougir en D-2, un faux positif pur. On regarde donc d'abord si
+  // l'ancre elle-meme porte l'empreinte inscrite ; on ne balaie le fichier que si elle ne l'a pas.
+  const surAncre = e.ligne - 1 < lignes.length && sha(lignes[e.ligne - 1]) === e.empreinte;
+  const idx = surAncre ? e.ligne - 1 : lignes.findIndex((l) => sha(l) === e.empreinte);
   if (idx === -1) {
     const actuelle = lignes[e.ligne - 1] ?? '';
     derives.push(
@@ -232,7 +283,103 @@ for (const [d, meta] of Object.entries(reg.depots)) {
       derives.push(`D-4 ${d}/${rel} — le fichier ne porte PLUS aucune occurrence du motif.`);
     }
   }
+
+  // --- D-5 / D-6 / D-7 : LE BALAYAGE DE COMPLETUDE -----------------------------------------------
+  // Le critere de cloture. Pour CHAQUE fichier couvert, on enumere les lignes qui portent le motif
+  // et on exige que CHACUNE soit tenue par une empreinte : entree du § Registre (D-1 la garde), ou
+  // declaration `lignesHorsCouverture` avec son motif ET l'empreinte du texte exclu. Une ligne qui
+  // n'est ni l'un ni l'autre est une ligne dont personne ne repond : elle rougit.
+  const declarations = (meta.lignesHorsCouverture ??= {});
+  for (const rel of Object.keys(meta.couverts)) {
+    const abs = path.join(racineDepot, rel);
+    if (!fs.existsSync(abs)) continue;
+    const lignes = fs.readFileSync(abs, 'utf8').split('\n');
+    const inscrites = lignesInscrites.get(`${d}/${rel}`) ?? new Set();
+    const declaresFichier = declarations[rel] ?? {};
+    const vues = new Set();
+    lignes.forEach((texte, i) => {
+      if (!MOTIF.test(texte)) return;
+      const no = i + 1;
+      bilanCompletude.motif += 1;
+      if (inscrites.has(no)) {
+        bilanCompletude.inscrites += 1;
+        return;
+      }
+      const dec = declaresFichier[String(no)];
+      if (dec === undefined) {
+        bilanCompletude.nonTenues += 1;
+        derives.push(
+          `D-5 ${d}/${rel}:${no} — LIGNE DU MOTIF NON TENUE. Aucune empreinte ne repond d'elle : ` +
+            'ni entree du § Registre, ni declaration hors couverture.\n' +
+            `      ligne : ${JSON.stringify(texte.slice(0, 140))}\n` +
+            '      A TRIER A LA MAIN : soit elle AFFIRME quelque chose sur le repli du `latest` et ' +
+            'elle s\'inscrit au § Registre, soit elle ne fait que porter le vocabulaire et elle se ' +
+            'declare dans `lignesHorsCouverture` AVEC SON MOTIF. `--ecrire` ne le fera pas pour toi.',
+        );
+        return;
+      }
+      vues.add(String(no));
+      if (dec.empreinte !== sha(texte)) {
+        bilanCompletude.nonTenues += 1;
+        derives.push(
+          `D-6 ${d}/${rel}:${no} — LIGNE DECLAREE HORS COUVERTURE, MAIS REECRITE. Le motif ` +
+            'd\'exclusion portait sur un TEXTE, pas sur un numero de ligne — il ne repond plus ' +
+            'de ce qui est ecrit la.\n' +
+            `      motif declare : ${JSON.stringify(dec.motif)}\n` +
+            `      exclu         : ${JSON.stringify(dec.extrait ?? '(extrait absent)')}\n` +
+            `      aujourd'hui   : ${JSON.stringify(texte.slice(0, 140))}\n` +
+            '      A RETRIER A LA MAIN : l\'exclusion est revoquee tant qu\'elle n\'est pas remotivee.',
+        );
+        return;
+      }
+      bilanCompletude.declarees += 1;
+    });
+    for (const no of Object.keys(declaresFichier)) {
+      if (vues.has(no)) continue;
+      const texte = lignes[Number(no) - 1];
+      derives.push(
+        `D-7 ${d}/${rel}:${no} — DECLARATION HORS COUVERTURE PERIMEE. ` +
+          (texte === undefined
+            ? `Le fichier ne compte que ${lignes.length} ligne(s) : l'exclusion pointe dans le vide.`
+            : 'La ligne ne porte plus le motif — l\'exclusion ne couvre plus rien.') +
+          '\n' +
+          `      motif declare : ${JSON.stringify(dec2Motif(declaresFichier[no]))}\n` +
+          '      A RETIRER ou a REMOTIVER a la main : une exclusion muette est une dette.',
+      );
+    }
+  }
+  for (const rel of Object.keys(declarations)) {
+    if (meta.couverts[rel] === undefined) {
+      derives.push(
+        `D-7 ${d}/${rel} — des lignes sont declarees hors couverture dans un fichier qui n'est ` +
+          'PAS couvert. La declaration ne repond de rien : la retirer, ou couvrir le fichier.',
+      );
+    }
+  }
+
   if (ecrire) {
+    // RE-ANCRAGE DES EXCLUSIONS — POSITION SEULE, JAMAIS CREATION. Quand une ligne exclue a
+    // simplement glisse (insertion au-dessus), son texte est INTACT : on deplace la declaration.
+    // Si le texte a change, on ne touche a rien — D-6 doit rester rouge et se retrier a la main.
+    for (const rel of Object.keys(declarations)) {
+      const abs = path.join(racineDepot, rel);
+      if (!fs.existsSync(abs)) continue;
+      const lignes = fs.readFileSync(abs, 'utf8').split('\n');
+      const frais = {};
+      for (const [no, dec] of Object.entries(declarations[rel])) {
+        const surAncre = Number(no) - 1 < lignes.length && sha(lignes[Number(no) - 1]) === dec.empreinte;
+        const idx = surAncre ? Number(no) - 1 : lignes.findIndex((l) => sha(l) === dec.empreinte);
+        if (idx !== -1 && idx + 1 !== Number(no)) {
+          deplacesExclusions.push(`${d}/${rel} : ${no} -> ${idx + 1} (texte inchange)`);
+          frais[String(idx + 1)] = dec;
+        } else {
+          frais[no] = dec;
+        }
+      }
+      declarations[rel] = Object.fromEntries(
+        Object.entries(frais).sort((a, b) => Number(a[0]) - Number(b[0])),
+      );
+    }
     const horsC = meta.horsCouverture ?? {};
     meta.couverts = Object.fromEntries(
       Object.entries(comptesFrais[d]).filter(([rel]) => horsC[rel] === undefined),
@@ -263,6 +410,11 @@ if (ecrire) {
     console.log('  DEPLACES — meme texte, autre ligne :');
     for (const d of deplaces) console.log(`    ${d}`);
   }
+  if (deplacesExclusions.length > 0) {
+    console.log('  EXCLUSIONS RE-ANCREES — meme texte exclu, autre ligne :');
+    for (const d of deplacesExclusions) console.log(`    ${d}`);
+  }
+  console.log('  AUCUNE EXCLUSION CREEE : `--ecrire` ne trie pas a ta place (cliquet de D-5).');
   if (reinscrits.length > 0) {
     console.log('  🛑 RE-INSCRITS — LE TEXTE A CHANGE. Relire chacun : c\'est le seul endroit ou');
     console.log('     une reecriture FAUSSE se fait avaliser par le registre.');
@@ -273,10 +425,19 @@ if (ecrire) {
 
 console.log(`${NOM} — inscrit le ${reg.inscritLe} · ${reg.entrees.length} enonces enumeres`);
 for (const c of constats) console.log(`  ${c}`);
+console.log(
+  `  balayage de completude : ${bilanCompletude.motif} ligne(s) du motif dans les fichiers ` +
+    `couverts · ${bilanCompletude.inscrites} inscrite(s) · ${bilanCompletude.declarees} ` +
+    `declaree(s) hors couverture · ${bilanCompletude.nonTenues} NON TENUE(S)`,
+);
 if (derives.length === 0) {
-  console.log(`${NOM} — CONFORME : chaque enonce inscrit est a sa place, et aucun n'a ete ajoute.`);
-  console.log('  RAPPEL H-1 : une implication neuve ecrite SANS aucun mot du motif reste invisible');
-  console.log('  a ce controle. Il ne remplace pas la lecture du § Registre.');
+  console.log(`${NOM} — CONFORME : chaque enonce inscrit est a sa place, aucun n'a ete ajoute, et`);
+  console.log('  chaque ligne du motif d\'un fichier couvert est tenue par une empreinte.');
+  console.log('  🛑 RAPPEL H-1 — CE QUE CE CONFORME NE DIT PAS. Le balayage ne voit que les lignes');
+  console.log('  QUI PORTENT LE MOTIF. Une implication neuve ecrite sans aucun de ces mots lui est');
+  console.log('  invisible : au 6e passage, 7 des 22 enonces releves par le gate etaient dans ce');
+  console.log('  cas. La completude est celle du MOTIF, pas celle du SENS. La lecture du § Registre');
+  console.log('  reste dans la boucle, et ce controle ne la remplace pas.');
   process.exit(0);
 }
 console.log('');
