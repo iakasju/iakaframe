@@ -37,8 +37,10 @@
   la page qu'on montre**.
 - **Quatre defauts, pas trois** (le 4e trouve au cadrage) : **H-1** les 3 README annoncaient une
   version perimee (jusqu'a **dix-neuf mineures** d'ecart pour la CLI) · **H-2** GitHub ne classe pas
-  par numero mais par un drapeau **`make_latest`** que personne n'avait jamais touche — republier une
-  version ancienne **vole** le latest, et c'est ce qui s'etait passe · **H-3** la ligne de publication
+  par numero mais par un drapeau **`make_latest`** que personne n'avait jamais touche — **CREER** une
+  release sur un tag ancien **vole** le latest, et c'est ce qui s'etait passe *(corrige le 2026-08-30
+  par L43 : il etait ecrit « republier », or republier un tag dont la release EXISTE ne touche pas au
+  drapeau au SHA epingle — le vol vient de la CREATION, cf. le piege 1 plus bas)* · **H-3** la ligne de publication
   d'`iakaframe` s'etait tue depuis le 2026-08-04 · **H-4** la vitrine promettait des fichiers
   **inexistants** : la release « Latest » du Cockpit ne porte **aucun `.dmg`** alors que le README en
   promettait deux. **Un visiteur macOS repartait les mains vides.**
@@ -91,8 +93,19 @@
      jamais tourne, et le seul a ne pas avoir l'acquis de L41.
 - **Pieges connus** :
   1. **GitHub ne classe pas les releases par numero.** Le `latest` suit **`make_latest`** (defaut
-     `true`, reecrit a chaque creation/mise a jour). **Publier une version ancienne vole le latest.**
-     Remede : `gh release edit &lt;tag&gt; --latest`, ou le job conditionne au plus haut semver.
+     `true`). **CREER une release sur un tag ancien vole le latest.**
+     🛑 **CORRIGE LE 2026-08-30 (L43) — DEUX ERREURS ICI, et ce piege est le plus lu du fichier.**
+     (a) Il disait *« reecrit a chaque creation/mise a jour »* et *« PUBLIER une version ancienne
+     vole le latest »* : au SHA epingle de `tauri-action`, **republier** un tag dont la release
+     EXISTE ne touche PAS au drapeau — `getOrCreateRelease` renvoie la release telle quelle. **Le vol
+     vient de la CREATION** (R-1). L'incident `iakaFrameGUI` etait une creation, pas une mise a jour.
+     (b) Il donnait le job conditionne au plus haut semver comme un **remede** : il n'en est pas un.
+     Le contrefactuel joue par le decideur le 2026-08-30, croise avec le run `33277643229`, **refute
+     huit des neuf regles de repli enumerees** ; **seul le NO-OP survit**, et sous cette regle poser
+     `--latest=false` sur la voleuse **ne rend pas** le `latest`. Le job **DETECTE, ROUGIT et DICTE**
+     le rattrapage `gh release edit &lt;plus_haut&gt; --latest` — dont **le fonctionnement n'est
+     toujours pas trace**. **RESIDU** : une regle **non enumeree** reste possible. Detail :
+     `specs/instructions/contrefactuel-ca5-procedure-decideur.md` § 1.
   2. **Les `.app.tar.gz` ne sont PAS des installeurs macOS** — ce sont des charges d'updater, on ne
      les double-clique pas. Ce piege a fait compter de faux installeurs **deux fois** dans la journee.
   3. **Un temoin qui vise un cas deja couvert par ailleurs ne prouve rien.** Verifier qu'il rougit
