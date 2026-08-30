@@ -280,6 +280,161 @@ qui ne l'est pas, c'est de la subir en silence.
 
 ---
 
+## Registre des énoncés sur le repli du `latest` — **ajouté le 2026-08-30**
+
+> **Pourquoi il existe, et pourquoi il n'existait pas.** Trois passages de gate ont échoué sur la
+> même classe d'énoncés. Ce n'était pas la même erreur répétée : c'était un **front qui recule** —
+> le mécanisme, puis la portée, puis la propagation. Chaque passage a corrigé **exactement là où le
+> gate pointait**, et **les pointeurs d'un gate sont des exemples, pas une énumération**. Quand la
+> classe est une **chaîne** (`NO-OP`), un `grep` la balaie entièrement ; quand c'est une **forme
+> d'inférence** (`drapeau inamovible ⇒ v0.10.0`), il est aveugle — la phrase ne contient aucun des
+> mots proscrits. **On ne `grep` pas une implication.**
+>
+> La réponse n'est donc **pas** un meilleur motif, c'est un **registre** : on énumère **une fois**
+> les énoncés du corpus qui affirment quelque chose sur ce repli, on les **fige**, et on se donne
+> un moyen de **rougir** quand ils dérivent. *« Ce dépôt sait déjà faire ça :
+> `fixtures/convergence.sha256` **est** ce geste. »* Celui-ci est un artefact **distinct** — il ne
+> touche pas à ce registre-là, dont le **plancher reste à 17**.
+
+### Méthode de construction — reproductible, et c'est le point
+
+1. **Balayage lexical** des trois dépôts, sur `*.md *.yml *.yaml *.mjs *.js *.ts *.tsx *.sh`,
+   hors `node_modules dist target build coverage .git package-lock.json`, avec le motif —
+   **sensible à la casse**, faute de quoi `NO-OP` attrape tous les `noop` du code applicatif
+   (27 fichiers de bruit au lieu de 7) :
+
+   ```
+   make_latest|--latest|NO-OP|drapeau inamovible|repli par (date|semver|created_at|published_at)
+   |aucun repli|repli du .?latest|[Vv]ole le .?latest|vol du .?latest
+   |[Mm][eé]caniquement impossible|releases/latest
+   ```
+
+2. **Triage à la main de chaque fichier touché** — le balayage propose, il ne décide pas. Chaque
+   fichier atterrit dans **l'une des deux listes**, jamais dans aucune : `couverts` (il porte au
+   moins un énoncé de la classe) ou `horsCouverture` (il n'en porte pas, **et le motif de son
+   exclusion est écrit**).
+3. **Inscription** : pour chaque énoncé, `depot`, `chemin`, `ligne`, un **extrait**, le `sha256`
+   **de la ligne**, sa **classe** (`repli` · `vol` · `vol+reparation`) et son **statut**.
+4. **Comptage** du nombre d'occurrences du motif **par fichier couvert** — c'est ce qui permet de
+   voir qu'un fichier déjà couvert a **gagné** un énoncé.
+
+**Artefacts** : `iakaframe/cli/fixtures/registre-repli-latest.json` (les données) et
+`iakaframe/cli/scripts/registre-repli-latest.js` (le vérificateur). Il est **hors gate et hors
+réseau**, comme `vitrine:en-ligne`, et pour la même raison écrite : il lit **trois dépôts**, donc
+sa mesure dépend de ce qui est présent sur la machine.
+
+```
+node cli/scripts/registre-repli-latest.js            # verifie
+node cli/scripts/registre-repli-latest.js --ecrire   # re-inscrit apres une correction VOULUE
+```
+
+### Comment il rougit — et ce qu'il ne voit pas
+
+| | Détection | Rouge quand… |
+|---|---|---|
+| **D-1** | l'énoncé a **disparu ou été réécrit** | le `sha256` de la ligne inscrite ne se retrouve nulle part dans le fichier |
+| **D-2** | l'énoncé a **migré de ligne** | il est là, mais plus à la ligne inscrite — **tout `chemin:ligne` qui le cite mentirait** |
+| **D-3** | un **fichier neuf** entre dans le vocabulaire | il est touché par le motif et n'est **dans aucune** des deux listes |
+| **D-4** | un fichier **couvert** a gagné (ou perdu) des occurrences | **un énoncé a été ajouté** sans passer par le registre |
+
+**Codes de sortie** : `0` conforme · `1` dérive(s) · `2` usage · **`3` NON MESURÉ** (un dépôt du
+registre est introuvable) — distinct de `0` à dessein : *un contrôle qui rend « succès » alors
+qu'il n'a rien vu est le pire des faux verts.*
+
+**Le contrefactuel du registre — les quatre détections prouvées ROUGE D'ABORD, puis révoquées.**
+Un registre qu'on n'a pas vu rougir est décoratif. Les quatre mutations ont été jouées une à une,
+chacune révoquée immédiatement (jamais en fin de campagne), le 2026-08-30 :
+
+| Mutation jouée | Rouge obtenu, **nommé** | code |
+|---|---|---|
+| réécrire un énoncé inscrit (`IakaCockpit/CLAUDE.md`, un mot retiré) | `D-1 … l'enonce « IakaCockpit/bloc-latest/en-tete » a DISPARU ou a ETE REECRIT` | `1` |
+| insérer une ligne au-dessus (procédure `iakaframe`) | `D-2 … a MIGRE de la ligne 223 a la ligne 224 : tout « chemin:ligne » qui le cite ment desormais` | `1` |
+| créer `iakaFrameGUI/specs/note-contrefactuelle.md` disant *« sous repli par date, le job reparerait »* | `D-3 … FICHIER NEUF dans le vocabulaire du repli (1 occurrence), absent du registre` | `1` |
+| ajouter une ligne `make_latest` à `iakaframe/specs/etat-des-lieux.md` | `D-4 … 9 occurrence(s) aujourd'hui, 8 a l'inscription : un enonce a ete AJOUTE` | `1` |
+| **révocation des quatre** | `CONFORME : chaque enonce inscrit est a sa place, et aucun n'a ete ajoute.` | **`0`** |
+
+**Le registre est resté intact pendant tout le contrefactuel** — `sha256` de
+`cli/fixtures/registre-repli-latest.json` mesuré **avant** et **après** la campagne, **égaux à
+l'octet** : `fc7ab92335f4cb9805034c5186031e4ee7c60c4193c73be7de5c88ec117fe44a`. *La preuve se compare au **fichier**, jamais à une autre sortie.*
+
+> ⚠️ **Cette empreinte n'est PAS un point d'ancrage, et le dire évite un mensonge futur.** Elle
+> change **à chaque `--ecrire`** — donc à chaque correction voulue du corpus. Ce qui est prouvé ici
+> n'est pas **sa valeur**, c'est **son égalité** aux deux bouts de la campagne : les mutations ont
+> rougi **sans** que l'étalon bouge. Un lecteur qui la recalcule après un lot suivant obtiendra
+> autre chose, **et ce ne sera pas une dérive**.
+
+> ⛔ **CE QU'IL NE VOIT PAS — déclaré, pas tu.**
+> **H-1** — une implication **neuve**, dans un fichier **déjà couvert**, écrite **sans aucun mot du
+> motif**. C'est l'angle mort de tout balayage lexical, et c'est **exactement** la faute des trois
+> passages précédents. **D-4 le réduit fortement** — une phrase sur le repli emploie presque
+> toujours l'un de ces mots — **sans le fermer**. Il se ferme à la **lecture** de ce registre.
+> **H-2** — la **justesse** d'un énoncé. Ce script compare des octets ; il ne juge rien. Un énoncé
+> faux et stable est **vert** chez lui.
+
+### Le registre — 49 énoncés, 16 fichiers couverts, 13 déclarés hors couverture
+
+**Statuts** : **CORRIGÉ** (ce passage l'a réécrit) · **CONFORME** (juste, laissé tel quel, inscrit
+pour qu'une dérive future se voie) · **CONSIGNÉ-NON-CORRIGÉ** (dans la classe, **faux**, et **non
+traité** — avec son motif et sa condition de levée).
+
+Les `chemin:ligne` exacts et les empreintes vivent dans le JSON, **pas ici** : recopiés en prose,
+ils se périmeraient au premier commit. Ce qui suit est le **avant / après** par famille.
+
+| # | Énoncé | Fichiers | Avant | Après | Statut |
+|---|---|---|---|---|---|
+| **1** | en-tête du bloc `latest` | les 2 `CLAUDE.md` | *« RIEN N'ETABLIT QU'IL LE REPARE »* | *« ET, DANS LES LIMITES ENUMEREES, IL NE LE REPARE PAS NON PLUS »* | CORRIGÉ |
+| **2** | le bornage « un repli par date **réparerait** ici » | les 2 `CLAUDE.md` (bloc **et** backlog), `installer-depuis-rien.md`, la procédure | donné comme la **seule variante survivante** | **daté et réfuté** : plus aucune règle survivante ne regarde les dates | CORRIGÉ |
+| **3** | l'inférence `drapeau inamovible ⇒ v0.10.0` | `IakaCockpit/CLAUDE.md` ×2, `iakaFrameGUI/CLAUDE.md` ×2, `installer-depuis-rien.md` | une conclusion tirée d'**une sortie unique**, celle dont le § voisin dit qu'elle **ne tranche rien** | la **table des neuf règles**, croisée sur **deux** mesures, et le **résidu** | CORRIGÉ |
+| **4** | l'avertissement d'asymétrie | la procédure (`bash` en 180-183, avertissement en 187-196) ; les 2 `CLAUDE.md` (**aucun** avertissement) | **après** les commandes, ou absent | **avant** les commandes, dans les trois | CORRIGÉ |
+| **5** | le résidu | partout où la conclusion est écrite | **absent** | 5 points, dont *« une règle non énumérée reste possible »* et *« le NO-OP est **observationnel** »* | CORRIGÉ |
+| **6** | la reproduction du compte `NO-OP` | la procédure | commits `895e74f` / `2b09615` → **six** occurrences, pas huit | `58f4e6f` / `589c4d6` / `26d096d` → **huit sur six fichiers**, vérifiés un à un | CORRIGÉ |
+| **7** | le § 2 et le § 3.4 de la procédure | la procédure | au **futur de l'indicatif**, contre la décision **(γ)** du § 5 | **conditionnels**, et dits **non exécutés** | CORRIGÉ |
+| **8** | le cartouche du workflow | les 2 `release.yml` (**17 lignes**, job 147-199 intact) | *« ICI, voleuse = tag ANCIEN : un repli par date REPARERAIT »* | *« IL NE LE REPARE PAS »* + le résidu | CORRIGÉ |
+| **9** | *« celle qui rend le vol du `latest` **mécaniquement impossible** »* | `IakaCockpit/specs/etat-des-lieux.md`, `iakaFrameGUI/specs/etat-des-lieux.md` | **la forme la plus forte du corpus**, dans « Reprise du travail » — le **premier texte lu au prochain passage** | **réfutée en place** : elle n'empêche rien (§ F2) et ne répare pas (table des neuf règles) | CORRIGÉ |
+| **10** | *« Prochaine étape : le contrefactuel de CA-5, republier un tag ancien »* | `IakaCockpit/specs/etat-des-lieux.md` | contre **R-1** *et* contre la décision **(γ)**, et le geste **venait d'être joué** | **réécrite** : re-cadrer la garde | CORRIGÉ |
+| **11** | ⚠️ **un TROISIÈME état des lieux**, jamais pointé | `iakaframe/specs/etat-des-lieux.md` (H-2 **et** « Pièges connus » n° 1) | *« republier une version ancienne vole le latest »* + *« Remède : … ou le job conditionné au plus haut semver »* | le vol vient de la **CRÉATION** ; le job **n'est pas un remède** — il détecte, rougit, dicte | CORRIGÉ |
+| **12** | ⚠️ **un QUATRIÈME cartouche**, jamais rectifié | `iakaframe/.github/workflows/release.yml` | *« Republier un tag ANCIEN VOLE donc le `latest` »* + *« réécrit à chaque création **ou mise à jour** »* | daté et rectifié ; **et** la distinction d'acteur (`softprops`, **pas** `tauri-action`) est **écrite**, plus supposée | CORRIGÉ |
+| **13** | F4 et F5 de cette instruction | ce fichier | — | **inchangés** : F4 dit vrai (la **doc** ne tranche pas — c'est l'**élimination** qui tranche), F5 aussi | CONFORME |
+| **14** | *« c'est le seul détecteur »* | `IakaCockpit/CLAUDE.md:195`, `iakaFrameGUI/CLAUDE.md:176` | — | **inchangé** — la distinction tient, et **les lignes exactes sont `195` / `176`**, pas `194` / `175` | CONFORME |
+| **15** | `make_latest` calculé **non éprouvé** | `iakaframe/cli/scripts/lib/vitrine.js`, `iakaframe/BACKLOG.md` | — | **inchangé** : ils disent déjà « non éprouvé ». Inscrits pour qu'une promotion future se voie | CONFORME |
+| **16** | 🛑 le message **E-1** de la vitrine en ligne | `IakaCockpit/scripts/vitrine-en-ligne.mjs`, `iakaFrameGUI/…`, `iakaframe/cli/scripts/vitrine-en-ligne.js` | *« Republier un tag ancien **VOLE** le latest … **Rattrapage** : `gh release edit <plusHaut> --latest` »* | **INCHANGÉ — voir ci-dessous** | **CONSIGNÉ-NON-CORRIGÉ** |
+
+### 🛑 L'entrée 16 — pourquoi elle n'est pas corrigée, et ce que ça coûte
+
+**C'est la trouvaille du registre, et la plus gênante** : la phrase que L43 a rectifiée dans les
+`CLAUDE.md` et les cartouches vit **aussi dans du code qui s'imprime à l'opérateur**, aux
+**trois** dépôts — et **aucun** des quatre passages ne l'avait vue. Elle est **doublement fautive** :
+elle attribue le vol à la **republication** (faux au SHA épinglé — **R-1**) et elle annonce un
+**rattrapage** dont le fonctionnement **n'a aucune trace**. C'est l'endroit du corpus où
+l'inexactitude a le **plus** de conséquence : elle s'affiche au moment précis où quelqu'un décide
+quoi faire.
+
+**Elle n'est pas corrigée dans ce passage**, et le motif est mécanique, pas discrétionnaire :
+`scripts/vitrine-en-ligne.mjs` **est inscrit à `fixtures/convergence.sha256`** (registre à 17
+entrées). Le modifier obligerait à l'éditer **dans les deux dépôts au même commit logique** *puis*
+à **régénérer les empreintes du registre de convergence** — ce que les garde-fous de ce passage
+interdisent (*« n'inscris rien à `fixtures/convergence.sha256` »*, plancher **17**). Et corriger la
+seule copie libre — celle de la CLI — laisserait **une** des trois formulations rectifiée et deux
+fausses : une divergence pire que l'erreur.
+
+> **CONDITION DE LEVÉE** : un lot qui **décide** de toucher au registre de convergence, corrige les
+> **trois** copies et régénère les empreintes. **Coût déclaré en attendant** : sur une fenêtre de
+> vol réelle, `npm run vitrine:en-ligne` imprime à l'opérateur un diagnostic **faux** et un remède
+> **non éprouvé**. C'est un **hors-couverture assumé**, pas un oubli.
+
+### Ce que le registre a trouvé que quatre passages n'avaient pas vu
+
+1. **Un troisième état des lieux** (`iakaframe`), avec la phrase fausse **et** le job donné comme
+   remède — dans « Pièges connus », la section la plus relue du fichier.
+2. **Un quatrième cartouche** (`iakaframe/.github/workflows/release.yml`), alors que l'étape 1.1 de
+   ce cadrage n'en nommait que **trois**.
+3. **Trois copies du message E-1**, dans du code exécuté.
+
+**C'est la mesure de l'écart entre un pointeur et une énumération** — et la seule raison d'être de
+ce registre.
+
+---
+
 ## Périmètre
 
 **Inclus**

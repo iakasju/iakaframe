@@ -1,0 +1,618 @@
+{
+  "//": "REGISTRE DES ENONCES SUR LE REPLI DU `latest` (L43). Enumere UNE FOIS les enonces des trois depots qui affirment quelque chose sur ce qui advient du `latest` quand on lui pose make_latest=false, et sur la reparation. Verificateur : node cli/scripts/registre-repli-latest.js — il ROUGIT quand un enonce derive, migre, disparait, ou quand un fichier NEUF entre dans le vocabulaire. Prose et avant/apres : iakaframe/specs/instructions/contrefactuel-du-vol-de-latest.md, § Registre.",
+  "inscritLe": "2026-08-30",
+  "balayage": {
+    "motif": "make_latest|--latest|NO-OP|drapeau inamovible|repli par (date|semver|created_at|published_at)|aucun repli|repli du .?latest|[Vv]ole le .?latest|vol du .?latest|[Mm][eé]caniquement impossible|releases/latest",
+    "extensions": [
+      ".md",
+      ".yml",
+      ".yaml",
+      ".mjs",
+      ".js",
+      ".ts",
+      ".tsx",
+      ".sh"
+    ],
+    "exclus": [
+      "node_modules",
+      "dist",
+      "target",
+      ".git",
+      "build",
+      "coverage",
+      "package-lock.json",
+      ".next"
+    ],
+    "//": "Commande equivalente, pour re-derivter le balayage a la main : git grep -n -I -E '<motif>' -- '*.md' '*.yml' '*.mjs' '*.js' '*.ts' '*.tsx' '*.sh'"
+  },
+  "depots": {
+    "IakaCockpit": {
+      "couverts": {
+        ".github/workflows/release.yml": 10,
+        "CLAUDE.md": 36,
+        "scripts/vitrine-en-ligne.mjs": 2,
+        "specs/etat-des-lieux.md": 5
+      },
+      "horsCouverture": {
+        "scripts/test-convergence.mjs": "« aucun repli sur un autre depot » — repli de CHEMIN, rien a voir avec le drapeau `latest`.",
+        "scripts/test-handoff-parity.mjs": "idem : repli de chemin autoritaire.",
+        "scripts/test-reservoir-parity.mjs": "idem : repli de chemin autoritaire."
+      }
+    },
+    "iakaFrameGUI": {
+      "couverts": {
+        ".github/workflows/release.yml": 10,
+        "CLAUDE.md": 35,
+        "scripts/vitrine-en-ligne.mjs": 2,
+        "specs/etat-des-lieux.md": 4
+      },
+      "horsCouverture": {
+        "scripts/test-convergence.mjs": "idem : repli de chemin autoritaire.",
+        "scripts/publish-update.mjs": "« NO-OP propre » = republier un manifeste identique. Autre NO-OP, autre sujet.",
+        "scripts/publish-update.test.mjs": "idem : le test du NO-OP de manifeste.",
+        "src/forge/FramesGallery.tsx": "« NO-OP (D-3, A2) » = carte de frame active desactivee. Sans rapport."
+      }
+    },
+    "iakaframe": {
+      "couverts": {
+        ".github/workflows/release.yml": 11,
+        "BACKLOG.md": 2,
+        "cli/scripts/lib/vitrine.js": 1,
+        "cli/scripts/vitrine-en-ligne.js": 2,
+        "specs/etat-des-lieux.md": 8,
+        "specs/instructions/contrefactuel-ca5-procedure-decideur.md": 60,
+        "specs/instructions/contrefactuel-du-vol-de-latest.md": 67,
+        "specs/instructions/installer-depuis-rien.md": 37
+      },
+      "horsCouverture": {
+        "cli/scripts/registre-repli-latest.js": "LE VERIFICATEUR LUI-MEME : il cite le motif qu il balaie. S auto-exclure est ici honnete, pas complaisant — il ne PORTE aucun enonce sur le repli, il les compte.",
+        "specs/instructions/vocabulaire-roles-agnostique.md": "« aucun repli silencieux » sur un index de role. Sans rapport.",
+        "library/skills/iakaframe-appflowy-doc/appflowy-doc.mjs": "« aucun repli automatique » sur un workspace AppFlowy. Sans rapport.",
+        "library/skills/iakaframe-appflowy-doc/test.mjs": "idem.",
+        "cli/_bundled/library/skills/iakaframe-appflowy-doc/appflowy-doc.mjs": "idem — copie bundlee.",
+        "cli/_bundled/library/skills/iakaframe-appflowy-doc/test.mjs": "idem — copie bundlee."
+      }
+    }
+  },
+  "entrees": [
+    {
+      "id": "IakaCockpit/bloc-latest/en-tete",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 152,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# ENUMEREES PLUS BAS, IL NE LE REPARE PAS NON PLUS.",
+      "empreinte": "7a3709e8141aec11e295fdf2d1dc59ad029c12c2e852a04806ea6d3bd6470b8b",
+      "note": "Disait « RIEN N ETABLIT QU IL LE REPARE » : l indetermination est levee par elimination."
+    },
+    {
+      "id": "IakaCockpit/bloc-latest/bornage-refute",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 167,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# CET ARGUMENT EST REFUTEE (contrefactuel du decideur, plus bas) : plus AUCUNE regle survivante",
+      "empreinte": "7f4472bdf01e48159f2a845d769ce944dad63c0b4f3288b0efa128ca095c2bcf",
+      "note": "Portait « ICI, un repli par date REPARERAIT » : la regle est refutee. Date, pas efface."
+    },
+    {
+      "id": "IakaCockpit/bloc-latest/avertissement-avant-commandes",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 183,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# ⚠️ AVERTISSEMENT — IL PRECEDE LES COMMANDES, ET C'EST DELIBERE. Le geste ci-dessous ne tranche,",
+      "empreinte": "e6e02bb27b023a926d0570d713b3d7fa5f92f1c00a580c1483d7819a4321ce7f",
+      "note": "Les deux commandes etaient nues ici : aucune mention de l asymetrie du geste."
+    },
+    {
+      "id": "IakaCockpit/bloc-latest/contrefactuel-joue",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 191,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# JOUE PAR LE DECIDEUR le 2026-08-30 -> sortie `v0.10.0`, INCHANGEE. Etat du banc, six valeurs",
+      "empreinte": "64a4af6690cf441eed849fcbae1597515b9c76c0fb6800843b318dae6f48e344",
+      "note": "Remplace « CE QUI TRANCHERAIT » et l inference « drapeau inamovible => v0.10.0 »."
+    },
+    {
+      "id": "IakaCockpit/bloc-latest/residu",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 201,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# 🛑 LE RESIDU, A NE JAMAIS OMETTRE. La phrase juste n'est PAS « GitHub ne replie jamais ». C'est :",
+      "empreinte": "240502258a86cd36ff7135b0994499cd7e9e6ca0b69348b68c510f847abd56d1",
+      "note": "Cinq points : regle non enumeree, NO-OP observationnel, depot, badge web, version d API."
+    },
+    {
+      "id": "IakaCockpit/bloc-latest/rattrapage-sans-trace",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 219,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# « fonctionne en < 3 s » qui figurait ici est retire. ⚠️ ET LE CONTREFACTUEL DU 2026-08-30 N'Y",
+      "empreinte": "98a6d806635a6fd5f4bf6abc2d456a061a734191b0f0c01c348c83479ee4bda0",
+      "note": "La mesure ne porte que sur l ecriture `false` ; `true` reste sans trace."
+    },
+    {
+      "id": "IakaCockpit/bloc-latest/seul-detecteur",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 223,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# Ne pas retirer le job — c'est le seul detecteur — et ne pas chercher a le remplacer par une",
+      "empreinte": "0ceecb937e29a8d2224015b006780ac875f0f08355bfac99e3c63844001837cf",
+      "note": "Enonce juste et inchange. Pointe par le gate en :195 / :176 — verifie."
+    },
+    {
+      "id": "IakaCockpit/backlog-L43/bornage-refute",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 315,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "**réparé** »*. 🛑 **La règle qui portait cet argument est réfutée** par le contrefactuel joué",
+      "empreinte": "7c96686be0ca3b30a591d6b0b5e024e0d73915e76305f2fcdcd56654fb505ef5",
+      "note": "Second exemplaire de l argument « un repli par date REPARERAIT »."
+    },
+    {
+      "id": "IakaCockpit/backlog-L43/contrefactuel-joue",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 331,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "✅ **LE CONTREFACTUEL A ÉTÉ JOUÉ PAR LE DÉCIDEUR le 2026-08-30** :",
+      "empreinte": "3ba13803108650d2a324dee28b978668bda17afe8da1dfc4295ed225f4e81481",
+      "note": "Remplace l inference « drapeau inamovible ⇒ v0.10.0 · repli par date ⇒ v0.9.0 »."
+    },
+    {
+      "id": "IakaCockpit/backlog-L43/residu",
+      "depot": "IakaCockpit",
+      "chemin": "CLAUDE.md",
+      "ligne": 343,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "🛑 **LE RÉSIDU, à porter avec la conclusion** : la phrase juste n'est **pas** « GitHub ne",
+      "empreinte": "d27f21d2a92ed851e041bfbc429c0cabcb86662f1f8732d2264f7984cfd8302e",
+      "note": "Cinq points, dont la regle non enumeree."
+    },
+    {
+      "id": "IakaCockpit/cartouche/ne-repare-pas",
+      "depot": "IakaCockpit",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 141,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# │ CE JOB N'EMPECHE PAS LE VOL (la release est creee AVANT lui), ET IL NE LE REPARE PAS.         │",
+      "empreinte": "c747f95ea30253c04039f8a7a371bebbfc80cfcbd4024c8e47710a9127653d61",
+      "note": "17 lignes tenues (130-146). Job `latest` 147-199 NON TOUCHE."
+    },
+    {
+      "id": "IakaCockpit/cartouche/residu",
+      "depot": "IakaCockpit",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 144,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# │ NO-OP SURVIT. RESIDU : une regle NON ENUMEREE reste possible, et ce NO-OP est OBSERVATIONNEL. │",
+      "empreinte": "dc173fc45abfe3ddd0a05dd94589f255b6222655daea9a6110e6fd182991a3bb",
+      "note": "Remplace « ICI, voleuse = tag ANCIEN : un repli par date REPARERAIT »."
+    },
+    {
+      "id": "IakaCockpit/E-1/republier-vole",
+      "depot": "IakaCockpit",
+      "chemin": "scripts/vitrine-en-ligne.mjs",
+      "ligne": 121,
+      "classe": "vol+reparation",
+      "statut": "CONSIGNE-NON-CORRIGE",
+      "extrait": "`latest (drapeau make_latest, defaut true). Rattrapage : gh release edit ${plusHaut} --latest`,",
+      "empreinte": "f27808f932e9cf85248552a530936c09005a4eb1eff729989e9403b9bc11f5a1",
+      "note": "FAUX (R-1 : le vol vient de la CREATION) et annonce un rattrapage sans trace. NON corrige : ce fichier est INSCRIT a fixtures/convergence.sha256 ; le modifier obligerait a regenerer les empreintes du registre de convergence, que les garde-fous de ce passage interdisent (plancher 17, ne rien y inscrire). CONDITION DE LEVEE : un lot qui decide de toucher au registre de convergence, et corrige les DEUX depots au meme commit logique."
+    },
+    {
+      "id": "IakaCockpit/CA-5/mecaniquement-impossible",
+      "depot": "IakaCockpit",
+      "chemin": "specs/etat-des-lieux.md",
+      "ligne": 56,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "🛑 **CORRIGE LE 2026-08-30 (L43) — la formule d'origine est REFUTEE, et elle etait la plus forte",
+      "empreinte": "988ac35ae954a6f6267709ecb31ddca135ae2578ef9c10333be9ca74c65ec808",
+      "note": "Portait « celle qui rend le vol du latest MECANIQUEMENT IMPOSSIBLE » — forme la plus forte du corpus, dans « Reprise du travail »."
+    },
+    {
+      "id": "IakaCockpit/prochaine-etape",
+      "depot": "IakaCockpit",
+      "chemin": "specs/etat-des-lieux.md",
+      "ligne": 86,
+      "classe": "vol+reparation",
+      "statut": "CORRIGE",
+      "extrait": "- **Prochaine etape concrete — REECRITE LE 2026-08-30 (L43).** Ce qui etait ecrit ici est **perime",
+      "empreinte": "66ca9326ccc4de25929063e97f96ce9992fd7e9d2306de01a7cf8824c49e2095",
+      "note": "Prescrivait « republier un tag ancien » (contre R-1) et rouvrait CA-5 (contre la decision gamma)."
+    },
+    {
+      "id": "iakaFrameGUI/bloc-latest/en-tete",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 133,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# ENUMEREES PLUS BAS, IL NE LE REPARE PAS NON PLUS.",
+      "empreinte": "7a3709e8141aec11e295fdf2d1dc59ad029c12c2e852a04806ea6d3bd6470b8b",
+      "note": "Disait « RIEN N ETABLIT QU IL LE REPARE » : l indetermination est levee par elimination."
+    },
+    {
+      "id": "iakaFrameGUI/bloc-latest/bornage-refute",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 148,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# CET ARGUMENT EST REFUTEE (contrefactuel du decideur, plus bas) : plus AUCUNE regle survivante",
+      "empreinte": "7f4472bdf01e48159f2a845d769ce944dad63c0b4f3288b0efa128ca095c2bcf",
+      "note": "Portait « ICI, un repli par date REPARERAIT » : la regle est refutee. Date, pas efface."
+    },
+    {
+      "id": "iakaFrameGUI/bloc-latest/avertissement-avant-commandes",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 164,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# ⚠️ AVERTISSEMENT — IL PRECEDE LES COMMANDES, ET C'EST DELIBERE. Le geste ci-dessous ne tranche,",
+      "empreinte": "e6e02bb27b023a926d0570d713b3d7fa5f92f1c00a580c1483d7819a4321ce7f",
+      "note": "Les deux commandes etaient nues ici : aucune mention de l asymetrie du geste."
+    },
+    {
+      "id": "iakaFrameGUI/bloc-latest/contrefactuel-joue",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 172,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# JOUE PAR LE DECIDEUR le 2026-08-30 -> sortie `v0.10.0`, INCHANGEE. Etat du banc, six valeurs",
+      "empreinte": "64a4af6690cf441eed849fcbae1597515b9c76c0fb6800843b318dae6f48e344",
+      "note": "Remplace « CE QUI TRANCHERAIT » et l inference « drapeau inamovible => v0.10.0 »."
+    },
+    {
+      "id": "iakaFrameGUI/bloc-latest/residu",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 182,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# 🛑 LE RESIDU, A NE JAMAIS OMETTRE. La phrase juste n'est PAS « GitHub ne replie jamais ». C'est :",
+      "empreinte": "240502258a86cd36ff7135b0994499cd7e9e6ca0b69348b68c510f847abd56d1",
+      "note": "Cinq points : regle non enumeree, NO-OP observationnel, depot, badge web, version d API."
+    },
+    {
+      "id": "iakaFrameGUI/bloc-latest/rattrapage-sans-trace",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 200,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# « fonctionne en < 3 s » qui figurait ici est retire. ⚠️ ET LE CONTREFACTUEL DU 2026-08-30 N'Y",
+      "empreinte": "98a6d806635a6fd5f4bf6abc2d456a061a734191b0f0c01c348c83479ee4bda0",
+      "note": "La mesure ne porte que sur l ecriture `false` ; `true` reste sans trace."
+    },
+    {
+      "id": "iakaFrameGUI/bloc-latest/seul-detecteur",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 204,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "# Ne pas retirer le job — c'est le seul detecteur — et ne pas chercher a le remplacer par une",
+      "empreinte": "0ceecb937e29a8d2224015b006780ac875f0f08355bfac99e3c63844001837cf",
+      "note": "Enonce juste et inchange. Pointe par le gate en :195 / :176 — verifie."
+    },
+    {
+      "id": "iakaFrameGUI/backlog-L43/bornage-refute",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 395,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "**réparé** »*. 🛑 **La règle qui portait cet argument est réfutée** par le contrefactuel joué",
+      "empreinte": "7c96686be0ca3b30a591d6b0b5e024e0d73915e76305f2fcdcd56654fb505ef5",
+      "note": "Second exemplaire de l argument « un repli par date REPARERAIT »."
+    },
+    {
+      "id": "iakaFrameGUI/backlog-L43/contrefactuel-joue",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 411,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "✅ **LE CONTREFACTUEL A ÉTÉ JOUÉ PAR LE DÉCIDEUR le 2026-08-30** :",
+      "empreinte": "3ba13803108650d2a324dee28b978668bda17afe8da1dfc4295ed225f4e81481",
+      "note": "Remplace l inference « drapeau inamovible ⇒ v0.10.0 · repli par date ⇒ v0.9.0 »."
+    },
+    {
+      "id": "iakaFrameGUI/backlog-L43/residu",
+      "depot": "iakaFrameGUI",
+      "chemin": "CLAUDE.md",
+      "ligne": 423,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "🛑 **LE RÉSIDU, à porter avec la conclusion** : la phrase juste n'est **pas** « GitHub ne",
+      "empreinte": "d27f21d2a92ed851e041bfbc429c0cabcb86662f1f8732d2264f7984cfd8302e",
+      "note": "Cinq points, dont la regle non enumeree."
+    },
+    {
+      "id": "iakaFrameGUI/cartouche/ne-repare-pas",
+      "depot": "iakaFrameGUI",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 141,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# │ CE JOB N'EMPECHE PAS LE VOL (la release est creee AVANT lui), ET IL NE LE REPARE PAS.         │",
+      "empreinte": "c747f95ea30253c04039f8a7a371bebbfc80cfcbd4024c8e47710a9127653d61",
+      "note": "17 lignes tenues (130-146). Job `latest` 147-199 NON TOUCHE."
+    },
+    {
+      "id": "iakaFrameGUI/cartouche/residu",
+      "depot": "iakaFrameGUI",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 144,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# │ NO-OP SURVIT. RESIDU : une regle NON ENUMEREE reste possible, et ce NO-OP est OBSERVATIONNEL. │",
+      "empreinte": "dc173fc45abfe3ddd0a05dd94589f255b6222655daea9a6110e6fd182991a3bb",
+      "note": "Remplace « ICI, voleuse = tag ANCIEN : un repli par date REPARERAIT »."
+    },
+    {
+      "id": "iakaFrameGUI/E-1/republier-vole",
+      "depot": "iakaFrameGUI",
+      "chemin": "scripts/vitrine-en-ligne.mjs",
+      "ligne": 121,
+      "classe": "vol+reparation",
+      "statut": "CONSIGNE-NON-CORRIGE",
+      "extrait": "`latest (drapeau make_latest, defaut true). Rattrapage : gh release edit ${plusHaut} --latest`,",
+      "empreinte": "f27808f932e9cf85248552a530936c09005a4eb1eff729989e9403b9bc11f5a1",
+      "note": "FAUX (R-1 : le vol vient de la CREATION) et annonce un rattrapage sans trace. NON corrige : ce fichier est INSCRIT a fixtures/convergence.sha256 ; le modifier obligerait a regenerer les empreintes du registre de convergence, que les garde-fous de ce passage interdisent (plancher 17, ne rien y inscrire). CONDITION DE LEVEE : un lot qui decide de toucher au registre de convergence, et corrige les DEUX depots au meme commit logique."
+    },
+    {
+      "id": "iakaFrameGUI/CA-5/impossible",
+      "depot": "iakaFrameGUI",
+      "chemin": "specs/etat-des-lieux.md",
+      "ligne": 70,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "🛑 **CORRIGE LE 2026-08-30 (L43).** Il etait ecrit ici : *« celle qui rend le vol du `latest`",
+      "empreinte": "3b4db50612c9e0bdd9394da7332975653a5c6d16bb06833ea93388de15680429",
+      "note": "Meme formule que le Cockpit, sans « mecaniquement »."
+    },
+    {
+      "id": "iakaframe/encart/contrefactuel-joue",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 223,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "### 🔬 LE CONTREFACTUEL A ÉTÉ JOUÉ — 2026-08-30, par le décideur",
+      "empreinte": "2aa93cee9ac0d9ff011af830563f1a78b909054080050e83246f644f90429d77",
+      "note": "Source canonique de la mesure. Avertissements AVANT le bloc bash."
+    },
+    {
+      "id": "iakaframe/encart/table-regle-1",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 269,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "| **1** | **NO-OP** — le drapeau ne se retire pas | `v0.2.0` ✅ | `v0.10.0` ✅ | **SURVIT** |",
+      "empreinte": "e7a7c36e7a916bb3b49566826f576171c1903532b9b43f616809984211f29608",
+      "note": "Premiere ligne de la table des neuf regles : la seule survivante."
+    },
+    {
+      "id": "iakaframe/encart/residu",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 302,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "#### LE RÉSIDU — ce que rien n'exclut",
+      "empreinte": "425d9f7964a179039aa88a086cfe24986ff1eacb1e2ac24ab9163c40b80f2dee",
+      "note": "Cinq points ; source des residus recopies ailleurs."
+    },
+    {
+      "id": "iakaframe/encart/bornage-date",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 190,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "> 🪤 **CET ENCART EST DATÉ, PAS EFFACÉ — et son argument est RÉFUTÉ.** Écrit au second passage du",
+      "empreinte": "1f481b81442fa9333bdfa9b037c4b632f151b354ccde175314d549b6ad88982e",
+      "note": "L encart du second passage est conserve et refute, pas supprime."
+    },
+    {
+      "id": "iakaframe/compte-no-op/commits",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 162,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "**`iakaFrameGUI@589c4d6`** et **`iakaframe@26d096d`** — vérifiés un à un par",
+      "empreinte": "667335d43ba2af823fb0e8e3e9491b59a1b843a7e9df562c5d078ea8e790504c",
+      "note": "Les commits cites rendaient six occurrences, pas huit. Corriges et re-verifies."
+    },
+    {
+      "id": "iakaframe/reserve-1",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 516,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "1. **La garde n'empêche pas le vol — et on ne peut pas compter sur elle pour le réparer.**",
+      "empreinte": "9cd38777c727f92e5f41cabf6219da80b9b439c13acc729af345c5626c92dbab",
+      "note": "Reserve 1 : levee partielle, residu porte."
+    },
+    {
+      "id": "iakaframe/reserve-2-F4",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 534,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "**Elle est levée PAR ÉLIMINATION, pas par la doc, et pas sans reste.** Ce document a écrit, du",
+      "empreinte": "9949c17688efd9a8319ecce018984b893cda7bc93e54786d5b66796fc3e39e33",
+      "note": "Disait « Elle N EST PAS levee ». Levee par elimination, dans les limites enumerees."
+    },
+    {
+      "id": "iakaframe/section-2/conditionnel",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 339,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "> 🛑 **CE TABLEAU EST CONDITIONNEL — V-C N'A PAS EU LIEU ET N'AURA PAS LIEU DANS CE LOT.** La",
+      "empreinte": "9e03d300d65d9d78b98c9ed83bc606d7332ed6325ae4b1ce48d0dc6d43e2868f",
+      "note": "Le tableau annoncait au futur le resultat d une experience non executee (contre le § 5)."
+    },
+    {
+      "id": "iakaframe/section-3.4/prediction",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-ca5-procedure-decideur.md",
+      "ligne": 426,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "**Attendu — PRÉDICTION, pas mesure ; et cette séquence N'A PAS ÉTÉ EXÉCUTÉE (§ 5, décision γ)** :",
+      "empreinte": "10b5f6149e0b3d818ca9ce96825f238f70cda92307c4dea9258d0f4e5e53ac37",
+      "note": "Idem : « le job passera », « ca n en bouge plus » ecrits comme des faits."
+    },
+    {
+      "id": "iakaframe/F4",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 161,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "### F4 — Ce que fait GitHub **après** `make_latest=false` n'est pas documenté clairement",
+      "empreinte": "0bf247bc20607df65864679c09de35c5990566ceaa52264a9f392ae66a334362",
+      "note": "Enonce l inconnue. Toujours vrai : la DOC ne dit rien ; c est l elimination qui tranche."
+    },
+    {
+      "id": "iakaframe/F5",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/contrefactuel-du-vol-de-latest.md",
+      "ligne": 176,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "### F5 — La garde est **auto-instrumentée** : elle mesure son propre résultat",
+      "empreinte": "b9670be1efcaf3d678304b22aa9ee7b6c04f256a4d204696f694b9179a35c484",
+      "note": "Enonce juste et mesure (ligne VERIFICATION, run 33277643229)."
+    },
+    {
+      "id": "iakaframe/CA-5/mecanisme",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 572,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "✅ **LE MÉCANISME — le contrefactuel a été JOUÉ le 2026-08-30 par le décideur.**",
+      "empreinte": "7745a485f7e149ebec77e16dce7eab6e8ea90bb2fa12f8823bb72155bf183327",
+      "note": "Remplace « v0.10.0 ⇒ drapeau inamovible » — inference tiree d une sortie unique, citant comme autorite le § qui la contredit."
+    },
+    {
+      "id": "iakaframe/CA-5/residu",
+      "depot": "iakaframe",
+      "chemin": "specs/instructions/installer-depuis-rien.md",
+      "ligne": 579,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "🛑 **LE RÉSIDU, à porter avec la conclusion** : la phrase juste n'est **pas** « GitHub ne",
+      "empreinte": "d27f21d2a92ed851e041bfbc429c0cabcb86662f1f8732d2264f7984cfd8302e",
+      "note": "La limite est ecrite au meme endroit que la conclusion."
+    },
+    {
+      "id": "iakaframe/piege-1",
+      "depot": "iakaframe",
+      "chemin": "specs/etat-des-lieux.md",
+      "ligne": 97,
+      "classe": "vol+reparation",
+      "statut": "CORRIGE",
+      "extrait": "🛑 **CORRIGE LE 2026-08-30 (L43) — DEUX ERREURS ICI, et ce piege est le plus lu du fichier.**",
+      "empreinte": "c164915354cf5ab1cbe3014f84d9c93f4d13e95eca8f0466b2d5ed300b505219",
+      "note": "TROISIEME etat des lieux, absent des pointeurs des quatre passages."
+    },
+    {
+      "id": "iakaframe/H-2",
+      "depot": "iakaframe",
+      "chemin": "specs/etat-des-lieux.md",
+      "ligne": 41,
+      "classe": "vol",
+      "statut": "CORRIGE",
+      "extrait": "release sur un tag ancien **vole** le latest, et c'est ce qui s'etait passe *(corrige le 2026-08-30",
+      "empreinte": "5d0e243ee3d6157514d202c134d3e02fbbd3b8b3727be76f34869eca1dc811be",
+      "note": "Disait « republier » : le vol vient de la CREATION (R-1)."
+    },
+    {
+      "id": "iakaframe/cartouche/rectification",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 44,
+      "classe": "vol",
+      "statut": "CORRIGE",
+      "extrait": "# │ RECTIFICATION : ce cartouche disait « republier un tag ANCIEN VOLE donc le latest »,   │",
+      "empreinte": "f0f27f761c2a96649b07412cc5ed02ab45bd0a0d37f0a5affbb8b9f2632f3c56",
+      "note": "QUATRIEME endroit, jamais rectifie : l instruction n en nommait que trois."
+    },
+    {
+      "id": "iakaframe/cartouche/ne-repare-pas",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 68,
+      "classe": "repli",
+      "statut": "CORRIGE",
+      "extrait": "# │ ET SI LE DRAPEAU EST DEJA VOLE, LA VERIFICATION FINALE NE LE REPARERA PAS. Sur le banc │",
+      "empreinte": "13b217a3c43fdf8686e808ad8ec42f407b79a2ff791b250688e30d1e78e462e1",
+      "note": "Acteur `softprops`, pas `tauri-action` : la distinction est ecrite, plus supposee."
+    },
+    {
+      "id": "iakaframe/E-1/republier-vole",
+      "depot": "iakaframe",
+      "chemin": "cli/scripts/vitrine-en-ligne.js",
+      "ligne": 100,
+      "classe": "vol+reparation",
+      "statut": "CONSIGNE-NON-CORRIGE",
+      "extrait": "`le latest (drapeau make_latest, defaut true). Rattrapage : gh release edit ${plusHaut} --latest`,",
+      "empreinte": "77e6a76f362879f115072090913e044391ea80e2ab3c436c1507bca076b32f60",
+      "note": "Meme phrase que ses deux cousines. NON corrigee dans ce passage pour ne pas la corriger SEULE des trois : ses jumelles sont bloquees par le registre de convergence. CONDITION DE LEVEE : le meme lot qui debloquera les deux autres."
+    },
+    {
+      "id": "iakaframe/make_latest/non-eprouve",
+      "depot": "iakaframe",
+      "chemin": "cli/scripts/lib/vitrine.js",
+      "ligne": 50,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "* ECRITE mais NON EPROUVEE ; c'est aussi vrai du `make_latest` calcule qu'on vient d'y poser.",
+      "empreinte": "a2dca1161f432ba9a28bf1fa2c881226301c6915fecf9dbe8db529264ab6d51a",
+      "note": "Dit deja « non eprouve » : aucune sur-affirmation."
+    },
+    {
+      "id": "iakaframe/make_latest/non-eprouve",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 52,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "calculé posé par L42 sont **non éprouvés**. Le statut est écrit là où on le lira —",
+      "empreinte": "ed965d11bf434f369b0fe75b3a0d13c78302d03b354e22d3af47f805714ccbde",
+      "note": "Idem : constat, pas promesse."
+    }
+  ]
+}
