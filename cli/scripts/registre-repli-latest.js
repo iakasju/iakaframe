@@ -34,6 +34,9 @@
 // USAGE
 //   node cli/scripts/registre-repli-latest.js              # verifie
 //   node cli/scripts/registre-repli-latest.js --ecrire     # re-inscrit apres une correction VOULUE
+//        `--ecrire` reinscrit la POSITION (enonce retrouve ailleurs) ET LE CONTENU (empreinte +
+//        extrait, depuis la ligne d'ancrage) — et il DIT lequel des deux, entree par entree. Si
+//        l'ancre pointe au-dela de la fin du fichier, il n'ecrit RIEN et sort en 1.
 //   IAKA_RACINE=/chemin/vers/work node cli/scripts/registre-repli-latest.js
 import fs from 'node:fs';
 import path from 'node:path';
@@ -121,6 +124,14 @@ function occurrences(abs) {
 
 const derives = [];
 const constats = [];
+// F-4 (cinquieme passage, 2026-08-30) : ce que `--ecrire` a REELLEMENT fait. Le message de sortie
+// annoncait « REGISTRE RE-INSCRIT (N enonces) » quoi qu'il arrive — y compris quand il n'avait
+// RIEN reinscrit. Mesure : apres une reecriture VOULUE (cas D-1), `--ecrire` imprimait ce message
+// puis D-1 rougissait encore, exit 1. Le remede que le registre DICTAIT ne reparait pas — la forme
+// exacte du defaut que ce lot denonce, celui qui s'imprime au moment ou quelqu'un decide.
+const reinscrits = [];
+const deplaces = [];
+const irreparables = [];
 
 // --- 1. chaque depot du registre existe-t-il ? ---------------------------------------------------
 for (const d of Object.keys(reg.depots)) {
@@ -152,7 +163,34 @@ for (const e of reg.entrees) {
         'Sortie : node cli/scripts/registre-repli-latest.js --ecrire',
     );
   }
-  if (ecrire && idx !== -1) e.ligne = idx + 1;
+  if (ecrire) {
+    if (idx !== -1) {
+      // L'enonce est INTACT : seule sa position a bouge. Rien d'autre a reinscrire.
+      if (idx + 1 !== e.ligne) deplaces.push(`${e.id} : ${e.ligne} -> ${idx + 1}`);
+      e.ligne = idx + 1;
+    } else if (e.ligne - 1 < lignes.length) {
+      // L'enonce a ete REECRIT. On ne peut pas deviner ou il est passe : l'entree est ancree par
+      // son `chemin:ligne`, donc on reinscrit CE QUI S'Y TROUVE AUJOURD'HUI — empreinte ET
+      // extrait, pas seulement la ligne. C'est un acte DELIBERE : chaque reinscription est
+      // imprimee avec son avant/apres, pour qu'elle se relise a l'ecran et pas seulement au diff.
+      const actuelle = lignes[e.ligne - 1];
+      reinscrits.push(
+        `${e.id} (${e.depot}/${e.chemin}:${e.ligne})\n` +
+          `        avant : ${JSON.stringify(e.extrait)}\n` +
+          `        apres : ${JSON.stringify(actuelle)}`,
+      );
+      e.extrait = actuelle;
+      e.empreinte = sha(actuelle);
+    } else {
+      // Le fichier est plus court que l'ancre : il n'y a RIEN a reinscrire. On le DIT, et
+      // `--ecrire` echouera — plutot que d'annoncer une re-inscription qui n'a pas eu lieu.
+      irreparables.push(
+        `${e.id} (${e.depot}/${e.chemin}:${e.ligne}) — le fichier ne compte que ` +
+          `${lignes.length} ligne(s). L'ancre pointe dans le vide : ni l'empreinte inscrite ni ` +
+          'la ligne d\'ancrage ne se retrouvent. A retrier a la main dans le § Registre.',
+      );
+    }
+  }
 }
 
 // --- 3. D-3 / D-4 : le vocabulaire s'est-il etendu depuis l'inscription ? -------------------------
@@ -197,9 +235,32 @@ for (const [d, meta] of Object.entries(reg.depots)) {
 }
 
 if (ecrire) {
+  // LE MESSAGE DIT CE QUI A EU LIEU, PAS CE QU'ON ESPERAIT. Il enumere les trois issues
+  // separement : deplacement (position seule), re-inscription (contenu), impossibilite.
+  if (irreparables.length > 0) {
+    console.log(`${NOM} — RE-INSCRIPTION IMPOSSIBLE pour ${irreparables.length} enonce(s) :`);
+    for (const i of irreparables) console.log(`    ${i}`);
+    console.log('');
+    console.log(`${NOM} — RIEN N'A ETE ECRIT. Le registre est INCHANGE et reste PERIME.`);
+    process.exit(1);
+  }
   reg.inscritLe = new Date().toISOString().slice(0, 10);
   fs.writeFileSync(REGISTRE, `${JSON.stringify(reg, null, 2)}\n`, 'utf8');
-  console.log(`${NOM} — REGISTRE RE-INSCRIT (${reg.entrees.length} enonces). Relire le diff.`);
+  const inchanges = reg.entrees.length - deplaces.length - reinscrits.length;
+  console.log(
+    `${NOM} — REGISTRE ECRIT : ${reinscrits.length} enonce(s) RE-INSCRIT(S) (contenu), ` +
+      `${deplaces.length} DEPLACE(S) (position seule), ${inchanges} inchange(s) ` +
+      `sur ${reg.entrees.length}. Les comptes de couverture sont recalcules.`,
+  );
+  if (deplaces.length > 0) {
+    console.log('  DEPLACES — meme texte, autre ligne :');
+    for (const d of deplaces) console.log(`    ${d}`);
+  }
+  if (reinscrits.length > 0) {
+    console.log('  🛑 RE-INSCRITS — LE TEXTE A CHANGE. Relire chacun : c\'est le seul endroit ou');
+    console.log('     une reecriture FAUSSE se fait avaliser par le registre.');
+    for (const r of reinscrits) console.log(`    ${r}`);
+  }
   process.exit(0);
 }
 
