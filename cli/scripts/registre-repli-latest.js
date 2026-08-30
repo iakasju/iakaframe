@@ -25,6 +25,13 @@
 //   H-1  une implication NEUVE, dans un fichier deja couvert, ECRITE SANS AUCUN mot du motif.
 //        C'est l'angle mort de tout balayage lexical. D-4 le reduit POUR LE SEUL CAS D'UN AJOUT
 //        (le compte monte), sans le fermer. Il se ferme a la LECTURE.
+//   H-3  UN ENONCE RETOURNE EN SON CONTRAIRE A COMPTE CONSTANT — ajoute le 2026-08-30, cinquieme
+//        passage. D-4 ne voit qu'une VARIATION du compte ; substituer « SURVIT » a « REFUTEE »,
+//        ou retourner un residu en son inverse, laisse le compte INCHANGE et passe. Rectifier le
+//        comptage (occurrences au lieu de lignes) NE FERME PAS ce trou : la seule reponse est
+//        d'INSCRIRE l'enonce lui-meme, pour que D-1 le tienne par son empreinte. C'est pourquoi
+//        le registre ancre desormais les LIGNES DE VERDICT et les POINTS DE RESIDU, et non plus
+//        seulement les titres de section qui les surplombent.
 //   H-2  la JUSTESSE d'un enonce. Ce script compare des octets a un registre, il ne juge rien.
 //
 // CODES DE SORTIE — 0 : registre conforme · 1 : derive(s) · 2 : usage

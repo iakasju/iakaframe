@@ -335,7 +335,21 @@ node cli/scripts/registre-repli-latest.js --ecrire   # re-inscrit apres une corr
 | **D-1** | l'énoncé a **disparu ou été réécrit** | le `sha256` de la ligne inscrite ne se retrouve nulle part dans le fichier |
 | **D-2** | l'énoncé a **migré de ligne** | il est là, mais plus à la ligne inscrite — **tout `chemin:ligne` qui le cite mentirait** |
 | **D-3** | un **fichier neuf** entre dans le vocabulaire | il est touché par le motif et n'est **dans aucune** des deux listes |
-| **D-4** | un fichier **couvert** a gagné (ou perdu) des occurrences | **un énoncé a été ajouté** sans passer par le registre |
+| **D-4** | un fichier **couvert** a gagné (ou perdu) des **occurrences** | **un énoncé a été ajouté** sans passer par le registre |
+
+> 🔬 **D-4 comptait des LIGNES, pas des OCCURRENCES — corrigé au 5ᵉ passage (2026-08-30).** Le
+> balayage rendait **1 par ligne touchée**, quel que soit le nombre d'énoncés portés : **292**
+> « occurrences » pour **331** occurrences réelles sur le corpus couvert. **39 énoncés étaient donc
+> invisibles à D-4** — on pouvait en retourner un sur une ligne qui en portait deux sans que rien
+> ne bouge. Il lisait de surcroît **ligne à ligne**, alors que le corpus est justifié à 100
+> colonnes : **2 occurrences** de plus étaient coupées en deux par un retour à la ligne — dont
+> l'**étape 5.3** de `installer-depuis-rien.md`, une **prescription vivante** qui ordonnait de
+> recopier la phrase réfutée dans les trois `CLAUDE.md`. Le balayage compte désormais les
+> **occurrences sur le texte recollé** (chaque ligne rognée, jointes par une espace).
+> ⚠️ **La cause n'était donc PAS la justification du texte** — elle n'explique que **2** des 41 ;
+> les **39** autres venaient de la multiplicité sur une même ligne. **Mesure du 2026-08-30** :
+> sous la nouvelle règle, **aucun fichier n'entre** dans le vocabulaire par le seul effet du
+> recollage — la liste des 16 fichiers couverts et des 13 hors couverture est **inchangée**.
 
 **Codes de sortie** : `0` conforme · `1` dérive(s) · `2` usage · **`3` NON MESURÉ** (un dépôt du
 registre est introuvable) — distinct de `0` à dessein : *un contrôle qui rend « succès » alors
@@ -363,15 +377,62 @@ l'octet** : `fc7ab92335f4cb9805034c5186031e4ee7c60c4193c73be7de5c88ec117fe44a`. 
 > rougi **sans** que l'étalon bouge. Un lecteur qui la recalcule après un lot suivant obtiendra
 > autre chose, **et ce ne sera pas une dérive**.
 
+#### 🔬 Le contrefactuel du 5ᵉ passage — chaque correctif prouvé **A/B**, pas seulement « rouge »
+
+Un « ça rougit maintenant » ne vaut rien sans son **avant**. Chaque mutation a donc été jouée
+**deux fois** : sur l'arbre **AVANT** (les trois dépôts au commit qui précède ce lot, montés en
+`git worktree`, registre **CONFORME** au départ) et sur l'arbre **APRÈS**. Chacune a été
+**révoquée immédiatement**, et la révocation vérifiée `0` — jamais en fin de campagne.
+
+| Mutation jouée | AVANT | APRÈS | révoquée |
+|---|---|---|---|
+| **F-1 ·** les **huit** verdicts `RÉFUTÉE` de la table basculés en `SURVIT`, `❌`→`✅` | **`0` — MUET** | **`1` D-1** | `0` |
+| **F-1 ·** la **ligne de conclusion** réécrite en *« GitHub ne replie JAMAIS… »* | **`0` — MUET** | **`1` D-1** | `0` |
+| **F-1 ·** le **corps du résidu** retourné en son contraire, **compte du motif préservé 4 = 4** | **`0` — MUET** | **`1` D-1** | `0` |
+| **F-2 ·** une phrase de **deux lignes** ajoutée à un fichier couvert, motif **coupé par le wrap** | **`0` — MUET** | **`1` D-4** | `0` |
+| **F-2 ·** une **seconde occurrence** ajoutée sur une ligne **déjà touchée** (multiplicité) | **`0` — MUET** | **`1` D-4** | `0` |
+| **F-3 ·** la **prescription 5.3 d'origine** réintroduite telle quelle | **`0` — MUET** | **`1` D-1+D-2+D-4** | `0` |
+| **F-5 ·** le renvoi ⁽**⁾ de la case **M1 / règle 4** retiré | *(n'existait pas)* | **`1` D-1** | `0` |
+
+**F-4 — le remède imprimé par D-1 ne réparait pas.** Mesuré des deux côtés, sur une réécriture
+**voulue** d'un énoncé inscrit, en appliquant **exactement** la sortie que le registre dicte :
+
+| | D-1 rougit | `--ecrire` dit | après `--ecrire` |
+|---|---|---|---|
+| **AVANT** | `1` | *« REGISTRE RE-INSCRIT (49 enonces) »* | **`1` — D-1 rougit ENCORE** |
+| **APRÈS** | `1` | *« REGISTRE ECRIT : 1 enonce(s) RE-INSCRIT(S) (contenu), 0 DEPLACE(S), 221 inchange(s) sur 222 »* | **`0` CONFORME** |
+
+La cause était à `registre-repli-latest.js` : `if (ecrire && idx !== -1) e.ligne = idx + 1;` ne
+réinscrivait que la **position**, jamais l'**empreinte** ni l'**extrait** — et dans le cas D-1
+`idx === -1`, donc **rien** n'était écrit. *Le registre était irréparable par sa propre voie
+documentée : la forme exacte du défaut que ce lot dénonce — celui qui s'imprime au moment où
+quelqu'un décide.* `--ecrire` distingue désormais **déplacement** (position seule),
+**re-inscription** (contenu, imprimée avec son avant/après) et **impossibilité** — ce dernier cas
+**n'écrit rien** et sort en `1`, plutôt que d'annoncer une re-inscription qui n'a pas eu lieu
+*(éprouvé en tronquant un fichier couvert : « RIEN N'A ETE ECRIT », fixture intacte à l'octet)*.
+
 > ⛔ **CE QU'IL NE VOIT PAS — déclaré, pas tu.**
 > **H-1** — une implication **neuve**, dans un fichier **déjà couvert**, écrite **sans aucun mot du
 > motif**. C'est l'angle mort de tout balayage lexical, et c'est **exactement** la faute des trois
-> passages précédents. **D-4 le réduit fortement** — une phrase sur le repli emploie presque
-> toujours l'un de ces mots — **sans le fermer**. Il se ferme à la **lecture** de ce registre.
+> passages précédents. **D-4 le réduit pour le seul cas d'un AJOUT** (le compte monte) — une phrase
+> sur le repli emploie presque toujours l'un de ces mots — **sans le fermer**. Il se ferme à la
+> **lecture** de ce registre.
+> 🛑 **H-3 — un énoncé RETOURNÉ EN SON CONTRAIRE à compte constant. Ajouté au 5ᵉ passage, et
+> c'est le trou par lequel trois mutations sont passées.** Ce qui était écrit ici — *« D-4 le
+> réduit fortement »* — est **mécaniquement faux comme mitigation** : les mots du motif ne servent
+> à rien si la ligne **n'est pas inscrite** (D-1 muet) **et** si le compte **ne bouge pas** (D-4
+> muet). Mesuré : les **huit verdicts `RÉFUTÉE`** de la table basculés en `SURVIT`, la **ligne de
+> conclusion** réécrite en *« GitHub ne replie JAMAIS »*, et le **résidu entier** retourné en son
+> contraire — **`CONFORME`, exit 0** dans les trois cas. *(Le résidu du `CLAUDE.md` porte **4**
+> occurrences du motif ; la version retournée en porte **4** aussi.)* **Corriger le comptage NE
+> FERME PAS ce trou** : la seule réponse est d'**inscrire l'énoncé lui-même**, pour que **D-1** le
+> tienne par son empreinte. C'est ce qu'a fait le 5ᵉ passage — le registre ancre désormais les
+> **lignes de verdict** et les **corps de résidu**, et non plus les **titres de section** qui les
+> surplombaient.
 > **H-2** — la **justesse** d'un énoncé. Ce script compare des octets ; il ne juge rien. Un énoncé
 > faux et stable est **vert** chez lui.
 
-### Le registre — 49 énoncés, 16 fichiers couverts, 13 déclarés hors couverture
+### Le registre — 222 énoncés, 16 fichiers couverts (346 occurrences), 13 déclarés hors couverture
 
 **Statuts** : **CORRIGÉ** (un passage l'a réécrit) · **CONFORME** (juste, laissé tel quel, inscrit
 pour qu'une dérive future se voie) · **CONSIGNÉ-NON-CORRIGÉ** (dans la classe, **faux**, et **non
