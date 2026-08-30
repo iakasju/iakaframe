@@ -22,9 +22,18 @@
 > donné comme **mesuré**, sur une table de **neuf** gestes. **Un seul de ces gestes a une trace**
 > (le run `33277643229`), et **cette mesure ne discrimine rien** : la release voleuse était, au
 > moment où on l'a prise, **aussi la plus récente par `created_at`**. Ce qui est vrai et le reste :
-> **la branche `--latest=false` ne rend pas le `latest` au plus haut semver**. Ce qui est
-> rétrogradé au rang de **déduction déclarée** : le **pourquoi**. Détail et contrefactuel à coût
-> nul au § 1.
+> **sur la topologie du banc, la branche `--latest=false` n'a pas rendu le `latest` au plus haut
+> semver** — donc **on ne peut pas compter dessus**. Ce qui est rétrogradé au rang de **déduction
+> déclarée** : le **pourquoi**. Détail et contrefactuel à coût nul au § 1.
+>
+> ## ⚠️ CORRIGÉ UNE SECONDE FOIS LE 2026-08-30 — la PORTÉE, pas le mécanisme
+>
+> Le premier passage a borné le **mécanisme** et a laissé la **portée** intacte : la conclusion du
+> banc restait écrite comme une **propriété générale de la branche**, puis comme un **verdict
+> opérationnel** (« inutile comme réparation », « un détecteur, pas une garde »). **Elle ne l'est
+> pas**, et ce qui la falsifie est **dans ce lot même** — **F4** de
+> `contrefactuel-du-vol-de-latest.md:171-173`. Voir l'encart **« Ce que la mesure ne permet PAS de
+> dire »** au § 1.
 
 ---
 
@@ -99,8 +108,11 @@ VERIFICATION : latest effectif = v0.2.0 (attendu : v0.10.0)
 1. **Le tri du job est juste sur le cas de bord** : `plus haut semver: v0.10.0`, avec `v0.9.0`
    présent et `archive/feat/x` filtré. `sort -V` ne se laisse pas prendre à `0.9` > `0.10`.
 2. **Le job a posé `--latest=false` sur `v0.2.0`**, et **juste après**, `GET /releases/latest`
-   rendait **`v0.2.0`** — pas `v0.10.0`, le plus haut semver. Donc : **la branche `--latest=false`
-   ne rend pas le `latest` au plus haut semver.** C'est la conclusion centrale, et elle tient.
+   rendait **`v0.2.0`** — pas `v0.10.0`, le plus haut semver. Donc, **et borné à la topologie de ce
+   banc, où la release voleuse était AUSSI la plus récente par `created_at`** : **la branche
+   `--latest=false` n'a pas rendu le `latest` au plus haut semver.** C'est la conclusion centrale,
+   elle tient, et elle **suffit** à savoir qu'**on ne peut pas compter dessus**. Ce qu'elle n'est
+   **pas** — une propriété générale de la branche — est écrit dans l'encart qui suit le point 7.
 3. **Le job se mesure lui-même et rougit** : ligne `VERIFICATION`, deux `::error::`, `exit 1`,
    commande de rattrapage imprimée. Le filet fonctionne.
 4. **Le transport de preuve tient** (CA-5.8) : le banc a téléchargé `release.yml` d'
@@ -120,8 +132,12 @@ VERIFICATION : latest effectif = v0.2.0 (attendu : v0.10.0)
 
 **C. DÉDUIT, PAS MESURÉ — rétrogradé le 2026-08-30** :
 
-6. **« `make_latest=false` est un NO-OP », « il n'y a aucun repli ».** C'était écrit ici, et dans
-   quatre autres emplacements, comme un **fait mesuré**. Ça ne l'est pas. La **seule** mesure
+6. **« `make_latest=false` est un NO-OP », « il n'y a aucun repli ».** C'était écrit comme un
+   **fait mesuré** dans **six fichiers — huit occurrences**, celui-ci compris : les deux `CLAUDE.md`
+   (**deux fois chacun** : bloc `latest` **et** entrée de backlog), les deux `release.yml`, ce
+   document, et `installer-depuis-rien.md` *(compté à `git grep -c NO-OP` sur les commits d'avant
+   correctif : `IakaCockpit@895e74f`, `iakaFrameGUI@2b09615`, `iakaframe@26d096d`)*. Ça ne l'est
+   pas. La **seule** mesure
    tracée est le point 2 — et **elle ne discrimine pas** : au moment où elle a été prise, la
    release voleuse `v0.2.0` était **aussi la plus récente par `created_at`** (`22:20:00Z`, contre
    `22:10:00Z` et `22:01:35Z`). « Le drapeau ne se retire pas » et « le drapeau se retire, et
@@ -133,6 +149,32 @@ VERIFICATION : latest effectif = v0.2.0 (attendu : v0.10.0)
    **suppression** de `v0.2.0` suffit à l'expliquer : les deux gestes sont confondus. Le chiffre
    « < 3 s » est **retiré** de tous les emplacements canoniques.
 
+### ⛔ Ce que la mesure ne permet PAS de dire — bornage du 2026-08-30
+
+Le point 2 a été écrit, jusqu'ici, comme une **propriété de la branche** (« elle ne rend pas le
+`latest` »), puis promu en **verdict opérationnel** (« inutile comme réparation », « un détecteur,
+pas une garde »). **Les deux dépassent la preuve**, et ce qui les falsifie est **dans ce lot** :
+`contrefactuel-du-vol-de-latest.md:171-173` (**F4**) mesure que sur `IakaCockpit` **les deux règles
+de repli plausibles désignent la même release, `v0.32.2`**.
+
+**Le déroulé, sous l'hypothèse qui survit au run.** Le run a **réfuté** une variante du repli —
+« GitHub recalcule le `latest` en **excluant** la release démarquée » : elle prédisait `v0.9.0`, on
+a observé `v0.2.0`. Celles qui **survivent** sont « le drapeau ne se retire pas » (NO-OP) **et**
+« GitHub recalcule par `created_at`, **sans** exclure la démarquée » — indiscernables **sur le
+banc**, où la voleuse était aussi la plus récente par date. Or **sur `IakaCockpit` elles
+divergent** : la voleuse y serait une release **créée sur un tag ancien** — le risque nommé dans
+les deux `CLAUDE.md`, *« 25 tags sur 29 ne portent aucune release »* — donc au `created_at` le plus
+**vieux**, puisque **F4** mesure que le `created_at` suit la date du **commit** du tag et non la
+publication (`v0.32.1` : `created_at 2026-08-10` pour un `published_at 2026-08-28`). Sous « repli
+par date », le recalcul désignerait donc **`v0.32.2`** — **qui est aussi le plus haut semver**. La
+ligne `VERIFICATION` serait **verte**, et le job aurait **réparé**.
+
+| | Formule |
+|---|---|
+| **Ce que la mesure établit** | *Sur la topologie du banc, où la voleuse était aussi la plus récente par `created_at`, la branche n'a pas rendu le `latest` au plus haut semver.* |
+| **Ce qui s'en déduit sans risque** | **On ne peut pas compter dessus.** Vrai sous les deux hypothèses. |
+| **Ce qui ne s'en déduit PAS** | « Elle est inutile comme réparation » · « le job n'est qu'un détecteur, pas une garde ». |
+
 ### 🔬 Le contrefactuel qui trancherait — à coût nul, et il appartient au décideur
 
 ```bash
@@ -142,16 +184,21 @@ gh api repos/iakasju/latest-contrefactuel/releases/latest --jq .tag_name
 
 Le banc ne porte plus que **deux** releases (mesure du 2026-08-30) : `v0.10.0` — plus haut semver,
 `created_at` le plus **ancien**, porteuse du `latest` — et `v0.9.0`, plus **récente** par date.
-Les deux hypothèses divergent donc enfin :
+Les hypothèses divergent enfin — mais **le geste ne tranche que dans UN sens**, et le décideur doit
+le savoir **avant** de le jouer :
 
-| Hypothèse | Sortie attendue |
+| Sortie observée | Ce qu'elle tranche |
 |---|---|
-| **Le drapeau ne se retire pas** (« NO-OP ») | **`v0.10.0`** |
-| **Le drapeau se retire, GitHub replie par date** | **`v0.9.0`** |
+| **`v0.9.0`** | **CONCLUANT.** Le drapeau **se retire** et GitHub **replie par date**. La prose bornée ci-dessus devient franchement fausse dans son esprit opérationnel : sur la topologie d'`IakaCockpit`, ce repli **réparerait** le vol (encart ci-dessus). |
+| **`v0.10.0`** | **NE TRANCHE RIEN.** Compatible avec le **NO-OP**, avec un repli par **semver**, et avec un repli par **`published_at`** (l'ordre de publication du banc n'a pas été relevé). Trois hypothèses, une seule sortie. |
+
+*(Asymétrie relevée par le gate le 2026-08-30 et corrigée ici : ce document présentait les deux
+sorties comme également concluantes. Elles ne le sont pas.)*
 
 C'est un **acte de release**, donc **refusé aux agents** : il n'a pas été joué. **Condition de
 levée de la réserve** : ce geste joué par le décideur, et sa sortie citée ici. Jusque-là, la prose
-des cinq emplacements canoniques est écrite pour rester **vraie dans les deux cas**.
+des **six fichiers canoniques** est écrite pour rester **vraie dans les deux cas** — y compris
+celui où le job **réparerait**.
 
 ### Ce que ça ne prouve pas, quoi qu'il arrive
 
@@ -328,12 +375,17 @@ La répétition a déplacé le curseur. Le risque **reste borné** — un seul g
 
 ## 6. Les deux réserves, à porter quoi qu'il arrive
 
-1. **La garde répare le vol, elle ne l'empêche pas** — et la répétition va plus loin : **elle ne le
-   répare pas non plus**. `tauri-action` crée la release (donc vole) **avant** que le job `latest`
-   démarre (`src/index.ts` : `buildProject` → `getOrCreateRelease` → `uploadReleaseAssets`), et la
-   branche `--latest=false` **ne rend pas** le `latest` au plus haut semver (mesuré, § 1 A-2). Ce
-   qui subsiste du job : **un détecteur qui rougit et dicte le geste**. C'est utile, ce n'est pas
-   une garde.
+1. **La garde n'empêche pas le vol — et on ne peut pas compter sur elle pour le réparer.**
+   Qu'elle ne l'**empêche** pas est acquis : `tauri-action` crée la release (donc vole) **avant**
+   que le job `latest` démarre (`src/index.ts` : `buildProject` → `getOrCreateRelease` →
+   `uploadReleaseAssets`). Pour la **réparation**, le banc n'a mesuré **qu'une topologie** — celle
+   où la voleuse était **aussi** la plus récente par `created_at` — et **là**, la branche
+   `--latest=false` n'a pas rendu le `latest` au plus haut semver (§ 1 A-2). **Sur la topologie
+   d'`IakaCockpit`, l'hypothèse du repli par date prédit l'inverse : elle réparerait** (encart
+   § 1). Ce qui tient donc sous les **deux** hypothèses : le job **détecte, rougit et dicte le
+   geste**, et **on ne peut pas compter sur lui pour réparer**. Ce qui **ne** tient **pas**, et qui
+   était écrit ici : « ce n'est pas une garde ». *(Bornage du 2026-08-30, second passage du
+   gate.)*
 2. **Ce que fait GitHub après `make_latest=false` n'est pas documenté** — c'était l'inconnue F4.
    **Elle N'EST PAS levée.** Ce document a écrit, du 2026-08-29 au 2026-08-30, « elle est désormais
    mesurée : rien » ; c'était une **déduction déguisée en mesure**, et c'est le motif principal du
