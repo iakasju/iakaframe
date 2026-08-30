@@ -367,6 +367,26 @@ chacune révoquée immédiatement (jamais en fin de campagne), le 2026-08-30 :
 | ajouter une ligne `make_latest` à `iakaframe/specs/etat-des-lieux.md` | `D-4 … 9 occurrence(s) aujourd'hui, 8 a l'inscription : un enonce a ete AJOUTE` | `1` |
 | **révocation des quatre** | `CONFORME : chaque enonce inscrit est a sa place, et aucun n'a ete ajoute.` | **`0`** |
 
+**Et les trois du 6ᵉ passage — D-5, D-6, D-7 — jouées et révoquées de même**, plus le rejeu des
+**trois mutations E-1 / E-2 / E-3 que le gate faisait passer `CONFORME`** :
+
+| Mutation jouée | Rouge obtenu, **nommé** | code |
+|---|---|---|
+| **E-1** — corps du résidu `IakaCockpit/CLAUDE.md:345` retourné, **sous un titre inscrit** | `D-1 … l'enonce « IakaCockpit/residu/corps/02 » a DISPARU ou a ETE REECRIT` | `1` |
+| **E-2** — ligne de verdict `:342` / `:422` retournée en *« les neuf règles survivent »*, **aux deux dépôts** | `D-1` **deux fois**, un par dépôt | `1` |
+| **E-3** — `contrefactuel-ca5-procedure-decideur.md:42`, `:547`, `:549` retournées d'un coup | `D-1` **trois fois** | `1` |
+| **D-5** — une ligne du motif **ajoutée** dans un fichier couvert, non triée | `D-5 … LIGNE DU MOTIF NON TENUE. Aucune empreinte ne repond d'elle` *(+ `D-4`, le compte monte)* | `1` |
+| **D-6** — une ligne **déclarée hors couverture** réécrite en énoncé faux | `D-6 … LIGNE DECLAREE HORS COUVERTURE, MAIS REECRITE` | `1` |
+| **D-7** — le texte exclu **supprimé**, la déclaration laissée | `D-7 … DECLARATION HORS COUVERTURE PERIMEE` | `1` |
+| **révocation des six** | `CONFORME : … chaque ligne du motif d'un fichier couvert est tenue par une empreinte.` | **`0`** |
+
+🛑 **La mesure qui vaut, et elle n'est pas une mutation.** Le nouveau vérificateur a été relancé
+**sur l'état d'entrée exact du 6ᵉ passage** — le corpus et le registre que le gate avait déclarés
+`CONFORME`, exit `0`. Il rend **`253 × D-5`, et rien d'autre** : **aucun** `D-1`, **aucun** `D-2`,
+**aucun** `D-3`, **aucun** `D-4`. *Sur ces 253 lignes, la garde d'avant était intégralement muette*
+— non parce qu'elle se trompait, mais parce qu'aucune règle ne lui demandait d'en répondre.
+C'est ça, la différence entre une liste et un critère.
+
 **Le registre est resté intact pendant tout le contrefactuel** — `sha256` de
 `cli/fixtures/registre-repli-latest.json` mesuré **avant** et **après** la campagne, **égaux à
 l'octet** : `fc7ab92335f4cb9805034c5186031e4ee7c60c4193c73be7de5c88ec117fe44a`. *La preuve se compare au **fichier**, jamais à une autre sortie.*
@@ -417,6 +437,18 @@ quelqu'un décide.* `--ecrire` distingue désormais **déplacement** (position s
 > passages précédents. **D-4 le réduit pour le seul cas d'un AJOUT** (le compte monte) — une phrase
 > sur le repli emploie presque toujours l'un de ces mots — **sans le fermer**. Il se ferme à la
 > **lecture** de ce registre.
+> 🛑 **H-1 RESTE OUVERT APRÈS LE BALAYAGE DE COMPLÉTUDE (6ᵉ passage), et ce n'est pas une dette :
+> c'est la borne de l'instrument.** D-5 exige que **toute ligne du motif** soit tenue par une
+> empreinte ; il ne dit **rien** d'une ligne qui n'en porte aucun. **Mesuré, et le chiffre est
+> gênant pour l'outil** : sur les **22** énoncés que le gate a relevés comme non inscrits,
+> **7** — `IakaCockpit/CLAUDE.md:346`, `iakaFrameGUI/CLAUDE.md:426`, et
+> `contrefactuel-ca5-procedure-decideur.md:49,219,221,537,550` — **ne matchent pas le motif**.
+> Ils portent pourtant le cœur du résidu (« une règle non énumérée reste possible », « on ne peut
+> pas compter dessus »). Ils sont inscrits **à la lecture**, par personne d'autre qu'un lecteur.
+> **La complétude de D-5 est celle du MOTIF, jamais celle du SENS.** Le gate l'a redémontré au
+> 5ᵉ passage — **70 lignes affirmant l'exact contraire de tout le lot**, sans un mot du
+> vocabulaire, comptes inchangés, `CONFORME` : **le balayage de complétude ne ferme pas ça non
+> plus.** La lecture reste dans la boucle.
 > 🛑 **H-3 — un énoncé RETOURNÉ EN SON CONTRAIRE à compte constant. Ajouté au 5ᵉ passage, et
 > c'est le trou par lequel trois mutations sont passées.** Ce qui était écrit ici — *« D-4 le
 > réduit fortement »* — est **mécaniquement faux comme mitigation** : les mots du motif ne servent
@@ -426,13 +458,71 @@ quelqu'un décide.* `--ecrire` distingue désormais **déplacement** (position s
 > contraire — **`CONFORME`, exit 0** dans les trois cas. *(Le résidu du `CLAUDE.md` porte **4**
 > occurrences du motif ; la version retournée en porte **4** aussi.)* **Corriger le comptage NE
 > FERME PAS ce trou** : la seule réponse est d'**inscrire l'énoncé lui-même**, pour que **D-1** le
-> tienne par son empreinte. C'est ce qu'a fait le 5ᵉ passage — le registre ancre désormais les
-> **lignes de verdict** et les **corps de résidu**, et non plus les **titres de section** qui les
-> surplombaient.
+> tienne par son empreinte. C'est ce qu'a fait le 5ᵉ passage — le registre a inscrit **des**
+> lignes de verdict et **des** corps de résidu, **là où le gate pointait**.
+> ⚠️ **Cette phrase disait plus que le registre ne tenait, et c'est ce qui a fait échouer le
+> 5ᵉ passage.** « Le registre ancre désormais les lignes de verdict et les corps de résidu, **et
+> non plus** les titres de section qui les surplombaient » : **mesuré faux**. À l'entrée du
+> 6ᵉ passage, **22 énoncés** — dont le corps du résidu de `IakaCockpit/CLAUDE.md:345-346` **sous
+> un titre inscrit**, et la ligne de verdict `:342` — n'étaient inscrits **nulle part**, et trois
+> mutations passaient `CONFORME`, exit `0`. **Ce qui est ancré, et rien de plus** : les lignes
+> **qui figurent au § Registre**, plus — depuis D-5 — **toute ligne du motif d'un fichier
+> couvert**. Les titres de section ne sont **pas abolis** : ceux qui **affirment** (R-1, F3, F6,
+> F7) restent inscrits comme énoncés ; ceux qui n'affirment rien sont **déclarés hors couverture,
+> avec leur motif**. Une phrase d'ancrage doit dire **ce qui est ancré**, pas **tout**.
 > **H-2** — la **justesse** d'un énoncé. Ce script compare des octets ; il ne juge rien. Un énoncé
 > faux et stable est **vert** chez lui.
 
-### Le registre — 222 énoncés, 16 fichiers couverts (346 occurrences), 13 déclarés hors couverture
+### Le balayage de complétude — **D-5**, ajouté au 6ᵉ passage : le critère de clôture
+
+**Le défaut que ce balayage ferme n'est pas une liste trop courte, c'est l'absence de critère.**
+Cinq passages ont corrigé **exactement** les pointeurs du gate, et cinq fois la classe a survécu à
+côté. Une liste de 4 pointeurs n'était pas plus « close » qu'une liste de 22 : **les deux sont des
+échantillons**. Tant que la clôture repose sur les pointeurs de quelqu'un, il y a un passage
+suivant. Ce qui manquait est un **critère de complétude auto-vérifiable** — et c'est, ligne à
+ligne, le geste que `fixtures/convergence.sha256` fait fichier à fichier.
+
+> **La règle, en une phrase.** Dans un fichier **couvert**, **toute** ligne qui porte le motif doit
+> être **tenue par une empreinte** : soit **inscrite** au § Registre (D-1 la garde), soit
+> **déclarée hors couverture avec son motif ET l'empreinte du texte exclu**. Une ligne qui n'est ni
+> l'un ni l'autre **rougit** (D-5). Une ligne déclarée dont le **texte change** rougit aussi
+> (D-6) : *le motif d'exclusion porte sur un texte, jamais sur un numéro de ligne.* Une déclaration
+> qui ne couvre plus rien rougit encore (D-7) : *une exclusion muette est une dette.*
+
+**Mesure d'entrée, avant ce lot** — `309` lignes portent le motif dans les **16** fichiers
+couverts ; **56** seulement étaient tenues par une empreinte. **253 ne l'étaient pas** — et c'est
+dans ces 253 que vivaient les 15 des 22 énoncés relevés par le gate qui, eux, matchent le motif.
+
+**Règle de tri, appliquée aux 253 une à une** (elle est aussi dans `balayage.completude.regleDeTri`
+du JSON, pour qu'on puisse la contester sans lire le code) :
+
+- **INSCRITE** si la ligne **affirme** quelque chose sur ce qu'il advient du `latest` sous
+  `make_latest=false`, sur la réparation, ou si elle porte un **verdict** ou un **résidu** — y
+  compris quand c'est un **titre** (R-1, F3, F6, F7 affirment) ou un **verbatim de log** (le
+  réécrire serait un faux).
+- **HORS COUVERTURE, avec son motif propre**, si la ligne ne fait que **porter le vocabulaire** :
+  commande reproduite, appel d'API, ligne de code, câblage de `$GITHUB_OUTPUT`, chemin REST,
+  en-tête de tableau, titre **non affirmatif**, ou motif du balayage cité en clair.
+
+**Issue** : **213** lignes inscrites, **40** déclarées hors couverture **une par une, chacune avec
+son motif** — aucune exclusion en masse, aucune plage, aucun glob. *Le défaut d'une garde n'est
+jamais la liste : c'est son mutisme.* Les 40 motifs vivent dans `depots.<dépôt>.lignesHorsCouverture`
+du JSON, avec l'empreinte du texte exclu.
+
+⚠️ **Le cliquet, sans lequel D-5 se refermerait sur lui-même** : `--ecrire` **ne fabrique jamais
+une exclusion**. Il re-ancre celles qui existent quand leur texte a **glissé sans changer**
+(position seule), et c'est tout. Une ligne neuve du motif **se trie à la main** — sinon la voie de
+réparation documentée avalerait précisément ce que le contrôle devait signaler.
+
+🛑 **Deux effets de bord qui valent d'être dits.** (1) Le job `latest` des deux `release.yml`
+(lignes **147-199**, sous quarantaine, SHA `3547f667…`) est désormais **tenu par empreinte, ligne à
+ligne, sans avoir été modifié** : le déclarer ne le touche pas, mais il ne peut plus être réécrit en
+silence. (2) Les deux `RATTRAPAGE MANUEL` d'un même fichier sont **des lignes strictement
+identiques** (186 et 196) ; l'ancienne recherche « première empreinte égale » les faisait rougir en
+`D-2` l'une contre l'autre. Le verificateur regarde maintenant **l'ancre d'abord**, et ne balaie le
+fichier que si elle ne porte plus le texte inscrit.
+
+### Le registre — 442 énoncés, 16 fichiers couverts (347 occurrences), 13 fichiers et 41 lignes déclarés hors couverture
 
 **Statuts** : **CORRIGÉ** (un passage l'a réécrit) · **CONFORME** (juste, laissé tel quel, inscrit
 pour qu'une dérive future se voie) · **CONSIGNÉ-NON-CORRIGÉ** (dans la classe, **faux**, et **non
