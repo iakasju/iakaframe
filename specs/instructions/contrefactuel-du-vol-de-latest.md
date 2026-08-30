@@ -373,9 +373,12 @@ l'octet** : `fc7ab92335f4cb9805034c5186031e4ee7c60c4193c73be7de5c88ec117fe44a`. 
 
 ### Le registre — 49 énoncés, 16 fichiers couverts, 13 déclarés hors couverture
 
-**Statuts** : **CORRIGÉ** (ce passage l'a réécrit) · **CONFORME** (juste, laissé tel quel, inscrit
+**Statuts** : **CORRIGÉ** (un passage l'a réécrit) · **CONFORME** (juste, laissé tel quel, inscrit
 pour qu'une dérive future se voie) · **CONSIGNÉ-NON-CORRIGÉ** (dans la classe, **faux**, et **non
-traité** — avec son motif et sa condition de levée).
+traité** — avec son motif et sa condition de levée). ⚠️ **Depuis le 5ᵉ passage (2026-08-30),
+AUCUNE entrée ne porte plus `CONSIGNÉ-NON-CORRIGÉ`** : la seule qui le portait — l'entrée **16** —
+a été corrigée après levée du garde-fou de convergence. Le statut reste **défini** parce qu'il
+resservira ; il n'est **pas** vacant par oubli.
 
 Les `chemin:ligne` exacts et les empreintes vivent dans le JSON, **pas ici** : recopiés en prose,
 ils se périmeraient au premier commit. Ce qui suit est le **avant / après** par famille.
@@ -397,7 +400,7 @@ ils se périmeraient au premier commit. Ce qui suit est le **avant / après** pa
 | **13** | F4 et F5 de cette instruction | ce fichier | — | **inchangés** : F4 dit vrai (la **doc** ne tranche pas — c'est l'**élimination** qui tranche), F5 aussi | CONFORME |
 | **14** | *« c'est le seul détecteur »* | les 2 `CLAUDE.md` | — | **inchangé** — la distinction tient. Le gate avait raison sur les lignes : **`195` / `176`**, pas `194` / `175` — **à l'état qu'il lisait**. Ce passage les a déplacées à **`223` / `204`** : voir l'encadré ci-dessous | CONFORME |
 | **15** | `make_latest` calculé **non éprouvé** | `iakaframe/cli/scripts/lib/vitrine.js`, `iakaframe/BACKLOG.md` | — | **inchangé** : ils disent déjà « non éprouvé ». Inscrits pour qu'une promotion future se voie | CONFORME |
-| **16** | 🛑 le message **E-1** de la vitrine en ligne | `IakaCockpit/scripts/vitrine-en-ligne.mjs`, `iakaFrameGUI/…`, `iakaframe/cli/scripts/vitrine-en-ligne.js` | *« Republier un tag ancien **VOLE** le latest … **Rattrapage** : `gh release edit <plusHaut> --latest` »* | **INCHANGÉ — voir ci-dessous** | **CONSIGNÉ-NON-CORRIGÉ** |
+| **16** | 🛑 le message **E-1** de la vitrine en ligne | `IakaCockpit/scripts/vitrine-en-ligne.mjs`, `iakaFrameGUI/…`, `iakaframe/cli/scripts/vitrine-en-ligne.js` | *« Republier un tag ancien **VOLE** le latest … **Rattrapage** : `gh release edit <plusHaut> --latest` »* | *« C'est la **CRÉATION** d'une release qui prend le drapeau … republier un tag dont la release **EXISTE** n'y touche pas (R-1) … **Rattrapage à TENTER** … **NON ÉPROUVÉ** : que cette écriture rende le latest n'a ni run ni log »* — **aux trois dépôts** | **CORRIGÉ** *(garde-fou levé par le décideur, 5ᵉ passage)* |
 
 > 🪤 **L'entrée 14 démontre à elle seule pourquoi le registre garde les lignes, et pas la prose.**
 > Le gate a corrigé un `chemin:ligne` : `195` / `176`, et non `194` / `175`. Il avait raison **à
@@ -406,28 +409,37 @@ ils se périmeraient au premier commit. Ce qui suit est le **avant / après** pa
 > périment.** C'est exactement ce que **D-2** attrape — et c'est pourquoi les `chemin:ligne` de ce
 > registre vivent **dans le JSON**, régénérables par une commande, et **jamais recopiés en prose**.
 
-### 🛑 L'entrée 16 — pourquoi elle n'est pas corrigée, et ce que ça coûte
+### ✅ L'entrée 16 — CORRIGÉE le 2026-08-30, et ce qui l'avait tenue en place
 
-**C'est la trouvaille du registre, et la plus gênante** : la phrase que L43 a rectifiée dans les
-`CLAUDE.md` et les cartouches vit **aussi dans du code qui s'imprime à l'opérateur**, aux
-**trois** dépôts — et **aucun** des quatre passages ne l'avait vue. Elle est **doublement fautive** :
-elle attribue le vol à la **republication** (faux au SHA épinglé — **R-1**) et elle annonce un
-**rattrapage** dont le fonctionnement **n'a aucune trace**. C'est l'endroit du corpus où
-l'inexactitude a le **plus** de conséquence : elle s'affiche au moment précis où quelqu'un décide
-quoi faire.
+**C'était la trouvaille du registre, et la plus gênante** : la phrase que L43 a rectifiée dans les
+`CLAUDE.md` et les cartouches vivait **aussi dans du code qui s'imprime à l'opérateur**, aux
+**trois** dépôts — et **aucun** des quatre premiers passages ne l'avait vue. Elle était
+**doublement fautive** : elle attribuait le vol à la **republication** (faux au SHA épinglé —
+**R-1**) et annonçait un **rattrapage** dont le fonctionnement **n'a aucune trace**. C'est
+l'endroit du corpus où l'inexactitude a le **plus** de conséquence : elle s'affiche au moment
+précis où quelqu'un décide quoi faire.
 
-**Elle n'est pas corrigée dans ce passage**, et le motif est mécanique, pas discrétionnaire :
-`scripts/vitrine-en-ligne.mjs` **est inscrit à `fixtures/convergence.sha256`** (registre à 17
-entrées). Le modifier obligerait à l'éditer **dans les deux dépôts au même commit logique** *puis*
-à **régénérer les empreintes du registre de convergence** — ce que les garde-fous de ce passage
-interdisent (*« n'inscris rien à `fixtures/convergence.sha256` »*, plancher **17**). Et corriger la
-seule copie libre — celle de la CLI — laisserait **une** des trois formulations rectifiée et deux
-fausses : une divergence pire que l'erreur.
+**Elle n'a pas été corrigée au quatrième passage, et le motif était mécanique, pas
+discrétionnaire** : `scripts/vitrine-en-ligne.mjs` **est inscrit à `fixtures/convergence.sha256`**
+(registre à **18** entrées, plancher **17**). Le modifier obligeait à l'éditer **dans les deux
+dépôts au même commit logique** *puis* à **régénérer les empreintes** — ce que les garde-fous de ce
+passage-là interdisaient. Et corriger la seule copie libre — celle de la CLI — aurait laissé **une**
+des trois formulations rectifiée et deux fausses : une divergence pire que l'erreur. **Le
+consigner sans passer outre était le geste juste** ; ce qui restait produit par la consigne, pas
+par un choix.
 
-> **CONDITION DE LEVÉE** : un lot qui **décide** de toucher au registre de convergence, corrige les
-> **trois** copies et régénère les empreintes. **Coût déclaré en attendant** : sur une fenêtre de
-> vol réelle, `npm run vitrine:en-ligne` imprime à l'opérateur un diagnostic **faux** et un remède
-> **non éprouvé**. C'est un **hors-couverture assumé**, pas un oubli.
+> ✅ **LEVÉE — 5ᵉ passage, 2026-08-30.** Le décideur a levé le garde-fou en le nommant : *« c'est
+> lui qui tenait un défaut en place »*. Les **trois** copies sont rectifiées ; le registre de
+> convergence est **régénéré dans les deux dépôts au même commit logique** par la commande
+> documentée en tête du fichier. **Une seule empreinte change** (`scripts/vitrine-en-ligne.mjs`) :
+> **aucune entrée ajoutée ni retirée**, registre à **18**, plancher **17** tenu. **Les deux faces
+> ont été rejouées** — croisée : *« 18 fichier(s) byte-identiques »* des deux côtés ; locale :
+> `forge-host-parity` **8/8** des deux côtés.
+>
+> **Ce que le message dit désormais**, et pas un mot de plus : la **création** prend le drapeau ;
+> republier au SHA épinglé **n'y touche pas** ; le rattrapage est **à tenter** et **non éprouvé**.
+> Il ne promet **pas** que l'écriture `true` répare — le NO-OP mesuré porte sur `false` et **ne se
+> transpose pas d'office**.
 
 ### Ce que le registre a trouvé que quatre passages n'avaient pas vu
 
@@ -435,7 +447,8 @@ fausses : une divergence pire que l'erreur.
    remède — dans « Pièges connus », la section la plus relue du fichier.
 2. **Un quatrième cartouche** (`iakaframe/.github/workflows/release.yml`), alors que l'étape 1.1 de
    ce cadrage n'en nommait que **trois**.
-3. **Trois copies du message E-1**, dans du code exécuté.
+3. **Trois copies du message E-1**, dans du code exécuté — **corrigées au 5ᵉ passage**, une fois
+   le garde-fou de convergence levé par le décideur.
 
 **C'est la mesure de l'écart entre un pointeur et une énumération** — et la seule raison d'être de
 ce registre.
