@@ -751,6 +751,26 @@ job fait **après** ce lot. Dater, ne pas effacer.
 > fabrique aucune exclusion, et une correction qui passerait par lui serait précisément le défaut
 > que le cliquet existe pour empêcher. Toute dérive rencontrée se **cite** dans le rapport.
 
+> 📏 **RÈGLE — QUAND ON SORT DE CETTE LISTE.** Posée le **2026-09-01**, au second passage du gate,
+> **parce qu'elle manquait**. Le lot était sorti de la liste pour corriger `cli/package.json`
+> (« SEPT » détections annoncées, **huit** réelles) — et s'était arrêté devant un cas **strictement
+> plus grave** : le message **E-1**, imprimé à l'opérateur, qui affirmait le contraire de ce que le
+> **même lot** mesurait. **Deux affirmations fausses hors liste, deux traitements opposés, aucune
+> règle énoncée.** Le défaut n'était pas « un pointeur oublié » : c'était **l'absence de critère**.
+> La règle porte sur les **énoncés**, jamais sur les fichiers :
+>
+> 1. **ON SORT — obligatoirement — quand un texte du corpus AFFIRME, sur l'objet du lot, quelque
+>    chose que le lot lui-même RÉFUTE.** Un lot qui mesure et laisse debout la phrase que sa mesure
+>    abat livre un corpus qui **se contredit**, et la moitié fausse est celle qui reste. **Priorité
+>    au texte qui s'imprime à un opérateur au moment où il décide** : c'est le seul qui agisse.
+> 2. **ON NE SORT PAS pour « améliorer », « renforcer », « tant qu'on y est ».** Un défaut constaté
+>    hors liste que le lot ne **réfute** pas se **signale** ; il ne se traite pas.
+> 3. **LA SORTIE SE BALAYE, elle ne s'échantillonne pas.** On énumère les candidats par un critère
+>    **auto-vérifiable** (ici : `entrees[].extrait` du registre), on **relit chacun**, et on
+>    **déclare** ceux qu'on maintient **avec leur motif**. Un candidat maintenu **en silence** est le
+>    défaut — pas le candidat maintenu. *Un pointeur de gate est un exemple, jamais une énumération.*
+> 4. **LA RECTIFICATION EST DATÉE, jamais effacée**, et les empreintes se ré-inscrivent **à la main**.
+
 ---
 
 ## Risques
@@ -840,6 +860,23 @@ job fait **après** ce lot. Dater, ne pas effacer.
 - [ ] **CA-7** — Le cas « aucune release » est traité **explicitement** et éprouvé : le job sort en
       succès **en le disant**, jamais en silence, jamais sur une comparaison à la chaîne vide.
       *Vérif* : ligne de log citée.
+
+> 🛑 **DÉCLARATION DURCIE — 2026-09-01, second passage du gate, sur CA-6, CA-7 et CA-10.**
+> Ces trois critères exigent une **ligne de log citée**. **Il n'y en a aucune d'opposable.**
+> Le premier état de cette déclaration disait : *« le banc a été joué avec un stub `gh` hors ligne,
+> ce n'est pas CA-6/CA-10 »*. C'était **juste, mais pas assez fort** — il y manquait le point qui
+> compte : **rien de ce banc n'est reproductible.** Les six scénarios du stub **n'ont laissé aucune
+> trace** — ni artefact versionné, ni fixture, ni script rejouable. Ils ne peuvent donc être ni
+> **rejoués** ni **contredits**, pas même par qui les a joués.
+> **Ce qui est mesuré, et qui fonde la déclaration** *(2026-09-01)* : `grep -rl "AUCUNE release
+> non-brouillon"` ne ramène que les **deux `release.yml` eux-mêmes** ; `PLUS_HAUT` n'apparaît, dans
+> les trois dépôts, que comme **extrait du registre** — **aucun test n'exerce `PLUS_HAUT`, ni la
+> branche du vol, ni la sortie « aucune release »**. **Aucun artefact versionné ne reproduit la
+> logique shell du job.** La seule garde qui pèse sur ce code est la **fixture d'octets** du bloc
+> `latest:` : elle atteste qu'il **n'a pas changé** — **jamais** qu'il **fonctionne**.
+> ⚠️ **Ceci n'ouvre PAS un chantier de tests du shell** : c'est une déclaration à durcir, pas un
+> périmètre à élargir. Si un artefact reproductible paraît faisable **dans ce lot**, il **remonte
+> au décideur** ; il ne se décide pas ici.
 
 ### La ré-affirmation — posée seulement si elle est autorisée
 

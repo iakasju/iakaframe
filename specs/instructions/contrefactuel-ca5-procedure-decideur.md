@@ -93,7 +93,7 @@ Plus un tag `archive/feat/x`, **sans** release.
 | d | re-mesure 90 s plus tard *(hypothèse « propagation »)* | **non tracé** — mais l'hypothèse qu'il visait est **close** depuis le 2026-08-30 : la sortie du contrefactuel du décideur a été **re-lue bien après** le geste et n'a pas bougé (§ 1, règle **9**) |
 | e | `gh release edit v0.10.0 --latest` — le rattrapage | **non tracé** |
 | f | `gh release edit v0.10.0 --latest=false` *(`created_at` le plus **ancien**)* | ✅ **REJOUÉ PAR LE DÉCIDEUR le 2026-08-30**, et c'est le geste **discriminant** : sortie `v0.10.0`, inchangée. Détail, table des règles et résidu à l'encart « LE CONTREFACTUEL A ÉTÉ JOUÉ » |
-| g | `PATCH /releases/379113276 -f make_latest=false` *(REST brut)* | **non tracé** |
+| g | `PATCH /releases/379113276 -f make_latest=false` *(REST brut)* | ✅ **JOUÉ LE 2026-09-01** *(M2, lot L44, banc privé)* : **inerte**, comme `gh`. La mention « non tracé » valait au 2026-08-30 — **datée, pas effacée** |
 | h | `gh release edit v0.9.0 --latest` puis `--latest=false` | **non tracé**, et **incohérent** avec la topologie ci-dessus |
 | i | `gh release delete v0.2.0` | **non tracé** ; son effet est confondu avec celui de (e) |
 
@@ -173,8 +173,10 @@ VERIFICATION : latest effectif = v0.2.0 (attendu : v0.10.0)
    **réfute huit des neuf règles de repli énumérées** et **laisse le NO-OP seul debout** (encart
    « LE CONTREFACTUEL A ÉTÉ JOUÉ »). Le NO-OP cesse d'être une **déduction** ; il devient **la
    seule règle survivante d'une énumération** — ce qui n'est **pas** la même chose qu'un fait
-   mesuré sans reste, et **le résidu est écrit**. Le `PATCH` REST **brut**, lui, **n'a toujours
-   ni run ni log**.
+   mesuré sans reste, et **le résidu est écrit**. Le `PATCH` REST **brut**, lui, n'en avait alors
+   **aucune trace**. ⚠️ **DEPUIS, IL EN A** — joué le **2026-09-01** *(M2, lot L44)*, il s'est
+   révélé **inerte** comme `gh` ; et **M3b**, même chemin avec `legacy`, **a bougé** le pointeur.
+   La phrase qui précède est **datée au 2026-08-30, pas effacée**.
 7. **« `gh release edit <PLUS_HAUT> --latest` répare, en moins de 3 s ».** Pas de trace non plus,
    **et le contrefactuel du 2026-08-30 n'y change rien**. Le banc porte aujourd'hui
    `latest = v0.10.0` (**re-mesuré le 2026-08-30**), mais la **suppression** de `v0.2.0` suffit à
@@ -184,6 +186,11 @@ VERIFICATION : latest effectif = v0.2.0 (attendu : v0.10.0)
    **`true`** — le rattrapage — produise, elle, un effet **reste sans trace**, et le NO-OP observé
    sur `false` **ne se transpose pas d'office** à `true`, ni dans un sens ni dans l'autre. À
    mesurer le jour où le geste est joué, pas à supposer.
+   ✅ **LE JOUR EST VENU — 2026-09-01, M1, lot L44.** `gh release edit v0.9.0 --latest`, sur le banc
+   privé, a fait passer `releases/latest` de `v0.10.0` à `v0.9.0` : **l'écriture `true` AGIT**, et
+   elle **prime sur tout calcul** puisqu'elle a posé le pointeur sur le **plus bas** semver. Les
+   deux alinéas ci-dessus sont **datés au 2026-08-30, pas effacés**. Ce qui **reste** sans mesure :
+   le **chiffre** « < 3 s », et le rejeu **sur les dépôts de production**.
 
 ### ⛔ Ce que la mesure ne permettait PAS de dire — bornage du 2026-08-30, **puis levé le même jour**
 
@@ -316,8 +323,15 @@ la conclusion cesse donc d'être bornée à l'**agencement** du banc. Elle reste
 2. **Le NO-OP survivant est OBSERVATIONNEL, pas mécanique.** Il dit que `GET /releases/latest` ne
    bouge pas. Il ne dit **pas où** le no-op se produit — client `gh`, écriture côté API, ou
    lecture. **F3** a *lu* que `gh` envoie bien `make_latest: "false"` (`edit.go`) ; le `PATCH` REST
-   **brut** n'a toujours **ni run ni log** (geste **g**). Et `make_latest` **n'est pas relisible** :
-   aucune mesure ne distingue « écriture acceptée sans effet » de « écriture ignorée ».
+   **brut** n'en avait alors **aucune trace** (geste **g**). Et `make_latest` **n'est pas
+   relisible** : aucune mesure ne distingue « écriture acceptée sans effet » de « écriture ignorée ».
+   ✅ **REFERMÉ LE 2026-09-01 (M2 + M3b, lot L44) — daté, pas effacé.** Le geste **g** a été joué.
+   M2 et M3b portent sur la **même** release, le **même** endpoint et le **même** champ : seule la
+   **valeur** les sépare, et M3b, lui, **a bougé** le pointeur. Le no-op ne siège donc **ni** dans
+   le client, **ni** dans le transport, **ni** dans la lecture, mais dans la **sémantique de la
+   valeur `false`** côté API. ⚠️ Une **échappatoire nommée** subsiste, et aucune mesure ne la
+   tranche : si `false` installait un état « pas latest » dont la lecture retomberait sur un calcul
+   différent de celui de `legacy`, l'observation tiendrait aussi.
 3. **Rien sur `IakaCockpit`** — autre dépôt, autre acteur (`tauri-action`, pas `gh release
    create`), autres droits. **Inchangé.**
 4. **Rien sur le badge « Latest » de l'interface web** : jamais mesuré. Tout ce qui précède porte
