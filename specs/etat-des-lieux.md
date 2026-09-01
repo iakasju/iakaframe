@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-08-29 21:34 (motif: manual).
+> Genere par iakaframe (CLI) le 2026-09-01 22:20 (motif: manual).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,117 +9,106 @@
 |---|---|
 | Version | v0.39.0 |
 | Branche | main |
-| Dernier commit | 53a1f20 docs(backlog): l'observable D3 a une preuve locale plus dure, et ce workflow n'epingle rien |
-| Arbre | propre |
-| Fichiers (suivis + non ignores) | 1112 |
-| Note | Lot L42 installer depuis rien livre : la vitrine ne promet plus ce qu elle n a pas. NAS injoignable, push GitHub seul. |
+| Dernier commit | 276c42d docs(instruction): re-cadrage de la garde du latest — 6 arbitrages tranches |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (suivis + non ignores) | 1117 |
+| Note | L43 livre au 6e passage : balayage de completude. Trois mesures du banc jouees : --latest agit, false inerte, legacy AGIT. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `53a1f20` | 2026-08-29 | docs(backlog): l'observable D3 a une preuve locale plus dure, et ce workflow n'epingle rien |
-| `a6de4e5` | 2026-08-29 | fix(vitrine): la vitrine de la CLI DECLARE ce qu'elle ne peut pas donner |
-| `87b0e04` | 2026-08-29 | docs(vitrine): la chaine de publication est ECRITE, pas EPROUVEE — dire ce qui est mesure |
-| `a4aa892` | 2026-08-29 | docs(backlog): L42 — installer depuis rien, et ce qui reste du au decideur |
-| `3198517` | 2026-08-29 | ci(release): make_latest CALCULE, jamais laisse au defaut |
-| `ef3d1ea` | 2026-08-29 | feat(vitrine): face EN LIGNE du cliquet — anonyme, hors gate, SKIP explicite |
-| `759d47d` | 2026-08-29 | test(vitrine): G5 — le README de la racine devient un lecteur GARDE de l'autorite |
-| `b15ca88` | 2026-08-29 | fix(readme): la vitrine annonce v0.39.0 et le .tgz que sa propre chaine produit |
-| `8e316e3` | 2026-08-29 | feat(vitrine): la section Installation du README devient DERIVEE, jamais recopiee |
-| `c703fbd` | 2026-08-29 | docs(instruction): installer depuis rien — cadrage L42 et 6 arbitrages tranches |
+| `276c42d` | 2026-08-31 | docs(instruction): re-cadrage de la garde du latest — 6 arbitrages tranches |
+| `33acb1b` | 2026-08-30 | fix(L43): 40 declarations au tri, 41 au registre — l'ecart etait tu |
+| `ef7c647` | 2026-08-30 | docs(L43): la troisieme phrase d'ancrage — le libelle npm ne connaissait que D-1..D-4 |
+| `5e44cfe` | 2026-08-30 | fix(L43): la phrase d'ancrage disait plus que le registre ne tenait |
+| `bf05530` | 2026-08-30 | feat(L43): un BALAYAGE DE COMPLETUDE — toute ligne du motif repond d'une empreinte, ou rougit |
+| `c8ecd19` | 2026-08-30 | fix(L43): le registre ancrait des SECTIONS, pas des enonces — il ancre les enonces |
+| `a082298` | 2026-08-30 | fix(L43): le remede que le registre DICTAIT ne le reparait pas |
+| `6d2debd` | 2026-08-30 | fix(L43): le balayage comptait des LIGNES la ou il annonçait des occurrences |
+| `3d1ab15` | 2026-08-30 | fix(L43): la vitrine imprimait a l'operateur la phrase refutee — aux trois depots |
+| `c7edfa5` | 2026-08-30 | fix(L43): une case du tableau portait un ✅ NON MESURE, sans son renvoi |
 
 ## Reprise du travail (a completer par Cowork)
 
-- **Ce qui vient d'etre fait** : le lot **L42 « Installer depuis rien »** est livre, gate **PASS au
-  troisieme passage**, fusionne dans `main` et pousse. Son critere n'etait pas technique : **ce qu'un
-  inconnu obtient en suivant ce qu'on lui montre**. Il ne construit aucun installeur — **il rend vraie
-  la page qu'on montre**.
-- **Quatre defauts, pas trois** (le 4e trouve au cadrage) : **H-1** les 3 README annoncaient une
-  version perimee (jusqu'a **dix-neuf mineures** d'ecart pour la CLI) · **H-2** GitHub ne classe pas
-  par numero mais par un drapeau **`make_latest`** que personne n'avait jamais touche — **CREER** une
-  release sur un tag ancien **vole** le latest, et c'est ce qui s'etait passe *(corrige le 2026-08-30
-  par L43 : il etait ecrit « republier », or republier un tag dont la release EXISTE ne touche pas au
-  drapeau au SHA epingle — le vol vient de la CREATION, cf. le piege 1 plus bas)* · **H-3** la ligne de publication
-  d'`iakaframe` s'etait tue depuis le 2026-08-04 · **H-4** la vitrine promettait des fichiers
-  **inexistants** : la release « Latest » du Cockpit ne porte **aucun `.dmg`** alors que le README en
-  promettait deux. **Un visiteur macOS repartait les mains vides.**
-- **La cause de H-4, MESUREE et non intuitee** : `v0.32.1` a ete publiee par **deux
-  `workflow_dispatch` successifs** (`platforms: windows` puis `platforms: linux`) — **aucun ne
-  selectionnait macOS**. Le dernier run a matrice complete (`v0.31.2`) avait produit les deux `.dmg`
-  sans difficulte. **Ce n'est pas un echec de build : l'artefact n'a jamais ete demande.**
-- **Trois gates, deux FAIL, et le second est le plus instructif de la journee** : le lot qui supprime
-  les gardes muettes contenait **un temoin vide** — un test nomme *« une promesse en PROSE est VUE »*
-  qui **ne pouvait pas rougir**, parce qu'il visait un artefact **deja promis par le tableau**. Il
-  aurait verdi meme si la fonction ignorait entierement la prose. Repare **et verrouille** : la
-  premiere assertion exige desormais que le nom ne soit **pas** deja promis avant la prose. Le temoin
-  ne peut plus redevenir creux en silence.
-- **Ce qu'un inconnu obtient aujourd'hui** : **iakaFrameGUI** installable **de bout en bout sur les
-  trois OS** (7 fichiers promis, 7 presents) · **IakaCockpit** Windows et Linux, l'absence macOS
-  **declaree, datee et levable** au lieu d'etre promise · **la CLI** installable par
-  `git clone && npm install -g ./cli` — **voie eprouvee deux fois**, dont sur un clone reel du depot
-  public — avec ses deux impasses (`.tgz` et « Source code », toutes deux dependantes d'une release
-  **absente**) nommees comme telles.
-- **Specifique a ce depot** : c'est lui qui portait le defaut le plus grave et qui en sort le plus
-  transforme. Son README annonce desormais **v0.39.0** (l'autorite = `cli/package.json`, les tags n'en
-  sont qu'un miroir) et **declare** ses deux voies non fournies. La release `v0.39.0` **n'existe pas
-  encore** : c'est assume, date et levable, et la voie `git clone` **aboutit** en attendant. Ce depot
-  n'a **ni eslint ni tsconfig**, et son workflow **n'epingle aucune action**.
-- **Etat des canaux — DETTE A RATTRAPER** : le **NAS `192.168.1.139` est tombe pendant la fusion**
-  (timeout 75 s, code 000). **`main` est pousse sur GitHub, en avance sur `origin`.** Rien n'est
-  perdu ; le verbe livre la veille est fait pour ca : **`iakaframe canaux --rattraper`** au retour du
-  NAS, **en avance rapide seulement**.
-- **Prochaine etape concrete** : **l'etape 5.1 de L40** — bump + tag + run CI. C'est **la seule preuve
-  manquante de toute la chaine** : on sait par lecture du bundle execute que `includeUpdaterJson: false`
-  supprimera le manifeste concurrent, **personne ne l'a vu**. Elle clot aussi CA-12 et la moitie de
-  CA-13 de L40. ⚠️ **Pour `iakaframe`, ce serait la PREMIERE execution de son workflow** : mesure
-  `actions/runs` -> **`total_count: 0`**, et le commit qui ajoute le workflow **n'est meme pas un
-  ancetre du tag `v0.20.4`** (douze jours d'ecart). **Le premier essai sera un essai.**
-- **Cinq successeurs inscrits, aucun bloquant** :
-  1. **F-2** — une promesse n'est mesurable qu'**entre backticks**. Un lien markdown dont l'URL porte
-     le nom, un `curl -LO` en bloc de code, une prose nue : **verts**. Pre-existant, aucun README
-     actuel n'en contient — *« pas un mensonge present, un piege futur »*. Mais le commentaire du code
-     promet plus que la mesure.
-  2. **F-3** — la **face en ligne n'est exercee par aucun test**. Desarmee **symetriquement dans les
-     deux depots**, tout reste vert : l'empreinte de convergence prouve l'**alteration**, pas le
-     **comportement**.
-  3. **Couverture asymetrique** — sous une meme mutation, le Cockpit rougit sur **3** tests et le GUI
-     sur **1**, parce que `absents: []` cote GUI. **Le fichier est convergent, sa couverture ne l'est
-     pas.**
-  4. **`D3-OBSERVABLE-ENREGISTREMENT`** — une phrase dit « avant que le workflow n'existe » la ou la
-     mesure dit « son enregistrement ».
-  5. **`CI-RELEASE-AUCUN-EPINGLAGE`** — le workflow d'`iakaframe` **n'epingle rien** (`checkout@v4`,
-     `setup-node@v4`, `action-gh-release@v2`, trois **tags flottants**). C'est le depot dont le CI n'a
-     jamais tourne, et le seul a ne pas avoir l'acquis de L41.
+- **Ce qui vient d'etre fait** : le lot **L43 « contrefactuel du vol de `latest` »** est livre, gate
+  **PASS au SIXIEME passage**, fusionne et pousse. Puis le decideur a joue **trois mesures** sur le
+  banc prive, qui ont **renverse une premisse** du re-cadrage en cours.
+- **Le fait etabli, et il a coute cher** : `make_latest=false` **est un NO-OP**. Deux mesures croisees
+  refutent **8 regles de repli sur 9** — `created_at` (avec et sans exclusion), `published_at` (idem),
+  **semver**, plus grand **`id`**, et le **repli differe** (refute par relecture ~13 h apres). Seul le
+  NO-OP survit **parmi les regles enumerees**.
+- **Les trois mesures du 2026-08-31, qui changent la lecture** :
+
+  | Ecriture | Effet | Mesure |
+  |---|---|---|
+  | `--latest` (`true`) via `gh` | **AGIT** | M1 |
+  | `--latest=false` via `gh` | **inerte** | 29/08 |
+  | `make_latest=false` via `PATCH` brut | **inerte** | M2 |
+  | **`make_latest=legacy` via `PATCH`** | **AGIT** | M3 |
+
+  **M1** sauve le lot : le rattrapage que le job imprime **fonctionne**, ce n'est pas un mensonge.
+  **M2** : le `PATCH` **brut** est accepte et sans effet -> **le NO-OP n'est PAS dans `gh`**, il siege
+  dans l'API ou la lecture. **M3** : ⚠️ **`gh` REFUSE la valeur `legacy`** (`--latest` est un drapeau
+  **booleen**, `strconv.ParseBool`) — elle n'est atteignable que par l'API ; et par l'API elle **AGIT**,
+  le `latest` passant de `v0.9.0` a `v0.10.0`.
+- **Ce que M3 etablit — et rien de plus** : `false` et `legacy` **ne sont pas equivalents**. Ecrire
+  `false` **n'abandonne pas** la designation explicite ; **seul `legacy` la rend au calcul**. Et le
+  `latest` est alle sur le **plus haut semver**, qui etait **le plus ancien sur les deux dates** :
+  **la date la plus recente NE GAGNE PAS**. ⚠️ **Avec deux releases on ne separe pas « semver domine »
+  d'une combinaison date+semver avec departage — on sait que la date ne dirige pas, pas la formule.**
+- **Le job ecrit `--latest=false` en croyant relacher la designation ; il ne la relache pas.** C'est
+  une **piste** de remede (ecrire `legacy`), **pas une conclusion** : `legacy` est inatteignable par
+  `gh`, et rien n'est mesure sur son comportement **a la creation** par `tauri-action`.
+- **Specifique a ce depot** : il porte l'instruction du re-cadrage
+  (`specs/instructions/re-cadrage-garde-latest.md`, 6 arbitrages tranches le 2026-08-31), la procedure
+  du decideur, le **registre** et son **balayage**. ⚠️ Le verificateur **rougit en D-3** tant que le
+  tri a la main des fichiers neufs n'est pas fait — **c'est correct et voulu**, c'est une etape de lot,
+  **jamais un `--ecrire`**. Ce depot n'a **ni eslint ni tsconfig**, et son `release.yml` **n'epingle
+  rien** (3 tags flottants) ; son CI **n'a jamais tourne**.
+- **Le vrai defaut de code, trouve A LA LECTURE et non par l'outil** : `release.yml:167` derive
+  `PLUS_HAUT` de `repos/<depot>/tags`, alors que `GET /releases/latest` ne peut rendre qu'un tag
+  **PORTEUR d'une release** — **4 sur 29** au Cockpit. Sur build rouge (le cas que `if: always()`
+  couvre expres), un tag de version reste sans release, **`VERIFICATION` rougit A TORT**, et le
+  rattrapage dicte **s'adresse a une release qui n'existe pas**. Cette ligne **ne porte aucun mot du
+  motif** : aucune empreinte ne la tenait. **C'est la meilleure demonstration disponible de la borne
+  de l'instrument.**
+- **L'instrument livre par L43** : un **registre d'enonces** (442 entrees) et un **balayage de
+  completude** (D-5/D-6/D-7 + cliquet) — dans un fichier couvert, toute ligne du motif doit etre
+  **tenue par une empreinte** : inscrite, ou **declaree hors couverture avec motif ET empreinte du
+  texte exclu**. **Sa preuve** : relance sur l'etat que le gate venait de declarer `CONFORME` ->
+  **253 lignes NON TENUES**. *« C'est ca, l'ecart entre une liste et un critere. »*
+- **Sa borne, demontree et declaree — H-1** : *« la completude est celle du **MOTIF**, jamais celle du
+  **SENS** »*. **173 des 442 entrees** sont ancrees sur des lignes que le balayage **ne verrait
+  jamais** ; **7 enonces du coeur du residu ont ete trouves a la lecture** ; et on peut ajouter
+  **70 lignes affirmant le contraire de tout le lot** sans qu'aucun compteur ne bouge. **La lecture
+  reste dans la boucle.**
+- **Pourquoi six passages** : le gate a diagnostique un **front qui recule** — le mecanisme, puis la
+  portee, puis la propagation, puis la couverture de l'instrument. *« Les corrections sont pilotees
+  par le pointeur, et les pointeurs d'un gate sont des **exemples**, pas une enumeration. **On ne
+  `grep` pas une implication.** »* Le 6e passage a reussi parce que le **critere de cloture** a change :
+  un balayage auto-verifiable, pas une liste.
+- **Prochaine etape concrete** : Gandalf **amende** le re-cadrage avec M1/M2/M3 — la decision (2b)
+  etait « re-affirmer `--latest` », **M3 ouvre « ecrire `legacy` »**, qui n'etait pas sur la table. Il
+  dira aussi **s'il faut une 4e mesure** (une 3e release au banc casserait la correlation semver/date).
 - **Pieges connus** :
-  1. **GitHub ne classe pas les releases par numero.** Le `latest` suit **`make_latest`** (defaut
-     `true`). **CREER une release sur un tag ancien vole le latest.**
-     🛑 **CORRIGE LE 2026-08-30 (L43) — DEUX ERREURS ICI, et ce piege est le plus lu du fichier.**
-     (a) Il disait *« reecrit a chaque creation/mise a jour »* et *« PUBLIER une version ancienne
-     vole le latest »* : au SHA epingle de `tauri-action`, **republier** un tag dont la release
-     EXISTE ne touche PAS au drapeau — `getOrCreateRelease` renvoie la release telle quelle. **Le vol
-     vient de la CREATION** (R-1). L'incident `iakaFrameGUI` etait une creation, pas une mise a jour.
-     (b) Il donnait le job conditionne au plus haut semver comme un **remede** : il n'en est pas un.
-     Le contrefactuel joue par le decideur le 2026-08-30, croise avec le run `33277643229`, **refute
-     huit des neuf regles de repli enumerees** ; **seul le NO-OP survit**, et sous cette regle poser
-     `--latest=false` sur la voleuse **ne rend pas** le `latest`. Le job **DETECTE, ROUGIT et DICTE**
-     le rattrapage `gh release edit &lt;plus_haut&gt; --latest` — dont **le fonctionnement n'est
-     toujours pas trace**. **RESIDU** : une regle **non enumeree** reste possible. Detail :
-     `specs/instructions/contrefactuel-ca5-procedure-decideur.md` § 1.
-  2. **Les `.app.tar.gz` ne sont PAS des installeurs macOS** — ce sont des charges d'updater, on ne
-     les double-clique pas. Ce piege a fait compter de faux installeurs **deux fois** dans la journee.
-  3. **Un temoin qui vise un cas deja couvert par ailleurs ne prouve rien.** Verifier qu'il rougit
-     **quand on restaure le defaut**, pas seulement qu'il est vert.
-  4. **Une mutation de gate peut survivre a une interruption d'agent.** Un agent coupe a laisse
-     `npm install -g ./CLI` dans un README. **Muter et revoquer une par une**, en verifiant la
-     revocation immediatement — jamais en fin de campagne.
-  5. **Le quota de l'API GitHub anonyme est de 60/h** et s'epuise vite en recette. Un `SKIP` doit
-     rendre un **code distinct** (ici **3**), jamais 0.
+  1. **`gh release edit --latest` est un drapeau BOOLEEN.** `legacy` — une des trois valeurs
+     documentees — est **inatteignable par le client**. Seule l'API l'ecrit.
+  2. **`false` n'est pas `legacy`.** Le premier ne relache rien, le second rend le drapeau au calcul.
+  3. **Une liste de pointeurs n'est jamais une cloture.** Cinq listes successives ont ete des
+     echantillons — y compris celles du gate, et **celle du gate omettait les cibles de sa propre
+     mutation**.
+  4. **Un registre muet est un defaut.** Le hors-couverture se declare **ligne a ligne, avec motif et
+     empreinte du texte exclu** — sinon exclure ouvre un trou neuf.
+  5. **Le banc `iakasju/latest-contrefactuel`** (prive, conserve) est la piece a conviction :
+     `v0.10.0` plus haut semver et plus **ancien**, `v0.9.0` plus recente sur les deux dates. **Cette
+     topologie adverse est ce qui rend l'elimination possible** — ne pas la casser.
 
 ## Journal (versions & pauses)
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-01 22:20 | manual | v0.39.0 | main | L43 livre au 6e passage : balayage de completude. Trois mesures du banc jouees : --latest agit, false inerte, legacy AGIT. |
 | 2026-08-29 21:34 | manual | v0.39.0 | main | Lot L42 installer depuis rien livre : la vitrine ne promet plus ce qu elle n a pas. NAS injoignable, push GitHub seul. |
 | 2026-08-28 21:57 | pause | v0.39.0 | main | Fin du lot 0 + L1 — auto-update reellement telechargeable |
 | 2026-08-28 21:55 | pause | v0.39.0 | main | Fin du lot 0 (trois canaux synchrones) + L1 (publication des artefacts) — auto-update reellement telechargeable |

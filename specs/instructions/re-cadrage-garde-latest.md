@@ -14,6 +14,20 @@
 > — **quatre points, dont deux changent le périmètre**. Deux faits **externes** ont été vérifiés sur
 > le web ; ils ouvrent une mesure que personne n'avait proposée, et sont en § Faits externes.
 
+> ⚠️ **AMENDÉ le 2026-09-01 par 🔵 Gandalf — le décideur a joué M1, M2 et M3, et M3 renverse une
+> prémisse de ce cadrage.** Les trois mesures d'**AR-2** sont **faites**, sur le banc privé
+> uniquement, et **aucune ligne de code n'a été écrite**. Ce qui tombe : ce cadrage raisonnait sur
+> **`false` comme seul levier de relâchement** du pointeur. C'est faux — **`legacy` en est un, et il
+> AGIT**. Le relevé, ce qu'il prouve, ce qu'il ne prouve pas, la correction que j'apporte à sa
+> lecture et les **deux arbitrages qu'il ouvre** (**AR-7** remède, **AR-8** quatrième mesure) sont en
+> § **Mesures du banc — jouées**. **Rien n'est effacé** : les prévisions du 2026-08-30 restent
+> écrites telles quelles et sont **confrontées** au mesuré. *On date, on n'efface pas.*
+>
+> ⚠️ **Cet amendement ajoute des lignes du motif** au corpus (le tableau des écritures, le relevé
+> M1/M2/M3, AR-7/AR-8). Le fichier était **déjà** en attente de tri (D-3, note d'exécution du
+> 2026-08-31) ; le volume à trier à l'étape **5.5 augmente**, il ne change pas de nature. Le
+> vérificateur continue de **rougir à raison**, et cela **ne se règle jamais par `--ecrire`**.
+
 ---
 
 ## Problème
@@ -146,6 +160,15 @@ pointeur quand on pose `false` sur la release qui le porte. Elle rend seulement 
 « pointeur, pas ordre » beaucoup plus plausible que « règle exotique non énumérée ». **À écrire
 comme candidat, jamais comme conclusion.**
 
+> ✅ **STATUT AU 2026-09-01 — le candidat est CONFIRMÉ, et il fait mieux que ce qui était espéré.**
+> M3b mesure que `legacy` **écrit** : le régime existe, il est atteignable, il **déplace** le
+> pointeur. E-1 avait raison sur l'existence du régime — **et tort par omission sur son effet** : ce
+> cadrage le rangeait parmi les explications possibles du **passé**, jamais parmi les **leviers**
+> disponibles. C'est cette omission qui a rendu (2b) incomplet, et c'est elle que l'amendement
+> répare. ⚠️ **Reste faux de dire « les huit règles éliminées décrivent le régime `legacy` »** :
+> M3b en réfute **trois** (date la plus récente, ordre d'enregistrement, tri lexicographique) **sous
+> `legacy` lui-même**. Le régime existe ; **la famille de règles qu'on lui prêtait, non.**
+
 ### E-2 — `--latest=false` a une famille documentée de non-effets, **et ils portent sur `create`, pas sur `edit`**
 
 Le traqueur de `cli/cli` porte au moins deux rapports de `gh release create --latest=false` sans
@@ -168,6 +191,187 @@ note aussi que le drapeau est sans effet **s'il n'existe aucune release préalab
 
 **Cette mesure coûte deux commandes sur un banc privé.** C'est l'étape 1 de ce lot.
 
+> ✅ **STATUT AU 2026-09-01 — mesure faite, et le raisonnement ci-dessus a tenu.** Le `PATCH` brut est
+> **inerte** comme `gh` (M2) : le NO-OP n'est donc pas dans le transport. Et la disjonction que E-2
+> laissait ouverte — *« il est dans l'API ou la lecture »* — **est tranchée** par recoupement avec
+> M3b, qui rend le **même** chemin efficace avec une **autre valeur** : **c'est la valeur `false`
+> qui est inerte, pas le chemin.** Détail et échappatoire : § Mesures du banc.
+
+---
+
+## Mesures du banc — JOUÉES le 2026-09-01 (M1, M2, M3)
+
+> Jouées **par le décideur** sur `iakasju/latest-contrefactuel`, banc **privé**, conformément à
+> AR-2. Aucun geste sur les produits — vérifié après coup : `IakaCockpit latest = v0.32.2`,
+> `iakaFrameGUI latest = v0.1.8`, trois arbres propres, **3 runs sur le banc, aucun neuf**. Banc
+> **restauré et relu** : `gh release edit v0.10.0 --latest` → `latest = v0.10.0`, 2 releases, aucune
+> draft ni préversion. Relevé transmis par [PORTEFEUILLE][Odin].
+
+### Topologie du banc au moment des mesures
+
+| Tag | `id` | `created_at` | `published_at` |
+|---|---|---|---|
+| `v0.10.0` | `379113276` | `22:01:35Z` | `22:03:11Z` |
+| `v0.9.0` | `379113280` | `22:10:00Z` | `22:03:13Z` |
+
+`v0.10.0` : **plus haut semver**, **plus ancienne sur les deux dates**, **plus petit `id`**.
+`v0.9.0` : **plus récente sur les deux dates**, **plus grand `id`**. Deux remarques qui portent :
+
+- ⚠️ **`created_at` n'est PAS la date de création de la release.** La doc REST le dit :
+  *« The `created_at` attribute is the date of the commit used for the release, and not the date when
+  the release was drafted or published. »* C'est une **date de commit**. Le relevé dit *« plus
+  récente sur les deux dates »* — et **c'est exactement ce qui sauve sa conclusion** : quel que soit
+  le champ que la règle regarde, `v0.9.0` était devant. Sans cette double lecture, l'ambiguïté du
+  champ suffirait à ruiner l'inférence.
+- **Anomalie à relire, pas à croire** : `v0.9.0` porte un `created_at` (22:10:00) **postérieur** à son
+  `published_at` (22:03:13). C'est possible (tag reciblé après publication) et sans conséquence ici,
+  mais c'est un rappel que ces valeurs se **re-mesurent** à l'étape 1.1, jamais ne se recopient.
+
+### Ce que chaque écriture a rendu
+
+| # | Écriture | Lecture après | Verdict |
+|---|---|---|---|
+| **M1** | `gh release edit v0.9.0 --latest` | `latest = v0.9.0` | ✅ **l'écriture `true` AGIT** |
+| **M2** | `gh api -X PATCH …/releases/379113280 -f make_latest=false` | `latest = v0.9.0`, **inchangé** | ⚪ requête **acceptée** (objet complet rendu), **effet nul** |
+| **M3a** | `gh release edit … --latest=legacy` | — | ⛔ **refus du client** : `invalid argument "legacy" for "--latest" flag: strconv.ParseBool` |
+| **M3b** | `gh api -X PATCH …/releases/379113280 -f make_latest=legacy` | `latest` **passe de `v0.9.0` à `v0.10.0`** | ✅ **`legacy` AGIT** |
+
+**Le tableau des écritures, complet et daté** — *à recopier tel quel dans les cartouches (CA-22)* :
+
+| Écriture | Effet | Mesuré par |
+|---|---|---|
+| `--latest` (`true`) via `gh release edit` | **agit** | M1, 2026-09-01 |
+| `--latest=false` via `gh release edit` | **inerte** | mesure du 2026-08-29 (L43) |
+| `make_latest=false` via `PATCH` brut | **inerte** | M2, 2026-09-01 |
+| `make_latest=legacy` via `PATCH` brut | **AGIT** | M3b, 2026-09-01 |
+| `--latest=legacy` via `gh release edit` | **inatteignable** — drapeau **booléen** | M3a, 2026-09-01 |
+
+⚠️ **M3a mérite sa ligne, et pas en note de bas de page** : `gh release edit --latest` est un
+**drapeau booléen**. Le régime `legacy` est **hors d'atteinte du client**. Quiconque lira « il existe
+trois valeurs » et essaiera de les poser par `gh` se heurtera au même mur. **C'est un fait à écrire,
+pas à contourner en silence** — l'étape 1.4 l'exigeait, le décideur l'a fait.
+
+### Ce que j'ajoute au relevé — l'inférence qu'il n'a pas tirée, et qui referme le résidu (2)
+
+Le relevé conclut de M2 : *« Le NO-OP n'est PAS dans `gh` : il siège dans l'API ou dans la
+lecture. »* **C'est exact au vu de M2 seule.** Mais M2 et M3b portent sur la **MÊME release**
+(`id 379113280`), le **MÊME endpoint**, le **MÊME champ** — **deux valeurs seulement les séparent**.
+Or M3b **a bougé le pointeur**. Donc, par ce chemin exact : le transport achemine, l'endpoint
+applique, et **la lecture reflète fidèlement** ce que l'écriture installe.
+
+> **Le NO-OP n'est donc ni dans le client, ni dans le transport, ni dans la lecture : il est dans la
+> sémantique de la VALEUR `false` côté API.** `true` promeut · `legacy` recalcule · `false` **ne
+> demande rien**, et rien n'advient. **Le résidu (2) est refermé.**
+
+⚠️ **Une échappatoire subsiste, et je la nomme plutôt que de la taire** : si `false` installait un
+état « pas latest » dont la lecture retomberait sur un **calcul de repli**, et si ce calcul
+**différait** de celui qu'installe `legacy`, l'observation tiendrait aussi. Aucune mesure ne soutient
+cette distinction ; **aucune ne la réfute non plus**. Elle s'écrit, elle ne se joue pas.
+
+### Ce que M3 prouve sur la règle de repli — et ce qu'elle ne prouve pas
+
+**Prouvé.** `legacy` a posé le `latest` sur **`v0.10.0`** : plus haut semver, **plus ancienne sur les
+deux dates**, plus petit `id`. Trois règles tombent d'un coup :
+
+- ❌ **« la plus récente gagne »** — sur `created_at` **et** sur `published_at`. `v0.9.0` l'était sur
+  les deux ; elle a perdu.
+- ❌ **« la dernière enregistrée gagne »** — `v0.9.0` avait le **plus grand `id`**.
+- ❌ **« tri lexicographique du tag »** — en lexicographique `v0.9.0` **>** `v0.10.0` (`9` > `1`) ;
+  c'est `v0.10.0` qui a gagné. **La comparaison est bien sémantique, pas textuelle.** *(Le couple
+  `v0.9.0`/`v0.10.0` est précisément celui qui sépare les deux : c'est un acquis **gratuit** de la
+  mesure, que personne n'avait demandé.)*
+
+**⚠️ NON prouvé — et c'est ici que je corrige le relevé.** Il demande d'écrire *« elle n'est pas
+dirigée par la date »*. **C'est un cran trop fort**, pour une raison qui n'est pas théorique : **les
+deux releases du banc sont du MÊME JOUR** — 8 min d'écart sur `created_at`, **2 secondes** sur
+`published_at`. Or la doc dit *« based on the release creation **date** and higher semantic
+version »* : **une date, pas un instant**. Si la règle compare **au grain du jour**, les deux sont
+**à égalité** et **le semver tranche** — cette hypothèse produit **exactement** l'observation.
+
+> La mesure sépare **« le semver domine »** de **« la date la plus récente domine, à la seconde »**.
+> Elle **ne sépare pas** « le semver domine » de **« la date au grain du jour domine, le semver
+> départage »**.
+
+C'est le successeur direct de la réserve n°1 du relevé, et c'est **plus précis** qu'elle : le trou
+n'est pas *« on n'a que deux releases »*, c'est **« les deux releases sont du même jour »**. Et cette
+formulation-là **dit comment le fermer** — voir **M4**.
+
+**Également non mesuré**, à ne pas combler par hypothèse :
+
+- **`legacy` est-il un ÉTAT ou un coup unique ?** On a mesuré que le pointeur **bouge**. On n'a pas
+  mesuré si la release reste ensuite « en calcul » — donc si une release créée plus tard rebasculerait
+  le pointeur d'elle-même — ou si le calcul a été fait une fois puis figé. Le relevé écrit *« il rend
+  le drapeau au calcul automatique »* : **lecture plausible, pas fait mesuré.** Cette distinction
+  devient **décisive** si AR-7 est tranché sur `legacy`.
+- **Le comportement de `legacy` à la CRÉATION**, par `tauri-action` ou par tout autre acteur.
+- **La stabilité par version de l'API.**
+
+### Un fait externe de plus, vérifié le 2026-09-01 — et il est gênant pour la doc
+
+`GET /repos/{o}/{r}/releases/latest` est décrit par `docs.github.com` comme rendant *« the most recent
+non-prerelease, non-draft release, sorted by the `created_at` attribute »*. **Cette phrase est
+réfutée deux fois par le banc** :
+
+1. **Avant M1**, le `latest` était `v0.10.0` — le `created_at` le **plus ancien** des deux.
+2. **Après M3b**, le `latest` est **revenu** sur ce même `created_at` le plus ancien.
+
+**La documentation de l'endpoint décrit une règle que l'endpoint ne suit pas** — c'est,
+littéralement, la classe de défaut que ce lot re-cadre. C'est aussi **l'explication rétrospective du
+chantier entier** : les neuf règles de repli énumérées par L43 poursuivaient une règle que **la doc
+elle-même énonce à tort**. À consigner (CA-24), avec sa morale : *une doc ne se réfute pas en la
+relisant, elle se réfute en mesurant.*
+
+*Source : [REST API endpoints for releases — docs.github.com](https://docs.github.com/en/rest/releases/releases).*
+
+### Le résidu, réécrit — daté 2026-09-01
+
+**Résidu (1) — la règle de repli.** Rédaction du 2026-08-30, **conservée pour mémoire** : *« une
+règle non énumérée reste possible ; l'énumération est une liste, jamais une preuve
+d'exhaustivité »*. **Rédaction du 2026-09-01** :
+
+> **La règle de repli EXISTE. Elle vit sous `make_latest=legacy`, elle n'est atteignable que par
+> `PATCH`, et elle n'est PAS dirigée par la date la plus récente** — ni sur `created_at`, ni sur
+> `published_at`, ni sur l'ordre d'enregistrement : le plus haut semver l'a emporté sur les trois.
+> **La formule reste inconnue** : les deux releases mesurées étant **du même jour**, une règle au
+> grain du jour avec départage au semver produirait la même observation.
+
+**Résidu (2) — où siège le NO-OP.** **REFERMÉ** : dans la **sémantique de la valeur `false`** côté
+API. Établi par M2 et M3b sur la **même** release, le **même** endpoint, le **même** champ. Une
+échappatoire nommée subsiste (§ ci-dessus) ; elle n'est soutenue par aucune mesure.
+
+**Ouvert et ne l'était pas** : `legacy` est-il persistant ? que fait-il à la création ? → **AR-8**.
+
+### M4 — la mesure qui reste possible, et ce qu'elle vaut
+
+Ce que le banc ne peut pas dire aujourd'hui tient en une phrase : **la date compte-t-elle au grain du
+jour ?** Une seule release de plus le dit — pourvu qu'elle soit **d'un autre jour**. *(Les deux
+releases du banc datent du 2026-08-31 ; nous sommes le 2026-09-01 : la fenêtre est ouverte
+gratuitement.)*
+
+- **Geste** : sur le banc, créer un commit **daté d'aujourd'hui**, le taguer **`v0.8.0`** — le semver
+  **le plus BAS des trois** — et en faire une release **non-draft, non-préversion**. Puis, sur la
+  release qui **porte alors** le pointeur, `gh api -X PATCH …/releases/<id> -f make_latest=legacy`,
+  puis **lire**.
+- **Attendu si le semver domine** : `latest = v0.10.0`.
+- **Attendu si la date au grain du jour domine** : `latest = v0.8.0` — seule du jour le plus récent,
+  **malgré le semver le plus bas**.
+- **Ce que ça prouve** : que la date **a** ou **n'a pas** de poids au-dessus du semver **quand les
+  jours diffèrent**. C'est **la** question que M1-M3 laissent ouverte, et **la seule** qu'une
+  troisième release tranche.
+- **Ce que ça NE prouve PAS** : la formule. Ni fenêtre de récence (« les N derniers jours »), ni
+  pondération, ni traitement des préversions et brouillons, ni **persistance** de `legacy`, ni son
+  comportement **à la création**, ni la stabilité par version d'API. **Une mesure de plus rétrécit le
+  résidu d'un cran ; elle ne le clôt pas.**
+- **Restauration** : `gh release edit v0.10.0 --latest`, suppression de la release **et** du tag
+  `v0.8.0`, puis relecture contre l'état de 1.1. **C'est le geste déjà joué et vérifié** — le
+  contrôle et la restauration restent confondus.
+- **Coût** : ~5 min du décideur, banc privé, aucun produit touché, aucun run de CI.
+- ⚠️ **M4 ne débloque RIEN sous (2b-i)** : si AR-7 est tranché sur (a), la formule de `legacy`
+  n'entre dans **aucune ligne de code** — elle n'entre que dans **une phrase de cartouche**, et cette
+  phrase s'écrit très bien à la précision que M1-M3 autorisent. **M4 est de la connaissance, pas un
+  déblocage.** Sous **(2b-ii) elle devient un prérequis** : on ne délègue pas la réparation à une
+  formule qu'on n'a pas caractérisée.
+
 ---
 
 ## Décision retenue — recommandation, non arbitrage
@@ -176,6 +380,10 @@ note aussi que le drapeau est sans effet **s'il n'existe aucune release préalab
 autorise.** Trois volets, dans cet ordre, le second conditionné au premier.
 
 ### (1) La mesure du banc — trois écritures, zéro produit, ~15 min du décideur
+
+> ✅ **JOUÉE le 2026-09-01. Le relevé et les verdicts sont en § Mesures du banc.** Ce qui suit est la
+> **prévision du 2026-08-30**, conservée pour être confrontée : la colonne « Ce qu'elle tranche » a
+> tenu pour M1 et M2 ; **elle était fausse pour M3**, qui n'anticipait pas que `legacy` **écrive**.
 
 Le banc `iakasju/latest-contrefactuel` est **privé, conservé, et fabriqué pour ça** (AR-4 de L43).
 Son état est connu à six valeurs près : `latest = v0.10.0` (`id 379113276`, plus haut semver) et
@@ -187,6 +395,12 @@ suivie d'une lecture :
 | **M1** | `gh release edit v0.9.0 --latest` | **l'écriture `true` a-t-elle un effet ?** | le rattrapage imprimé par le job **fonctionne** — et l'asymétrie `true` ≠ `false` est établie | **le rattrapage que le job dicte est un mensonge** — défaut majeur, remède à re-cadrer |
 | **M2** | `gh api -X PATCH repos/iakasju/latest-contrefactuel/releases/379113276 -f make_latest=false` | **où siège le NO-OP** (E-2) | le NO-OP est **dans `gh`**, pas dans l'API — résidu (2) refermé | le NO-OP est dans l'API ou la lecture — résidu (2) réduit d'un cran |
 | **M3** | `gh release edit v0.9.0 --latest=legacy` puis lecture | **le régime `legacy` de E-1** | les règles date/semver **existent**, sous un drapeau qu'on n'emploie pas — résidu (1) nommé | `legacy` non plus ne bouge rien : à consigner tel quel |
+
+> ⚠️ **Un détail qui a servi** : la ligne M2 ci-dessus cite `…/releases/379113276`. L'étape **1.3**
+> corrigeait déjà ce tableau — *« id de la **porteuse** »* — et la mesure a bien été jouée sur
+> **`379113280`**, la release qui portait le pointeur après M1. **C'est cette correction qui rend
+> l'inférence du § Mesures possible** : M2 et M3b ont visé la **même** release. Sur `…276`, le
+> recoupement n'aurait rien donné.
 
 **M1 est la mesure qui décide du lot.** Elle est aussi celle qui **restaure le banc** : `M1` pose le
 `latest` sur `v0.9.0`, et la commande de restauration est exactement le geste qu'on veut prouver —
@@ -228,6 +442,34 @@ Trois précisions, parce que c'est là qu'on peut se mentir :
 > s'accordent » ne dit plus rien quand il n'y en a qu'une. Ce qui reste est plus maigre et doit être
 > écrit comme tel : **(2b) est la seule chose qu'il reste à essayer, et M1 est ce qui dira si elle
 > vaut quelque chose.**
+
+#### (2a) et (2b) — AMENDÉS le 2026-09-01
+
+**(2a) reste INCONDITIONNEL, et rien ne l'a touché.** R-2 est un **défaut de code** — un référent
+dérivé de `repos/$DEPOT/tags` là où `GET /releases/latest` ne peut rendre qu'un tag **porteur d'une
+release**. Il ne dépend d'**aucune** hypothèse sur la sémantique du pointeur : ni M1, ni M2, ni M3
+ne le confirment ni ne l'infirment, parce qu'il n'est pas de cet ordre. **Le faux rouge sur build
+rouge et la dictée sur une release inexistante subsistent intacts.** *(Il gagne même en poids : M1
+prouve que le geste dicté **fonctionne** — donc la seule raison pour laquelle il échouerait
+désormais est **la mauvaise cible** que R-2 lui donne. Le défaut passe de « geste peut-être vain »
+à « geste efficace, adressé à une release qui n'existe pas ».)*
+
+**(2b) : la condition est LEVÉE, et une seconde option apparaît.** M1 est verte — l'écriture `true`
+agit. Mieux : elle a posé le pointeur sur **`v0.9.0`, le plus BAS semver**, ce qui établit que **le
+pointeur explicite prime sur tout calcul**. Conséquences : le risque **R1 est éteint**, et la seconde
+branche de **CA-8** est **morte** — conservée datée, pas effacée.
+
+Mais M3 met sur la table un remède que ce cadrage ne connaissait pas :
+
+| | Geste du job dans la branche du vol | Intention |
+|---|---|---|
+| **(2b-i)** *(cadré le 2026-08-30)* | `gh release edit "$PLUS_HAUT" --latest` | **imposer** la réponse que le job a déjà calculée |
+| **(2b-ii)** *(ouvert par M3)* | `gh api -X PATCH repos/$DEPOT/releases/<id> -f make_latest=legacy` | **rendre** le pointeur au calcul de GitHub |
+
+⚠️ **Ce ne sont pas deux variantes d'un même geste : ce sont deux intentions opposées.** (2b-i)
+affirme ; (2b-ii) **renonce** à ce que le job a calculé et délègue à une formule inconnue.
+**Recommandation : (2b-i)** — quatre motifs, en **AR-7**. `legacy` gagne sa place **dans les
+cartouches**, pas dans le programme.
 
 ### (3) La garde du bloc `latest:` — inscrire l'**empreinte**, pas le fichier
 
@@ -300,11 +542,15 @@ pas oubliés.
 **Inclus**
 
 1. Les **trois mesures du banc** (M1, M2, M3) et leur consignation, y compris si elles réfutent la
-   recommandation.
+   recommandation. — ✅ **mesures jouées le 2026-09-01** ; **la consignation reste due** (CA-4,
+   CA-22, CA-23, CA-24). **Elles ont réfuté une prémisse, et c'est écrit.**
 2. **(2a)** correction du référent `PLUS_HAUT` dans les **deux** `release.yml`, et dans la copie du
-   banc.
+   banc. — **inconditionnel, inchangé.**
 3. **(2b)** ré-affirmation inconditionnelle `--latest` sur `PLUS_HAUT`, **si et seulement si M1
-   l'autorise**.
+   l'autorise**. — ✅ **M1 l'autorise (2026-09-01)** ; **la FORME du remède est rouverte par
+   AR-7** : (2b-i) `--latest` *(recommandé)* ou (2b-ii) `make_latest=legacy`.
+3bis. **M4** — quatrième mesure sur le banc, **hors périmètre par défaut** ; **entre au périmètre en
+   prérequis** si AR-7 est tranché sur (2b-ii). Voir **AR-8**.
 4. **(3)** `fixtures/bloc-latest.sha256` + garde locale dans le gate des **deux** dépôts +
    inscription au registre de convergence (plancher 17 → 18) + les deux faces rejouées des deux
    côtés.
@@ -343,7 +589,11 @@ pas oubliés.
 
 ## Étapes d'implémentation
 
-### 1. Les mesures du banc — l'agent prépare, 👤 le décideur exécute
+### 1. Les mesures du banc — l'agent prépare, 👤 le décideur exécute — ✅ **FAITE le 2026-09-01**
+
+> **1.1 à 1.5 sont jouées et le banc est restauré et relu.** Le texte des sous-étapes est conservé
+> tel quel (il documente le geste, et **M4 le rejoue à l'identique** si AR-8 l'ouvre). **1.6 reste
+> due** en tant que consignation, et **1.7 s'y ajoute.**
 
 1.1 **Figer l'état d'entrée** (lecture, agent) : `gh api repos/iakasju/latest-contrefactuel/releases
 --jq '[.[]|{tag:.tag_name,id:.id,created:.created_at,published:.published_at}]'` et
@@ -363,7 +613,25 @@ valeur, la passer par `gh api -X PATCH … -f make_latest=legacy` et **le dire**
 finale doit rendre l'état de 1.1.
 
 1.6 **Consigner les trois mesures avec leurs lectures avant/après**, et **réécrire le résidu** en
-conséquence — points (1) et (2) — ou **écrire qu'il est inchangé, avec le motif**.
+conséquence — points (1) et (2) — ou **écrire qu'il est inchangé, avec le motif**. — **Fait dans
+cette instruction (§ Mesures du banc). Reste à propager** aux quatre cartouches et aux trois
+`CLAUDE.md` : c'est CA-4, traité à l'étape 6.
+
+1.7 **(neuf, 2026-09-01)** Porter dans les cartouches **le tableau des cinq écritures** — y compris
+la ligne **`--latest=legacy` inatteignable par `gh`** (M3a) — et la **réfutation mesurée** de la
+phrase de la doc GitHub sur `GET /releases/latest`. CA-22 et CA-24.
+
+### 1bis. M4 — 👤 décideur, **seulement si AR-8 l'ouvre**
+
+> ⚠️ **Ne pas jouer M4 par défaut.** Sous **AR-7 = (2b-i)**, elle ne débloque rien : elle enrichit le
+> résidu, elle ne conditionne aucune ligne de code. Sous **AR-7 = (2b-ii)**, elle est un
+> **prérequis**. Protocole complet, attendus et bornes : § **M4** ci-dessus.
+
+1bis.1 Re-figer l'état d'entrée (comme 1.1). 1bis.2 👤 Créer commit du jour + tag `v0.8.0` + release
+non-draft non-préversion. 1bis.3 👤 `PATCH … -f make_latest=legacy` sur la **porteuse du moment**,
+puis lire. 1bis.4 👤 Restaurer : `gh release edit v0.10.0 --latest`, supprimer release **et** tag
+`v0.8.0`, **relire contre 1bis.1**. 1bis.5 Consigner, **et réécrire le résidu (1) une seconde fois**,
+daté — ou écrire qu'il est inchangé, avec le motif.
 
 ### 2. Le référent (2a) — agent, hors ligne pour l'écriture, banc pour la preuve
 
@@ -384,7 +652,14 @@ deux logs cités.
 
 2.4 Nettoyer le tag de banc.
 
-### 3. La ré-affirmation (2b) — **seulement si M1 est verte**
+### 3. La ré-affirmation (2b) — ✅ **M1 est verte (2026-09-01) : l'étape est DUE**, sous réserve d'AR-7
+
+> **La condition est levée.** Reste à trancher **la forme** (AR-7). 3.1 écrit ci-dessous est la forme
+> **(2b-i)**, celle que je recommande. Si AR-7 est tranché sur **(2b-ii)**, 3.1 change de contenu
+> **et** de coût : il faudrait résoudre `tag → id` de release avant de pouvoir `PATCH` — le job ne
+> manipule que des **tags** — donc un appel de plus et un mode d'échec de plus, dans un job qui
+> tourne `if: always()`. **L'exécution ne choisit pas : elle s'arrête et remonte** si AR-7 n'est pas
+> tranché.
 
 3.1 Remplacer la branche `--latest=false` par `gh release edit "$PLUS_HAUT" --latest`, dans les
 deux dépôts au même commit logique. **Ne pas toucher la ligne `VERIFICATION`.**
@@ -395,7 +670,9 @@ même run**. Log cité.
 
 3.3 **Si M1 est rouge** : ne rien changer au programme, écrire dans les quatre cartouches que le
 rattrapage dicté **est mesuré sans effet**, et **nommer un successeur** — le job dicterait alors un
-geste inutile, ce qui est un défaut de plein droit.
+geste inutile, ce qui est un défaut de plein droit. — ⚪ **BRANCHE MORTE au 2026-09-01 : M1 est
+verte.** Conservée datée : elle documente ce que le lot aurait dû devenir, et **la mesure qui l'a
+écartée**. *On date, on n'efface pas.*
 
 ### 4. La garde du bloc (3) — agent, hors ligne
 
@@ -431,6 +708,9 @@ exclusion.
 dépôts) et une condition de levée.
 
 5.5 **Trier à la main les lignes du motif de cette instruction** et l'inscrire au registre.
+⚠️ **Volume revu à la hausse le 2026-09-01** : l'amendement ajoute des lignes du motif (le tableau
+des cinq écritures, le relevé M1/M2/M3, AR-7, AR-8, le résidu réécrit). **Même nature, plus de
+lignes.** D-3 rougit toujours à raison ; **cela ne se règle pas par `--ecrire`.**
 
 ### 6. Consignation — agent
 
@@ -475,10 +755,20 @@ job fait **après** ce lot. Dater, ne pas effacer.
 
 ## Risques
 
-- **R1 — M1 réfute (2b).** L'écriture `true` est elle aussi inerte. *Détection* : étape 1.2.
-  *Conséquence* : (2b) tombe, le lot gagne un volet **non estimé** (que dicter, si le geste dicté ne
-  marche pas ?). **C'est le risque principal**, et il est détecté au premier geste du lot — avant
-  toute écriture de code. *Mitigation* : l'ordre des étapes est fait pour ça.
+- ✅ **R1 — ÉTEINT le 2026-09-01.** ~~**M1 réfute (2b).** L'écriture `true` est elle aussi inerte.~~
+  *Rédaction d'origine conservée : « Détection : étape 1.2. Conséquence : (2b) tombe, le lot gagne un
+  volet non estimé (que dicter, si le geste dicté ne marche pas ?). C'est le risque principal, et il
+  est détecté au premier geste du lot — avant toute écriture de code. Mitigation : l'ordre des étapes
+  est fait pour ça. »* **La mitigation a fonctionné exactement comme écrite** : le risque a été
+  éprouvé au premier geste, avant toute ligne de code. Il ne s'est pas réalisé.
+- ⚠️ **R8 — NEUF : (2b-ii) fait écrire au job une désignation qu'il n'a pas calculée.** Si AR-7 est
+  tranché sur `legacy`, le job **abandonne** sa propre réponse à une formule **non caractérisée** (§
+  Mesures, « non prouvé »). *Conséquences* : (i) `VERIFICATION` peut rougir **après** l'écriture du
+  job — la garde se contredirait elle-même ; (ii) le job doit résoudre `tag → id`, alors qu'il ne
+  manipule que des tags, dans un chemin qui tourne `if: always()` **y compris quand la release
+  n'existe pas** ; (iii) si `legacy` installe un **état**, le pointeur reste « en calcul », donc
+  **re-volable**. *Détection* : impossible sans M4 **et** sans une mesure de persistance. *Mitigation
+  unique* : **ne pas poser (2b-ii)** — c'est le fond de la recommandation AR-7.
 - **R2 — (2a) casse le chemin nominal.** Une dérivation sur `/releases` peut rendre vide sur un
   dépôt sans release, là où `/tags` rendait quelque chose. *Mitigation* : traiter le cas vide
   explicitement (aucune release ⇒ rien à désigner ⇒ **sortir en succès en le disant**, jamais en
@@ -511,18 +801,32 @@ job fait **après** ce lot. Dater, ne pas effacer.
 
 ### Les mesures du banc
 
-- [ ] **CA-1** — **M1 est mesurée.** Trois valeurs citées : lecture avant, commande, lecture après.
-      *Vérif* : `gh release edit v0.9.0 --latest --repo iakasju/latest-contrefactuel` puis
-      `gh api repos/iakasju/latest-contrefactuel/releases/latest --jq .tag_name`. **Le verdict est
-      écrit dans les deux sens** : « l'écriture `true` a un effet » ou « elle n'en a pas ».
-- [ ] **CA-2** — **M2 est mesurée**, et le rapport **nomme où siège le NO-OP** parmi : transport
-      `gh` · écriture API · lecture. *Vérif* : `gh api -X PATCH repos/…/releases/<id> -f
-      make_latest=false` + lecture, `<id>` relu en 1.1 et cité.
-- [ ] **CA-3** — **M3 est mesurée, ou déclarée non mesurée avec son motif.** Si `legacy` est
-      accepté, le rapport dit si les règles date/semver s'appliquent alors — c'est le candidat E-1.
+> ⚠️ **CA-1, CA-2 et CA-3 sont cochés sur des mesures du DÉCIDEUR, et il faut le dire.** La
+> discipline de ce chantier veut qu'*« une valeur reprise d'un rapport n'est pas une mesure »*. Ici
+> l'agent **ne peut pas re-mesurer** : ce sont des **actes de release**, qui lui sont refusés. Le
+> statut exact de ces trois cases est donc : **mesuré par le décideur le 2026-09-01, valeurs citées,
+> non re-mesurable par l'agent**. Le gate les vérifie **en relisant les sorties du décideur**, pas en
+> les rejouant. *L'écrire est le seul moyen de ne pas transformer une contrainte en approximation.*
+
+- [x] **CA-1** — **M1 est mesurée.** ✅ **2026-09-01** : avant `latest = v0.10.0` · commande
+      `gh release edit v0.9.0 --latest` · après `latest = v0.9.0`. **Verdict écrit :
+      l'écriture `true` A un effet** — et elle prime sur le semver, puisqu'elle a posé le pointeur
+      sur le plus **bas**.
+- [x] **CA-2** — **M2 est mesurée**, et le NO-OP **est nommé**. ✅ **2026-09-01** :
+      `gh api -X PATCH …/releases/379113280 -f make_latest=false` → accepté, `latest = v0.9.0`
+      **inchangé**. **Le NO-OP siège dans la sémantique de la valeur `false` côté API** — établi par
+      recoupement avec M3b sur la **même** release, le **même** endpoint, le **même** champ (donc ni
+      transport, ni client, ni lecture). L'échappatoire nommée est écrite au § Mesures.
+- [x] **CA-3** — **M3 est mesurée.** ✅ **2026-09-01**, en **deux** temps : `gh` **refuse** la valeur
+      (drapeau booléen, `strconv.ParseBool`) ; le `PATCH` **l'accepte et le pointeur bouge** de
+      `v0.9.0` à `v0.10.0`. **Les règles date/semver existent bien, sous `legacy` — et la date la
+      plus récente n'y gagne pas.** ⚠️ **La formule n'est pas établie** : les deux releases étant du
+      même jour, une règle au grain du jour départagée par le semver donnerait la même sortie.
 - [ ] **CA-4** — Le **résidu** (1) et (2) est **réécrit et daté** en fonction de CA-1/2/3, dans les
       trois `CLAUDE.md` **et** dans les quatre cartouches — ou **déclaré inchangé avec motif**.
-      *Vérif* : `git diff` des sept emplacements.
+      *Vérif* : `git diff` des sept emplacements. **Reste DÛ** : la réécriture existe dans cette
+      instruction, **elle n'est pas propagée**. Le texte de référence à propager est le § « Le
+      résidu, réécrit — daté 2026-09-01 », **mot pour mot, réserve du grain du jour incluse**.
 
 ### Le référent — le chiffre décrit ce qu'il prétend décrire
 
@@ -544,6 +848,13 @@ job fait **après** ce lot. Dater, ne pas effacer.
       **écrivent** que le rattrapage dicté est mesuré sans effet, avec un successeur nommé.
       *Vérif* : `git diff` du bloc + lecture des cartouches. **Les deux issues sont des PASS ; poser
       (2b) sans CA-1 est un FAIL.**
+      → ⚠️ **AMENDÉ 2026-09-01 : CA-1 est VERTE, la seconde branche est morte** (conservée datée).
+      **Et le critère se dédouble sur AR-7** : si AR-7 = **(2b-i)**, le critère est celui écrit
+      ci-dessus, inchangé. Si AR-7 = **(2b-ii)**, la branche émet un `PATCH … make_latest=legacy`,
+      **et le critère exige alors en plus** : (α) la résolution `tag → id` **explicite et testée**,
+      (β) une preuve de bout en bout que `VERIFICATION` **reste verte après** l'écriture — ce qui
+      n'est **pas** garanti par construction, à la différence de (2b-i). **Poser (2b-ii) sans (α) et
+      (β) est un FAIL.**
 - [ ] **CA-9** — **La ligne `VERIFICATION` est inchangée à l'octet**, dans les deux dépôts.
       *Vérif* : `git diff` restreint à ce bloc → vide. *Une garde qui écrit puis se déclare
       satisfaite sans relire ne mesure plus rien.*
@@ -597,6 +908,25 @@ job fait **après** ce lot. Dater, ne pas effacer.
       chiffre** : Cockpit `npm run test` puis `bash scripts/quality.sh` ; GUI `npm run lint:all`,
       `npm run test:all`, `npm run test:rust`. **Une formule d'ensemble vaut FAIL.**
 
+### Consignation des mesures — **neufs, 2026-09-01**
+
+- [ ] **CA-22** — **Le tableau des cinq écritures** (`true` via `gh` : agit · `false` via `gh` :
+      inerte · `false` via `PATCH` : inerte · `legacy` via `PATCH` : **agit** · `legacy` via `gh` :
+      **inatteignable**, drapeau booléen) figure dans les **quatre** cartouches **et** les **trois**
+      `CLAUDE.md`, avec la date de chaque mesure et l'`id` de release du banc. *Vérif* : les sept
+      emplacements en `chemin:ligne`. **Omettre la ligne « inatteignable » vaut FAIL** : c'est le
+      piège que le prochain lecteur rencontrera en premier.
+- [ ] **CA-23** — Le résidu consigné dit **exactement** ce que la mesure autorise :
+      *« la règle de repli existe, elle vit sous `legacy`, elle n'est pas dirigée par la date la plus
+      récente, **et sa formule reste inconnue — les deux releases mesurées étant du même jour** »*.
+      ⚠️ **Écrire « elle n'est pas dirigée par la date » SANS la réserve du grain du jour vaut
+      FAIL** — c'est un « OK sans chiffre » déguisé en conclusion.
+- [ ] **CA-24** — La phrase de la doc GitHub sur `GET /releases/latest` (*« sorted by the `created_at`
+      attribute »*) est consignée comme **réfutée par mesure**, avec **les deux** observations qui la
+      réfutent (le `latest` avant M1, et après M3b, tous deux sur le `created_at` le plus **ancien**),
+      et avec la note que **`created_at` est une date de commit**. *Vérif* : cartouche cité en
+      `chemin:ligne`.
+
 ---
 
 ## Arbitrages — TRANCHES par le decideur le 2026-08-31
@@ -620,6 +950,15 @@ job fait **après** ce lot. Dater, ne pas effacer.
 > `--ecrire`.
 >
 > Relaye par [PORTEFEUILLE][Odin].
+>
+> ✅ **AR-2 est CONSOMMÉ le 2026-09-01** : les trois écritures sont jouées, le banc est restauré et
+> relu, **aucune ligne de code n'a été écrite entre-temps** — la voie prudente a été tenue à la
+> lettre. Et elle a payé : **la mesure a renversé une prémisse avant qu'un seul octet de code ne soit
+> posé dessus.** ⚠️ **Mais elle n'a pas renversé celle qu'on attendait.** L'avertissement ci-dessus
+> guettait M1 (*« personne n'a vérifié que `--latest` tout court fasse quelque chose »*) : **M1 est
+> verte**. C'est **M3** qui a renversé, sur un point que ce cadrage ne surveillait pas — `false`
+> n'était pas le seul levier de relâchement. **La leçon est à écrire telle quelle : la mesure qui
+> sert n'est pas toujours celle qu'on redoutait.**
 
 
 > Recommandation donnée, **décision non prise**. Si l'exécution rencontre un cas qu'aucun arbitrage
@@ -634,12 +973,33 @@ job fait **après** ce lot. Dater, ne pas effacer.
 | **AR-5** | **Les extensions non balayées.** | (a) ajouter `.json` au balayage · (b) **D-8** — tenir les clés de prose du registre + **déclarer** `.toml/.html/.txt` avec la mesure · (c) successeur | **(b)**, **et c'est la mesure qui tranche** : `.json` ne ramène **qu'un fichier** sur les trois dépôts — le registre lui-même — pour **372 lignes** qui sont, par construction, des **extraits** de lignes déjà inscrites ailleurs. (a) importerait 372 déclarations pour fermer un trou qui en vaut sept. (b) ferme la phrase fausse **et** tout futur mensonge de l'en-tête, pour un ensemble **clos**. |
 | **AR-6** | **Les deux phrases d'ancrage fausses : ici ou successeur ?** | (a) **ici** · (b) successeur | **(a)**. Elles sont **la classe même** de ce lot — une chose qui ne dit pas ce qu'elle fait —, elles vivent **dans l'instrument**, et l'une d'elles est **dans le fichier que ce lot réécrit de toute façon**. Coût : deux corrections de prose. Les différer serait re-cadrer l'honnêteté d'un job en laissant l'instrument mentir sur lui-même. |
 
+> **Effet des mesures sur les six arbitrages tranchés — 2026-09-01.** **AR-3, AR-4, AR-5, AR-6 sont
+> intacts** : rien de ce qui a été mesuré ne les touche. **AR-2 est consommé** (ci-dessus). **AR-1
+> se résout** : sa branche (c) était *« (2a) + (2b) **conditionnée à M1** »*, **la condition est
+> satisfaite** — donc (2a) **et** (2b) sont dus, et sa réserve *« (b) suffit si M1 est rouge »*
+> devient **sans objet**. ⚠️ **Mais AR-1 ne dit rien de la FORME de (2b)** : il opposait « le
+> corriger » à « ne pas le corriger », pas `--latest` à `legacy`. **C'est le vide qu'AR-7 comble**, et
+> c'est pourquoi il est **neuf** et non une relecture d'AR-1.
+
+### Arbitrages OUVERTS par les mesures — 2026-09-01 — recommandation donnée, **décision NON prise**
+
+> Les six arbitrages du 2026-08-31 **tiennent**. Les deux suivants sont **neufs** : ils n'existaient
+> pas quand le décideur a tranché, parce que **la mesure les a créés**. L'exécution **ne les tranche
+> pas** : elle s'arrête et remonte.
+
+| # | Question | Options | Recommandation |
+|---|---|---|---|
+| **AR-7** | **Quel remède, dans la branche du vol ?** | (a) **(2b-i)** ré-affirmer `--latest` sur `PLUS_HAUT` · (b) **(2b-ii)** écrire `make_latest=legacy` par `PATCH` · (c) les deux | **(a)**, et fermement. Quatre motifs, du plus fort au plus faible. **1. (2b-ii) ne peut pas satisfaire l'invariant du job.** `VERIFICATION` compare `latest` à `PLUS_HAUT` : `--latest` les rend égaux **par construction**, `legacy` seulement **par coïncidence** — et **précisément pas dans le cas que le job traite**, puisque après un build rouge le plus haut semver **porteur d'une release** n'est pas forcément ce que la formule choisit. **Un remède qui peut faire rougir la garde APRÈS sa propre écriture n'est pas un remède.** **2. La formule est inconnue** (§ Mesures) : déléguer à une règle non caractérisée dans le seul chemin de réparation, c'est remplacer un NO-OP **mesuré** par une écriture **non déterministe**. **3. Coût de surface** : `legacy` est **inatteignable par `gh`** (M3a) ; l'employer impose `gh api -X PATCH` **et** un `id` de release — que le job **n'a pas**, il manipule des **tags**. Donc une résolution `tag → id` de plus, un appel de plus, un mode d'échec de plus, dans un job en `if: always()` qui tourne **aussi quand la release n'existe pas**. **4. Persistance non mesurée** : si `legacy` installe un **état**, le job laisserait le pointeur « en calcul », donc **re-volable** par la création suivante. Non mesuré ⇒ non posable. **(c) est à écarter** : deux écritures dont la seconde peut défaire la première. **`legacy` a gagné sa place dans les CARTOUCHES (CA-22), pas dans le programme** — c'est une **connaissance**, pas un remède. |
+| **AR-8** | **Faut-il une quatrième mesure avant de coder ?** | (a) **non** — écrire le résidu à la précision mesurée et coder · (b) **M4** : une troisième release, **d'un autre jour** · (c) M4 **+** une mesure de persistance de `legacy` | **(a) si AR-7 = (a) — et c'est ma reco d'ensemble.** Sous (2b-i), la formule de `legacy` n'entre dans **aucune ligne de code** : elle n'entre que dans **une phrase**, et cette phrase s'écrit **honnêtement** à la précision de M1-M3 (CA-23). **Attendre M4 pour coder serait retarder le lot au nom d'une connaissance dont le lot n'a pas besoin.** ⚠️ **(b) devient OBLIGATOIRE si AR-7 = (b)** : on ne délègue pas la réparation à une formule qu'on n'a pas caractérisée. **(c) est à écarter ici** : la persistance de `legacy` n'a de conséquence que sous (2b-ii) — sous (2b-i), c'est un successeur, pas un prérequis. **Si le décideur veut M4 pour elle-même** — elle coûte ~5 min, elle est sans risque, le banc est en état et **la fenêtre « autre jour » est ouverte aujourd'hui** — la jouer **hors du chemin critique**, en parallèle du code, **jamais comme un gate du lot**. Ce qu'elle prouve et **ce qu'elle ne prouve pas** est écrit en § M4 : elle tranche **date-au-grain-du-jour vs semver**, et **rien d'autre**. |
+
 ---
 
 ## Estimation — jalon P1→P2
 
 **Équivalent jour-homme : ≈ 2 j** *(fourchette 1,5 à 3 j)*, dont **~15 min de gestes du décideur**
-(les cinq 👤 de l'étape 1).
+(les cinq 👤 de l'étape 1). → ⚠️ **Chiffres du 2026-08-30. Lire la ré-estimation encadrée
+ci-dessous** : au 2026-09-01 la fourchette est **1,5 → 2,5 j**, le **reste à faire ≈ 1,85 j**, et les
+**15 min du décideur sont DÉPENSÉES**.
 
 | Étape | Charge |
 |---|---|
@@ -651,6 +1011,26 @@ job fait **après** ce lot. Dater, ne pas effacer.
 | 6. Contrefactuels de chaque garde touchée (CA-11, 12, 16, 17) + révocations prouvées | 0,25 j |
 | 7. Consignation : 4 cartouches, 3 `CLAUDE.md`, 3 états des lieux, 3 backlogs | 0,25 j |
 
+> ⚠️ **RÉ-ESTIMÉ le 2026-09-01.** L'enveloppe **ne bouge pas ; la fourchette se resserre**, et la
+> répartition change.
+>
+> | | 2026-08-30 | 2026-09-01 |
+> |---|---|---|
+> | **Enveloppe** | ≈ **2 j** (1,5 → **3 j**) | ≈ **2 j** (1,5 → **2,5 j**) |
+> | **Reste à faire** | 2 j | ≈ **1,85 j** — l'étape 1 est **dépensée** (0,15 j + les 15 min du décideur) |
+> | **Étape 3** | 0,2 j *ou 0 si M1 rouge* | **0,2 j, ferme** — M1 est verte, l'étape est due |
+> | **Étape 7 (consignation)** | 0,25 j | **0,35 j** — +0,1 j : le tableau des cinq écritures × **sept** emplacements, la réfutation de la doc, le résidu réécrit (CA-22/23/24) |
+>
+> **Pourquoi le haut de fourchette tombe de 3 j à 2,5 j** : l'inconnue n°1 — *l'écriture `true`
+> a-t-elle un effet ?* — **est éteinte**. C'était **la** branche qui pouvait ajouter au lot un volet
+> non estimé (« que dicter, si le geste dicté ne marche pas ? »). Elle ne peut plus s'ouvrir. **C'est
+> le rendement exact d'AR-2 : 15 min de mesure ont retiré une demi-journée de queue de risque.**
+>
+> **Ce qui peut encore faire glisser, et n'existait pas** : **AR-7 = (2b-ii)** ⇒ **+0,3 à 0,4 j**
+> (résolution `tag → id`, un mode d'échec de plus à éprouver, **M4 en prérequis**, et une preuve de
+> bout en bout qui n'est plus acquise par construction). **AR-8 = (b) joué hors chemin critique**
+> ⇒ +0,05 j d'agent et ~5 min du décideur.
+
 **Complexité / risque : moyenne-haute.** Peu de code — l'essentiel est de la **mesure disciplinée**
 et de l'édition coordonnée **dans deux dépôts au même commit logique**, sous un instrument qui
 rougit à raison. Le risque n'est pas technique : c'est de **poser (2b) sur un espoir** au lieu d'une
@@ -658,10 +1038,15 @@ mesure, ce que six passages de gate ont sanctionné sur ce chantier.
 
 **Inconnues susceptibles de faire glisser l'estimation**
 
-1. **M1 — l'écriture `true` a-t-elle un effet ?** *(inconnue de fond)* Si non, (2b) tombe **et** le
-   rattrapage imprimé est révélé faux : le lot gagne un volet **non estimé** — que doit dire un
-   détecteur qui n'a plus aucun geste correct à dicter ? **Détectée au premier geste**, avant toute
-   ligne de code : c'est ce qui borne le risque.
+1. ✅ **ÉTEINTE le 2026-09-01.** ~~**M1 — l'écriture `true` a-t-elle un effet ?**~~ *Elle en a un.*
+   *(Rédaction d'origine, conservée : « Si non, (2b) tombe **et** le rattrapage imprimé est révélé
+   faux : le lot gagne un volet **non estimé** — que doit dire un détecteur qui n'a plus aucun geste
+   correct à dicter ? **Détectée au premier geste**, avant toute ligne de code : c'est ce qui borne
+   le risque. »)* **Le pari a été tenu : détectée au premier geste, avant toute ligne de code.**
+1bis. **NEUVE — la forme du remède (AR-7), et sous (2b-ii) la formule de `legacy`.** Si le décideur
+   tranche sur `legacy`, le lot acquiert **M4 en prérequis**, une résolution `tag → id`, un mode
+   d'échec supplémentaire, et **perd la garantie par construction** que `VERIFICATION` reste verte
+   après l'écriture du job. **C'est la seule inconnue qui puisse encore déplacer l'enveloppe.**
 2. **Le nombre de lignes du motif dans les 13 fichiers exclus** n'est **pas mesuré** — l'étape 5.3
    se fait à la main, et son volume est inconnu. Fourchette assumée : de quelques lignes à quelques
    dizaines.
@@ -695,8 +1080,23 @@ temps réel à la clôture du lot.
 2. **Que quoi que ce soit vaut sur `IakaCockpit`.** Tout ce qui est mesuré ici l'est sur un **banc
    privé du même compte**, avec un acteur substitut (`gh release create`) et non `tauri-action`.
    La transposition reste l'objet de **CA-5**, et **CA-5 reste dû**.
-3. **Que le résidu est clos.** Même si M2 localise le NO-OP et M3 éclaire `legacy`, **une règle non
-   énumérée reste possible** : l'énumération est une liste, jamais une preuve d'exhaustivité.
+3. **Que le résidu est clos.** ~~Même si M2 localise le NO-OP et M3 éclaire `legacy`, **une règle non
+   énumérée reste possible** : l'énumération est une liste, jamais une preuve d'exhaustivité.~~
+   → **RÉÉCRIT le 2026-09-01, mesures faites.** Le résidu **(2) est refermé** — le NO-OP est dans la
+   **sémantique de la valeur `false`** côté API — à une **échappatoire nommée** près. Le résidu
+   **(1) a changé de nature** : ce n'est plus *« une règle non énumérée reste possible »*, c'est
+   **« la règle existe, elle vit sous `legacy`, elle n'est pas dirigée par la date la plus récente,
+   et sa FORMULE reste inconnue »**. ⚠️ **Ce que le lot ne prouvera toujours pas** : cette formule.
+   Même M4 ne la rendrait pas — elle trancherait *un* facteur (le grain du jour) et laisserait
+   entières la fenêtre de récence, la pondération, le traitement des préversions, la **persistance**
+   de `legacy` et son comportement **à la création**. *L'énumération reste une liste, jamais une
+   preuve d'exhaustivité — elle est simplement plus courte.*
+3bis. **Que la DOC de GitHub décrive le comportement de son propre endpoint.** Mesuré le
+   2026-09-01 : la phrase *« sorted by the `created_at` attribute »* de `GET /releases/latest` est
+   **réfutée deux fois par le banc** (§ Mesures du banc). Ce lot **constate** cet écart et le
+   consigne (CA-24) ; il ne prétend ni l'expliquer, ni le voir corrigé, ni savoir depuis quand il
+   dure. *(À ne pas confondre avec le point 4 : celui-ci porte sur la **doc de l'API**, celui-là sur
+   le **badge de l'interface web**. Ni l'un ni l'autre n'est établi.)*
 4. **Que le badge « Latest » de l'interface web suit `GET /releases/latest`.** Rien n'est mesuré
    là-dessus, ici pas plus qu'avant.
 5. **Que le comportement vaut pour une autre version de l'API**, ou pour un autre SHA de

@@ -768,5 +768,15 @@
     "dirty": false,
     "files": 1112,
     "note": "Lot L42 installer depuis rien livre : la vitrine ne promet plus ce qu elle n a pas. NAS injoignable, push GitHub seul."
+  },
+  {
+    "date": "2026-09-01 22:20",
+    "reason": "manual",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "276c42d docs(instruction): re-cadrage de la garde du latest — 6 arbitrages tranches",
+    "dirty": true,
+    "files": 1117,
+    "note": "L43 livre au 6e passage : balayage de completude. Trois mesures du banc jouees : --latest agit, false inerte, legacy AGIT."
   }
 ]
