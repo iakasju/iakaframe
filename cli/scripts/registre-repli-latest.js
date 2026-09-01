@@ -2,7 +2,15 @@
 // registre-repli-latest.js — LE REGISTRE DES ENONCES SUR LE REPLI DU `latest` (lot L43).
 // HORS gate, HORS reseau, cross-depot.
 //
-// POURQUOI IL EXISTE — TROIS PASSAGES DE GATE ONT ECHOUE SUR LA MEME CLASSE. Le defaut n'a
+// ⚠️ RECTIFIE LE 2026-09-01 (LOT L44) — CET EN-TETE MENTAIT SUR LUI-MEME, ET LE LOT QUI RE-CADRE
+// « la chose doit dire ce qu'elle fait » ne pouvait pas le laisser. La ligne ci-dessous disait
+// « TROIS PASSAGES DE GATE ONT ECHOUE » et se contredisait VINGT-SIX LIGNES PLUS BAS (« Cinq
+// passages ont inscrit... »). Le compte juste est CINQ ; le lot L43 a ete gate PASS au SIXIEME
+// passage. La mention « TROIS » est DATEE ici, pas effacee. Elle a survecu a six passages parce
+// que ce fichier etait exclu AU NIVEAU FICHIER : un motif, aucune empreinte — c'est exactement
+// le trou que le lot L44 ferme (voir « ANCRAGE LIGNE A LIGNE » plus bas).
+//
+// POURQUOI IL EXISTE — CINQ PASSAGES DE GATE ONT ECHOUE SUR LA MEME CLASSE. Le defaut n'a
 // jamais ete « la meme erreur repetee » : c'est un FRONT QUI RECULE. Chaque passage a corrige
 // exactement les emplacements que le gate lui montrait, et les pointeurs d'un gate sont des
 // EXEMPLES, pas une enumeration. Quand la classe est une CHAINE (« NO-OP »), un `grep` la balaie
@@ -20,13 +28,32 @@
 //   D-2  un enonce inscrit a CHANGE DE LIGNE               -> rouge : `chemin:ligne` mentirait
 //   D-3  un FICHIER NEUF entre dans le vocabulaire         -> rouge : a trier, puis a inscrire
 //   D-4  un fichier COUVERT gagne des occurrences          -> rouge : un enonce a ete AJOUTE
-//   D-5  BALAYAGE DE COMPLETUDE — une ligne d'un fichier COUVERT porte le motif et n'est TENUE
-//        PAR AUCUNE EMPREINTE : ni inscrite au § Registre, ni declaree hors couverture avec son
-//        motif -> rouge. C'est le CRITERE DE CLOTURE du registre, ajoute au 6e passage.
+//   D-5  BALAYAGE DE COMPLETUDE — une ligne d'un fichier COUVERT **ou EXCLU** porte le motif et
+//        n'est TENUE PAR AUCUNE EMPREINTE : ni inscrite au § Registre, ni declaree hors
+//        couverture avec son motif -> rouge. CRITERE DE CLOTURE, ajoute au 6e passage ; etendu
+//        aux fichiers exclus le 2026-09-01 (L44).
 //   D-6  une ligne DECLAREE hors couverture a ete REECRITE (empreinte ligne a ligne differente)
 //        -> rouge : le motif d'exclusion portait sur UN TEXTE, pas sur un numero de ligne.
 //   D-7  une declaration hors couverture est PERIMEE (sa ligne ne porte plus le motif, ou pointe
 //        au-dela de la fin du fichier) -> rouge : une exclusion muette est une dette, pas un fait.
+//   D-8  une CLE DE PROSE DE CE REGISTRE a ete REECRITE, ou n'est tenue par aucune empreinte, ou
+//        sa declaration ne designe plus rien -> rouge. Ajoute le 2026-09-01 (L44). C'est ce qui
+//        interdit a l'instrument de mentir sur lui-meme : les phrases qui DECRIVENT le registre
+//        (sa raison d'etre, son motif de balayage, sa regle de tri, son cliquet, sa mesure
+//        d'entree, sa borne H-1) sont tenues par empreinte, comme n'importe quel enonce du
+//        corpus. LA LISTE N'EST PAS EN DUR : elle est DECOUVERTE dans le JSON — toute feuille de
+//        texte hors `depots`, `entrees`, `clesDeProse` et `inscritLe` est une cle de prose, donc
+//        une cle NEUVE non declaree ROUGIT au lieu de passer en silence. Le defaut d'une garde
+//        n'est jamais la liste, c'est son MUTISME.
+//
+// ANCRAGE LIGNE A LIGNE DES FICHIERS EXCLUS — 2026-09-01 (L44, AR-4 = (b)). Jusqu'ici, un fichier
+// declare dans `horsCouverture` l'etait AU NIVEAU FICHIER : un motif, AUCUNE empreinte. Un tel
+// fichier pouvait GAGNER un enonce, ou en retourner un, sans que rien ne bouge — et c'est
+// PRECISEMENT par ce trou que la phrase fausse de l'en-tete ci-dessus a survecu a six passages.
+// L'exclusion de fichier est CONSERVEE (elle dit pourquoi le fichier ne porte pas la classe),
+// mais D-5, D-6 et D-7 s'y appliquent desormais : chaque ligne du motif d'un fichier exclu porte
+// SON empreinte et SON motif. Meme pouvoir de detection qu'une abolition de `horsCouverture`,
+// sans refonte de l'instrument.
 //
 // POURQUOI D-5 EXISTE — L'INSCRIPTION PAR POINTEURS NE CLOT RIEN. Cinq passages ont inscrit
 // EXACTEMENT les lignes que le gate montrait, et cinq fois la classe a survecu a cote : une liste
@@ -68,6 +95,11 @@
 //
 // USAGE
 //   node cli/scripts/registre-repli-latest.js              # verifie
+//   node cli/scripts/registre-repli-latest.js --mesurer-extensions
+//        MESURE, PAR L'INSTRUMENT LUI-MEME, ce que ramenerait le balayage sur des extensions qui
+//        n'y sont pas. Ne verifie rien, ne change rien : il compte. Existe parce qu'une mesure
+//        prise avec un autre outil (`ripgrep`, qui honore `.gitignore`) n'est pas la mesure de
+//        cet instrument-ci, et que c'est celle de l'instrument qui fait foi.
 //   node cli/scripts/registre-repli-latest.js --ecrire     # re-inscrit apres une correction VOULUE
 //        `--ecrire` reinscrit la POSITION (enonce retrouve ailleurs) ET LE CONTENU (empreinte +
 //        extrait, depuis la ligne d'ancrage) — et il DIT lequel des deux, entree par entree. Si
@@ -87,8 +119,15 @@ const REGISTRE = path.join(CLI, 'fixtures', 'registre-repli-latest.json');
 const RACINE = process.env.IAKA_RACINE || path.resolve(CLI, '..', '..');
 
 const ecrire = process.argv.includes('--ecrire');
-if (process.argv.slice(2).some((a) => a !== '--ecrire')) {
-  console.error(`${NOM} — usage : node cli/scripts/registre-repli-latest.js [--ecrire]`);
+const mesurerExtensions = process.argv.includes('--mesurer-extensions');
+if (process.argv.slice(2).some((a) => a !== '--ecrire' && a !== '--mesurer-extensions')) {
+  console.error(
+    `${NOM} — usage : node cli/scripts/registre-repli-latest.js [--ecrire|--mesurer-extensions]`,
+  );
+  process.exit(2);
+}
+if (ecrire && mesurerExtensions) {
+  console.error(`${NOM} — --ecrire et --mesurer-extensions s'excluent : l'un ecrit, l'autre compte.`);
   process.exit(2);
 }
 
@@ -114,7 +153,7 @@ const sha = (s) => crypto.createHash('sha256').update(s, 'utf8').digest('hex');
 const dec2Motif = (x) => (x && x.motif) || '(MOTIF ABSENT — declaration muette)';
 
 // --- balayage : quels fichiers PARLENT du repli du `latest` ? ------------------------------------
-function fichiersDuDepot(racineDepot) {
+function fichiersDuDepot(racineDepot, extensions = EXTENSIONS) {
   const trouves = [];
   (function marche(dir, rel) {
     let entrees;
@@ -127,7 +166,7 @@ function fichiersDuDepot(racineDepot) {
       const chemin = rel ? `${rel}/${e.name}` : e.name;
       if (EXCLUS.some((x) => chemin === x || chemin.startsWith(`${x}/`) || e.name === x)) continue;
       if (e.isDirectory()) marche(path.join(dir, e.name), chemin);
-      else if (EXTENSIONS.some((x) => e.name.endsWith(x))) trouves.push(chemin);
+      else if (extensions.some((x) => e.name.endsWith(x))) trouves.push(chemin);
     }
   })(racineDepot, '');
   return trouves.sort();
@@ -163,6 +202,49 @@ function occurrences(abs) {
   return (recolle.match(MOTIF_GLOBAL) ?? []).length;
 }
 
+// --- MODE MESURE D'EXTENSIONS (CA-18) -------------------------------------------------------------
+// Compte, AVEC LE BALAYEUR DE CET INSTRUMENT, ce que ramenerait chaque extension hors couverture.
+// Il ne verifie rien : il mesure. Pourquoi c'est ici et pas dans un `ripgrep` : `ripgrep` honore
+// `.gitignore` et cet instrument non ; les deux mesures peuvent differer, et c'est CELLE DE
+// L'INSTRUMENT qui fait foi, puisque c'est elle qui decrit ce que le balayage verrait.
+if (mesurerExtensions) {
+  const candidates = reg.balayage.extensionsHorsCouverture
+    ? Object.keys(reg.balayage.extensionsHorsCouverture).filter((k) => !k.startsWith('//'))
+    : [];
+  const aMesurer = ['.json', ...candidates.filter((x) => x !== '.json')];
+  console.log(`${NOM} — MESURE D'EXTENSIONS, par le balayeur de cet instrument.`);
+  console.log(`  extensions balayees aujourd'hui : ${EXTENSIONS.join(' ')}`);
+  console.log(`  extensions mesurees ici          : ${aMesurer.join(' ')}`);
+  for (const d of Object.keys(reg.depots)) {
+    const racineDepot = path.join(RACINE, d);
+    if (!fs.existsSync(racineDepot)) nonMesure(`depot « ${d} » introuvable sous ${RACINE}`);
+    for (const ext of aMesurer) {
+      const fichiers = fichiersDuDepot(racineDepot, [ext]);
+      let nbFichiers = 0;
+      let nbLignes = 0;
+      const detail = [];
+      for (const rel of fichiers) {
+        let brut;
+        try {
+          brut = fs.readFileSync(path.join(racineDepot, rel), 'utf8');
+        } catch {
+          continue;
+        }
+        const n = brut.split('\n').filter((l) => MOTIF.test(l)).length;
+        if (n > 0) {
+          nbFichiers += 1;
+          nbLignes += n;
+          detail.push(`${rel} (${n})`);
+        }
+      }
+      console.log(`  ${d.padEnd(14)} ${ext.padEnd(6)} ${nbFichiers} fichier(s) · ${nbLignes} ligne(s) du motif`);
+      for (const x of detail) console.log(`      ${x}`);
+    }
+  }
+  console.log('  (comptage a la LIGNE, comme le balayage de completude — pas a l\'occurrence.)');
+  process.exit(0);
+}
+
 const derives = [];
 const constats = [];
 // F-4 (cinquieme passage, 2026-08-30) : ce que `--ecrire` a REELLEMENT fait. Le message de sortie
@@ -183,7 +265,70 @@ for (const e of reg.entrees) {
   lignesInscrites.get(cle).add(e.ligne);
 }
 const bilanCompletude = { motif: 0, inscrites: 0, declarees: 0, nonTenues: 0 };
+// Indices de ligne DEJA attribues a une entree, par fichier (voir « UNE LIGNE, UNE ENTREE »).
+const indicesPris = new Map();
 const deplacesExclusions = [];
+
+// --- 0. D-8 : LES CLES DE PROSE DE CE REGISTRE ----------------------------------------------------
+// L'instrument ne peut pas mentir sur lui-meme sans que quelque chose rougisse. Les phrases qui
+// DECRIVENT le registre sont tenues par empreinte, exactement comme les enonces du corpus.
+//
+// LA LISTE N'EST PAS EN DUR — elle est DECOUVERTE. Toute feuille de texte du JSON hors `depots`,
+// `entrees`, `clesDeProse` et `inscritLe` est une cle de prose. Une cle NEUVE non declaree rougit
+// donc au lieu de passer : le defaut d'une garde n'est jamais la liste, c'est son MUTISME.
+function clesDeProseDecouvertes(objet, prefixe = '') {
+  const trouvees = [];
+  for (const [k, v] of Object.entries(objet)) {
+    const chemin = prefixe ? `${prefixe}.${k}` : k;
+    if (prefixe === '' && (k === 'depots' || k === 'entrees' || k === 'inscritLe')) continue;
+    // `clesDeProse` porte des EMPREINTES, pas de la prose — sauf ses propres commentaires `//`,
+    // qui en sont et se tiennent comme les autres. Sans cette exception, l'en-tete qui explique
+    // D-8 serait le seul texte du registre reecrivable en silence : un mutisme de plus.
+    if (prefixe === 'clesDeProse' && !k.startsWith('//')) continue;
+    if (typeof v === 'string') trouvees.push([chemin, v]);
+    else if (v && typeof v === 'object' && !Array.isArray(v)) {
+      trouvees.push(...clesDeProseDecouvertes(v, chemin));
+    }
+  }
+  return trouvees;
+}
+
+const prose = clesDeProseDecouvertes(reg);
+const declaresProse = reg.clesDeProse ?? {};
+const proseReinscrites = [];
+for (const [chemin, texte] of prose) {
+  const attendue = declaresProse[chemin];
+  if (attendue === undefined) {
+    derives.push(
+      `D-8 cli/fixtures/registre-repli-latest.json — CLE DE PROSE NON TENUE : « ${chemin} ». ` +
+        'Aucune empreinte ne repond de ce texte : il peut etre reecrit sans que rien ne bouge. ' +
+        `A DECLARER A LA MAIN dans « clesDeProse » avec son empreinte : ${sha(texte)}\n` +
+        `      texte : ${JSON.stringify(texte.slice(0, 140))}`,
+    );
+    continue;
+  }
+  if (attendue !== sha(texte)) {
+    derives.push(
+      `D-8 cli/fixtures/registre-repli-latest.json — CLE DE PROSE REECRITE : « ${chemin} ».\n` +
+        `      empreinte inscrite : ${attendue}\n` +
+        `      empreinte du texte : ${sha(texte)}\n` +
+        `      aujourd'hui        : ${JSON.stringify(texte.slice(0, 140))}\n` +
+        "      Si la reecriture est VOULUE, RELIRE la cle puis reporter l'empreinte A LA MAIN : " +
+        '`--ecrire` ne l\'avalise pas tout seul.',
+    );
+    if (ecrire) proseReinscrites.push(chemin);
+  }
+}
+const cheminsProse = new Set(prose.map(([c]) => c));
+for (const chemin of Object.keys(declaresProse)) {
+  if (!cheminsProse.has(chemin)) {
+    derives.push(
+      `D-8 cli/fixtures/registre-repli-latest.json — DECLARATION DE PROSE PERIMEE : « ${chemin} » ` +
+        'ne designe plus aucune cle de texte du registre. A RETIRER ou a REMOTIVER a la main : ' +
+        'une declaration qui ne repond de rien est une dette, pas une garde.',
+    );
+  }
+}
 
 // --- 1. chaque depot du registre existe-t-il ? ---------------------------------------------------
 for (const d of Object.keys(reg.depots)) {
@@ -203,8 +348,23 @@ for (const e of reg.entrees) {
   // un meme fichier — cas reel : les deux `RATTRAPAGE MANUEL` du job `latest` (186 et 196) — se
   // faisaient alors mutuellement rougir en D-2, un faux positif pur. On regarde donc d'abord si
   // l'ancre elle-meme porte l'empreinte inscrite ; on ne balaie le fichier que si elle ne l'a pas.
-  const surAncre = e.ligne - 1 < lignes.length && sha(lignes[e.ligne - 1]) === e.empreinte;
-  const idx = surAncre ? e.ligne - 1 : lignes.findIndex((l) => sha(l) === e.empreinte);
+  // UNE LIGNE, UNE ENTREE — corrige le 2026-09-01 (L44). Quand DEUX entrees portent le MEME texte
+  // dans le MEME fichier (cas reel : les deux `RATTRAPAGE MANUEL` du job) et que les DEUX ancres
+  // ont bouge, `findIndex` rendait a chacune la PREMIERE occurrence : `--ecrire` les empilait sur
+  // la meme ligne, et la seconde occurrence du fichier se retrouvait tenue par PERSONNE. Le remede
+  // que le registre DICTE ne peut pas fabriquer ce genre de trou. On reserve donc les indices deja
+  // attribues, dans l'ordre des entrees — qui est l'ordre des lignes.
+  const cleFichier = `${e.depot}/${e.chemin}`;
+  if (!indicesPris.has(cleFichier)) indicesPris.set(cleFichier, new Set());
+  const prises = indicesPris.get(cleFichier);
+  const surAncre =
+    e.ligne - 1 < lignes.length &&
+    sha(lignes[e.ligne - 1]) === e.empreinte &&
+    !prises.has(e.ligne - 1);
+  const idx = surAncre
+    ? e.ligne - 1
+    : lignes.findIndex((l, i) => !prises.has(i) && sha(l) === e.empreinte);
+  if (idx !== -1) prises.add(idx);
   if (idx === -1) {
     const actuelle = lignes[e.ligne - 1] ?? '';
     derives.push(
@@ -290,7 +450,13 @@ for (const [d, meta] of Object.entries(reg.depots)) {
   // declaration `lignesHorsCouverture` avec son motif ET l'empreinte du texte exclu. Une ligne qui
   // n'est ni l'un ni l'autre est une ligne dont personne ne repond : elle rougit.
   const declarations = (meta.lignesHorsCouverture ??= {});
-  for (const rel of Object.keys(meta.couverts)) {
+  // COUVERTS **ET EXCLUS** (L44, AR-4 = (b)). Une exclusion AU NIVEAU FICHIER disait « ce fichier
+  // ne porte pas la classe » sans repondre d'AUCUNE de ses lignes : il pouvait en gagner une, ou
+  // en retourner une, sans que rien ne bouge. C'est par ce trou que la phrase fausse de l'en-tete
+  // de CE script a survecu a six passages. L'exclusion de fichier reste — elle porte le motif —,
+  // mais chaque ligne du motif y est desormais tenue, comme dans un fichier couvert.
+  const balayes = [...Object.keys(meta.couverts), ...Object.keys(meta.horsCouverture ?? {})];
+  for (const rel of balayes) {
     const abs = path.join(racineDepot, rel);
     if (!fs.existsSync(abs)) continue;
     const lignes = fs.readFileSync(abs, 'utf8').split('\n');
@@ -349,10 +515,11 @@ for (const [d, meta] of Object.entries(reg.depots)) {
     }
   }
   for (const rel of Object.keys(declarations)) {
-    if (meta.couverts[rel] === undefined) {
+    if (meta.couverts[rel] === undefined && meta.horsCouverture?.[rel] === undefined) {
       derives.push(
         `D-7 ${d}/${rel} — des lignes sont declarees hors couverture dans un fichier qui n'est ` +
-          'PAS couvert. La declaration ne repond de rien : la retirer, ou couvrir le fichier.',
+          'NI couvert NI declare hors couverture. La declaration ne repond de rien : la retirer, ' +
+          'ou couvrir le fichier.',
       );
     }
   }
@@ -415,6 +582,12 @@ if (ecrire) {
     for (const d of deplacesExclusions) console.log(`    ${d}`);
   }
   console.log('  AUCUNE EXCLUSION CREEE : `--ecrire` ne trie pas a ta place (cliquet de D-5).');
+  console.log(
+    `  AUCUNE CLE DE PROSE ECRITE : ${proseReinscrites.length} cle(s) de prose ont derive et ` +
+      'RESTENT rouges (D-8). Une phrase qui decrit l\'instrument se relit et se re-inscrit A LA',
+  );
+  console.log('     MAIN — c\'est le seul endroit ou l\'instrument pourrait avaliser son propre mensonge.');
+  for (const c of proseReinscrites) console.log(`     ${c}`);
   if (reinscrits.length > 0) {
     console.log('  🛑 RE-INSCRITS — LE TEXTE A CHANGE. Relire chacun : c\'est le seul endroit ou');
     console.log('     une reecriture FAUSSE se fait avaliser par le registre.');
