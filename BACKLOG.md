@@ -10,6 +10,27 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### L44 — Re-cadrage de la garde du `latest` (2026-09-01)
+
+- [ ] **`L44-RE-CADRAGE-GARDE-LATEST` — le job dit ce qu'il fait, et il le fait.**
+  **Instruction (copie UNIQUE)** :
+  `/Users/sjupin/work/iakaframe/specs/instructions/re-cadrage-garde-latest.md`.
+  **Livré côté applications jumelles** (`IakaCockpit`, `iakaFrameGUI`) : le référent du job passe
+  de la population des **tags** à celle des **releases** (défaut R-2 : faux rouge après un build
+  rouge **et** rattrapage dicté sur une release inexistante) ; la branche du vol **exécute**
+  `gh release edit "$PLUS_HAUT" --latest` au lieu de l'imprimer (AR-7 = (a), sur la mesure M1) ;
+  garde locale du bloc `latest:` dans le gate des **deux** dépôts, adossée à
+  `fixtures/bloc-latest.sha256` inscrite au registre de convergence (cliquet **17 → 20**).
+  **Livré côté ce dépôt** : le **cartouche** de `.github/workflows/release.yml` (le tableau des
+  **cinq écritures**, la réfutation mesurée de la doc GitHub sur `GET /releases/latest`, le
+  résidu réécrit avec la réserve du **même jour**) ; l'instrument `registre:repli-latest` cesse
+  de mentir sur lui-même (sept détections + le cliquet), **D-8** sur ses clés de prose, et
+  l'**ancrage ligne à ligne** des 13 exclusions de fichier.
+  **HORS PÉRIMÈTRE, déclaré** : le **programme** du workflow de ce dépôt (son CI n'a jamais
+  tourné, `actions/runs → total_count: 0`) et `CI-RELEASE-AUCUN-EPINGLAGE`.
+  **NON MESURÉ — acte du décideur, refusé aux agents** : le contrefactuel A/B **sur le banc**
+  (CA-6) et la preuve de bout en bout **dans un run réel** (CA-10).
+
 ### L42 — Installer depuis rien : la vitrine dit ce que l'étagère porte (2026-08-29)
 
 - [ ] **`L42-INSTALLER-DEPUIS-RIEN` — le README est DÉRIVÉ, et le `latest` cesse d'être subi.**
