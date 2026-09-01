@@ -36,44 +36,71 @@ jobs:
         working-directory: cli
         run: npm pack --pack-destination ..
 
-      # ┌─ L42 — LE `latest` CESSE D'ETRE SUBI ──────────────────────────────────────────────────┐
-      # │ MECANISME REEL, verifie sur la doc REST, MESURE le 2026-08-29, RECTIFIE le 2026-08-30  │
-      # │ (lot L43). GitHub ne classe pas les releases par numero de version : le `latest` suit  │
-      # │ le drapeau `make_latest`, de DEFAUT `true`.                                            │
-      # │                                                                                        │
-      # │ RECTIFICATION : ce cartouche disait « republier un tag ANCIEN VOLE donc le latest »,   │
-      # │ et « reecrit a chaque creation OU MISE A JOUR ». Or l'incident du depot frere          │
-      # │ iakaFrameGUI (v0.1.7 le 13/08, v0.1.5 et v0.1.6 le 18/08, `latest` sur v0.1.6) etait   │
-      # │ une CREATION, pas une republication : au SHA epingle de `tauri-action`, republier un   │
-      # │ tag dont la release EXISTE ne touche PAS au drapeau (R-1 de L43).                      │
-      # │                                                                                        │
-      # │ ICI l'acteur est `softprops`, PAS `tauri-action` : qu'il reecrive ou non le drapeau    │
-      # │ sur une release EXISTANTE n'a JAMAIS ete mesure — ce workflow n'a jamais tourne (voir  │
-      # │ STATUT). Laisser le defaut, c'est confier la vitrine au hasard de l'ordre de           │
-      # │ publication.                                                                           │
-      # │                                                                                        │
-      # │ Contrairement aux deux applications — dont le SHA epingle de `tauri-action` n'expose   │
-      # │ AUCUNE entree de `latest` et exige donc une etape `gh` distincte —, `softprops`        │
-      # │ DECLARE `make_latest`. On le pose ici, CALCULE, jamais laisse au defaut.               │
-      # │                                                                                        │
-      # │ STATUT : ECRIT, NON EPROUVE. Mesure anonyme du 2026-08-29 :                            │
-      # │   GET /repos/iakasju/iakaframe/actions/runs -> total_count: 0                          │
-      # │ Ce workflow N'A JAMAIS ETE EXECUTE, pas une fois. L'unique .tgz publie (v0.20.4) a     │
-      # │ pour uploader `iakasju` et date du 2026-08-05T15:24:17Z, soit DOUZE MINUTES AVANT      │
-      # │ l'enregistrement de ce workflow (2026-08-05T15:36:53Z) : il a ete depose a la main.    │
-      # │ Le calcul de `make_latest` ci-dessous, comme la production du tarball, n'ont donc      │
-      # │ jamais tourne. CONDITION DE LEVEE : la premiere publication reelle (acte du decideur), │
-      # │ apres laquelle `actions/runs` sera non nul et l'asset portera `github-actions[bot]`.   │
-      # │                                                                                        │
-      # │ ET SI LE DRAPEAU EST DEJA VOLE, LA VERIFICATION FINALE NE LE REPARERA PAS. Sur le banc │
-      # │ iakasju/latest-contrefactuel, le contrefactuel joue par le decideur le 2026-08-30,     │
-      # │ croise avec le run 33277643229, REFUTE HUIT des NEUF regles de repli enumerees ; SEUL  │
-      # │ LE NO-OP SURVIT. RESIDU : une regle NON ENUMEREE reste possible, et ce NO-OP est       │
-      # │ OBSERVATIONNEL. L'etape « Verifier ce qu'est devenu le latest » DETECTE, ROUGIT et     │
-      # │ DICTE le rattrapage — dont le fonctionnement, lui, n'a AUCUNE trace. Liste des regles, │
-      # │ valeurs mesurees et residu :                                                           │
-      # │ specs/instructions/contrefactuel-ca5-procedure-decideur.md, § 1.                       │
-      # └────────────────────────────────────────────────────────────────────────────────────────┘
+      # ┌─ L42 -> L44 — LE `latest` CESSE D'ETRE SUBI ────────────────────────────────────────────┐
+      # │ L44 — CE QUE CE WORKFLOW FAIT DU `latest`, MESURE, AU 2026-09-01. Rectifie une          │
+      # │ seconde fois : ce cartouche a dit « republier un tag ANCIEN VOLE donc le latest »       │
+      # │ et « reecrit a chaque creation OU MISE A JOUR ». Faux (L43, R-1). On date, on           │
+      # │ n'efface pas.                                                                           │
+      # │                                                                                         │
+      # │ MECANISME. GitHub ne classe pas les releases par numero de version : le pointeur        │
+      # │ suit le drapeau `make_latest`, de DEFAUT `true`. C'est la CREATION d'une release        │
+      # │ qui le prend.                                                                           │
+      # │                                                                                         │
+      # │ ICI l'acteur est `softprops`, PAS `tauri-action`, et il DECLARE `make_latest` : on      │
+      # │ le pose CALCULE a l'etape suivante, jamais laisse au defaut. Ce qu'il fait d'une        │
+      # │ release EXISTANTE n'a JAMAIS ete mesure — ce workflow n'a jamais tourne (STATUT).       │
+      # │                                                                                         │
+      # │ STATUT : ECRIT, NON EPROUVE. Mesure anonyme du 2026-08-29 :                             │
+      # │   GET /repos/iakasju/iakaframe/actions/runs -> total_count: 0                           │
+      # │ Ce workflow N'A JAMAIS ETE EXECUTE, pas une fois. L'unique .tgz publie (v0.20.4) a      │
+      # │ pour uploader `iakasju` et date du 2026-08-05T15:24:17Z, soit DOUZE MINUTES AVANT       │
+      # │ l'enregistrement de ce workflow (2026-08-05T15:36:53Z) : il a ete depose a la           │
+      # │ main. Le calcul de `make_latest` ci-dessous, comme la production du tarball, n'ont      │
+      # │ donc jamais tourne. CONDITION DE LEVEE : la premiere publication reelle (acte du        │
+      # │ decideur), apres laquelle `actions/runs` sera non nul et l'asset portera                │
+      # │ `github-actions[bot]`.                                                                  │
+      # │                                                                                         │
+      # │ LE TABLEAU DES CINQ ECRITURES — banc PRIVE iakasju/latest-contrefactuel, release        │
+      # │ `id` 379113280 pour M2 et M3b. Aucun geste sur ce depot-ci.                             │
+      # │   `--latest` (true) via `gh release edit` . . . AGIT           M1,  2026-09-01          │
+      # │   `--latest=false` via `gh release edit` . . .  inerte         2026-08-29 (L43)         │
+      # │   `make_latest=false` via `PATCH` brut . . . .  inerte         M2,  2026-09-01          │
+      # │   `make_latest=legacy` via `PATCH` brut . . . . AGIT           M3b, 2026-09-01          │
+      # │   `--latest=legacy` via `gh release edit` . . . INATTEIGNABLE  M3a, 2026-09-01          │
+      # │ La derniere ligne n'est pas une note de bas de page : `--latest` est un drapeau         │
+      # │ BOOLEEN (`strconv.ParseBool`), donc le regime `legacy` est HORS D'ATTEINTE de           │
+      # │ `gh`.                                                                                   │
+      # │                                                                                         │
+      # │ OU SIEGE LE NO-OP : ni dans le client, ni dans le transport, ni dans la lecture.        │
+      # │ M2 et M3b portent sur la MEME release, le MEME endpoint, le MEME champ, et seule        │
+      # │ la VALEUR les separe — or M3b a bouge le pointeur. Il siege dans la SEMANTIQUE DE       │
+      # │ LA VALEUR `false` cote API.                                                             │
+      # │                                                                                         │
+      # │ CE QUE FAIT LA VERIFICATION FINALE, ET CE QU'ELLE NE FAIT PAS. Elle DETECTE,            │
+      # │ ROUGIT et DICTE un rattrapage — `gh release edit <plus haut> --latest`. M1              │
+      # │ etablit que ce geste FONCTIONNE (le pointeur a bouge sur le banc). Ce workflow-ci,      │
+      # │ LUI, ne l'execute pas : les deux applications jumelles le font desormais (L44,          │
+      # │ (2b-i)). Ici, corriger le referent et executer le rattrapage sont HORS PERIMETRE        │
+      # │ de L44, avec le CI de ce depot.                                                         │
+      # │                                                                                         │
+      # │ RESIDU AU 2026-09-01 : la regle de repli EXISTE, elle vit sous                          │
+      # │ `make_latest=legacy`, elle n'est atteignable que par `PATCH`, et elle n'est PAS         │
+      # │ dirigee par la date la plus recente (ni `created_at`, ni `published_at`, ni             │
+      # │ l'ordre d'enregistrement). SA FORMULE RESTE INCONNUE : les deux releases mesurees       │
+      # │ sont DU MEME JOUR, donc une regle au grain du JOUR departagee par le semver             │
+      # │ produirait la meme sortie.                                                              │
+      # │                                                                                         │
+      # │ LA DOC DE GITHUB EST REFUTEE PAR MESURE : `GET /releases/latest` y est dit rendre       │
+      # │ « the most recent non-prerelease, non-draft release, sorted by the `created_at`         │
+      # │ attribute ». Le banc la refute DEUX FOIS — avant M1 et apres M3b, le pointeur           │
+      # │ etait sur le `created_at` le PLUS ANCIEN. Et `created_at` est la date du COMMIT du      │
+      # │ tag, pas celle de la release.                                                           │
+      # │                                                                                         │
+      # │ CE QUI N'EST PAS TRANSPOSE : tout cela est mesure sur un BANC PRIVE, avec un            │
+      # │ acteur substitut. La transposition reste l'objet de CA-5, et CA-5 RESTE DU.             │
+      # │                                                                                         │
+      # │ Mesures et residu complets : specs/instructions/re-cadrage-garde-latest.md.             │
+      # └─────────────────────────────────────────────────────────────────────────────────────────┘
       - name: Le tag publie est-il le plus haut semver ?
         id: rang
         env:
