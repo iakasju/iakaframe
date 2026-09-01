@@ -983,9 +983,21 @@ job fait **après** ce lot. Dater, ne pas effacer.
 
 ### Arbitrages OUVERTS par les mesures — 2026-09-01 — recommandation donnée, **décision NON prise**
 
-> Les six arbitrages du 2026-08-31 **tiennent**. Les deux suivants sont **neufs** : ils n'existaient
-> pas quand le décideur a tranché, parce que **la mesure les a créés**. L'exécution **ne les tranche
-> pas** : elle s'arrête et remonte.
+> Les six arbitrages du 2026-08-31 **tiennent**. Les deux suivants étaient **neufs** : ils n'existaient
+> pas quand le décideur a tranché, parce que **la mesure les a créés**.
+>
+> ✅ **TRANCHÉS PAR LE DÉCIDEUR le 2026-09-01 — les deux sur la recommandation :**
+>
+> - **AR-7 = (a) — (2b-i), ré-affirmer `--latest` sur `PLUS_HAUT`.** `legacy` **n'entre pas dans le
+>   programme** ; il entre dans les **cartouches** (CA-22) comme une connaissance mesurée. Le motif
+>   retenu est le premier de la recommandation : `--latest` rend `latest` et `PLUS_HAUT` égaux **par
+>   construction**, donc la garde ne peut pas rougir après sa propre écriture. **R8 est sans objet.**
+> - **AR-8 = (a) — pas de quatrième mesure avant de coder.** Le résidu s'écrit **à la précision de
+>   M1-M3**, réserve du « même jour » incluse (CA-23). **M4 n'est PAS un gate du lot** ; si elle est
+>   jouée un jour, ce sera **hors du chemin critique** et par le décideur seul.
+>
+> **P2 est donc OUVERT.** L'exécution ne tranche toujours rien : ces deux lignes sont la décision, pas
+> une lecture de l'exécution.
 
 | # | Question | Options | Recommandation |
 |---|---|---|---|
