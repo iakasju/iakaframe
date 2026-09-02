@@ -798,5 +798,15 @@
     "dirty": true,
     "files": 1121,
     "note": "Intégration lot 2 (surcharge du modèle par projet, PASS Legolas) dans main — merge e2c54ba. Chantier : affectation du modèle par acteur (lot 1) + surcharge par projet (lot 2), deux lots gatés PASS."
+  },
+  {
+    "date": "2026-09-02 18:06",
+    "reason": "manual",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "b45a495 merge: R-2 dans le workflow d'iakaframe + levee des absences perimees (gate PASS)",
+    "dirty": false,
+    "files": 1121,
+    "note": "L44 clos. iakaframe v0.39.0 publiee (1er run du CI). Chaine de maj reparee sur les 3 canaux. Contrefactuel du latest joue sur depot reel."
   }
 ]

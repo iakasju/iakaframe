@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-02 14:26 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-02 18:06 (motif: manual).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,107 +9,148 @@
 |---|---|
 | Version | v0.39.0 |
 | Branche | main |
-| Dernier commit | e2c54ba merge: intègre feat/surcharge-modele-par-projet (lot 2, PASS Legolas) |
-| Arbre | MODIFICATIONS NON COMMITEES |
+| Dernier commit | b45a495 merge: R-2 dans le workflow d'iakaframe + levee des absences perimees (gate PASS) |
+| Arbre | propre |
 | Fichiers (suivis + non ignores) | 1121 |
-| Note | Intégration lot 2 (surcharge du modèle par projet, PASS Legolas) dans main — merge e2c54ba. Chantier : affectation du modèle par acteur (lot 1) + surcharge par projet (lot 2), deux lots gatés PASS. |
+| Note | L44 clos. iakaframe v0.39.0 publiee (1er run du CI). Chaine de maj reparee sur les 3 canaux. Contrefactuel du latest joue sur depot reel. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `b45a495` | 2026-09-02 | merge: R-2 dans le workflow d'iakaframe + levee des absences perimees (gate PASS) |
+| `5905010` | 2026-09-02 | fix(registre): date les temoins « CI jamais tourne » refutes par la publication |
+| `c9a66da` | 2026-09-02 | fix(vitrine): leve les deux declarations d'absence devenues fausses |
+| `e9e169e` | 2026-09-02 | fix(release): le referent du plus haut semver est la population des releases |
+| `44f12c2` | 2026-09-02 | merge: correctif des ecarts consignes de L44 (gate Legolas PASS) |
+| `6f05916` | 2026-09-02 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `e2c54ba` | 2026-09-02 | merge: intègre feat/surcharge-modele-par-projet (lot 2, PASS Legolas) |
+| `61d62f4` | 2026-09-02 | fix(L44): la portee « 6 assertions » est corrigee, la conclusion tient |
+| `a7a9ee9` | 2026-09-02 | fix(L44): le motif du balayage F2 devient insensible a la casse et aux accents |
 | `68b80c8` | 2026-09-02 | docs(backlog): register the R-5 successor — agents list is not frame-scoped |
-| `4f50136` | 2026-09-02 | test(models): surcharge du modele par projet — CA-1..CA-25 |
-| `7daf295` | 2026-09-02 | feat(iakastart): roster shows the effective model + divergence signal |
-| `862faf7` | 2026-09-02 | docs(commandes): document models set / models unset |
-| `0a9e0a0` | 2026-09-02 | feat(cli): models set/unset — per-project model override, symmetric +/- |
-| `0db64a6` | 2026-09-02 | feat(project-models): read/write/validate the per-project model override |
-| `d5c40ec` | 2026-09-02 | feat(generate-agents): effectiveModel resolves project override over frame default |
-| `af2ea93` | 2026-09-02 | refactor(frame-active): extract patchProjectConf, writeActiveFramePointer delegates |
-| `2e93881` | 2026-09-02 | feat(agents): le contrat deploye porte le modele decide par le binding |
 
 ## Reprise du travail (a completer par Cowork)
 
-- **Ou on en est** : le lot **L44 « re-cadrage de la garde `latest` »** est **PASS au HUITIEME
-  passage**, **fusionne et pousse** sur les deux canaux. Un **correctif des ecarts consignes** est
-  **en cours, non termine** : ecart 1 fait, ecarts 2 a 4 restants.
-- **Ce qui vient d'etre fait** :
-  1. **Trois mesures du banc jouees par le decideur** (2026-08-31), qui ont renverse une premisse :
+- **Ou on en est** : **L44 est CLOS** (PASS au 8e passage, plus le correctif de ses 4 ecarts, PASS
+  lui aussi), **`iakaframe v0.39.0` est PUBLIEE**, **la chaine de mise a jour est REPAREE** sur les
+  deux apps, et le **contrefactuel du `latest` a ete joue sur un depot REEL**. Les trois depots sont
+  alignes sur **les trois references** (local, NAS, GitHub).
 
-     | Ecriture | Effet | Mesure |
-     |---|---|---|
-     | `--latest` (`true`) via `gh` | **AGIT** | M1 |
-     | `--latest=false` via `gh` | **inerte** | 29/08 |
-     | `make_latest=false` via `PATCH` brut | **inerte** | M2 |
-     | **`make_latest=legacy` via `PATCH`** | **AGIT** | M3 |
+### Installer depuis rien — mesure ANONYME du 2026-09-02
 
-     ⚠️ **`gh` REFUSE la valeur `legacy`** (`--latest` est un drapeau **booleen**,
-     `strconv.ParseBool`) : elle n'est atteignable **que par l'API**. **`false` et `legacy` ne sont
-     PAS equivalents** — seul `legacy` rend le drapeau au calcul automatique.
-  2. **Deux arbitrages tranches** (2026-09-01) : **AR-7 = (a)** re-affirmer `--latest` —
-     **`legacy` N'ENTRE PAS dans le programme**, il entre dans les cartouches comme une
-     **connaissance** ; **AR-8 = (a)** pas de quatrieme mesure avant de coder.
-  3. **Le vrai defaut de code corrige — R-2** : `release.yml:203` derive desormais `PLUS_HAUT` de
-     `repos/<depot>/releases` et non de `/tags`. Sur build rouge, un tag de version sans release
-     faisait rougir `VERIFICATION` **A TORT** et dictait un rattrapage **sur une release
-     inexistante**. ⚠️ Cette ligne **ne portait aucun mot du motif** : **aucune empreinte ne la
-     tenait, elle a ete trouvee A LA LECTURE**. C'est la meilleure demonstration de la borne H-1.
-  4. **Le trou du GUI est ferme** : son `release.yml` n'etait garde par **aucune** face de
-     convergence (prouve par mutation). Extracteur + fixture `bloc-latest.sha256`, garde a deux
-     faces, **plancher de convergence a 20** — valeur **mesuree necessaire** : a 18, la suppression
-     d'une entree passait inapercue.
-- **Prochaine etape concrete** : **reprendre le correctif** sur la branche
-  `fix/L44-ecarts-consignes` (les trois depots). **Ecart 1 est fait et commite** (`iakaframe
-  3f98e32`) ; **restent les ecarts 2, 3 et 4** :
-  - **(2)** le commentaire `bloc-latest.test.mjs:82-83` justifie l'assertion l. 85 par un role que
-    la mutation **M4** du gate **refute** (l'echec sort **l. 80**). **Dater ou retirer, pas les deux
-    textes en contradiction.** ⚠️ **Fichier convergent : les deux cotes au meme commit logique.**
-  - **(3)** le motif de balayage F2 est **sensible a la casse** : 9/2 declares, **14/7** avec casse
-    et accents. **Aucun enonce faux ne s'y cache** (verifie a la main) — c'est la **couverture** qui
-    manque. Rendre le motif insensible **et l'ecrire dans le corpus**.
-  - **(4)** portee sur-annoncee : « 6 assertions, toutes dans `bloc-latest.test.mjs` » vaut pour ce
-    fichier, pas pour le corpus. **Conclusion inchangee** (zero assertion positive non ancree).
-  Puis **gate Legolas**, puis fusion.
-- **⚠️ SPECIFIQUE A CE DEPOT — un cadrage NON VALIDE attend le decideur** :
-  `specs/instructions/affectation-modele-par-acteur.md` (334 lignes, 🔵 Gandalf, 2026-09-02), commite
-  le 2026-09-02 apres avoir ete retrouve **non suivi** suite a une interruption d'API. **Le commit ne
-  vaut PAS validation.** Constat : **les 10 sous-agents heritent tous du modele de la SESSION** —
-  `modelForPersona` n'existe pas dans le CLI, aucun contrat deploye ne porte de ligne `model:`,
-  **l'affectation opus/sonnet du binding est DECORATIVE**. **BLOQUE sur l'arbitrage A-1** : la GUI
-  omet **deliberement** le `model` (invariant **G-5**, liaison run-time = Cockpit), le CLI s'appretait
-  a faire l'inverse. Reco : **P-A** (livrer cote CLI, **declarer la derive**, inscrire le lot GUI au
-  backlog). **0,5 j sous P-A, 1,5 a 2 j sous P-B.** *Le dev ne demarre pas sans le choix du decideur.*
-- **Autre specifique** : ce depot porte l'instruction du re-cadrage, le **registre** (580 enonces) et
-  son **balayage**. ⚠️ Il n'a **ni eslint ni tsconfig**, son `release.yml` **n'epingle rien** (3 tags
-  flottants), et son **CI n'a JAMAIS tourne** (`actions/runs` -> `total_count: 0`).
-- **CE QUI RESTE DU AU DECIDEUR, et que rien ici n'avance** : **CA-5, CA-6, CA-7 et CA-10**. Le lot
-  se clot en **« cable et prouve HORS LIGNE »** — verdict du gate : *« il n'y a **aucune ligne de log
-  opposable** sur le comportement reel du job ; la seule garde qui pese sur le code shell est une
-  **fixture d'octets** : elle atteste qu'il **n'a pas change**, jamais qu'il **fonctionne** »*. Tous
-  passent par un **run que le decideur seul peut declencher**.
-- **Pieges connus** :
-  1. **`gh release edit --latest` est un drapeau BOOLEEN.** `legacy` est **inatteignable par le
-     client** ; seule l'API l'ecrit. Et **`false` ne relache rien**.
-  2. **La doc de GitHub decrit une regle que l'endpoint NE SUIT PAS** : `releases/latest` est
-     documente comme trie par `created_at`, **refute deux fois par le banc**. *Une doc ne se refute
-     pas en la relisant, elle se refute en mesurant.* C'est l'explication retrospective du chantier.
-  3. **Un critere qui ne peut se fermer qu'en falsifiant n'est pas un critere.** Le gate a **retire
-     le sien** (« le sous-ensemble est vide ») quand l'execution a montre qu'aller a zero exigeait
-     d'effacer une phrase **vraie** ou une **archive datee**. Forme close arretee : balayage
-     **rejouable**, survivants **non muets**, et **chaque motif nomme sa condition de chute**.
-  4. **Une mutation SYMETRIQUE est structurellement invisible a la face croisee.** Son vert ne
-     confirme rien — **il ne dit rien**. Seuls les rouges nommes de la garde locale le disent.
-  5. **Un temoin vide est pire qu'un temoin absent.** `toThrow()` nu etait satisfait par un `ENOENT`
-     leve **avant** la branche gardee. **Ancrer le message**, et garder **un temoin de REUSSITE** —
-     sans lui, « ca jette toujours » satisfait tous les autres.
-  6. **Le banc `iakasju/latest-contrefactuel`** (prive, restaure a `latest = v0.10.0`) est la piece
-     a conviction. Sa topologie adverse est ce qui rend l'elimination possible — **ne pas la casser**.
+| | `IakaCockpit` | `iakaFrameGUI` | `iakaframe` |
+|---|---|---|---|
+| publiee | **v0.32.2** | **v0.1.8** | **v0.39.0** |
+| assets | 16 | 16 | 1 (tarball npm) |
+| vitrine <-> etagere | **concordent** | **concordent** | **concordent** |
+
+Les deux apps s'installent **sur les 3 OS** (NSIS + MSI, les deux `.dmg`, AppImage + `.deb` + `.rpm`).
+
+### La mise a jour automatique — REPAREE le 2026-09-02
+
+⚠️ **Elle etait CASSEE et personne ne le voyait** : le manifeste servi aux clients annoncait encore
+**0.32.1** et **0.1.7** alors que 0.32.2 et 0.1.8 etaient publiees. **Un utilisateur deja installe
+n'aurait JAMAIS vu la version courante.** Les deux manifestes ont ete regeneres (9 cles / 9), et
+**verifies sur le canal que les clients lisent vraiment** (`raw.githubusercontent.com`) : 0.32.2 et
+0.1.8 y sont servis.
+🛑 **LA CAUSE N'EST PAS CORRIGEE, et c'est la dette la plus vicieuse du portefeuille** :
+`publish-update.mjs` pousse vers **`origin` SEUL**, alors que les clients lisent **GitHub**. Et les
+deux scripts **impriment « la version est visible des clients »** — une phrase **FAUSSE au moment ou
+elle s'affiche**. C'est une main humaine qui l'a rendue vraie, deux fois, ce jour-la. **Toute
+publication future redemandera ce geste, et le script continuera de dire que c'est fait.**
+
+### iakaframe v0.39.0 — le PREMIER run de son CI
+
+`actions/runs` est passe de **`total_count: 0` a 1** : ce workflow n'avait **jamais** tourne.
+Run **`33635520511`**, vert, release portant `naonedge-iakaframe-0.39.0.tgz` (624 390 o),
+`latest = v0.39.0` mesure en anonyme. **Dette de 19 versions fermee** (v0.20.4 -> v0.39.0).
+Le job a imprime — **premiere trace d'execution reelle de cette garde dans les trois depots** :
+`DECISION : v0.39.0 EST le plus haut -> make_latest=true` · `VERIFICATION : latest effectif =
+v0.39.0 (attendu : v0.39.0)`.
+
+### Le contrefactuel du `latest` — joue sur le DEPOT REEL le 2026-09-02
+
+Run **`33652524885`**, `workflow_dispatch` sur **`v0.20.4`** (un tag ANTERIEUR), vert :
+`DECISION : v0.20.4 n'est PAS le plus haut (v0.39.0) -> make_latest=false.` ·
+`VERIFICATION : latest effectif = v0.39.0 (attendu : v0.39.0)`.
+**Premiere execution de la branche `make_latest=false` sur un depot reel**, avec son acteur et ses
+droits. `latest` mesure en anonyme **immediatement PUIS 30 s plus tard** : `v0.39.0` les deux fois
+(le repli DIFFERE ne se rouvre pas). **Aucune restauration n'a ete necessaire.**
+
+> 🛑 **CE QUE CE RUN NE PROUVE PAS — et la nuance est decisive.** La release de `v0.20.4` **EXISTAIT
+> DEJA** : l'action n'a rien cree, donc le defaut par defaut de l'API (`make_latest=true` A LA
+> CREATION) **n'a jamais eu l'occasion de s'appliquer**. Or `make_latest=false` est un **NO-OP
+> mesure**. **Les deux explications sont CONFONDUES** : soit `false` a empeche le vol, soit **aucun
+> vol n'etait possible** — la seconde etant de loin la plus probable. **CA-6 et CA-10 ne sont PAS
+> fermes.** Les separer exige de republier un tag ancien **qui ne porte AUCUNE release** : c'est la
+> que la creation a lieu, et **c'est le geste reellement dangereux**. **CA-7** (sortie « aucune
+> release ») n'est pas exerce non plus. **CA-5 est PARTIELLEMENT ferme** : la transposition au depot
+> reel est acquise **pour la topologie « le tag ancien porte deja sa release »**, pas au-dela.
+
+**Effet de bord nomme** : le run a **remplace l'artefact de `v0.20.4`** (asset desormais
+`cree = 2026-09-02T16:03:42Z`, `par = github-actions[bot]`, la ou l'ancien avait ete depose a la
+main). La provenance devient tracable — mais **c'est une modification d'une release publiee**.
+**Fait a noter** : `softprops/action-gh-release@v2` s'est resolu au SHA
+`3bb12739c298aeb8a4eeaf626c5b8d85266b0e65`. **Ce workflow n'epingle rien** : le prochain run peut en
+prendre un autre **sans que personne ne le sache**.
+
+### Specifique a ce depot
+
+- **R-2 est corrige ICI aussi** (`release.yml`, les DEUX etapes) : le referent de `PLUS_HAUT` passe
+  des **tags** aux **releases**. Ce depot porte **9 tags de version pour 2 releases** — il etait le
+  plus expose. Le defaut **n'a pas mordu** au run `33635520511` (v0.39.0 etait le plus haut ET
+  porteuse d'une release), mais il etait reel. Cas « aucune release » **eprouve atteignable**, pas lu.
+- **Les 2 declarations d'absence sont LEVEES** : le cliquet **E-5 a morde** des la publication
+  (*« la declaration a survecu a sa raison d'etre »*), README **regenere par le generateur**.
+- ⚠️ **Un cadrage NON VALIDE attend le decideur** : `specs/instructions/affectation-modele-par-acteur.md`
+  (🔵 Gandalf, 2026-09-02). **Le commit ne vaut PAS validation.** Voir l'arbitrage **A-1**.
+- **Registre** : 583 enonces. `registre-repli-latest.js` rend **89 derives**, **toutes hors
+  perimetre et verifiees telles** par le gate : 31 `IakaCockpit` + 30 `iakaFrameGUI` (autres depots)
+  + 28 `specs/etat-des-lieux.md` (**derive PRE-EXISTANTE** du journal append-only, `git diff` vide).
+
+### Prochaine etape concrete
+
+1. **Arbitrage A-1** (decideur) — l'affectation du modele d'IA par persona. ⚠️ **Le dev a ete FAIT
+   sans cette decision**, par une autre session, et une posture **P-D** a ete **inventee par
+   l'execution** (Gandalf n'avait propose que P-A / P-B / P-C). Le cadrage disait pourtant : *« le
+   dev NE DEMARRE PAS sans le choix du decideur sur A-1 »*. **A relire en premier.**
+2. **La dette de canal** : faire que `publish-update.mjs` pousse les deux canaux, **ou** qu'il cesse
+   de promettre ce qu'il ne fait pas.
+3. **`CI-RELEASE-AUCUN-EPINGLAGE`** — successeur legitime declare par le gate : *« aucune mesure de
+   ce lot ne le refute »*.
+4. 🛑 **Tourner le jeton iakabox** et supprimer `feat/L0-CONTIENT-UN-JETON-NE-PAS-POUSSER`.
+   **Verifie le 2026-09-02** : cette branche **n'est PAS sur GitHub** (on ne pousse jamais `--all`).
+
+### Pieges connus
+
+1. **`gh release edit --latest` est un drapeau BOOLEEN.** `legacy` est **inatteignable par le
+   client** ; seule l'API l'ecrit. **`false` ne relache rien** — seul `legacy` rend le drapeau au
+   calcul. **M1 a prouve que l'ecriture `true` AGIT** : le rattrapage fonctionne.
+2. **La doc de GitHub decrit une regle que l'endpoint NE SUIT PAS** (`releases/latest` documente
+   comme trie par `created_at`, **refute deux fois par le banc**). *Une doc ne se refute pas en la
+   relisant, elle se refute en mesurant.*
+3. **Un critere qui ne peut se fermer qu'en falsifiant n'est pas un critere.** Le gate a **retire le
+   sien** quand aller a zero exigeait d'effacer une phrase **vraie** ou une **archive datee**.
+4. **Une mutation SYMETRIQUE est invisible a la face croisee** : son vert **ne dit rien**.
+5. **Un temoin vide est pire qu'un temoin absent.** Ancrer le message, **et garder un temoin de
+   REUSSITE** — sans lui, « ca jette toujours » satisfait tous les autres.
+6. ⚠️ **PUBLIER PERIME LE CORPUS.** La publication de v0.39.0 a rendu FAUX **cinq** textes en une
+   heure — dont **le cartouche de L44 lui-meme** et le module que le remede **executait**. Regle 1 :
+   *on sort de la liste quand un texte AFFIRME ce que le lot REFUTE* — c'est un **« ON SORT
+   OBLIGATOIREMENT »**, et *« le perimetre d'une regle qui porte sur les ENONCES ne se retrecit pas
+   a la liste des fichiers du diff »*.
+7. **Deux sessions dans le meme arbre = travail perdu.** Parade eprouvee : **worktree isole**
+   (`.worktrees/`), **jamais `git add -A`**, chemins nommes, `git status` avant chaque commit.
+8. **Verifier la branche courante AVANT de fusionner** : `git merge` depuis la branche elle-meme
+   repond **« Already up to date »** pendant que `main` ne bouge pas. Piege rencontre ce jour-la.
+9. **Le banc `iakasju/latest-contrefactuel`** (prive, `latest = v0.10.0`) reste la piece a
+   conviction : **ne pas casser sa topologie adverse**.
 
 ## Journal (versions & pauses)
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-02 18:06 | manual | v0.39.0 | main | L44 clos. iakaframe v0.39.0 publiee (1er run du CI). Chaine de maj reparee sur les 3 canaux. Contrefactuel du latest joue sur depot reel. |
 | 2026-09-02 14:26 | pause | v0.39.0 | main | Intégration lot 2 (surcharge du modèle par projet, PASS Legolas) dans main — merge e2c54ba. Chantier : affectation du modèle par acteur (lot 1) + surcharge par projet (lot 2), deux lots gatés PASS. |
 | 2026-09-02 12:33 | pause | v0.39.0 | main | L44 PASS au 8e passage, fusionne et pousse. Correctif des ecarts consignes en cours : ecart 1 fait, 2-4 restants. |
 | 2026-09-01 22:20 | manual | v0.39.0 | main | L43 livre au 6e passage : balayage de completude. Trois mesures du banc jouees : --latest agit, false inerte, legacy AGIT. |
