@@ -26,6 +26,11 @@ import { emit, ok, fail } from '../lib/output.js';
 import { libraryRoot, readEntry, scan } from '../lib/library.js';
 import { activeFrameId, activeTeamId } from '../lib/frame-active.js';
 import { hasCmd } from '../lib/which.js';
+import { generateAgent, loadDefaultBinding, personasForTarget } from '../lib/generate-agents.js';
+import {
+  readModelOverrides, writeModelOverride, clearModelOverride,
+  validateModelValue, divergentOverrides, projectionIsIgnored,
+} from '../lib/project-models.js';
 
 const FALLBACK_HOSTS = ['localhost', '127.0.0.1'];
 const OLLAMA_PORT = Number(process.env.IAKAFRAME_OLLAMA_PORT) || 11434;
@@ -56,6 +61,8 @@ export const TARGETS = [
 const HELP = `iakaframe models - modeles d'IA suggeres par roleKey, et leur mise a disposition
 
 Usage : iakaframe models [options]
+        iakaframe models set <personaId> <modele> [--path <projet>] [--json]
+        iakaframe models unset <personaId> | --all [--path <projet>] [--json]
 
   Sans option : process INTERACTIF en 4 temps
     1. etat des lieux par roleKey (suggere / affecte / disponible)
@@ -77,7 +84,57 @@ Cibles de mise a disposition (--json les mesure toutes) :
   ollama-local, ollama-distant, litellm, claude, codex
   Pour claude/codex, « installer » = VERIFIER la disponibilite : il n'y a rien a telecharger.
 
-Aucun telechargement ni aucune ecriture n'a lieu sans validation explicite.`;
+Aucun telechargement ni aucune ecriture n'a lieu sans validation explicite.
+
+Sous-verbes 'set' / 'unset' — SURCHARGE DU MODELE PAR PROJET (etage AFFECTATION, distinct des
+suggestions ci-dessus) : deroge, pour UN projet, au defaut decide par le binding de la frame,
+sans toucher au binding lui-meme (persistee dans <projet>/iakaframe.json, cle 'modelOverrides',
+et projetee dans <projet>/.claude/agents/<personaId>.md, JAMAIS dans ~/.claude/agents/). Voir
+'iakaframe models set --help' / 'iakaframe models unset --help'.`;
+
+const SET_HELP = `iakaframe models set <personaId> <modele> - surcharge de modele PAR PROJET
+
+Usage : iakaframe models set <personaId> <modele> [--path <projet>] [--root <dir>] [--json]
+
+Ecrit modelOverrides[<personaId>] dans <projet>/iakaframe.json (source unique CLI<->GUI, ecriture
+NON destructive : les autres cles sont preservees) ET projette <projet>/.claude/agents/
+<personaId>.md par le MEME moteur de rendu que 'agents generate' (aucun second rendu). Le contrat
+de projet gagne par precedence sur le contrat utilisateur homonyme (~/.claude/agents/, F1) : c'est
+ce qui rend la surcharge effective, SANS toucher au binding (donc sans fuir sur les autres projets
+du portefeuille).
+
+<personaId> DOIT appartenir a la team de la frame ACTIVE du projet — sinon REFUS, rien n'est
+ecrit. La valeur est verifiee en FORME (vide/blanche, espace, caractere de tete casserait le
+frontmatter) : ces cas sont un REFUS bloquant. Une valeur bien formee mais hors de l'ensemble
+connu (sonnet, opus, haiku, fable, inherit, claude-*) est ECRITE quand meme, avec un
+AVERTISSEMENT non bloquant — 'fable' n'en emet aucun (valeur connue, politique traitee ailleurs).
+
+Options :
+  <personaId>     Id de la persona a surcharger (doit appartenir a la team de la frame active).
+  <modele>        Valeur du modele (ex. sonnet, opus, haiku, fable, claude-opus-5).
+  --path <projet> Dossier projet (defaut : cwd).
+  --root <dir>    Racine bibliotheque (defaut : resolution auto).
+  --json          Sortie machine : { ok, path, personaId, model, warning, projected, gitignore }.
+  --help          Cette aide.`;
+
+const UNSET_HELP = `iakaframe models unset <personaId> | --all - retire une surcharge PAR PROJET
+
+Usage : iakaframe models unset <personaId> [--path <projet>] [--json]
+        iakaframe models unset --all [--path <projet>] [--json]
+
+Retire modelOverrides[<personaId>] de <projet>/iakaframe.json ET SUPPRIME le contrat de projet
+<projet>/.claude/agents/<personaId>.md correspondant : retour au defaut de la frame (F1, le
+contrat utilisateur ~/.claude/agents/ reprend la main). '--all' retire TOUTES les surcharges du
+projet et les fichiers qu'elles avaient poses — et AUCUN autre (un contrat de projet preexistant,
+non issu d'une surcharge, n'est jamais touche). Idempotent : une entree deja absente, ou un
+fichier deja absent, n'est PAS une erreur.
+
+Options :
+  <personaId>     Id de la persona a retirer (omis si --all).
+  --all           Retire TOUTES les surcharges du projet.
+  --path <projet> Dossier projet (defaut : cwd).
+  --json          Sortie machine.
+  --help          Cette aide.`;
 
 // --- Source unique des suggestions (D2) ------------------------------------------------------
 export function suggestionsPath(root) {
@@ -99,7 +156,10 @@ export function ageInDays(updatedAt, now = new Date()) {
 }
 
 // --- Lecture du canon : roleKey -> personas -> modele affecte (D3) ----------------------------
-// Ne DECIDE rien : projette la frame active sur des lignes lisibles.
+// Ne DECIDE rien : projette la frame active sur des lignes lisibles. Le `model` rendu par persona
+// est l'EFFECTIF (surcharge-modele-par-projet.md, D1/D9) : surcharge de PROJET (`modelOverrides`,
+// lue via `readModelOverrides`) sinon defaut de la FRAME (binding, inchange) — et `modelSource`
+// (`projet` | `frame` | `null`) dit LEQUEL, sans jamais devoir re-parser une chaine decoree (D9).
 export function roleRows(root, projectDir, bindingId = null) {
   const teamId = activeTeamId(projectDir, root);
   const frameId = activeFrameId(projectDir);
@@ -124,11 +184,16 @@ export function roleRows(root, projectDir, bindingId = null) {
   for (const a of toRows(binding?.data?.assignments)) {
     if (a && a.personaId) assignments.set(String(a.personaId), a);
   }
+  const overrides = readModelOverrides(projectDir);
 
   const rows = roleKeys.map(roleKey => {
     const cast = personas.filter(p => p.roleKey === roleKey).map(p => {
       const a = assignments.get(p.id) || {};
-      return { ...p, runner: a.runner || null, model: a.model || null };
+      const ov = overrides[p.id];
+      const overridden = typeof ov === 'string' && ov.trim() !== '';
+      const model = overridden ? ov : (a.model || null);
+      const modelSource = overridden ? 'projet' : (a.model ? 'frame' : null);
+      return { ...p, runner: a.runner || null, model, modelSource };
     });
     return { roleKey, personas: cast, covered: cast.length > 0 };
   });
@@ -330,7 +395,7 @@ export function legendLine(statuses) {
     .join('  ');
 }
 
-function printState(canon, suggestions, probes, roles) {
+function printState(canon, suggestions, probes, roles, divergences = []) {
   console.log('\n=== iakaframe - modeles d\'IA par roleKey ===');
   console.log(`  frame ${canon.frameId || '(aucune)'} · methode ${canon.methodId || '(aucune)'} · team ${canon.teamId || '(aucune)'}`);
   console.log(`  binding cible : ${canon.bindingId || '(aucun)'}`);
@@ -356,6 +421,15 @@ function printState(canon, suggestions, probes, roles) {
   console.log('');
   console.log(`  ${legendLine(roles.map(r => r.status))}`);
   for (const n of suggestions?.notes || []) console.log(`  · ${n}`);
+  // D8/CA-20/CA-25 : decision presente SANS projection (cas nominal d'un clone frais sous A-3
+  // « ignorer ») — SIGNALE, actionnable sans reflexion, jamais d'ecriture.
+  if (divergences.length) {
+    console.log('\n  Surcharges DECIDEES sans projection (clone frais / .claude/agents purge ?) :');
+    for (const d of divergences) {
+      console.log(`    ! ${d.personaId.padEnd(9)} decide=${d.decided}  effectif=${d.effective || '(defaut du binding)'}  attendu=${d.expectedPath}`);
+      console.log(`      reparer : ${d.repair}`);
+    }
+  }
   console.log('');
 }
 
@@ -682,8 +756,153 @@ export function writeAssignments(canon, personaIds, model) {
   return { ok: true, written };
 }
 
+// --- Sous-verbe `models set` (surcharge-modele-par-projet.md, D4/D6/D7) ------------------------
+function runModelsSet(argv) {
+  const { values, positionals } = parseArgs({
+    args: argv, allowPositionals: true,
+    options: {
+      path: { type: 'string' },
+      root: { type: 'string' },
+      json: { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
+    },
+  });
+  if (values.help) { console.log(SET_HELP); return; }
+  const personaId = positionals[0];
+  const model = positionals[1];
+  if (!personaId || model === undefined) {
+    return fail(values.json, "Usage : iakaframe models set <personaId> <modele> [--path <projet>]", null, () => {
+      console.error("Usage : iakaframe models set <personaId> <modele> [--path <projet>]");
+    });
+  }
+
+  const root = libraryRoot(values.root);
+  const projectDir = path.resolve(values.path || process.cwd());
+  // Un chemin EXISTANT mais qui n'est PAS un dossier est refuse ; un chemin ABSENT est CREE (le
+  // projet jetable de la recette n'a, a dessein, pas a preexister — meme geste que `frame use`
+  // sur un dossier deja la, en plus permissif : `models set` est le PREMIER geste d'ecriture sur
+  // un projet neuf tout comme `iakaframe.json`/`.claude/agents/` qu'il va y poser).
+  if (fs.existsSync(projectDir) && !fs.statSync(projectDir).isDirectory()) {
+    return fail(values.json, `Chemin de projet invalide (pas un dossier) : ${projectDir}`, { path: projectDir });
+  }
+  fs.mkdirSync(projectDir, { recursive: true });
+
+  // D7 : persona DOIT appartenir a la team de la frame active du projet — refus, RIEN ecrit.
+  const frameId = activeFrameId(projectDir);
+  const teamId = activeTeamId(projectDir, root);
+  const members = personasForTarget({ root, project: projectDir });
+  if (!members.includes(personaId)) {
+    const msg = `persona inconnue : ${personaId} — absente de la team ${teamId || '(aucune)'} de la frame active ${frameId} ; surcharge NON ecrite.`;
+    return fail(values.json, msg, { personaId, teamId, frameId }, () => console.error(msg));
+  }
+
+  // D6 : garde de forme BLOQUANTE ; hors ensemble connu -> AVERTISSEMENT non bloquant (ecrit quand meme).
+  const v = validateModelValue(model);
+  if (v.blocking) {
+    const msg = `valeur invalide pour '${personaId}' : ${v.blocking}`;
+    return fail(values.json, msg, { personaId, model }, () => console.error(msg));
+  }
+
+  const res = writeModelOverride(projectDir, personaId, model);
+  if (!res.ok) {
+    const msg = `iakaframe.json illisible : ${res.path} — ecriture refusee (preservation des cles du CLI).`;
+    return fail(values.json, msg, { path: res.path }, () => console.error(msg));
+  }
+
+  // Projection du contrat de projet : MEME moteur de rendu que `agents generate` (aucun second
+  // rendu, D4 etape 4). Une SEULE persona ecrite — jamais les dix (D5, corollaire).
+  const overrides = readModelOverrides(projectDir);
+  const binding = loadDefaultBinding(root);
+  const content = generateAgent(personaId, { root, binding, overrides });
+  const dir = path.join(projectDir, '.claude', 'agents');
+  fs.mkdirSync(dir, { recursive: true });
+  const dest = path.join(dir, `${personaId}.md`);
+  fs.writeFileSync(dest, content, 'utf8');
+
+  // 4bis (A-3, 2026-09-02) : SIGNALE si la projection n'est pas ignoree du projet cible — ne
+  // modifie JAMAIS le .gitignore de quelqu'un d'autre en silence.
+  const ignored = projectionIsIgnored(projectDir);
+
+  emit(values.json, ok({
+    path: res.path, personaId, model, warning: v.warning || null,
+    projected: dest, gitignore: { checked: true, ignored },
+  }), () => {
+    console.log(`OK - surcharge posee : ${personaId} -> ${model}  (${res.path})`);
+    console.log(`  contrat de projet : ${dest}`);
+    if (v.warning) console.log(`  ! ${v.warning}`);
+    if (!ignored) {
+      console.log(`  ! projection non ignoree par le .gitignore de ce projet : ajouter '/.claude/agents/'`);
+      console.log(`    (A-3 : la decision reste versionnee dans iakaframe.json, la projection ne l'est pas)`);
+    }
+  });
+}
+
+// --- Sous-verbe `models unset` (D4/D5, la symetrie structurelle du '-') ------------------------
+function runModelsUnset(argv) {
+  const { values, positionals } = parseArgs({
+    args: argv, allowPositionals: true,
+    options: {
+      all: { type: 'boolean', default: false },
+      path: { type: 'string' },
+      json: { type: 'boolean', default: false },
+      help: { type: 'boolean', default: false },
+    },
+  });
+  if (values.help) { console.log(UNSET_HELP); return; }
+  const projectDir = path.resolve(values.path || process.cwd());
+  const dir = path.join(projectDir, '.claude', 'agents');
+
+  if (values.all) {
+    const before = readModelOverrides(projectDir);
+    const ids = Object.keys(before);
+    const res = clearModelOverride(projectDir, null);
+    if (!res.ok) {
+      const msg = `iakaframe.json illisible : ${res.path} — retrait refuse.`;
+      return fail(values.json, msg, { path: res.path }, () => console.error(msg));
+    }
+    const removed = [];
+    for (const id of ids) {
+      const f = path.join(dir, `${id}.md`);
+      if (fs.existsSync(f)) { fs.unlinkSync(f); removed.push(id); }
+    }
+    return emit(values.json, ok({ path: res.path, cleared: ids, removedFiles: removed }), () => {
+      console.log(ids.length
+        ? `OK - surcharges retirees : ${ids.join(', ')}  (${removed.length} contrat(s) de projet supprime(s))`
+        : `OK - aucune surcharge a retirer  (${res.path})`);
+    });
+  }
+
+  const personaId = positionals[0];
+  if (!personaId) {
+    return fail(values.json, "Usage : iakaframe models unset <personaId> | --all [--path <projet>]", null, () => {
+      console.error("Usage : iakaframe models unset <personaId> | --all [--path <projet>]");
+    });
+  }
+
+  const res = clearModelOverride(projectDir, personaId);
+  if (!res.ok) {
+    const msg = `iakaframe.json illisible : ${res.path} — retrait refuse.`;
+    return fail(values.json, msg, { path: res.path }, () => console.error(msg));
+  }
+
+  const file = path.join(dir, `${personaId}.md`);
+  let removed = false;
+  if (fs.existsSync(file)) { fs.unlinkSync(file); removed = true; }
+
+  emit(values.json, ok({ path: res.path, personaId, removedFile: removed ? file : null }), () => {
+    console.log(`OK - surcharge retiree : ${personaId}  (${removed ? 'contrat de projet supprime' : 'aucun contrat de projet a supprimer'})`);
+  });
+}
+
 // --- Entree ----------------------------------------------------------------------------------
 export async function runModels(argv) {
+  // Sous-verbes `set`/`unset` (surcharge-modele-par-projet.md, D4) : ROUTES AVANT le parseArgs
+  // general, qui n'accepte aucun positionnel (l'echec y etait jusqu'ici silencieusement absorbe
+  // par le catch -> HELP). Toute AUTRE valeur de argv[0] retombe sur le comportement existant,
+  // inchange.
+  if (argv[0] === 'set') { runModelsSet(argv.slice(1)); return; }
+  if (argv[0] === 'unset') { runModelsUnset(argv.slice(1)); return; }
+
   let values;
   try {
     ({ values } = parseArgs({
@@ -730,6 +949,9 @@ export async function runModels(argv) {
   }
   const probes = await probeTargets(hosts, timeoutMs);
   const roles = buildState({ canon, suggestions, probes });
+  // D8/CA-20/CA-25 : decisions (modelOverrides) SANS projection deployee — signalement seul,
+  // derive de la MEME lecture que le reste de cette commande (aucune ecriture).
+  const overrideDivergences = divergentOverrides(projectDir, { root });
 
   const age = ageInDays(suggestions.updatedAt);
   const payload = ok({
@@ -740,11 +962,12 @@ export async function runModels(argv) {
     count: roles.length,
     targets: probes,
     roles,
+    overrideDivergences,
   });
 
   if (values.json) { emit(true, payload); return payload; }
 
-  printState(canon, suggestions, probes, roles);
+  printState(canon, suggestions, probes, roles, overrideDivergences);
 
   // Le process interactif exige un terminal : sans TTY (CI, pipe, test), on s'arrete a l'etat
   // des lieux plutot que de bloquer sur une question que personne ne lira.
