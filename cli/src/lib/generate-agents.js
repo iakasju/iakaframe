@@ -64,6 +64,19 @@ export function modelForPersona(binding, personaId) {
   return '';
 }
 
+// --- model EFFECTIF : surcharge de projet PUIS defaut de frame (surcharge-modele-par-projet.md,
+// D1) --------------------------------------------------------------------------------------------
+// Point de resolution UNIQUE de la chaine : surcharge (deja LUE depuis <projet>/iakaframe.json,
+// cle `modelOverrides`) ?? modelForPersona (le binding, lot 1) ?? ''. `modelForPersona` n'est PAS
+// modifiee : elle reste le DEUXIEME terme, jamais reecrite. `overrides` est un objet simple
+// (`{}` si aucune surcharge de projet, ou hors contexte projet) : cette fonction ne lit RIEN sur
+// le disque (PURE), la lecture vit dans `project-models.js`.
+export function effectiveModel({ overrides, binding, personaId }) {
+  const ov = overrides && typeof overrides === 'object' ? overrides[personaId] : undefined;
+  if (typeof ov === 'string' && ov.trim() !== '') return ov;
+  return modelForPersona(binding, personaId);
+}
+
 // --- runner d'un assignment (support du filtre D4) --------------------------------------------
 // Lecture BRUTE du champ `runner`, sans normalisation d'alias : D4 tranche par l'ABSTENTION
 // (un assignment sans `runner` declare est traite comme non-claude). Le seul sens de defaut est
@@ -113,23 +126,28 @@ export function renderAgentContract({ id, description, tools, model, skills, gua
 }
 
 // --- Generation d'un contrat depuis persona + binding -----------------------------------------
-export function generateAgent(id, { root, binding }) {
+// `overrides` (surcharge-modele-par-projet.md, D1) : objet `modelOverrides` DEJA LU depuis
+// <projet>/iakaframe.json par l'appelant ; defaut `{}` (aucune surcharge) — les appelants
+// existants (`generateAll`, `agents generate`) ne le passent PAS et gardent donc un comportement
+// STRICTEMENT inchange (repli sur `modelForPersona` seul, via `effectiveModel`).
+export function generateAgent(id, { root, binding, overrides = {} } = {}) {
   const file = pathFor('personas', id, root);
   if (!file || !fs.existsSync(file)) throw new Error(`persona introuvable : ${id}`);
   const raw = fs.readFileSync(file, 'utf8');
   const { data } = parseFrontmatter(raw);
-  // --- COUTURE DE RESOLUTION DU MODELE (D7) — POINT UNIQUE ET NOMME ---------------------------
+  // --- COUTURE DE RESOLUTION DU MODELE (D7 du lot 1) — POINT UNIQUE ET NOMME ------------------
   // Le modele est resolu ICI, en UN SEUL endroit, dans une variable locale nommee. Ne PAS inliner
-  // cet appel dans l'objet passe au rendu, et ne pas en ajouter un second : le lot suivant
-  // (surcharge du modele par projet) SUBSTITUE son resolveur a ce point-la et a aucun autre. Deux
-  // appels, ou un appel inline, obligeraient a rouvrir cette fonction — donc a ecrire deux fois la
-  // meme resolution.
+  // cet appel dans l'objet passe au rendu, et ne pas en ajouter un second. Lot 2 (surcharge du
+  // modele par projet) : SUBSTITUTION D'UNE SEULE LIGNE — `modelForPersona(binding, id)` devient
+  // `effectiveModel({ overrides, binding, personaId: id })`, qui LIT `modelForPersona` en second
+  // terme (elle n'est pas modifiee, cf. generateAgents.js). Deux appels, ou un appel inline,
+  // obligeraient a rouvrir cette fonction — donc a ecrire deux fois la meme resolution.
   // Filtre de runner (D4) : `generateAgent` est la SEULE fonction qui projette un canon vers un
   // contrat CLAUDE CODE ; le modele n'y est transmis que si l'assignment cible ce runner. Un
   // binding vers un autre runner (ex. `ollama-distant`, dont les modeles `qwen3.5:9b` / `gemma4:e4b`
   // ne sont pas des valeurs valides de ce champ) fabriquerait sinon un contrat FAUX mais d'apparence
   // complete. Un champ absent est plus honnete qu'un champ plausible.
-  const model = runnerForPersona(binding, id) === 'claude-code' ? modelForPersona(binding, id) : '';
+  const model = runnerForPersona(binding, id) === 'claude-code' ? effectiveModel({ overrides, binding, personaId: id }) : '';
   return renderAgentContract({
     id,
     description: data.description,
