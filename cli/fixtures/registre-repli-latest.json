@@ -234,7 +234,7 @@
     },
     "iakaframe": {
       "couverts": {
-        ".github/workflows/release.yml": 21,
+        ".github/workflows/release.yml": 26,
         "BACKLOG.md": 4,
         "cli/scripts/lib/vitrine.js": 1,
         "cli/scripts/vitrine-en-ligne.js": 9,
@@ -254,22 +254,32 @@
       },
       "lignesHorsCouverture": {
         ".github/workflows/release.yml": {
-          "119": {
-            "motif": "`echo \"make_latest=true\" >> $GITHUB_OUTPUT` — cablage de sortie de step. Transporte la decision, ne l'enonce pas ; la ligne 91 qui l'enonce est inscrite.",
+          "164": {
+            "motif": "Echo humain repetant la conclusion de la ligne 163 (hors motif) pour l'operateur qui lit les logs — cablage/plomberie, n'affirme rien de nouveau sur le mecanisme.",
+            "extrait": "            echo \"  $TAG sera donc la premiere -> make_latest=true\"",
+            "empreinte": "18d2306901bf51eab6353ec0e0db50df8257d5c93ffdb83dba8d66ce232a1936"
+          },
+          "165": {
+            "motif": "`echo \"make_latest=true\" >> $GITHUB_OUTPUT` (branche \"aucune release\", ajoutee le 2026-09-02) — cablage de sortie de step, identique a celui de la ligne 168. Transporte la decision, ne l'enonce pas ; l'enonce correspondant est la ligne 163 (hors motif, ne contient pas \"latest\").",
             "extrait": "            echo \"make_latest=true\" >> \"$GITHUB_OUTPUT\"",
             "empreinte": "d409adddddd5f48d2c6b62b4a9147fa24565f840df03c3034b153edc1e3ad013"
           },
-          "123": {
-            "motif": "Idem pour `make_latest=false` ; l'enonce correspondant est la ligne 94, inscrite.",
+          "168": {
+            "motif": "`echo \"make_latest=true\" >> $GITHUB_OUTPUT` — cablage de sortie de step. Transporte la decision, ne l'enonce pas ; la ligne 167 qui l'enonce est inscrite.",
+            "extrait": "            echo \"make_latest=true\" >> \"$GITHUB_OUTPUT\"",
+            "empreinte": "d409adddddd5f48d2c6b62b4a9147fa24565f840df03c3034b153edc1e3ad013"
+          },
+          "172": {
+            "motif": "Idem pour `make_latest=false` ; l'enonce correspondant est la ligne 170, inscrite.",
             "extrait": "            echo \"make_latest=false\" >> \"$GITHUB_OUTPUT\"",
             "empreinte": "1f63fa9f1f018749b7a98ec9d8574647b11d454b37c562d65e4c52c7668dc7f0"
           },
-          "133": {
+          "182": {
             "motif": "`make_latest: ${{ steps.rang.outputs.make_latest }}` — cablage de l'input de l'action. Passe la valeur calculee, n'affirme rien.",
             "extrait": "          make_latest: ${{ steps.rang.outputs.make_latest }}",
             "empreinte": "15f50162bd608fd216a0cb707c8835072f78ce324c69db321b27374b7ae3e776"
           },
-          "147": {
+          "208": {
             "motif": "`EFFECTIF=$(gh api .../releases/latest ...)` — mesure de l'effet reel par le job. Geste ; la conclusion est aux lignes voisines, inscrites.",
             "extrait": "          EFFECTIF=$(gh api \"repos/${{ github.repository }}/releases/latest\" --jq '.tag_name')",
             "empreinte": "e3d1c98b92423823cc586d58d88ad7b687221500da2c51e07aa2a308dc22707e"
@@ -2950,7 +2960,7 @@
       "id": "iakaframe/L44/cartouche/jamais-tourne",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 58,
+      "ligne": 59,
       "extrait": "      # │ main. Le calcul de `make_latest` ci-dessous, comme la production du tarball, n'ont      │",
       "empreinte": "1aebcbee46f30565b6cea590ff93c7bb9169eecfc21f832242cefe2993b76d52"
     },
@@ -2958,7 +2968,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/true-agit",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 65,
+      "ligne": 77,
       "extrait": "      # │   `--latest` (true) via `gh release edit` . . . AGIT           M1,  2026-09-01          │",
       "empreinte": "bcfa943146f9e990f0f86678d90730bdb66f93858f451346d9aa02c8757e791d"
     },
@@ -2966,7 +2976,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/false-gh-inerte",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 66,
+      "ligne": 78,
       "extrait": "      # │   `--latest=false` via `gh release edit` . . .  inerte         2026-08-29 (L43)         │",
       "empreinte": "9ad40c05db3aaa88cfb228fcc4ec823badeef09dbb659f02f906db3ffedc6a90"
     },
@@ -2974,7 +2984,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/false-patch-inerte",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 67,
+      "ligne": 79,
       "extrait": "      # │   `make_latest=false` via `PATCH` brut . . . .  inerte         M2,  2026-09-01          │",
       "empreinte": "2e6f76c819f3c371aa9106f1bde93e4385ffcc1a26782bc4515ab3b4b0bc1c48"
     },
@@ -2982,7 +2992,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/legacy-patch-agit",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 68,
+      "ligne": 80,
       "extrait": "      # │   `make_latest=legacy` via `PATCH` brut . . . . AGIT           M3b, 2026-09-01          │",
       "empreinte": "b91cf67398fe54fa43bfdaecb3d51c749ab5780e0e1aba43c1f6f0e6c9e5fbd0"
     },
@@ -2990,7 +3000,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/legacy-gh-inatteignable",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 69,
+      "ligne": 81,
       "extrait": "      # │   `--latest=legacy` via `gh release edit` . . . INATTEIGNABLE  M3a, 2026-09-01          │",
       "empreinte": "e450e336184b4d0562c12c2d93cbd26a760c64322a5e648677949a8b6ea6e1c1"
     },
@@ -2998,7 +3008,7 @@
       "id": "iakaframe/L44/cartouche/drapeau-booleen",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 70,
+      "ligne": 82,
       "extrait": "      # │ La derniere ligne n'est pas une note de bas de page : `--latest` est un drapeau         │",
       "empreinte": "7d132b37a342ac73b89a9d3bd4c0aa87efeaf34ce6ff158552e1504228571a1c"
     },
@@ -3006,7 +3016,7 @@
       "id": "iakaframe/L44/cartouche/ou-siege-le-no-op",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 74,
+      "ligne": 86,
       "extrait": "      # │ OU SIEGE LE NO-OP : ni dans le client, ni dans le transport, ni dans la lecture.        │",
       "empreinte": "30286d677902cb6404bc68a210809f163660452ae1f8deec477891d8a610d7b0"
     },
@@ -3014,7 +3024,7 @@
       "id": "iakaframe/L44/cartouche/detecte-rougit-dicte",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 80,
+      "ligne": 92,
       "extrait": "      # │ ROUGIT et DICTE un rattrapage — `gh release edit <plus haut> --latest`. M1              │",
       "empreinte": "01e8cc17f95053f04bde85fa84f7ac8881d1d45ec669e05e6f27a789334dbb5c"
     },
@@ -3022,7 +3032,7 @@
       "id": "iakaframe/L44/cartouche/residu",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 87,
+      "ligne": 124,
       "extrait": "      # │ `make_latest=legacy`, elle n'est atteignable que par `PATCH`, et elle n'est PAS         │",
       "empreinte": "387a2b4da7e5259e3efce77f7a17ac030787ec8c85a883eaf41901752b2eae6f"
     },
@@ -3030,7 +3040,7 @@
       "id": "iakaframe/L44/cartouche/doc-github-refutee",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 93,
+      "ligne": 130,
       "extrait": "      # │ LA DOC DE GITHUB EST REFUTEE PAR MESURE : `GET /releases/latest` y est dit rendre       │",
       "empreinte": "a94e3018bac4d0b8c55883bad32dd9b1e88fa8d96fbc864ba3804f5ad2ea2807"
     },
@@ -3038,7 +3048,7 @@
       "id": "iakaframe/balayage/release.yml/004",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 118,
+      "ligne": 167,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "            echo \"DECISION : $TAG EST le plus haut -> make_latest=true\"",
@@ -3049,7 +3059,7 @@
       "id": "iakaframe/balayage/release.yml/005",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 121,
+      "ligne": 170,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "            echo \"DECISION : $TAG n'est PAS le plus haut ($PLUS_HAUT) -> make_latest=false.\"",
@@ -3060,7 +3070,7 @@
       "id": "iakaframe/balayage/release.yml/006",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 151,
+      "ligne": 212,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "            echo \"::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}\"",
@@ -3071,7 +3081,7 @@
       "id": "iakaframe/L44/backlog/remede-reaffirmation",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 21,
+      "ligne": 117,
       "extrait": "  `gh release edit \"$PLUS_HAUT\" --latest` au lieu de l'imprimer (AR-7 = (a), sur la mesure M1) ;",
       "empreinte": "b38989106177c69b0576005a9db87dfa5b0554c78edc064a251b39d874efa0d0"
     },
@@ -3079,7 +3089,7 @@
       "id": "iakaframe/L44/backlog/consignation-mesures",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 25,
+      "ligne": 121,
       "extrait": "  **cinq écritures**, la réfutation mesurée de la doc GitHub sur `GET /releases/latest`, le",
       "empreinte": "10f249dd7014933b5264647a0f7eab3fb31d318b2d6c7ed69c5a5fc86f4e400e"
     },
@@ -3087,7 +3097,7 @@
       "id": "iakaframe/balayage/BACKLOG/001",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 48,
+      "ligne": 148,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "  `cli/scripts/vitrine-en-ligne.js` (anonyme, hors gate), `make_latest` **calculé** dans",
@@ -3098,7 +3108,7 @@
       "id": "iakaframe/balayage/BACKLOG/002",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 72,
+      "ligne": 550,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "  été **déposé à la main**. Conséquence : le tarball recommandé au visiteur **et** le `make_latest`",
@@ -3109,23 +3119,23 @@
       "id": "iakaframe/make_latest/non-eprouve",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 73,
+      "ligne": 551,
       "classe": "repli",
       "statut": "CONFORME",
-      "extrait": "calculé posé par L42 sont **non éprouvés**. Le statut est écrit là où on le lira —",
+      "extrait": "  calculé posé par L42 sont **non éprouvés**. Le statut est écrit là où on le lira —",
       "empreinte": "ed965d11bf434f369b0fe75b3a0d13c78302d03b354e22d3af47f805714ccbde",
-      "note": "Idem : constat, pas promesse."
+      "note": "Idem : constat, pas promesse. BALAYAGE F2 DU 2026-09-02 (lot fix/R2-et-levee-absence-iakaframe, en reponse au gate FAIL) -- CANDIDAT RELU, REFUTE, LEVE. Le candidat maintenu au balayage F2 du 2026-09-01 (voir note soeur, cli/scripts/lib/vitrine.js:58) disait la chaine de publication non eprouvee parce que le workflow n'avait jamais tourne (actions/runs.total_count = 0). Mesure du 2026-09-02 : run `33635520511` (completed/success), actions/runs.total_count = 1, asset naonedge-iakaframe-0.39.0.tgz avec uploader.login = github-actions[bot]. La condition de levee ecrite dans la phrase inscrite ci-dessus (« la premiere publication reelle ») est REMPLIE : voir BACKLOG.md § Fait > Leves le 2026-09-02, qui porte la preuve complete."
     },
     {
       "id": "iakaframe/make_latest/non-eprouve",
       "depot": "iakaframe",
       "chemin": "cli/scripts/lib/vitrine.js",
-      "ligne": 50,
+      "ligne": 58,
       "classe": "repli",
       "statut": "CONFORME",
-      "extrait": "* ECRITE mais NON EPROUVEE ; c'est aussi vrai du `make_latest` calcule qu'on vient d'y poser.",
+      "extrait": " * ECRITE mais NON EPROUVEE ; c'est aussi vrai du `make_latest` calcule qu'on vient d'y poser.",
       "empreinte": "a2dca1161f432ba9a28bf1fa2c881226301c6915fecf9dbe8db529264ab6d51a",
-      "note": "Dit deja « non eprouve » : aucune sur-affirmation. BALAYAGE F2 DU 2026-09-01 (lot L44) — CANDIDAT RELU, NON REFUTE, MAINTENU. Cet enonce ne parle PAS du meme objet que M1-M3 : il dit que la CHAINE DE PUBLICATION de ce depot n a jamais tourne (mesure anonyme du 2026-08-29 : actions/runs total_count 0, l unique .tgz depose a la main douze minutes AVANT que le workflow n existe), et donc que le `make_latest` CALCULE, pose A LA CREATION par softprops, n a jamais ete exerce. M1, M2 et M3b mesurent des ECRITURES A LA MAIN SUR UNE RELEASE EXISTANTE, sur un banc prive : elles ne touchent ni la creation, ni ce depot. L enonce reste donc VRAI et il est CONSERVE. Condition de levee inchangee : la premiere publication reelle. Corrobore par l entree 15 du § Registre de contrefactuel-du-vol-de-latest.md, qui l inscrit deja « pour qu une promotion future se voie »."
+      "note": "Dit deja « non eprouve » : aucune sur-affirmation, a la date ou c'etait ecrit. BALAYAGE F2 DU 2026-09-01 (lot L44) — CANDIDAT RELU, NON REFUTE, MAINTENU (texte d'origine, conserve tel quel ci-dessous). ⚠️ BALAYAGE F2 REJOUE LE 2026-09-02 (lot fix/R2-et-levee-absence-iakaframe, en reponse au gate FAIL) — CANDIDAT RELU A NOUVEAU, CETTE FOIS REFUTE, LEVE : « la chaine de publication de ce depot n'a jamais tourne » est mesure FAUX depuis le run `33635520511` (completed/success, 2026-09-02), actions/runs.total_count = 1 (n'est plus 0), uploader.login = github-actions[bot] sur l'asset naonedge-iakaframe-0.39.0.tgz. La condition de levee ecrite dans la phrase inscrite ci-dessous (« la premiere publication reelle ») est REMPLIE. CE QUI RESTE VRAI, PRECISEMENT (voir la correction datee juste au-dessus de la ligne inscrite, dans le fichier lui-meme) : ce run a CREE la release v0.39.0, il n'a pas EDITE une release deja existante -- « ce qu'il [softprops] fait d'une release EXISTANTE » (memes mots que M1-M3) reste NON MESURE sur ce depot. Corrobore par l'entree 15 du § Registre de contrefactuel-du-vol-de-latest.md, elle-meme INCHANGEE (objet distinct, autres depots)."
     },
     {
       "id": "iakaframe/E-1/message/01",
@@ -3263,7 +3273,7 @@
       "id": "iakaframe/E-1/message/12",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 119,
+      "ligne": 130,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "if (latest && plusHaut && latest !== plusHaut) {",
@@ -3274,7 +3284,7 @@
       "id": "iakaframe/E-1/message/13",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 120,
+      "ligne": 131,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "  ecarts.push(",
@@ -3285,7 +3295,7 @@
       "id": "iakaframe/E-1/message/14",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 121,
+      "ligne": 132,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "    `E-1 : « latest » designe ${latest} alors que ${plusHaut} existe. C'est la CREATION d'une ` +",
@@ -3296,7 +3306,7 @@
       "id": "iakaframe/E-1/message/15",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 122,
+      "ligne": 133,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "      'release qui prend le drapeau (make_latest omis, defaut true) ; republier un tag dont la ' +",
@@ -3307,7 +3317,7 @@
       "id": "iakaframe/E-1/message/16",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 123,
+      "ligne": 134,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "      \"release EXISTE n'y touche pas au SHA epingle (R-1, L43). Rattrapage a TENTER : \" +",
@@ -3318,7 +3328,7 @@
       "id": "iakaframe/E-1/message/17",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 124,
+      "ligne": 135,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "      `gh release edit ${plusHaut} --latest — MESURE le 2026-09-01 (M1, banc prive) : cette ` +",
@@ -3329,7 +3339,7 @@
       "id": "iakaframe/E-1/message/18",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 125,
+      "ligne": 136,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "      \"ecriture AGIT et PRIME sur tout calcul. Jamais rejouee sur CE depot-ci.\",",
@@ -6295,6 +6305,39 @@
       "ligne": 1250,
       "extrait": "4. **Que le badge « Latest » de l'interface web suit `GET /releases/latest`.** Rien n'est mesuré",
       "empreinte": "a8c1de48bbfcd02bf405bf745ca4ec6d40aee51190af72c9f88b42c1e744196e"
+    },
+    {
+      "id": "iakaframe/fixR2/cartouche/referent-releases-vs-tags",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 102,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "      # │ `GET /releases/latest` ne peut JAMAIS rendre qu'un tag PORTEUR D'UNE RELEASE. Sur ce    │",
+      "empreinte": "5ffc47784584aa608ed6125d29b636d19025984a54bcdb30f9783b7803a329bc",
+      "note": "Cartouche du lot fix/R2-et-levee-absence-iakaframe (2026-09-02) : affirme le mecanisme que corrige R-2 -- GET /releases/latest ne peut rendre qu'un tag PORTEUR d'une release, jamais un tag simple. Meme fait que l'entree soeur en code (iakaframe/fixR2/code/referent-releases-vs-tags, l.149)."
+    },
+    {
+      "id": "iakaframe/fixR2/code/referent-releases-vs-tags",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 149,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "          # `GET /releases/latest` ne peut jamais rendre qu'un tag PORTEUR D'UNE RELEASE. Le filtre",
+      "empreinte": "9b6463f0c686bf6734c2a34416c5b6b52e7e76d7e9a60dac726fc07ece05fe53",
+      "note": "Commentaire de code de l'etape « rang » (fix R-2, 2026-09-02) : reformule le meme fait que le cartouche (l.102) au point d'usage."
+    },
+    {
+      "id": "iakaframe/fixR2/code/releases-latest-ignore-draft-prerelease",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 151,
+      "classe": "repli",
+      "statut": "CONFORME",
+      "extrait": "          # versions. `select(.draft|not)`/`select(.prerelease|not)` : l'endpoint `/releases/latest`",
+      "empreinte": "cdc33be5e3e6675b74849f38e8c0512d22c7808a3372d77ca2f28702d7a65961",
+      "note": "Affirme que releases/latest ignore deja les brouillons et preversions -- justifie le filtre select(.draft|not)/select(.prerelease|not) du referent corrige (fix R-2, 2026-09-02)."
     }
   ],
   "clesDeProse": {

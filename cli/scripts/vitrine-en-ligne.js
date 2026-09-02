@@ -116,6 +116,17 @@ constats.push(`autorite (pkg) : v${autorite}`);
 // texte du corpus qui s'imprime a l'operateur AU MOMENT OU IL DECIDE QUOI FAIRE.
 // CE QUI RESTE VRAI, ET QUI EST DIT DANS LE MESSAGE : M1 a ete joue SUR LE BANC, jamais sur ce
 // depot-ci. « Mesure ailleurs » n'est pas « mesure ici », et le message ne le laisse pas croire.
+//
+// ⚠️ RECTIFIE A NOUVEAU LE 2026-09-02 (lot fix/R2-et-levee-absence-iakaframe). La clause
+// « ce workflow n'ayant jamais tourne » du point (a) ci-dessus (2026-08-30) est DATEE, PAS
+// EFFACEE : elle disait vrai le jour ou elle a ete ecrite. DEPUIS, ce workflow a tourne pour
+// la premiere fois SUR CE DEPOT-CI (run `33635520511`, `completed`/`success`, 2026-09-02) —
+// donc, a la difference de M1 ci-dessus, CETTE mesure-ci EST sur ce depot. CE QUI RESTE VRAI,
+// PRECISEMENT : la premiere clause du point (a), « ce qu'il [softprops] fait d'une release
+// EXISTANTE n'a jamais ete mesure », reste EXACTE — ce run a CREE la release v0.39.0 (aucune
+// release ne portait ce tag avant), il n'en a pas EDITE une deja existante. Seule la PREMISE
+// (« ce workflow n'ayant jamais tourne ») est perimee ; la CONCLUSION qu'elle appuyait tient
+// toujours, pour une autre raison : le cas mesure ici est une CREATION, pas une EDITION.
 if (latest && plusHaut && latest !== plusHaut) {
   ecarts.push(
     `E-1 : « latest » designe ${latest} alors que ${plusHaut} existe. C'est la CREATION d'une ` +

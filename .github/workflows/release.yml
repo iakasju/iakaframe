@@ -50,7 +50,8 @@ jobs:
       # │ le pose CALCULE a l'etape suivante, jamais laisse au defaut. Ce qu'il fait d'une        │
       # │ release EXISTANTE n'a JAMAIS ete mesure — ce workflow n'a jamais tourne (STATUT).       │
       # │                                                                                         │
-      # │ STATUT : ECRIT, NON EPROUVE. Mesure anonyme du 2026-08-29 :                             │
+      # │ STATUT (AU 2026-08-29, DATE — voir LEVEE ci-dessous) : ECRIT, NON EPROUVE. Mesure       │
+      # │ anonyme du 2026-08-29 :                                                                 │
       # │   GET /repos/iakasju/iakaframe/actions/runs -> total_count: 0                           │
       # │ Ce workflow N'A JAMAIS ETE EXECUTE, pas une fois. L'unique .tgz publie (v0.20.4) a      │
       # │ pour uploader `iakasju` et date du 2026-08-05T15:24:17Z, soit DOUZE MINUTES AVANT       │
@@ -59,6 +60,17 @@ jobs:
       # │ donc jamais tourne. CONDITION DE LEVEE : la premiere publication reelle (acte du        │
       # │ decideur), apres laquelle `actions/runs` sera non nul et l'asset portera                │
       # │ `github-actions[bot]`.                                                                  │
+      # │                                                                                         │
+      # │ ⚠️ LEVEE le 2026-09-02 (lot fix/R2-et-levee-absence-iakaframe) — LA CONDITION CI-DESSUS  │
+      # │ EST REMPLIE, le paragraphe STATUT ci-dessus est DATE, PAS EFFACE. Mesure : le workflow   │
+      # │ a tourne pour la premiere fois, run `33635520511`, `completed`/`success` ;               │
+      # │ `actions/runs` -> `total_count: 1` (n'est plus 0) ; l'asset                              │
+      # │ `naonedge-iakaframe-0.39.0.tgz` de v0.39.0 porte `uploader.login = github-actions[bot]`. │
+      # │ CE QUI RESTE VRAI, PRECISEMENT : « ce qu'il [softprops] fait d'une release EXISTANTE     │
+      # │ n'a JAMAIS ete mesure » (ligne 50-51 ci-dessus) reste EXACT — ce run a CREE v0.39.0, il  │
+      # │ n'a pas EDITE une release deja existante. Seule la condition de levee ecrite ci-dessus   │
+      # │ (« la premiere publication reelle ») est remplie ; celle, plus fine, sur l'EDITION       │
+      # │ d'une release existante par `softprops` reste NON MESUREE.                               │
       # │                                                                                         │
       # │ LE TABLEAU DES CINQ ECRITURES — banc PRIVE iakasju/latest-contrefactuel, release        │
       # │ `id` 379113280 pour M2 et M3b. Aucun geste sur ce depot-ci.                             │

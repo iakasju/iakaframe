@@ -32,6 +32,14 @@
 // publiee. Consequence ASSUMEE et voulue : tant que la publication n'a pas rattrape l'autorite, la
 // face EN LIGNE rougit. Cette rougeur est une DETTE DE PUBLICATION rendue visible ; elle est HORS
 // gate, elle informe et ne bloque aucun lot.
+//
+// ⚠️ LEVEE le 2026-09-02 (lot fix/R2-et-levee-absence-iakaframe) — CE QUI PRECEDE EST DATE DU
+// 2026-08-29/2026-08-30, PAS EFFACE. Le workflow a depuis tourne pour la premiere fois (run
+// `33635520511`, `completed`/`success`), `actions/runs` -> `total_count: 1` (n'est plus 0), et
+// l'asset `naonedge-iakaframe-0.39.0.tgz` de v0.39.0 porte `uploader.login = github-actions[bot]`.
+// La dette de publication decrite ci-dessus est PAYEE : `vitrine:en-ligne` rend `exit 0` (mesure
+// le 2026-09-02), et les deux voies qui etaient DECLAREES absentes dans
+// `cli/fixtures/vitrine-locale.json` ont ete retirees le meme jour (cliquet E-5).
 
 /**
  * L'unique artefact installable que la chaine de publication DECLARE produire.
@@ -49,19 +57,29 @@
  * n'existe —, et ce workflow n'a jamais tourne, pas une fois. La chaine decrite ci-dessous est
  * ECRITE mais NON EPROUVEE ; c'est aussi vrai du `make_latest` calcule qu'on vient d'y poser.
  *
- * STATUT DE LA RECOMMANDATION : la voie `.tgz` reste recommandee au visiteur — c'est bien le
- * chemin le plus court, et le nom de l'artefact est derive du meme motif que `npm pack` emploie —
- * mais elle est NON EPROUVEE tant qu'aucun run n'a eu lieu. CONDITION DE LEVEE : la premiere
- * publication reelle (acte du decideur), qui fera passer `actions/runs` a un total non nul et
- * portera un asset dont l'`uploader` est `github-actions[bot]`. Tant que ce n'est pas fait,
- * l'absence est DECLAREE dans `cli/fixtures/vitrine-locale.json` et visible dans le README.
+ * STATUT DE LA RECOMMANDATION (AU 2026-08-29, DATE — voir LEVEE ci-dessous) : la voie `.tgz` reste
+ * recommandee au visiteur — c'est bien le chemin le plus court, et le nom de l'artefact est
+ * derive du meme motif que `npm pack` emploie — mais elle est NON EPROUVEE tant qu'aucun run n'a
+ * eu lieu. CONDITION DE LEVEE : la premiere publication reelle (acte du decideur), qui fera passer
+ * `actions/runs` a un total non nul et portera un asset dont l'`uploader` est
+ * `github-actions[bot]`. Tant que ce n'est pas fait, l'absence est DECLAREE dans
+ * `cli/fixtures/vitrine-locale.json` et visible dans le README.
+ *
+ * ⚠️ LEVEE le 2026-09-02 — la condition ci-dessus est REMPLIE : run `33635520511`
+ * (`completed`/`success`), `actions/runs.total_count = 1`, asset `naonedge-iakaframe-0.39.0.tgz`
+ * avec `uploader.login = github-actions[bot]`. L'absence n'est plus DECLAREE dans
+ * `cli/fixtures/vitrine-locale.json` (`"absents": []` depuis ce meme lot) : la voie `.tgz` est
+ * desormais aussi bien RECOMMANDEE qu'EPROUVEE. CE QUI RESTE VRAI, PRECISEMENT : ce run a CREE la
+ * release v0.39.0, il n'a pas EDITE une release deja existante — ce que fait `softprops` sur une
+ * release EXISTANTE (au lieu d'une creation) reste NON MESURE sur ce depot.
  */
 export const ARTEFACT = {
   motif: "naonedge-iakaframe-{V}.tgz",
   raison:
     "tarball npm que `.github/workflows/release.yml` DECLARE produire (etape « Produire le " +
-    "tarball npm ») et attacher a la release. Le workflow n'a jamais ete execute (actions/runs = " +
-    "0 le 2026-08-29) : la chaine est ecrite, pas eprouvee. Une fois produite, l'archive s'installe " +
+    "tarball npm ») et attache a la release. Au 2026-08-29 le workflow n'avait jamais ete " +
+    "execute (actions/runs = 0) ; LEVE le 2026-09-02 (run 33635520511, actions/runs.total_count " +
+    "= 1, uploader github-actions[bot]) : la chaine est desormais ecrite ET eprouvee. Installe " +
     "en UNE commande sur les trois OS, sans decompression manuelle",
 };
 
