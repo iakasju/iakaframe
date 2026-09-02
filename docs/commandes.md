@@ -8,10 +8,16 @@
 
 | Élément | Valeur |
 |---|---|
-| Dernière mise à jour | 2026-07-19 |
-| Version CLI documentée | `@naonedge/iakaframe` **v0.1.0** (source : `cli/package.json`) |
-| Commandes CLI couvertes | **29 / 29** verbes distincts (un par `case` de `cli/src/index.js`), **+ 1 alias** (`use` → `switch`) = **30 `case`** au total |
-| Sources de vérité | `~/.claude/CLAUDE.md` (déclencheurs), `cli/src/index.js` (bloc `HELP` + `switch`), `cli/src/commands/*.js` |
+| Dernière mise à jour | 2026-09-03 |
+| Version CLI documentée | `@naonedge/iakaframe` **v0.39.0** (source : `cli/package.json`) |
+| Commandes CLI couvertes | **39 / 39** verbes distincts (un par `case` de `cli/src/index.js`), **+ 1 alias** (`use` → `switch`) = **40 `case`** au total |
+| Sources de vérité | `~/.claude/CLAUDE.md` (déclencheurs), **`cli/src/lib/verbes.js`** (registre déclaratif — source UNIQUE de l'inventaire, dont dérivent le bloc `HELP` de `cli/src/index.js` et `iakaframe commands --json`), `cli/src/commands/*.js` |
+
+> ⚠️ **Le compteur ci-dessus était périmé (29/29) avant le Lot 0** (mode guidé du CLI,
+> `specs/instructions/cli-mode-guide-selections.md`) : `iakaframe --help` était une constante de
+> prose écrite à la main, sans inventaire lisible par machine. Il est corrigé dans le même lot que
+> celui qui introduit le registre (`cli/src/lib/verbes.js`) et le verbe `commands` — cohérent avec
+> la discipline du fichier lui-même : « un nombre dupliqué à la main finit toujours par mentir ».
 
 ## Règle de maintenance (à respecter)
 
@@ -25,11 +31,13 @@ Cette doc **porte sa propre discipline** :
 - **Vérifier la complétude (moyen léger)** : comparer la liste des `case` de
   `cli/src/index.js` avec les entrées de la partie B, p. ex.
   `grep -oE "case '\w+'" cli/src/index.js` vs les lignes de la table B — tout `case`
-  absent de la doc = un trou à combler. **Attention au décompte** : ce `grep` rend **30**
-  `case` alors qu'il n'y a que **29 verbes distincts**, car `use` et `switch` partagent un
-  même traitement (`use` est un **alias**, documenté sur la ligne de `switch` — jamais
-  compté deux fois). `help`/`version` sont traités **avant** le `switch` (options globales)
-  et ne comptent pas comme verbes.
+  absent de la doc = un trou à combler. **Moyen fort, désormais préféré** : `iakaframe
+  commands --json` (registre `cli/src/lib/verbes.js`, dont dérive `--help`) — une seule
+  lecture donne les 39 `id` sans reconstituer soi-même le mapping alias. **Attention au
+  décompte** si l'on reste au `grep` : il rend **40** `case` alors qu'il n'y a que **39
+  verbes distincts**, car `use` et `switch` partagent un même traitement (`use` est un
+  **alias**, documenté sur la ligne de `switch` — jamais compté deux fois). `help`/`version`
+  sont traités **avant** le `switch` (options globales) et ne comptent pas comme verbes.
 - **Compteur = partie du contrat.** Si la ligne « Dernière mise à jour » est rafraîchie,
   **tous** les compteurs de ce fichier doivent avoir été revérifiés dans le même geste :
   une date fraîche sur un compteur faux produit un doc périmé qui **a l'air** vérifié.
@@ -100,13 +108,52 @@ Certaines skills sont des **sous-skills partagés** : composés par plusieurs sk
 |---|---|---|
 | `iakaframe-jalon` | `iakaframe-aragorn`, `iakaframe-cadrage` | Pose un **jalon** (gate visible) à une transition de phase : titre ASCII FIGlet `<PROJET> - JALON : <nom>` + tableau à 3 zones **émetteur / contenu / récepteur**, fichiers en `chemin:ligne`. S'appuie sur le verbe CLI `jalon` (cf. B.3). |
 
+## A.5 Mode guidé — sélection de commande dans Claude Code (Lot B)
+
+Réf. : `specs/instructions/cli-mode-guide-selections.md` (Lot 0 = pivot machine, **Lot B** =
+cette section ; **Lot A**, le mode guidé au **terminal**, **n'est pas lancé**).
+
+Taper `/iaka` dans Claude Code **filtre nativement** toutes les commandes `iaka*` déployées
+(mécanisme natif, aucun code à nous) — ce qui manquait n'était pas un sélecteur, mais la
+**couverture** (10 verbes sur 38 avant ce lot) et une source unique pour la produire.
+
+| Déclencheur | Ce que ça fait |
+|---|---|
+| `/iaka-guide` | **Aiguilleur** (jamais un backend, A7) : interroge `iakaframe commands --json`, propose les verbes disponibles, **affiche la commande équivalente** (`→ iakaframe <verbe> …`, écho obligatoire et non désactivable, A3) puis l'exécute et **restitue la sortie VERBATIM**. N'énumère **rien** de mémoire. `/iaka` (alias de `/learning`, boucle de consentement du réservoir) reste **intact** — ce n'est **pas** ce déclencheur (M9 : réaffecter `/iaka` casserait `learning-skill.test.js` et détournerait la garde de consentement). |
+| `/iaka-<verbe>` (générées) | Pour chaque verbe dont `guideClaudeCode.generer === true` dans le registre, un aiguilleur **thin** est **généré** (`cli/scripts/gen-iaka-commands.mjs`) : exécute `iakaframe <verbe> $ARGUMENTS`, affiche l'écho A3, restitue verbatim. **Liste vivante, jamais recopiée ici** (ce serait exactement la 2ᵉ source de vérité que ce lot combat) : `iakaframe commands --json` (champ `guideClaudeCode`) ou `ls kits/iakaframe-claude/.claude/commands/iaka-*.md` en donnent l'état réel. |
+
+**Couverture.** Un verbe **exclu** de la génération porte toujours un `motif` explicite dans le
+registre (`guideClaudeCode.motif`, jamais une exclusion silencieuse — même discipline que le
+registre de corpus `cli/package.json:24`). Trois familles de motifs :
+
+1. **Déjà couvert** par une entrée `/iaka-*` **hand-authored** antérieure à ce lot (`list`,
+   `brief`, `recap`, `services`, `update` → invocateurs directs ou de skill déjà en place) ;
+2. **Destructif / réseau / texte libre**, exclu explicitement par l'instruction (`onboard`,
+   `snapshot`, `update`, `repo`, `services`, `canaux`, `endpoints`, `go`, `range`) ;
+3. **Verbe de garde ou déjà couvert par un parcours plus riche** (`vendor-check`, `frame` :
+   diagnostic/CI, pas un usage direct ; `review` : déjà piloté par `/iaka`/`/learning` avec le
+   geste de consentement — un doublon nu court-circuiterait ce contexte ; `consolidate`,
+   `observe` : amorçage ponctuel / observation silencieuse par construction ; `commands` :
+   consommé par `/iaka-guide` et `/iaka-help`, une entrée dédiée ferait doublon direct).
+
+**Génération, jamais écriture à la main.** `node cli/scripts/gen-iaka-commands.mjs [--check]`
+régénère les fichiers couverts depuis `resume` (en-tête `NE PAS ÉDITER À LA MAIN`) et cible **le
+kit** (`kits/iakaframe-claude/.claude/commands/`) — **jamais** `~/.claude/commands/` directement,
+le déploiement restant le geste existant (`iakaframe init` / `skills deploy`). `--check` échoue
+(exit 1) si un fichier généré diverge du registre — c'est le verrou anti-dérive kit ↔ CLI
+(`cli/test/guard-verbes-registre.test.js`, gardes G5a/G5b/G5c).
+
 ---
 
 # B. CLI `iakaframe <commande>`
 
 `@naonedge/iakaframe` — CLI multi-OS (Windows / macOS / Linux), **zéro dépendance runtime**.
-Source de vérité = le bloc `HELP` de `cli/src/index.js` + un fichier par commande dans
-`cli/src/commands/`. **29 verbes distincts** (+ 1 alias, `use` → `switch`), regroupés par thème.
+Source de vérité = le **registre déclaratif** `cli/src/lib/verbes.js` (`id`, `resume`,
+`sousVerbes`, `options`, et l'**autorité** — nom du symbole source, jamais les valeurs — de chaque
+paramètre à vocabulaire fermé) + un fichier par commande dans `cli/src/commands/`. Le bloc `HELP`
+de `cli/src/index.js` en **dérive** (plus une constante de prose écrite à la main), de même que
+`iakaframe commands --json` (verbe de lecture seule, § B.2) — **une seule source, deux rendus**.
+**39 verbes distincts** (+ 1 alias, `use` → `switch`), regroupés par thème.
 
 **Options globales** : `-h`/`--help`, `-v`/`--version`.
 **Environnement** : `FORGEJO_TOKEN` (Forgejo), `IAKAFRAME_ROOT`/`--root` (dossier chapeau,
@@ -143,6 +190,7 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 | `canaux` | `--path <dir> --remotes a,b,c --branch <nom> --rattraper --timeout <sec> --json` | **Écriture redondante** : état des dépôts synchrones, **mesuré en direct** (`a-jour` / `en-retard` de N / `en-avance` / `divergent` / `injoignable`) **avec la date de la mesure**. Une cible injoignable est un **état**, pas une erreur. `--rattraper` ne pousse que ce qui est une **avance rapide** et **refuse le reste en le disant** — jamais de `--force`. Le dernier état lu dans une ref locale est rendu **à part** (`dernierConnu`) : un souvenir ne se confond jamais avec une mesure. |
 | `endpoints` | `--app <dir> --conf <fichier> --url a,b,c --premier --artefacts --manifeste <f> --timeout <sec> --json` | **Lecture redondante** (pendant de `canaux`) : état **mesuré** des endpoints d'auto-update d'une app Tauri. Un **200 ne suffit pas** (un dépôt privé rend 200 + page de connexion) : seul un manifeste **au contrat** (`version` + `platforms`) compte comme *servant*. Dit lequel **gagne**, combien de canaux servent, et donc si **CA-11** (« le premier endpoint peut mourir ») est tenu. `--premier` applique le contrat exact de l'updater et **ne rend alors aucun verdict de redondance**. **`--artefacts`** prolonge la mesure au **second demi-tour** — les URL de téléchargement que le manifeste **annonce** : servir un manifeste ne prouve pas qu'une mise à jour s'**installe** (le 2026-08-28, deux apps servaient leur manifeste sur deux canaux et **aucune** des cinq URL annoncées n'était téléchargeable). **`--manifeste <fichier>`** mesure les artefacts d'un manifeste **local**, *avant* publication : « ce que je m'apprête à annoncer, est-ce là ? ». |
 | `root` | `--root <dir>` | Affiche le dossier chapeau résolu (`~/work` \| `C:\work`). |
+| `commands` | `--json --ascii` | **Pivot du mode guidé** (Lot 0, `specs/instructions/cli-mode-guide-selections.md`) : inventaire **machine** des verbes/sous-verbes lu depuis `cli/src/lib/verbes.js` (`{ ok, count, verbes:[{id,resume,options,sousVerbes,parametres,guideClaudeCode}] }`). **Lecture seule.** C'est la source dont dérivent `--help` et les entrées Claude Code `/iaka-*` générées (§ A.5) — jamais l'inverse. |
 
 ## B.3 Rendu & rituels de session
 
