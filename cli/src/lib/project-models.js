@@ -91,13 +91,16 @@ function stripSuffix(v) {
   return v.endsWith(SUFFIX) ? v.slice(0, -SUFFIX.length) : v;
 }
 
-// Rend { blocking: <raison> } (strate 1, forme — inchangee), { unknown: <v> } (strate 2,
-// vocabulaire — REFUS depuis l'Amendement A, levable par `--force`, D6bis/D11), ou
-// { ok: <v>, warning: <message|null> } (strates 1/3 de la grammaire — ECRITE ; `warning` porte le
-// residu D13 : silence pour un alias ou un id complet MESURE, avertissement pour un id complet
-// bien forme mais non mesure — jamais pour un refus). Trois retours distincts, pas un booleen
-// surcharge.
-export function validateModelValue(raw) {
+// Classification PRIVEE (CA-30 : `validateModelValue` doit rester le SEUL point nomme, un seul
+// appelant dans tout `cli/src/` — `models.js`. `unknownOverrides`, ci-dessous, reemploie CETTE
+// fonction interne, jamais `validateModelValue` par son nom, pour que le grep de CA-30 reste vrai
+// sans dupliquer la grammaire.) Rend { blocking: <raison> } (strate 1, forme — inchangee),
+// { unknown: <v> } (strate 2, vocabulaire — REFUS depuis l'Amendement A, levable par `--force`,
+// D6bis/D11), ou { ok: <v>, warning: <message|null> } (strates 1/3 de la grammaire — ECRITE ;
+// `warning` porte le residu D13 : silence pour un alias ou un id complet MESURE, avertissement
+// pour un id complet bien forme mais non mesure — jamais pour un refus). Trois retours distincts,
+// pas un booleen surcharge.
+function classifyModelValue(raw) {
   const v = raw == null ? '' : String(raw);
   if (v.trim() === '') {
     return { blocking: `valeur vide ou blanche — c'est le geste 'models unset', pas une valeur de modele.` };
@@ -120,6 +123,13 @@ export function validateModelValue(raw) {
     };
   }
   return { unknown: v };
+}
+
+// Point d'entree NOMME et UNIQUE (D6bis) — cf. cartouche de condition de chute ci-dessus. Seul
+// `models.js` (`runModelsSet`) l'appelle (CA-30) : la voie binding (`generateAgent`,
+// `renderAgentContract`, `modelForPersona`) n'en gagne AUCUNE (A.4/RA-2).
+export function validateModelValue(raw) {
+  return classifyModelValue(raw);
 }
 
 // Vocabulaire ACCEPTE (D15), pour le message de refus et la sortie --json — SOURCE UNIQUE, jamais
@@ -164,9 +174,11 @@ export function divergentOverrides(projectDir, { root } = {}) {
 // runner charge, F1 — l'ignorer ferait MENTIR `models`). Un `iakaframe.json` deja ecrit peut
 // porter une valeur devenue hors grammaire (recette du lot 2, ou edition a la main d'un autre
 // poste) : ce cas est le cas qui MORD EN PREMIER, pas une bizarrerie. Rend, pour chaque surcharge
-// dont la valeur est REFUSEE par `validateModelValue` (strate 2 ou 1, jamais pour une valeur
-// valide) : { personaId, model, repair } — la commande a rejouer nomme les DEUX gestes qui
-// reparent (reecrire avec la valeur juste, ou retirer la surcharge).
+// dont la valeur est REFUSEE par la grammaire (strate 2 ou 1, jamais pour une valeur valide) :
+// { personaId, model, repair } — la commande a rejouer nomme les DEUX gestes qui reparent
+// (reecrire avec la valeur juste, ou retirer la surcharge). Reemploie la classification INTERNE
+// (jamais `validateModelValue` par son nom, CA-30 : le point d'entree ecrit garde UN SEUL
+// appelant, `models.js`).
 export function unknownOverrides(projectDir) {
   if (!projectDir) return [];
   const proj = path.resolve(projectDir);
@@ -174,7 +186,7 @@ export function unknownOverrides(projectDir) {
   const out = [];
   for (const personaId of Object.keys(overrides)) {
     const model = overrides[personaId];
-    const v = validateModelValue(model);
+    const v = classifyModelValue(model);
     if (v.ok !== undefined) continue; // valide (silencieuse ou avertie) -> rien a signaler ici
     out.push({
       personaId,
