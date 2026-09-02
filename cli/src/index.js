@@ -36,141 +36,64 @@ import { runPortfolio } from './commands/portfolio.js';
 import { runRange } from './commands/range.js';
 import { runCanaux } from './commands/canaux.js';
 import { runEndpoints } from './commands/endpoints.js';
+import { runCommands } from './commands/commands.js';
 import { resolveRoot } from './lib/root.js';
 import { packageVersion } from './lib/version.js';
-import { EXPECTED_COPIES, EXPECTED_DERIVED } from './lib/vendor.js';
+import { VERBES, resumeOf, optionsOf } from './lib/verbes.js';
+import { wrap } from './lib/table.js';
 
 // Source unique : lue depuis cli/package.json (cf. lib/version.js). Plus aucune copie codee en dur.
 const VERSION = packageVersion();
 
-// Meme principe pour le compte de fixtures : derive du manifeste de vendorage, jamais recopie.
-// L'aide avait fige « 21 fixtures (17 copies) » alors que la garde en verifiait 82 — un nombre
-// duplique a la main finit toujours par mentir.
-const VENDOR_TOTAL = EXPECTED_COPIES + EXPECTED_DERIVED;
+// L'aide etait une constante de prose ecrite a la main (39 lignes recopiees, une par verbe) —
+// exactement le defaut deja nomme plus bas dans ce fichier a propos du compte de fixtures : « un
+// nombre duplique a la main finit toujours par mentir ». Un INVENTAIRE duplique a la main ment de
+// la meme facon. Elle est DESORMAIS DERIVEE de lib/verbes.js (Lot 0, source unique de l'inventaire,
+// dont dependent aussi `iakaframe commands --json` et — plus tard — le menu terminal et les
+// commandes Claude Code). `--help` d'un verbe precis reste l'autorite fine et INCHANGEE : ce bloc
+// n'est qu'un INDEX.
+const COL = 22;   // 2 espaces + id, aligne sur la colonne ou demarre le resume
+const IND = 24;   // indentation des lignes d'options (continuation)
+const WRAP_WIDTH = 96;
+
+// Une entree (verbe OU sous-verbe) -> un bloc { <id> [<arguments>]  <resume>\n  <options...> }.
+// `idDisplay` permet d'afficher un alias groupe (ex. `switch|use`) sans dupliquer l'entree.
+function verbeBlock(entree) {
+  const idCol = entree.idDisplay || entree.id;
+  const headLabel = entree.arguments ? `${idCol} ${entree.arguments}` : idCol;
+  const prefix = `  ${headLabel}`;
+  // padEnd n'ajoute rien si le libelle depasse deja COL (id + arguments longs, ex. `models set
+  // <personaId> <modele>`) : on garantit alors au moins un separateur visible.
+  const header = (prefix.length >= COL ? prefix + '  ' : prefix.padEnd(COL)) + resumeOf(entree);
+  const opts = optionsOf(entree);
+  if (!opts.length) return header;
+  const optLine = opts.join('  ');
+  const wrapped = wrap(optLine, WRAP_WIDTH - IND);
+  return [header, ...wrapped.map(l => ' '.repeat(IND) + l)].join('\n');
+}
+
+// Sous-verbes dont la GRAMMAIRE differe assez du parent pour meriter leur propre ligne dans
+// l'aide globale (ex. `models set <personaId> <modele>` vs `models unset <personaId>|--all`) :
+// marques `enteteAide:true` dans le registre. Les autres restent inline dans le resume du parent
+// (ex. `agents : list | affect | fullteam | status`) — non regressif, sans allonger l'index.
+function sousVerbeBlocs(parent) {
+  return (parent.sousVerbes || [])
+    .filter(sv => sv.enteteAide)
+    .map(sv => verbeBlock({ ...sv, id: `${parent.id} ${sv.id}` }));
+}
+
+function commandesSection() {
+  return VERBES
+    .flatMap(v => [verbeBlock(v), ...sousVerbeBlocs(v)])
+    .join('\n');
+}
 
 const HELP = `iakaframe v${VERSION} - methode de travail outillee (CLI multi-OS)
 
 Usage : iakaframe <commande> [options]
 
 Commandes :
-  onboard             Met en place la methode : structure + Forgejo + commit + etat + push
-                        --path <dir> --node claude|codex|ollama-localhost|ollama-lan --repo <nom>
-                        --description "ascii" --version vX.Y.Z
-                        --skip-forgejo  --no-push  --force  (--target = alias deprecie de --node)
-  init                Deploie le kit + marqueur .iakaframe (non destructif)
-                        --path <dir> --node claude|codex|ollama-localhost|ollama-lan --force
-                        (--target = alias deprecie de --node)
-  snapshot            Etat des lieux (journal + MD + HTML)
-                        --path <dir> --reason version|pause|reprise|manual --version --note
-  update              Checkpoint : snapshot + commit global + push
-                        --path <dir> --repo <nom> --reason --version --note --message --no-push --home
-                        (bascule onboarding : creation de depot distant REFUSEE par defaut ;
-                         --autoriser-creation-depot pour la forcer)
-  repo [<nom>]        Branche le remote d'un depot git EXISTANT (geste provider-neutre)
-                        --path <dir> --repo <nom> --provider <nom> (defaut forgejo)
-                        --create (REQUIS pour creer le depot distant) --description "ascii"
-                        (sans --create : test + remote LOCAL seulement, jamais de creation)
-  services            Sonde git(Forgejo) / Ollama / ComfyUI
-                        --hosts a,b,c  --json (stdout)  --out <fichier>  --timeout <sec>
-  canaux              Etat des depots synchrones, MESURE EN DIRECT (a jour / en retard de N /
-                        en avance / divergent / injoignable) + date de la mesure. Une cible
-                        injoignable est un ETAT, pas une erreur. --rattraper pousse ce qui est
-                        une AVANCE RAPIDE et REFUSE le reste en le disant (jamais de --force)
-                        --path <dir> --remotes a,b,c --branch <nom> --rattraper --timeout <sec>
-                        --json
-  endpoints           Pendant en LECTURE de canaux : etat MESURE des endpoints d'auto-update
-                        d'une app Tauri. Un 200 ne suffit pas (un depot prive rend 200 + page de
-                        connexion) : seul un manifeste au contrat compte comme servant. Dit
-                        lequel GAGNE et si la bascule CA-11 a sur quoi s'appuyer
-                        --app <dir> --conf <fichier> --url a,b,c --premier --timeout <sec> --json
-  models              Modeles d'IA suggeres par roleKey + mise a disposition (INTERACTIF)
-                        etat des lieux -> suggestions -> installer/remplacer/retirer (sur gate)
-                        cibles : ollama-local | ollama-distant | litellm | claude | codex
-                        --json (etat des lieux, non interactif) --hosts a,b,c --timeout <sec>
-                        --path <projet> --root <bibliotheque>
-  models set          Surcharge le modele d'UNE persona POUR CE PROJET (etage AFFECTATION,
-                        <persona> <modele>  distinct des suggestions) : ecrit modelOverrides
-                        dans <projet>/iakaframe.json ET projette <projet>/.claude/agents/
-                        <persona>.md (jamais ~/.claude/agents/) --path <projet> --json
-  models unset        Retire une surcharge de projet (et son contrat projete) ; --all = toutes
-                        <persona>|--all  --path <projet> --json
-  config              Ecrit/maj <projet>/iakaframe.json (runner + nœud)
-                        --path <dir> --runner claude-code|ollama|litellm|codex --node <n>  --json
-                        (alias legacy runner : ps, iakaide, aider - deprecies ; --target = alias de --node)
-                        --aider-model <m>  (ex: ollama/llama3, pour le launcher legacy aider)
-  agents              Equipe de personas : list | affect | fullteam | status
-                        --agent <nom> --project <dir> --global --force  --json (list/status)
-  skills deploy       Deploie l'union resolue des skills -> <cible>/.claude/skills/ (non destructif)
-                        --project <dir> --global --check (diff sans ecriture)  --json
-                        (orphelines signalees orphan, jamais supprimees ; exit!=0 si drift/absent)
-  go <projet>         Lance l'action du projet via son runner (claude-code|ollama|litellm|codex)
-                        --path <dir> --runner <r> --do "tache"  (launchers legacy : aider, iakaide)
-  banner <texte>      Titre ASCII (FIGlet embarque, zero dep)
-                        --font <nom>  (defaut : ANSI Shadow ; repli : Standard)
-  brief <projet>      Entree projet : titre + tableau (derniere etape + backlog) + agents
-                        --path <dir> --font <nom>
-  recap <projet>      Fermeture : tableau recap session (commits + agents + projet)
-                        --path <dir> --n <nb commits>
-  jalon               Cadre d'un jalon (gate) : titre Standard + tableau emetteur/contenu/recepteur
-                        --project --name --from --to --content --files a:1,b:2 --next --validated
-  list [type]         Inventaire de la bibliotheque (pool + assemblages) par scan
-                        type : personas|skills|principles|rituals|guardrails|roles|workflows|
-                        scaffolds|teams|methods|bindings|kits  (--json --ascii --root)
-  show <id>           Contrat d'un atome/assemblage : frontmatter + corps  (--type --json --root)
-  add <kind> <fic>    Livre un assemblage : team|method|binding (valide refs I1)  (--force --json)
-  remove <kind> <id>  Retire l'assemblage/skill : team|method|binding|skill (le - de add).
-                        RESTRICT par defaut si reference ; --cascade --yes pour forcer ;
-                        archive en corbeille <root>/.trash-<ts>/ (restaurable)  (--json)
-  attach <skill>      Attache un skill a un persona : mute skills:[] du persona
-                        --persona <id>  (--force --json)
-  detach <skill>      Detache un skill d'un persona : retire de skills:[] (le - de attach)
-                        --persona <id>  (--json)
-  assemble <m> <t>    Compose un kit (methode+team[+binding]) - dry-run  (--write --binding --json)
-  vendor-check        Constate que les ${VENDOR_TOTAL} fixtures vendorees de iakaFrameGUI (${EXPECTED_COPIES} copies +
-                        ${EXPECTED_DERIVED} derivees) sont fideles au canon. Gracieux si le frere est absent
-                        (exit 0, ok:false)  (--strict --gui <dir> --root --json)
-  frame verify        Garde d'anonymisation du miroir frames/releases/ : gates G1-G6 par CLASSES
-                        (G2 = ALLOWLIST de marque, attrape le nom SUIVANT). Constate, ne reecrit
-                        pas  (--frame <dir> --verbose --json)
-  frame use <id>      Pose la frame active du projet : ecrit iakaframe.json cle \`frame\` (source
-                        unique CLI<->GUI, non destructif). "" retire la cle (repli default).
-                        Distinct de \`use <m> <t>\` (materialisation)  (--path <projet> --json)
-  switch|use <m> <t>  Bascule un projet vers methode/team  (--path --binding --rollback --json)
-  memory <action>     Canon du portefeuille : init|path|config|list|add|replace|remove
-                        <profil|registre>  (--home <dir>  --json ; defaut ~/.iaka/memory/)
-  produit <action>    Canon PROJET (connaissance du PRODUIT, revisee EN PLACE, versionnee dans
-                        <projet>/specs/canon/PRODUIT.md) : init|path|config|list|add|replace|
-                        remove  (--project <dir>  --json)
-  open                Charge le canon (PROFIL+REGISTRE) a l'ouverture, scope-agnostique,
-                        pret a injecter en session (lecture seule)  (--home <dir>  --json)
-                        --project <dir> : ajoute le canon PRODUIT + arme le marqueur de session
-  recall <requete>    Rappel plein-texte sur l'historique brut du canon (transcripts/)
-                        moteur ripgrep, repli Node  (--home <dir>  --json)
-  close               Revue de cloture : rejoue transcripts/ -> propositions typees dans
-                        proposals/ (memory|skill|hook|config) ; N'APPLIQUE RIEN
-                        --session <fic>  --home <dir>  --json
-  review <action>     Revue du reservoir (garde de consentement) : list|show|apply|reject|auto
-                        PROFIL en file, REGISTRE auto, STRUCTUREL toujours en file (jamais auto)
-                        --status <s>  --library <dir>  --home <dir>  --json
-  consolidate         Consolidation initiale : fond les fiches memoire portefeuille en un APERCU
-                        capé PROFIL/REGISTRE (curation) pour revue sur DIFF ; N'APPLIQUE RIEN
-                        --source <dir>  --home <dir>  --json
-  observe             Observation SILENCIEUSE d'Odin (store non-gate, distinct du canon review) :
-                        --project <p> "note" | --portfolio "note" | list
-                        --home <dir> (defaut <IAKAFRAME_ROOT>/.iaka/observation/)  --root  --json
-  portfolio           Vue agregee du portefeuille (LECTURE SEULE) : def/version/arbre/commit/jalons
-                        --root <chapeau>  --json  --ascii
-  range <all|projet>  Sauvegarde le portefeuille (depot restic chiffre). SUR COMMANDE : rien
-                        n'est planifie. "all" = tout le chapeau, SECRETS COMPRIS, sans exclusion ;
-                        un nom de projet inconnu est REFUSE (jamais un repli sur "all")
-                        --list --root <chapeau> --repository <url> --password-command <cmd>
-                        --exclude-file <f> --dry-run --json  (n'appelle jamais forget/prune)
-                        SIGNALE les branches locales sans copie distante (avant restic, puis en
-                        rappel apres le OK) : celles dont des commits n'existent sur AUCUNE ref
-                        distante. Jamais bloquant. Motifs a ecarter dans
-                        config/sauvegarde-branches-ignorees.txt (vide ; ecarter n'est pas taire)
-                        --branches  BALAYAGE SEUL, sans lancer restic (lecture seule, exit 0)
-  root                Affiche le dossier chapeau resolu (~/work | C:\\work)
+${commandesSection()}
 
 Umbrella : onboard --umbrella --path <chapeau> [--init-projects]
 
@@ -185,6 +108,9 @@ Sortie machine (--json) : partout un BOOLEEN ; emet un objet JSON 2-indente sur 
 
 ⚠ --root a DEUX sens selon la commande : dossier chapeau ~/work (portfolio, observe) vs
   racine de bibliotheque (list, show, add, assemble, switch). Voir IAKAFRAME_ROOT / IAKAFRAME_HOME.
+
+Chaque verbe porte sa PROPRE aide detaillee : iakaframe <verbe> --help. L'inventaire machine de
+ce bloc (verbes, sous-verbes, options) est disponible en JSON : iakaframe commands --json.
 
 Forgejo : token via FORGEJO_TOKEN. Dossier chapeau : IAKAFRAME_ROOT/--root, sinon ~/work.`;
 
@@ -203,6 +129,7 @@ async function main() {
     case 'services': await runServices(rest); break;
     case 'canaux':   runCanaux(rest); break;
     case 'endpoints': await runEndpoints(rest); break;
+    case 'commands': runCommands(rest); break;
     case 'config':   runConfig(rest); break;
     case 'agents':   runAgents(rest); break;
     case 'skills':   runSkills(rest); break;
