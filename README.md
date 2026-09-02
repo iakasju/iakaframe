@@ -19,20 +19,34 @@ La version scellée courante est **[v0.39.0](https://github.com/iakasju/iakafram
 **Prérequis :** Node.js **≥ 20** (rien d'autre : la CLI est en Node pur, **zéro
 dépendance** runtime, identique sous Windows, macOS et Linux).
 
-> **⚠️ Non fourni pour v0.39.0** — les voies ci-dessous ne sont **pas** disponibles pour
-> cette version. L'absence est déclarée, datée et levable ; elle n'est pas un oubli, et
-> rien ci-dessous ne la promet.
->
-> - **Archive npm attachée à la release** (`naonedge-iakaframe-0.39.0.tgz`)
->   — *constaté sur la mesure anonyme du dépôt, le 2026-08-29.* la version d'autorité 0.39.0 n'a jamais été publiée : dix-neuf mineures sont montées dans le dépôt sans qu'une seule release soit créée depuis v0.20.4 (2026-08-04). `GET releases/tags/v0.39.0` rend **HTTP 404** — il n'y a donc aucun asset à télécharger. S'y ajoute un fait mesuré le même jour : le workflow censé produire ce tarball n'a **jamais** été exécuté (`actions/runs` = 0), et l'unique `.tgz` publié a été déposé à la main. La chaîne est écrite, pas éprouvée.
->   **Levée :** une publication réelle de la version d'autorité. L'asset réapparaîtra, la face en ligne rougira sur cette entrée devenue fausse, et c'est ce rouge qui commande de la retirer.
-> - **Archive des sources de la release (Assets > Source code)**
->   — *constaté sur la mesure anonyme du dépôt, le 2026-08-29.* même cause que la ligne ci-dessus : l'archive des sources est attachée par GitHub **à une release**, et cette release n'existe pas. Le lien « Assets > Source code » de la page annoncée mène à la même 404 ; l'y envoyer serait promettre deux fois la même page absente.
->   **Levée :** identique — la publication de la version d'autorité fait apparaître la page et son archive de sources d'un seul coup.
->
-> En attendant, la [page des versions](https://github.com/iakasju/iakaframe/releases) liste ce qui est **réellement**
-> publié. Aucun numéro n'est recopié ici : cette page dit la vérité toute seule, et
-> continuera de la dire quand celle-ci aura vieilli.
+### Installer depuis la release — voie recommandée
+
+Un seul fichier à télécharger sur la [page de la release](https://github.com/iakasju/iakaframe/releases/tag/v0.39.0) :
+
+| Fichier | Commande |
+|---|---|
+| `naonedge-iakaframe-0.39.0.tgz` | `npm install -g naonedge-iakaframe-0.39.0.tgz` |
+
+```bash
+# 1. Télécharger le fichier ci-dessus depuis la page de la release (Assets)
+# 2. L'installer globalement — identique sous Windows, macOS et Linux
+npm install -g naonedge-iakaframe-0.39.0.tgz
+
+# 3. Vérifier
+iakaframe --help
+iakaframe banner IAKAFRAME
+```
+
+### Depuis l'archive des sources
+
+```bash
+# 1. Récupérer l'archive de la version depuis la page des releases
+#    (Assets > Source code), puis la décompresser
+cd iakaframe-0.39.0
+
+# 2. Installer la CLI globalement depuis le dossier cli/
+npm install -g ./cli
+```
 
 ### Depuis le dépôt — sans dépendre d'une release
 
@@ -50,7 +64,7 @@ node cli/src/index.js --help
 
 > **Réservé au réseau interne** — le paquet est aussi publié sur un registre npm privé :
 > `npm install -g @naonedge/iakaframe`. Ce registre n'est **pas accessible depuis
-> Internet** : hors du LAN, installer depuis le dépôt (ci-dessus).
+> Internet** : hors du LAN, prendre le `.tgz` de la release ci-dessus.
 <!-- vitrine:fin:installation -->
 
 Première utilisation : se placer dans un dossier de projet et lancer `iakaframe init`
