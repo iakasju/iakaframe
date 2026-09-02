@@ -770,6 +770,50 @@ job fait **après** ce lot. Dater, ne pas effacer.
 >    **déclare** ceux qu'on maintient **avec leur motif**. Un candidat maintenu **en silence** est le
 >    défaut — pas le candidat maintenu. *Un pointeur de gate est un exemple, jamais une énumération.*
 > 4. **LA RECTIFICATION EST DATÉE, jamais effacée**, et les empreintes se ré-inscrivent **à la main**.
+>
+> 🔍 **ÉLARGI À LA CASSE ET AUX ACCENTS, ET RENDU REJOUABLE — 2026-09-02, écart 3 du gate PASS de
+> L44.** Le balayage F2 du 2026-09-01 (candidats portant l'un des quatre motifs « NON ÉPROUVÉ »,
+> « ni run ni log », « sans run ni log », « n'a pas de trace ») était **sensible à la casse et aux
+> variantes accentuées**. **Le motif, insensible à la casse et aux accents, rejouable par un tiers** :
+> ```
+> node -e "const fs=require('fs');const r=JSON.parse(fs.readFileSync('cli/fixtures/registre-repli-latest.json','utf8'));const norm=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();const M=/non eprouve|ni run ni log|sans run ni log|n'a pas de trace/;console.log(r.entrees.filter(e=>M.test(norm(e.extrait))).length)"
+> ```
+> **Mesuré, pas recopié** : sur l'état d'avant la rectification (`dbf8b57`), ce motif élargi rend
+> **14** candidats (le motif sensible à la casse n'en rendait que **9**) ; sur l'état courant, il en
+> rend **7** (contre **2** au motif strict). **Résultat matériel inchangé** — les cinq candidats que
+> la casse et les accents seuls ajoutent se répartissent en deux classes, **aucune ne cache un
+> énoncé faux** :
+> - **TROIS** logent dans le **bloc daté du 2026-08-30**, conservé par la règle 4 ci-dessus et
+>   explicitement suivi de sa propre rectification, datée, dans le même fichier : le message **E-1**
+>   des trois dépôts (`IakaCockpit/scripts/vitrine-en-ligne.mjs:125`, `iakaFrameGUI/…:125`,
+>   `iakaframe/cli/scripts/vitrine-en-ligne.js:106`).
+> - **DEUX** portent sur le **même objet que le survivant n°1** (`iakaframe/cli/scripts/lib/
+>   vitrine.js:50`) et sont **couvertes par l'entrée 15** du registre des énoncés
+>   (`iakaframe/BACKLOG.md:73`, `specs/instructions/contrefactuel-du-vol-de-latest.md:555`).
+>
+> **CLAUSE 3 VÉRIFIÉE, PAS SEULEMENT SUPPOSÉE** — les deux survivants au sens strict nomment chacun
+> leur condition de chute, et les deux sont **inscrits au registre avec leur motif, tenus par une
+> empreinte** (`entrees[]`, un id par ligne, vérifiable en cherchant `chemin` et `ligne` dans
+> `cli/fixtures/registre-repli-latest.json`) :
+> - **Survivant n°1** — `vitrine.js:50` — porte sa condition **quatre lignes plus bas**
+>   (`vitrine.js:54`) : elle tombe à la première publication réelle par le workflow.
+> - **Survivant n°2** — l'entrée 16 du registre des énoncés
+>   (`specs/instructions/contrefactuel-du-vol-de-latest.md:556`) — a son **successeur écrit juste en
+>   dessous, entrée 17, ligne 557** : celui-ci nomme EXPLICITEMENT ce qui l'a fait tomber (la mesure
+>   du décideur du 2026-09-01) et le date. *(Ligne 557 elle-même ne porte aucun des quatre motifs :
+>   ce n'est pas un énoncé manqué, c'est la correction déjà écrite — rien à y sortir.)*
+>
+> 📏 **FORME CLOSE — LA SORTIE SE BALAYE, TROIS CLAUSES.** Arrêtée par le gate ; elle **précise** la
+> clause 3 ci-dessus pour tout balayage d'énoncés de ce lot, écrite ici parce que c'est la clause
+> qu'elle referme :
+> 1. **Le balayage est complet et rejouable** — le motif d'énumération est **écrit dans le corpus**
+>    (ci-dessus), **insensible à la casse et aux variantes accentuées**, et son compte se rejoue à
+>    l'identique par un tiers.
+> 2. **Aucun survivant n'est muet** — chaque candidat maintenu est **inscrit au registre avec son
+>    motif**, et ce motif est **tenu par une empreinte** : une réécriture silencieuse rougit (D-8).
+> 3. **Chaque motif nomme sa condition de chute** — il dit ce qui, **s'il était mesuré**, le
+>    rendrait faux. Un motif sans condition de chute est une exclusion de confort et compte comme
+>    **non déclaré**.
 
 ---
 
