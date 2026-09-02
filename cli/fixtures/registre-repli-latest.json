@@ -1,6 +1,6 @@
 {
   "//": "REGISTRE DES ENONCES SUR LE REPLI DU `latest` (L43, etendu par L44). Enumere UNE FOIS les enonces des trois depots qui affirment quelque chose sur ce qui advient du `latest` quand on lui pose make_latest=false, et sur la reparation. Verificateur : node cli/scripts/registre-repli-latest.js. RECTIFIE LE 2026-09-01 (L44), ET LA RECTIFICATION EST DATEE, PAS EFFACEE : cette cle annoncait QUATRE detections (mot pour mot, redaction du 2026-08-30 : il ROUGIT « quand un enonce derive, migre, disparait, ou quand un fichier NEUF entre dans le vocabulaire »), alors que l'outil en portait DEJA SEPT et un CLIQUET. L44 en ajoute une huitieme (D-8). CE QUE L'OUTIL DETECTE, ENUMERE UNE PAR UNE POUR QUE LE COMPTE NE PUISSE PLUS MENTIR : D-1 un enonce inscrit a disparu ou a ete reecrit · D-2 un enonce inscrit a change de ligne · D-3 un fichier NEUF entre dans le vocabulaire · D-4 un fichier couvert gagne ou perd des occurrences · D-5 une ligne du motif, dans un fichier COUVERT OU EXCLU, n'est tenue par aucune empreinte · D-6 une ligne declaree hors couverture a ete REECRITE · D-7 une declaration hors couverture est PERIMEE · D-8 une cle de prose de CE registre a ete reecrite, n'est tenue par aucune empreinte, ou sa declaration ne designe plus rien. SOIT HUIT. ET UN CLIQUET : `--ecrire` ne fabrique AUCUNE exclusion et ne cree AUCUNE declaration de cle de prose ; une ligne neuve du motif se TRIE A LA MAIN. CE QU'IL NE DETECTE PAS, declare et non tu : H-1 (une implication ecrite sans aucun mot du motif lui est invisible), H-2 (la justesse d'un enonce), H-3 (un enonce retourne a compte constant, hors des lignes inscrites). Prose, avant/apres et residu : iakaframe/specs/instructions/contrefactuel-du-vol-de-latest.md, § Registre, et iakaframe/specs/instructions/re-cadrage-garde-latest.md.",
-  "inscritLe": "2026-09-01",
+  "inscritLe": "2026-09-02",
   "balayage": {
     "motif": "make_latest|--latest|NO-OP|drapeau inamovible|repli par (date|semver|created_at|published_at)|aucun repli|repli du .?latest|[Vv]ole le .?latest|vol du .?latest|[Mm][eé]caniquement impossible|releases/latest",
     "extensions": [
@@ -6156,7 +6156,7 @@
       "id": "iakaframe/L44/instr/CA-1/M1-mesuree",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 832,
+      "ligne": 876,
       "extrait": "      `gh release edit v0.9.0 --latest` · après `latest = v0.9.0`. **Verdict écrit :",
       "empreinte": "8446c61bd66fb1243648c71cdf1f08302dfffb11e27fd7084fac882d309b8f1c"
     },
@@ -6164,7 +6164,7 @@
       "id": "iakaframe/L44/instr/CA-2/no-op-nomme",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 835,
+      "ligne": 879,
       "extrait": "- [x] **CA-2** — **M2 est mesurée**, et le NO-OP **est nommé**. ✅ **2026-09-01** :",
       "empreinte": "936958a1bbeed13223158f9df490cffd9eb93658663510c674ed628ca61532f5"
     },
@@ -6172,7 +6172,7 @@
       "id": "iakaframe/L44/instr/CA-2/commande-et-lecture",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 836,
+      "ligne": 880,
       "extrait": "      `gh api -X PATCH …/releases/379113280 -f make_latest=false` → accepté, `latest = v0.9.0`",
       "empreinte": "5623e7679cef0b7e40ddad4bb04d5c9511838f8f50f23db1d4c37821d32bf4f5"
     },
@@ -6180,7 +6180,7 @@
       "id": "iakaframe/L44/instr/CA-2/semantique-de-false",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 837,
+      "ligne": 881,
       "extrait": "      **inchangé**. **Le NO-OP siège dans la sémantique de la valeur `false` côté API** — établi par",
       "empreinte": "45afa32fb8ff2b826e9c7255fd2ecc82b93070bb64fa9ac9e579a1392e693026"
     },
@@ -6188,7 +6188,7 @@
       "id": "iakaframe/L44/instr/CA-8/branche-si-CA-1-rouge",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 884,
+      "ligne": 985,
       "extrait": "      --latest`. **Si CA-1 est rouge** : le programme est **inchangé** et les quatre cartouches",
       "empreinte": "58b4dc5bdf4d2cea871f4f3258019fa7c1f1c2a1d3e3a84e2c5d7eefa456464f"
     },
@@ -6196,7 +6196,7 @@
       "id": "iakaframe/L44/instr/CA-8/exigences-sous-2b-ii",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 890,
+      "ligne": 991,
       "extrait": "      ci-dessus, inchangé. Si AR-7 = **(2b-ii)**, la branche émet un `PATCH … make_latest=legacy`,",
       "empreinte": "591267a57e26a97159e5673f00f1d8ab1a281f7fbb2690b91005a2d9f614b75e"
     },
@@ -6204,7 +6204,7 @@
       "id": "iakaframe/L44/instr/CA-24/doc-refutee",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 961,
+      "ligne": 1062,
       "extrait": "- [ ] **CA-24** — La phrase de la doc GitHub sur `GET /releases/latest` (*« sorted by the `created_at`",
       "empreinte": "3c399d12187b479a28dfdcb9d68bc6b9d144a88a248d81bc8b596e7c89aabef0"
     },
@@ -6212,7 +6212,7 @@
       "id": "iakaframe/L44/instr/AR-2/ce-que-la-mesure-peut-renverser",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 979,
+      "ligne": 1080,
       "extrait": "> ⚠️ **Ce que cette mesure peut renverser, et c'est pourquoi elle passe en premier** : le NO-OP est",
       "empreinte": "777d6064c79d946634759950ba8d7101257ab53b1493770f5a6952dbad298628"
     },
@@ -6220,7 +6220,7 @@
       "id": "iakaframe/L44/instr/AR-2/true-jamais-verifie",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 980,
+      "ligne": 1081,
       "extrait": "> etabli sur l'ecriture **`false`**. **Personne n'a jamais verifie que `--latest` tout court fasse",
       "empreinte": "2944e4db312ed7b81354e6f242f0f17286574c711b26c3d44c963ea9ef4e2877"
     },
@@ -6228,7 +6228,7 @@
       "id": "iakaframe/L44/instr/AR-2/M1-est-verte",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 995,
+      "ligne": 1096,
       "extrait": "> guettait M1 (*« personne n'a vérifié que `--latest` tout court fasse quelque chose »*) : **M1 est",
       "empreinte": "ddc13bd514a824fbfadf77cef47f0148c8880ae6ac3337bd4503f9378bc10600"
     },
@@ -6236,7 +6236,7 @@
       "id": "iakaframe/L44/instr/AR-1/ne-dit-rien-de-la-forme",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 1018,
+      "ligne": 1119,
       "extrait": "> corriger » à « ne pas le corriger », pas `--latest` à `legacy`. **C'est le vide qu'AR-7 comble**, et",
       "empreinte": "76f91fce028149a92723f61c773416bb96502873ad1460964ea4d42b211f0ea9"
     },
@@ -6244,7 +6244,7 @@
       "id": "iakaframe/L44/instr/AR-7/tranche-sur-a",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 1028,
+      "ligne": 1129,
       "extrait": "> - **AR-7 = (a) — (2b-i), ré-affirmer `--latest` sur `PLUS_HAUT`.** `legacy` **n'entre pas dans le",
       "empreinte": "f1855310de910aca3a92fb9ef489621e8679e5727f2e010a43e2fc40db0ea158"
     },
@@ -6252,7 +6252,7 @@
       "id": "iakaframe/L44/instr/AR-7/motif-egaux-par-construction",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 1030,
+      "ligne": 1131,
       "extrait": ">   retenu est le premier de la recommandation : `--latest` rend `latest` et `PLUS_HAUT` égaux **par",
       "empreinte": "9ab86aaaf2e4de7c7e6d7abb6613f4e074b88d0a19c007f42c6e923bb7ed4163"
     },
@@ -6260,7 +6260,7 @@
       "id": "iakaframe/L44/instr/AR-7/tableau-arbitrage",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 1041,
+      "ligne": 1142,
       "extrait": "| **AR-7** | **Quel remède, dans la branche du vol ?** | (a) **(2b-i)** ré-affirmer `--latest` sur `PLUS_HAUT` · (b) **(2b-ii)** écrire `make_latest=legacy` par `PATCH` · (c) les deux | **(a)**, et fermement. Quatre motifs, du plus fort au plus faible. **1. (2b-ii) ne peut pas satisfaire l'invariant du job.** `VERIFICATION` compare `latest` à `PLUS_HAUT` : `--latest` les rend égaux **par construction**, `legacy` seulement **par coïncidence** — et **précisément pas dans le cas que le job traite**, puisque après un build rouge le plus haut semver **porteur d'une release** n'est pas forcément ce que la formule choisit. **Un remède qui peut faire rougir la garde APRÈS sa propre écriture n'est pas un remède.** **2. La formule est inconnue** (§ Mesures) : déléguer à une règle non caractérisée dans le seul chemin de réparation, c'est remplacer un NO-OP **mesuré** par une écriture **non déterministe**. **3. Coût de surface** : `legacy` est **inatteignable par `gh`** (M3a) ; l'employer impose `gh api -X PATCH` **et** un `id` de release — que le job **n'a pas**, il manipule des **tags**. Donc une résolution `tag → id` de plus, un appel de plus, un mode d'échec de plus, dans un job en `if: always()` qui tourne **aussi quand la release n'existe pas**. **4. Persistance non mesurée** : si `legacy` installe un **état**, le job laisserait le pointeur « en calcul », donc **re-volable** par la création suivante. Non mesuré ⇒ non posable. **(c) est à écarter** : deux écritures dont la seconde peut défaire la première. **`legacy` a gagné sa place dans les CARTOUCHES (CA-22), pas dans le programme** — c'est une **connaissance**, pas un remède. |",
       "empreinte": "b46b75d27c9e297a852594350ec5d7ca40104e942e3c4985a4f80cfdb300feb4"
     },
@@ -6268,7 +6268,7 @@
       "id": "iakaframe/L44/instr/borne/residu-non-clos-rature",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 1132,
+      "ligne": 1233,
       "extrait": "3. **Que le résidu est clos.** ~~Même si M2 localise le NO-OP et M3 éclaire `legacy`, **une règle non",
       "empreinte": "05275db3cd4f36603a2b44fac279a96d9834823b86a9110f41b80ae7c67a230c"
     },
@@ -6276,7 +6276,7 @@
       "id": "iakaframe/L44/instr/borne/residu-2-referme",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 1134,
+      "ligne": 1235,
       "extrait": "   → **RÉÉCRIT le 2026-09-01, mesures faites.** Le résidu **(2) est refermé** — le NO-OP est dans la",
       "empreinte": "2182d0a5b7dca3506d83f45e4f8a68de6557e82b14105945a5cd0843cc69c8f5"
     },
@@ -6284,7 +6284,7 @@
       "id": "iakaframe/L44/instr/borne/doc-github-refutee",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 1144,
+      "ligne": 1245,
       "extrait": "   2026-09-01 : la phrase *« sorted by the `created_at` attribute »* de `GET /releases/latest` est",
       "empreinte": "28e0b7efe0379810f227a208675d99d568881bc974372c8110c152b89a374100"
     },
@@ -6292,7 +6292,7 @@
       "id": "iakaframe/L44/instr/borne/badge-web-non-mesure",
       "depot": "iakaframe",
       "chemin": "specs/instructions/re-cadrage-garde-latest.md",
-      "ligne": 1149,
+      "ligne": 1250,
       "extrait": "4. **Que le badge « Latest » de l'interface web suit `GET /releases/latest`.** Rien n'est mesuré",
       "empreinte": "a8c1de48bbfcd02bf405bf745ca4ec6d40aee51190af72c9f88b42c1e744196e"
     }
