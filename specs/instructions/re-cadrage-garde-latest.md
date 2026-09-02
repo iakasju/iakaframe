@@ -954,6 +954,30 @@ job fait **après** ce lot. Dater, ne pas effacer.
 > ⚠️ **Ceci n'ouvre PAS un chantier de tests du shell** : c'est une déclaration à durcir, pas un
 > périmètre à élargir. Si un artefact reproductible paraît faisable **dans ce lot**, il **remonte
 > au décideur** ; il ne se décide pas ici.
+>
+> ⚠️ **PORTÉE CORRIGÉE — 2026-09-02, écart 4 du gate PASS de L44, même famille que l'écart 1.** La
+> remise de ce lot annonçait *« 6 assertions, toutes dans `bloc-latest.test.mjs` »*. **Exacte pour ce
+> fichier** — au moment de la remise, six appels `toThrow*` y vivaient (cinq `toThrowError` restés
+> depuis, plus le `not.toThrow()` que l'écart 2 a retiré) — **et exacte pour le mot littéral
+> `toThrow` dans `iakaframe`**, qui ne l'emploie pas (suite `node:test`, motif `assert.throws`/
+> `assert.rejects`). **Mais sa portée n'était pas celle qu'elle laissait entendre.**
+> **RE-MESURÉ, PAS RECOPIÉ** (2026-09-02, `git grep -coE 'toThrow|assert\.throws|assert\.rejects|
+> \.rejects|t\.throws|throws\('` sur `*.mjs *.js *.ts *.tsx`, état courant de la branche) :
+> - **IakaCockpit** — `bloc-latest.test.mjs` (9 occurrences du mot, dont **cinq assertions réelles**
+>   `toThrowError`, le reste en commentaire), `canal-mesure.test.mjs` (1), `vitrine.test.mjs` (2),
+>   `TreemapPanel.test.tsx` (1), `useSettings.test.ts` (1).
+> - **iakaFrameGUI** — les **cinq mêmes fichiers** que Cockpit (fichiers convergents ou parallèles)
+>   **plus** `discovery.test.ts` (2), `frame.test.ts` (1), `kit.test.ts` (1), `method.test.ts` (3),
+>   `principle.test.ts` (1), `ritual.test.ts` (1), `scaffold.test.ts` (1), `workflow.test.ts` (1),
+>   `publish-update.test.mjs` (**12**), `transport.test.ts` (**6**).
+> - **iakaframe** — **24** `assert.throws`/`assert.rejects` (`node:test`), sur neuf fichiers de
+>   `cli/test/` plus `library/skills/iakaframe-appflowy-doc/test.mjs`.
+> **LA CONCLUSION EST VÉRIFIÉE INCHANGÉE SUR LE PÉRIMÈTRE ÉLARGI, ET NON SAUVÉE** : **zéro assertion
+> positive non ancrée** dans les trois dépôts — chaque occurrence relevée porte soit un message
+> nommé (`toThrowError(/…/)`, un second argument de message, ou l'équivalent `assert.throws`), soit
+> une assertion négative dont le rôle a déjà été jugé par le gate (§ écart 2 ci-dessus). Aucune
+> n'atteste qu'un appel réussit sans dire quoi. **La correction porte sur la portée de la phrase,
+> pas sur son verdict** — même défaut de précision que l'écart 1.
 
 ### La ré-affirmation — posée seulement si elle est autorisée
 
