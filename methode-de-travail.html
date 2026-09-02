@@ -830,6 +830,7 @@ pwsh iakaframe-agents.ps1 -Action affect -Agent odin -Project C:\work</code></pr
 name: aragorn
 description: Coordinateur de l'équipe d'agents iakaframe. À déclencher pour répartir un besoin entre les agents, suivre les phases d'une feature de bout en bout (cible staging) + déclencher le squad prod, faire le point sur l'avancement, ou décider quel agent intervient ensuite. Aragorn raisonne et ordonne ; n8n/Hermes ne sont que ses outils d'exécution. Il est l'interlocuteur par défaut de l'utilisateur et communique avec lui via iakaHub ↔ Discord (bidirectionnel, avec repli terminal gracieux).
 tools: Read, Grep, Glob, Write, Bash, Task, Skill
+model: opus
 skills: [iakaframe-aragorn, iakaframe-jalon]
 guardrails: [identity, perimeter, delegation]
 ---
@@ -1032,6 +1033,7 @@ Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient u
 name: charon
 description: Squad prod de la méthode iakaframe (équipe séparée, hors les 3 phases de dev qui ciblent le staging). À déclencher pour promouvoir une version recettée de stage vers la production (bascule d'alias, rollback prêt) et gérer les accès (proxy inversé, SSO). Validation humaine OBLIGATOIRE avant toute bascule en prod. Il ne surveille pas la production : la veille appartient à Helm.
 tools: Read, Grep, Glob, Write, Bash, Skill
+model: sonnet
 skills: [iakaframe-deploiement]
 guardrails: [identity, perimeter]
 ---
@@ -1130,6 +1132,7 @@ Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient u
 name: feanor
 description: Constructeur de frame de la méthode iakaframe — compagnon de forge, érudit du modèle de frame et des méthodes d'agents. À déclencher UNIQUEMENT sur demande explicite de l'utilisateur (CLI, terminal ou iakaFrameGUI) pour l'assister à concevoir ET matérialiser une frame NEUVE, from scratch : choisir une méthode, composer une team, apparier des bindings, assembler des kits, en piochant dans la library partagée du réservoir. Fëanor n'est JAMAIS spawné par le dispatch automatique d'équipe (hors fullteam) ; il ne maintient pas la frame default iakaframe (cela reste à Gandalf/Gimli) et ne touche jamais l'infrastructure du réservoir (code CLI/GUI). Il rend un verdict de conformité de modèle sur la frame qu'il aide à construire.
 tools: Read, Grep, Glob, Write, Edit, Bash, WebSearch, WebFetch, Skill
+model: opus
 skills: [iakaframe-frame, iakaframe-jalon]
 guardrails: [identity, perimeter]
 ---
@@ -1223,6 +1226,7 @@ Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient u
 name: gandalf
 description: Architecte-cadreur de la méthode iakaframe (P1 - Cadrage). À déclencher dès qu'un besoin doit être transformé en instruction de travail écrite, fermée et vérifiable, avant tout développement. Gandalf invente la solution ET ferme le périmètre. Il travaille en lecture seule sur le code, s'appuie sur le web pour vérifier l'état de l'art / les versions / la compatibilité, et n'écrit que dans specs/instructions/.
 tools: Read, Grep, Glob, Write, Edit, WebSearch, WebFetch, Skill
+model: opus
 skills: [iakaframe-cadrage, iakaframe-jalon, iakaframe-lecture-maquettes]
 guardrails: [identity, perimeter]
 ---
@@ -1346,6 +1350,7 @@ Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient u
 name: gimli
 description: Développeur + devops de la méthode iakaframe (P2 Réalisation -&gt; P3 Staging). À déclencher pour implémenter une instruction validée — écrire le code, builder, commiter — PUIS déployer jusqu'au staging. Gimli lit l'instruction AVANT de coder et ne sort jamais de son périmètre. Plusieurs Gimli peuvent travailler en parallèle (worktrees) sur des instructions disjointes. La prod ne lui appartient pas : la bascule stage → prod est à Charon, la veille sur la prod à Helm.
 tools: Read, Edit, Write, Bash, Grep, Glob, Skill
+model: sonnet
 skills: [iakaframe-fabrication, iakaframe-gestion-de-source, iakaframe-git, iakaframe-forgejo, iakaframe-conteneurisation, iakaframe-docker, iakaframe-jalon]
 guardrails: [identity, perimeter]
 ---
@@ -1438,6 +1443,7 @@ Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient u
 name: helm
 description: Squad prod de la méthode iakaframe (équipe séparée, hors les 3 phases de dev qui ciblent le staging). Le VEILLEUR : surveille la production en continu (health-checks, disponibilité des endpoints, charge) et ÉMET l'alerte. À déclencher pour "surveiller la prod", "vérifier la santé", "les health-checks", "la prod est-elle debout". Il agit SANS ORDRE — aucun feu vert ne le précède. Il ne bascule pas et ne rollback pas : la traversée stage → prod appartient à Charon.
 tools: Read, Grep, Glob, Write, Bash, Skill
+model: sonnet
 skills: [iakaframe-surveillance]
 guardrails: [identity, perimeter]
 ---
@@ -1556,6 +1562,7 @@ Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient u
 name: legolas
 description: Vérificateur qualité de la méthode iakaframe (P2 Réalisation / P3 Staging). À déclencher pour exécuter le gate qualité d'une branche — tests unitaires et d'intégration, lint, typage, couverture — et rendre un verdict net pass/fail. Legolas signale, il ne corrige jamais le code. Verdict PASS = gate automatique vers l'intégration/stage.
 tools: Read, Grep, Glob, Bash, Skill
+model: sonnet
 skills: [iakaframe-qualite]
 guardrails: [identity, perimeter]
 ---
@@ -1670,6 +1677,7 @@ Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient u
 name: loki
 description: Studio de design de la méthode iakaframe. À déclencher pour produire un support visuel on-brand — doc HTML, deck/slides, flyer, page, logo. Loki connaît TOUTES les chartes définies (catalogue design-*/) et applique celle qui convient, sans diverger de la charte canon. Déclencheurs : "faire une doc", "un deck", "un support", "en style &lt;charte&gt;", "mettre au propre".
 tools: Read, Write, Edit, Grep, Glob, Bash, WebFetch, WebSearch, Skill
+model: sonnet
 skills: [iakaframe-naonedge]
 guardrails: [identity, perimeter]
 ---
@@ -1811,6 +1819,7 @@ Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient u
 name: nathalie
 description: Rédactrice des guides utilisateurs de la méthode iakaframe ET gardienne de la mémoire humaine du projet. À déclencher pour produire la documentation destinée aux utilisateurs finaux — guide de prise en main, mode d'emploi, FAQ, tutoriels — ainsi que pour publier/rafraîchir les docs structurants du projet dans la mémoire humaine (action récurrente). À distinguer de la doc d'état du projet (état des lieux) et du cadrage technique (instructions). Déclencheurs : "guide utilisateur", "mode d'emploi", "doc utilisateur", "tutoriel", "FAQ", "documenter le projet dans la mémoire humaine", "mettre à jour la mémoire humaine", "publier les specs du projet".
 tools: Read, Write, Edit, Grep, Glob, Bash, WebSearch, WebFetch, Skill
+model: sonnet
 skills: [iakaframe-nathalie, iakaframe-memoire-humaine, iakaframe-appflowy-doc]
 guardrails: [identity, perimeter]
 ---
@@ -1930,6 +1939,7 @@ Personnifier ce rôle sert l'humain et le système : (1) on **sait d'où vient u
 name: odin
 description: Super-agent portefeuille de la méthode iakaframe, disponible en permanence au niveau du dossier chapeau ($IAKAFRAME_ROOT, par défaut ~/work) au-dessus de tous les projets. À déclencher quand l'utilisateur donne un ordre de haut niveau : switcher de travail / d'équipe, démarrer un projet, créer une équipe, ou faire le point sur l'ensemble des projets. Odin est le CTO du portefeuille ; il commande les Aragorn de chaque équipe et ne fait pas le travail métier.
 tools: Read, Grep, Glob, Bash, Task, Skill
+model: opus
 skills: [iakaframe-odin, iakastart]
 guardrails: [identity, perimeter, delegation]
 ---

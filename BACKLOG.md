@@ -10,6 +10,37 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### L45 — Deux successeurs nommés du lot « affectation du modèle par acteur » (2026-09-02)
+
+> Ouverts **par le lot 1** de `specs/instructions/affectation-modele-par-acteur.md` (CA-15), qui a
+> rendu effective la projection du `model:` du binding vers le contrat déployé. Ce ne sont pas des
+> regrets : ce sont **deux faits nommés à la livraison** plutôt que laissés tacites.
+
+- [ ] **`G5-LA-FORGE-EMET-ELLE-LE-MODELE` — l'adaptateur sait écrire un modèle, il n'en écrit
+  toujours pas.** Sous la posture **P-D** retenue par le décideur, l'invariant **G-5** n'a **pas**
+  été rouvert et **reste vrai et vérifié** : `packages/core/src/adapters/claudeCode.ts:11-12`
+  (dépôt `iakaFrameGUI`) déclare toujours *« Team PURE en entrée : aucun `runner`/`model` n'est lu
+  ni émis ; le `model` du frontmatter subagent est OMIS (liaison run-time = Cockpit) »*, et
+  `packages/core/__tests__/adapters.test.ts:160` le prouve sur l'arbre généré. Ce que le lot a
+  changé est une **capacité, pas une politique** : `serializeAgentContract`
+  (`packages/core/src/frontmatter.ts:475-498`) *sait* désormais émettre un `model?` optionnel, mais
+  la fonction de forge `renderAgent` ne lui en passe aucun — les kits fabriqués depuis une team
+  pure restent byte-identiques. **La question ouverte** : la forge doit-elle un jour émettre le
+  modèle (et alors G-5 devient une décision à rouvrir explicitement), ou la liaison modèle
+  reste-t-elle définitivement run-time (Cockpit) ? *Tant que personne ne tranche, le CLI projette
+  et la forge s'abstient : ce n'est pas une dérive (le vendorage est à 0), c'est une **asymétrie
+  assumée** entre deux producteurs du même format.*
+
+- [ ] **`MODELS-JS-DEUXIEME-LECTEUR` — `models.js` lit le modèle sans passer par
+  `modelForPersona`.** Le lot 1 a créé le résolveur unique
+  (`cli/src/lib/generate-agents.js:59`, `modelForPersona`) **sans y brancher**
+  `cli/src/commands/models.js:124-131`, qui lit `binding.data.assignments` **en ligne** — et,
+  nuance mesurée au cadrage, via `toRows(...assignments)` et **non** `bindingRows`, donc il
+  **ignore le schéma alternatif `bindings:`** que le résolveur, lui, sait lire. Deux chemins de
+  lecture du même fait coexistent donc, dont un aveugle à la moitié du schéma convergé. **Hors
+  périmètre du lot 1 assumé** (ce serait un lot de convergence à part entière), inscrit ici pour
+  qu'un défaut nommé ne soit pas un défaut caché (R-3 de l'instruction).
+
 ### L44 — Re-cadrage de la garde du `latest` (2026-09-01)
 
 - [ ] **`L44-RE-CADRAGE-GARDE-LATEST` — le job dit ce qu'il fait, et il le fait.**
