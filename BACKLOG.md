@@ -122,8 +122,12 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   résidu réécrit avec la réserve du **même jour**) ; l'instrument `registre:repli-latest` cesse
   de mentir sur lui-même (sept détections + le cliquet), **D-8** sur ses clés de prose, et
   l'**ancrage ligne à ligne** des 13 exclusions de fichier.
-  **HORS PÉRIMÈTRE, déclaré** : le **programme** du workflow de ce dépôt (son CI n'a jamais
-  tourné, `actions/runs → total_count: 0`) et `CI-RELEASE-AUCUN-EPINGLAGE`.
+  **HORS PÉRIMÈTRE, déclaré, au 2026-09-01** : le **programme** du workflow de ce dépôt (son CI
+  n'avait jamais tourné, `actions/runs → total_count: 0`) et `CI-RELEASE-AUCUN-EPINGLAGE` — **daté,
+  pas effacé.** ⚠️ **Le référent du programme, lui, a été corrigé le lendemain** (lot
+  `fix/R2-et-levee-absence-iakaframe`, 2026-09-02, hors L44) : voir `CI-CLI-JAMAIS-EXECUTE` en
+  *Fait*, ci-dessous, dont la condition de levée est désormais remplie (run `33635520511`). Reste
+  ouvert, inchangé : `CI-RELEASE-AUCUN-EPINGLAGE`.
   **NON MESURÉ — acte du décideur, refusé aux agents** : le contrefactuel A/B **sur le banc**
   (CA-6) et la preuve de bout en bout **dans un run réel** (CA-10).
 
@@ -159,17 +163,9 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   et c'est **E-5** qui rougit dès que la déclaration devient fausse. Le prix d'AR-1 = (a) est
   **payé, pas déguisé** ; la publication éteint le tout.
 
-- [ ] **`CI-CLI-JAMAIS-EXECUTE` — la chaîne de publication de la CLI est ÉCRITE, jamais ÉPROUVÉE.**
-  *(constat, pas correctif — il ne se lève que par un acte du décideur.)* Mesure anonyme du
-  2026-08-29 : `GET /repos/iakasju/iakaframe/actions/runs` → **`total_count: 0`**. Le workflow
-  `release` existe (enregistré le **2026-08-05T15:36:53Z**) mais **n'a jamais tourné, pas une
-  fois** ; l'unique `.tgz` de `v0.20.4` a pour `uploader.login` **`iakasju`** et date du
-  **2026-08-05T15:24:17Z**, soit **douze minutes avant** l'enregistrement du workflow — il a donc
-  été **déposé à la main**. Conséquence : le tarball recommandé au visiteur **et** le `make_latest`
-  calculé posé par L42 sont **non éprouvés**. Le statut est écrit là où on le lira —
-  `.github/workflows/release.yml` (encadré L42) et `cli/scripts/lib/vitrine.js` (constante
-  `ARTEFACT`). **Condition de levée** : la première publication réelle, après laquelle
-  `actions/runs` sera non nul et l'asset portera `github-actions[bot]`.
+- [x] **`CI-CLI-JAMAIS-EXECUTE` — LEVÉE le 2026-09-02, déplacée en *Fait* avec sa preuve de
+  clôture** (lot `fix/R2-et-levee-absence-iakaframe`, gate FAIL→re-mesure). Texte original et
+  preuve conservés intégralement ci-dessous, § *Fait > Levés le 2026-09-02* — daté, pas effacé.
 
 - [ ] **`D3-OBSERVABLE-ENREGISTREMENT` — une phrase dit « existe » là où la mesure dit
   « enregistrement », et il existe une preuve plus dure ET locale.** *(nit relevé au gate 🏹 Legolas
@@ -186,13 +182,21 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 - [ ] **`CI-RELEASE-AUCUN-EPINGLAGE` — le workflow de ce dépôt n'épingle RIEN.** *(SIGNALÉ au gate
   🏹 Legolas du 2026-08-29 ; hors périmètre L42 — lot à part, l'épingler « tant qu'on y est » aurait
-  été un débordement.)* `.github/workflows/release.yml` emploie **trois tags flottants** :
+  été un débordement. Confirmé hors périmètre au gate du 2026-09-02, lot
+  `fix/R2-et-levee-absence-iakaframe` — successeur légitime, aucune mesure de ce lot ne le réfute.)*
+  `.github/workflows/release.yml` emploie **trois tags flottants** :
   `actions/checkout@v4` (l. 23), `actions/setup-node@v4` (l. 27), `softprops/action-gh-release@v2`
-  (l. 84). Les deux dépôts jumeaux ont reçu l'acquis de **L41** — épinglage au **SHA de 40
-  caractères** + cliquet `fixtures/tauri-action-pin.json` (référent : SHA, `sha256` de l'`action.yml`,
-  entrées déclarées, entrées vérifiées absentes) ; **ce dépôt-ci ne l'a pas**. Et c'est précisément
-  celui dont le workflow **n'a jamais tourné** (cf. `CI-CLI-JAMAIS-EXECUTE`) : la dérive d'une action
-  y entrerait sans que rien ne l'ait jamais éprouvée. Portée : épingler les trois, poser le référent
+  (l. 84, au 2026-08-29 ; **l. 176 depuis le 2026-09-02**, le cartouche du lot ci-dessus ayant
+  allongé le fichier). Les deux dépôts jumeaux ont reçu l'acquis de **L41** — épinglage au **SHA de
+  40 caractères** + cliquet `fixtures/tauri-action-pin.json` (référent : SHA, `sha256` de
+  l'`action.yml`, entrées déclarées, entrées vérifiées absentes) ; **ce dépôt-ci ne l'a pas**. Au
+  2026-08-29, c'était précisément celui dont le workflow **n'avait jamais tourné** (cf.
+  `CI-CLI-JAMAIS-EXECUTE`, *daté, pas effacé*) : la dérive d'une action y entrerait sans que rien ne
+  l'ait jamais éprouvée. **⚠️ MIS À JOUR le 2026-09-02** : le workflow a désormais tourné **une
+  fois** (run `33635520511`, `completed`/`success`) — l'argument change de forme mais pas de
+  conclusion : une **unique** exécution réussie n'éprouve ni la dérive d'une action tierce ni les
+  branches d'erreur du job ; l'épinglage reste dû, pour la même raison structurelle qu'avant, avec
+  une observation en moins pour la motiver. Portée : épingler les trois, poser le référent
   et son cliquet à l'image de L41, et **relire l'`action.yml` au SHA retenu** avant de déclarer une
   entrée supportée — la leçon D-4 de L41, où `uploadUpdaterJson` était ignoré en silence.
 
@@ -526,7 +530,39 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
 
 ## Fait
 
-### Soldés et vérifiés à la purge du 2026-07-23
+### Levés le 2026-09-02 (lot `fix/R2-et-levee-absence-iakaframe`, gate FAIL → re-mesure)
+
+> Ce lot corrigeait R-2 dans `.github/workflows/release.yml` de ce dépôt et levait deux
+> déclarations d'absence (E-5) devenues fausses par la **publication réelle de v0.39.0**
+> (run CI `33635520511`, `completed`/`success` — première exécution de ce workflow). Le gate
+> Legolas a rendu **FAIL** sur un point distinct, net : quatre textes (et un cinquième trouvé au
+> balayage élargi) continuaient d'affirmer, **au présent**, que ce workflow n'avait jamais tourné —
+> alors que la mesure qui fondait la levée E-5 le réfutait. Cette sous-section **règle 4 : on date,
+> on n'efface pas** — chaque item ci-dessous conserve son texte original intégral, avec la preuve
+> de clôture ajoutée à la suite.
+
+- [x] **`CI-CLI-JAMAIS-EXECUTE` — la chaîne de publication de la CLI est ÉCRITE, jamais ÉPROUVÉE.**
+  *(constat, pas correctif — il ne se lève que par un acte du décideur.)* Mesure anonyme du
+  2026-08-29 : `GET /repos/iakasju/iakaframe/actions/runs` → **`total_count: 0`**. Le workflow
+  `release` existe (enregistré le **2026-08-05T15:36:53Z**) mais **n'a jamais tourné, pas une
+  fois** ; l'unique `.tgz` de `v0.20.4` a pour `uploader.login` **`iakasju`** et date du
+  **2026-08-05T15:24:17Z**, soit **douze minutes avant** l'enregistrement du workflow — il a donc
+  été **déposé à la main**. Conséquence : le tarball recommandé au visiteur **et** le `make_latest`
+  calculé posé par L42 sont **non éprouvés**. Le statut est écrit là où on le lira —
+  `.github/workflows/release.yml` (encadré L42) et `cli/scripts/lib/vitrine.js` (constante
+  `ARTEFACT`). **Condition de levée** : la première publication réelle, après laquelle
+  `actions/runs` sera non nul et l'asset portera `github-actions[bot]`.
+  **⚠️ LEVÉE le 2026-09-02 — la condition ci-dessus est REMPLIE, mesurée, pas supposée** : run
+  `33635520511` (`completed`/`success`), `GET /repos/iakasju/iakaframe/actions/runs` →
+  `total_count: 1` (n'est plus 0), asset `naonedge-iakaframe-0.39.0.tgz` de la release `v0.39.0`
+  avec `uploader.login = github-actions[bot]`. Les deux emplacements cités ci-dessus
+  (`.github/workflows/release.yml`, `cli/scripts/lib/vitrine.js`) portent chacun une annotation
+  datée du 2026-09-02 renvoyant à cette même mesure. *Le lot `fix/R2-et-levee-absence-iakaframe`
+  qui a levé cet item est un lot DISTINCT de L42 — le référent de R-2 dans ce même workflow était,
+  lui, un défaut de CODE non lié à la publication (cf. § L44 ci-dessus), corrigé dans le même lot
+  mais pour une raison indépendante.*
+
+
 
 - [x] **Garde `vendor-check` cross-repo (cause racine)** — **LIVRÉE en v0.19.0**, l'item était resté ouvert par inadvertance. La garde est née **rouge 18/21** comme exigé, puis portée au vert **par le vrai canon** (lots v0.20.3/v0.20.4, `a8953f5` + `5a8f811`). *Preuve de clôture, mesurée à la purge : `iakaframe vendor-check` → `OK — 18 copies + 4 dérivées conformes au canon`, exit 0, miroir `~/work/iakaFrameGUI`.* La dérive mutuellement cohérente cross-repo — indétectable depuis v0.17.14, et démontrée par Legolas comme laissant 475/475 tests GUI verts — est désormais détectée.
 - [x] **⏰ Remède kit du § 4.5 inopérant** — **TRAITÉ**, et la cause a été traitée à la racine plutôt que le symptôme : le remède n'est plus un **texte constant** mais une **donnée dérivée de la mesure** (`cli/src/commands/vendor-check.js`, fonction pure sans E/S, un geste par dérive constatée ; instruction `remede-vendor-check-derive-de-l-etat.md`), avec une **garde anti-régression** — une raison de dérive ajoutée plus tard sans remède rougit. L'effet de bord attenant est corrigé au passage : `assemble --write` **threade le corps authored** et `--force` est **non destructif** (AC-7 : fichier byte-inchangé). *L'échéance datée « avant le lot de re-vendorage » est honorée — le re-vendorage a eu lieu et le kit ne dérive pas.*

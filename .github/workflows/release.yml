@@ -50,7 +50,8 @@ jobs:
       # │ le pose CALCULE a l'etape suivante, jamais laisse au defaut. Ce qu'il fait d'une        │
       # │ release EXISTANTE n'a JAMAIS ete mesure — ce workflow n'a jamais tourne (STATUT).       │
       # │                                                                                         │
-      # │ STATUT : ECRIT, NON EPROUVE. Mesure anonyme du 2026-08-29 :                             │
+      # │ STATUT (AU 2026-08-29, DATE — voir LEVEE ci-dessous) : ECRIT, NON EPROUVE. Mesure       │
+      # │ anonyme du 2026-08-29 :                                                                 │
       # │   GET /repos/iakasju/iakaframe/actions/runs -> total_count: 0                           │
       # │ Ce workflow N'A JAMAIS ETE EXECUTE, pas une fois. L'unique .tgz publie (v0.20.4) a      │
       # │ pour uploader `iakasju` et date du 2026-08-05T15:24:17Z, soit DOUZE MINUTES AVANT       │
@@ -59,6 +60,17 @@ jobs:
       # │ donc jamais tourne. CONDITION DE LEVEE : la premiere publication reelle (acte du        │
       # │ decideur), apres laquelle `actions/runs` sera non nul et l'asset portera                │
       # │ `github-actions[bot]`.                                                                  │
+      # │                                                                                         │
+      # │ ⚠️ LEVEE le 2026-09-02 (lot fix/R2-et-levee-absence-iakaframe) — LA CONDITION CI-DESSUS  │
+      # │ EST REMPLIE, le paragraphe STATUT ci-dessus est DATE, PAS EFFACE. Mesure : le workflow   │
+      # │ a tourne pour la premiere fois, run `33635520511`, `completed`/`success` ;               │
+      # │ `actions/runs` -> `total_count: 1` (n'est plus 0) ; l'asset                              │
+      # │ `naonedge-iakaframe-0.39.0.tgz` de v0.39.0 porte `uploader.login = github-actions[bot]`. │
+      # │ CE QUI RESTE VRAI, PRECISEMENT : « ce qu'il [softprops] fait d'une release EXISTANTE     │
+      # │ n'a JAMAIS ete mesure » (ligne 50-51 ci-dessus) reste EXACT — ce run a CREE v0.39.0, il  │
+      # │ n'a pas EDITE une release deja existante. Seule la condition de levee ecrite ci-dessus   │
+      # │ (« la premiere publication reelle ») est remplie ; celle, plus fine, sur l'EDITION       │
+      # │ d'une release existante par `softprops` reste NON MESUREE.                               │
       # │                                                                                         │
       # │ LE TABLEAU DES CINQ ECRITURES — banc PRIVE iakasju/latest-contrefactuel, release        │
       # │ `id` 379113280 pour M2 et M3b. Aucun geste sur ce depot-ci.                             │
@@ -79,10 +91,35 @@ jobs:
       # │ CE QUE FAIT LA VERIFICATION FINALE, ET CE QU'ELLE NE FAIT PAS. Elle DETECTE,            │
       # │ ROUGIT et DICTE un rattrapage — `gh release edit <plus haut> --latest`. M1              │
       # │ etablit que ce geste FONCTIONNE (le pointeur a bouge sur le banc). Ce workflow-ci,      │
-      # │ LUI, ne l'execute pas : les deux applications jumelles le font desormais (L44,          │
-      # │ (2b-i)). Ici, corriger le referent et executer le rattrapage sont HORS PERIMETRE        │
-      # │ de L44, avec le CI de ce depot.                                                         │
+      # │ LUI, ne l'execute PAS ce rattrapage : les deux applications jumelles le font             │
+      # │ desormais (L44, (2b-i)). EXECUTER le rattrapage ici reste HORS PERIMETRE de ce           │
+      # │ lot — c'est un acte de release, refuse a l'agent.                                        │
       # │                                                                                         │
+      # ├─ FIX R-2 (lot fix/R2-et-levee-absence-iakaframe, 2026-09-02) ─────────────────────────┤
+      # │ LE REFERENT ETAIT FAUX ICI AUSSI — defaut de code R-2, corrige dans les deux            │
+      # │ applications jumelles (L44) mais PAS dans ce workflow-ci : ce depot n'etait pas dans    │
+      # │ « Fichiers concernes » de L44. `PLUS_HAUT` derivait de la population des TAGS ; or      │
+      # │ `GET /releases/latest` ne peut JAMAIS rendre qu'un tag PORTEUR D'UNE RELEASE. Sur ce    │
+      # │ depot, mesure le 2026-09-02 : 9 tags de version pour 2 releases seulement (v0.20.4 et   │
+      # │ v0.39.0) — PAS « 20 tags » comme une premiere lecture l'avancait, chiffre corrige a la  │
+      # │ mesure. Consequence DOUBLE, comme dans les apps : (a) FAUX ROUGE — un tag de version    │
+      # │ sans release faisait rougir la ligne VERIFICATION a tort ; (b) DICTEE IMPOSSIBLE — le   │
+      # │ rattrapage imprime s'adressait a une release qui n'existe pas.                          │
+      # │ ⚠️ CE DEFAUT N'A PAS MORDU au run reel du 2026-09-02 (v0.39.0 etait a la fois le plus   │
+      # │ haut TAG et PORTEUSE d'une release) : c'est un defaut REEL, pas un incident constate.   │
+      # │ Meme remede que les apps, adapte a la forme de CE workflow (PAS byte-identique : il     │
+      # │ publie un tarball npm via `softprops/action-gh-release@v2`, pas des bundles Tauri ; il  │
+      # │ n'y a pas de job `latest` separe post-creation, la decision est prise AVANT la creation │
+      # │ de la release courante). Referent = `repos/<depot>/releases`, brouillons et             │
+      # │ preversions exclus ; appel et tri SEPARES (`set -euo pipefail` + `|| true` sur le tri : │
+      # │ un `grep` sans resultat ne doit pas abandonner le job avant le test « aucune release ») ;│
+      # │ cas « aucune release » traite explicitement dans les DEUX etapes.                       │
+      # │ EPINGLAGE — SIGNALE, NON TRAITE : ce workflow n'epingle rien (`actions/checkout@v4`,     │
+      # │ `actions/setup-node@v4`, `softprops/action-gh-release@v2`, trois tags flottants). Un    │
+      # │ successeur au backlog, pas ce lot.                                                       │
+      # └─────────────────────────────────────────────────────────────────────────────────────────┘
+      #
+      # ┌─ RESIDU AU 2026-09-01, CONSERVE (le fix R-2 ne le touche pas) ────────────────────────┐
       # │ RESIDU AU 2026-09-01 : la regle de repli EXISTE, elle vit sous                          │
       # │ `make_latest=legacy`, elle n'est atteignable que par `PATCH`, et elle n'est PAS         │
       # │ dirigee par la date la plus recente (ni `created_at`, ni `published_at`, ni             │
@@ -108,13 +145,25 @@ jobs:
           TAG: ${{ github.event.inputs.tag || github.ref_name }}
         run: |
           set -euo pipefail
-          # Filtre `^v[0-9]+\.[0-9]+\.[0-9]+$` : un depot peut porter des tags qui ne sont pas des
-          # versions ; les compter ferait dire n'importe quoi a « le plus haut tag ».
-          PLUS_HAUT=$(gh api "repos/${{ github.repository }}/tags" --paginate --jq '.[].name' \
-            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          # FIX R-2 (2026-09-02) — le referent est la population des RELEASES, pas celle des TAGS :
+          # `GET /releases/latest` ne peut jamais rendre qu'un tag PORTEUR D'UNE RELEASE. Le filtre
+          # `^v[0-9]+\.[0-9]+\.[0-9]+$` reste : un depot peut porter des tags qui ne sont pas des
+          # versions. `select(.draft|not)`/`select(.prerelease|not)` : l'endpoint `/releases/latest`
+          # ignore deja les brouillons et les preversions, le referent doit ignorer EXACTEMENT les
+          # memes. Appel et tri SEPARES a dessein : un echec de `gh api` doit rester un ECHEC (`set -e`
+          # abandonne), et le `|| true` sur le tri seul evite qu'un `grep` sans resultat n'abandonne le
+          # job AVANT le test « aucune release », qui serait sinon inatteignable.
+          RELEASES=$(gh api "repos/${{ github.repository }}/releases" --paginate \
+            --jq '.[] | select(.draft|not) | select(.prerelease|not) | .tag_name')
+          PLUS_HAUT=$(printf '%s\n' "$RELEASES" \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)
           echo "tag publie      : $TAG"
-          echo "plus haut semver: $PLUS_HAUT"
-          if [ "$TAG" = "$PLUS_HAUT" ]; then
+          echo "plus haut semver publie (hors le tag courant, pas encore cree) : ${PLUS_HAUT:-(aucun)}"
+          if [ -z "$PLUS_HAUT" ]; then
+            echo "AUCUNE release non-brouillon non-preversion portant un tag de version pour l'instant :"
+            echo "  $TAG sera donc la premiere -> make_latest=true"
+            echo "make_latest=true" >> "$GITHUB_OUTPUT"
+          elif [ "$TAG" = "$PLUS_HAUT" ]; then
             echo "DECISION : $TAG EST le plus haut -> make_latest=true"
             echo "make_latest=true" >> "$GITHUB_OUTPUT"
           else
@@ -142,8 +191,20 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -euo pipefail
-          PLUS_HAUT=$(gh api "repos/${{ github.repository }}/tags" --paginate --jq '.[].name' \
-            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1)
+          # FIX R-2 (2026-09-02) — meme referent que l'etape « rang » : `repos/<depot>/releases`,
+          # brouillons et preversions exclus, appel et tri SEPARES. Ici la release du tag courant
+          # a DEJA ete creee par l'etape precedente : elle fait partie de la population lue.
+          RELEASES=$(gh api "repos/${{ github.repository }}/releases" --paginate \
+            --jq '.[] | select(.draft|not) | select(.prerelease|not) | .tag_name')
+          PLUS_HAUT=$(printf '%s\n' "$RELEASES" \
+            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)
+          # Cas « aucune release » traite explicitement — ne peut normalement pas survenir juste
+          # apres une creation, mais un `if: always()` ou un echec silencieux de l'etape precedente
+          # ne doit jamais retomber sur une comparaison a la chaine vide, qui serait muette.
+          if [ -z "$PLUS_HAUT" ]; then
+            echo "AUCUNE release non-brouillon non-preversion trouvee — rien a verifier. Sortie en SUCCES."
+            exit 0
+          fi
           EFFECTIF=$(gh api "repos/${{ github.repository }}/releases/latest" --jq '.tag_name')
           echo "VERIFICATION : latest effectif = $EFFECTIF (attendu : $PLUS_HAUT)"
           if [ "$EFFECTIF" != "$PLUS_HAUT" ]; then

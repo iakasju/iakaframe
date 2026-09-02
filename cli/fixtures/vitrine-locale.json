@@ -16,31 +16,21 @@
   "//absents": [
     "LES VOIES QUE CETTE VERSION NE DONNE PAS, declarees plutot que promises (V5 de L42).",
     "",
-    "Mesure ANONYME du 2026-08-29 : GET /repos/iakasju/iakaframe/releases/tags/v0.39.0 -> HTTP 404.",
-    "Le README est un PORTEUR (AR-1 = a) : il annonce ce que le depot porte (0.39.0), pas ce qui est",
-    "publie (v0.20.4, le 2026-08-04). Sans declaration, il envoyait donc le visiteur vers une page",
-    "inexistante — alors qu'avant ce lot il pointait une page reelle. Les DEUX voies qui passent par",
-    "une release tombent ensemble et pour la meme cause : la release n'existe pas.",
+    "LEVEE le 2026-09-02 : les deux entrees qui vivaient ici (cle `tgz` et `archive`) sont RETIREES.",
+    "Le cliquet auto-destructeur E-5 a mordu — `node cli/scripts/vitrine-en-ligne.js` rougissait",
+    "nommement sur les deux, la release v0.39.0 etant desormais publiee (run CI 33635520511) et",
+    "portant `naonedge-iakaframe-0.39.0.tgz`. C'est ce rouge qui a commande le retrait, conformement",
+    "au mecanisme decrit ci-dessous — jamais une declaration qui survit a sa raison d'etre.",
     "",
-    "CLIQUET : ces deux entrees sont AUTO-DESTRUCTRICES. Des que la publication a lieu, la face en",
-    "ligne rougit sur E-5 — et c'est ce rouge qui commande de les retirer et de rejouer",
-    "`node cli/scripts/vitrine.js --write`. Une declaration qui survivrait a sa raison d'etre serait",
-    "le meme defaut, retourne."
+    "CE QUE CE BLOC DECRIVAIT, CONSERVE POUR MEMOIRE : quand `absents` porte des entrees, chacune",
+    "declare une VOIE d'installation indisponible pour la version courante — motif, date et condition",
+    "de levee, jamais une promesse silencieusement rompue. Le mecanisme reste actif : une regression",
+    "future (nouvelle version d'autorite non publiee) re-remplirait ce tableau, et la face en ligne",
+    "recommencerait a exiger la declaration avant de rendre `exit 0`.",
+    "",
+    "CLIQUET : toute entree ici redevient AUTO-DESTRUCTRICE des qu'elle cesse d'etre vraie. C'est",
+    "le rouge de la face en ligne (E-5) qui commande le retrait et le rejeu de",
+    "`node cli/scripts/vitrine.js --write` — jamais une suppression a l'oeil."
   ],
-  "absents": [
-    {
-      "cle": "tgz",
-      "constate_sur": "la mesure anonyme du dépôt",
-      "depuis": "2026-08-29",
-      "motif_absence": "la version d'autorité 0.39.0 n'a jamais été publiée : dix-neuf mineures sont montées dans le dépôt sans qu'une seule release soit créée depuis v0.20.4 (2026-08-04). `GET releases/tags/v0.39.0` rend **HTTP 404** — il n'y a donc aucun asset à télécharger. S'y ajoute un fait mesuré le même jour : le workflow censé produire ce tarball n'a **jamais** été exécuté (`actions/runs` = 0), et l'unique `.tgz` publié a été déposé à la main. La chaîne est écrite, pas éprouvée.",
-      "condition_de_levee": "une publication réelle de la version d'autorité. L'asset réapparaîtra, la face en ligne rougira sur cette entrée devenue fausse, et c'est ce rouge qui commande de la retirer."
-    },
-    {
-      "cle": "archive",
-      "constate_sur": "la mesure anonyme du dépôt",
-      "depuis": "2026-08-29",
-      "motif_absence": "même cause que la ligne ci-dessus : l'archive des sources est attachée par GitHub **à une release**, et cette release n'existe pas. Le lien « Assets > Source code » de la page annoncée mène à la même 404 ; l'y envoyer serait promettre deux fois la même page absente.",
-      "condition_de_levee": "identique — la publication de la version d'autorité fait apparaître la page et son archive de sources d'un seul coup."
-    }
-  ]
+  "absents": []
 }
