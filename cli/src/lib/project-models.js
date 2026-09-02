@@ -52,19 +52,51 @@ export function clearModelOverride(projectDir, personaId) {
   });
 }
 
-// --- Validation de FORME (D6) : bloquante uniquement -----------------------------------------
-// Ensemble CONNU au moment de l'ECRITURE (F5) : ne sert JAMAIS a bloquer, seulement a decider si
-// un AVERTISSEMENT (non bloquant) accompagne l'ecriture. `fable` y figure : elle est une valeur
-// techniquement valide, son exclusion des bindings est une POLITIQUE (D10), pas une contrainte
-// de forme — elle ne doit donc JAMAIS declencher cet avertissement.
-const KNOWN_MODEL_VALUES = new Set(['sonnet', 'opus', 'haiku', 'fable', 'inherit']);
-
+// --- Validation de FORME (D6, volet 1 — INCHANGE par l'Amendement A) --------------------------
 // Rend { blocking: <raison> } si la valeur ne peut STRUCTURELLEMENT pas etre une valeur de modele
 // (D6) : vide/blanche (c'est le geste `unset`, pas une valeur), tout espace (interne, de tete/fin,
 // retour a la ligne), ou un caractere de tete qui casserait le frontmatter rendu (`#`, `"`, `'`,
-// `[`, `{`). Cette garde ne connait AUCUN nom de modele : elle ne peut donc pas se perimer.
-// Sinon, rend { ok: <valeur>, warning: <message|null> } — la valeur est TOUJOURS ecrite ; seul
-// l'avertissement (hors ensemble connu) est informatif, jamais bloquant.
+// `[`, `{`). Cette garde ne connait AUCUN nom de modele : elle ne peut donc pas se perimer, et
+// `--force` NE LA LEVE JAMAIS (D11, alternative (c) ecartee) — il n'y a rien a forcer, seulement
+// un fichier a corrompre.
+
+// ⏳ CONDITION DE CHUTE (L44, clause 3) — ce que cette grammaire a de faux, et quand.
+// MESUREE le 2026-09-02 sur code.claude.com/docs/en/sub-agents (§ « Choose a model ») et
+// code.claude.com/docs/en/model-config. Elle DEVIENT FAUSSE des que le runner accepte, dans le
+// champ `model:` d'un sous-agent, une valeur qu'elle refuse — typiquement un ALIAS NEUF.
+// SE RE-MESURE : rouvrir ces deux pages et comparer leur liste d'alias a ce Set. Le fichier ne
+// se re-mesure PAS tout seul : cette date est celle de la mesure, pas de la derniere lecture.
+// SYMPTOME de peremption : `models set <persona> <alias>` REFUSE alors que le runner l'accepte.
+// REMEDE IMMEDIAT (utilisateur, zero release) : --force. REMEDE DURABLE : ajouter l'alias ici
+// AVEC la date de sa mesure.
+// DELIBEREMENT ABSENTS (refuses, atteignables par --force) : `best`, `default`, `opusplan` —
+// documentes pour `--model`, PAS pour un sous-agent ; et `default`/`opusplan` ont une semantique
+// etrangere a un contrat (effacer une surcharge = `models unset` ; basculer selon le mode plan).
+//
+// Grammaire D6bis (F6, 2026-09-02) :
+//   valeur := ( alias | id-complet ) suffixe?
+//   alias      := sonnet | opus | haiku | fable | inherit
+//   id-complet := claude-<[A-Za-z0-9._-]+>
+//   suffixe    := "[1m]"
+const KNOWN_ALIASES = new Set(['sonnet', 'opus', 'haiku', 'fable', 'inherit']);
+// Ids complets MESURES (F6, meme date) : ceux-la n'emettent PAS l'avertissement D13, les autres
+// claude-<id> (bien formes mais NON mesures) si. Le catalogue des ids bouge plus vite que celui
+// des alias et n'est pas verifiable hors ligne (D13) — cet ensemble n'est donc PAS une allowlist
+// bloquante (aucun claude-<id> bien forme n'est jamais refuse), seulement le seuil du silence.
+const KNOWN_FULL_IDS = new Set(['claude-opus-5', 'claude-sonnet-5', 'claude-fable-5', 'claude-fable-5-1', 'claude-haiku-4-5']);
+const SUFFIX = '[1m]';
+const ID_COMPLET_RE = /^claude-[A-Za-z0-9._-]+$/;
+
+function stripSuffix(v) {
+  return v.endsWith(SUFFIX) ? v.slice(0, -SUFFIX.length) : v;
+}
+
+// Rend { blocking: <raison> } (strate 1, forme — inchangee), { unknown: <v> } (strate 2,
+// vocabulaire — REFUS depuis l'Amendement A, levable par `--force`, D6bis/D11), ou
+// { ok: <v>, warning: <message|null> } (strates 1/3 de la grammaire — ECRITE ; `warning` porte le
+// residu D13 : silence pour un alias ou un id complet MESURE, avertissement pour un id complet
+// bien forme mais non mesure — jamais pour un refus). Trois retours distincts, pas un booleen
+// surcharge.
 export function validateModelValue(raw) {
   const v = raw == null ? '' : String(raw);
   if (v.trim() === '') {
@@ -76,12 +108,23 @@ export function validateModelValue(raw) {
   if (/^[#"'[{]/.test(v)) {
     return { blocking: `caractere de tete invalide (casserait le frontmatter rendu) : "${v}"` };
   }
-  const known = KNOWN_MODEL_VALUES.has(v) || v.startsWith('claude-');
-  return {
-    ok: v,
-    warning: known ? null : `valeur inhabituelle : ${v} — ecrite ; verifier qu'elle est acceptee par le runner.`,
-  };
+  const base = stripSuffix(v);
+  if (KNOWN_ALIASES.has(base)) {
+    return { ok: v, warning: null };
+  }
+  if (ID_COMPLET_RE.test(base)) {
+    return {
+      ok: v,
+      warning: KNOWN_FULL_IDS.has(base) ? null
+        : `id complet non verifiable hors ligne : ${v} — ecrite ; verifier qu'elle est acceptee par le runner.`,
+    };
+  }
+  return { unknown: v };
 }
+
+// Vocabulaire ACCEPTE (D15), pour le message de refus et la sortie --json — SOURCE UNIQUE, jamais
+// recopie a la main dans un message.
+export const ACCEPTED_VOCABULARY = ['sonnet', 'opus', 'haiku', 'fable', 'inherit', 'claude-<id>', '<valeur>[1m]'];
 
 // --- Signalement de divergence (D8/CA-20/CA-25) : decision SANS projection ---------------------
 // Cas NOMINAL de tout clone frais / machine reconstruite sous A-3 « ignorer » (la projection ne se
@@ -109,6 +152,35 @@ export function divergentOverrides(projectDir, { root } = {}) {
       effective: modelForPersona(binding, personaId) || null,
       expectedPath: file,
       repair: `iakaframe models set ${personaId} ${overrides[personaId]} --path ${proj}`,
+    });
+  }
+  return out;
+}
+
+// --- Signalement de valeur hors grammaire (D14, Amendement A) : rETROCOMPATIBILITE en LECTURE --
+// FRERE EXACT de `divergentOverrides` (D8) : meme forme, meme doctrine LECTURE SEULE — jamais
+// d'ecriture, jamais de refus, jamais de repli silencieux sur le defaut de frame (ce serait le
+// PIRE des trois options : la projection sur le disque PORTE la valeur et c'est ELLE que le
+// runner charge, F1 — l'ignorer ferait MENTIR `models`). Un `iakaframe.json` deja ecrit peut
+// porter une valeur devenue hors grammaire (recette du lot 2, ou edition a la main d'un autre
+// poste) : ce cas est le cas qui MORD EN PREMIER, pas une bizarrerie. Rend, pour chaque surcharge
+// dont la valeur est REFUSEE par `validateModelValue` (strate 2 ou 1, jamais pour une valeur
+// valide) : { personaId, model, repair } — la commande a rejouer nomme les DEUX gestes qui
+// reparent (reecrire avec la valeur juste, ou retirer la surcharge).
+export function unknownOverrides(projectDir) {
+  if (!projectDir) return [];
+  const proj = path.resolve(projectDir);
+  const overrides = readModelOverrides(proj);
+  const out = [];
+  for (const personaId of Object.keys(overrides)) {
+    const model = overrides[personaId];
+    const v = validateModelValue(model);
+    if (v.ok !== undefined) continue; // valide (silencieuse ou avertie) -> rien a signaler ici
+    out.push({
+      personaId,
+      model,
+      repair: `iakaframe models set ${personaId} <valeur-juste> --path ${proj}  ou  `
+        + `iakaframe models unset ${personaId} --path ${proj}`,
     });
   }
   return out;
