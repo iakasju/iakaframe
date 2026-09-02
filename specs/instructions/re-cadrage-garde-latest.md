@@ -874,6 +874,39 @@ job fait **après** ce lot. Dater, ne pas effacer.
 > branche du vol, ni la sortie « aucune release »**. **Aucun artefact versionné ne reproduit la
 > logique shell du job.** La seule garde qui pèse sur ce code est la **fixture d'octets** du bloc
 > `latest:` : elle atteste qu'il **n'a pas changé** — **jamais** qu'il **fonctionne**.
+>
+> ⚠️ **RECTIFIÉE LE 2026-09-02 — LA PRÉMISSE ÉTAIT FAUSSE, LA CONCLUSION TIENT.** *(écart 1
+> consigné au gate PASS de L44.)* La proposition *« `PLUS_HAUT` n'apparaît, dans les trois dépôts,
+> que comme **extrait du registre** »* est **datée, pas effacée** — et elle est **réfutée par la
+> mesure**. Une phrase fausse **dans une déclaration de durcissement** est de la classe exacte que
+> ce lot corrige : elle se rectifie ici, elle ne disparaît pas.
+> **RE-MESURE DU 2026-09-02**, refaite et non recopiée — `git grep -o 'PLUS_HAUT' | wc -l`, en
+> **occurrences** (le compte par lignes est plus bas d'une unité dans cette instruction) :
+> **IakaCockpit** — `.github/workflows/release.yml` **19**, `CLAUDE.md` **6**,
+> `specs/etat-des-lieux.md` **3** · **iakaFrameGUI** — **les mêmes trois fichiers aux mêmes
+> comptes** (19 / 6 / 3) · **iakaframe** — `.github/workflows/release.yml` **11**,
+> `cli/fixtures/registre-repli-latest.json` **41**, cette instruction **22**,
+> `specs/instructions/contrefactuel-du-vol-de-latest.md` **5**, `specs/etat-des-lieux.md` **3**,
+> `specs/instructions/contrefactuel-ca5-procedure-decideur.md` **1**, `BACKLOG.md` **1**.
+> ⚠️ **Le compte de cette instruction est celui de l'état qui portait la phrase fausse** (`27253a0`,
+> **22**). **Écrire la rectification le fait monter à 26**, le présent paragraphe citant le symbole
+> quatre fois de plus. On le dit plutôt que de laisser un chiffre se périmer en silence : un
+> instrument qui se compte lui-même doit **dater l'état sur lequel il compte**.
+> **Le symbole est massivement présent dans le corpus, à commencer par LE CODE LUI-MÊME** — les
+> trois `release.yml`. **Seul le `.json` est un extrait du registre.**
+> **CE QUI EST VRAI, ET QUE LA MESURE PORTE : aucun chemin de test n'exerce `PLUS_HAUT`.**
+> *Vérif rejouable* : `git grep -l 'PLUS_HAUT' -- '*test*' '*spec*'` ne ramène, sur les trois
+> dépôts, **aucun fichier de test** — rien que des `specs/**.md`, le registre et le code du job.
+> **C'était l'incise qui suivait le tiret** qui portait la mesure ; la proposition qui la précédait
+> la **sur-généralisait** en absence du corpus ce qui n'était qu'une absence des tests.
+> **LA CONCLUSION EST VÉRIFIÉE INCHANGÉE, et elle n'est pas sauvée : elle est re-fondée.** Toutes
+> les occurrences relevées sont du **code** (`release.yml`) ou de la **prose** (`CLAUDE.md`,
+> `specs/`, `BACKLOG.md`, registre) ; **aucune n'est un test, ni un harnais, ni une fixture qui
+> l'exercerait**. Donc **aucun artefact versionné ne reproduit la logique shell du job**, et la
+> seule garde qui pèse sur ce code reste la **fixture d'octets** du bloc `latest:`. La prémisse
+> corrigée **soutient toujours** la conclusion — mieux, même, puisqu'elle cesse de la faire reposer
+> sur une absence inexistante.
+>
 > ⚠️ **Ceci n'ouvre PAS un chantier de tests du shell** : c'est une déclaration à durcir, pas un
 > périmètre à élargir. Si un artefact reproductible paraît faisable **dans ce lot**, il **remonte
 > au décideur** ; il ne se décide pas ici.
