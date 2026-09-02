@@ -140,6 +140,13 @@ zéro besoin.
 Aucune allowlist (D5 du lot 1, motif inchangé : la liste des alias bouge, et une allowlist
 **interdirait** ce que la politique veut seulement ne pas poser par défaut).
 
+> 🛑 **D6 EST RENVERSÉ SUR SON SECOND VOLET — décideur, 2026-09-02, énoncé mot pour mot :
+> « echouer ».** L'avertissement de fond **devient un refus**. La garde de forme (premier volet,
+> ci-dessous) est **inchangée**. Le texte d'origine de D6 est **conservé, daté, jamais effacé**
+> (règle 4) — il dit ce qui a été livré au lot 2 et pourquoi. **Ce qui fait foi désormais :
+> § Amendement A, en fin de fichier** (D6bis, D11 à D14). Ce renversement **ouvre un successeur**,
+> il ne rouvre pas le lot 2, qui est **livré et fusionné** (`e2c54ba`, PASS Legolas).
+
 - **Bloquant — ce qui ne peut pas être une valeur** : chaîne vide ou blanche (c'est `unset`, un
   geste distinct), espace interne, retour à la ligne, et tout caractère qui casserait le
   frontmatter rendu (`:` suivi d'une espace, `#`, `"`, `'`, `[`, `{` en tête). Cette garde ne
@@ -522,3 +529,435 @@ Politique, affichage, doc :
      les clés inconnues d'après sa description ; **ce lot ne le mesure pas côté Rust**. CA-8 ne
      prouve que le côté CLI. Si la GUI s'avérait écraser, ce serait un lot de convergence à part
      entière — nommé ici, pas traité.
+
+---
+
+# Amendement A — 2026-09-02 : `models set` REFUSE une valeur hors du vocabulaire connu
+
+> Cadrage 🔵 Gandalf, 2026-09-02. **Successeur** du lot 2 (livré, fusionné, `e2c54ba`, PASS
+> Legolas). **Amendement, pas nouveau cadrage** : tout ce qui précède reste vrai sauf le **second
+> volet de D6**, explicitement daté ci-dessus. Rien n'est effacé (règle 4).
+
+## A.0 — Déclencheur
+
+Recette réelle du lot 2, dix points verts, **un seul remonté au décideur** :
+`iakaframe models set gandalf pas-un-modele` **passe** — `ok: true`, exit `0`, contrat de projet
+projeté portant `model: pas-un-modele`, accompagné du seul avertissement prévu par D6.
+
+**Arbitrage du décideur, mot pour mot : « echouer ».** L'avertissement devient un refus.
+
+## A.1 — Fait mesuré, et il retourne l'argument de D5
+
+**F6 — le vocabulaire du champ `model:` d'un sous-agent, mesuré sur le web le 2026-09-02.**
+Deux pages officielles, croisées :
+
+*`code.claude.com/docs/en/sub-agents`, § « Choose a model », verbatim :*
+
+> * **Model alias**: use one of the available aliases: `sonnet`, `opus`, `haiku`, or `fable`
+> * **Full model ID**: use a full model ID such as `claude-opus-5` or `claude-sonnet-5`. Accepts
+>   the same values as the `--model` flag
+> * **inherit**: use the same model as the main conversation
+
+*`code.claude.com/docs/en/model-config`, alias acceptés par `--model` / `/model`, mesurés le même
+jour :* `default`, `best`, `fable`, `sonnet`, `opus`, `haiku`, **`sonnet[1m]`**, **`opus[1m]`**,
+`opusplan` ; ids complets `claude-opus-5`, `claude-sonnet-5`, `claude-fable-5`, `claude-fable-5-1`,
+`claude-haiku-4-5`, et leur **variante suffixée** `claude-opus-5[1m]`, `claude-sonnet-5[1m]`.
+
+**🛑 Ce que cette mesure change, et c'est le cœur de l'amendement.** L'ensemble codé au lot 2 —
+`{sonnet, opus, haiku, fable, inherit}` ∪ `claude-*` (`project-models.js:60` et `:79`) — n'est
+**pas** une liste qui *se périmera un jour* : elle est **déjà incomplète au jour où elle est
+écrite**. Elle rate le **suffixe `[1m]`**, qui n'est ni exotique ni futur — *c'est la forme sous
+laquelle le runner nomme le modèle qui exécute ce cadrage même* (`claude-opus-5[1m]`). Sous la
+décision « échouer » **appliquée telle quelle à la liste existante**, `models set gandalf opus[1m]`
+serait **refusé alors que la valeur est bonne**.
+
+Le motif de D5 (« une liste qui bloque se périme ») est donc **juste, et pire que ce qu'il
+annonçait** : la péremption n'est pas un risque futur, c'est un **état constaté**. La conclusion
+qu'on en tirait — *donc ne bloquons pas* — reste, elle, la mauvaise : elle échange un refus
+réparable contre une écriture fausse et silencieuse. **On garde le diagnostic de D5, on inverse son
+remède, et on paie le prix nommé en A.3.**
+
+## A.2 — Décisions
+
+> ### ✅ ARBITRAGES TRANCHÉS PAR LE DÉCIDEUR — 2026-09-02
+>
+> **Énoncé : « echouer »**, puis, sur la mesure F6 et la recommandation de cadrage : **« je te
+> suis »**.
+>
+> - **La garde de vocabulaire devient BLOQUANTE** — un `models set` sur une valeur hors grammaire
+>   **échoue** (`ok:false`, exit ≠ 0, **rien d'écrit**), au lieu d'écrire avec un avertissement.
+> - **`--force` est retenu** : refus par défaut, écriture délibérée possible. Sans lui, la décision
+>   n'aurait pas été prise — le cadrage la déconseillait explicitement.
+> - **`best` / `default` / `opusplan` sont REFUSÉS par défaut**, comme recommandé : documentés pour
+>   `--model`, **pas** pour un frontmatter de sous-agent, et `default` fait déjà ce que
+>   `models unset` fait.
+>
+> ⚠️ **CE QUI A FAIT PENCHER LA DÉCISION — mesure F6, vérifiée aussi par le portefeuille** :
+> `KNOWN_MODEL_VALUES` **est déjà fausse aujourd'hui**, elle rate le suffixe `[1m]`. Mesuré :
+> `opus[1m]` et `sonnet[1m]` sont classés **INHABITUELS**, `claude-opus-5[1m]` passe (par le préfixe).
+> **« Échouer » appliqué à la liste existante aurait refusé, dès le premier jour, la forme sous
+> laquelle le runner nomme le modèle du décideur.** Le défaut n'était pas à venir : il était là,
+> et l'avertissement était trop faible pour qu'on le voie.
+>
+> **Ce lot n'attend plus aucune décision.**
+
+**D6bis — la garde de fond devient BLOQUANTE, et elle est réécrite sur la mesure F6, pas
+reconduite.** Trois strates, dans cet ordre :
+
+| Strate | Population | Conséquence |
+|---|---|---|
+| **1 — forme** (D6, volet 1, **inchangé**) | vide/blanche, espace, caractère de tête cassant le frontmatter | **refus**, `--force` **ne le lève pas** |
+| **2 — vocabulaire** (D6bis) | hors de la grammaire ci-dessous | **refus** — levable par `--force` (D11) |
+| **3 — id complet** | `claude-<...>` bien formé | **écrit**, avec **avertissement** (D13) |
+
+Grammaire acceptée, dérivée de F6 et d'elle seule :
+
+```
+valeur := ( alias | id-complet ) suffixe?
+alias      := sonnet | opus | haiku | fable | inherit
+id-complet := claude-<[A-Za-z0-9._-]+>
+suffixe    := "[1m]"
+```
+
+**Pourquoi `best`, `default` et `opusplan` sont REFUSÉS par défaut, et c'est délibéré.** Ils sont
+documentés pour `--model`, **pas** pour le champ `model:` d'un sous-agent, dont la page ne nomme
+que quatre alias + `inherit`. Et leur sémantique est étrangère à un contrat d'agent : `default`
+*efface* une surcharge (c'est le geste `models unset`, déjà nommé), `opusplan` bascule selon le
+**mode plan** de la session principale. Les refuser **en le disant** est plus honnête que de les
+bénir sur une lecture large d'une phrase ambiguë — et `--force` les laisse atteignables pour qui
+veut mesurer. **Inconnue assumée, cf. A.6-1.**
+
+**Vérifié avant de recommander le suffixe `[1m]` — il traverse le rendu sans se déformer.**
+`needsScalarQuote` ne quote que sur un **caractère de tête** ambigu (`frontmatter.js:209`,
+`/^[[{"'#&*!|>%@\`,]/`) : `opus[1m]` commence par `o`, il sort donc **non quoté**
+(`model: opus[1m]`), et `parseScalar` le relit **à l'identique** (`frontmatter.js:37-48` :
+ni quote, ni mot-clé, ni entier → chaîne rendue telle quelle). En YAML de bloc, un crochet
+**non initial** n'ouvre aucune séquence : le scalaire est plain et valide. Rien à quoter, rien à
+échapper. **CA-29 le prouve par aller-retour, il ne le suppose pas.**
+
+**D11 — la porte de sortie : `--force`, et c'est l'idiome DÉJÀ en place dans ce CLI.**
+`models set <personaId> <modele> --force` **écrit quand même**, exit `0`, **en le disant**. Sans
+porte, la liste devient un **mur** : le jour où un alias sort, le CLI **installé** — pas ce
+checkout — refuse une valeur juste jusqu'à ce qu'une version soit publiée, et l'utilisateur est
+bloqué au pire moment, sur une décision qui n'est même pas la sienne.
+
+`--force` n'est pas un néologisme à instruire : c'est la **convention du dépôt**, « non destructif
+(refus si la cible existe, sauf `--force`) » — `add.js:28`, `assemble.js:74`, `frame.js:162`,
+`init.js:56`, `agents.js:25`. Même forme, même sens : **refus par défaut, écriture délibérée
+possible**.
+
+*Alternatives pesées et écartées.* **(a) Pas de porte du tout** — plus simple d'une option, et
+c'est son seul mérite ; elle fait du CLI un obstacle le jour d'une sortie de modèle, et transforme
+un refus d'une seconde en attente d'une release. **(b) Une liste extensible par variable
+d'environnement ou par clé de conf** — écartée : elle crée une **seconde source de vérité** sur le
+vocabulaire, exactement le `kits/*/MODELES.md` que ce dépôt a déjà démonté, pour un besoin que
+`--force` couvre en un mot. **(c) `--force` levant AUSSI la garde de forme** — écartée : la garde
+de forme refuse ce qui **ne peut pas** être une valeur (elle casserait le frontmatter rendu) ; il
+n'y a rien à forcer, seulement un fichier à corrompre.
+
+**D12 — la condition de chute est ÉCRITE DANS LE CODE, pas seulement ici.** Application directe de
+la **clause 3 de la forme close de L44** (`re-cadrage-garde-latest.md:814-816`) : *« Chaque motif
+nomme sa condition de chute — il dit ce qui, s'il était mesuré, le rendrait faux. Un motif sans
+condition de chute est une exclusion de confort et compte comme non déclaré. »* Une liste qui
+bloque **sans dire ce qui la rendrait fausse** est précisément la « garde muette » que ce dépôt
+traque. Le cartouche est **prescrit**, au-dessus de la grammaire, dans `project-models.js` :
+
+```js
+// ⏳ CONDITION DE CHUTE (L44, clause 3) — ce que cette grammaire a de faux, et quand.
+// MESUREE le 2026-09-02 sur code.claude.com/docs/en/sub-agents (§ « Choose a model ») et
+// code.claude.com/docs/en/model-config. Elle DEVIENT FAUSSE des que le runner accepte, dans le
+// champ `model:` d'un sous-agent, une valeur qu'elle refuse — typiquement un ALIAS NEUF.
+// SE RE-MESURE : rouvrir ces deux pages et comparer leur liste d'alias a ce Set. Le fichier ne
+// se re-mesure PAS tout seul : cette date est celle de la mesure, pas de la derniere lecture.
+// SYMPTOME de peremption : `models set <persona> <alias>` REFUSE alors que le runner l'accepte.
+// REMEDE IMMEDIAT (utilisateur, zero release) : --force. REMEDE DURABLE : ajouter l'alias ici
+// AVEC la date de sa mesure.
+// DELIBEREMENT ABSENTS (refuses, atteignables par --force) : `best`, `default`, `opusplan` —
+// documentes pour `--model`, PAS pour un sous-agent ; et `default`/`opusplan` ont une semantique
+// etrangere a un contrat (effacer une surcharge = `models unset` ; basculer selon le mode plan).
+```
+
+**D13 — la symétrie du signalement : l'avertissement NE DISPARAÎT PAS, il change de population.**
+Il servait à couvrir « bien formé mais douteux » ; ce cas devient un refus. Il lui reste un cas
+**résiduel et réel** : l'**id complet** (`claude-<...>`). La grammaire n'en vérifie que la
+**forme** — le catalogue des ids bouge plus vite que celui des alias et **n'est pas vérifiable hors
+ligne**. Un id complet est donc **écrit sans `--force`**, avec :
+
+> `id complet non verifiable hors ligne : claude-xyz — ecrite ; verifier qu'elle est acceptee par le runner.`
+
+Et sur `--force`, le message dit **qu'on a forcé** :
+
+> `valeur hors du vocabulaire connu, ECRITE sur --force : <v> — verifier qu'elle est acceptee par le runner.`
+
+Un alias de la strate 1 (`opus`, `sonnet[1m]`…) n'émet **aucun** avertissement. Résultat : **trois
+sorties distinctes pour trois situations distinctes** — silence / avertissement / refus — au lieu
+d'un avertissement unique qui disait la même chose de `claude-opus-5` et de `pas-un-modele`.
+
+**D14 — rétrocompatibilité en LECTURE : `models` SIGNALE, il ne refuse pas et n'ignore pas.**
+⚠️ C'est le cas qui mordra en premier : un `iakaframe.json` **déjà écrit** peut porter une valeur
+hors grammaire — la recette du lot 2 en a produit un (nettoyé depuis, mais un autre poste peut en
+porter, et le fichier est **versionné**).
+
+Ce que fait `iakaframe models` à la lecture : il **affiche la valeur**, la marque, et **nomme les
+deux gestes qui la réparent** (`models set <id> <valeur-juste> --path <projet>` ou
+`models unset <id> --path <projet>`). **Aucune écriture, aucun exit non nul.**
+
+Les deux autres branches sont **écartées, et pour des motifs qui se mesurent** :
+- **Refuser à la lecture** — un état des lieux qui **échoue** à cause de ce qu'il devait diagnostiquer
+  est inutilisable exactement quand on en a besoin. Contraire à la doctrine déjà écrite du dépôt :
+  *« ces gardes CONSTATENT, elles ne réécrivent pas »* (D8), `vendor-check`, `agents generate --check`.
+- **Ignorer / retomber sur le défaut de frame** — **le pire des trois**, parce qu'il **ment**. La
+  projection sur le disque, elle, **porte bien la valeur** et c'est **elle** que le runner charge
+  (F1). `models` afficherait donc un modèle que l'agent **n'utilise pas**. On aurait fabriqué, dans
+  l'outil de diagnostic, la divergence même que D8 sert à révéler.
+
+**Mécanique — on réemploie celle de D8, on n'en écrit pas une seconde.** Le signalement sort en
+`unknownOverrides: [{ personaId, model, repair }]`, **frère exact** d'`overrideDivergences` : même
+forme, même place dans le payload, même bloc imprimé sous le tableau, même doctrine de lecture
+seule. **Aucun champ nouveau sur les lignes de persona** — `model`/`modelSource` restent tels
+quels, donc la colonne « Modèle » d'`iakastart` (D9), qui en dérive, n'est **pas touchée**.
+
+**D15 — la sortie `--json` du refus, sur le patron de la persona inconnue (D7).** Ce patron est le
+bon modèle de message et il est déjà en place :
+
+```json
+{
+  "ok": false,
+  "error": "valeur inconnue : pas-un-modele — hors du vocabulaire accepte pour un sous-agent (sonnet, opus, haiku, fable, inherit, ou claude-<id>, suffixe [1m] optionnel) ; surcharge NON ecrite. Si la valeur est juste (alias recent), reecrire avec --force.",
+  "personaId": "gandalf",
+  "model": "pas-un-modele",
+  "accepted": ["sonnet", "opus", "haiku", "fable", "inherit", "claude-<id>", "<valeur>[1m]"]
+}
+```
+
+`process.exitCode = 1`, via `fail()` (`output.js:41`) — **aucun texte humain sur stderr en mode
+`--json`** (règle 4 de C-JSON). Le message porte les **trois** choses qu'un message de refus doit
+porter : ce qui est refusé, ce qui serait accepté, **et comment passer outre**.
+
+## A.3 — Ce que ce renversement COÛTE, dit avant d'être payé
+
+On échange un défaut **silencieux** (valeur fausse écrite sans bruit) contre un défaut **bruyant**
+(valeur juste refusée). Le second est meilleur — il est visible, immédiat, et **réparable sans
+release** grâce à D11 — mais **il n'est pas gratuit** :
+
+1. **Le vocabulaire devient une charge d'entretien.** Chaque alias neuf exige une ligne de code et
+   une publication. D12 rend la dette **visible** ; il ne la supprime pas.
+2. **La liste part déjà incomplète au regard de `--model`** (A.1) : `best`/`default`/`opusplan`
+   sont refusés **par choix**, pas par oubli — et un utilisateur qui les croit valides rencontrera
+   un refus. Le message le dit et nomme `--force`.
+3. **`--force` peut devenir un réflexe.** Un utilisateur qui le tape sans lire a réintroduit
+   l'écriture silencieuse. *Mitigation* : le message forcé **le dit à chaque fois** (D13), et il
+   n'y a **pas** de forme abrégée ni de variable d'environnement qui le rende permanent.
+
+**Mon avis, puisqu'il est demandé : « échouer » est la bonne décision — appliquée à la bonne
+liste.** L'appliquer à la liste du lot 2 serait une erreur nette : elle refuserait `opus[1m]`, une
+valeur juste, dès le premier jour. C'est pour ça que cet amendement **réécrit** la grammaire sur la
+mesure F6 au lieu de se contenter de changer un `warning:` en `blocking:`. Avec la grammaire
+corrigée **et** `--force`, je recommande la décision **sans réserve**. Sans `--force`, je la
+déconseille.
+
+## A.4 — Ce que cet amendement NE renverse PAS (et les deux phrases devenues fausses)
+
+**D5 du lot 1 n'est pas mort : il est BORNÉ, et il faut l'écrire là où il vit.** D5
+(`affectation-modele-par-acteur.md:115-122`) régit la **projection d'une valeur de binding** :
+`modelForPersona` rend la chaîne du binding **verbatim**, sans allowlist, et **cela reste vrai** —
+c'est ce qui laisse le binding Ollama porter `qwen3.5:9b` et un binding tiers porter un alias que
+le CLI ne connaît pas. Ce qui est gardé, c'est le **point d'entrée `models set`**, qui n'existait
+pas quand D5 a été écrit (il est né avec le lot 2). Vérifié : `validateModelValue` n'a **qu'un
+seul appelant**, `runModelsSet` (`models.js:800`).
+
+⚠️ **Conséquence à ne pas manquer, et c'est une décision, pas un détail** : une valeur fausse
+**écrite à la main dans un binding** passe toujours sans bruit. C'est **R-2 du lot 1, inchangé et
+assumé** — hors périmètre ici. Nommé, pas caché.
+
+**Deux phrases du dépôt deviennent fausses le jour où le code change, et une phrase fausse dans le
+fichier d'une garde est exactement le piège que R-1 du lot 1 a documenté à ses dépens** (« j'ai
+pris un commentaire de code pour une mesure »). Elles sont donc **au périmètre** :
+
+- `cli/src/lib/generate-agents.js:104-105` — *« Aucune allowlist de valeurs (D5) : la chaîne du
+  binding est projetée verbatim »*. Reste **vrai pour le binding**, mais lu seul il se généralise
+  à tort. À **préciser** : « … verbatim. La voie `models set` est, elle, gardée depuis
+  l'Amendement A. »
+- `specs/instructions/affectation-modele-par-acteur.md`, sous **D5** — **une note datée**, ajoutée
+  **sans rien effacer** (règle 4) : « **2026-09-02** — D5 vaut pour la **projection** d'une valeur
+  de binding, et **seulement** pour elle. Le point d'entrée `models set` (lot 2) **refuse** depuis
+  l'Amendement A de `surcharge-modele-par-projet.md`. » **Je n'ai PAS touché ce fichier** : la note
+  est **prescrite** ici (étape 5, **CA-33**) pour être posée dans le même lot que le code, et vue
+  par le décideur au même gate.
+
+Restent **inchangés** : A-1/P-D, A-2, A-3, D1 à D5, D7 à D10, et tout le § Périmètre du lot 2.
+
+## A.5 — Périmètre de l'amendement
+
+- **Inclus** :
+  - `validateModelValue` : grammaire F6, refus de strate 2, cartouche D12, avertissement D13 ;
+  - `--force` sur `models set` (parseArgs, `SET_HELP`, `HELP`, sortie humaine et `--json`) ;
+  - `unknownOverrides` en lecture (`models`, humain **et** `--json`), sur la mécanique de D8 ;
+  - les **deux phrases** de A.4 (commentaire de code + note datée sous D5 du lot 1) ;
+  - `docs/commandes.md` : `--force` (règle permanente, même lot) ;
+  - **CA-14 réécrit** + tests neufs.
+- **Exclu — liste fermée** :
+  - **la voie binding** : `modelForPersona`, `renderAgentContract`, `generateAgent` ne gagnent
+    **aucune** garde (D5 borné, A.4). Un dev qui met la grammaire dans le rendu casse le binding
+    Ollama : c'est le contresens à ne pas faire.
+  - `--force` sur la garde de **forme** (D11, alternative (c)).
+  - `models unset`, la projection, le `.gitignore`, `iakastart` : **intouchés**.
+  - `best`/`default`/`opusplan` **ne sont pas ajoutés** à la grammaire (D6bis).
+  - Aucune allowlist d'**ids complets** (D13) : on garde la forme, jamais le catalogue.
+
+## A.6 — Étapes
+
+1. **Réécrire `validateModelValue`** (`cli/src/lib/project-models.js:55-84`) : garde de forme
+   **inchangée** ; `KNOWN_MODEL_VALUES` → grammaire D6bis (alias + `claude-<id>` + suffixe `[1m]`
+   optionnel sur les deux) ; **cartouche D12 au-dessus** ; rendre `{ blocking }` (forme),
+   `{ unknown: <v> }` (strate 2), ou `{ ok, warning }` (strates 1 et 3). Trois retours distincts,
+   pas un booléen surchargé.
+2. **`--force` dans `runModelsSet`** (`models.js:760-838`) : `force: { type:'boolean',
+   default:false }` ; `unknown` **sans** `--force` → `fail()` au patron D15, **rien écrit, rien
+   projeté** ; `unknown` **avec** `--force` → écriture normale + `warning` D13 + `forced: true` au
+   payload. La garde de **forme** reste **avant** et **au-dessus** de `--force`.
+3. **`unknownOverrides` en lecture** : une fonction sœur de `divergentOverrides`
+   (`project-models.js:94-115`) — même signature, même lecture seule, rendant
+   `{ personaId, model, repair }` ; branchée dans `runModels` à côté d'`overrideDivergences`
+   (`models.js:954`) et imprimée par `printState` sous le bloc existant (`models.js:426-432`).
+   **Ne pas toucher `roleRows`.**
+4. **Aides et doc** : `SET_HELP` (l'option **et** la grammaire acceptée), mention dans `HELP`,
+   `docs/commandes.md`. Les trois textes doivent s'accorder (CA-33).
+5. **Les deux phrases de A.4** : préciser `generate-agents.js:104-105` ; poser la **note datée**
+   sous D5 de `affectation-modele-par-acteur.md` — **ajout seul, aucune suppression**.
+6. **Tests** : CA-14 **réécrit** (voir l'encart) + CA-26 à CA-33, puis la recette ci-dessous.
+
+## A.7 — Recette — commandes PINNÉES
+
+```sh
+CK=/Users/sjupin/work/iakaframe
+PJ=/tmp/iaka-recette-amendement-a
+IK="IAKAFRAME_HOME=$CK node $CK/cli/src/index.js"
+
+cd "$CK/cli" && npm test
+
+# refus (strate 2) — rien ecrit, rien projete, exit 1
+env IAKAFRAME_HOME="$CK" node "$CK/cli/src/index.js" models set gandalf pas-un-modele --path "$PJ" --json ; echo "exit=$?"
+ls "$PJ/.claude/agents/" 2>/dev/null ; cat "$PJ/iakaframe.json" 2>/dev/null
+
+# la porte de sortie — ecrit, le dit, exit 0
+env IAKAFRAME_HOME="$CK" node "$CK/cli/src/index.js" models set gandalf pas-un-modele --force --path "$PJ" --json ; echo "exit=$?"
+
+# le faux refus que l'amendement EVITE — doit PASSER sans --force
+env IAKAFRAME_HOME="$CK" node "$CK/cli/src/index.js" models set gimli 'opus[1m]' --path "$PJ" --json
+grep -n '^model:' "$PJ/.claude/agents/gimli.md"
+
+# retrocompat en LECTURE : la valeur forcee est SIGNALEE, jamais ignoree, jamais bloquante
+env IAKAFRAME_HOME="$CK" node "$CK/cli/src/index.js" models --path "$PJ" --json --timeout 1 ; echo "exit=$?"
+```
+
+⚠️ `opus[1m]` **se met entre quotes dans le shell** (les crochets sont un motif de globbing). Un
+`models set gimli opus[1m]` nu peut être avalé par le shell avant d'atteindre le CLI — ce n'est
+**pas** un défaut du lot, et il faut le savoir avant de conclure à un bug.
+
+## A.8 — Fichiers concernés
+
+- `cli/src/lib/project-models.js` — **cœur** : grammaire D6bis, cartouche D12, avertissement D13,
+  `unknownOverrides`.
+- `cli/src/commands/models.js` — `--force`, refus D15, `SET_HELP`/`HELP`, `printState` + payload.
+- `cli/src/lib/generate-agents.js` — **commentaire l.104-105 précisé, code INCHANGÉ** (A.4).
+- `specs/instructions/affectation-modele-par-acteur.md` — **note datée sous D5**, ajout seul (A.4).
+- `docs/commandes.md` — `--force`.
+- `cli/test/project-models.test.js` — CA-14 réécrit (→ CA-26) + CA-27 à CA-35.
+- **Non modifiés, et c'est le sujet** : `bindings/*.md`, `library/skills/iakastart/SKILL.md`
+  (donc **aucune ligne de vendorage ajoutée**, `drift: 0` attendu inchangé — **CA-35**),
+  `cli/src/lib/frame-active.js`, `models/suggestions.json`, `roleRows`, `methode-de-travail.html`.
+
+## A.9 — Risques
+
+- **RA-1 — la grammaire refuse un alias juste.** C'est le prix nommé en A.3. *Mitigation* :
+  `--force` (D11), message qui le nomme (D15), cartouche qui dit comment la réparer durablement
+  (D12). *Résidu assumé* : un utilisateur qui ne lit pas le message reste bloqué le temps de le
+  lire.
+- **RA-2 — la garde migre par erreur dans le rendu.** Un dev pressé la met dans
+  `renderAgentContract` ou `modelForPersona` : le binding **Ollama** cesse alors de projeter, et
+  **CA-6 du lot 1** rougit. *Mitigation* : A.4 + § Exclu l'interdisent nommément ; **CA-30** le
+  mesure par le binding Ollama lui-même.
+- **RA-3 — CA-14 doit être RÉÉCRIT, et c'est contraire au réflexe du dépôt.** La règle
+  permanente est *« ne jamais modifier un test pour accommoder le code »*. Ici, **le test mesure
+  fidèlement un comportement que le décideur a renversé** : le réécrire **est** le lot, pas un
+  contournement. *Mitigation* : il est réécrit **explicitement, en encart daté**, jamais supprimé
+  (CA-26), et le compte global de tests reste **strictement croissant** (**CA-35**).
+- **RA-4 — `--force` devient un réflexe.** *Mitigation* : D13 (message à chaque écriture forcée),
+  et **aucune** forme permanente (ni variable d'environnement, ni clé de conf) — D11 (b).
+- **RA-5 — le suffixe `[1m]` casse un golden ou un parseur.** *Mitigation* : mesuré avant
+  recommandation (A.2, `frontmatter.js:209` et `:37-48`) et **prouvé** par CA-29 en aller-retour.
+  Aucun golden ne porte de suffixe : les dix contrats déployés sont en `opus`/`sonnet` nus.
+
+## A.10 — Critères d'acceptation
+
+> **CA-14 est RÉÉCRIT** *(2026-09-02, décision « echouer »)*. Rédaction d'origine, **conservée
+> comme trace** : « valeur **inhabituelle mais bien formée** (`sonnnet`) : **écrite**, exit `0`,
+> avec l'avertissement. » Elle mesurait fidèlement D6 ; D6 est renversé, donc elle mesure
+> désormais le mauvais comportement. Elle est **remplacée par CA-26**, pas supprimée.
+
+- [ ] **CA-26 (ex-CA-14, réécrit)** — `models set gimli sonnnet` : **exit ≠ 0**, `ok:false`,
+      message nommant la valeur, le vocabulaire accepté **et** `--force` ; `iakaframe.json`
+      **inchangé à l'octet** et `<projet>/.claude/agents/gimli.md` **non créé**.
+- [ ] **CA-27 (la porte de sortie)** — `models set gimli sonnnet --force` : **exit `0`**,
+      `warning` présent **et disant qu'on a forcé**, `forced: true`, surcharge écrite **et**
+      contrat projeté portant `model: sonnnet`.
+- [ ] **CA-28 (le faux refus évité — le critère qui justifie la réécriture de la grammaire)** —
+      `models set gimli 'opus[1m]'` **sans `--force`** : exit `0`, **aucun avertissement**.
+      Idem pour `sonnet`, `opus`, `haiku`, `fable`, `inherit`, `claude-opus-5`,
+      `claude-opus-5[1m]`. *Sous la liste du lot 2, `opus[1m]` aurait été refusé : c'est le
+      régression-test de A.1.*
+- [ ] **CA-29 (aller-retour du suffixe)** — le contrat projeté porte **`model: opus[1m]` non
+      quoté**, et sa relecture par le parseur du dépôt rend **exactement** `opus[1m]`
+      (ni `opus`, ni `opus[1m]` re-quoté, ni tableau).
+- [ ] **CA-30 (la garde ne fuit PAS dans le rendu)** — `generateAgent` sur
+      `bindings/iakaframe-ollama-default.md` se comporte **exactement** comme avant :
+      **CA-6 du lot 1 passe sans qu'une de ses lignes soit modifiée**. Et
+      `grep -n 'validateModelValue' cli/src/` ne rend **qu'un seul appelant** : `models.js`.
+- [ ] **CA-31 (avertissement résiduel, D13)** — `models set gandalf claude-inexistant-9` **sans
+      `--force`** : exit `0`, écrit, avec un avertissement **distinct** de celui de `--force` et
+      mentionnant l'**id complet non vérifiable hors ligne**. `claude-opus-5` **n'émet aucun**
+      avertissement.
+- [ ] **CA-32 (rétrocompat en LECTURE, D14 — le cas qui mord en premier)** — sur un projet dont
+      l'`iakaframe.json` porte `modelOverrides.gandalf = "pas-un-modele"` (posé à la main, comme
+      un clone d'un poste tiers) : `iakaframe models --json` **sort en `0`**, rend
+      `unknownOverrides` contenant `gandalf` avec sa valeur **et** une commande de réparation ;
+      la ligne de `gandalf` continue de porter `model: "pas-un-modele"` et
+      `modelSource: "projet"` — **elle n'est NI ignorée NI remplacée par le défaut de frame** ;
+      et **rien n'a été écrit** (`iakaframe.json` inchangé à l'octet, `.claude/agents/` inchangé).
+- [ ] **CA-33 (les deux phrases de A.4)** — le commentaire `generate-agents.js:104-105` **borne**
+      explicitement D5 à la voie binding, et `affectation-modele-par-acteur.md` porte **sous D5**
+      une note **datée du 2026-09-02** renvoyant à l'Amendement A. **Aucune ligne supprimée** dans
+      ce second fichier (`git diff --stat` : **additions seules**).
+- [ ] **CA-34 (aides et doc d'accord)** — `models set --help`, `iakaframe models --help` et
+      `docs/commandes.md` documentent `--force` **et** le vocabulaire accepté, dans les **mêmes
+      termes**.
+- [ ] **CA-35 (le filet global)** — `cd cli && npm test` sort en `0`, compte de tests
+      **strictement supérieur** à celui d'après le lot 2, **aucun test supprimé** (CA-14 est
+      **réécrit**, pas retiré) ; `vendor-check --root <CK> --json` reste à **`drift: 0`** — cet
+      amendement ne touche **aucun** fichier vendoré.
+
+## A.11 — Estimation (jalon P1→P2)
+
+- **Équivalent jour-homme : 0,6 j** (≈ 4 h 30). Décomposition : grammaire + cartouche D12
+  ~45 min ; `--force` + refus D15 + aides ~45 min ; `unknownOverrides` (lecture + payload +
+  impression) ~1 h ; les deux phrases de A.4 ~15 min ; tests (CA-26 → CA-35, dont un réécrit)
+  ~1 h 15 ; recette pinnée + remise ~30 min.
+- **Cumul du chantier : ≈ 2,35 j** (0,5 lot 1 + 1,25 lot 2 + 0,6 ici).
+- **Complexité : faible. Risque : moyen-faible.** Le code est court et local — un module, une
+  commande. Le risque n'est pas d'écrire faux, c'est **d'écrire au mauvais endroit** : la même
+  grammaire posée dans le rendu au lieu du point d'entrée casserait la voie binding (RA-2), et
+  c'est le seul geste de ce lot qui ne se rattrape pas par un message.
+- **Inconnues susceptibles de faire glisser l'estimation** :
+  1. **`best` / `default` / `opusplan` / `sonnet[1m]` dans un frontmatter de sous-agent.** La doc
+     nomme quatre alias pour la voie « alias » et délègue à `--model` pour la voie « id complet » :
+     **la phrase est ambiguë et je ne l'ai pas levée** — elle ne se lève pas en relisant, mais en
+     **lançant** un sous-agent portant la valeur. Coût si le décideur veut la certitude : **+15 min**
+     de mesure, et **+15 min** si la mesure élargit la grammaire. *En attendant, `--force` rend
+     l'inconnue non bloquante : c'est précisément ce pour quoi la porte existe.*
+  2. **La forme de retour de `validateModelValue`.** Elle passe de deux cas à trois ; si des
+     appelants non recensés apparaissaient, +30 min. **Mesuré, pas supposé** : un seul appelant
+     aujourd'hui (`models.js:800`) — l'inconnue est **basse**, elle est nommée par prudence.
+  3. **`unknownOverrides` dans le rendu humain.** Si le bloc de D8 et celui-ci se recouvrent
+     visuellement sur un projet portant **les deux** défauts, il faudra les ordonner et les
+     distinguer : **+20 min**, cosmétique.
