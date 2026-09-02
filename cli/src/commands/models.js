@@ -29,7 +29,8 @@ import { hasCmd } from '../lib/which.js';
 import { generateAgent, loadDefaultBinding, personasForTarget } from '../lib/generate-agents.js';
 import {
   readModelOverrides, writeModelOverride, clearModelOverride,
-  validateModelValue, divergentOverrides, projectionIsIgnored,
+  validateModelValue, divergentOverrides, unknownOverrides, projectionIsIgnored,
+  ACCEPTED_VOCABULARY,
 } from '../lib/project-models.js';
 
 const FALLBACK_HOSTS = ['localhost', '127.0.0.1'];
@@ -90,11 +91,15 @@ Sous-verbes 'set' / 'unset' — SURCHARGE DU MODELE PAR PROJET (etage AFFECTATIO
 suggestions ci-dessus) : deroge, pour UN projet, au defaut decide par le binding de la frame,
 sans toucher au binding lui-meme (persistee dans <projet>/iakaframe.json, cle 'modelOverrides',
 et projetee dans <projet>/.claude/agents/<personaId>.md, JAMAIS dans ~/.claude/agents/). Voir
-'iakaframe models set --help' / 'iakaframe models unset --help'.`;
+'iakaframe models set --help' / 'iakaframe models unset --help'.
+
+Amendement A (2026-09-02) : 'models set' REFUSE une valeur hors du vocabulaire connu (sonnet,
+opus, haiku, fable, inherit, ou claude-<id>, suffixe [1m] optionnel sur les deux) — rien n'est
+ecrit. '--force' passe outre, en le disant.`;
 
 const SET_HELP = `iakaframe models set <personaId> <modele> - surcharge de modele PAR PROJET
 
-Usage : iakaframe models set <personaId> <modele> [--path <projet>] [--root <dir>] [--json]
+Usage : iakaframe models set <personaId> <modele> [--path <projet>] [--root <dir>] [--force] [--json]
 
 Ecrit modelOverrides[<personaId>] dans <projet>/iakaframe.json (source unique CLI<->GUI, ecriture
 NON destructive : les autres cles sont preservees) ET projette <projet>/.claude/agents/
@@ -104,17 +109,26 @@ ce qui rend la surcharge effective, SANS toucher au binding (donc sans fuir sur 
 du portefeuille).
 
 <personaId> DOIT appartenir a la team de la frame ACTIVE du projet — sinon REFUS, rien n'est
-ecrit. La valeur est verifiee en FORME (vide/blanche, espace, caractere de tete casserait le
-frontmatter) : ces cas sont un REFUS bloquant. Une valeur bien formee mais hors de l'ensemble
-connu (sonnet, opus, haiku, fable, inherit, claude-*) est ECRITE quand meme, avec un
-AVERTISSEMENT non bloquant — 'fable' n'en emet aucun (valeur connue, politique traitee ailleurs).
+ecrit.
+
+Validation de la valeur (Amendement A, 2026-09-02 — la garde de vocabulaire est BLOQUANTE) :
+  1. FORME (vide/blanche, espace, caractere de tete casserait le frontmatter) : REFUS bloquant,
+     '--force' NE LE LEVE PAS.
+  2. VOCABULAIRE : hors de sonnet, opus, haiku, fable, inherit, claude-<id> (suffixe [1m] optionnel
+     sur les deux) -> REFUS, rien n'est ecrit, SAUF avec '--force' (ecrite quand meme, avec un
+     avertissement qui le dit).
+  3. ID COMPLET bien forme (claude-<id>) : ECRIT sans '--force', avec un avertissement si l'id
+     n'a pas ete mesure (le catalogue des ids n'est pas verifiable hors ligne).
+  Un alias connu (sonnet, opus, haiku, fable, inherit, suffixe [1m] optionnel) n'emet AUCUN
+  avertissement.
 
 Options :
   <personaId>     Id de la persona a surcharger (doit appartenir a la team de la frame active).
-  <modele>        Valeur du modele (ex. sonnet, opus, haiku, fable, claude-opus-5).
+  <modele>        Valeur du modele (ex. sonnet, opus, haiku, fable, claude-opus-5, opus[1m]).
   --path <projet> Dossier projet (defaut : cwd).
   --root <dir>    Racine bibliotheque (defaut : resolution auto).
-  --json          Sortie machine : { ok, path, personaId, model, warning, projected, gitignore }.
+  --force         Ecrit quand meme une valeur hors du vocabulaire connu (refus par defaut, sinon).
+  --json          Sortie machine : { ok, path, personaId, model, warning, forced, projected, gitignore }.
   --help          Cette aide.`;
 
 const UNSET_HELP = `iakaframe models unset <personaId> | --all - retire une surcharge PAR PROJET
@@ -395,7 +409,7 @@ export function legendLine(statuses) {
     .join('  ');
 }
 
-function printState(canon, suggestions, probes, roles, divergences = []) {
+function printState(canon, suggestions, probes, roles, divergences = [], unknowns = []) {
   console.log('\n=== iakaframe - modeles d\'IA par roleKey ===');
   console.log(`  frame ${canon.frameId || '(aucune)'} · methode ${canon.methodId || '(aucune)'} · team ${canon.teamId || '(aucune)'}`);
   console.log(`  binding cible : ${canon.bindingId || '(aucun)'}`);
@@ -428,6 +442,15 @@ function printState(canon, suggestions, probes, roles, divergences = []) {
     for (const d of divergences) {
       console.log(`    ! ${d.personaId.padEnd(9)} decide=${d.decided}  effectif=${d.effective || '(defaut du binding)'}  attendu=${d.expectedPath}`);
       console.log(`      reparer : ${d.repair}`);
+    }
+  }
+  // D14 (Amendement A) : SIGNALE, ne refuse jamais, n'ignore jamais — la projection porte la
+  // valeur et c'est elle que le runner charge (F1).
+  if (unknowns.length) {
+    console.log('\n  Surcharges HORS DU VOCABULAIRE CONNU (retrocompatibilite en lecture, D14) :');
+    for (const u of unknowns) {
+      console.log(`    ! ${u.personaId.padEnd(9)} valeur=${u.model}`);
+      console.log(`      reparer : ${u.repair}`);
     }
   }
   console.log('');
@@ -763,6 +786,7 @@ function runModelsSet(argv) {
     options: {
       path: { type: 'string' },
       root: { type: 'string' },
+      force: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
     },
@@ -796,11 +820,28 @@ function runModelsSet(argv) {
     return fail(values.json, msg, { personaId, teamId, frameId }, () => console.error(msg));
   }
 
-  // D6 : garde de forme BLOQUANTE ; hors ensemble connu -> AVERTISSEMENT non bloquant (ecrit quand meme).
+  // D6bis (Amendement A) : trois strates. 1 - forme : REFUS bloquant, --force ne le leve JAMAIS.
+  // 2 - vocabulaire : REFUS, levable par --force (D11/D15). 3 - id complet bien forme : ECRIT,
+  // avec avertissement residuel (D13) si l'id n'est pas mesure.
   const v = validateModelValue(model);
   if (v.blocking) {
     const msg = `valeur invalide pour '${personaId}' : ${v.blocking}`;
     return fail(values.json, msg, { personaId, model }, () => console.error(msg));
+  }
+
+  let warning = null;
+  let forced = false;
+  if (v.unknown !== undefined) {
+    if (!values.force) {
+      const msg = `valeur inconnue : ${v.unknown} — hors du vocabulaire accepte pour un sous-agent `
+        + `(sonnet, opus, haiku, fable, inherit, ou claude-<id>, suffixe [1m] optionnel) ; `
+        + `surcharge NON ecrite. Si la valeur est juste (alias recent), reecrire avec --force.`;
+      return fail(values.json, msg, { personaId, model, accepted: ACCEPTED_VOCABULARY }, () => console.error(msg));
+    }
+    warning = `valeur hors du vocabulaire connu, ECRITE sur --force : ${model} — verifier qu'elle est acceptee par le runner.`;
+    forced = true;
+  } else {
+    warning = v.warning || null;
   }
 
   const res = writeModelOverride(projectDir, personaId, model);
@@ -824,12 +865,12 @@ function runModelsSet(argv) {
   const ignored = projectionIsIgnored(projectDir);
 
   emit(values.json, ok({
-    path: res.path, personaId, model, warning: v.warning || null,
+    path: res.path, personaId, model, warning, forced,
     projected: dest, gitignore: { checked: true, ignored },
   }), () => {
     console.log(`OK - surcharge posee : ${personaId} -> ${model}  (${res.path})`);
     console.log(`  contrat de projet : ${dest}`);
-    if (v.warning) console.log(`  ! ${v.warning}`);
+    if (warning) console.log(`  ! ${warning}`);
     if (!ignored) {
       console.log(`  ! projection non ignoree par le .gitignore de ce projet : ajouter '/.claude/agents/'`);
       console.log(`    (A-3 : la decision reste versionnee dans iakaframe.json, la projection ne l'est pas)`);
@@ -952,6 +993,9 @@ export async function runModels(argv) {
   // D8/CA-20/CA-25 : decisions (modelOverrides) SANS projection deployee — signalement seul,
   // derive de la MEME lecture que le reste de cette commande (aucune ecriture).
   const overrideDivergences = divergentOverrides(projectDir, { root });
+  // D14 (Amendement A) : decisions PRESENTES mais dont la valeur est hors du vocabulaire connu —
+  // signalement seul, JAMAIS de refus ni de repli sur le defaut de frame (D14).
+  const overrideUnknowns = unknownOverrides(projectDir);
 
   const age = ageInDays(suggestions.updatedAt);
   const payload = ok({
@@ -963,11 +1007,12 @@ export async function runModels(argv) {
     targets: probes,
     roles,
     overrideDivergences,
+    unknownOverrides: overrideUnknowns,
   });
 
   if (values.json) { emit(true, payload); return payload; }
 
-  printState(canon, suggestions, probes, roles, overrideDivergences);
+  printState(canon, suggestions, probes, roles, overrideDivergences, overrideUnknowns);
 
   // Le process interactif exige un terminal : sans TTY (CI, pipe, test), on s'arrete a l'etat
   // des lieux plutot que de bloquer sur une question que personne ne lira.

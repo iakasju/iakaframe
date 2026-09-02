@@ -1,4 +1,6 @@
-// Garde de la SURCHARGE DU MODELE PAR PROJET (specs/instructions/surcharge-modele-par-projet.md).
+// Garde de la SURCHARGE DU MODELE PAR PROJET (specs/instructions/surcharge-modele-par-projet.md),
+// AMENDEE le 2026-09-02 (§ Amendement A : la garde de vocabulaire devient BLOQUANTE, --force,
+// retrocompatibilite en lecture D14).
 //
 // Couvre, dans l'ordre des criteres de l'instruction :
 //   - effectiveModel (pure, CA-1) et sa substitution a la couture de generateAgent (CA-3/CA-4) ;
@@ -6,7 +8,10 @@
 //   - les sous-verbes `models set` / `models unset` (CA-9 a CA-15) ;
 //   - la politique Fable (CA-16) ;
 //   - la reprise inter-processus (CA-18) et le signalement de divergence (CA-20/CA-25) ;
-//   - le detecteur de fuite vitrine-methode (CA-24, verifie ICI par construction).
+//   - le detecteur de fuite vitrine-methode (CA-24, verifie ICI par construction) ;
+//   - Amendement A : la grammaire D6bis bloquante + --force (CA-26/CA-27/CA-28/CA-29/CA-30/CA-31),
+//     la retrocompatibilite en LECTURE D14 (CA-32), les deux phrases de A.4 (CA-33), l'accord des
+//     aides (CA-34).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -19,9 +24,10 @@ import {
 } from '../src/lib/generate-agents.js';
 import {
   readModelOverrides, writeModelOverride, clearModelOverride,
-  validateModelValue, divergentOverrides, projectionIsIgnored,
+  validateModelValue, divergentOverrides, unknownOverrides, projectionIsIgnored,
 } from '../src/lib/project-models.js';
 import { parseJsonFile, writeActiveFramePointer } from '../src/lib/frame-active.js';
+import { parseFrontmatter, needsScalarQuote } from '../src/lib/frontmatter.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..');
@@ -231,24 +237,205 @@ test('CA-13 CLI : models set avec une valeur de forme invalide -> refus, rien ec
   assert.deepEqual(readModelOverrides(proj), {});
 });
 
-// --- CA-14 : valeur inhabituelle mais bien formee -> ECRITE avec avertissement ; fable = aucun ----
-test('CA-14 validateModelValue : hors ensemble connu -> ecrite + avertissement ; fable = aucun avertissement', () => {
-  const sonnnet = validateModelValue('sonnnet');
-  assert.equal(sonnnet.ok, 'sonnnet');
-  assert.match(sonnnet.warning, /inhabituelle/);
+// --- CA-14 est RENOMME CA-26 (2026-09-02, Amendement A, decision decideur « echouer ») ----------
+// Redaction D'ORIGINE, CONSERVEE COMME TRACE (RA-3 : ne jamais modifier un test pour accommoder le
+// code — ICI, le test mesurait FIDELEMENT D6, que le decideur a renverse ; le REECRIRE EST le lot,
+// pas un contournement) :
+//   test('CA-14 validateModelValue : hors ensemble connu -> ecrite + avertissement ; fable = aucun
+//   avertissement', () => { ... assert.equal(sonnnet.ok, 'sonnnet'); assert.match(sonnnet.warning,
+//   /inhabituelle/); ... });
+//   test('CA-14 CLI : models set gimli sonnnet -> exit 0, ecrit quand meme, avertissement
+//   rendu', () => { ... assert.equal(out.ok, true); assert.match(out.warning, /inhabituelle/); ... });
+// Elle est REMPLACEE par CA-26, pas supprimee (le compte de tests reste STRICTEMENT croissant,
+// CA-35).
 
-  for (const known of ['sonnet', 'opus', 'haiku', 'fable', 'inherit', 'claude-opus-5']) {
-    const v = validateModelValue(known);
-    assert.equal(v.warning, null, `${known} ne doit emettre AUCUN avertissement`);
+// --- CA-26 (ex-CA-14, reecrit) : hors grammaire -> REFUS, rien ecrit ------------------------------
+test('CA-26 validateModelValue : hors grammaire D6bis -> { unknown }, jamais { ok }', () => {
+  const sonnnet = validateModelValue('sonnnet');
+  assert.equal(sonnnet.unknown, 'sonnnet');
+  assert.equal(sonnnet.ok, undefined);
+  assert.equal(sonnnet.blocking, undefined);
+});
+
+test('CA-26 CLI : models set gimli sonnnet -> exit != 0, ok:false, rien ecrit', () => {
+  const proj = tmpProject();
+  const file = path.join(proj, 'iakaframe.json');
+  fs.writeFileSync(file, JSON.stringify({ frame: 'iakaframe' }, null, 2) + '\n');
+  const before = fs.readFileSync(file, 'utf8');
+
+  let out, threw = false;
+  try {
+    run(['models', 'set', 'gimli', 'sonnnet', '--path', proj, '--json']);
+  } catch (e) {
+    threw = true;
+    out = JSON.parse(e.stdout);
+  }
+  assert.ok(threw, 'exit != 0');
+  assert.equal(out.ok, false);
+  assert.match(out.error, /sonnnet/);
+  assert.match(out.error, /sonnet, opus, haiku, fable, inherit/);
+  assert.match(out.error, /--force/);
+  assert.equal(out.personaId, 'gimli');
+  assert.equal(out.model, 'sonnnet');
+  assert.ok(Array.isArray(out.accepted) && out.accepted.includes('sonnet'));
+
+  assert.equal(fs.readFileSync(file, 'utf8'), before, 'iakaframe.json inchange a l\'octet');
+  assert.ok(!fs.existsSync(path.join(proj, '.claude', 'agents', 'gimli.md')), 'contrat de projet NON cree');
+});
+
+// --- CA-27 (la porte de sortie) : --force ecrit quand meme, en le disant --------------------------
+test('CA-27 CLI : models set gimli sonnnet --force -> exit 0, warning + forced:true, ecrit et projete', () => {
+  const proj = tmpProject();
+  const out = runJson(['models', 'set', 'gimli', 'sonnnet', '--force', '--path', proj, '--json']);
+  assert.equal(out.ok, true);
+  assert.equal(out.forced, true);
+  assert.match(out.warning, /--force/);
+  assert.match(out.warning, /sonnnet/);
+  assert.equal(readModelOverrides(proj).gimli, 'sonnnet');
+  const dest = path.join(proj, '.claude', 'agents', 'gimli.md');
+  assert.ok(fs.existsSync(dest));
+  assert.match(fs.readFileSync(dest, 'utf8'), /^model: sonnnet$/m);
+});
+
+// --- CA-28 (le faux refus evite — le critere qui justifie la reecriture de la grammaire) ----------
+test('CA-28 validateModelValue : opus[1m]/sonnet[1m]/... et claude-opus-5[1m] -> AUCUN refus, AUCUN avertissement', () => {
+  // Sous la liste du lot 2 (KNOWN_MODEL_VALUES + v.startsWith('claude-')), 'opus[1m]' aurait ete
+  // classee INHABITUELLE (avertissement) — et sous « echouer » applique a CETTE liste, REFUSEE.
+  // C'est le regression-test de A.1 : la grammaire D6bis doit accepter le suffixe partout.
+  for (const v of ['sonnet', 'opus', 'haiku', 'fable', 'inherit', 'claude-opus-5',
+                    'sonnet[1m]', 'opus[1m]', 'haiku[1m]', 'fable[1m]', 'inherit[1m]', 'claude-opus-5[1m]']) {
+    const r = validateModelValue(v);
+    assert.equal(r.unknown, undefined, `${v} ne doit jamais etre refusee`);
+    assert.equal(r.blocking, undefined, `${v} ne doit jamais etre bloquante`);
+    assert.equal(r.ok, v, `${v} doit etre ecrite telle quelle`);
+    assert.equal(r.warning, null, `${v} n'emet AUCUN avertissement`);
   }
 });
 
-test('CA-14 CLI : models set gimli sonnnet -> exit 0, ecrit quand meme, avertissement rendu', () => {
+test('CA-28 CLI : models set gimli opus[1m] sans --force -> exit 0, aucun avertissement', () => {
   const proj = tmpProject();
-  const out = runJson(['models', 'set', 'gimli', 'sonnnet', '--path', proj, '--json']);
+  const out = runJson(['models', 'set', 'gimli', 'opus[1m]', '--path', proj, '--json']);
   assert.equal(out.ok, true);
-  assert.match(out.warning, /inhabituelle/);
-  assert.equal(readModelOverrides(proj).gimli, 'sonnnet');
+  assert.equal(out.warning, null);
+  assert.equal(out.forced, false);
+  assert.equal(readModelOverrides(proj).gimli, 'opus[1m]');
+});
+
+// --- CA-29 (aller-retour du suffixe) : non quote, relu a l'identique ------------------------------
+test('CA-29 : model: opus[1m] traverse le rendu SANS se deformer (non quote, relu identique)', () => {
+  const proj = tmpProject();
+  run(['models', 'set', 'gimli', 'opus[1m]', '--path', proj, '--json']);
+  const dest = path.join(proj, '.claude', 'agents', 'gimli.md');
+  const content = fs.readFileSync(dest, 'utf8');
+  assert.match(content, /^model: opus\[1m\]$/m, 'non quote (pas de guillemets, pas de crochet ouvrant en tete)');
+  assert.equal(needsScalarQuote('opus[1m]'), false, 'o en tete : aucune regle de quoting ne s\'applique');
+
+  const { data } = parseFrontmatter(content);
+  assert.equal(data.model, 'opus[1m]', 'relu EXACTEMENT : ni opus, ni re-quote, ni tableau');
+});
+
+// --- CA-30 (la garde ne fuit PAS dans le rendu) : le binding Ollama est INTACT --------------------
+test('CA-30 : validateModelValue a UN SEUL appelant (models.js), la voie binding n\'est PAS gardee', () => {
+  // Mesure les APPELS (invocations `validateModelValue(...)`), pas les mentions en commentaire —
+  // le grep brut de la recette (§ A.9) est une lecture humaine, cette assertion en est la version
+  // MECANIQUE : elle exclut la ligne de DEFINITION (`function validateModelValue(`) et ne compte
+  // que les sites d'APPEL reels.
+  const cliSrc = path.join(HERE, '..', 'src');
+  const grep = execFileSync('grep', ['-rn', 'validateModelValue(', cliSrc], { encoding: 'utf8' });
+  const callSites = grep.split('\n').filter(Boolean)
+    .filter(l => !/function validateModelValue\(/.test(l));
+  const files = new Set(callSites.map(l => l.split(':')[0]));
+  assert.deepEqual([...files], [path.join(cliSrc, 'commands', 'models.js')], 'UN SEUL appelant : models.js');
+});
+
+test('CA-30 : surcharge sur binding OLLAMA -> comportement EXACT du lot 1 (CA-6 du lot 1 sans modification)', () => {
+  // Reprend, verbatim, la mesure du lot 1 (affectation-modele-par-acteur.md, CA-6) : le binding
+  // Ollama continue de projeter SES modeles verbatim, sans qu'aucune ligne de la grammaire D6bis
+  // n'intervienne (elle vit au point d'entree `models set`, jamais dans le rendu, A.4/RA-2).
+  const contract = generateAgent('gimli', {
+    root: REPO,
+    binding: { data: { assignments: [{ personaId: 'gimli', runner: 'ollama-distant', model: 'qwen2.5-coder:14b' }] } },
+  });
+  assert.ok(!/^model: /m.test(contract), 'runner non-claude-code : aucune ligne model, inchange');
+});
+
+// --- CA-31 (avertissement residuel, D13) : id complet NON MESURE -> avertissement DISTINCT --------
+test('CA-31 CLI : models set gandalf claude-inexistant-9 sans --force -> exit 0, ecrit, avertissement id-complet', () => {
+  const proj = tmpProject();
+  const out = runJson(['models', 'set', 'gandalf', 'claude-inexistant-9', '--path', proj, '--json']);
+  assert.equal(out.ok, true);
+  assert.equal(out.forced, false, 'jamais force : la grammaire ACCEPTE deja un id complet bien forme');
+  assert.match(out.warning, /id complet non verifiable hors ligne/);
+  assert.match(out.warning, /claude-inexistant-9/);
+  assert.ok(!/--force/.test(out.warning), 'avertissement DISTINCT de celui de --force (D13)');
+
+  const out2 = runJson(['models', 'set', 'gandalf', 'claude-opus-5', '--path', proj, '--json']);
+  assert.equal(out2.warning, null, 'claude-opus-5 (id complet MESURE, F6) n\'emet aucun avertissement');
+});
+
+// --- CA-32 (retrocompat en LECTURE, D14 — le cas qui mord en premier) -----------------------------
+test('CA-32 : iakaframe.json portant une valeur hors grammaire (pose a la main) -> signalee, jamais ignoree ni bloquante', () => {
+  const proj = tmpProject();
+  const file = path.join(proj, 'iakaframe.json');
+  fs.writeFileSync(file, JSON.stringify({ frame: 'iakaframe', modelOverrides: { gandalf: 'pas-un-modele' } }, null, 2) + '\n');
+  const before = fs.readFileSync(file, 'utf8');
+
+  // unknownOverrides (lecture pure) : signale, n'ecrit rien.
+  const unk = unknownOverrides(proj);
+  assert.equal(unk.length, 1);
+  assert.equal(unk[0].personaId, 'gandalf');
+  assert.equal(unk[0].model, 'pas-un-modele');
+  assert.match(unk[0].repair, /models set gandalf/);
+  assert.match(unk[0].repair, /models unset gandalf/);
+  assert.equal(fs.readFileSync(file, 'utf8'), before);
+  assert.ok(!fs.existsSync(path.join(proj, '.claude', 'agents')), 'aucune ecriture');
+
+  // `models --json` : sort en 0, NI ignore NI remplace par le defaut de frame.
+  const out = runJson(['models', '--path', proj, '--json', '--timeout', '1'], { env: { ...process.env, IAKAFRAME_HOSTS: 'localhost' } });
+  assert.equal(out.ok, true);
+  assert.equal(out.unknownOverrides.length, 1);
+  assert.equal(out.unknownOverrides[0].personaId, 'gandalf');
+  assert.match(out.unknownOverrides[0].repair, /models set gandalf|models unset gandalf/);
+  const gandalfRow = out.roles.flatMap(r => r.personas).find(p => p.id === 'gandalf');
+  assert.equal(gandalfRow.model, 'pas-un-modele', 'la valeur brute continue d\'etre rendue, pas remplacee');
+  assert.equal(gandalfRow.modelSource, 'projet');
+  assert.equal(fs.readFileSync(file, 'utf8'), before, 'la LECTURE n\'ecrit rien');
+  assert.ok(!fs.existsSync(path.join(proj, '.claude', 'agents')), '.claude/agents/ toujours absent');
+});
+
+// --- CA-33 (les deux phrases de A.4) ---------------------------------------------------------------
+test('CA-33 : generate-agents.js:104-105 borne D5 a la voie binding (Amendement A cite)', () => {
+  const src = fs.readFileSync(path.join(HERE, '..', 'src', 'lib', 'generate-agents.js'), 'utf8');
+  assert.match(src, /Amendement A/, 'le commentaire cite l\'Amendement A');
+  assert.match(src, /voie binding/i);
+});
+
+test('CA-33 : affectation-modele-par-acteur.md porte une note DATEE sous D5, additions seules', () => {
+  const src = fs.readFileSync(path.join(REPO, 'specs', 'instructions', 'affectation-modele-par-acteur.md'), 'utf8');
+  assert.match(src, /2026-09-02.*models set.*refuse/s);
+  // Ancre sur le commit du cadrage de l'Amendement A (754c747, cite par l'instruction elle-meme,
+  // PAS un decalage relatif type HEAD~N qui se desalignerait au fil des commits de ce chantier).
+  const stat = execFileSync('git', ['diff', '--stat', '754c747', '--', 'specs/instructions/affectation-modele-par-acteur.md'],
+    { cwd: REPO, encoding: 'utf8' });
+  // Aucune suppression : que des '+' dans la ligne recapitulative (ex. « 1 file changed, 4 insertions(+) »),
+  // jamais de '-' de suppressions.
+  if (stat.trim()) assert.ok(!/\d+ deletions?\(-\)/.test(stat), `aucune suppression attendue : ${stat}`);
+});
+
+// --- CA-34 (aides et doc d'accord) : --force et la grammaire, memes termes ------------------------
+test('CA-34 : SET_HELP / models --help / docs/commandes.md documentent --force et la grammaire, dans les memes termes', () => {
+  const setHelp = run(['models', 'set', '--help']);
+  assert.match(setHelp, /--force/);
+  assert.match(setHelp, /sonnet, opus, haiku, fable, inherit/);
+  assert.match(setHelp, /\[1m\]/);
+
+  const topHelp = run(['models', '--help']);
+  assert.match(topHelp, /--force/);
+
+  const doc = fs.readFileSync(path.join(REPO, 'docs', 'commandes.md'), 'utf8');
+  assert.match(doc, /--force/);
+  assert.match(doc, /sonnet.*opus.*haiku.*fable.*inherit/);
+  assert.match(doc, /\[1m\]/);
 });
 
 // --- CA-15 : `models --json` rend model + modelSource distincts ----------------------------------

@@ -102,7 +102,12 @@ function runnerForPersona(binding, personaId) {
 // le comportement inchange. On n'ecrit JAMAIS `inherit` en repli — ce serait poser une decision
 // (« calque-toi sur la session ») la ou le canon n'en a pris aucune ; `inherit` reste disponible
 // comme valeur EXPLICITE du binding. Aucune allowlist de valeurs (D5) : la chaine du binding est
-// projetee verbatim, la liste des alias bougeant cote runner.
+// projetee verbatim, la liste des alias bougeant cote runner. 2026-09-02 (Amendement A,
+// surcharge-modele-par-projet.md) — precision : ceci reste vrai pour le BINDING, et seulement pour
+// lui. La voie `models set` est, elle, gardee depuis l'Amendement A (project-models.js,
+// validateModelValue) : ce garde-fou vit au point d'entree, jamais ici, sous peine de casser la
+// voie binding (Ollama, dont les modeles `qwen3.5:9b` / `gemma4:e4b` ne sont pas des valeurs de
+// frontmatter Claude Code).
 // `skills` = liste RESOLUE (resolveSkills) rendue en flow-list `[a, b]` (une SEULE forme stable,
 // alignee sur guardrails ; l'ordre est verbatim -> tout flottement casse le golden), APRES `model`
 // et AVANT `guardrails`, OMISE si vide (R8 § 5.2, Fait 1 : le runner precharge ce champ).

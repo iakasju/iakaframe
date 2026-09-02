@@ -121,6 +121,10 @@ sur un assignment, pour un travail lourd et rare, sans qu'aucune ligne de code n
 prix assumé — une faute de frappe dans le binding produit un contrat au modèle inconnu — est couvert
 par CA-9 (relecture des dix fichiers déployés) et par `agents generate --check`.
 
+> **2026-09-02** — D5 vaut pour la **projection** d'une valeur de binding, et **seulement** pour
+> elle. Le point d'entrée `models set` (lot 2) **refuse** depuis l'Amendement A de
+> `surcharge-modele-par-projet.md`.
+
 **D6 — quoting.** Le binding écrit `model: "opus"` ; `parseScalar` retire les guillemets et
 `renderScalar` ne re-quote pas un mot plein. Le contrat déployé portera donc **`model: opus`**, sans
 guillemets, comme `tools`. Attendu, pas une dérive.
