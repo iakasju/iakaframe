@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-01 22:20 (motif: manual).
+> Genere par iakaframe (CLI) le 2026-09-02 12:33 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,148 +9,108 @@
 |---|---|
 | Version | v0.39.0 |
 | Branche | main |
-| Dernier commit | 276c42d docs(instruction): re-cadrage de la garde du latest — 6 arbitrages tranches |
-| Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (suivis + non ignores) | 1117 |
-| Note | L43 livre au 6e passage : balayage de completude. Trois mesures du banc jouees : --latest agit, false inerte, legacy AGIT. |
+| Dernier commit | 4104067 docs(cadrage): affectation du modele d'IA par acteur — cadrage Gandalf, NON VALIDE |
+| Arbre | propre |
+| Fichiers (suivis + non ignores) | 1118 |
+| Note | L44 PASS au 8e passage, fusionne et pousse. Correctif des ecarts consignes en cours : ecart 1 fait, 2-4 restants. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `4104067` | 2026-09-02 | docs(cadrage): affectation du modele d'IA par acteur — cadrage Gandalf, NON VALIDE |
+| `27253a0` | 2026-09-02 | fix(L44): le corpus cesse de contredire ses propres mesures, et la regle est ecrite |
+| `dbf8b57` | 2026-09-01 | docs(L44): la description du verbe registre:repli-latest cesse d'annoncer SEPT detections |
+| `8c80a6d` | 2026-09-01 | fix(L44): l'instrument cesse de mentir sur lui-meme (D-8, ancrage des exclus, tri) |
+| `11f807d` | 2026-09-01 | docs(L44): l'etat des lieux dit ou en est la garde du latest, date |
+| `3e22006` | 2026-09-01 | docs(L44): entree de backlog — re-cadrage de la garde du latest |
+| `1ef9404` | 2026-09-01 | docs(L44): le cartouche du job latest dit ce que le job fait, mesure et date |
+| `c878dba` | 2026-09-01 | docs(L44): AR-7=(a) --latest et AR-8=(a) pas de M4 — tranches par le decideur |
+| `a09da5c` | 2026-09-01 | chore: checkpoint — L43 livre (6e passage) + re-cadrage amende des trois mesures du banc |
 | `276c42d` | 2026-08-31 | docs(instruction): re-cadrage de la garde du latest — 6 arbitrages tranches |
-| `33acb1b` | 2026-08-30 | fix(L43): 40 declarations au tri, 41 au registre — l'ecart etait tu |
-| `ef7c647` | 2026-08-30 | docs(L43): la troisieme phrase d'ancrage — le libelle npm ne connaissait que D-1..D-4 |
-| `5e44cfe` | 2026-08-30 | fix(L43): la phrase d'ancrage disait plus que le registre ne tenait |
-| `bf05530` | 2026-08-30 | feat(L43): un BALAYAGE DE COMPLETUDE — toute ligne du motif repond d'une empreinte, ou rougit |
-| `c8ecd19` | 2026-08-30 | fix(L43): le registre ancrait des SECTIONS, pas des enonces — il ancre les enonces |
-| `a082298` | 2026-08-30 | fix(L43): le remede que le registre DICTAIT ne le reparait pas |
-| `6d2debd` | 2026-08-30 | fix(L43): le balayage comptait des LIGNES la ou il annonçait des occurrences |
-| `3d1ab15` | 2026-08-30 | fix(L43): la vitrine imprimait a l'operateur la phrase refutee — aux trois depots |
-| `c7edfa5` | 2026-08-30 | fix(L43): une case du tableau portait un ✅ NON MESURE, sans son renvoi |
 
 ## Reprise du travail (a completer par Cowork)
 
-- 🆕 **2026-09-01 — LOT L44 « re-cadrage de la garde du `latest` » : le code est ecrit, remis au
-  gate.** Ce qui suit **complete** ce qui precede ; rien n'est efface, tout est date.
-  - **Le job REPARE, desormais.** La branche du vol ecrivait `--latest=false` sur le tag publie —
-    ecriture **inerte**, mesuree deux fois ; elle **execute** maintenant
-    `gh release edit "$PLUS_HAUT" --latest`. AR-7 = (a), tranche par le decideur sur la mesure
-    **M1**. ⚠️ Il n'**EMPECHE** toujours pas : la release est creee **avant** lui. La fenetre du
-    vol n'est pas fermee, elle est **raccourcie**.
-  - **Le referent est corrige (2a), et c'etait le vrai defaut de code.** `PLUS_HAUT` se derive
-    desormais de `repos/$DEPOT/releases` — brouillons et preversions exclus, comme les exclut
-    `GET /releases/latest` —, et le cas « aucune release » **sort en succes en le disant**. Le
-    **faux rouge** et la **dictee sur une release inexistante** sont **reproduits hors ligne,
-    avant/apres**, sur six scenarios.
-  - **Le trou mesure du GUI est ferme.** `fixtures/bloc-latest.sha256`,
-    `scripts/lib/bloc-latest.mjs` (extraction **par marqueur**, unicite **assertee**) et
-    `scripts/__tests__/bloc-latest.test.mjs` — byte-identiques, inscrits au registre de
-    convergence, **cliquet 17 -> 20**. **Eprouve** : sous mutation d'un octet du workflow du GUI,
-    les deux faces historiques restaient **vertes** (8/8 et 18 fichiers), la garde neuve
-    **rougit**. Revocations prouvees au `sha256`.
-  - **L'instrument cesse de mentir sur lui-meme.** L'en-tete de `registre-repli-latest.js` disait
-    « TROIS PASSAGES » et se contredisait 26 lignes plus bas ; la cle `"//"` du JSON annoncait
-    **quatre** detections pour **sept** reelles. Corriges **en datant**. **D-8** tient desormais
-    les **cles de prose** du registre par empreinte, et les **13 exclusions de fichier** sont
-    **ancrees ligne a ligne**.
-  - **Le residu, a la precision que la mesure autorise** : la regle de repli **EXISTE**, elle vit
-    sous `make_latest=legacy`, elle n'est atteignable que par `PATCH`, et elle **n'est PAS dirigee
-    par la date la plus recente** — ni `created_at`, ni `published_at`, ni l'ordre
-    d'enregistrement. ⚠️ **SA FORMULE RESTE INCONNUE : les deux releases mesurees sont DU MEME
-    JOUR** ; une regle au grain du jour departagee par le semver donnerait la meme sortie. Le
-    residu **(2) est REFERME** : le NO-OP siege dans la **semantique de la valeur `false`** cote
-    API — ni le client, ni le transport, ni la lecture.
-  - **La doc de GitHub est refutee par mesure** : `GET /releases/latest` s'y dit trie « by the
-    `created_at` attribute » ; le banc la refute **deux fois** (avant M1, apres M3b, sur le
-    `created_at` le plus **ancien**). Et `created_at` est la date du **commit** du tag.
-  - ⚠️ **NON MESURE, et du au decideur** : le contrefactuel A/B **sur le banc** (CA-6) et la preuve
-    de bout en bout **dans un run reel** (CA-10). Ce sont des **actes de release**, refuses aux
-    agents. L'agent a joue l'equivalent **hors ligne**, sur un `gh` d'essai : ce n'est **pas** la
-    meme mesure, et ce n'est pas ecrit comme telle.
-  - **Prochaine etape concrete** : **gate Legolas**, puis les deux mesures de banc par le decideur.
-  - **Specifique a ce depot** : seul le **cartouche** de `.github/workflows/release.yml` est dans
-    le perimetre — **son programme ne l'est pas** (son CI n'a jamais tourne : `actions/runs ->
-    total_count: 0`), pas plus que `CI-RELEASE-AUCUN-EPINGLAGE`. C'est ici que vivent
-    l'instruction (copie **unique**), le **registre** et son **balayeur**.
+- **Ou on en est** : le lot **L44 « re-cadrage de la garde `latest` »** est **PASS au HUITIEME
+  passage**, **fusionne et pousse** sur les deux canaux. Un **correctif des ecarts consignes** est
+  **en cours, non termine** : ecart 1 fait, ecarts 2 a 4 restants.
+- **Ce qui vient d'etre fait** :
+  1. **Trois mesures du banc jouees par le decideur** (2026-08-31), qui ont renverse une premisse :
 
-- **Ce qui vient d'etre fait** : le lot **L43 « contrefactuel du vol de `latest` »** est livre, gate
-  **PASS au SIXIEME passage**, fusionne et pousse. Puis le decideur a joue **trois mesures** sur le
-  banc prive, qui ont **renverse une premisse** du re-cadrage en cours.
-- **Le fait etabli, et il a coute cher** : `make_latest=false` **est un NO-OP**. Deux mesures croisees
-  refutent **8 regles de repli sur 9** — `created_at` (avec et sans exclusion), `published_at` (idem),
-  **semver**, plus grand **`id`**, et le **repli differe** (refute par relecture ~13 h apres). Seul le
-  NO-OP survit **parmi les regles enumerees**.
-- **Les trois mesures du 2026-08-31, qui changent la lecture** :
+     | Ecriture | Effet | Mesure |
+     |---|---|---|
+     | `--latest` (`true`) via `gh` | **AGIT** | M1 |
+     | `--latest=false` via `gh` | **inerte** | 29/08 |
+     | `make_latest=false` via `PATCH` brut | **inerte** | M2 |
+     | **`make_latest=legacy` via `PATCH`** | **AGIT** | M3 |
 
-  | Ecriture | Effet | Mesure |
-  |---|---|---|
-  | `--latest` (`true`) via `gh` | **AGIT** | M1 |
-  | `--latest=false` via `gh` | **inerte** | 29/08 |
-  | `make_latest=false` via `PATCH` brut | **inerte** | M2 |
-  | **`make_latest=legacy` via `PATCH`** | **AGIT** | M3 |
-
-  **M1** sauve le lot : le rattrapage que le job imprime **fonctionne**, ce n'est pas un mensonge.
-  **M2** : le `PATCH` **brut** est accepte et sans effet -> **le NO-OP n'est PAS dans `gh`**, il siege
-  dans l'API ou la lecture. **M3** : ⚠️ **`gh` REFUSE la valeur `legacy`** (`--latest` est un drapeau
-  **booleen**, `strconv.ParseBool`) — elle n'est atteignable que par l'API ; et par l'API elle **AGIT**,
-  le `latest` passant de `v0.9.0` a `v0.10.0`.
-- **Ce que M3 etablit — et rien de plus** : `false` et `legacy` **ne sont pas equivalents**. Ecrire
-  `false` **n'abandonne pas** la designation explicite ; **seul `legacy` la rend au calcul**. Et le
-  `latest` est alle sur le **plus haut semver**, qui etait **le plus ancien sur les deux dates** :
-  **la date la plus recente NE GAGNE PAS**. ⚠️ **Avec deux releases on ne separe pas « semver domine »
-  d'une combinaison date+semver avec departage — on sait que la date ne dirige pas, pas la formule.**
-- **Le job ecrit `--latest=false` en croyant relacher la designation ; il ne la relache pas.** C'est
-  une **piste** de remede (ecrire `legacy`), **pas une conclusion** : `legacy` est inatteignable par
-  `gh`, et rien n'est mesure sur son comportement **a la creation** par `tauri-action`.
-- **Specifique a ce depot** : il porte l'instruction du re-cadrage
-  (`specs/instructions/re-cadrage-garde-latest.md`, 6 arbitrages tranches le 2026-08-31), la procedure
-  du decideur, le **registre** et son **balayage**. ⚠️ Le verificateur **rougit en D-3** tant que le
-  tri a la main des fichiers neufs n'est pas fait — **c'est correct et voulu**, c'est une etape de lot,
-  **jamais un `--ecrire`**. Ce depot n'a **ni eslint ni tsconfig**, et son `release.yml` **n'epingle
-  rien** (3 tags flottants) ; son CI **n'a jamais tourne**.
-- **Le vrai defaut de code, trouve A LA LECTURE et non par l'outil** : `release.yml:167` derive
-  `PLUS_HAUT` de `repos/<depot>/tags`, alors que `GET /releases/latest` ne peut rendre qu'un tag
-  **PORTEUR d'une release** — **4 sur 29** au Cockpit. Sur build rouge (le cas que `if: always()`
-  couvre expres), un tag de version reste sans release, **`VERIFICATION` rougit A TORT**, et le
-  rattrapage dicte **s'adresse a une release qui n'existe pas**. Cette ligne **ne porte aucun mot du
-  motif** : aucune empreinte ne la tenait. **C'est la meilleure demonstration disponible de la borne
-  de l'instrument.**
-- **L'instrument livre par L43** : un **registre d'enonces** (442 entrees) et un **balayage de
-  completude** (D-5/D-6/D-7 + cliquet) — dans un fichier couvert, toute ligne du motif doit etre
-  **tenue par une empreinte** : inscrite, ou **declaree hors couverture avec motif ET empreinte du
-  texte exclu**. **Sa preuve** : relance sur l'etat que le gate venait de declarer `CONFORME` ->
-  **253 lignes NON TENUES**. *« C'est ca, l'ecart entre une liste et un critere. »*
-- **Sa borne, demontree et declaree — H-1** : *« la completude est celle du **MOTIF**, jamais celle du
-  **SENS** »*. **173 des 442 entrees** sont ancrees sur des lignes que le balayage **ne verrait
-  jamais** ; **7 enonces du coeur du residu ont ete trouves a la lecture** ; et on peut ajouter
-  **70 lignes affirmant le contraire de tout le lot** sans qu'aucun compteur ne bouge. **La lecture
-  reste dans la boucle.**
-- **Pourquoi six passages** : le gate a diagnostique un **front qui recule** — le mecanisme, puis la
-  portee, puis la propagation, puis la couverture de l'instrument. *« Les corrections sont pilotees
-  par le pointeur, et les pointeurs d'un gate sont des **exemples**, pas une enumeration. **On ne
-  `grep` pas une implication.** »* Le 6e passage a reussi parce que le **critere de cloture** a change :
-  un balayage auto-verifiable, pas une liste.
-- **Prochaine etape concrete** : Gandalf **amende** le re-cadrage avec M1/M2/M3 — la decision (2b)
-  etait « re-affirmer `--latest` », **M3 ouvre « ecrire `legacy` »**, qui n'etait pas sur la table. Il
-  dira aussi **s'il faut une 4e mesure** (une 3e release au banc casserait la correlation semver/date).
+     ⚠️ **`gh` REFUSE la valeur `legacy`** (`--latest` est un drapeau **booleen**,
+     `strconv.ParseBool`) : elle n'est atteignable **que par l'API**. **`false` et `legacy` ne sont
+     PAS equivalents** — seul `legacy` rend le drapeau au calcul automatique.
+  2. **Deux arbitrages tranches** (2026-09-01) : **AR-7 = (a)** re-affirmer `--latest` —
+     **`legacy` N'ENTRE PAS dans le programme**, il entre dans les cartouches comme une
+     **connaissance** ; **AR-8 = (a)** pas de quatrieme mesure avant de coder.
+  3. **Le vrai defaut de code corrige — R-2** : `release.yml:203` derive desormais `PLUS_HAUT` de
+     `repos/<depot>/releases` et non de `/tags`. Sur build rouge, un tag de version sans release
+     faisait rougir `VERIFICATION` **A TORT** et dictait un rattrapage **sur une release
+     inexistante**. ⚠️ Cette ligne **ne portait aucun mot du motif** : **aucune empreinte ne la
+     tenait, elle a ete trouvee A LA LECTURE**. C'est la meilleure demonstration de la borne H-1.
+  4. **Le trou du GUI est ferme** : son `release.yml` n'etait garde par **aucune** face de
+     convergence (prouve par mutation). Extracteur + fixture `bloc-latest.sha256`, garde a deux
+     faces, **plancher de convergence a 20** — valeur **mesuree necessaire** : a 18, la suppression
+     d'une entree passait inapercue.
+- **Prochaine etape concrete** : **reprendre le correctif** sur la branche
+  `fix/L44-ecarts-consignes` (les trois depots). **Ecart 1 est fait et commite** (`iakaframe
+  3f98e32`) ; **restent les ecarts 2, 3 et 4** :
+  - **(2)** le commentaire `bloc-latest.test.mjs:82-83` justifie l'assertion l. 85 par un role que
+    la mutation **M4** du gate **refute** (l'echec sort **l. 80**). **Dater ou retirer, pas les deux
+    textes en contradiction.** ⚠️ **Fichier convergent : les deux cotes au meme commit logique.**
+  - **(3)** le motif de balayage F2 est **sensible a la casse** : 9/2 declares, **14/7** avec casse
+    et accents. **Aucun enonce faux ne s'y cache** (verifie a la main) — c'est la **couverture** qui
+    manque. Rendre le motif insensible **et l'ecrire dans le corpus**.
+  - **(4)** portee sur-annoncee : « 6 assertions, toutes dans `bloc-latest.test.mjs` » vaut pour ce
+    fichier, pas pour le corpus. **Conclusion inchangee** (zero assertion positive non ancree).
+  Puis **gate Legolas**, puis fusion.
+- **⚠️ SPECIFIQUE A CE DEPOT — un cadrage NON VALIDE attend le decideur** :
+  `specs/instructions/affectation-modele-par-acteur.md` (334 lignes, 🔵 Gandalf, 2026-09-02), commite
+  le 2026-09-02 apres avoir ete retrouve **non suivi** suite a une interruption d'API. **Le commit ne
+  vaut PAS validation.** Constat : **les 10 sous-agents heritent tous du modele de la SESSION** —
+  `modelForPersona` n'existe pas dans le CLI, aucun contrat deploye ne porte de ligne `model:`,
+  **l'affectation opus/sonnet du binding est DECORATIVE**. **BLOQUE sur l'arbitrage A-1** : la GUI
+  omet **deliberement** le `model` (invariant **G-5**, liaison run-time = Cockpit), le CLI s'appretait
+  a faire l'inverse. Reco : **P-A** (livrer cote CLI, **declarer la derive**, inscrire le lot GUI au
+  backlog). **0,5 j sous P-A, 1,5 a 2 j sous P-B.** *Le dev ne demarre pas sans le choix du decideur.*
+- **Autre specifique** : ce depot porte l'instruction du re-cadrage, le **registre** (580 enonces) et
+  son **balayage**. ⚠️ Il n'a **ni eslint ni tsconfig**, son `release.yml` **n'epingle rien** (3 tags
+  flottants), et son **CI n'a JAMAIS tourne** (`actions/runs` -> `total_count: 0`).
+- **CE QUI RESTE DU AU DECIDEUR, et que rien ici n'avance** : **CA-5, CA-6, CA-7 et CA-10**. Le lot
+  se clot en **« cable et prouve HORS LIGNE »** — verdict du gate : *« il n'y a **aucune ligne de log
+  opposable** sur le comportement reel du job ; la seule garde qui pese sur le code shell est une
+  **fixture d'octets** : elle atteste qu'il **n'a pas change**, jamais qu'il **fonctionne** »*. Tous
+  passent par un **run que le decideur seul peut declencher**.
 - **Pieges connus** :
-  1. **`gh release edit --latest` est un drapeau BOOLEEN.** `legacy` — une des trois valeurs
-     documentees — est **inatteignable par le client**. Seule l'API l'ecrit.
-  2. **`false` n'est pas `legacy`.** Le premier ne relache rien, le second rend le drapeau au calcul.
-  3. **Une liste de pointeurs n'est jamais une cloture.** Cinq listes successives ont ete des
-     echantillons — y compris celles du gate, et **celle du gate omettait les cibles de sa propre
-     mutation**.
-  4. **Un registre muet est un defaut.** Le hors-couverture se declare **ligne a ligne, avec motif et
-     empreinte du texte exclu** — sinon exclure ouvre un trou neuf.
-  5. **Le banc `iakasju/latest-contrefactuel`** (prive, conserve) est la piece a conviction :
-     `v0.10.0` plus haut semver et plus **ancien**, `v0.9.0` plus recente sur les deux dates. **Cette
-     topologie adverse est ce qui rend l'elimination possible** — ne pas la casser.
+  1. **`gh release edit --latest` est un drapeau BOOLEEN.** `legacy` est **inatteignable par le
+     client** ; seule l'API l'ecrit. Et **`false` ne relache rien**.
+  2. **La doc de GitHub decrit une regle que l'endpoint NE SUIT PAS** : `releases/latest` est
+     documente comme trie par `created_at`, **refute deux fois par le banc**. *Une doc ne se refute
+     pas en la relisant, elle se refute en mesurant.* C'est l'explication retrospective du chantier.
+  3. **Un critere qui ne peut se fermer qu'en falsifiant n'est pas un critere.** Le gate a **retire
+     le sien** (« le sous-ensemble est vide ») quand l'execution a montre qu'aller a zero exigeait
+     d'effacer une phrase **vraie** ou une **archive datee**. Forme close arretee : balayage
+     **rejouable**, survivants **non muets**, et **chaque motif nomme sa condition de chute**.
+  4. **Une mutation SYMETRIQUE est structurellement invisible a la face croisee.** Son vert ne
+     confirme rien — **il ne dit rien**. Seuls les rouges nommes de la garde locale le disent.
+  5. **Un temoin vide est pire qu'un temoin absent.** `toThrow()` nu etait satisfait par un `ENOENT`
+     leve **avant** la branche gardee. **Ancrer le message**, et garder **un temoin de REUSSITE** —
+     sans lui, « ca jette toujours » satisfait tous les autres.
+  6. **Le banc `iakasju/latest-contrefactuel`** (prive, restaure a `latest = v0.10.0`) est la piece
+     a conviction. Sa topologie adverse est ce qui rend l'elimination possible — **ne pas la casser**.
 
 ## Journal (versions & pauses)
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-02 12:33 | pause | v0.39.0 | main | L44 PASS au 8e passage, fusionne et pousse. Correctif des ecarts consignes en cours : ecart 1 fait, 2-4 restants. |
 | 2026-09-01 22:20 | manual | v0.39.0 | main | L43 livre au 6e passage : balayage de completude. Trois mesures du banc jouees : --latest agit, false inerte, legacy AGIT. |
 | 2026-08-29 21:34 | manual | v0.39.0 | main | Lot L42 installer depuis rien livre : la vitrine ne promet plus ce qu elle n a pas. NAS injoignable, push GitHub seul. |
 | 2026-08-28 21:57 | pause | v0.39.0 | main | Fin du lot 0 + L1 — auto-update reellement telechargeable |
