@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-09-02 12:33 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-09-02 14:26 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
   <div class="k">Version</div><div>v0.39.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>4104067 docs(cadrage): affectation du modele d'IA par acteur — cadrage Gandalf, NON VALIDE</code></div>
-  <div class="k">Arbre</div><div><span class='ok'>propre</span></div>
-  <div class="k">Fichiers</div><div>1118 (suivis + non ignores)</div>
-  <div class='k'>Note</div><div>L44 PASS au 8e passage, fusionne et pousse. Correctif des ecarts consignes en cours : ecart 1 fait, 2-4 restants.</div>
+  <div class="k">Dernier commit</div><div><code>e2c54ba merge: intègre feat/surcharge-modele-par-projet (lot 2, PASS Legolas)</code></div>
+  <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
+  <div class="k">Fichiers</div><div>1121 (suivis + non ignores)</div>
+  <div class='k'>Note</div><div>Intégration lot 2 (surcharge du modèle par projet, PASS Legolas) dans main — merge e2c54ba. Chantier : affectation du modèle par acteur (lot 1) + surcharge par projet (lot 2), deux lots gatés PASS.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>4104067</code></td><td>2026-09-02</td><td>docs(cadrage): affectation du modele d'IA par acteur — cadrage Gandalf, NON VALIDE</td></tr>
-<tr><td><code>27253a0</code></td><td>2026-09-02</td><td>fix(L44): le corpus cesse de contredire ses propres mesures, et la regle est ecrite</td></tr>
-<tr><td><code>dbf8b57</code></td><td>2026-09-01</td><td>docs(L44): la description du verbe registre:repli-latest cesse d'annoncer SEPT detections</td></tr>
-<tr><td><code>8c80a6d</code></td><td>2026-09-01</td><td>fix(L44): l'instrument cesse de mentir sur lui-meme (D-8, ancrage des exclus, tri)</td></tr>
-<tr><td><code>11f807d</code></td><td>2026-09-01</td><td>docs(L44): l'etat des lieux dit ou en est la garde du latest, date</td></tr>
-<tr><td><code>3e22006</code></td><td>2026-09-01</td><td>docs(L44): entree de backlog — re-cadrage de la garde du latest</td></tr>
-<tr><td><code>1ef9404</code></td><td>2026-09-01</td><td>docs(L44): le cartouche du job latest dit ce que le job fait, mesure et date</td></tr>
-<tr><td><code>c878dba</code></td><td>2026-09-01</td><td>docs(L44): AR-7=(a) --latest et AR-8=(a) pas de M4 — tranches par le decideur</td></tr>
-<tr><td><code>a09da5c</code></td><td>2026-09-01</td><td>chore: checkpoint — L43 livre (6e passage) + re-cadrage amende des trois mesures du banc</td></tr>
-<tr><td><code>276c42d</code></td><td>2026-08-31</td><td>docs(instruction): re-cadrage de la garde du latest — 6 arbitrages tranches</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>e2c54ba</code></td><td>2026-09-02</td><td>merge: intègre feat/surcharge-modele-par-projet (lot 2, PASS Legolas)</td></tr>
+<tr><td><code>68b80c8</code></td><td>2026-09-02</td><td>docs(backlog): register the R-5 successor — agents list is not frame-scoped</td></tr>
+<tr><td><code>4f50136</code></td><td>2026-09-02</td><td>test(models): surcharge du modele par projet — CA-1..CA-25</td></tr>
+<tr><td><code>7daf295</code></td><td>2026-09-02</td><td>feat(iakastart): roster shows the effective model + divergence signal</td></tr>
+<tr><td><code>862faf7</code></td><td>2026-09-02</td><td>docs(commandes): document models set / models unset</td></tr>
+<tr><td><code>0a9e0a0</code></td><td>2026-09-02</td><td>feat(cli): models set/unset — per-project model override, symmetric +/-</td></tr>
+<tr><td><code>0db64a6</code></td><td>2026-09-02</td><td>feat(project-models): read/write/validate the per-project model override</td></tr>
+<tr><td><code>d5c40ec</code></td><td>2026-09-02</td><td>feat(generate-agents): effectiveModel resolves project override over frame default</td></tr>
+<tr><td><code>af2ea93</code></td><td>2026-09-02</td><td>refactor(frame-active): extract patchProjectConf, writeActiveFramePointer delegates</td></tr>
+<tr><td><code>2e93881</code></td><td>2026-09-02</td><td>feat(agents): le contrat deploye porte le modele decide par le binding</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-09-02 14:26</td><td><span class='r r-pause'>pause</span></td><td>v0.39.0</td><td>main</td><td>Intégration lot 2 (surcharge du modèle par projet, PASS Legolas) dans main — merge e2c54ba. Chantier : affectation du modèle par acteur (lot 1) + surcharge par projet (lot 2), deux lots gatés PASS.</td></tr>
 <tr><td>2026-09-02 12:33</td><td><span class='r r-pause'>pause</span></td><td>v0.39.0</td><td>main</td><td>L44 PASS au 8e passage, fusionne et pousse. Correctif des ecarts consignes en cours : ecart 1 fait, 2-4 restants.</td></tr>
 <tr><td>2026-09-01 22:20</td><td><span class='r r-manual'>manual</span></td><td>v0.39.0</td><td>main</td><td>L43 livre au 6e passage : balayage de completude. Trois mesures du banc jouees : --latest agit, false inerte, legacy AGIT.</td></tr>
 <tr><td>2026-08-29 21:34</td><td><span class='r r-manual'>manual</span></td><td>v0.39.0</td><td>main</td><td>Lot L42 installer depuis rien livre : la vitrine ne promet plus ce qu elle n a pas. NAS injoignable, push GitHub seul.</td></tr>

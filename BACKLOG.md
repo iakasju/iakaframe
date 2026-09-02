@@ -66,6 +66,46 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   (même définition que `generateAll`/`skills deploy`, cf. le commentaire de source unique dans
   `generate-agents.js`), puis seulement alors envisager d'y ajouter la provenance du modèle.
 
+### Dettes constatées au gate du lot 2 « surcharge du modèle par projet » (2026-09-02)
+
+> Consignées par ⚒️ Gimli à l'intégration du lot dans `main` (`e2c54ba`), sur ordre d'🔵 Odin, gate
+> 🏹 Legolas **PASS**. Ce sont des constats, pas des corrections : rien n'est traité ici.
+
+- [ ] **`PROJET-FANTOME` — `models set --path <chemin-inexistant>` crée silencieusement un projet
+  complet.** `cli/src/commands/models.js:780-788` : un `--path` qui ne pointe vers rien existant
+  est **créé** (`fs.mkdirSync(projectDir, { recursive: true })`, ligne 788), puis `iakaframe.json`
+  et `.claude/agents/<id>.md` y sont posés — exit `0`, **aucun avertissement**. Reproduit par le
+  gate avec un chemin volontairement fautif. Rien n'est corrompu, mais une faute de frappe sur
+  `--path` fabrique un projet sans le dire — à l'opposé de `frame use`, qui refuse (« jamais de
+  dangling »). Le commentaire en place (`:781-784`) assume le choix (« même geste que `frame use`
+  sur un dossier déjà là, en plus permissif »), mais la comparaison s'arrête là où `frame use`
+  refuse et où `models set` crée : **décision produit à trancher par le décideur**.
+
+- [ ] **`DERIVE-VENDORAGE-SKILL-IAKASTART` — dérive de vendorage `skills/iakastart/SKILL.md`
+  (`drift: 1`), à refermer côté `iakaFrameGUI`.** `iakaframe vendor-check` réclame une copie :
+  `library/skills/iakastart/SKILL.md` → `packages/core/__tests__/fixtures/skills/iakastart/
+  SKILL.md` (dépôt `~/work/iakaFrameGUI`). **Conforme à l'instruction en l'état** —
+  `surcharge-modele-par-projet.md` (R-4/CA-17) n'exigeait que la **déclaration** de la roster
+  divergence, pas le re-vendorage cross-repo. Dette **assumée**, pas un défaut du lot.
+
+- [ ] **`TEST-SUITE-CLI-VARIABLE` — le total de la suite CLI varie d'une machine à l'autre.**
+  Mesures divergentes d'exactement **1** entre la réalisation et le gate sur le **lot 1**
+  (`affectation-modele-par-acteur`), et **1 vs 7** `skipped` selon le contexte d'exécution. Le
+  **delta** et le **`0 fail`** restent constants d'une mesure à l'autre — **pas un bug
+  aujourd'hui** — mais c'est un **futur faux signal** : un total de suite qui bouge sans qu'on
+  sache pourquoi finira par masquer une vraie régression. À identifier (quel(s) test(s) sont
+  conditionnels à l'environnement) et neutraliser.
+
+- [ ] **`COMMENTAIRE-TROMPEUR-VENDOR-CHECK-TEST` — le commentaire d'en-tête déclare le vendorage
+  « massivement en dérive » alors qu'il est mesuré.** `cli/test/vendor-check.test.js:5` : *« c'est
+  la seule façon d'éprouver le vert (le vendorage réel est **massivement en dérive**, § 12.2) sans
+  salir l'arbre du frère »* — la phrase énonce un état du vendorage réel comme un **fait acquis et
+  permanent**, alors que c'est une **mesure datée** (variable : `0` à une date, `11` à une autre,
+  cf. `DERIVE-VENDORAGE-SKILL-IAKASTART` ci-dessus). Cette phrase a **déjà induit un cadrage en
+  erreur** par le passé (un lot a été cadré sur la foi du commentaire plutôt que d'une mesure
+  fraîche). Remède : remplacer l'affirmation figée par un renvoi à la mesure vivante
+  (`iakaframe vendor-check`), jamais un chiffre ou un qualificatif en dur dans un commentaire.
+
 ### L44 — Re-cadrage de la garde du `latest` (2026-09-01)
 
 - [ ] **`L44-RE-CADRAGE-GARDE-LATEST` — le job dit ce qu'il fait, et il le fait.**

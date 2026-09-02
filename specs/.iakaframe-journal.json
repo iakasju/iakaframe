@@ -788,5 +788,15 @@
     "dirty": false,
     "files": 1118,
     "note": "L44 PASS au 8e passage, fusionne et pousse. Correctif des ecarts consignes en cours : ecart 1 fait, 2-4 restants."
+  },
+  {
+    "date": "2026-09-02 14:26",
+    "reason": "pause",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "e2c54ba merge: intègre feat/surcharge-modele-par-projet (lot 2, PASS Legolas)",
+    "dirty": true,
+    "files": 1121,
+    "note": "Intégration lot 2 (surcharge du modèle par projet, PASS Legolas) dans main — merge e2c54ba. Chantier : affectation du modèle par acteur (lot 1) + surcharge par projet (lot 2), deux lots gatés PASS."
   }
 ]

@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-02 12:33 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-02 14:26 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.39.0 |
 | Branche | main |
-| Dernier commit | 4104067 docs(cadrage): affectation du modele d'IA par acteur — cadrage Gandalf, NON VALIDE |
-| Arbre | propre |
-| Fichiers (suivis + non ignores) | 1118 |
-| Note | L44 PASS au 8e passage, fusionne et pousse. Correctif des ecarts consignes en cours : ecart 1 fait, 2-4 restants. |
+| Dernier commit | e2c54ba merge: intègre feat/surcharge-modele-par-projet (lot 2, PASS Legolas) |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (suivis + non ignores) | 1121 |
+| Note | Intégration lot 2 (surcharge du modèle par projet, PASS Legolas) dans main — merge e2c54ba. Chantier : affectation du modèle par acteur (lot 1) + surcharge par projet (lot 2), deux lots gatés PASS. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `4104067` | 2026-09-02 | docs(cadrage): affectation du modele d'IA par acteur — cadrage Gandalf, NON VALIDE |
-| `27253a0` | 2026-09-02 | fix(L44): le corpus cesse de contredire ses propres mesures, et la regle est ecrite |
-| `dbf8b57` | 2026-09-01 | docs(L44): la description du verbe registre:repli-latest cesse d'annoncer SEPT detections |
-| `8c80a6d` | 2026-09-01 | fix(L44): l'instrument cesse de mentir sur lui-meme (D-8, ancrage des exclus, tri) |
-| `11f807d` | 2026-09-01 | docs(L44): l'etat des lieux dit ou en est la garde du latest, date |
-| `3e22006` | 2026-09-01 | docs(L44): entree de backlog — re-cadrage de la garde du latest |
-| `1ef9404` | 2026-09-01 | docs(L44): le cartouche du job latest dit ce que le job fait, mesure et date |
-| `c878dba` | 2026-09-01 | docs(L44): AR-7=(a) --latest et AR-8=(a) pas de M4 — tranches par le decideur |
-| `a09da5c` | 2026-09-01 | chore: checkpoint — L43 livre (6e passage) + re-cadrage amende des trois mesures du banc |
-| `276c42d` | 2026-08-31 | docs(instruction): re-cadrage de la garde du latest — 6 arbitrages tranches |
+| `e2c54ba` | 2026-09-02 | merge: intègre feat/surcharge-modele-par-projet (lot 2, PASS Legolas) |
+| `68b80c8` | 2026-09-02 | docs(backlog): register the R-5 successor — agents list is not frame-scoped |
+| `4f50136` | 2026-09-02 | test(models): surcharge du modele par projet — CA-1..CA-25 |
+| `7daf295` | 2026-09-02 | feat(iakastart): roster shows the effective model + divergence signal |
+| `862faf7` | 2026-09-02 | docs(commandes): document models set / models unset |
+| `0a9e0a0` | 2026-09-02 | feat(cli): models set/unset — per-project model override, symmetric +/- |
+| `0db64a6` | 2026-09-02 | feat(project-models): read/write/validate the per-project model override |
+| `d5c40ec` | 2026-09-02 | feat(generate-agents): effectiveModel resolves project override over frame default |
+| `af2ea93` | 2026-09-02 | refactor(frame-active): extract patchProjectConf, writeActiveFramePointer delegates |
+| `2e93881` | 2026-09-02 | feat(agents): le contrat deploye porte le modele decide par le binding |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -110,6 +110,7 @@
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-02 14:26 | pause | v0.39.0 | main | Intégration lot 2 (surcharge du modèle par projet, PASS Legolas) dans main — merge e2c54ba. Chantier : affectation du modèle par acteur (lot 1) + surcharge par projet (lot 2), deux lots gatés PASS. |
 | 2026-09-02 12:33 | pause | v0.39.0 | main | L44 PASS au 8e passage, fusionne et pousse. Correctif des ecarts consignes en cours : ecart 1 fait, 2-4 restants. |
 | 2026-09-01 22:20 | manual | v0.39.0 | main | L43 livre au 6e passage : balayage de completude. Trois mesures du banc jouees : --latest agit, false inerte, legacy AGIT. |
 | 2026-08-29 21:34 | manual | v0.39.0 | main | Lot L42 installer depuis rien livre : la vitrine ne promet plus ce qu elle n a pas. NAS injoignable, push GitHub seul. |

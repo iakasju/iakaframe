@@ -104,6 +104,14 @@ et pur). Il vit dans `generateAgent`, seule fonction qui **projette** un canon v
 Claude Code. Concrètement : `generateAgent` lit `runnerForPersona`/le champ `runner` de
 l'assignment, et ne transmet `model` que s'il vaut `claude-code`.
 
+**Comparaison LITTÉRALE, et c'est un choix — pas un oubli** *(noté le 2026-09-02, à la réalisation)*.
+Le filtre compare `runner === 'claude-code'` **à la lettre**, sans passer par `normalizeRunner`
+(`cli/src/lib/vocab.js`, employé par `go.js`). Conséquence : un binding tiers qui écrirait l'alias
+`runner: claude` tomberait en **abstention** — aucune ligne `model`. C'est **la direction de repli
+que D4 choisit déjà** (« un assignment sans `runner` déclaré est traité comme non-claude »), donc le
+comportement est cohérent, pas surprenant. On l'écrit pour que ce soit **su** : le jour où un binding
+tiers emploie l'alias, le remède est de brancher `normalizeRunner`, pas de chercher un bug.
+
 **D5 — aucune allowlist de valeurs.** Le rendu projette la chaîne du binding verbatim. Motif :
 (a) la liste des alias bouge côté runner (`fable`, `best`, `opusplan`, `sonnet[1m]`… sont apparus
 au fil de l'eau) — une table codée serait périmée par construction et redeviendrait le
@@ -117,10 +125,29 @@ par CA-9 (relecture des dix fichiers déployés) et par `agents generate --check
 `renderScalar` ne re-quote pas un mot plein. Le contrat déployé portera donc **`model: opus`**, sans
 guillemets, comme `tools`. Attendu, pas une dérive.
 
-## Arbitrage remonté au décideur — à trancher AVANT le dev
+**D7 — une seule couture de résolution.** `generateAgent` résout le modèle en **un point unique et
+nommé**. Ce lot n'y met que le défaut du binding ; le lot suivant y branche la surcharge projet
+**sans rouvrir la fonction**. Détail à l'étape 3.
+
+> **Suite cadrée** : `specs/instructions/surcharge-modele-par-projet.md` (surcharge explicite par
+> commande, persistée dans `iakaframe.json`, reprise à la session suivante). Ce lot-ci en est le
+> **prérequis** : il pose le défaut de frame, l'autre pose la surcharge par-dessus.
+
+## Arbitrage A-1 — TRANCHÉ par le décideur le 2026-09-02
+
+> ### ✅ DÉCISION : **P-D**
+> **Décideur : Stéphane. Date : 2026-09-02. Énoncé : « P-D […] ok ».** Décision prise **avant** la
+> réalisation, et **confirmée par elle** : le lot a été livré sous P-D (`iakaframe` 2e93881,
+> `iakaFrameGUI` 7ee3d57), suites vertes des deux côtés, `vendor-check` à `drift: 0` avant **comme**
+> après.
+>
+> **Ce lot n'attend donc plus rien.** Les options P-A, P-B et P-C ci-dessous sont conservées
+> **comme trace** — elles disent ce qui a été pesé et pourquoi ça a été écarté, ce qui reste utile
+> le jour où quelqu'un voudra rouvrir la question. Elles ne sont **plus des propositions**.
 
 **A-1 — la parité cross-repo avec `iakaFrameGUI`.** Ce point n'était pas dans le brief de dispatch
-et il est structurant ; il n'est **pas** tranché ici.
+et il est structurant. *(Rédaction d'origine : « il n'est pas tranché ici » — il l'est depuis, voir
+l'encart ci-dessus.)*
 
 Ce qui est mesuré : les 10 goldens `cli/test/fixtures/agents-golden/*.md` sont **vendorés
 byte-à-byte** dans `iakaFrameGUI/packages/core/__tests__/fixtures/agents-golden/`, et la GUI compare
@@ -133,24 +160,78 @@ Elle possède d'ailleurs déjà son `modelForPersona` (`packages/core/src/bindin
 là que vient le commentaire orphelin du CLI. **La GUI a délibérément choisi de ne pas projeter le
 modèle ; le CLI s'apprête à faire l'inverse.**
 
-Trois postures :
+**⚠️ A-1 A ÉTÉ REFORMULÉ le 2026-09-02**, après deux mesures faites au cadrage du lot 2
+(`surcharge-modele-par-projet.md`). La première rédaction opposait deux doctrines ; la mesure montre
+qu'elles ne s'opposent pas. Les postures P-A/P-B/P-C sont **conservées et datées** ci-dessous, mais
+une quatrième, **moins chère et sans conflit doctrinal**, est désormais recommandée.
 
-- **P-A — livrer côté CLI, déclarer la dérive, nommer le successeur *(recommandée)*.** Régénérer les
-  10 goldens, **ne pas re-vendorer**, et inscrire au backlog un lot GUI qui rouvrira G-5 devant le
-  décideur (« la forge doit-elle émettre le modèle, ou reste-t-il une liaison run-time du
-  Cockpit ? »). Coût réel et borné : `iakaframe vendor-check` gagne **10 lignes de dérive**. Ce coût
-  est petit parce que le vendorage réel **est déjà en dérive massive** — la recette de la garde le
-  déclare noir sur blanc (`cli/test/vendor-check.test.js:8-10` : *« le vendorage reel est massivement
-  en derive, § 12.2 »*) et travaille sur un **miroir synthétique**, si bien que la suite de tests du
-  CLI **reste verte** quoi qu'il arrive au vendorage réel. Aucune barrière n'est franchie en douce.
-- **P-B — lot élargi aux deux dépôts au même commit logique.** Honnête sur la parité, mais il rouvre
-  G-5 « en passant », ce qui est précisément le *tant qu'on y est* que la méthode interdit ; et il
-  double le lot.
-- **P-C — porter le modèle hors du frontmatter.** Ne répond pas au besoin : Claude Code ne lit
-  l'affectation d'un sous-agent que là.
+**Mesure 1 — G-5 contraint l'ADAPTATEUR, pas le SÉRIALISEUR.** L'invariant est écrit en tête de
+`claudeCode.ts`, l'adaptateur qui fabrique un kit **depuis une team pure**. Il dit : cette
+fabrication-là n'émet pas de modèle. Il **ne dit pas** que `serializeAgentContract`
+(`frontmatter.ts:475`) serait interdit d'en **savoir écrire un**. Une **capacité** n'est pas une
+**politique** : donner au sérialiseur un champ `model?` optionnel, que l'adaptateur continue de ne
+jamais renseigner, laisse G-5 **intact et vérifiable**.
 
-> Le dev **ne démarre pas** sans le choix du décideur sur A-1. Les étapes ci-dessous sont écrites
-> pour **P-A** ; sous P-B, l'étape 6 devient un volet GUI complet.
+**Mesure 2 — le test de parité GUI construit le contrat, il ne le recopie pas.**
+`__tests__/parite-generateurs.test.ts:20` importe `renderAgentContract` **et** `toolsForPersona`, et
+recompose les 10 contrats depuis les fixtures (personas + binding) avant de comparer au golden. Or
+la GUI **possède déjà `modelForPersona`** (`binding.ts:199`), écrite et non branchée — exactement la
+jumelle que le CLI n'a jamais écrite. Restaurer la parité, c'est donc **brancher une fonction qui
+existe déjà** dans un test qui appelle déjà sa sœur, pas porter une fonctionnalité.
+
+- **P-D — capacité optionnelle côté GUI, G-5 non rouvert, parité rétablie — ✅ RETENUE
+  (décideur, 2026-09-02) et LIVRÉE.**
+
+  > **🛑 RECTIFICATION DU 2026-09-02 — cette posture s'est contredite elle-même, et c'est réparé
+  > ici.** La première rédaction disait « `serializeAgentContract` **et `renderAgentContract`**
+  > gagnent un `model?` » **et** « `claudeCode.ts` n'est pas touché ». Les deux ne peuvent pas être
+  > vrais : `renderAgentContract` **est défini dans `claudeCode.ts`**. J'avais désigné le fichier
+  > là où je voulais désigner **la fonction de forge**. Défaut relevé à la réalisation ; la règle
+  > exacte suit.
+
+  **Ce qui PEUT être touché** — `serializeAgentContract` (`frontmatter.ts`), `AgentContractInput`
+  et `renderAgentContract` (`claudeCode.ts`) gagnent un `model?` optionnel, émis entre `tools` et
+  `skills`, **omis si vide**, mêmes règles qu'ici. Dans `renderAgentContract`, `model` est un
+  **passe-plat** : la fonction ne le résout pas et n'en invente aucun.
+
+  **Ce qui ne DOIT PAS l'être** — **`renderAgent`** (`claudeCode.ts`), la fonction de **forge**,
+  celle qui part d'une **team pure**. **C'est là que G-5 se tient**, et nulle part ailleurs :
+  `renderAgentContract` *sait* désormais écrire un `model`, `renderAgent` **ne lui en passe
+  aucun**, donc l'arbre `.claude/` fabriqué depuis une team pure reste **sans `model`**. La preuve
+  attendue est celle-là, et elle est mesurable : les tests G-5 d'`adapters.test.ts` passent **sans
+  avoir été modifiés**.
+
+  L'alternative — faire appeler `serializeAgentContract` directement par le test de parité pour
+  laisser `claudeCode.ts` byte-intact — est **écartée** : elle sauve la lettre et perd le fond, en
+  cessant de tester la fonction que la forge emploie réellement. Une parité qui ne mesure plus le
+  chemin de production n'est plus une parité.
+
+  Le test de parité passe `modelForPersona(binding, id)`, les 10 goldens régénérés sont
+  re-vendorés, **les deux suites repassent au vert**. Coût estimé : **+2 h**, dans le dépôt frère.
+  Ce que ça achète : aucune dérive de vendorage ajoutée, aucun successeur doctrinal à traîner, et
+  le cliquet bilatéral **continue de protéger** au lieu d'être contourné.
+- **P-A — livrer côté CLI seul, déclarer la dérive, nommer le successeur** *(recommandée au premier
+  cadrage ; conservée)*. Régénérer les 10 goldens, **ne pas re-vendorer**, inscrire un successeur
+  G-5 au backlog. Coût : `vendor-check` gagnerait **10 lignes de dérive** — et, **mesure du
+  2026-09-02**, ces 10 lignes partiraient de **zéro**, pas d'un fond déjà dégradé (voir R-1). La
+  suite CLI resterait verte (elle mesure un miroir synthétique). *Pourquoi elle n'est plus
+  recommandée* : elle paie une dette pour éviter un conflit **qui n'existe pas** (mesure 1), elle
+  laisse le cliquet cross-repo aveugle sur le champ le plus neuf du contrat — et le coût réel est
+  **plus élevé** qu'annoncé au premier cadrage, puisqu'elle salirait un vendorage **propre**.
+- **P-B — lot élargi aux deux dépôts, en rouvrant G-5.** Écartée : la mesure 1 montre qu'il n'y a
+  **rien à rouvrir**. P-D en est la version qui ne touche pas à la doctrine.
+- **P-C — porter le modèle hors du frontmatter.** Écartée : Claude Code ne lit l'affectation d'un
+  sous-agent que là (F1).
+
+> **Lecture des étapes sous P-D (la posture retenue).** Les étapes ci-dessous ont été rédigées
+> pour P-A et **restent valides telles quelles**, à une substitution près : **l'étape 6** (déclarer
+> la dérive, inscrire un successeur doctrinal G-5) est **remplacée** par le volet GUI décrit
+> ci-dessus — `model?` en passe-plat, `renderAgent` intact, goldens re-vendorés. Et **CA-14 se lit
+> en conséquence : zéro ligne de dérive ajoutée**, `drift: 0` avant comme après.
+>
+> *Il n'y a plus de successeur doctrinal à inscrire au backlog pour G-5 : P-D ne l'a pas rouvert.
+> Les deux successeurs qui subsistent sont `models.js` (R-3) et le commentaire trompeur de
+> `vendor-check.test.js` (R-1).*
 
 ## Périmètre
 
@@ -188,6 +269,11 @@ Trois postures :
 3. **Câbler le filtre de runner dans `generateAgent`** (D4) : résoudre le `runner` de l'assignment et
    ne passer `model` à `renderAgentContract` que si `runner === 'claude-code'`. Un assignment sans
    `runner` déclaré est traité comme **non-claude** (abstention plutôt que supposition).
+   **Couture obligatoire (D7)** : `generateAgent` résout le modèle en **un seul endroit**, dans une
+   variable locale nommée (`const model = …`), et **n'inline pas** l'appel dans l'objet passé au
+   rendu. Ce n'est pas un goût de style : le lot 2 (`surcharge-modele-par-projet.md`) **substitue le
+   résolveur à ce point-là et à aucun autre**. Un appel inliné, ou deux appels, obligeraient à
+   ré-ouvrir cette fonction — c'est-à-dire à écrire deux fois la même résolution.
 4. **Tests unitaires** dans `cli/test/generate-agents.test.js` — au minimum :
    - `modelForPersona` rend `opus` pour `gandalf`, `sonnet` pour `gimli` sur le binding défaut ;
    - `modelForPersona` rend `''` pour une persona inconnue et pour `binding = null` ;
@@ -200,9 +286,22 @@ Trois postures :
 5. **Régénérer les goldens figés** : `node cli/scripts/gen-agents-golden.mjs` — 10 fichiers réécrits,
    `sha256` de l'en-tête recalculé. `cli/test/parite-generateurs.test.js` doit repasser **sans être
    modifié** ; s'il faut le toucher, c'est que le rendu a dérivé au-delà de l'attendu.
-6. **Déclarer la dérive de vendorage** (P-A) : inscrire au `BACKLOG.md` du dépôt un successeur nommé
-   — *« G-5 : la forge émet-elle le modèle ? »* — citant `claudeCode.ts:11-12` et
-   `frontmatter.ts:475-498`, et le nombre de lignes de dérive constaté par `vendor-check`.
+5bis. **Régénérer la vitrine — TROISIÈME cliquet, oublié au premier cadrage.**
+   `methode-de-travail.html` porte une zone `CODE_BLOCKS` qui **contient les contrats rendus**, et
+   `cli/test/vitrine-methode.test.js` la **régénère en mémoire pour la comparer au disque** — « la
+   ZONE **EST** le golden » (`vitrine-methode.test.js:4-7`). Elle rougit donc à **tout** changement
+   de format de contrat, exactement comme les deux autres. Remède : **le script prescrit**,
+   `node cli/scripts/gen-methode-vitrine.mjs`, **jamais une édition à la main** — la zone est
+   générée, l'éditer serait recopier une dérivée. Attendu : **+10 lignes**, une par persona.
+   *Sans cette étape, CA-7 (`npm test` vert) est inatteignable.*
+6. **Volet GUI — sous P-D, la posture retenue** *(remplace l'étape 6 d'origine)* : `model?`
+   optionnel dans `serializeAgentContract`, `AgentContractInput` et `renderAgentContract` (passe-plat)
+   ; **`renderAgent` intact** ; test de parité branché sur `modelForPersona(binding, id)` (déjà
+   écrite, `binding.ts:199`) ; **re-vendorer les 10 goldens**. Preuve attendue : CA-8ter.
+   > *Étape 6 d'origine, conservée comme trace — inapplicable sous P-D* : « Déclarer la dérive de
+   > vendorage (P-A) : inscrire au `BACKLOG.md` un successeur nommé — *G-5 : la forge émet-elle le
+   > modèle ?* — et le nombre de lignes de dérive constaté. » **P-D n'ayant pas rouvert G-5, ce
+   > successeur n'a pas lieu d'être** ; ne subsistent que ceux de R-1 et R-3.
 7. **Redéployer et vérifier** (recette pinnée, § Recette).
 
 ## Recette — commandes PINNÉES (piège de la racine périmée)
@@ -235,7 +334,19 @@ l'extraction — **les cinq commandes suivent alors la même racine**, ce qui es
 - `cli/test/generate-agents.test.js` — golden inline mis à jour + ~7 tests neufs.
 - `cli/test/fixtures/agents-golden/*.md` — **10 fichiers régénérés** (jamais édités à la main :
   l'en-tête le dit, et le `sha256` le prouve).
-- `BACKLOG.md` — inscription du successeur G-5 (étape 6, posture P-A).
+- `methode-de-travail.html` — **ajouté le 2026-09-02, manquant au premier cadrage.** Zone
+  `CODE_BLOCKS` régénérée par `cli/scripts/gen-methode-vitrine.mjs` (+10 lignes). C'est le
+  **troisième cliquet** sur le format de contrat, aux côtés du golden de parité et du golden
+  cross-repo : `cli/test/vitrine-methode.test.js` compare la zone **régénérée en mémoire** à celle
+  **lue sur disque**. Je l'avais manqué en ne cherchant que les fixtures ; un golden **peut vivre
+  dans une zone balisée d'un fichier de doc**, pas seulement dans `test/fixtures/`.
+- `BACKLOG.md` — inscription du successeur `models.js` (R-3) et du successeur « commentaire
+  trompeur de `vendor-check.test.js` » (R-1). **Plus de successeur G-5** : P-D, retenue par le
+  décideur le 2026-09-02, ne l'a pas rouvert.
+- **Dépôt frère `iakaFrameGUI` (volet P-D, étape 6)** — `packages/core/src/frontmatter.ts`
+  (`serializeAgentContract`), `packages/core/src/adapters/claudeCode.ts` (`AgentContractInput` +
+  `renderAgentContract` **seulement** — `renderAgent` intact),
+  `packages/core/__tests__/parite-generateurs.test.ts`, et les 10 goldens vendorés.
 - **Non modifiés, et c'est le sujet** : `bindings/*.md`, `library/personas/*.md`,
   `models/suggestions.json`, `cli/test/parite-generateurs.test.js`,
   `cli/test/fixtures/kit.iakaframe-claude.golden.md` (vérifié : ce golden **n'embarque aucun contrat
@@ -243,9 +354,32 @@ l'extraction — **les cinq commandes suivent alors la même racine**, ce qui es
 
 ## Risques
 
-- **R-1 — le golden est un cliquet bilatéral, et il va mordre.** C'est sa fonction. *Mitigation* :
-  régénérer par le script, jamais à la main ; ne pas re-vendorer sous P-A ; nommer la dérive
-  (étape 6) au lieu de la laisser s'ajouter en silence à une dérive déjà massive.
+- **R-1 — le format de contrat est tenu par TROIS cliquets, et ils vont tous mordre.** C'est leur
+  fonction : le golden de parité CLI, le golden **vendoré** cross-repo, et la zone `CODE_BLOCKS` de
+  `methode-de-travail.html` (étape 5bis). *Mitigation* : régénérer chacun **par son script**, jamais
+  à la main.
+
+  > **🛑 PRÉMISSE CORRIGÉE LE 2026-09-02 — le vendorage N'EST PAS « massivement en dérive ».**
+  > Cette instruction affirmait le contraire, ici et dans son estimation, sur la foi du commentaire
+  > de `cli/test/vendor-check.test.js:8-10` (*« le vendorage reel est massivement en derive,
+  > § 12.2 »*). **Mesure du 2026-09-02, avant le lot : `vendor-check` → `drift: 0`, `clean`,
+  > 82 copies + 4 dérivées. Après le lot : `drift: 0` également.** Corroboration indépendante que
+  > j'ai faite moi-même : les goldens `gandalf.md` des **deux** dépôts portent le même
+  > `sha256 329ab353…` et la même ligne `model: opus`.
+  >
+  > Ce que ça change : le coût de P-A était **sous-estimé** (salir un vendorage propre coûte plus
+  > que d'en salir un sale), et l'inconnue 3 de l'estimation tombe — la ligne de base est connue et
+  > vaut **0**.
+  >
+  > Ce que ça révèle : **j'ai pris un commentaire de code pour une mesure.** Un commentaire décrit
+  > l'état du monde **au jour où il a été écrit** ; il ne se re-mesure pas tout seul. C'est
+  > exactement le défaut que ce dépôt traque ailleurs sous le nom de « gardes muettes ».
+  > **Successeur à inscrire au backlog** (et oui, il le mérite) : *« le commentaire de
+  > `cli/test/vendor-check.test.js:8-10` déclare un vendorage massivement en dérive, alors qu'il est
+  > propre — une phrase fausse dans le fichier même de la garde »*. Il mérite le backlog pour la
+  > raison qui rend ce genre de phrase coûteux : **elle a induit un cadrage en erreur**, et elle
+  > continuera tant qu'elle sera lue. Sa correction est une ligne de commentaire ; son absence de
+  > correction est un piège renouvelable.
 - **R-2 — une valeur fausse dans le binding passe sans bruit** (D5, pas d'allowlist). Un
   `model: sonnnet` produirait un contrat syntaxiquement valide et fonctionnellement cassé.
   *Mitigation* : CA-9 exige la **relecture des dix valeurs déployées**, pas un simple compte ; et
@@ -275,14 +409,33 @@ Rendu, résolveur, format :
 - [ ] **CA-4** — `model` vide, `''`, ou absent ⇒ **aucune** ligne `^model:` dans la sortie, et
       enchaînement direct `tools:` → `skills:`.
 - [ ] **CA-5** — `model` fourni **sans** `tools` ⇒ enchaînement `description:` → `model:`.
-- [ ] **CA-6** — `generateAgent` sur `bindings/iakaframe-ollama-default.md` n'émet **aucune** ligne
-      `^model:` pour les 10 personas (D4). Aucun `qwen`, `gemma` ou `coder` n'apparaît dans un
-      contrat rendu.
+- [ ] **CA-6** *(réécrit le 2026-09-02 — la première rédaction était intenable, voir l'encart)* —
+      `generateAgent` sur `bindings/iakaframe-ollama-default.md` n'émet **aucune** ligne `^model:`
+      pour les 10 personas (D4). Et **aucune des trois valeurs exactes** de ce binding —
+      `qwen3.5:9b`, `gemma4:e4b`, `qwen2.5-coder:14b` — n'apparaît dans un contrat rendu.
+
+      > **🛑 CA-6 A ÉTÉ RÉÉCRIT.** Il interdisait la présence des **fragments** `qwen`, `gemma` ou
+      > **`coder`** dans un contrat rendu. Or **`coder` est un verbe français**, présent deux fois
+      > dans le canon de Gimli — dont sa `description`, donc **dans le frontmatter même** du contrat
+      > (`library/personas/gimli.md:4` : « lit l'instruction AVANT de coder », et `:48`). Le critère
+      > était **inatteignable à la lettre**, quel que soit le code. Leçon de rédaction, et elle vaut
+      > au-delà de ce lot : **un critère qui cherche un fragment de mot dans de la prose française
+      > produira des faux positifs** ; on vérifie des **valeurs exactes**, pas des sous-chaînes.
+      > Défaut relevé à la réalisation, où l'intention a été tenue en testant les trois valeurs.
 - [ ] **CA-7** — `cd cli && npm test` sort en **0** ; le compte de tests est **strictement supérieur**
       à celui d'avant le lot, **aucun test supprimé**.
 - [ ] **CA-8** — après `node cli/scripts/gen-agents-golden.mjs`,
       `cli/test/parite-generateurs.test.js` passe **sans qu'une seule de ses lignes ait été
       modifiée** (parité + garde `sha256`).
+- [ ] **CA-8bis** *(ajouté le 2026-09-02 — troisième cliquet)* — après
+      `node cli/scripts/gen-methode-vitrine.mjs`, `cli/test/vitrine-methode.test.js` passe **sans
+      modification**, et le diff de `methode-de-travail.html` est de **+10 lignes exactement** (une
+      par persona), **toutes dans la zone `CODE_BLOCKS`**. Une ligne hors zone = édition à la main,
+      donc échec.
+- [ ] **CA-8ter** *(sous P-D)* — les tests **G-5** d'`adapters.test.ts` (dépôt frère) passent **sans
+      qu'une seule de leurs lignes ait été modifiée**, et l'arbre `.claude/` produit par la forge
+      depuis une team pure ne porte **aucune** ligne `model:`. C'est **la** preuve que
+      `renderAgent` n'a pas été touché.
 
 Contrats déployés — la preuve du besoin, **persona par persona** :
 
@@ -305,11 +458,16 @@ Contrats déployés — la preuve du besoin, **persona par persona** :
 
 Déclaration honnête de ce que le lot casse :
 
-- [ ] **CA-14** — `vendor-check --root <CK> --json` est exécuté **et sa sortie citée** dans le
-      rapport de remise : nombre de lignes de dérive **avant** et **après** le lot. L'écart attendu
-      est de **+10** (famille `goldens`). Un écart différent est un fait à expliquer, pas à arrondir.
-- [ ] **CA-15** — le successeur **G-5** et le successeur **`models.js`** (R-3) sont inscrits au
-      `BACKLOG.md`, chacun avec ses références en `fichier:ligne`.
+- [ ] **CA-14** *(chiffres corrigés le 2026-09-02 sur mesure)* — `vendor-check --root <CK> --json`
+      est exécuté **et sa sortie citée** dans le rapport de remise : dérive **avant** et **après** le
+      lot. Ligne de base **mesurée : `drift: 0`** (82 copies + 4 dérivées, `clean`). Attendu **sous
+      P-D : `drift: 0` après le lot** — la parité est rétablie, pas contournée. Sous P-A : `drift:
+      10`. Un écart différent est un fait à expliquer, pas à arrondir.
+- [ ] **CA-15** *(mis à jour le 2026-09-02 — A-1 tranché sur P-D)* — les successeurs **`models.js`**
+      (R-3) et **« commentaire trompeur de `vendor-check.test.js` »** (R-1) sont inscrits au
+      `BACKLOG.md`, chacun avec ses références en `fichier:ligne`. **Aucun successeur G-5** n'est
+      inscrit : P-D ne l'a pas rouvert, et inscrire une question déjà close encombrerait le backlog
+      d'une fausse dette.
 
 ## Estimation (jalon P1→P2)
 
@@ -322,13 +480,16 @@ Déclaration honnête de ce que le lot casse :
   et le lot le fait mordre **volontairement**. La difficulté n'est pas d'écrire, c'est de **ne pas
   réparer en passant** ce que le cliquet révèle côté GUI.
 - **Inconnues susceptibles de faire glisser l'estimation** :
-  1. **A-1.** Si le décideur choisit **P-B** au lieu de P-A, le lot passe à **1,5 – 2 j** : il faut
-     rouvrir G-5, modifier `serializeAgentContract`, l'adaptateur, les tests GUI, re-vendorer les 82
-     fixtures et rejouer deux suites dans deux dépôts.
+  1. **A-1.** Sous **P-D** (recommandée), ajouter **+0,25 j** (≈ 2 h) : `model?` optionnel dans les
+     deux rendus du cœur GUI, branchement de `modelForPersona` (déjà écrite) dans le test de parité,
+     re-vendorage des 10 goldens, deux suites rejouées. Sous **P-B** (écartée), le lot passerait à
+     **1,5 – 2 j** — c'est le coût de rouvrir G-5, et la mesure 1 montre qu'on n'a pas à le payer.
   2. **Champ `runner` absent d'un assignment.** Le binding défaut le porte partout ; un binding tiers
      pourrait l'omettre. D4 tranche par l'abstention, mais si le décideur veut l'inverse (défaut
      `claude-code`), c'est un aller-retour de cadrage — sans impact sur la charge de dev.
-  3. **Compte de dérive du vendorage.** Le « +10 » attendu suppose que les 10 lignes `goldens` sont
-     aujourd'hui **conformes**. Le fichier de recette déclare le vendorage réel « massivement en
-     dérive » : si elles l'étaient déjà, l'écart mesuré sera plus petit — CA-14 le dira, et ce sera
-     un **constat**, pas un échec.
+  3. ~~**Compte de dérive du vendorage.**~~ **INCONNUE LEVÉE le 2026-09-02** : la ligne de base est
+     **mesurée**, `drift: 0` (cf. R-1). Il n'y a plus rien à supposer. *Ce que cette inconnue avait
+     de mauvais : elle reposait sur un **commentaire de code** lu comme une mesure. Une inconnue
+     honnête se lève en mesurant, pas en relisant.*
+  4. **Le troisième cliquet** (`methode-de-travail.html`, étape 5bis) n'était pas au premier
+     cadrage : **+15 min**, déjà intégrés au chiffre ci-dessus.
