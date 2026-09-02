@@ -39,7 +39,32 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   **ignore le schéma alternatif `bindings:`** que le résolveur, lui, sait lire. Deux chemins de
   lecture du même fait coexistent donc, dont un aveugle à la moitié du schéma convergé. **Hors
   périmètre du lot 1 assumé** (ce serait un lot de convergence à part entière), inscrit ici pour
-  qu'un défaut nommé ne soit pas un défaut caché (R-3 de l'instruction).
+  qu'un défaut nommé ne soit pas un défaut caché (R-3 de l'instruction). *Non résolu par le lot 2
+  (surcharge par projet) : `roleRows` y lit `assignments.get(p.id).model` de la même manière,
+  l'item reste donc entier — la surcharge de projet s'empile SUR ce même chemin de lecture, elle
+  ne le corrige pas.*
+
+### L46 — Successeur nommé du lot « surcharge du modèle par projet » (2026-09-02)
+
+> Ouvert **par le lot 2** de `specs/instructions/surcharge-modele-par-projet.md` (R-5), qui a rendu
+> `iakaframe models` provenance-aware (`modelSource`, `frame`\|`projet`) et introduit les
+> sous-verbes `models set`/`unset`. R-5 y est nommé « mitigation : ne rien ajouter (une colonne
+> juste sur une liste fausse aggraverait la confusion) et inscrire au backlog ce successeur » —
+> geste exécuté ici.
+
+- [ ] **`AGENTS-LIST-PAS-FRAME-SCOPE` — `agents list` montre toute la bibliothèque, pas la team de
+  la frame active.** `cli/src/lib/agents.js:83` (`listPersonas()`) scanne **toute** `library/
+  personas/` sans filtre de frame, contrairement à `generateAll`/`personasForTarget`
+  (`cli/src/lib/generate-agents.js`) qui, eux, résolvent la team de la frame active (global → team
+  du default ; projet → team de la frame active). Conséquence mesurée : `agents list` affiche
+  aussi les personas d'**autres** frames (ex. scrum), et **n'affiche pas** le modèle — deux
+  informations qu'un utilisateur peut légitimement attendre d'une commande nommée `list`. **Hors
+  périmètre des lots 1 et 2, assumé les deux fois** : `iakaframe models` (frame-scopé depuis le
+  lot 1, F3) reste la commande de référence pour « qui tourne sous quel modèle » ; ajouter une
+  colonne modèle à une liste non filtrée par frame aggraverait la confusion plutôt que de la
+  lever. Le successeur, s'il est un jour cadré : porter `agents list` sur `personasForTarget`
+  (même définition que `generateAll`/`skills deploy`, cf. le commentaire de source unique dans
+  `generate-agents.js`), puis seulement alors envisager d'y ajouter la provenance du modèle.
 
 ### L44 — Re-cadrage de la garde du `latest` (2026-09-01)
 

@@ -54,12 +54,15 @@ export function readActiveFramePointer(projectDir) {
   return (kv.frame || '').trim();
 }
 
-// Ecriture NON DESTRUCTIVE de la cle `frame` dans <projet>/iakaframe.json (miroir exact du
-// write_active_frame Rust cote GUI). Relit le JSON, ne touche QUE la cle `frame`, preserve les
-// cles du CLI (runner/node/target/note/aiderModel...). REFUSE d'ecrire si le fichier existe mais
-// est ILLISIBLE (l'ecraser perdrait les cles du CLI) -> { ok:false, reason:'unreadable' }.
-// frameId vide/absent -> RETRAIT de la cle `frame` (repli default). Retourne { ok, path, frame }.
-export function writeActiveFramePointer(projectDir, frameId) {
+// Ecriture NON DESTRUCTIVE, GUARD SOURCE UNIQUE, d'une cle (ou plus) de <projet>/iakaframe.json
+// (surcharge-modele-par-projet.md, D3). Relit le JSON, applique `mutate(cfg)` (qui ne touche QUE
+// les cles qui la concernent), reecrit 2-indente + `\n` final. REFUSE d'ecrire si le fichier existe
+// mais est ILLISIBLE (JSON invalide / non-objet / tableau) -> { ok:false, reason:'unreadable' },
+// fichier laisse INTACT a l'octet. C'est le SEUL endroit qui porte ce garde « refuse plutot
+// qu'ecrase » : `writeActiveFramePointer` (cle `frame`) et l'ecriture de `modelOverrides`
+// (project-models.js) DELEGUENT toutes les deux ici plutot que de le reimplementer chacune avec
+// sa propre nuance — c'est ainsi que naissent les divergences CLI<->GUI.
+export function patchProjectConf(projectDir, mutate) {
   const file = path.join(path.resolve(projectDir), PROJECT_CONF);
   let cfg = {};
   if (fs.existsSync(file)) {
@@ -68,10 +71,23 @@ export function writeActiveFramePointer(projectDir, frameId) {
     try { cfg = JSON.parse(raw); } catch { return { ok: false, reason: 'unreadable', path: file }; }
     if (!cfg || typeof cfg !== 'object' || Array.isArray(cfg)) return { ok: false, reason: 'unreadable', path: file };
   }
-  const id = (frameId || '').trim();
-  if (id) cfg.frame = id; else delete cfg.frame;
+  mutate(cfg);
   fs.writeFileSync(file, JSON.stringify(cfg, null, 2) + '\n', 'utf8');
-  return { ok: true, path: file, frame: id || null };
+  return { ok: true, path: file, cfg };
+}
+
+// Ecriture NON DESTRUCTIVE de la cle `frame` dans <projet>/iakaframe.json (miroir exact du
+// write_active_frame Rust cote GUI). Ne touche QUE la cle `frame`, preserve les cles du CLI
+// (runner/node/target/note/aiderModel/modelOverrides...). frameId vide/absent -> RETRAIT de la
+// cle `frame` (repli default). Retourne { ok, path, frame } (ou { ok:false, reason, path } sur
+// refus, DELEGUE a `patchProjectConf`, cf. ci-dessus : comportement inchange, cf. tests).
+export function writeActiveFramePointer(projectDir, frameId) {
+  const id = (frameId || '').trim();
+  const res = patchProjectConf(projectDir, (cfg) => {
+    if (id) cfg.frame = id; else delete cfg.frame;
+  });
+  if (!res.ok) return res;
+  return { ok: true, path: res.path, frame: id || null };
 }
 
 // Parse un fichier texte `cle=valeur` (patron du marqueur .iakaframe) en objet. Lignes vides et

@@ -4307,25 +4307,48 @@ Lis le pointeur de frame active à la racine du projet : le fichier **`.iakafram
 ### 3. Afficher le ROSTER de la frame active
 
 Présente le tableau du roster **de la team de la frame active** (agent / rôle-phase / pastille
-/ qui fait quoi). Quand la frame active est le **default `iakaframe`**, c'est **exactement** la
-compagnie ci-dessous ; pour une autre frame, présente la team résolue à l'étape 2. Les pastilles
-sont reprises **telles que définies** dans les fichiers `agents/*.md` ; « — » signifie que
-l'agent n'a pas de pastille fixe (elle varie selon la phase servie).
+/ modèle / qui fait quoi). Quand la frame active est le **default `iakaframe`**, c'est
+**exactement** la compagnie ci-dessous ; pour une autre frame, présente la team résolue à
+l'étape 2. Les pastilles sont reprises **telles que définies** dans les fichiers `agents/*.md` ;
+« — » signifie que l'agent n'a pas de pastille fixe (elle varie selon la phase servie).
+
+**Colonne Modèle — DÉRIVÉE, jamais recopiée en dur** (surcharge-modele-par-projet.md, D9).
+Exécute `iakaframe models --path &lt;projet&gt; --json` et lis, pour chaque persona du roster,
+l'entrée correspondante dans `roles[].personas[]` (jointure par id) : son champ `model` (le
+modèle **effectif** — surcharge de projet incluse si présente) et son `modelSource`
+(`projet` ou `frame`). Affiche `&lt;model&gt; (projet)` quand `modelSource === 'projet'`, sinon
+`&lt;model&gt;` seul (défaut de la frame, rien à signaler). N'écris **jamais** de nom de modèle en dur
+dans ta réponse : la valeur vient **toujours** de cette lecture, elle change d'un projet à
+l'autre et d'une session à l'autre.
+
+**Signalement de divergence — décision sans projection (cas NORMAL d'un clone frais ou d'une
+machine reconstruite sous A-3 « ignorer », D8).** La même sortie JSON porte `overrideDivergences`
+— un tableau, non vide seulement si `iakaframe.json` porte une surcharge dont le contrat de
+projet correspondant (`&lt;projet&gt;/.claude/agents/&lt;personaId&gt;.md`) est absent. Si non vide,
+affiche-le **avant** de rendre la main : pour chaque entrée, la persona, le modèle **décidé**
+(`decided`), le modèle **effectif** actuellement chargé en son absence (`effective` — le défaut
+de la frame, via `~/.claude/agents/`), et la commande qui répare (`repair`, déjà formée). **Tu ne
+répares JAMAIS toi-même** : tu lis, tu affiches, tu nommes la commande — l'utilisateur décide
+s'il la lance.
 
 **Roster de la frame default `iakaframe` (la compagnie) :**
 
-| Agent     | Rôle / phase             | Pastille | Ce qu'il fait |
-|-----------|--------------------------|----------|---------------|
-| odin      | Portefeuille (au-dessus) | 🟡       | Oriente le portefeuille, switch/démarre/crée des équipes, commande les Aragorn |
-| aragorn   | Coordination             | 🟠       | Répartit le besoin, suit les phases d'une feature, décide qui intervient |
-| gandalf   | Cadrage (P1)             | 🔵       | Transforme un besoin en instruction fermée et vérifiable |
-| gimli     | Dev / DevOps (P2→P3)     | —        | Code, build, teste, commite, déploie jusqu'au staging (🔴 dev / 🟢 staging) |
-| legolas   | Qualité (P2/P3)          | —        | Revue, typecheck/lint/tests, garde les critères d'acceptation (🔴 P2 / 🟢 P3) |
-| charon    | Production — bascule     | 🟣       | Gate de prod, bascule stage → prod par alias, accès/SSO, rollback. **Feu vert humain requis** |
-| helm      | Production — veille      | 🟣       | Health-checks, disponibilité, charge, **alerte**. **Aucun gate : il agit sans ordre** |
-| loki      | Design                   | 🟠       | Conception visuelle / UX, supports on-brand selon charte |
-| nathalie  | Doc utilisateur          | 🟠       | Documentation destinée à l'utilisateur final (guides, FAQ, tutos) |
-| feanor    | Constructeur de frame    | 🟠       | Assiste un tiers à forger une frame neuve — **activation explicite seulement** (hors dispatch auto) |
+| Agent     | Rôle / phase             | Pastille | Modèle | Ce qu'il fait |
+|-----------|--------------------------|----------|--------|---------------|
+| odin      | Portefeuille (au-dessus) | 🟡       | *(dérivé)* | Oriente le portefeuille, switch/démarre/crée des équipes, commande les Aragorn |
+| aragorn   | Coordination             | 🟠       | *(dérivé)* | Répartit le besoin, suit les phases d'une feature, décide qui intervient |
+| gandalf   | Cadrage (P1)             | 🔵       | *(dérivé)* | Transforme un besoin en instruction fermée et vérifiable |
+| gimli     | Dev / DevOps (P2→P3)     | —        | *(dérivé)* | Code, build, teste, commite, déploie jusqu'au staging (🔴 dev / 🟢 staging) |
+| legolas   | Qualité (P2/P3)          | —        | *(dérivé)* | Revue, typecheck/lint/tests, garde les critères d'acceptation (🔴 P2 / 🟢 P3) |
+| charon    | Production — bascule     | 🟣       | *(dérivé)* | Gate de prod, bascule stage → prod par alias, accès/SSO, rollback. **Feu vert humain requis** |
+| helm      | Production — veille      | 🟣       | *(dérivé)* | Health-checks, disponibilité, charge, **alerte**. **Aucun gate : il agit sans ordre** |
+| loki      | Design                   | 🟠       | *(dérivé)* | Conception visuelle / UX, supports on-brand selon charte |
+| nathalie  | Doc utilisateur          | 🟠       | *(dérivé)* | Documentation destinée à l'utilisateur final (guides, FAQ, tutos) |
+| feanor    | Constructeur de frame    | 🟠       | *(dérivé)* | Assiste un tiers à forger une frame neuve — **activation explicite seulement** (hors dispatch auto) |
+
+&gt; La colonne « Modèle » ci-dessus porte `*(dérivé)*` dans **ce document de référence** — c'est un
+&gt; gabarit, pas une mesure. Au moment réel de l'affichage, remplace chaque cellule par la valeur
+&gt; lue via `iakaframe models --json` (cf. ci-dessus), jamais par une valeur recopiée d'ici.
 
 &gt; **feanor est doublement hors spawn auto.** iakastart ne spawne jamais aucun agent ; de plus
 &gt; **feanor ne s'active QUE sur demande explicite** de l'utilisateur (jamais par `fullteam`, D-G).

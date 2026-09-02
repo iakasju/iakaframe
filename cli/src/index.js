@@ -88,6 +88,12 @@ Commandes :
                         cibles : ollama-local | ollama-distant | litellm | claude | codex
                         --json (etat des lieux, non interactif) --hosts a,b,c --timeout <sec>
                         --path <projet> --root <bibliotheque>
+  models set          Surcharge le modele d'UNE persona POUR CE PROJET (etage AFFECTATION,
+                        <persona> <modele>  distinct des suggestions) : ecrit modelOverrides
+                        dans <projet>/iakaframe.json ET projette <projet>/.claude/agents/
+                        <persona>.md (jamais ~/.claude/agents/) --path <projet> --json
+  models unset        Retire une surcharge de projet (et son contrat projete) ; --all = toutes
+                        <persona>|--all  --path <projet> --json
   config              Ecrit/maj <projet>/iakaframe.json (runner + nœud)
                         --path <dir> --runner claude-code|ollama|litellm|codex --node <n>  --json
                         (alias legacy runner : ps, iakaide, aider - deprecies ; --target = alias de --node)
