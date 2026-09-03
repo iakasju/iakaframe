@@ -158,7 +158,7 @@ export const VERBES = [
         arguments: '<personaId> <modele>',
         enteteAide: true,   // « models set » a sa propre ligne dans l'aide globale (grammaire distincte)
         resume: "Surcharge le modele d'UNE persona POUR CE PROJET (etage AFFECTATION)",
-        options: ['--path <projet>', '--root <dir>', '--force', '--json'],
+        options: ['--path <projet>', '--root <dir>', '--force', '--guide', '--json'],
         parametres: [
           { nom: 'personaId', autorite: { symbole: 'personasForTarget', module: 'lib/generate-agents.js' } },
           { nom: 'modele', autorite: { symbole: 'ACCEPTED_VOCABULARY', module: 'lib/project-models.js' } },
@@ -169,7 +169,7 @@ export const VERBES = [
         arguments: '<personaId>|--all',
         enteteAide: true,
         resume: 'Retire une surcharge de projet (et son contrat projete)',
-        options: ['--path <projet>', '--json'],
+        options: ['--path <projet>', '--guide', '--json'],
         parametres: [
           { nom: 'personaId', autorite: { symbole: 'readModelOverrides', module: 'lib/project-models.js' } },
         ],
@@ -229,7 +229,7 @@ export const VERBES = [
     id: 'list',
     arguments: '[type]',
     resume: 'Inventaire de la bibliotheque (pool + assemblages) par scan',
-    options: ['--root <dir>', '--ascii', '--json'],
+    options: ['--root <dir>', '--ascii', '--guide', '--json'],
     sousVerbes: [],
     parametres: [
       { nom: 'type', autorite: { symbole: 'COLLECTION_TYPES', module: 'lib/library.js' } },
@@ -240,7 +240,7 @@ export const VERBES = [
     id: 'show',
     arguments: '<id>',
     resume: "Contrat d'un atome/assemblage : frontmatter + corps",
-    options: ['--type <collection>', '--json', '--root <dir>'],
+    options: ['--type <collection>', '--guide', '--json', '--root <dir>'],
     sousVerbes: [],
     parametres: [
       { nom: 'id', autorite: { symbole: 'scan', module: 'lib/library.js' } },
@@ -252,7 +252,7 @@ export const VERBES = [
     id: 'add',
     arguments: '<kind> <fic>',
     resume: 'Livre un assemblage, ou scaffolde un atome de pool type neuf (valide refs I1)',
-    options: ['--root <dir>', '--force', '--json'],
+    options: ['--root <dir>', '--force', '--guide', '--json'],
     sousVerbes: [],
     parametres: [
       { nom: 'kind', autorite: { symbole: 'ASSEMBLY_KINDS', module: 'lib/scaffold.js' } },
@@ -265,7 +265,7 @@ export const VERBES = [
     id: 'remove',
     arguments: '<kind> <id>',
     resume: "Retire l'assemblage/skill : team|method|binding|skill (le - de add)",
-    options: ['--cascade', '--yes', '--root <dir>', '--json'],
+    options: ['--cascade', '--yes', '--root <dir>', '--guide', '--json'],
     sousVerbes: [],
     parametres: [
       { nom: 'id', autorite: { symbole: 'scan', module: 'lib/library.js' } },
@@ -277,7 +277,7 @@ export const VERBES = [
     id: 'attach',
     arguments: '<skill>',
     resume: 'Attache un skill a un persona : mute skills:[] du persona',
-    options: ['--persona <id>', '--force', '--json'],
+    options: ['--persona <id>', '--force', '--guide', '--json'],
     sousVerbes: [],
     parametres: [
       { nom: 'skillId', autorite: { symbole: "scan('skills')", module: 'lib/library.js' } },
@@ -290,7 +290,7 @@ export const VERBES = [
     id: 'detach',
     arguments: '<skill>',
     resume: "Detache un skill d'un persona : retire de skills:[] (le - de attach)",
-    options: ['--persona <id>', '--json'],
+    options: ['--persona <id>', '--guide', '--json'],
     sousVerbes: [],
     parametres: [
       { nom: 'skillId', autorite: { symbole: 'readPersonaSkills', module: 'lib/remove.js' } },
@@ -329,7 +329,7 @@ export const VERBES = [
       { id: 'lint', resume: "Validateur de graphe d'un descripteur de frame", options: ['--all', '--strict', '--json', '--root <dir>'],
         parametres: [{ nom: 'id', autorite: { symbole: "scan('frames')", module: 'lib/library.js' } }] },
       { id: 'new', resume: "Ossature d'un frame neuf, lint-clean par construction", options: ['--force', '--json', '--root <dir>'] },
-      { id: 'use', resume: 'Pose la frame active du projet : ecrit iakaframe.json cle "frame"', options: ['--path <projet>', '--json', '--root <dir>'],
+      { id: 'use', resume: 'Pose la frame active du projet : ecrit iakaframe.json cle "frame"', options: ['--path <projet>', '--guide', '--json', '--root <dir>'],
         parametres: [{ nom: 'frameId', autorite: { symbole: "scan('frames')", module: 'lib/library.js' } }] },
     ],
     parametres: [],
@@ -348,7 +348,7 @@ export const VERBES = [
     idDisplay: 'switch|use',
     arguments: '<m> <t>',
     resume: 'Bascule un PROJET (execution) vers une methode/team (alias : use)',
-    options: ['--path <dir>', '--binding <id>', '--node <n>', '--rollback', '--root <dir>', '--force', '--json'],
+    options: ['--path <dir>', '--binding <id>', '--node <n>', '--rollback', '--root <dir>', '--force', '--guide', '--json'],
     sousVerbes: [],
     parametres: [
       { nom: 'methodId', autorite: { symbole: "scan('methods')", module: 'lib/library.js' } },
