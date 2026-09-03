@@ -23,6 +23,7 @@ import os from 'node:os';
 import readline from 'node:readline/promises';
 import { getJson, sendJson } from '../lib/http.js';
 import { peutDemander } from '../lib/interactif.js';
+import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, ok, fail } from '../lib/output.js';
 import { libraryRoot, readEntry, scan } from '../lib/library.js';
 import { activeFrameId, activeTeamId } from '../lib/frame-active.js';
@@ -129,6 +130,9 @@ Options :
   --path <projet> Dossier projet (defaut : cwd).
   --root <dir>    Racine bibliotheque (defaut : resolution auto).
   --force         Ecrit quand meme une valeur hors du vocabulaire connu (refus par defaut, sinon).
+  --guide         Mode guide (Lot A) : propose persona puis modele, imprime la commande equivalente
+                  (echo non desactivable), execute par le chemin normal. Sans effet hors TTY (le
+                  drapeau ne change RIEN en CI/script/--json — cf. IAKA_NON_INTERACTIF).
   --json          Sortie machine : { ok, path, personaId, model, warning, forced, projected, gitignore }.
   --help          Cette aide.`;
 
@@ -148,6 +152,8 @@ Options :
   <personaId>     Id de la persona a retirer (omis si --all).
   --all           Retire TOUTES les surcharges du projet.
   --path <projet> Dossier projet (defaut : cwd).
+  --guide         Mode guide (Lot A) : propose les surcharges POSEES, imprime la commande
+                  equivalente (echo non desactivable), execute par le chemin normal.
   --json          Sortie machine.
   --help          Cette aide.`;
 
@@ -780,8 +786,45 @@ export function writeAssignments(canon, personaIds, model) {
   return { ok: true, written };
 }
 
+// --- Guidage (Lot A, --guide) : propose PUIS assemble l'argv et rappelle runModelsSet() par le
+// CHEMIN NORMAL (A4.2 : « c'est validateModelValue() qui tranche, jamais le moteur ») — AUCUNE
+// seconde ecriture, AUCUN --force/--yes/--cascade ajoute (A4.3, assemblerArgv le garantit).
+async function runModelsSetGuide({ root, projectDir, values }) {
+  const membres = personasForTarget({ root, project: projectDir });
+  const selPersona = await selectionner({
+    items: membres.map((id) => ({ id, label: id })),
+    titre: 'Persona a surcharger :', permettreLibre: true, libelleLibre: 'saisir un id de persona',
+  });
+  if (selPersona.type === 'vide') {
+    console.log('\nAucune persona disponible pour ce projet (team active vide ou introuvable) : rien a guider.\n');
+    return;
+  }
+  if (selPersona.type === 'annule') { console.log('\nRien n\'a ete modifie.\n'); return; }
+  const personaId = selPersona.type === 'libre' ? selPersona.valeur : selPersona.item.id;
+  if (!personaId) { console.log('\nRien n\'a ete modifie.\n'); return; }
+
+  // A4.1 : d'abord les valeurs de l'autorite (ACCEPTED_VOCABULARY, filtrees des GABARITS
+  // `claude-<id>`/`<valeur>[1m]`, non selectionnables tels quels), PLUS une entree libre — c'est
+  // elle qui couvre ces gabarits.
+  const selModele = await selectionner({
+    items: ACCEPTED_VOCABULARY.filter((v) => !v.includes('<')).map((v) => ({ id: v, label: v })),
+    titre: 'Modele :', permettreLibre: true, libelleLibre: 'saisir une valeur libre (ex. claude-opus-5, opus[1m])',
+  });
+  if (selModele.type === 'vide' || selModele.type === 'annule') { console.log('\nRien n\'a ete modifie.\n'); return; }
+  const modele = selModele.type === 'libre' ? selModele.valeur : selModele.item.id;
+  if (!modele) { console.log('\nRien n\'a ete modifie.\n'); return; }
+
+  const suite = [personaId, modele];
+  if (values.path) suite.push('--path', values.path);
+  if (values.root) suite.push('--root', values.root);
+  const argvNormal = assemblerArgv(suite);
+  // A3 : echo OBLIGATOIRE et NON DESACTIVABLE, AVANT execution.
+  console.log(ligneEquivalente(['models', 'set', ...argvNormal]));
+  await runModelsSet(argvNormal);
+}
+
 // --- Sous-verbe `models set` (surcharge-modele-par-projet.md, D4/D6/D7) ------------------------
-function runModelsSet(argv) {
+async function runModelsSet(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
@@ -789,10 +832,21 @@ function runModelsSet(argv) {
       root: { type: 'string' },
       force: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
+      guide: { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
     },
   });
   if (values.help) { console.log(SET_HELP); return; }
+
+  // --guide (A2/A5) : SEULEMENT si peutDemander() l'autorise (CA-3 — sinon --guide ne change RIEN,
+  // le flux retombe EXACTEMENT sur le comportement non guide, octet pour octet).
+  if (values.guide && peutDemander({ json: values.json, guide: true })) {
+    const root = libraryRoot(values.root);
+    const projectDir = path.resolve(values.path || process.cwd());
+    await runModelsSetGuide({ root, projectDir, values });
+    return;
+  }
+
   const personaId = positionals[0];
   const model = positionals[1];
   if (!personaId || model === undefined) {
@@ -885,18 +939,48 @@ function runModelsSet(argv) {
   });
 }
 
+// --- Guidage (Lot A, --guide) : propose les surcharges POSEES (readModelOverrides, le `-`
+// symetrique de la persona/modele de `set`) — meme discipline : assemble puis rappelle le CHEMIN
+// NORMAL, aucune ecriture ici.
+async function runModelsUnsetGuide({ projectDir, values }) {
+  const overrides = readModelOverrides(projectDir);
+  const ids = Object.keys(overrides);
+  const sel = await selectionner({
+    items: ids.map((id) => ({ id, label: `${id} -> ${overrides[id]}` })),
+    titre: 'Surcharge a retirer :', permettreLibre: true, libelleLibre: 'saisir un id de persona',
+  });
+  if (sel.type === 'vide') { console.log('\nAucune surcharge posee sur ce projet : rien a guider.\n'); return; }
+  if (sel.type === 'annule') { console.log('\nRien n\'a ete modifie.\n'); return; }
+  const personaId = sel.type === 'libre' ? sel.valeur : sel.item.id;
+  if (!personaId) { console.log('\nRien n\'a ete modifie.\n'); return; }
+
+  const suite = [personaId];
+  if (values.path) suite.push('--path', values.path);
+  const argvNormal = assemblerArgv(suite);
+  console.log(ligneEquivalente(['models', 'unset', ...argvNormal]));
+  await runModelsUnset(argvNormal);
+}
+
 // --- Sous-verbe `models unset` (D4/D5, la symetrie structurelle du '-') ------------------------
-function runModelsUnset(argv) {
+async function runModelsUnset(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
       all: { type: 'boolean', default: false },
       path: { type: 'string' },
       json: { type: 'boolean', default: false },
+      guide: { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
     },
   });
   if (values.help) { console.log(UNSET_HELP); return; }
+
+  if (values.guide && !values.all && peutDemander({ json: values.json, guide: true })) {
+    const projectDir = path.resolve(values.path || process.cwd());
+    await runModelsUnsetGuide({ projectDir, values });
+    return;
+  }
+
   const projectDir = path.resolve(values.path || process.cwd());
   const dir = path.join(projectDir, '.claude', 'agents');
 
@@ -948,8 +1032,8 @@ export async function runModels(argv) {
   // general, qui n'accepte aucun positionnel (l'echec y etait jusqu'ici silencieusement absorbe
   // par le catch -> HELP). Toute AUTRE valeur de argv[0] retombe sur le comportement existant,
   // inchange.
-  if (argv[0] === 'set') { runModelsSet(argv.slice(1)); return; }
-  if (argv[0] === 'unset') { runModelsUnset(argv.slice(1)); return; }
+  if (argv[0] === 'set') { await runModelsSet(argv.slice(1)); return; }
+  if (argv[0] === 'unset') { await runModelsUnset(argv.slice(1)); return; }
 
   let values;
   try {

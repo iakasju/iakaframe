@@ -13,6 +13,8 @@ import { libraryRoot, scan } from '../lib/library.js';
 import { lintFrame, lintAllFrames } from '../lib/frame-lint.js';
 import { scaffoldFrameNew } from '../lib/scaffold.js';
 import { frameDescriptor, writeActiveFramePointer } from '../lib/frame-active.js';
+import { peutDemander } from '../lib/interactif.js';
+import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail, ok } from '../lib/output.js';
 
 const DEFAULT_FRAME = path.join('frames', 'releases', 'StefFrame2');
@@ -63,7 +65,7 @@ Ce que le gate n'attrape PAS :
 ${LIMITS.map(l => `  - ${l}`).join('\n')}
 `;
 
-export function runFrame(argv) {
+export async function runFrame(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
@@ -74,6 +76,7 @@ export function runFrame(argv) {
       strict: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
       verbose: { type: 'boolean', default: false },
+      guide: { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
     },
   });
@@ -90,7 +93,7 @@ export function runFrame(argv) {
   // Sous-verbe `use` (galerie-models-actionnable.md, D-5) : ecrit le POINTEUR de frame active du
   // projet (<projet>/iakaframe.json cle `frame`) — l'ecrivain canon pour « l'ordre a Odin », miroir
   // du set_active_frame_id GUI. Distinct de `switch|use <m> <t>` (matérialisation kit) de l'index.
-  if (action === 'use') { runUse(values, positionals); return; }
+  if (action === 'use') { await runUse(values, positionals); return; }
 
   if (values.help || action === 'help') { console.log(HELP); return; }
   if (action !== 'verify') {
@@ -200,11 +203,42 @@ Options :
   <frameId>       Id de la frame a activer. Valeur vide ("") -> RETRAIT de la cle (repli default).
   --path <projet> Dossier projet (defaut : cwd).
   --root <dir>    Racine bibliotheque ou chercher le descripteur (defaut : resolution auto).
+  --guide         Mode guide (Lot A) : propose les frames du reservoir, imprime la commande
+                  equivalente (echo non desactivable), execute par le chemin normal.
   --json          Sortie machine : { ok, path, frame }.
   --help          Cette aide.`;
 
-function runUse(values, positionals) {
+// --- Guidage (Lot A, --guide) : propose les frames DU RESERVOIR (scan('frames'), A5). Le RETRAIT
+// (valeur vide) reste accessible en tapant la commande sans --guide (`""` retire deja la cle,
+// symetrie notee au § LOT A) — le guidage porte sur la SELECTION d'une frame existante.
+async function runUseGuide(values) {
+  const root = libraryRoot(values.root);
+  const sel = await selectionner({
+    items: scan('frames', root).map((e) => ({ id: e.id, label: e.id })),
+    titre: 'Frame :', permettreLibre: true, libelleLibre: 'saisir un id de frame',
+  });
+  if (sel.type === 'vide') { console.log('\nAucune frame dans le reservoir : rien a activer.\n'); return; }
+  if (sel.type === 'annule') { console.log('\nRien n\'a ete modifie.\n'); return; }
+  const frameId = sel.type === 'libre' ? sel.valeur : sel.item.id;
+  if (!frameId) { console.log('\nRien n\'a ete modifie.\n'); return; }
+
+  const suite = assemblerArgv([frameId]);
+  if (values.path) suite.push('--path', values.path);
+  if (values.root) suite.push('--root', values.root);
+  console.log(ligneEquivalente(['frame', 'use', ...suite]));
+  // Chemin NORMAL (A4.2) : re-entree DIRECTE dans runUse avec le MEME `values` (path/root deja
+  // portes par cet objet) — jamais un second chemin d'ecriture. `guide:false` empeche la recursion.
+  await runUse({ ...values, guide: false }, ['use', frameId]);
+}
+
+async function runUse(values, positionals) {
   if (values.help) { console.log(USE_HELP); return; }
+
+  if (values.guide && peutDemander({ json: values.json, guide: true })) {
+    await runUseGuide(values);
+    return;
+  }
+
   const id = positionals[1];
   if (id === undefined) return fail(values.json, 'Usage : iakaframe frame use <frameId> [--path <projet>]');
 

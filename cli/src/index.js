@@ -139,17 +139,17 @@ async function main() {
     case 'brief':    runBrief(rest); break;
     case 'recap':    runRecap(rest); break;
     case 'jalon':    runJalon(rest); break;
-    case 'list':     runList(rest); break;
-    case 'show':     runShow(rest); break;
-    case 'add':      runAdd(rest); break;
-    case 'remove':   runRemove(rest); break;
-    case 'attach':   runAttach(rest); break;
-    case 'detach':   runDetach(rest); break;
+    case 'list':     await runList(rest); break;
+    case 'show':     await runShow(rest); break;
+    case 'add':      await runAdd(rest); break;
+    case 'remove':   await runRemove(rest); break;
+    case 'attach':   await runAttach(rest); break;
+    case 'detach':   await runDetach(rest); break;
     case 'assemble': runAssemble(rest); break;
     case 'vendor-check': runVendorCheck(rest); break;
-    case 'frame':    runFrame(rest); break;
+    case 'frame':    await runFrame(rest); break;
     case 'switch':
-    case 'use':      runSwitch(rest); break;
+    case 'use':      await runSwitch(rest); break;
     case 'memory':   runMemory(rest); break;
     case 'produit':  runProduit(rest); break;
     case 'open':     runOpen(rest); break;

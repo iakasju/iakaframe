@@ -6,6 +6,8 @@
 import { parseArgs } from 'node:util';
 import { table } from '../lib/table.js';
 import { COLLECTION_TYPES, collectionOf, inventory, libraryRoot, scan } from '../lib/library.js';
+import { peutDemander } from '../lib/interactif.js';
+import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { collection, emit, fail } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe list [type] [options]
@@ -20,18 +22,46 @@ Arguments :
 Options :
   --root <dir>       Racine de bibliotheque
   --ascii            Tableau en ASCII pur (sans box-drawing)
+  --guide            Mode guide (Lot A) : propose la collection, imprime la commande equivalente
+                     (echo non desactivable), execute par le chemin normal.
   --json             Sortie machine`;
 
-export function runList(argv) {
+// --- Guidage (Lot A, --guide) : propose la collection (le resume sans type reste accessible en
+// tapant `iakaframe list` normalement — le guidage porte sur le cas ou une collection precise est
+// visee, A5 : `type` a une autorite enumerable, COLLECTION_TYPES).
+async function runListGuide({ values }) {
+  const sel = await selectionner({
+    items: COLLECTION_TYPES.map((t) => ({ id: t, label: t })),
+    titre: 'Collection :', permettreLibre: false,
+  });
+  if (sel.type === 'vide' || sel.type === 'annule') { console.log('\nRien a lister.\n'); return; }
+  const type = sel.item.id;
+
+  const suite = [type];
+  if (values.root) suite.push('--root', values.root);
+  if (values.ascii) suite.push('--ascii');
+  const argvNormal = assemblerArgv(suite);
+  console.log(ligneEquivalente(['list', ...argvNormal]));
+  runList(argvNormal);
+}
+
+export async function runList(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
       root: { type: 'string' }, ascii: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
+      guide: { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
     },
   });
   if (values.help) { console.log(USAGE); return; }
+
+  if (values.guide && peutDemander({ json: values.json, guide: true })) {
+    await runListGuide({ values });
+    return;
+  }
+
   const root = libraryRoot(values.root);
   const type = positionals[0];
 

@@ -7,6 +7,8 @@ import { parseArgs } from 'node:util';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import { ADD_DIR, checkRefs, checkSchema, libraryRoot } from '../lib/library.js';
 import { scaffoldPoolAtom, POOL_KINDS } from '../lib/scaffold.js';
+import { peutDemander } from '../lib/interactif.js';
+import { selectionner, demanderTexte, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail } from '../lib/output.js';
 
 // Kinds d'ASSEMBLAGE (livraison d'un fichier deja redige) : `frame` est desormais EXPOSE (le
@@ -26,19 +28,51 @@ type neuf par id. Non destructif (refus si la cible existe, sauf --force).
 Options :
   --root <dir>       Racine de bibliotheque
   --force            Remplace une cible existante
+  --guide            Mode guide (Lot A) : propose le kind, demande l'id/fichier (texte libre — aucun
+                     vocabulaire ferme la-dessus, M5), imprime la commande equivalente (echo non
+                     desactivable), execute par le chemin normal.
   --json             Sortie machine`;
 
-export function runAdd(argv) {
+// --- Guidage (Lot A, --guide) : le KIND a une autorite enumerable (KINDS, A5) ; l'id/fichier N'EN
+// A PAS (on cree une cible NEUVE, M5) — une seule question, jamais un menu ferme dessus.
+async function runAddGuide({ values }) {
+  const sel = await selectionner({
+    items: KINDS.map((k) => ({ id: k, label: k })),
+    titre: 'Kind :', permettreLibre: false,
+  });
+  if (sel.type === 'vide' || sel.type === 'annule') { console.log('\nRien n\'a ete ajoute.\n'); return; }
+  const kind = sel.item.id;
+
+  // Pas de menu ici : l'id/fichier N'A AUCUNE autorite enumerable (M5) — question TEXTE simple.
+  const question = ASSEMBLY_KINDS.includes(kind) ? 'Fichier (.md) : ' : 'Id : ';
+  const arg = await demanderTexte({ question });
+  if (!arg) { console.log('\nRien n\'a ete ajoute.\n'); return; }
+
+  const suite = [kind, arg];
+  if (values.root) suite.push('--root', values.root);
+  const argvNormal = assemblerArgv(suite);
+  console.log(ligneEquivalente(['add', ...argvNormal]));
+  await runAdd(argvNormal);
+}
+
+export async function runAdd(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
       root: { type: 'string' }, force: { type: 'boolean', default: false },
       json: { type: 'boolean', default: false },
+      guide: { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
     },
   });
   if (values.help) { console.log(USAGE); return; }
   const json = values.json;
+
+  if (values.guide && peutDemander({ json, guide: true })) {
+    await runAddGuide({ values });
+    return;
+  }
+
   const [kind, arg] = positionals;
   if (!kind || !KINDS.includes(kind) || !arg) {
     return fail(json, `Usage : iakaframe add <${ASSEMBLY_KINDS.join('|')}> <fichier.md>\n        iakaframe add <${POOL_KINDS.join('|')}> <id>`);

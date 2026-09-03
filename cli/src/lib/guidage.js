@@ -228,3 +228,19 @@ export async function selectionner({
     rl.close();
   }
 }
+
+// --- Question TEXTE simple, SANS menu — pour un parametre qui n'a, PAR CONSTRUCTION, aucune
+// autorite enumerable (M5 : « le guidage de valeur n'a de sens que la ou le parametre a un
+// vocabulaire ferme »). `add <kind> <id/fichier>` en est l'exemple canonique : le KIND a une
+// autorite (KINDS), l'id/fichier NEUF a atteindre n'en a aucune — forcer un menu a une seule
+// entree « saisir » dessus serait une ceremonie sans objet. `ask` INJECTABLE (couture testable,
+// meme discipline que choisirDansListe).
+export async function demanderTexte({ question, ask, input = process.stdin, output = process.stdout }) {
+  if (ask) return (await ask(question)).trim();
+  const rl = readlinePromises.createInterface({ input, output });
+  try {
+    return (await rl.question(question)).trim();
+  } finally {
+    rl.close();
+  }
+}

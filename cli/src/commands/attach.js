@@ -6,7 +6,23 @@
 import { parseArgs } from 'node:util';
 import { libraryRoot, readEntry, scan } from '../lib/library.js';
 import { readPersonaSkills, setPersonaSkills } from '../lib/remove.js';
+import { peutDemander } from '../lib/interactif.js';
+import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail } from '../lib/output.js';
+
+function usage(mode) {
+  return `Usage : iakaframe ${mode} <skillId> --persona <personaId>
+
+${mode === 'attach' ? "Attache un skill a un persona : mute skills:[] (le + symetrique de detach)." : "Detache un skill d'un persona : retire de skills:[] (le - de attach)."}
+
+Options :
+  <skillId>          Id du skill.
+  --persona <id>     Persona cible.
+  --root <dir>       Racine de bibliotheque.
+  ${mode === 'attach' ? '--force            Attache meme si le skill est absent de la bibliotheque (I1).' : ''}
+  --guide            Mode guide (Lot A) : propose ${mode === 'attach' ? 'skill puis persona' : 'persona puis un skill attache'}, imprime la commande equivalente (echo non desactivable), execute par le chemin normal.
+  --json             Sortie machine`;
+}
 
 function parse(argv) {
   return parseArgs({
@@ -14,18 +30,83 @@ function parse(argv) {
     options: {
       root: { type: 'string' }, persona: { type: 'string' },
       force: { type: 'boolean', default: false }, json: { type: 'boolean', default: false },
+      guide: { type: 'boolean', default: false }, help: { type: 'boolean', default: false },
     },
   });
 }
 
-export function runAttach(argv) { run('attach', argv); }
-export function runDetach(argv) { run('detach', argv); }
+// --- Guidage (Lot A, --guide) : attach = skill PUIS persona (scan('skills')/scan('personas'), A5) ;
+// detach = persona PUIS un skill DEJA ATTACHE (autorite = frontmatter du persona, symetrique du -).
+async function runGuide(mode, values) {
+  const root = libraryRoot(values.root);
 
-function run(mode, argv) {
+  if (mode === 'attach') {
+    const selSkill = await selectionner({
+      items: scan('skills', root).map((e) => ({ id: e.id, label: e.id })),
+      titre: 'Skill :', permettreLibre: true, libelleLibre: 'saisir un id de skill',
+    });
+    if (selSkill.type === 'annule') { console.log('\nRien n\'a ete modifie.\n'); return; }
+    const skillId = selSkill.type === 'libre' ? selSkill.valeur : selSkill.item?.id;
+    if (!skillId) { console.log('\nRien n\'a ete modifie.\n'); return; }
+
+    const selPersona = await selectionner({
+      items: scan('personas', root).map((e) => ({ id: e.id, label: e.id })),
+      titre: 'Persona :', permettreLibre: true, libelleLibre: 'saisir un id de persona',
+    });
+    if (selPersona.type === 'vide' || selPersona.type === 'annule') { console.log('\nRien n\'a ete modifie.\n'); return; }
+    const personaId = selPersona.type === 'libre' ? selPersona.valeur : selPersona.item.id;
+    if (!personaId) { console.log('\nRien n\'a ete modifie.\n'); return; }
+
+    const suite = [skillId, '--persona', personaId];
+    if (values.root) suite.push('--root', values.root);
+    const argvNormal = assemblerArgv(suite);
+    console.log(ligneEquivalente(['attach', ...argvNormal]));
+    await runAttach(argvNormal);
+    return;
+  }
+
+  // detach : persona D'ABORD (le skill attache depend d'elle).
+  const selPersona = await selectionner({
+    items: scan('personas', root).map((e) => ({ id: e.id, label: e.id })),
+    titre: 'Persona :', permettreLibre: true, libelleLibre: 'saisir un id de persona',
+  });
+  if (selPersona.type === 'vide' || selPersona.type === 'annule') { console.log('\nRien n\'a ete modifie.\n'); return; }
+  const personaId = selPersona.type === 'libre' ? selPersona.valeur : selPersona.item.id;
+  if (!personaId) { console.log('\nRien n\'a ete modifie.\n'); return; }
+
+  const persona = readEntry('personas', personaId, root);
+  const attaches = persona ? readPersonaSkills(persona.path) : [];
+  const selSkill = await selectionner({
+    items: attaches.map((id) => ({ id, label: id })),
+    titre: `Skill attache a ${personaId} :`, permettreLibre: true, libelleLibre: 'saisir un id de skill',
+  });
+  if (selSkill.type === 'vide') { console.log(`\n${personaId} n'a aucun skill attache : rien a detacher.\n`); return; }
+  if (selSkill.type === 'annule') { console.log('\nRien n\'a ete modifie.\n'); return; }
+  const skillId = selSkill.type === 'libre' ? selSkill.valeur : selSkill.item.id;
+  if (!skillId) { console.log('\nRien n\'a ete modifie.\n'); return; }
+
+  const suite = [skillId, '--persona', personaId];
+  if (values.root) suite.push('--root', values.root);
+  const argvNormal = assemblerArgv(suite);
+  console.log(ligneEquivalente(['detach', ...argvNormal]));
+  await runDetach(argvNormal);
+}
+
+export async function runAttach(argv) { await run('attach', argv); }
+export async function runDetach(argv) { await run('detach', argv); }
+
+async function run(mode, argv) {
   const { values, positionals } = parse(argv);
+  if (values.help) { console.log(usage(mode)); return; }
+  const json = values.json;
+
+  if (values.guide && peutDemander({ json, guide: true })) {
+    await runGuide(mode, values);
+    return;
+  }
+
   const [skillId] = positionals;
   const personaId = values.persona;
-  const json = values.json;
 
   if (!skillId || !personaId) {
     fail(json, `Usage : iakaframe ${mode} <skillId> --persona <personaId>`); return;
