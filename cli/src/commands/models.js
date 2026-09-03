@@ -817,8 +817,11 @@ function runModelsSet(argv) {
   const teamId = activeTeamId(projectDir, root);
   const members = personasForTarget({ root, project: projectDir });
   if (!members.includes(personaId)) {
-    const msg = `persona inconnue : ${personaId} — absente de la team ${teamId || '(aucune)'} de la frame active ${frameId} ; surcharge NON ecrite.`;
-    return fail(values.json, msg, { personaId, teamId, frameId }, () => console.error(msg));
+    // Palier 0 (Lot A, refus loquace) : la persona rejetee liste desormais les valeurs DERIVEES
+    // de l'AUTORITE reelle (personasForTarget), jamais une enumeration ecrite a la main.
+    const msg = `persona inconnue : ${personaId} — absente de la team ${teamId || '(aucune)'} de la frame active ${frameId} ; surcharge NON ecrite.`
+      + (members.length ? ` Personas valides : ${members.join(', ')}.` : ' Aucune persona dans cette team.');
+    return fail(values.json, msg, { personaId, teamId, frameId, personasValides: members }, () => console.error(msg));
   }
 
   // D6bis (Amendement A) : trois strates. 1 - forme : REFUS bloquant, --force ne le leve JAMAIS.
@@ -834,8 +837,11 @@ function runModelsSet(argv) {
   let forced = false;
   if (v.unknown !== undefined) {
     if (!values.force) {
+      // Palier 0 (Lot A, refus loquace) : la liste est DERIVEE de ACCEPTED_VOCABULARY (source
+      // unique, cf. lib/project-models.js) — plus jamais recopiee en prose a la main dans ce
+      // message (l'ancienne forme dupliquait deja ACCEPTED_VOCABULARY, au risque de diverger).
       const msg = `valeur inconnue : ${v.unknown} — hors du vocabulaire accepte pour un sous-agent `
-        + `(sonnet, opus, haiku, fable, inherit, ou claude-<id>, suffixe [1m] optionnel) ; `
+        + `(${ACCEPTED_VOCABULARY.join(', ')}) ; `
         + `surcharge NON ecrite. Si la valeur est juste (alias recent), reecrire avec --force.`;
       return fail(values.json, msg, { personaId, model, accepted: ACCEPTED_VOCABULARY }, () => console.error(msg));
     }

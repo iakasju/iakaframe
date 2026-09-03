@@ -12,7 +12,7 @@
 //     restaurable, avec trace (manifest.json). Jamais de suppression seche.
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { libraryRoot, readEntry, pathFor } from '../lib/library.js';
+import { libraryRoot, readEntry, pathFor, scan } from '../lib/library.js';
 import {
   findReferrers, makeTrash, moveToTrash, writeTrashManifest,
   readPersonaSkills, setPersonaSkills,
@@ -40,7 +40,14 @@ export function runRemove(argv) {
   const root = libraryRoot(values.root);
   const type = KIND_TO_TYPE[kind];
   const entry = readEntry(type, id, root);
-  if (!entry) { fail(json, `${kind} introuvable : ${id}`); return; }
+  if (!entry) {
+    // Palier 0 (Lot A, refus loquace) : les ids valides sont DERIVES de scan() (source unique),
+    // jamais recopies a la main.
+    const ids = scan(type, root).map((e) => e.id);
+    const msg = `${kind} introuvable : ${id}` + (ids.length ? ` — ids valides : ${ids.join(', ')}.` : ` — aucun ${kind} dans la bibliotheque.`);
+    fail(json, msg, { kind, id, idsValides: ids }, () => console.error(msg));
+    return;
+  }
 
   const referrers = findReferrers(type, id, root);
 

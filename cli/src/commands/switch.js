@@ -5,7 +5,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { assemble, libraryRoot, readEntry, toArray } from '../lib/library.js';
+import { assemble, libraryRoot, readEntry, scan, toArray } from '../lib/library.js';
 import { frameCoherence } from '../lib/frame-active.js';
 import { generateAgent, loadDefaultBinding } from '../lib/generate-agents.js';
 import { resolveSkills } from '../lib/resolve-skills.js';
@@ -72,6 +72,19 @@ export function runSwitch(argv) {
     return fail(values.json, 'Usage : iakaframe use <methodId> <teamId> [--binding <id>] [--path <projet>] [--rollback]');
   }
   if (!fs.existsSync(projectDir)) return fail(values.json, `Projet introuvable : ${projectDir}`);
+
+  // Palier 0 (Lot A, refus loquace) : pre-controle AVANT assemble() — ids DERIVES de scan(),
+  // jamais recopies. Meme refus (exit 1) qu'avant, message enrichi seulement.
+  const methodIds = scan('methods', root).map((e) => e.id);
+  if (!methodIds.includes(methodId)) {
+    return fail(values.json, `methode introuvable : ${methodId} — ids valides : ${methodIds.join(', ')}.`,
+      { methodId, idsValides: methodIds });
+  }
+  const teamIds = scan('teams', root).map((e) => e.id);
+  if (!teamIds.includes(teamId)) {
+    return fail(values.json, `team introuvable : ${teamId} — ids valides : ${teamIds.join(', ')}.`,
+      { teamId, idsValides: teamIds });
+  }
 
   const node = values.node || 'claude';
   const res = assemble(methodId, teamId, values.binding || null, root, { node });

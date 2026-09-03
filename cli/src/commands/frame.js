@@ -9,7 +9,7 @@ import { parseArgs } from 'node:util';
 import path from 'node:path';
 import fs from 'node:fs';
 import { verifyFrame, GATES, LIMITS } from '../lib/frame.js';
-import { libraryRoot } from '../lib/library.js';
+import { libraryRoot, scan } from '../lib/library.js';
 import { lintFrame, lintAllFrames } from '../lib/frame-lint.js';
 import { scaffoldFrameNew } from '../lib/scaffold.js';
 import { frameDescriptor, writeActiveFramePointer } from '../lib/frame-active.js';
@@ -218,9 +218,12 @@ function runUse(values, positionals) {
   if (trimmed) {
     const root = libraryRoot(values.root);
     if (!frameDescriptor(trimmed, root)) {
+      // Palier 0 (Lot A, refus loquace) : ids DERIVES de scan('frames'), jamais recopies.
+      const ids = scan('frames', root).map((e) => e.id);
       return fail(values.json,
-        `frame inconnue : ${trimmed} (aucun descripteur frames/${trimmed}.md dans le reservoir) — pointeur NON ecrit (jamais de dangling).`,
-        { frame: trimmed });
+        `frame inconnue : ${trimmed} (aucun descripteur frames/${trimmed}.md dans le reservoir) — pointeur NON ecrit (jamais de dangling).`
+        + (ids.length ? ` Frames valides : ${ids.join(', ')}.` : ''),
+        { frame: trimmed, idsValides: ids });
     }
   }
 

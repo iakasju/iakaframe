@@ -4,7 +4,7 @@
 // verite) ; il n'ecrit AUCUNE section dans le corps (le `-` au « titre du skill » est rendu par la
 // vue). Reversible par nature : `detach` retire l'id, `attach` le remet (idempotents).
 import { parseArgs } from 'node:util';
-import { libraryRoot, readEntry } from '../lib/library.js';
+import { libraryRoot, readEntry, scan } from '../lib/library.js';
 import { readPersonaSkills, setPersonaSkills } from '../lib/remove.js';
 import { emit, fail } from '../lib/output.js';
 
@@ -33,12 +33,22 @@ function run(mode, argv) {
 
   const root = libraryRoot(values.root);
   const persona = readEntry('personas', personaId, root);
-  if (!persona) { fail(json, `Persona introuvable : ${personaId}`); return; }
+  if (!persona) {
+    // Palier 0 (Lot A, refus loquace) : ids DERIVES de scan('personas'), jamais recopies.
+    const ids = scan('personas', root).map((e) => e.id);
+    const msg = `Persona introuvable : ${personaId}` + (ids.length ? ` — ids valides : ${ids.join(', ')}.` : '');
+    fail(json, msg, { personaId, idsValides: ids }, () => console.error(msg));
+    return;
+  }
 
   // Integrite I1 : on n'attache que des skills reellement materialises dans la bibliotheque
   // (sinon on creerait une reference fantome). --force pour outrepasser (cas de reparation).
   if (mode === 'attach' && !readEntry('skills', skillId, root) && !values.force) {
-    fail(json, `Skill introuvable dans la bibliotheque : ${skillId} (--force pour attacher malgre tout)`); return;
+    const ids = scan('skills', root).map((e) => e.id);
+    const msg = `Skill introuvable dans la bibliotheque : ${skillId} (--force pour attacher malgre tout)`
+      + (ids.length ? ` — ids valides : ${ids.join(', ')}.` : '');
+    fail(json, msg, { skillId, idsValides: ids }, () => console.error(msg));
+    return;
   }
 
   const before = readPersonaSkills(persona.path);

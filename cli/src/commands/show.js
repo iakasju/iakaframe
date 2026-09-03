@@ -2,7 +2,7 @@
 // collections (I2). Collision d'id -> demande --type. Rend le frontmatter mis en forme + corps.
 import { parseArgs } from 'node:util';
 import { renderValue } from '../lib/frontmatter.js';
-import { COLLECTION_TYPES, collectionOf, libraryRoot, readEntry, resolveId } from '../lib/library.js';
+import { COLLECTION_TYPES, collectionOf, libraryRoot, readEntry, resolveId, scan } from '../lib/library.js';
 import { emit, fail, ok } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe show <id> [options]
@@ -42,8 +42,13 @@ export function runShow(argv) {
 
   const hits = resolveId(id, root, values.type);
   if (hits.length === 0) {
-    return fail(json, `Introuvable : ${id}${values.type ? ` (type ${values.type})` : ''}`, { id, type: values.type || null }, () => {
+    // Palier 0 (Lot A, refus loquace) : quand --type est fourni, la liste est DERIVEE de scan()
+    // (source unique), jamais recopiee. Sans --type, la recherche porte sur toutes les collections
+    // — enumerer serait illisible, l'astuce (deja loquace) reste le repere.
+    const ids = values.type ? scan(values.type, root).map((e) => e.id) : null;
+    return fail(json, `Introuvable : ${id}${values.type ? ` (type ${values.type})` : ''}`, { id, type: values.type || null, ...(ids ? { idsValides: ids } : {}) }, () => {
       console.error(`Introuvable : ${id}${values.type ? ` (type ${values.type})` : ''}`);
+      if (ids) console.error(`Ids valides (${values.type}) : ${ids.join(', ')}`);
       console.error(`Astuce : iakaframe list ${values.type || '<type>'} pour lister les ids.`);
     });
   }
