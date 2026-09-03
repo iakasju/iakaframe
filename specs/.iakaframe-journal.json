@@ -818,5 +818,15 @@
     "dirty": false,
     "files": 1148,
     "note": "Mode guide du CLI livre (lots 0+B) : 33 commandes /iaka-*, registre unique, aide derivee. Amendement A : la garde de vocabulaire echoue. A-1 clos."
+  },
+  {
+    "date": "2026-09-03 18:54",
+    "reason": "manual",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "4246a5a docs(cadrage): dette de canal de la publication — instruction + six arbitrages tranches",
+    "dirty": false,
+    "files": 1149,
+    "note": "Dette de canal fermee : fan-out sur les deux canaux, exit non nul si une cible echoue, face 2 hors gate. Endpoint iakabox retire. Cliquet 20->23."
   }
 ]
