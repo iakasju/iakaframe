@@ -111,7 +111,8 @@ Certaines skills sont des **sous-skills partagés** : composés par plusieurs sk
 ## A.5 Mode guidé — sélection de commande dans Claude Code (Lot B)
 
 Réf. : `specs/instructions/cli-mode-guide-selections.md` (Lot 0 = pivot machine, **Lot B** =
-cette section ; **Lot A**, le mode guidé au **terminal**, **n'est pas lancé**).
+cette section ; **Lot A**, le mode guidé au **terminal** — sélection de **valeur** — est décrit
+en § B.0).
 
 Taper `/iaka` dans Claude Code **filtre nativement** toutes les commandes `iaka*` déployées
 (mécanisme natif, aucun code à nous) — ce qui manquait n'était pas un sélecteur, mais la
@@ -153,6 +154,73 @@ le déploiement restant le geste existant (`iakaframe init` / `skills deploy`). 
 
 ---
 
+## B.0 Mode guidé — sélection de VALEUR au terminal (Lot A)
+
+Réf. : `specs/instructions/cli-mode-guide-selections.md` § LOT A. Complémentaire du Lot B (§ A.5,
+qui guide **quelle commande** lancer, dans Claude Code) : le Lot A guide **quelle valeur** passer
+à un paramètre, **au terminal**, en Node pur (zéro dépendance — `cli/package.json` ne porte
+toujours **aucune** clé `dependencies`/`devDependencies`).
+
+**Drapeau `--guide`** — opt-in, **invisible des appelants existants** : sur les **10 cibles**
+suivantes, celles dont un paramètre a une **autorité énumérable** en place (A5) :
+
+| Cible | Ce qui est proposé | Autorité |
+|---|---|---|
+| `models set --guide` | persona, puis valeur de modèle | `personasForTarget`, `ACCEPTED_VOCABULARY` |
+| `models unset --guide` | surcharges **posées** sur le projet | `readModelOverrides` |
+| `show --guide` | collection, puis id | `COLLECTION_TYPES`, `scan()` |
+| `list --guide` | collection | `COLLECTION_TYPES` |
+| `add --guide` | `kind`, puis id/fichier (**texte libre**, aucune autorité possible sur une cible neuve — M5) | `ASSEMBLY_KINDS`, `POOL_KINDS` |
+| `remove --guide` | `kind`, puis id **existant** | `scan()` |
+| `attach --guide` | skill, puis persona | `scan('skills')`, `scan('personas')` |
+| `detach --guide` | persona, puis un skill **attaché** | `scan('personas')`, frontmatter du persona |
+| `frame use --guide` | frames du réservoir | `scan('frames')` |
+| `switch --guide` / `use --guide` | méthode, puis team | `scan('methods')`, `scan('teams')` |
+
+**Trois règles, gravées (A4)** :
+1. Le guidage propose **d'abord** les valeurs de l'autorité, **plus** une entrée « saisir une
+   valeur libre » (sauf `add <id/fichier>`, sans autorité par construction : simple question texte).
+2. En valeur libre, il **assemble l'argv et appelle le chemin normal** — c'est `validateModelValue()`
+   (ou l'équivalent du paramètre) qui tranche, **jamais** le moteur de guidage.
+3. Si la commande **refuse**, le guidage **affiche le refus tel quel et s'arrête**.
+
+**Écho de la commande équivalente (A3)** — **obligatoire, non désactivable**, imprimé **avant**
+l'exécution : `→ iakaframe models set gandalf opus[1m] --path /chemin/du/projet`. C'est ce qui
+empêche le guidage de remplacer l'apprentissage du CLI — l'utilisateur repart toujours avec une
+commande réutilisable, transmissible à un agent.
+
+🛑 **Interdit non négociable (A4.3)** : `--force`, `--yes`, `--cascade`, `--autoriser-creation-depot`
+ne sont **jamais** ajoutés par le guidage, ni proposés comme entrée de menu — un guidage qui les
+proposerait annulerait la garde de vocabulaire posée par l'Amendement A. `switch --guide` est
+**sans effet** si `--rollback` est demandé (jamais deviné).
+
+**Deux paliers, derrière la MÊME interface** (`cli/src/lib/guidage.js`) — le palier 1 est le
+**repli automatique** du palier 2, pas un brouillon jeté :
+- **Palier 1** — listes numérotées (`node:readline/promises`), le même patron que le process
+  interactif de `models` (`pickAndAct`). Testé automatiquement, y compris **en process réel** avec
+  un flux d'entrée factice (`cli/test/guidage-non-interactif.test.js`).
+- **Palier 2** — flèches, surbrillance, filtre à la frappe (mode brut, `setRawMode`). **Non
+  testable de bout en bout** (Node n'a pas de pty ; `node-pty` serait une dépendance, interdite) —
+  sa recette est **manuelle, sur deux OS** : `specs/recettes/mode-guide-palier-2-manuelle.md`.
+  Ctrl-C y est intercepté explicitement (la doc Node `tty` avertit qu'il n'émet plus SIGINT en
+  mode brut) et le terminal est restauré dans **tous** les chemins de sortie.
+
+**Règle unique de non-interactivité (`cli/src/lib/interactif.js`, `peutDemander()`)** — remplace
+les deux règles qui divergeaient avant ce lot (`models` ne regardait que `stdin.isTTY`, `onboard`
+regardait `stdout.isTTY` + `CI` + `IAKA_NON_INTERACTIF`) : un prompt (guidé ou pas) n'a lieu que
+si **toutes** ces conditions tiennent — `stdin.isTTY` **ET** `stdout.isTTY` **ET** `CI`
+absent/neutre **ET** `IAKA_NON_INTERACTIF` absent/neutre **ET** `--json` absent **ET** le flux est
+« guidé » (soit `--guide`, soit un process déjà interactif par construction). `IAKA_NON_INTERACTIF`
+(variable d'échappement, `1`/`true` pour forcer le mode non interactif) fonctionne sur toutes les
+cibles. « Neutre » = non défini, vide, `0` ou `false` (certains runners exportent `CI=false`).
+
+**Refus loquaces (palier 0, filet du lot)** — indépendant de `--guide` : chaque refus sur un
+vocabulaire fermé, sur ces mêmes 10 cibles, liste désormais les valeurs **dérivées** de l'autorité
+réelle (jamais une liste recopiée à la main) — ex. `models set <persona introuvable>` liste les
+personas de la team active, `remove <kind> <id introuvable>` liste les ids existants.
+
+---
+
 # B. CLI `iakaframe <commande>`
 
 `@naonedge/iakaframe` — CLI multi-OS (Windows / macOS / Linux), **zéro dépendance runtime**.
@@ -165,7 +233,8 @@ de `cli/src/index.js` en **dérive** (plus une constante de prose écrite à la 
 
 **Options globales** : `-h`/`--help`, `-v`/`--version`.
 **Environnement** : `FORGEJO_TOKEN` (Forgejo), `IAKAFRAME_ROOT`/`--root` (dossier chapeau,
-sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
+sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire), `IAKA_NON_INTERACTIF` (force le mode non
+interactif partout — mode guidé du terminal § B.0 **et** confirmations existantes).
 
 ## B.1 Mise en place & cycle de vie du projet
 
@@ -191,8 +260,8 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 |---|---|---|
 | `services` | `--hosts a,b,c --out <fichier> --json --timeout <sec>` | Sonde git (Forgejo) / Ollama / ComfyUI. **Hôtes neutres par défaut** (`localhost,127.0.0.1`) : renseigner `IAKAFRAME_HOSTS` (CSV) dans `~/work/.env` pour les hôtes du LAN. `--hosts` prime sur l'env var. |
 | `models` | `--json --hosts a,b,c --timeout <sec> --path <projet> --root <dir> --binding <id>` | **Modèles d'IA suggérés par `roleKey`** et leur mise à disposition. Sans option : **process interactif** en 4 temps — état des lieux (suggéré / affecté / disponible, avec la **date de fraîcheur** des suggestions) → « voir les suggestions ? » → diff → **installer / remplacer / retirer sur validation explicite**. Cinq cibles : `ollama-local`, `ollama-distant`, `litellm`, `claude`, `codex` (pour les deux derniers, « installer » = **vérifier**, rien à télécharger). Source unique des suggestions : `models/suggestions.json`. **Quel modèle pour quel agent :** → [`docs/modeles-ia-des-agents.md`](modeles-ia-des-agents.md) (doc utilisateur, **générée** depuis les sources par `node cli/scripts/gen-models-doc.mjs`, actualité gardée par un test). **`--binding <id>`** choisit le binding lu et écrit — une team peut en porter plusieurs (`iakaframe-claude-default` par défaut, `iakaframe-ollama-default` pour les modèles locaux) ; un binding rattaché à une autre team est **refusé** (exit 1), jamais deviné. **Aucun téléchargement ni écriture sans gate** ; `--json` et l'absence de terminal s'arrêtent à l'état des lieux. Hôtes/ports neutres (`IAKAFRAME_HOSTS`, `IAKAFRAME_OLLAMA_PORT`, `IAKAFRAME_LITELLM_PORT`, `IAKAFRAME_LITELLM_KEY`). **`--json` rend aussi `roles[].personas[].modelSource`** (`frame`\|`projet`), **`overrideDivergences`** (surcharges décidées sans projection déployée, cf. `models set`/`unset` ci-dessous) et **`unknownOverrides`** (surcharges déjà écrites dont la valeur est hors du vocabulaire connu — **signalé, jamais refusé ni ignoré en lecture**, Amendement A/D14). ⚠️ Ici « model » = **modèle d'IA**, pas modèle de frame. |
-| `models set <persona> <modèle>` | `--path <projet> --root <dir> --force --json` | **Surcharge le modèle d'UNE persona POUR CE PROJET** (étage *affectation*, au-dessus du défaut de la frame, sans toucher au binding — surcharge-modele-par-projet.md). Écrit `modelOverrides[<persona>]` dans `<projet>/iakaframe.json` (non destructif) **et** projette `<projet>/.claude/agents/<persona>.md` par le **même moteur de rendu** que `agents generate` — **jamais** `~/.claude/agents/` (une surcharge de projet n'y a rien à faire : elle fuirait sur tous les autres projets du portefeuille). `<persona>` **doit** appartenir à la team de la frame active du projet, sinon **refus, rien n'est écrit**. Validation de la valeur (Amendement A, 2026-09-02, garde de vocabulaire **BLOQUANTE**) : (1) **forme** invalide (vide/blanche, espace, caractère de tête cassant le frontmatter) → **refus bloquant**, `--force` **ne le lève pas** ; (2) hors du vocabulaire connu (`sonnet`, `opus`, `haiku`, `fable`, `inherit`, ou `claude-<id>`, suffixe `[1m]` optionnel) → **refus, rien n'est écrit**, sauf **`--force`** qui écrit quand même en le disant ; (3) id complet bien formé mais non mesuré → **écrit**, avec un avertissement (un alias connu n'en émet aucun). **Signale** (sans jamais l'écrire) si la projection `.claude/agents/` n'est pas ignorée par le `.gitignore` **du projet cible**. |
-| `models unset <persona>\|--all` | `--path <projet> --json` | **Retire** une surcharge de projet (ou **toutes**, `--all`) : supprime l'entrée de `iakaframe.json` **et** le(s) contrat(s) de projet correspondants — retour au défaut de la frame. **Idempotent** (entrée/fichier déjà absents = pas une erreur). `--all` ne touche **jamais** un contrat de projet préexistant qui ne provient pas d'une surcharge. |
+| `models set <persona> <modèle>` | `--path <projet> --root <dir> --force --guide --json` | **Surcharge le modèle d'UNE persona POUR CE PROJET** (étage *affectation*, au-dessus du défaut de la frame, sans toucher au binding — surcharge-modele-par-projet.md). Écrit `modelOverrides[<persona>]` dans `<projet>/iakaframe.json` (non destructif) **et** projette `<projet>/.claude/agents/<persona>.md` par le **même moteur de rendu** que `agents generate` — **jamais** `~/.claude/agents/` (une surcharge de projet n'y a rien à faire : elle fuirait sur tous les autres projets du portefeuille). `<persona>` **doit** appartenir à la team de la frame active du projet, sinon **refus, rien n'est écrit**. Validation de la valeur (Amendement A, 2026-09-02, garde de vocabulaire **BLOQUANTE**) : (1) **forme** invalide (vide/blanche, espace, caractère de tête cassant le frontmatter) → **refus bloquant**, `--force` **ne le lève pas** ; (2) hors du vocabulaire connu (`sonnet`, `opus`, `haiku`, `fable`, `inherit`, ou `claude-<id>`, suffixe `[1m]` optionnel) → **refus, rien n'est écrit**, sauf **`--force`** qui écrit quand même en le disant ; (3) id complet bien formé mais non mesuré → **écrit**, avec un avertissement (un alias connu n'en émet aucun). **Signale** (sans jamais l'écrire) si la projection `.claude/agents/` n'est pas ignorée par le `.gitignore` **du projet cible**. |
+| `models unset <persona>\|--all` | `--path <projet> --guide --json` | **Retire** une surcharge de projet (ou **toutes**, `--all`) : supprime l'entrée de `iakaframe.json` **et** le(s) contrat(s) de projet correspondants — retour au défaut de la frame. **Idempotent** (entrée/fichier déjà absents = pas une erreur). `--all` ne touche **jamais** un contrat de projet préexistant qui ne provient pas d'une surcharge. |
 | `go <projet>` | `--path <dir> --runner <r> --do "tache"` | Lance l'action du projet via son runner (`claude-code\|ollama\|litellm\|codex` ; launchers legacy : `aider`, `iakaide`). |
 | `agents` | `list \| affect \| fullteam \| status` · `--agent <nom> --project <dir> --global --force` | Équipe de personas : inventaire / affectation / équipe complète / statut. |
 | `canaux` | `--path <dir> --remotes a,b,c --branch <nom> --rattraper --timeout <sec> --json` | **Écriture redondante** : état des dépôts synchrones, **mesuré en direct** (`a-jour` / `en-retard` de N / `en-avance` / `divergent` / `injoignable`) **avec la date de la mesure**. Une cible injoignable est un **état**, pas une erreur. `--rattraper` ne pousse que ce qui est une **avance rapide** et **refuse le reste en le disant** — jamais de `--force`. Le dernier état lu dans une ref locale est rendu **à part** (`dernierConnu`) : un souvenir ne se confond jamais avec une mesure. |
@@ -213,16 +282,17 @@ sinon `~/work`), `IAKA_MEMORY_HOME` (canon mémoire).
 
 | Commande | Usage / options principales | Rôle |
 |---|---|---|
-| `list [type]` | `type : personas\|skills\|principles\|rituals\|guardrails\|roles\|workflows\|scaffolds\|teams\|methods\|bindings\|kits` · `--json --ascii --root` | Inventaire de la bibliothèque (pool + assemblages) par scan. |
-| `show <id>` | `--type --json --root` | Contrat d'un atome/assemblage : frontmatter + corps. |
-| `add <kind> <fic>` | `kind : team\|method\|binding` · `--force --json` | Livre un assemblage (valide les réfs I1). |
-| `remove <kind> <id>` | `kind : team\|method\|binding\|skill` · `--cascade --yes --root --json` | Le **`−` de `add`** + la **dé-matérialisation d'un skill**. **RESTRICT** par défaut : refuse si l'élément est encore référencé (liste les référents via `findReferrers`) ; **cascade explicite** (`--cascade --yes`, jamais silencieuse) archive aussi les référents (ou, pour un skill, le détache de tous les personas) ; retrait **non destructif** → corbeille horodatée `<root>/.trash-<ts>/` **restaurable** + trace `manifest.json`. |
-| `attach <skill>` | `--persona <id>` · `--force --json` | Attache un skill à un persona : **mute le seul `skills:[]`** du frontmatter (source unique de vérité) ; refuse un skill absent de la bibliothèque (I1) sauf `--force`. Le `+` symétrique de `detach`. |
-| `detach <skill>` | `--persona <id>` · `--json` | Détache un skill d'un persona : retire l'id de `skills:[]` (idempotent, réversible par `attach`). Le **`−` au « titre du skill »** — affordance rendue par la vue, jamais écrite dans le corps du persona. |
+| `list [type]` | `type : personas\|skills\|principles\|rituals\|guardrails\|roles\|workflows\|scaffolds\|teams\|methods\|bindings\|kits` · `--json --ascii --root --guide` | Inventaire de la bibliothèque (pool + assemblages) par scan. `--guide` (Lot A) : propose la collection. |
+| `show <id>` | `--type --json --root --guide` | Contrat d'un atome/assemblage : frontmatter + corps. `--guide` (Lot A) : propose collection puis id. |
+| `add <kind> <fic>` | `kind : team\|method\|binding` · `--force --guide --json` | Livre un assemblage (valide les réfs I1). `--guide` (Lot A) : propose `kind`, puis demande l'id/fichier en texte libre (aucune autorité possible sur une cible neuve). |
+| `remove <kind> <id>` | `kind : team\|method\|binding\|skill` · `--cascade --yes --root --guide --json` | Le **`−` de `add`** + la **dé-matérialisation d'un skill**. **RESTRICT** par défaut : refuse si l'élément est encore référencé (liste les référents via `findReferrers`) ; **cascade explicite** (`--cascade --yes`, jamais silencieuse) archive aussi les référents (ou, pour un skill, le détache de tous les personas) ; retrait **non destructif** → corbeille horodatée `<root>/.trash-<ts>/` **restaurable** + trace `manifest.json`. `--guide` (Lot A) : propose `kind` puis un id **existant** — ne propose **jamais** `--cascade`/`--yes`. |
+| `attach <skill>` | `--persona <id>` · `--force --guide --json` | Attache un skill à un persona : **mute le seul `skills:[]`** du frontmatter (source unique de vérité) ; refuse un skill absent de la bibliothèque (I1) sauf `--force`. Le `+` symétrique de `detach`. `--guide` (Lot A) : propose skill puis persona. |
+| `detach <skill>` | `--persona <id>` · `--guide --json` | Détache un skill d'un persona : retire l'id de `skills:[]` (idempotent, réversible par `attach`). Le **`−` au « titre du skill »** — affordance rendue par la vue, jamais écrite dans le corps du persona. `--guide` (Lot A) : propose persona puis un skill **attaché** à cette persona. |
 | `assemble <m> <t>` | `--write --binding --json` | Compose un kit (méthode + team [+ binding]) — dry-run par défaut. |
-| `switch` \| `use <m> <t>` | `--path --binding --rollback --json` | Bascule un projet vers une méthode/team. (`use` = alias de `switch`.) |
+| `switch` \| `use <m> <t>` | `--path --binding --rollback --guide --json` | Bascule un projet vers une méthode/team. (`use` = alias de `switch`.) `--guide` (Lot A) : propose méthode puis team — **sans effet** si `--rollback` est demandé (jamais deviné), ne propose jamais `--force`. |
 | `vendor-check` | `--strict --gui <dir> --root --json` | **Garde de vendorage cross-repo** : constate que les **82 fixtures** vendorées par `iakaFrameGUI` (**78 copies** + **4 dérivées**) sont fidèles au canon `iakaframe`. Seule garde capable de voir la dérive **mutuellement cohérente** (binding + golden + `sha256` recalculés ensemble), invisible de la suite GUI qui compare ses copies à elles-mêmes. **Gracieux par défaut** : dépôt frère absent → `ok:false` + `status:"skipped"` + **exit 0** (jamais de blocage d'un clone isolé) ; `--strict` en fait un échec. `IAKAFRAME_GUI_ROOT` est **autoritaire** (jamais de repli silencieux sur un autre dépôt). |
 | `frame verify` | `--frame <dir> --verbose --json` | **Garde d'anonymisation du miroir** `frames/releases/` : gates **G1→G6 par CLASSES**, jamais par énumération. Le gate central **G2 fonctionne par ALLOWLIST** de marque — tout `iaka*` hors liste blanche est refusé, **y compris un nom créé après l'écriture de la règle**, ce qu'une blacklist ne peut structurellement pas faire. Couvre aussi les secrets/infra, l'identité du décideur (**y compris en position de regex exécutée**), la couche `product` + références pendantes, et les ports **quel que soit le séparateur** (`port: 3001` comme `:3001`). **G6 est un avertissement**, jamais bloquant. **Constate, ne réécrit pas** (pas de `--fix` : réécrire automatiquement un livrable destiné à des tiers est un risque supérieur à celui qu'il prévient). Exit **1** si fuite bloquante. |
+| `frame use <frameId>` | `--path <projet> --root <dir> --guide --json` | Pose le **pointeur** de frame active du projet (`<projet>/iakaframe.json`, clé `frame`, non destructif). `<frameId>` **doit** exister dans le réservoir (`frames/<id>.md`) sinon refus (jamais de dangling) ; valeur vide (`""`) **retire** la clé (repli sur le default). `--guide` (Lot A) : propose les frames du réservoir. Distinct de `iakaframe use <m> <t>` (matérialisation du kit, alias de `switch`). |
 
 > **Un geste par dérive constatée** — le remède est **dérivé de l'état mesuré**, jamais une liste
 > constante : `vendor-check` n'imprime que les gestes des fixtures **réellement** en dérive, avec des

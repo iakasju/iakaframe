@@ -5,10 +5,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { assemble, libraryRoot, readEntry, toArray } from '../lib/library.js';
+import { assemble, libraryRoot, readEntry, scan, toArray } from '../lib/library.js';
 import { frameCoherence } from '../lib/frame-active.js';
 import { generateAgent, loadDefaultBinding } from '../lib/generate-agents.js';
 import { resolveSkills } from '../lib/resolve-skills.js';
+import { peutDemander } from '../lib/interactif.js';
+import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail, ok } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe use <methodId> <teamId> [options]
@@ -27,7 +29,38 @@ Options :
   --rollback         Restaure la derniere sauvegarde .claude.bak-* (aucune bascule)
   --root <dir>       Racine de bibliotheque
   --force            Force l'ecriture
+  --guide            Mode guide (Lot A) : propose methode puis team, imprime la commande equivalente
+                     (echo non desactivable), execute par le chemin normal. Ne propose JAMAIS
+                     --rollback/--force (A4.3) — sans effet si --rollback est demande.
   --json             Sortie machine`;
+
+// --- Guidage (Lot A, --guide) : methode PUIS team (scan('methods')/scan('teams'), A5).
+async function runSwitchGuide({ root, values }) {
+  const selMethode = await selectionner({
+    items: scan('methods', root).map((e) => ({ id: e.id, label: e.id })),
+    titre: 'Methode :', permettreLibre: true, libelleLibre: 'saisir un id de methode',
+  });
+  if (selMethode.type === 'vide' || selMethode.type === 'annule') { console.log('\nRien n\'a ete bascule.\n'); return; }
+  const methodId = selMethode.type === 'libre' ? selMethode.valeur : selMethode.item.id;
+  if (!methodId) { console.log('\nRien n\'a ete bascule.\n'); return; }
+
+  const selTeam = await selectionner({
+    items: scan('teams', root).map((e) => ({ id: e.id, label: e.id })),
+    titre: 'Team :', permettreLibre: true, libelleLibre: 'saisir un id de team',
+  });
+  if (selTeam.type === 'vide' || selTeam.type === 'annule') { console.log('\nRien n\'a ete bascule.\n'); return; }
+  const teamId = selTeam.type === 'libre' ? selTeam.valeur : selTeam.item.id;
+  if (!teamId) { console.log('\nRien n\'a ete bascule.\n'); return; }
+
+  const suite = [methodId, teamId];
+  if (values.path) suite.push('--path', values.path);
+  if (values.root) suite.push('--root', values.root);
+  if (values.binding) suite.push('--binding', values.binding);
+  if (values.node) suite.push('--node', values.node);
+  const argvNormal = assemblerArgv(suite);
+  console.log(ligneEquivalente(['switch', ...argvNormal]));
+  await runSwitch(argvNormal);
+}
 
 function copyDir(src, dst) {
   fs.mkdirSync(dst, { recursive: true });
@@ -41,19 +74,26 @@ function timestamp() {
   return new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
 }
 
-export function runSwitch(argv) {
+export async function runSwitch(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
       root: { type: 'string' }, binding: { type: 'string' }, path: { type: 'string' },
       node: { type: 'string' }, rollback: { type: 'boolean', default: false },
       force: { type: 'boolean', default: false }, json: { type: 'boolean', default: false },
-      help: { type: 'boolean', default: false },
+      guide: { type: 'boolean', default: false }, help: { type: 'boolean', default: false },
     },
   });
   if (values.help) { console.log(USAGE); return; }
   const projectDir = path.resolve(values.path || process.cwd());
   const root = libraryRoot(values.root);
+
+  // --guide (A2/A5) : SANS EFFET si --rollback est demande (A4.3 : jamais propose comme entree de
+  // menu, et --rollback reste un geste EXPLICITE, jamais devine).
+  if (values.guide && !values.rollback && peutDemander({ json: values.json, guide: true })) {
+    await runSwitchGuide({ root, values });
+    return;
+  }
 
   // --rollback : restaure la derniere .claude.bak-* (aucune bascule).
   if (values.rollback) {
@@ -72,6 +112,19 @@ export function runSwitch(argv) {
     return fail(values.json, 'Usage : iakaframe use <methodId> <teamId> [--binding <id>] [--path <projet>] [--rollback]');
   }
   if (!fs.existsSync(projectDir)) return fail(values.json, `Projet introuvable : ${projectDir}`);
+
+  // Palier 0 (Lot A, refus loquace) : pre-controle AVANT assemble() — ids DERIVES de scan(),
+  // jamais recopies. Meme refus (exit 1) qu'avant, message enrichi seulement.
+  const methodIds = scan('methods', root).map((e) => e.id);
+  if (!methodIds.includes(methodId)) {
+    return fail(values.json, `methode introuvable : ${methodId} — ids valides : ${methodIds.join(', ')}.`,
+      { methodId, idsValides: methodIds });
+  }
+  const teamIds = scan('teams', root).map((e) => e.id);
+  if (!teamIds.includes(teamId)) {
+    return fail(values.json, `team introuvable : ${teamId} — ids valides : ${teamIds.join(', ')}.`,
+      { teamId, idsValides: teamIds });
+  }
 
   const node = values.node || 'claude';
   const res = assemble(methodId, teamId, values.binding || null, root, { node });

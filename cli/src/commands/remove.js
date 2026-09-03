@@ -12,26 +12,79 @@
 //     restaurable, avec trace (manifest.json). Jamais de suppression seche.
 import path from 'node:path';
 import { parseArgs } from 'node:util';
-import { libraryRoot, readEntry, pathFor } from '../lib/library.js';
+import { libraryRoot, readEntry, pathFor, scan } from '../lib/library.js';
 import {
   findReferrers, makeTrash, moveToTrash, writeTrashManifest,
   readPersonaSkills, setPersonaSkills,
 } from '../lib/remove.js';
+import { peutDemander } from '../lib/interactif.js';
+import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail } from '../lib/output.js';
 
 const KIND_TO_TYPE = { team: 'teams', method: 'methods', binding: 'bindings', skill: 'skills' };
 const KINDS = Object.keys(KIND_TO_TYPE);
 
-export function runRemove(argv) {
+const USAGE = `Usage : iakaframe remove <${KINDS.join('|')}> <id>  [--cascade --yes] [--json]
+
+Le \`-\` symetrique de \`add\` (+ la de-materialisation d'un skill). RESTRICT par defaut : un
+element encore reference n'est pas retire (liste les referents). Cascade explicite seulement
+(--cascade --yes). Non destructif : deplace en corbeille <root>/.trash-<ts>/, restaurable.
+
+Options :
+  --root <dir>       Racine de bibliotheque
+  --cascade          Retire aussi les referents (jamais silencieux, exige --yes)
+  --yes              Confirme une cascade
+  --guide            Mode guide (Lot A) : propose kind puis id EXISTANT, imprime la commande
+                     equivalente (echo non desactivable), execute par le chemin normal — ne propose
+                     JAMAIS --cascade/--yes (A4.3, non negociable).
+  --json             Sortie machine`;
+
+// --- Guidage (Lot A, --guide) : kind PUIS id EXISTANT (autorite = scan(type), A5). Le `-` NE
+// PROPOSE JAMAIS --cascade/--yes (A4.3) : un id encore reference retombe sur le refus RESTRICT
+// normal, affiche tel quel (A4.3).
+async function runRemoveGuide({ values }) {
+  const root = libraryRoot(values.root);
+  const selKind = await selectionner({
+    items: KINDS.map((k) => ({ id: k, label: k })), titre: 'Kind :', permettreLibre: false,
+  });
+  if (selKind.type === 'vide' || selKind.type === 'annule') { console.log('\nRien n\'a ete retire.\n'); return; }
+  const kind = selKind.item.id;
+
+  const ids = scan(KIND_TO_TYPE[kind], root).map((e) => e.id);
+  const selId = await selectionner({
+    items: ids.map((id) => ({ id, label: id })), titre: `Id (${kind}) :`,
+    permettreLibre: true, libelleLibre: 'saisir un id',
+  });
+  if (selId.type === 'vide') { console.log(`\nAucun ${kind} dans la bibliotheque : rien a retirer.\n`); return; }
+  if (selId.type === 'annule') { console.log('\nRien n\'a ete retire.\n'); return; }
+  const id = selId.type === 'libre' ? selId.valeur : selId.item.id;
+  if (!id) { console.log('\nRien n\'a ete retire.\n'); return; }
+
+  const suite = [kind, id];
+  if (values.root) suite.push('--root', values.root);
+  const argvNormal = assemblerArgv(suite);
+  console.log(ligneEquivalente(['remove', ...argvNormal]));
+  await runRemove(argvNormal);
+}
+
+export async function runRemove(argv) {
   const { values, positionals } = parseArgs({
     args: argv, allowPositionals: true,
     options: {
       root: { type: 'string' }, cascade: { type: 'boolean', default: false },
       yes: { type: 'boolean', default: false }, json: { type: 'boolean', default: false },
+      guide: { type: 'boolean', default: false }, help: { type: 'boolean', default: false },
     },
   });
-  const [kind, id] = positionals;
+  if (values.help) { console.log(USAGE); return; }
   const json = values.json;
+
+  if (values.guide && peutDemander({ json, guide: true })) {
+    await runRemoveGuide({ values });
+    return;
+  }
+
+  const [kind, id] = positionals;
 
   if (!kind || !KINDS.includes(kind) || !id) {
     fail(json, `Usage : iakaframe remove <${KINDS.join('|')}> <id>  [--cascade --yes] [--json]`); return;
@@ -40,7 +93,14 @@ export function runRemove(argv) {
   const root = libraryRoot(values.root);
   const type = KIND_TO_TYPE[kind];
   const entry = readEntry(type, id, root);
-  if (!entry) { fail(json, `${kind} introuvable : ${id}`); return; }
+  if (!entry) {
+    // Palier 0 (Lot A, refus loquace) : les ids valides sont DERIVES de scan() (source unique),
+    // jamais recopies a la main.
+    const ids = scan(type, root).map((e) => e.id);
+    const msg = `${kind} introuvable : ${id}` + (ids.length ? ` — ids valides : ${ids.join(', ')}.` : ` — aucun ${kind} dans la bibliotheque.`);
+    fail(json, msg, { kind, id, idsValides: ids }, () => console.error(msg));
+    return;
+  }
 
   const referrers = findReferrers(type, id, root);
 

@@ -13,6 +13,7 @@ import { hasCmd } from '../lib/which.js';
 import { runInit, resolveNode } from './init.js';
 import { doSnapshot } from './snapshot.js';
 import { listerRemotes, pousserFanout, formaterFanout } from '../lib/canaux.js';
+import { peutDemander } from '../lib/interactif.js';
 import readline from 'node:readline';
 
 const USAGE = `Usage : iakaframe onboard [options]
@@ -102,7 +103,14 @@ export async function runOnboard(argv) {
   //    sont supprimes. Onboard DIRECT (sans --from-update) n'est JAMAIS touche : batch intact.
   let refuseCreation = false;
   if (values['from-update'] && !values['skip-forgejo'] && !values['autoriser-creation-depot']) {
-    const interactive = Boolean(process.stdout.isTTY) && !process.env.CI && !process.env.IAKA_NON_INTERACTIF;
+    // Regle UNIFIEE (lib/interactif.js, Lot A/M3) : ce flux est interactif PAR CONSTRUCTION (une
+    // confirmation, pas un menu derriere --guide) -> `guide: true` inconditionnel. Comportement
+    // INCHANGE par rapport a l'ancienne regle propre a onboard (stdout.isTTY + CI +
+    // IAKA_NON_INTERACTIF neutres) : elle devient la regle canonique, `peutDemander` y ajoute
+    // seulement `stdin.isTTY` (M8 : Node designe `stdout.isTTY` comme methode preferee, mais exiger
+    // aussi `stdin.isTTY` ne peut REFUSER une confirmation que dans un cas ou elle etait deja
+    // hasardeuse — stdin non-TTY = rien a lire pour la reponse).
+    const interactive = peutDemander({ json: false, guide: true });
     const confirmed = interactive
       ? await askYesNo(`Creer le depot distant '${repo}' ? (bascule depuis 'update', non demande explicitement) [o/N] `)
       : false;

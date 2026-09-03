@@ -119,6 +119,14 @@ test('un etat des lieux n\'ecrit RIEN (aucune ecriture hors gate)', () => {
   assert.equal(fs.readFileSync(binding, 'utf8'), before, 'le binding doit etre intact');
 });
 
+// CA-2 (Lot A) : NON-REGRESSION apres conversion de models.js:1019 vers lib/interactif.js
+// (peutDemander). Un enfant execFileSync n'a JAMAIS de TTY : le process interactif doit rester
+// COURT-CIRCUITE, avec le MEME message qu'avant conversion — meme sortie, meme exit.
+test('CA-2 : models sans TTY s\'arrete au message « pas de terminal interactif » (non-regression)', () => {
+  const out = run(['models', '--timeout', '1']);
+  assert.match(out, /pas de terminal interactif : etat des lieux seul, aucune ecriture/, out);
+});
+
 test('hostsForTarget : local et distant ne sondent jamais les memes hotes', () => {
   const local = TARGETS.find(t => t.id === 'ollama-local');
   const distant = TARGETS.find(t => t.id === 'ollama-distant');
