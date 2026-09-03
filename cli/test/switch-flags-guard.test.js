@@ -258,3 +258,26 @@ test('C13 : le HELP d update liste --repo et --home', async () => {
   assert.match(updateBlock, /--repo/, updateBlock);
   assert.match(updateBlock, /--home/, updateBlock);
 });
+
+// =================================================================================================
+// CA-2 (Lot A, cli-mode-guide-selections.md) — NON-REGRESSION de la confirmation --from-update
+// apres conversion vers lib/interactif.js (peutDemander). Un enfant `spawn` n'a JAMAIS de TTY :
+// la confirmation doit donc rester REFUSEE, exactement comme avant conversion (§ 4.2/4.6 de
+// correctif-bascule-update-onboard-drapeaux.md) — meme sortie, meme exit.
+// =================================================================================================
+test('CA-2 : onboard --from-update sans TTY refuse la creation de depot (non-regression)', async () => {
+  const dir = tmp('iaka-ca2-');
+  getStatus = 404;
+  const r = await runCli(['onboard', '--path', dir, '--node', 'claude', '--from-update']);
+  assert.equal(r.status, 1, r.out);
+  assert.match(r.out, /REFUS : creation de d[ée]p[ôo]t distant non confirm[ée]e/, r.out);
+  assert.equal(postRepoCount(), 0, `aucune creation attendue (recu ${postRepoCount()})\n${r.out}`);
+});
+
+test('CA-2 : --autoriser-creation-depot leve le refus meme sans TTY (echappatoire EXPLICITE intacte)', async () => {
+  const dir = tmp('iaka-ca2b-');
+  getStatus = 404;
+  const r = await runCli(['onboard', '--path', dir, '--node', 'claude', '--from-update', '--autoriser-creation-depot', '--no-push']);
+  assert.doesNotMatch(r.out, /REFUS : creation/i, r.out);
+  assert.ok(postRepoCount() >= 1, `la creation doit avoir lieu (recu ${postRepoCount()})\n${r.out}`);
+});

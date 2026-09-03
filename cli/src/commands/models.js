@@ -22,6 +22,7 @@ import path from 'node:path';
 import os from 'node:os';
 import readline from 'node:readline/promises';
 import { getJson, sendJson } from '../lib/http.js';
+import { peutDemander } from '../lib/interactif.js';
 import { emit, ok, fail } from '../lib/output.js';
 import { libraryRoot, readEntry, scan } from '../lib/library.js';
 import { activeFrameId, activeTeamId } from '../lib/frame-active.js';
@@ -1015,8 +1016,13 @@ export async function runModels(argv) {
   printState(canon, suggestions, probes, roles, overrideDivergences, overrideUnknowns);
 
   // Le process interactif exige un terminal : sans TTY (CI, pipe, test), on s'arrete a l'etat
-  // des lieux plutot que de bloquer sur une question que personne ne lira.
-  if (!process.stdin.isTTY) {
+  // des lieux plutot que de bloquer sur une question que personne ne lira. Regle UNIFIEE
+  // (lib/interactif.js, Lot A/M3) : ce process est interactif PAR CONSTRUCTION (pas derriere un
+  // drapeau opt-in) -> `guide: true` inconditionnel. ⚠️ Changement de comportement OBSERVABLE par
+  // rapport a l'ancienne regle (qui ne regardait que `stdin.isTTY`) : sur un runner qui alloue un
+  // TTY mais exporte `CI`/`IAKA_NON_INTERACTIF`, ce process NE PROMPTE PLUS — c'est le correctif
+  // vise par M3, signale au gate (non glisse en silence).
+  if (!peutDemander({ json: values.json, guide: true })) {
     console.log('  (pas de terminal interactif : etat des lieux seul, aucune ecriture)\n');
     return payload;
   }
