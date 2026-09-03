@@ -135,6 +135,33 @@ test('G5c : aucun `iaka-*.md` du kit ne correspond a un id absent du registre (o
   assert.deepEqual(orphelins, [], `iaka-*.md orphelin(s), sans entree registre ni motif connu : ${orphelins.join(', ')}`);
 });
 
+// --- A3 (echo obligatoire) : controle POSITIF INDEPENDANT de contenu() -------------------------
+// Constat du gate qualite : le texte `-> iakaframe <verbe> $ARGUMENTS` est deja protege
+// TRANSITIVEMENT par --check (G5c ci-dessus), mais `contenu()` porte cet echo EN DUR dans
+// gen-iaka-commands.mjs — si quelqu'un l'y retirait, la regeneration produirait des fichiers
+// « a jour » SANS echo et aucun test ne rougirait. Les deux tests suivants NE PASSENT PAS par
+// `contenu()` (aucun import du generateur) : ils relisent les fichiers SUR LE DISQUE et cherchent
+// le motif d'echo tel quel. A3 est obligatoire ET non desactivable : ce controle porte cette
+// exigence sans version affaiblie.
+
+test('A3 : chaque `iaka-<id>.md` GENERE echoe `-> iakaframe <id> $ARGUMENTS` (lu sur le disque, independant de contenu())', () => {
+  const generes = VERBES.filter(v => v.guideClaudeCode && v.guideClaudeCode.generer === true);
+  const sansEcho = [];
+  for (const v of generes) {
+    const dest = path.join(COMMANDS_DIR, `iaka-${v.id}.md`);
+    const raw = fs.existsSync(dest) ? fs.readFileSync(dest, 'utf8') : '';
+    if (!raw.includes(`→ iakaframe ${v.id} $ARGUMENTS`)) sansEcho.push(`iaka-${v.id}.md`);
+  }
+  assert.deepEqual(sansEcho, [], `fichier(s) SANS echo obligatoire A3 (« -> iakaframe <id> $ARGUMENTS » absent) : ${sansEcho.join(', ')}`);
+});
+
+test("A3 : `iaka-guide.md` (l'aiguilleur lui-meme) echoe la commande generique `-> iakaframe <verbe> ...` avant execution", () => {
+  const dest = path.join(COMMANDS_DIR, 'iaka-guide.md');
+  assert.ok(fs.existsSync(dest), 'kits/iakaframe-claude/.claude/commands/iaka-guide.md doit exister');
+  const raw = fs.readFileSync(dest, 'utf8');
+  assert.ok(raw.includes('→ iakaframe <verbe>'), "iaka-guide.md doit echoer « -> iakaframe <verbe> ... » avant toute execution (A3)");
+});
+
 // --- G6 : non-regression du declencheur d'apprentissage (garde anti-collision M9) --------------
 
 test("G6 : /iaka reste l'alias intact de /learning (aucun fichier `iaka.md` neuf, contenu inchange)", () => {
