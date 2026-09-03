@@ -10,6 +10,39 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### M-4 — la seule preuve du risque central, REPORTEE par le decideur (2026-09-03)
+
+> Mesure due au decideur, nommee au § 5 de
+> `specs/instructions/dette-de-canal-de-la-publication.md`. **Le lot de la dette de canal est livre
+> et fusionne SANS elle** — il contourne le risque **sans l'avoir jamais vu**.
+
+- [ ] 👤 **`M-4-MANIFESTE-PERIME` — faire servir volontairement un manifeste PERIME par l'endpoint 1
+  et lancer un controle : l'app dit-elle « a jour » ?** **Reportee sur decision du decideur le
+  2026-09-03** (« M-4 pour plus tard ») — **ce n'est pas un oubli, c'est un report date**.
+  **Pourquoi elle appartient au decideur** : elle exige de **manipuler un canal SERVI**, geste qu'un
+  agent ne fait pas.
+  **Pourquoi elle compte plus que les autres** : le § 1.4 de l'instruction la nomme *« la seule
+  preuve du risque central »*. Ce risque est **etabli par lecture de la source, pas mesure en
+  usage** : **le plugin fait `break` au premier endpoint qui REPOND — pas au premier qui est
+  FRAIS**. Donc un endpoint **joignable et en retard FAIT AUTORITE** sur un endpoint frais place
+  apres lui. ⚠️ **Et le NAS est en position 1**, adresse privee, **seul canal historiquement
+  pousse** : s'il repondait en retard, **GitHub (position 2) ne serait JAMAIS atteint**, et le
+  dommage serait un **« vous etes a jour » FAUX ET SILENCIEUX** — *personne ne remonte un bug pour
+  ca*.
+  **Ce que le lot livre a la place** : un fan-out qui pousse **les deux canaux** et **sort en non
+  nul des qu'une cible echoue** (AR-4) — ce qui rend la configuration dangereuse **beaucoup moins
+  probable**, sans jamais **prouver** ce qu'elle produirait. **La difference entre "moins probable"
+  et "impossible" est exactement ce que M-4 mesurerait.**
+  **Geste** : servir un `updater/latest.json` en retard sur l'endpoint 1 (NAS), lancer un controle
+  de mise a jour depuis un client, **noter ce que l'app affiche**, puis **restaurer**. ⚠️ **Prevoir
+  la restauration AVANT de commencer** — c'est un canal servi a de vrais clients.
+
+- [ ] 👤 **`M-1-COUT-HORS-LAN` — chronometrer un controle de mise a jour depuis une machine HORS
+  LAN.** Non reportee explicitement, mais **non jouee** : aucune machine hors LAN n'etait accessible
+  depuis la session. **Le NAS est en position 1, adresse PRIVEE, SANS DELAI CONFIGURE** — donc tout
+  client hors LAN paie une attente **a chaque verification**, avant meme d'atteindre GitHub.
+  **Combien ?** La valeur est **propre au systeme**, elle ne se deduit pas.
+
 ### RESERVOIR-REDECLENCHE — le seuil compte des occurrences, pas des observations neuves (2026-09-03)
 
 > Constaté **en jouant le parcours `/iaka`** (revue d'apprentissage), pas par lecture de code. Ce
