@@ -244,6 +244,27 @@ Note de déploiement : les commandes existent en **trois exemplaires** — `~/.c
 > (10 verbes sur 38). Le lot ne construit donc pas un menu : **il remplit celui que Claude Code
 > dessine**, depuis une source unique.
 
+> ### ✅ COUVERTURE DU LOT B — TRANCHÉE PAR LE DÉCIDEUR, 2026-09-03
+>
+> **Énoncé : « les deux »**, en réponse aux deux réserves du gate PASS.
+>
+> - **La couverture 21/39 est RETENUE telle quelle.** Le gate l'a jugée « appliquée de façon
+>   globalement cohérente » : les 9 verbes exclus par l'instruction le sont tous, les 5 déjà couverts
+>   par une commande écrite à la main ne sont pas dupliqués, et `banner`/`recall` sont inclus
+>   conformément à M5. **Aucun verbe n'est ajouté ni retiré.**
+> - ⚠️ **MAIS chaque `motif` d'exclusion doit désormais porter sa CONDITION DE CHUTE** — clause 3 de
+>   la forme close de L44. Constat du gate : *« aucun motif ne porte de condition de chute [...]
+>   c'est exactement le patron d'exclusion de confort [...] présent ici, **sur les 18 exclusions sans
+>   exception** »*. Un motif sans condition de chute compte comme **non déclaré**.
+> - **L'asymétrie `frame` / `switch` se NOMME** : `switch` est généré, `frame` est exclu en bloc alors
+>   que `frame use` opère la même mutation. Le gate la juge défendable — le registre n'a pas de
+>   granularité par sous-verbe — mais **« c'est un arbitrage de grain, pas une mesure, et il n'est
+>   nommé nulle part comme tel »**. Il doit l'être.
+> - **A3 gagne un témoin INDÉPENDANT.** Réserve du gate : l'écho n'est protégé que
+>   **transitivement** par le contrôle de fraîcheur — *« `contenu()` porte elle-même l'écho en dur,
+>   donc si quelqu'un l'y retirait, la régénération produirait des fichiers "à jour" sans écho, et
+>   **aucun test ne rougirait** »*. `iaka-guide.md` n'est référencé par **aucun** test.
+>
 > *(Rédaction d'origine, conservée : « Aucune de ces décisions n'est prise. »)*
 
 ### A1 — Ampleur du guidage de valeur (terminal)
