@@ -118,7 +118,12 @@ function ligneEssais(essais) {
 }
 
 // --- Etape 1/4 : le CLI (sens UNIQUE ici, AR-G : mise a jour) -----------------------------------
-export async function etape1Cli({ reservoir, values, execNpmInstall }) {
+// `sondes` (optionnel) : injection de test pour `sourcesOrdonneesCli` — jamais utilise par
+// l'execution reelle (defaut = les vraies sondes reseau), expose pour que le CONTREFACTUEL
+// « un vivant present ecarte le reseau, meme si une source distante annoncerait plus recent »
+// soit PROUVABLE sans jamais laisser une vraie sonde s'executer (cf. cli/test/
+// etape1-reseau-ecarte.test.js).
+export async function etape1Cli({ reservoir, values, execNpmInstall, sondes }) {
   const courante = packageVersion();
   console.log(`\n[1/4] CLI — mise à jour (poste déjà équipé, AR-G) : version courante v${courante}`);
   console.log(`  ${reservoir.provenance}`);
@@ -130,9 +135,16 @@ export async function etape1Cli({ reservoir, values, execNpmInstall }) {
       cible = { version: reservoir.vivantVersion, from: `réservoir vivant local (${cliDir})`, install: ['npm', ['install', '-g', cliDir]] };
     }
   }
+  // AR-F : « le réservoir du poste prime sur le bundle » — le réseau (AR-H) n'est un REPLI que
+  // quand AUCUN réservoir vivant n'a été trouvé DU TOUT (cf. l'en-tête de ce fichier et
+  // reservoir.js). Un vivant PRÉSENT (égal ou même plus ancien que la version courante) a déjà
+  // répondu localement : le consulter EN PLUS ferait un appel réseau à CHAQUE `install`, non
+  // requis par AR-F/AR-H, et c'est exactement le défaut mesuré par le gate qualité (une suite de
+  // tests dont l'issue dépendait de la disponibilité du réseau réel — « par circonstance », pas
+  // « par construction »). Seul le cas « aucun vivant » retombe sur le réseau.
   let essaisReseau = null;
-  if (!cible) {
-    const r = await sourcesOrdonneesCli({});
+  if (!cible && !reservoir.vivantPresent) {
+    const r = await sourcesOrdonneesCli({ sondes });
     essaisReseau = r.essais;
     if (r.retenue && compareStr(r.retenue.version, courante) > 0) {
       const src = r.retenue;

@@ -1,7 +1,12 @@
 // Gardes du verbe `install` (lot A, chaine-complete-install-amorcage-dmg-msi.md) — CA-03, CA-04,
 // CA-07, CA-19, AR-G. Fixture VIVANTE complete (install.mjs REEL copie + kits/iakaframe-claude
 // minimal + cli/package.json controle) : chaque assertion porte sur une EXECUTION reelle du CLI
-// en sous-processus, jamais sur une lecture de code.
+// en sous-processus, jamais sur une lecture de code — A UNE EXCEPTION PRES (le dernier test de
+// ce fichier), et elle est motivee sur place : un reservoir SANS vivant fait tomber l'etape 1
+// dans le repli reseau REEL d'AR-H (cf. install.js), qu'un sous-processus ne peut pas maitriser.
+// Cette exception appelle directement `etape2Methode` (memes fonctions exportees, meme code
+// production) — remede exige par le gate qualite (defaut : « GATE LEGOLAS FAIL — dependance
+// reseau non maitrisee », voir cli/test/etape1-reseau-ecarte.test.js pour le contrefactuel).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -9,7 +14,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { bannierEtapes, ETAPES } from '../src/commands/install.js';
+import { bannierEtapes, ETAPES, etape2Methode } from '../src/commands/install.js';
+import { resoudreReservoir } from '../src/lib/reservoir.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..');
@@ -138,10 +144,26 @@ test('étapes 3 et 4 sont TOUJOURS déclarées non disponibles, jamais simulées
   assert.match(r.stdout, /iakaFrameGUI — non disponible dans cette version \(lot C\.1, à venir\)\. Étape refusée explicitement, jamais simulée\./);
 });
 
-test('étape 2 : aucun réservoir vivant avec install.mjs -> refus EXPLICITE (jamais un repli silencieux sur l\'embarqué)', () => {
+// EXCEPTION documentee en tete de fichier : appel DIRECT (pas de sous-processus). Un `--root`
+// vide fait tomber l'ETAPE 1 dans le repli reseau REEL d'AR-H (aucun vivant => sondes reelles,
+// cf. install.js) — un sous-processus n'a AUCUN moyen de le maitriser. Cette assertion ne porte
+// que sur `etape2Methode`, la MEME fonction exportee que celle appelee par `runInstall` : le
+// code sous test est identique, seul le point d'entree change.
+test('étape 2 : aucun réservoir vivant avec install.mjs -> refus EXPLICITE (jamais un repli silencieux sur l\'embarqué)', async () => {
   const vide = tmp();
-  const r = run(['install', '--root', vide, '--yes']);
-  assert.notEqual(r.status, 0);
-  assert.match(r.stdout, /REFUS : aucun réservoir vivant avec install\.mjs/);
-  assert.match(r.stdout, /L'embarqué \(_bundled\/\) ne porte PAS d'install\.mjs/);
+  const reservoir = resoudreReservoir({ root: vide });
+  assert.equal(reservoir.installMjsPath, null, 'precondition : pas de reservoir vivant');
+  const lignes = [];
+  const originalLog = console.log;
+  console.log = (...args) => lignes.push(args.join(' '));
+  let r;
+  try {
+    r = await etape2Methode({ reservoir, values: { yes: true } });
+  } finally {
+    console.log = originalLog;
+  }
+  const sortie = lignes.join('\n');
+  assert.equal(r.ok, false);
+  assert.match(sortie, /REFUS : aucun réservoir vivant avec install\.mjs/);
+  assert.match(sortie, /L'embarqué \(_bundled\/\) ne porte PAS d'install\.mjs/);
 });
