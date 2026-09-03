@@ -10,6 +10,36 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### RESERVOIR-REDECLENCHE — le seuil compte des occurrences, pas des observations neuves (2026-09-03)
+
+> Constaté **en jouant le parcours `/iaka`** (revue d'apprentissage), pas par lecture de code. Ce
+> n'est pas un bug du lot en cours : c'est une **propriété du réservoir**, mesurée sur ses propres
+> données.
+
+- [ ] **`RESERVOIR-REDECLENCHE-SUR-LES-MEMES-PREUVES` — une proposition rejetée revient, à
+  l'identique, sur les mêmes lignes de transcript.** **Mesuré le 2026-09-03** : le réservoir
+  (`~/.iaka/memory`) portait **8 propositions pour 2 sujets seulement** —
+  `p7-binding-reel-cadre-non-code` et `recentrage-runner-modele-couche-binding-cadre` —, proposés
+  **quatre fois** (`20260717T205248`, `20260718T003730`, `20260718T115008`, `20260822T115136`) et
+  tranchés **six fois rejeté, deux fois appliqué**. Or les **preuves sont les mêmes à chaque
+  cycle** : `transcripts/odin/2026-07-17.md:41` et `:101`, **deux lignes du 17 juillet**. Le
+  `threshold: 2` a donc été atteint **quatre fois par les deux mêmes observations** : ce n'est pas
+  de l'observation répétée, c'est **une seule observation qui redéclenche**.
+  **Deux conséquences distinctes, à ne pas confondre** : (1) le **bruit** — le décideur retranche
+  périodiquement ce qu'il a déjà tranché ; (2) plus grave, **le contenu peut être devenu FAUX
+  entre-temps**. C'est le cas ici : la proposition affirme *« binding réel : cadré, **non
+  codé** »*, or **A-1 = P-D est tranché, les lots 1 et 2 sont livrés, et les 10 contrats déployés
+  portent une ligne `model:`** (4 `opus`, 6 `sonnet`) — l'appliquer aurait inscrit au registre
+  **un énoncé que la mesure réfute**, exactement la classe de défaut corrigée cinq fois cette
+  semaine. **Le rejet a été prononcé par le décideur le 2026-09-03** ; l'item porte sur le
+  **mécanisme**, pas sur ces deux entrées.
+  **Pistes, non tranchées** : ne recompter que des occurrences **neuves** (preuves non déjà
+  comptées) · tenir compte du **statut antérieur** — une proposition **rejetée** sur les mêmes
+  preuves ne revient pas sans preuve neuve · **dater la fraîcheur** des preuves et refuser de
+  proposer sur un matériau périmé. ⚠️ **Aucune n'est gratuite** : la première demande une identité
+  de preuve, la deuxième un lien rejet↔preuves, la troisième un seuil de péremption à choisir —
+  **c'est un cadrage, pas un correctif**.
+
 ### L45 — Deux successeurs nommés du lot « affectation du modèle par acteur » (2026-09-02)
 
 > Ouverts **par le lot 1** de `specs/instructions/affectation-modele-par-acteur.md` (CA-15), qui a
