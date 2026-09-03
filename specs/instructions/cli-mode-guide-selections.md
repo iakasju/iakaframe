@@ -267,6 +267,29 @@ Note de déploiement : les commandes existent en **trois exemplaires** — `~/.c
 >
 > *(Rédaction d'origine, conservée : « Aucune de ces décisions n'est prise. »)*
 
+> ### ✅ A1 / A2 / A4 — TRANCHÉS PAR LE DÉCIDEUR le 2026-09-03
+>
+> **Énoncé : « lot A »**, deux fois, les recommandations présentées. **Le LOT A est LANCÉ**, sur les
+> trois recommandations de cadrage, sans réserve.
+>
+> | # | Décision |
+> |---|---|
+> | **A1** | **Paliers 0 et 1 en jalon interne, PUIS le palier 2 dans le même lot.** Le **palier 1 reste le REPLI AUTOMATIQUE** quand le mode brut n'est pas disponible (terminal exotique, Windows ancien) — il devient **le filet du palier 2**, pas un travail jeté |
+> | **A2** | **Drapeau explicite `--guide`** — opt-in, invisible des appelants existants, **aucun déclenchement accidentel**. Écartés : le verbe nu (casse la classe A), `-i` (ce CLI n'a que `-v`/`-h`), le verbe nu de classe B (changerait un `exit 1` en `exit 0`). **`iakaframe` nu n'ouvre PAS le menu** en lot 1 |
+> | **A4** | **Les trois règles**, gravées : (1) proposer **d'abord les valeurs de l'autorité** + une entrée « saisir une valeur libre » ; (2) en valeur libre, **assembler l'argv et appeler le chemin normal** — *« c'est `validateModelValue()` qui tranche, jamais le moteur »* ; (3) si la commande refuse, **afficher le refus tel quel et s'arrêter** |
+>
+> 🛑 **L'INTERDIT D'A4 EST NON NÉGOCIABLE** : **`--force`, `--yes`, `--cascade`,
+> `--autoriser-creation-depot` ne sont JAMAIS ajoutés par le guidage.** Il **peut** afficher la
+> commande `--force` **en texte** ; il ne l'exécute jamais et **ne la propose jamais comme entrée de
+> menu**. Motif : un guidage qui proposerait `--force` dans un menu **annulerait la garde que
+> l'Amendement A vient de poser** (`models set` échoue sur une valeur hors grammaire).
+>
+> ⚠️ **CE QUE LE DÉCIDEUR ACCEPTE EN TRANCHANT A1 SUR LE PALIER 2** : le mode brut **n'est PAS
+> testable de bout en bout** — Node n'a pas de pty, `node-pty` serait une **dépendance donc
+> interdite**. Sa recette est **MANUELLE, SUR DEUX OS** : *« cochée par l'humain, ou le palier n'est
+> pas livré »*. Piège nommé par la doc Node : en mode brut, *« Ctrl+C will no longer cause a
+> SIGINT »*.
+
 ### A1 — Ampleur du guidage de valeur (terminal)
 
 Le décideur a **explicitement demandé** « flèches, surbrillance, filtre à la frappe ». Le mode brut
