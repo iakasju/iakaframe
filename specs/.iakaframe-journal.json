@@ -828,5 +828,15 @@
     "dirty": false,
     "files": 1149,
     "note": "Dette de canal fermee : fan-out sur les deux canaux, exit non nul si une cible echoue, face 2 hors gate. Endpoint iakabox retire. Cliquet 20->23."
+  },
+  {
+    "date": "2026-09-03 21:26",
+    "reason": "manual",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "6f71dd6 docs(backlog): RESERVOIR-REDECLENCHE — le seuil compte des occurrences, pas des observations neuves",
+    "dirty": false,
+    "files": 1158,
+    "note": "LOT A livre : mode guide du terminal, 3 paliers, --guide sur 10 cibles, regle unique de non-interactivite. Palier 2 NON RECETTE (geste humain, 2 OS)."
   }
 ]
