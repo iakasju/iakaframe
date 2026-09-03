@@ -10,7 +10,7 @@
 |---|---|
 | Dernière mise à jour | 2026-09-03 |
 | Version CLI documentée | `@naonedge/iakaframe` **v0.39.0** (source : `cli/package.json`) |
-| Commandes CLI couvertes | **39 / 39** verbes distincts (un par `case` de `cli/src/index.js`), **+ 1 alias** (`use` → `switch`) = **40 `case`** au total |
+| Commandes CLI couvertes | **40 / 40** verbes distincts (un par `case` de `cli/src/index.js`), **+ 1 alias** (`use` → `switch`) = **41 `case`** au total |
 | Sources de vérité | `~/.claude/CLAUDE.md` (déclencheurs), **`cli/src/lib/verbes.js`** (registre déclaratif — source UNIQUE de l'inventaire, dont dérivent le bloc `HELP` de `cli/src/index.js` et `iakaframe commands --json`), `cli/src/commands/*.js` |
 
 > ⚠️ **Le compteur ci-dessus était périmé (29/29) avant le Lot 0** (mode guidé du CLI,
@@ -229,7 +229,7 @@ Source de vérité = le **registre déclaratif** `cli/src/lib/verbes.js` (`id`, 
 paramètre à vocabulaire fermé) + un fichier par commande dans `cli/src/commands/`. Le bloc `HELP`
 de `cli/src/index.js` en **dérive** (plus une constante de prose écrite à la main), de même que
 `iakaframe commands --json` (verbe de lecture seule, § B.2) — **une seule source, deux rendus**.
-**39 verbes distincts** (+ 1 alias, `use` → `switch`), regroupés par thème.
+**40 verbes distincts** (+ 1 alias, `use` → `switch`), regroupés par thème.
 
 **Options globales** : `-h`/`--help`, `-v`/`--version`.
 **Environnement** : `FORGEJO_TOKEN` (Forgejo), `IAKAFRAME_ROOT`/`--root` (dossier chapeau,
@@ -245,6 +245,7 @@ interactif partout — mode guidé du terminal § B.0 **et** confirmations exist
 | `snapshot` | `--path <dir> --reason version\|pause\|reprise\|manual --version --note` | État des lieux (journal + MD + HTML). **Résolution de la version**, dans l'ordre : `--version` explicite → autorité `cli/package.json` (le projet `iakaframe` lui-même) → `git describe --tags` → **`package.json` du projet** → `-`. Le dernier repli évite le « Version : `-` » muet des projets non tagués ; un projet qui tague garde son comportement. **Forme de `--version`** : `vX.Y.Z` ou `X.Y.Z` (suffixe `-rc.1` / `+build` toléré) ; le préfixe `v` est **normalisé** (`0.39.0` → `v0.39.0`), toute autre forme est **refusée** (message + code de sortie 1, rien n'est écrit) — même refus via `update`, **avant** tout `git add`. La sortie de `git describe` reste **verbatim** (un tag est un nom, pas un littéral de version). **Compte de fichiers** : sur un dépôt git, `git ls-files --cached --others --exclude-standard`, soit *les fichiers que le projet versionne ou versionnera* — l'exclusion suit le `.gitignore` du projet mesuré (donc `target/`, `dist/`, `node_modules/`…), et le chiffre ne dépend plus de l'arbre depuis lequel on tire. Hors git, parcours d'arbre inchangé (hors `.git`/`node_modules`). Le **libellé** de l'état des lieux annonce la règle appliquée. |
 | `update` | `--path <dir> --reason --version --note --message --no-push` | Checkpoint : snapshot + commit global + push. Refuse une `--version` mal formée **avant** tout `git add`/`commit` (cf. `snapshot`). |
 | `config` | `--path <dir> --runner claude-code\|ollama\|litellm\|codex --node <n> --aider-model <m>` | Écrit/màj `<projet>/iakaframe.json` (runner + nœud). |
+| `install` | `--dry-run --yes --root <dir> --hosts a,b --target-claude <dir> --backup-dir <dir> --json` | **Chaîne complète** (`chaine-complete-install-amorcage-dmg-msi.md`, lot A) : annonce **toujours** les **4 étapes / 3 téléchargements** (AR-A : CLI, méthode, IakaCockpit, iakaFrameGUI), mais **ce verbe ne joue que les étapes 1 et 2** — 3 et 4 refusent explicitement (« non disponible dans cette version »), jamais simulées (lot C.1, hors périmètre). **Étape 1 (CLI)** : sens **unique** ici — *mise à jour* (AR-G : « le CLI ne peut pas s'installer lui-même ») — compare la version courante à un **réservoir vivant** local (`--root`, sinon `<chapeau>/iakaframe`) puis, à défaut, aux **sources réseau ordonnées** d'AR-H (tarball GitHub = voie publique, registre npm NAS = voie LAN), et **nomme** la source retenue. **Étape 2 (méthode)** : **délègue** à `install.mjs` (M4, jamais réimplémenté) trouvé dans le réservoir vivant ; refuse explicitement si aucun réservoir vivant n'en porte un (l'embarqué `_bundled/` n'en contient pas). **Réservoir (AR-F)** : « le plus récent gagne ; à égalité, le vivant » — l'égalité est le **cas nominal** (poste où le CLI tourne depuis sa propre source), jamais un `else`. **Provenance obligatoire** sur chaque étape 1, format imposé (`réservoir : vivant <chemin> (vX) — embarqué vY, <raison>`). **AR-4** : chaque étape s'annonce (quoi/où/version/fusion) puis attend un feu vert ; `--yes` les saute **toutes**, sans exception partielle. **`--dry-run`** ne modifie rien (empreinte disque avant/après identique). **Garde AR-1/AR-4 (§5.5)** : pendant la chaîne, le déploiement automatique du kit hôte (AR-1) reste **désarmé** jusqu'à validation explicite de l'étape 2 — jamais un court-circuit silencieux. |
 
 > `--target` = alias **déprécié** de `--node` (onboard/init/config). Alias runner legacy
 > (`ps`, `iakaide`, `aider`) également dépréciés.

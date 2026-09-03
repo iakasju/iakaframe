@@ -6,6 +6,7 @@ import { runInit } from './commands/init.js';
 import { runSnapshot } from './commands/snapshot.js';
 import { runOnboard } from './commands/onboard.js';
 import { runUpdate } from './commands/update.js';
+import { runInstall } from './commands/install.js';
 import { runRepo } from './commands/repo.js';
 import { runAgents } from './commands/agents.js';
 import { runSkills } from './commands/skills.js';
@@ -125,6 +126,7 @@ async function main() {
     case 'init':     runInit(rest); break;
     case 'snapshot': runSnapshot(rest); break;
     case 'update':   await runUpdate(rest); break;
+    case 'install':  await runInstall(rest); break;
     case 'repo':     await runRepo(rest); break;
     case 'services': await runServices(rest); break;
     case 'canaux':   runCanaux(rest); break;
