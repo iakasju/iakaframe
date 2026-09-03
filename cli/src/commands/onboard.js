@@ -13,8 +13,7 @@ import { hasCmd } from '../lib/which.js';
 import { runInit, resolveNode } from './init.js';
 import { doSnapshot } from './snapshot.js';
 import { listerRemotes, pousserFanout, formaterFanout } from '../lib/canaux.js';
-import { peutDemander } from '../lib/interactif.js';
-import readline from 'node:readline';
+import { peutDemander, askYesNo } from '../lib/interactif.js';
 
 const USAGE = `Usage : iakaframe onboard [options]
 
@@ -36,14 +35,8 @@ Options :
   --autoriser-creation-depot  Autorise la creation de depot a la bascule depuis update
   (--target = alias deprecie de --node)`;
 
-// Confirmation interactive o/N, DEFAUT = non (seul 'o'/'oui' vaut oui). Jamais appelee en
-// non-interactif (le chemin sur reste le REFUS, cf. runOnboard).
-function askYesNo(question) {
-  return new Promise((resolve) => {
-    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
-    rl.question(question, (ans) => { rl.close(); resolve(/^o(ui)?$/i.test(String(ans).trim())); });
-  });
-}
+// askYesNo : EXTRAIT dans lib/interactif.js (G3b, source unique du prompt de confirmation —
+// reutilisee par `install`, AR-4). Import ci-dessus, comportement inchange.
 
 export async function runOnboard(argv) {
   const { values, tokens } = parseArgs({
