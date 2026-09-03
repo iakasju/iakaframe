@@ -135,6 +135,33 @@ test('G5c : aucun `iaka-*.md` du kit ne correspond a un id absent du registre (o
   assert.deepEqual(orphelins, [], `iaka-*.md orphelin(s), sans entree registre ni motif connu : ${orphelins.join(', ')}`);
 });
 
+// --- A3 (echo obligatoire) : controle POSITIF INDEPENDANT de contenu() -------------------------
+// Constat du gate qualite : le texte `-> iakaframe <verbe> $ARGUMENTS` est deja protege
+// TRANSITIVEMENT par --check (G5c ci-dessus), mais `contenu()` porte cet echo EN DUR dans
+// gen-iaka-commands.mjs — si quelqu'un l'y retirait, la regeneration produirait des fichiers
+// « a jour » SANS echo et aucun test ne rougirait. Les deux tests suivants NE PASSENT PAS par
+// `contenu()` (aucun import du generateur) : ils relisent les fichiers SUR LE DISQUE et cherchent
+// le motif d'echo tel quel. A3 est obligatoire ET non desactivable : ce controle porte cette
+// exigence sans version affaiblie.
+
+test('A3 : chaque `iaka-<id>.md` GENERE echoe `-> iakaframe <id> $ARGUMENTS` (lu sur le disque, independant de contenu())', () => {
+  const generes = VERBES.filter(v => v.guideClaudeCode && v.guideClaudeCode.generer === true);
+  const sansEcho = [];
+  for (const v of generes) {
+    const dest = path.join(COMMANDS_DIR, `iaka-${v.id}.md`);
+    const raw = fs.existsSync(dest) ? fs.readFileSync(dest, 'utf8') : '';
+    if (!raw.includes(`→ iakaframe ${v.id} $ARGUMENTS`)) sansEcho.push(`iaka-${v.id}.md`);
+  }
+  assert.deepEqual(sansEcho, [], `fichier(s) SANS echo obligatoire A3 (« -> iakaframe <id> $ARGUMENTS » absent) : ${sansEcho.join(', ')}`);
+});
+
+test("A3 : `iaka-guide.md` (l'aiguilleur lui-meme) echoe la commande generique `-> iakaframe <verbe> ...` avant execution", () => {
+  const dest = path.join(COMMANDS_DIR, 'iaka-guide.md');
+  assert.ok(fs.existsSync(dest), 'kits/iakaframe-claude/.claude/commands/iaka-guide.md doit exister');
+  const raw = fs.readFileSync(dest, 'utf8');
+  assert.ok(raw.includes('→ iakaframe <verbe>'), "iaka-guide.md doit echoer « -> iakaframe <verbe> ... » avant toute execution (A3)");
+});
+
 // --- G6 : non-regression du declencheur d'apprentissage (garde anti-collision M9) --------------
 
 test("G6 : /iaka reste l'alias intact de /learning (aucun fichier `iaka.md` neuf, contenu inchange)", () => {
@@ -152,4 +179,40 @@ test("G6 : /iaka reste l'alias intact de /learning (aucun fichier `iaka.md` neuf
 
 test('G6 : aucun verbe du registre ne se nomme `iaka` (jamais de collision sur le declencheur reserve)', () => {
   assert.ok(!VERBES.some(v => v.id === 'iaka'), 'un verbe `iaka` collisionnerait avec le declencheur reserve a la revue d\'apprentissage');
+});
+
+// --- GC : garde ANTI-DERIVE — un motif SANS condition de chute compte comme NON DECLARE ---------
+// Constat du gate qualite (second volet du lot fix/lotB-conditions-de-chute-et-temoin-A3) : un
+// `motif` sans clause « si X, reconsidere » est un jugement de categorie FIGE — exactement le
+// patron d'exclusion de confort. Sans cette garde, les 18 motifs d'aujourd'hui sont corriges mais
+// un dix-neuvieme naitrait MUET demain. La garde doit NOMMER le verbe fautif, jamais un compte nu.
+
+const MOTIF_PORTE_CHUTE = motif => typeof motif === 'string' && /chute/i.test(motif);
+
+function verbesSansChute(verbes) {
+  return verbes
+    .filter(v => v.guideClaudeCode && v.guideClaudeCode.generer === false && !MOTIF_PORTE_CHUTE(v.guideClaudeCode.motif))
+    .map(v => v.id);
+}
+
+test('GC : chaque exclusion `generer:false` du registre porte une condition de chute explicite ("chute si ...") — sinon le motif compte comme NON DECLARE, et le verbe fautif est NOMME', () => {
+  const sansChute = verbesSansChute(VERBES);
+  assert.deepEqual(sansChute, [], `verbe(s) EXCLU(S) SANS condition de chute (motif fige, exclusion de confort) : ${sansChute.join(', ')}`);
+});
+
+// Controles POSITIF et NEGATIF (temoins non vides) : une garde qui refuserait tout serait verte
+// elle aussi sur le seul test ci-dessus si elle etait mal cablee (ex. filtre qui ne filtre rien) —
+// ces deux temoins synthetiques, independants du contenu reel du registre, prouvent que la garde
+// distingue effectivement une exclusion bien formee d'une exclusion muette, et NOMME cette derniere.
+
+test('GC (temoin positif) : une exclusion correctement declaree (motif + "chute si ...") ne remonte JAMAIS comme fautive', () => {
+  const bienDeclaree = { id: 'sonde-bien-declaree', guideClaudeCode: { generer: false, motif: 'motif de demonstration — chute si la condition citee ici cesse d\'etre vraie' } };
+  assert.deepEqual(verbesSansChute([bienDeclaree]), [], 'une exclusion bien formee ne doit jamais etre signalee par la garde GC');
+});
+
+test('GC (temoin negatif) : une exclusion SANS condition de chute (motif fige ou motif vide) est detectee ET le verbe fautif est NOMME', () => {
+  const motifFige = { id: 'sonde-motif-fige', guideClaudeCode: { generer: false, motif: 'motif de demonstration sans clause de reconsideration' } };
+  const motifVide = { id: 'sonde-motif-vide', guideClaudeCode: { generer: false, motif: '' } };
+  assert.deepEqual(verbesSansChute([motifFige]), ['sonde-motif-fige'], 'un motif fige (sans "chute") doit etre nomme');
+  assert.deepEqual(verbesSansChute([motifVide]), ['sonde-motif-vide'], 'un motif vide doit etre nomme');
 });

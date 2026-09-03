@@ -124,17 +124,25 @@ Taper `/iaka` dans Claude Code **filtre nativement** toutes les commandes `iaka*
 
 **Couverture.** Un verbe **exclu** de la génération porte toujours un `motif` explicite dans le
 registre (`guideClaudeCode.motif`, jamais une exclusion silencieuse — même discipline que le
-registre de corpus `cli/package.json:24`). Trois familles de motifs :
+registre de corpus `cli/package.json:24`). Depuis le lot `fix/lotB-conditions-de-chute-et-temoin-A3`,
+chaque `motif` porte en outre sa **condition de chute** — ce qui, mesuré ou survenu, le rendrait
+faux (ex. « chute si `--note` disparaît ou devient un vocabulaire fermé ») — sous peine de compter
+comme un motif **non déclaré** (garde `cli/test/guard-verbes-registre.test.js`, G5c). Trois
+familles de motifs :
 
 1. **Déjà couvert** par une entrée `/iaka-*` **hand-authored** antérieure à ce lot (`list`,
    `brief`, `recap`, `services`, `update` → invocateurs directs ou de skill déjà en place) ;
 2. **Destructif / réseau / texte libre**, exclu explicitement par l'instruction (`onboard`,
    `snapshot`, `update`, `repo`, `services`, `canaux`, `endpoints`, `go`, `range`) ;
-3. **Verbe de garde ou déjà couvert par un parcours plus riche** (`vendor-check`, `frame` :
-   diagnostic/CI, pas un usage direct ; `review` : déjà piloté par `/iaka`/`/learning` avec le
-   geste de consentement — un doublon nu court-circuiterait ce contexte ; `consolidate`,
-   `observe` : amorçage ponctuel / observation silencieuse par construction ; `commands` :
-   consommé par `/iaka-guide` et `/iaka-help`, une entrée dédiée ferait doublon direct).
+3. **Verbe de garde ou déjà couvert par un parcours plus riche** (`vendor-check` : diagnostic/CI,
+   pas un usage direct ; `frame` : **arbitrage de GRAIN nommé comme tel** — le registre ne
+   granularise pas par sous-verbe, alors que 3 de ses 4 sous-verbes (`verify`/`lint`/`new`) sont
+   des outils de garde CI et que son 4ᵉ, `use`, mute le pointeur de frame du projet exactement
+   comme `switch` (généré, lui) mute méthode/team — chute le jour où le registre porte une
+   granularité par sous-verbe ; `review` : déjà piloté par `/iaka`/`/learning` avec le geste de
+   consentement — un doublon nu court-circuiterait ce contexte ; `consolidate`, `observe` :
+   amorçage ponctuel / observation silencieuse par construction ; `commands` : consommé par
+   `/iaka-guide` et `/iaka-help`, une entrée dédiée ferait doublon direct).
 
 **Génération, jamais écriture à la main.** `node cli/scripts/gen-iaka-commands.mjs [--check]`
 régénère les fichiers couverts depuis `resume` (en-tête `NE PAS ÉDITER À LA MAIN`) et cible **le

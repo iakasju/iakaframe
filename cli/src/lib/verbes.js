@@ -51,7 +51,7 @@ export const VERBES = [
     options: ['--path <dir>', '--node <n>', '--repo <nom>', '--description "ascii"', '--version vX.Y.Z', '--skip-forgejo', '--no-push', '--force', '--umbrella --init-projects'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'destructif/reseau (creation de depot Forgejo + push) — exclu explicitement du Lot B' },
+    guideClaudeCode: { generer: false, motif: 'destructif/reseau (creation de depot Forgejo + push) — exclu explicitement du Lot B — chute si onboard gagne un mode non-mutant (dry-run, sans creation de depot ni push)' },
   },
   {
     id: 'init',
@@ -68,7 +68,7 @@ export const VERBES = [
     options: ['--path <dir>', '--reason version|pause|reprise|manual', '--version', '--note'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'texte libre (--note) et effet de bord de journalisation — exclu explicitement du Lot B' },
+    guideClaudeCode: { generer: false, motif: 'texte libre (--note) et effet de bord de journalisation — exclu explicitement du Lot B — chute si --note disparait ou devient un vocabulaire ferme (plus de texte libre)' },
   },
   {
     id: 'update',
@@ -76,7 +76,7 @@ export const VERBES = [
     options: ['--path <dir>', '--repo <nom>', '--reason', '--version', '--note', '--message', '--no-push', '--home'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'reseau (push) — exclu explicitement du Lot B ; deja couvert par /iaka-update (skill iakaframe-update)' },
+    guideClaudeCode: { generer: false, motif: 'reseau (push) — exclu explicitement du Lot B ; deja couvert par /iaka-update (skill iakaframe-update) — chute si --no-push devient le defaut ET si /iaka-update est retire du kit' },
   },
   {
     id: 'repo',
@@ -85,7 +85,7 @@ export const VERBES = [
     options: ['--path <dir>', '--repo <nom>', '--provider <nom> (defaut forgejo)', '--create', '--description "ascii"'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'reseau (creation de depot distant) — exclu explicitement du Lot B' },
+    guideClaudeCode: { generer: false, motif: 'reseau (creation de depot distant) — exclu explicitement du Lot B — chute si --create disparait (repo redevient lecture seule/verification)' },
   },
   {
     id: 'services',
@@ -93,7 +93,7 @@ export const VERBES = [
     options: ['--hosts a,b,c', '--json', '--out <fichier>', '--timeout <sec>'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'reseau (sonde des hotes) — exclu explicitement du Lot B ; deja couvert par /iaka-services' },
+    guideClaudeCode: { generer: false, motif: 'reseau (sonde des hotes) — exclu explicitement du Lot B ; deja couvert par /iaka-services — chute si /iaka-services est retire du kit' },
   },
   {
     id: 'canaux',
@@ -101,7 +101,7 @@ export const VERBES = [
     options: ['--path <dir>', '--remotes a,b,c', '--branch <nom>', '--rattraper', '--timeout <sec>', '--json'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'reseau (mesure + eventuel push en avance rapide) — exclu explicitement du Lot B' },
+    guideClaudeCode: { generer: false, motif: 'reseau (mesure + eventuel push en avance rapide) — exclu explicitement du Lot B — chute si --rattraper disparait (canaux redevient lecture seule)' },
   },
   {
     id: 'endpoints',
@@ -109,7 +109,7 @@ export const VERBES = [
     options: ['--app <dir>', '--conf <fichier>', '--url a,b,c', '--premier', '--artefacts', '--manifeste <f>', '--timeout <sec>', '--json'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'reseau (sonde des endpoints) — exclu explicitement du Lot B' },
+    guideClaudeCode: { generer: false, motif: 'reseau (sonde des endpoints) — exclu explicitement du Lot B — chute si endpoints perd son acces reseau direct (devient lecture d\'un cache local deja mesure)' },
   },
   {
     id: 'config',
@@ -186,7 +186,7 @@ export const VERBES = [
     options: ['--path <dir>', '--runner <r>', '--do "tache"'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'texte libre (--do) declenchant une execution — exclu explicitement du Lot B' },
+    guideClaudeCode: { generer: false, motif: 'texte libre (--do) declenchant une execution — exclu explicitement du Lot B — chute si --do devient un vocabulaire ferme (liste de taches predefinies, plus de texte libre)' },
   },
   {
     id: 'banner',
@@ -205,7 +205,7 @@ export const VERBES = [
     options: ['--path <dir>', '--font <nom>'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'deja couvert par /iaka-brief' },
+    guideClaudeCode: { generer: false, motif: 'deja couvert par /iaka-brief — chute si /iaka-brief est retire du kit' },
   },
   {
     id: 'recap',
@@ -214,7 +214,7 @@ export const VERBES = [
     options: ['--path <dir>', '--n <nb commits>'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'deja couvert par /iaka-recap' },
+    guideClaudeCode: { generer: false, motif: 'deja couvert par /iaka-recap — chute si /iaka-recap est retire du kit' },
   },
   {
     id: 'jalon',
@@ -234,7 +234,7 @@ export const VERBES = [
     parametres: [
       { nom: 'type', autorite: { symbole: 'COLLECTION_TYPES', module: 'lib/library.js' } },
     ],
-    guideClaudeCode: { generer: false, motif: 'deja couvert par /iaka-list' },
+    guideClaudeCode: { generer: false, motif: 'deja couvert par /iaka-list — chute si /iaka-list est retire du kit' },
   },
   {
     id: 'show',
@@ -318,7 +318,7 @@ export const VERBES = [
     options: ['--strict', '--gui <dir>', '--root <dir>', '--json'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'verbe de garde technique (CI/maintenance cross-repo), pas un usage direct — recommandation Lot B' },
+    guideClaudeCode: { generer: false, motif: 'verbe de garde technique (CI/maintenance cross-repo), pas un usage direct — recommandation Lot B — chute si un usage interactif apparait dans une recette du corpus' },
   },
   {
     id: 'frame',
@@ -333,7 +333,15 @@ export const VERBES = [
         parametres: [{ nom: 'frameId', autorite: { symbole: "scan('frames')", module: 'lib/library.js' } }] },
     ],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'verbe de garde/composition avancee (anonymisation, ossature) — recommandation Lot B, mutation sensible du pointeur de frame' },
+    // ARBITRAGE DE GRAIN, nomme explicitement (constat du gate qualite, lot fix/lotB) : `frame`
+    // est exclu EN BLOC alors que 3 de ses 4 sous-verbes (verify/lint/new) sont des outils de
+    // garde CI incontestables — mais son 4e sous-verbe, `use`, MUTE le pointeur de frame du projet
+    // exactement comme `switch` (generer:true juste en dessous) mute methode/team. Le registre ne
+    // permet aujourd'hui une couverture QUE par verbe, jamais par sous-verbe : `frame` est donc
+    // exclu comme un TOUT, ce qui sur-exclut verify/lint/new et sous-exclut `use` par rapport a
+    // `switch`. Ce n'est pas une mesure : c'est un arbitrage de granularite, defendable mais
+    // jusqu'ici non nomme comme tel — corrige ici.
+    guideClaudeCode: { generer: false, motif: "arbitrage de GRAIN (le registre ne granularise pas par sous-verbe : `frame` est exclu en bloc alors que verify/lint/new sont des outils de garde CI et que `use` mute le pointeur de frame comme `switch`, generer:true, mute methode/team) — recommandation Lot B — chute le jour ou le registre porte une granularite par sous-verbe (alors verify/lint/new pourraient generer independamment de `use`)" },
   },
   {
     id: 'switch',
@@ -426,7 +434,7 @@ export const VERBES = [
       { id: 'auto', resume: 'Passe automatique : applique le seul auto-applicable (REGISTRE)', options: ['--json'] },
     ],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: "deja couvert par /iaka (alias /learning, skill iakaframe-learning) qui pilote review avec le geste de consentement — un doublon nu court-circuiterait ce contexte" },
+    guideClaudeCode: { generer: false, motif: "deja couvert par /iaka (alias /learning, skill iakaframe-learning) qui pilote review avec le geste de consentement — un doublon nu court-circuiterait ce contexte — chute si /iaka cesse de piloter review (alias retire ou detourne)" },
   },
   {
     id: 'consolidate',
@@ -434,7 +442,7 @@ export const VERBES = [
     options: ['--source <dir>', '--home <dir>', '--json'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: "amorcage ponctuel du canon (usage unique a l'installation), pas un geste courant" },
+    guideClaudeCode: { generer: false, motif: "amorcage ponctuel du canon (usage unique a l'installation), pas un geste courant — chute si la commande devient repetee dans le cycle de vie d'un projet" },
   },
   {
     id: 'observe',
@@ -444,7 +452,7 @@ export const VERBES = [
       { id: 'list', resume: 'Relit le store', options: ['--home <dir>', '--json'] },
     ],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'observation silencieuse par construction, pas destinee a etre sollicitee au menu' },
+    guideClaudeCode: { generer: false, motif: 'observation silencieuse par construction, pas destinee a etre sollicitee au menu — chute si observe gagne un mode actif/interactif (cesse d\'etre silencieux par construction)' },
   },
   {
     id: 'portfolio',
@@ -462,7 +470,7 @@ export const VERBES = [
     options: ['--list', '--branches', '--root <chapeau>', '--repository <url>', '--password-command <cmd>', '--exclude-file <f>', '--dry-run', '--json'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: 'destructif potentiel (secrets compris, sans exclusion) — exclu explicitement du Lot B' },
+    guideClaudeCode: { generer: false, motif: 'destructif potentiel (secrets compris, sans exclusion) — exclu explicitement du Lot B — chute si range gagne une exclusion de secrets par defaut (ex. --exclude-file impose sans opt-out)' },
   },
   {
     id: 'root',
@@ -479,7 +487,7 @@ export const VERBES = [
     options: ['--json'],
     sousVerbes: [],
     parametres: [],
-    guideClaudeCode: { generer: false, motif: "verbe d'introspection interne consomme par /iaka-guide et /iaka-help — une entree dediee ferait doublon direct" },
+    guideClaudeCode: { generer: false, motif: "verbe d'introspection interne consomme par /iaka-guide et /iaka-help — une entree dediee ferait doublon direct — chute si /iaka-guide et /iaka-help sont tous deux retires (plus de consommateur, le doublon cesserait d'etre redondant)" },
   },
 ];
 
