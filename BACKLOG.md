@@ -38,8 +38,9 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   la restauration AVANT de commencer** — c'est un canal servi a de vrais clients.
 
 - [ ] 👤 **`M-1-COUT-HORS-LAN` — chronometrer un controle de mise a jour depuis une machine HORS
-  LAN.** Non reportee explicitement, mais **non jouee** : aucune machine hors LAN n'etait accessible
-  depuis la session. **Le NAS est en position 1, adresse PRIVEE, SANS DELAI CONFIGURE** — donc tout
+  LAN.** **Reportee sur decision du decideur le 2026-09-03** (« M-1 pour plus tard »), comme M-4 —
+  **les DEUX mesures du § 5 sont donc reportees, et le lot reste clos sans elles**. Elle n'etait de
+  toute facon pas jouable depuis la session : aucune machine hors LAN n'y etait accessible. **Le NAS est en position 1, adresse PRIVEE, SANS DELAI CONFIGURE** — donc tout
   client hors LAN paie une attente **a chaque verification**, avant meme d'atteindre GitHub.
   **Combien ?** La valeur est **propre au systeme**, elle ne se deduit pas.
 
