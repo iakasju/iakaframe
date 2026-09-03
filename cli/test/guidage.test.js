@@ -46,12 +46,15 @@ test('choisirDansListe : liste VIDE sans entree libre -> vide (R7, jamais un rep
   assert.equal(res.type, 'vide');
 });
 
-test('choisirDansListe : liste VIDE MAIS entree libre permise -> propose quand meme la saisie libre', async () => {
-  const answers = ['1', 'p_maison'];   // seul item = l'entree libre, en position 1
+test('choisirDansListe : liste VIDE MEME AVEC entree libre permise -> vide QUAND MEME (CA-10, § Preuve)', async () => {
+  // Un menu reduit a la seule ligne « saisir » ne serait pas un repli, ce serait une ceremonie
+  // sans objet — CA-10 : « le dit et rend la main, SANS repli en dur ». `ask` n'est JAMAIS appele.
+  let appele = false;
   const res = await choisirDansListe({
-    ask: async () => answers.shift(), items: [], titre: 'Persona :', permettreLibre: true, libelleLibre: 'saisir', log: silencieux(),
+    ask: async () => { appele = true; return '1'; }, items: [], titre: 'Persona :', permettreLibre: true, libelleLibre: 'saisir', log: silencieux(),
   });
-  assert.deepEqual(res, { type: 'libre', valeur: 'p_maison' });
+  assert.deepEqual(res, { type: 'vide' });
+  assert.equal(appele, false, 'ask() ne doit JAMAIS etre appele quand la liste est vide (CA-10)');
 });
 
 test('choisirDansListe : les libelles rendus SONT ceux passes par l\'appelant (aucune valeur en dur ici, G3a)', async () => {

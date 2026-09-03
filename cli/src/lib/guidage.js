@@ -58,12 +58,15 @@ export function ligneEquivalente(argvComplet) {
 // `items` = [{ id, label }]. Rend :
 //   { type: 'item', item }   — un item choisi
 //   { type: 'libre', valeur }— l'utilisateur a choisi de saisir une valeur libre (A4.1)
-//   { type: 'vide' }         — aucun item ET pas d'entree libre : rien a proposer (R7)
+//   { type: 'vide' }         — AUCUN item (R7, autorite vide) : rien a proposer, MEME si une
+//                               entree libre etait permise — CA-10 : « le dit et rend la main,
+//                               SANS repli en dur » — un menu reduit a la seule ligne « saisir »
+//                               ne serait pas une liste, ce serait une ceremonie sans objet.
 //   { type: 'annule' }       — reponse vide ou hors bornes : rien n'a ete choisi
 export async function choisirDansListe({
   ask, items, titre, permettreLibre = false, libelleLibre = 'saisir une valeur libre', log = console.log,
 }) {
-  if (!items.length && !permettreLibre) return { type: 'vide' };
+  if (!items.length) return { type: 'vide' };
 
   log(`\n${titre}`);
   items.forEach((it, i) => log(`  ${i + 1}. ${it.label ?? it.id}`));
@@ -93,7 +96,7 @@ const ANSI_RESET = '\x1b[0m';
 const ansiMoveUp = (n) => `\x1b[${n}A`;
 const ANSI_CLEAR_DOWN = '\x1b[0J';
 
-// Rend { type: 'item', item } | { type: 'demande-libre' } | { type: 'annule', motif }.
+// Rend { type: 'item', item } | { type: 'demande-libre' } | { type: 'vide' } | { type: 'annule', motif }.
 // `demande-libre` est traduit par `selectionner()` en une question texte CLASSIQUE (mode cuit) :
 // saisir un id lettre par lettre EN mode brut ajouterait un moteur de saisie de texte complet pour
 // un gain nul — l'entree libre n'a, par definition, AUCUN vocabulaire ferme a naviguer aux fleches.
@@ -101,6 +104,9 @@ export function choisirAuClavier({
   items, titre, permettreLibre = false, libelleLibre = 'saisir une valeur libre',
   input = process.stdin, output = process.stdout,
 }) {
+  // R7/CA-10 : AUCUN item -> rien a proposer, avant meme d'ouvrir le mode brut (pas de ceremonie
+  // reduite a la seule ligne « saisir »).
+  if (!items.length) return Promise.resolve({ type: 'vide' });
   return new Promise((resolve) => {
     let curseur = 0;
     let filtre = '';
@@ -195,9 +201,11 @@ export async function selectionner({
   items, titre, permettreLibre = false, libelleLibre = 'saisir une valeur libre',
   input = process.stdin, output = process.stdout,
 }) {
-  // R7 (autorite vide) : ni item ni entree libre -> rien a proposer, AVANT d'ouvrir quoi que ce
-  // soit (jamais un menu vide, ni en mode brut ni en liste).
-  if (!items.length && !permettreLibre) return { type: 'vide' };
+  // R7/CA-10 (autorite vide) : AUCUN item -> rien a proposer, AVANT d'ouvrir quoi que ce soit
+  // (jamais un menu, ni en mode brut ni en liste) — MEME si une entree libre etait permise : un
+  // menu reduit a la seule ligne « saisir » ne serait pas un repli, ce serait une ceremonie sans
+  // objet (CA-10 : « le dit et rend la main, SANS repli en dur »).
+  if (!items.length) return { type: 'vide' };
 
   if (peutModeBrut(input, output)) {
     try {

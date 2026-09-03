@@ -133,6 +133,13 @@ test('A4.3 : aucun fichier de commande ne construit un argv guide contenant --fo
 // `--guide` n'est pas un drapeau mort : sans ce test, une regression qui deconnecterait le cablage
 // (ex. `peutDemander` jamais atteint) resterait invisible a G1 (qui ne peut, PAR CONSTRUCTION, JAMAIS
 // entrer cette branche puisqu'il tourne hors TTY).
+// ⚠️ Piege d'infrastructure de test (pas une piste de production) : le `console` GLOBAL de Node se
+// lie a `process.stdout`/`process.stderr` a la PREMIERE utilisation et NE SUIT PLUS les swaps
+// suivants — un second test qui re-swap `process.stdout` pour capturer NE CAPTURE RIEN (le flux
+// precedent reste la cible reelle des futurs `console.log`). `readline` (utilise EXPLICITEMENT sur
+// `input`/`output`, jamais via `console`) n'a PAS ce probleme — seuls les `console.log`/`console.error`
+// (rendu des menus, echo A3, messages « rien n'a ete modifie ») en ont besoin : on les intercepte
+// DIRECTEMENT ici, en plus du swap stdin/stdout (necessaire, lui, a `readline`).
 async function avecTTYFactice(reponses, executer) {
   const stdin = new PassThrough(); stdin.isTTY = true;     // TTY... mais SANS setRawMode -> palier 1
   const stdout = new PassThrough(); stdout.isTTY = true;
@@ -146,6 +153,10 @@ async function avecTTYFactice(reponses, executer) {
   Object.defineProperty(process, 'stdin', { value: stdin, configurable: true });
   Object.defineProperty(process, 'stdout', { value: stdout, configurable: true });
   Object.defineProperty(process, 'stderr', { value: stderr, configurable: true });
+  const logOrig = console.log;
+  const errorOrig = console.error;
+  console.log = (...args) => { sortie += args.join(' ') + '\n'; };
+  console.error = (...args) => { sortie += args.join(' ') + '\n'; };
   // Chaque reponse est ecrite apres un tick (setImmediate) : le moteur ferme et rouvre une
   // interface readline PAR QUESTION (cf. lib/guidage.js) — l'ecrire trop tot la perd.
   const alimenter = (async () => {
@@ -156,10 +167,16 @@ async function avecTTYFactice(reponses, executer) {
   })();
   try {
     await Promise.all([executer(), alimenter]);
+    // Laisse les evenements 'data' deja emis (mais pas encore livres) se propager avant de lire
+    // `sortie` — un parcours SANS reponse scriptee (CA-10, liste vide) peut se resoudre plus vite
+    // que la propagation du PassThrough.
+    await new Promise((res) => setImmediate(res));
   } finally {
     Object.defineProperty(process, 'stdin', stdinOrig);
     Object.defineProperty(process, 'stdout', stdoutOrig);
     Object.defineProperty(process, 'stderr', stderrOrig);
+    console.log = logOrig;
+    console.error = errorOrig;
   }
   return sortie;
 }
@@ -194,5 +211,34 @@ test('G2 (bout en bout, palier 1 REEL) : models set --guide, valeur libre — as
   assert.doesNotMatch(echo, /--force/, `l'argv assemble par le guidage ne doit JAMAIS porter --force : ${echo}`);
   assert.ok(!fs.existsSync(path.join(proj, 'iakaframe.json')), 'rien ne doit etre ecrit sur un refus');
   process.exitCode = 0;   // le refus (fail()) positionne exitCode=1 : neutralise pour ne pas polluer la suite
+  fs.rmSync(proj, { recursive: true, force: true });
+});
+
+// --- CA-10 : autorite vide geree — « le dit et rend la main, SANS proposer de liste ni de repli
+// en dur ». Bibliotheque MINIMALE (double marqueur library/+methods/, AUCUNE frame) : personasForTarget
+// rend [] (activeTeamId ne resout aucune team, ni celle du projet ni le default). --------------------
+test("CA-10 : models set --guide sur un projet SANS team active — le dit, rend la main, N'OFFRE AUCUNE saisie libre", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-ca10-root-'));
+  fs.mkdirSync(path.join(root, 'library', 'personas'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'methods'), { recursive: true });
+  fs.mkdirSync(path.join(root, 'teams'), { recursive: true });
+  const proj = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-ca10-proj-'));
+
+  const { runModels } = await import('../src/commands/models.js');
+  let ascPromptApparu = false;
+  const sortie = await avecTTYFactice([], async () => {
+    // Aucune reponse scriptee : si un prompt apparaissait, l'attente ne se resoudrait JAMAIS
+    // (deadlock -> timeout du test), ce qui prouverait la regression aussi surement qu'une assertion.
+    await runModels(['set', '--guide', '--path', proj, '--root', root]);
+    ascPromptApparu = true;
+  });
+
+  assert.ok(ascPromptApparu, 'le guidage doit rendre la main SANS attendre de reponse (aucun prompt)');
+  assert.match(sortie, /Aucune persona disponible pour ce projet/, sortie);
+  assert.doesNotMatch(sortie, /Numero \(vide = annuler\)/, 'aucun menu ne doit avoir ete affiche (CA-10 : pas de repli en dur)');
+  assert.doesNotMatch(sortie, /saisir un id de persona/, 'aucune entree LIBRE ne doit avoir ete proposee (CA-10)');
+  assert.ok(!fs.existsSync(path.join(proj, 'iakaframe.json')), 'rien ne doit etre ecrit');
+
+  fs.rmSync(root, { recursive: true, force: true });
   fs.rmSync(proj, { recursive: true, force: true });
 });
