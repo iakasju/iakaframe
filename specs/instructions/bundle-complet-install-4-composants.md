@@ -54,6 +54,33 @@ c'est **les trois, avec bascule**. Elle **agrandit le lot 0** et ajoute **AR-7**
 dérive ») appliqué aux **dépôts** : une cible injoignable n'est **pas une erreur**, c'est un
 **état à dire**. Un canal muet est un canal qui dérive.
 
+### Amendement du 2026-09-03 — le triple canal est superséde par une décision à deux endpoints
+
+> Constaté par ⚒️ **Gimli**, en exécutant `specs/instructions/chaine-complete-install-amorcage-dmg-msi.md`
+> § 5.1 (« lot 0 (solde) »), sur mesure **M10** de cette même instruction.
+
+Le triple canal (iakabox, NAS, GitHub) décidé ci-dessus le **2026-08-28 n'est plus l'état retenu**.
+Le **2026-09-03**, le décideur a **retiré l'iakabox des endpoints de LECTURE** (auto-update) des
+deux apps Tauri, **délibérément et avec motif écrit** — mesure M10 : `iakaFrameGUI/src-tauri/
+tauri.conf.json:42-45` et `IakaCockpit/src-tauri/tauri.conf.json:42-45` ne portent plus que **deux**
+endpoints (le NAS puis `raw.githubusercontent.com`), et `IakaCockpit/fixtures/canaux-publication.json:24-30`
+déclare l'iakabox **hors couverture**, avec son motif (« ce n'est PLUS un endpoint de lecture depuis
+le retrait du 2026-09-03 ») et sa condition de levée (« si l'iakabox revient en service ET qu'une
+décision explicite du décideur l'inscrit de nouveau »).
+
+**Ce paragraphe date la bascule, il ne l'efface pas** : le triple canal a existé, a été motivé, et
+sa décision a ensuite été révisée par une décision plus récente et elle-même motivée — la
+discipline de rectification du corpus consiste à **dire les deux dans l'ordre**, jamais à réécrire
+le passé pour qu'il ait toujours dit la version courante.
+
+Ce même amendement **solde le point ouvert d'AR-7** (§ 4.0 de ce document, « le troisième registre
+npm reste à désigner ») : `chaine-complete-install-amorcage-dmg-msi.md` (AR-H, tranché (a) le
+2026-09-03) **ferme la question sans objet** — la voie **publique** du CLI n'est pas un troisième
+registre npm, c'est le **tarball de la release GitHub** ; le registre npm du NAS reste la **voie
+LAN**. Le reliquat `publishConfig` mono-valeur (`cli/package.json:30-32`, M8) en devient un détail
+de cohérence, pas un blocage — déjà conforme à ce verdict au 2026-09-03 (un seul registre déclaré,
+celui du NAS, exactement ce qu'AR-H(a) prescrit pour la voie LAN).
+
 ---
 
 ## 1. Directive
