@@ -5,9 +5,14 @@
 > le disque ou vérifié sur le web ce jour**, jamais repris d'un brief ni d'une mémoire de session.
 > Les allégations qui m'ont été transmises ont été **re-mesurées** ; **quatre d'entre elles sont
 > corrigées** en § 0.2, et cette correction **change le périmètre du lot**.
+> ⚠️ **Cette promesse a connu UNE exception, et elle est nommée plutôt que tue** : l'illustration
+> d'AR-F, conséquence 2, était tirée d'un **commentaire du code** (`install.mjs:50`) et non du
+> disque. Elle était **fausse**. Rectifiée datée en § 4.0 ; risque **R11** ouvert pour que la
+> classe de défaut ne se reproduise pas. **Une promesse d'exhaustivité qui a été démentie une fois
+> se corrige ; elle ne se réaffirme pas.**
 >
 > **Portée portefeuille** : le lot traverse `iakaframe`, `IakaCockpit`, `iakaFrameGUI`, plus un
-> **dépôt neuf** si AR-E est tranché en (a).
+> **dépôt neuf** — **AR-E tranché (a)** le 2026-09-03.
 >
 > **Cadrage parent, non rediscuté** :
 > `specs/instructions/bundle-complet-install-4-composants.md` (7 arbitrages tranchés le 2026-08-28).
@@ -22,6 +27,19 @@
 > valide toutes les recos, lance l'exécution ». **Les huit recommandations sont retenues telles
 > quelles**, y compris les sous-questions et les exigences attachées à chacune. Verdicts et
 > **conséquences inscrites** en **§ 4.0** ; découpage d'exécution en **§ 6.0**.
+>
+> **AMENDÉ le 2026-09-04**, après le **gate 🏹 Legolas du lot A** (verdict FAIL, sur un défaut
+> d'implémentation **hors cadrage**). **Deux points de cette instruction étaient en cause, et un
+> seul était une faute :**
+> 1. **Une illustration FAUSSE** — l'exemple `StefFrame2` d'AR-F, conséquence 2. **Rectifié daté**
+>    en § 4.0, avec **l'origine de l'erreur établie**. **Le verdict AR-F(a) et CA-06 tiennent** ;
+>    seule l'illustration tombe.
+> 2. **Un angle mort** — `install.mjs` ne part dans aucun artefact publié, donc la chaîne serait
+>    amputée **pour l'utilisateur nominal**. Inscrit en **prérequis d'entrée du lot C** (§ 5.4),
+>    **R10** (§ 8) et **CA-21** (§ 9), avec son successeur nommé et sa condition d'arbitrage.
+>
+> **Aucun verdict n'est déplacé. Aucun chiffre ne bouge** (total ≈ 8,75 j). **Un critère est
+> ajouté** : CA-21. Deux risques neufs : **R10**, **R11**.
 
 ---
 
@@ -302,11 +320,45 @@ qu'on ne peut pas les contredire à l'implémentation sans rouvrir l'arbitrage.
      du poste du décideur — **les deux versions sont égales par construction**. Un implémenteur qui
      traiterait cette branche comme un `else` marginal se tromperait sur **presque toutes** les
      exécutions. → CA-05.
-  2. **Version indéterminée du vivant** : le cas est **réel et mesuré** —
-     `frames/releases/StefFrame2/` embarque `install.mjs` **sans `cli/`**, donc sans
-     `package.json`, donc sans version. Verdict : **le vivant l'emporte quand même**, et la
+  2. **Version indéterminée du vivant.** Verdict : **le vivant l'emporte quand même**, et la
      provenance **le dit** (`version indéterminée`). **Aucun repli silencieux sur l'embarqué.**
      → CA-06.
+
+     > 🛑 **RECTIFICATION DATÉE (2026-09-04, gate 🏹 Legolas du lot A) — L'ILLUSTRATION ÉTAIT
+     > FAUSSE.**
+     > Cette conséquence portait, jusqu'à ce commit : *« le cas est **réel et mesuré** —
+     > `frames/releases/StefFrame2/` embarque `install.mjs` **sans `cli/`**, donc sans
+     > `package.json`, donc sans version »*. **C'est faux.** Mesure du gate, re-mesurée
+     > indépendamment par 🔵 Gandalf : `frames/releases/StefFrame2/cli/package.json` **existe** et
+     > porte `"version": "0.1.0"` ; git le trace depuis `3a610c9` (2026-07-18). Conservé daté, pas
+     > effacé — convention de rectification du corpus.
+     >
+     > **D'OÙ VENAIT L'ERREUR, puisqu'une correction muette ne vaccine personne.** De
+     > `install.mjs:50`, qui affirme en commentaire : *« la frame embarque install.mjs **SANS
+     > cli/** »*. **J'ai cité un COMMENTAIRE comme une MESURE**, sans ouvrir le répertoire qu'il
+     > décrivait. C'est exactement `canon-avant-citation` : un commentaire est une **prétention**,
+     > jamais un constat. La leçon est plus large que ce lot — dans une instruction, tout fait
+     > présenté comme « mesuré » doit l'avoir été **sur l'objet**, pas sur ce qu'on dit de lui.
+     >
+     > **CE QUI N'EST PAS REMIS EN CAUSE, et qu'il ne faut pas sur-corriger** : le **verdict AR-F(a)
+     > tient**, la **branche « version indéterminée » reste nécessaire**, et le **code est sain** —
+     > l'implémentation s'appuie sur une fixture disque **synthétique** (`install.mjs` seul, sans
+     > `cli/`) qui reproduit la condition structurelle **sans dépendre de StefFrame2**. C'est la
+     > **justification écrite** qui était fausse, pas la règle ni le test. **CA-06 est inchangé.**
+     >
+     > **LE MOTIF JUSTE, qui remplace le faux.** Aucun arbre du dépôt n'illustre le cas aujourd'hui :
+     > les **deux seuls** `install.mjs` (racine et `frames/releases/StefFrame2/`) portent **tous
+     > deux** un `cli/package.json` versionné — vérifié par balayage de `frames/releases/*/cli/
+     > package.json`, qui ne ramène **qu'une** entrée. Le cas est donc **structurellement possible
+     > et sans occurrence connue à ce jour**. **Cela reste un motif suffisant** : une frame est un
+     > **snapshot de la racine**, sa composition n'est garantie par aucune garde, et une résolution
+     > qui plante ou replie en silence sur un arbre sans version serait un défaut le jour où il
+     > s'en présente un. On code la branche pour la **forme** de l'entrée, pas pour un exemplaire.
+     >
+     > **Successeur nommé, HORS périmètre de ce lot** : `COMMENTAIRE-FAUX-INSTALL-MJS-50` — la
+     > ligne `install.mjs:50` est un **énoncé faux vivant dans le code**, qui a déjà contaminé un
+     > cadrage et contaminera le prochain lecteur. À corriger dans un lot qui touche `install.mjs`
+     > ; **surtout pas ici**, où `install.mjs` est déclaré « appelé, non modifié » (§ 7).
   3. **Format de la ligne de provenance — elle dit *quoi* ET *pourquoi*.** Une provenance qui nomme
      la source sans nommer la raison du choix ne permet pas de diagnostiquer une bascule. Forme
      imposée :
@@ -476,6 +528,12 @@ embarque `install.mjs` **sans `cli/`**, donc sans `package.json`, donc sans vers
 vivant l'emporte quand même, et la ligne de provenance le DIT** (`réservoir vivant (version
 indéterminée)`) — jamais un repli silencieux sur l'embarqué.
 
+> 🛑 **CE PARAGRAPHE PORTE UN FAIT FAUX** — l'exemple `StefFrame2` : ce répertoire **porte** un
+> `cli/package.json` en `0.1.0`. **Conservé tel quel** parce que c'est le texte sur lequel le
+> verdict a été rendu, mais **jamais laissé sans drapeau**. Rectification complète, origine de
+> l'erreur et motif de remplacement : **§ 4.0, AR-F conséquence 2**. **Le verdict (a) et CA-06
+> tiennent** — seule l'illustration tombe.
+
 **Et dans tous les cas, la ligne de provenance est OBLIGATOIRE** (conséquence inscrite d'AR-2(c)) :
 elle nomme la source **et la raison du choix**. `réservoir : vivant <chemin> (v0.39.0) — embarqué
 v0.39.0, égalité, le vivant l'emporte`. Une provenance qui dit *quoi* sans dire *pourquoi* ne permet
@@ -589,6 +647,42 @@ en une passe (autre verbe, à cadrer séparément) · toute réécriture de `ins
 
 ### 5.4 — Lot C : le moteur, la façade, l'amorçage — **À FAIRE**
 
+> 🛑 **RISQUE D'ENTRÉE, à lire AVANT de commencer le lot C — inscrit le 2026-09-04, relevé par
+> l'exécution du lot A, confirmé par le gate 🏹 Legolas, et re-mesuré par 🔵 Gandalf.**
+>
+> **`install.mjs` ne part dans AUCUN artefact publié.** Mesuré : la liste `ASSETS` de
+> `cli/scripts/bundle.js:22-31` porte **huit** entrées — `library`, `methods`, `teams`, `bindings`,
+> `kits`, `design-naonedge`, `agents`, `skills` — et **jamais `install.mjs`** ; et
+> `cli/package.json:12-16` (`files`) ne liste que `src`, `_bundled`, `README.md`, donc pas
+> davantage à la racine du tarball.
+>
+> **Conséquence, et elle vise l'utilisateur nominal.** Un CLI installé **purement par
+> npm/tarball** — c'est-à-dire **exactement la voie publique qu'AR-H(a) vient d'acter** — ne peut
+> **structurellement pas** jouer l'**étape 2**. Le moteur C.1 réutilisera la même
+> `resoudreReservoir` et la même étape 2 : **il héritera de l'impasse**. Autrement dit, la « chaîne
+> complète » serait complète pour quiconque a déjà un réservoir vivant sous la main — et **amputée
+> pour celui à qui elle s'adresse**.
+>
+> **Portée, tranchée par le gate et non rediscutée ici** : ce **n'est pas** un critère du lot A non
+> tenu. Le § 7 liste `install.mjs` comme « **appelé, non modifié** » et **`bundle.js` n'y figure
+> pas** ; l'implémentation **le dit** au lieu de le masquer, ce qui est le comportement attendu.
+>
+> **Ce qui est exigé ici, et rien de plus** : que l'impasse soit **inscrite comme prérequis
+> d'entrée du lot C**, jamais laissée en angle mort silencieux. → **R10** (§ 8) et **CA-21** (§ 9).
+>
+> **Successeur nommé, HORS périmètre de ce lot et NON cadré ici** :
+> **`BUNDLE-INSTALL-MJS-ABSENT`** — amender `cli/scripts/bundle.js` (`ASSETS`) et
+> `cli/package.json` (`files`) pour que la charge de l'étape 2 voyage avec le paquet.
+> **Condition d'entrée : un arbitrage du décideur**, parce que le geste n'est pas neutre — il
+> change ce que le tarball publié contient, donc ce que `npm install -g` écrit sur la machine, et
+> il touche une garde (`required: true`) posée par un lot antérieur pour refuser un bundle amputé.
+> Ordre de grandeur indicatif **≈ 0,5 j**, **non compté** à l'estimation du § 11 tant qu'il n'est
+> pas arbitré.
+>
+> **Ce que le lot C DOIT faire en attendant** : ne pas prétendre. Voir **CA-21** — sur un poste sans
+> réservoir vivant, l'étape 2 **refuse en nommant la cause**. Un refus lisible est tenable ; un
+> succès silencieux ou une erreur obscure ne le sont pas.
+
 - **C.1 — Le moteur.** Les **quatre** étapes enchaînées comme verbes du CLI, validation par étape
   (AR-4), **rollback automatique + ses trois gardes** (AR-5) : ne défaire que ce qu'on peut
   **prouver** avoir changé et **refuser de dérouler** si la sauvegarde manque · ne **jamais** retirer
@@ -627,6 +721,26 @@ l'étape 2. **AR-1 aurait alors court-circuité AR-4 dans son dos.**
 (variable d'environnement, ou drapeau interne — la forme est libre, l'effet ne l'est pas), et cette
 garde est **éprouvée par un contrefactuel** : désarmée, l'auto-déploiement doit se produire et le
 test doit **rougir**.
+
+> 📌 **NOTE FACTUELLE (2026-09-04) — AR-1 est une DÉCISION, pas encore un MÉCANISME. Ce n'est pas
+> un défaut, et il ne faut pas le traiter comme tel.**
+>
+> Mesuré par le gate 🏹 Legolas et **re-mesuré par 🔵 Gandalf** : **AR-1 n'est câblé nulle part**
+> dans le dispatch réel. Aucun hook « premier lancement » sur les 40 entrées de dispatch, et
+> `cli/src/index.js#main()` (l. 118) n'en porte aucun — un balayage de `index.js` sur
+> `premier lancement|deployKit|autoDeploy|_bundled` ne ramène **rien**. Le paragraphe ci-dessus
+> **suppose** l'existence de ce câblage ; à ce jour il décrit un **contrat**, pas un chemin de code.
+>
+> **Conséquence sur CA-08 : aucune.** Le critère est **jugé rempli** par une garde confinée à la
+> transition **étape 1 → étape 2**, cohérente avec la liste de fichiers du § 7. C'est le seul
+> chemin qui existe, donc le seul qu'on puisse garder — et le garder est juste.
+>
+> **Ce qu'il faut inscrire, et c'est tout** : **le jour où AR-1 sera réellement câblé** — hook de
+> premier lancement, `postinstall`, ou n'importe quelle autre forme —, **le lot qui le câble DEVRA
+> reprendre cette garde et l'étendre au chemin qu'il ouvre**. Sans quoi la garde protégera la
+> transition 1→2 et **laissera passer tous les autres points d'entrée** : elle serait alors verte,
+> partielle, et muette sur ce qu'elle ne couvre pas — c'est-à-dire le pire des états pour une garde.
+> **Condition attachée au futur lot de câblage d'AR-1, pas au lot A.**
 
 ---
 
@@ -768,6 +882,8 @@ proposé était juste, et il ne bouge pas.
 | R7 | **Une troisième app fait diverger les conventions du portefeuille** (vitrine, convergence, porteurs de version) et le premier symptôme est une vitrine qui ment. | AR-E(a) : **dupliquer** la convention, cliquet de convergence relevé à trois frères, face en ligne active dès la première release. |
 | R8 | **On déclare « livré » ce qui n'est que « buildé »** sur Windows, Linux et macOS Intel. Le précédent AR-6 a déjà coûté ce faux vert. | § 10 : gate humain **déclaré**, jamais compté comme couvert. Aucun critère d'acceptation ne le suppose. |
 | R9 | **Le lot recode ce qui existe déjà** (lots 0 et B) parce que le cadrage parent le décrit comme à faire. | § 5.1 et § 5.2 : état mesuré, avec chemins et lignes. **Ces morceaux sont explicitement exclus.** |
+| **R10** *(inscrit le 2026-09-04)* | **La chaîne est amputée pour l'utilisateur nominal.** `install.mjs` ne part dans **aucun** artefact publié (`bundle.js:22-31`, `cli/package.json:12-16`) : un CLI installé par la **voie publique actée par AR-H(a)** ne peut **structurellement pas** jouer l'étape 2, et le moteur C.1 **héritera** de l'impasse. Le risque n'est pas qu'elle existe — c'est qu'elle reste **muette** et se découvre chez l'utilisateur. | **Prérequis d'entrée du lot C, écrit** (§ 5.4). **CA-21** : le refus est **explicite et nomme la cause**, jamais un succès silencieux. Le remède de fond est le successeur **`BUNDLE-INSTALL-MJS-ABSENT`**, **hors périmètre, soumis à arbitrage** — l'inscrire ici sans arbitrage serait décider à la place du décideur ce que le tarball publié contient. |
+| **R11** *(inscrit le 2026-09-04)* | **Un commentaire du code est pris pour une mesure.** C'est arrivé **dans ce cadrage même** : `install.mjs:50` affirme « la frame embarque install.mjs SANS cli/ », c'est **faux**, et cette phrase a produit une illustration fausse en § 4.0 (AR-F). Le commentaire est toujours là et contaminera le prochain lecteur. | Discipline `canon-avant-citation` : **un fait annoncé comme mesuré doit l'avoir été sur l'objet**, pas sur ce qu'on en dit. Successeur nommé **`COMMENTAIRE-FAUX-INSTALL-MJS-50`**, hors périmètre (§ 4.0). |
 
 ---
 
@@ -824,6 +940,13 @@ proposé était juste, et il ne bouge pas.
 - [ ] **CA-20** — Le `release.yml` de l'installeur est **épinglé au SHA**, comme celui des deux
       apps. *(Le `release.yml` d'`iakaframe` ne l'est toujours pas — dette **connue et inscrite** à
       son backlog, **hors périmètre de ce lot**.)*
+- [ ] **CA-21** *(ajouté le 2026-09-04, réponse à R10)* — Sur un poste **sans réservoir vivant à
+      proximité** — cas de l'utilisateur nominal installé par la voie publique (AR-H(a)) —,
+      l'**étape 2 REFUSE en nommant la cause** : la charge de la méthode est introuvable, et le
+      message dit **quoi** manque et **où** elle était cherchée. **Ni succès silencieux, ni erreur
+      obscure, ni étape sautée sans le dire.** Éprouvé par un test qui place le CLI hors de portée
+      de tout réservoir vivant. *(Ce critère ne répare pas l'impasse — il interdit qu'elle soit
+      muette. Le remède est le successeur `BUNDLE-INSTALL-MJS-ABSENT`, § 5.4.)*
 
 ---
 
@@ -861,7 +984,8 @@ B (3,5 j) comme **à faire**. La mesure du 2026-09-03 montre qu'ils sont **livr�
 **Le lot est donc environ 4 jours moins cher que ce que le cadrage parent annonçait**, et le risque
 s'est **concentré** sur C.1 (le rollback) au lieu d'être dilué sur quatre lots.
 
-**Les trois inconnues qui peuvent faire glisser cette estimation**, nommées :
+**Les quatre inconnues qui peuvent faire glisser cette estimation**, nommées *(la 4ᵉ ajoutée le
+2026-09-04)* :
 1. **Le rollback** (AR-5). Défaire proprement quatre installations hétérogènes est le seul morceau
    dont je ne peux pas borner le coût par comparaison avec de l'existant.
 2. **AR-E(a), tranché** : monter un dépôt neuf, c'est répliquer **toute** la convention du
@@ -871,6 +995,11 @@ s'est **concentré** sur C.1 (le rollback) au lieu d'être dilué sur quatre lot
    déclaration d'absence**. Tant que l'adhésion Apple n'est pas achetée, chaque utilisateur macOS
    qui télécharge le DMG passe par le parcours Sequoia. Le lot livre le CI prêt et l'aveu écrit ;
    il ne livre pas une installation lisse, et **ne doit jamais laisser croire le contraire**.
+4. **R10 / `BUNDLE-INSTALL-MJS-ABSENT`** *(2026-09-04)* : si le décideur arbitre l'amendement de
+   `bundle.js` **au périmètre** du lot C, compter **+0,5 j**. **Non compté au total ci-dessus**,
+   parce qu'il n'est pas arbitré — et **l'y compter d'office reviendrait à décider à sa place** ce
+   que le tarball publié contient. **Le total reste donc ≈ 8,75 j** : les rectifications du
+   2026-09-04 ne déplacent **aucun** chiffre.
 
 ---
 
