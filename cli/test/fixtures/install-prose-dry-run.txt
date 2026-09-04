@@ -1,0 +1,67 @@
+==== iakaframe install ====
+4 étapes / 3 téléchargements (AR-A) :
+  [1/4] CLI (téléchargement)
+  [2/4] méthode
+  [3/4] IakaCockpit (téléchargement)
+  [4/4] iakaFrameGUI (téléchargement)
+
+
+[1/4] CLI — mise à jour (poste déjà équipé, AR-G) : version courante v0.39.0
+  réservoir : vivant <VIVANT> (v0.39.0) — embarqué v0.39.0, égalité, le vivant l'emporte
+  sources réseau (AR-H) consultées :
+    - DOUBLE-TEST (cli/test/fixtures/install-network-double.mjs) : sonde toujours injoignable : injoignable
+  déjà à jour (v0.39.0) — rien à installer.
+
+  [garde AR-1/AR-4] AR-1 désarmé pour la durée de la chaîne (corollaire AR-1/AR-4, § 5.5) : le kit hôte reste absent jusqu'à validation explicite de l'étape 2
+
+[2/4] méthode — délégation à install.mjs (M4, non réimplémenté)
+  quoi : kit(s) hôte(s) [claude] depuis <VIVANT>/kits
+  où : <CLAUDE>
+  quelle version : v0.39.0
+  ce qui sera fusionné : --merge par défaut (rien d'existant n'est écrasé sans --overwrite)
+
+== iakaframe — installeur multi-host (fan-out) ==
+Kits  : <VIVANT>/kits
+
+---- host: claude — present (--target-claude) ----
+================ host: claude ================
+Kit   : <VIVANT>/kits/iakaframe-claude
+Cible : <CLAUDE>
+Mode  : merge  (dry-run : rien ne sera ecrit)
+
+[Contrat (CLAUDE.md)]
+  + CLAUDE.md — ajout du bloc iakaframe
+
+[Reglages (settings.json)]
+  (rien a poser)
+
+[Hooks]
+  (rien a poser)
+
+[Commands]
+  (rien a poser)
+
+[Skills]
+  (rien a poser)
+
+[Agents]
+  (rien a poser)
+  (dry-run) host claude : aucun fichier ecrit, aucun backup.
+
+== Termine ==
+Hosts traites : (aucun)
+(dry-run) Aucun fichier ecrit, aucun backup cree.
+
+[3/4] IakaCockpit
+  sources consultées (ordre M10) :
+    - DOUBLE-TEST (toujours injoignable) : injoignable
+    - DOUBLE-TEST (toujours injoignable) : injoignable
+  [dry-run] aucune source n'a servi de manifeste exploitable pour IakaCockpit — rien à écrire de toute façon.
+
+[4/4] iakaFrameGUI
+  sources consultées (ordre M10) :
+    - DOUBLE-TEST (toujours injoignable) : injoignable
+    - DOUBLE-TEST (toujours injoignable) : injoignable
+  [dry-run] aucune source n'a servi de manifeste exploitable pour iakaFrameGUI — rien à écrire de toute façon.
+
+Terminé : les 4 étapes ont été jouées.
