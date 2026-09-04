@@ -94,16 +94,25 @@ test('CA-05/CA-06 : la provenance du réservoir est affichée à l\'étape 1', (
 test('CA-03 : `install --dry-run` décrit les 4 étapes et N\'ÉCRIT RIEN — prouvé par empreinte disque avant/après', () => {
   const vivant = faireReservoirVivant({ version: '0.39.0' });
   const targetClaude = path.join(tmp(), 'claude');
-  const avant = { vivant: empreinte(vivant), claude: empreinte(targetClaude) };
-  const r = run(['install', '--dry-run', '--root', vivant, '--target-claude', targetClaude, '--yes']);
+  const appsDir = path.join(tmp(), 'apps');
+  const backupDir = path.join(tmp(), 'backups');
+  const avant = { vivant: empreinte(vivant), claude: empreinte(targetClaude), apps: empreinte(appsDir), backups: empreinte(backupDir) };
+  const r = run(['install', '--dry-run', '--root', vivant, '--target-claude', targetClaude, '--apps-dir', appsDir, '--backup-dir', backupDir, '--yes']);
   assert.equal(r.status, 0, r.stderr);
-  const apres = { vivant: empreinte(vivant), claude: empreinte(targetClaude) };
+  const apres = { vivant: empreinte(vivant), claude: empreinte(targetClaude), apps: empreinte(appsDir), backups: empreinte(backupDir) };
   assert.equal(apres.vivant, avant.vivant, 'le réservoir vivant ne doit subir AUCUNE écriture en dry-run');
   assert.equal(apres.claude, avant.claude, 'la cible --target-claude ne doit subir AUCUNE écriture en dry-run');
+  assert.equal(apres.apps, avant.apps, '--apps-dir (étapes 3/4) ne doit subir AUCUNE écriture en dry-run');
+  assert.equal(apres.backups, avant.backups, '--backup-dir (rollback AR-5) ne doit subir AUCUNE écriture en dry-run');
   assert.match(r.stdout, /\[1\/4\] CLI/);
   assert.match(r.stdout, /\[2\/4\] méthode/);
   assert.match(r.stdout, /\[3\/4\] IakaCockpit/);
   assert.match(r.stdout, /\[4\/4\] iakaFrameGUI/);
+  // Lot C.1 : meme en dry-run, les etapes 3/4 CONSULTENT le reseau pour decrire exactement (meme
+  // doctrine que l'etape 1) — le double (toujours injoignable) le leur interdit ici, et elles le
+  // DISENT plutot que d'ecrire un succes simule (§ CA-15/CA-21 : jamais un succes silencieux).
+  assert.match(r.stdout, /\[dry-run\] aucune source n'a servi de manifeste exploitable pour IakaCockpit/);
+  assert.match(r.stdout, /\[dry-run\] aucune source n'a servi de manifeste exploitable pour iakaFrameGUI/);
 });
 
 test('CA-04 : chaque étape annonce quoi/où/version/fusion, ET refuse SANS confirmation en non-interactif (défaut sûr)', () => {
@@ -125,31 +134,45 @@ test('CA-07 : une étape refusée ARRÊTE la chaîne (exit != 0) et ÉNONCE la c
   assert.notEqual(r.status, 0, 'CA-07 : le processus doit sortir en erreur quand la chaîne s\'arrête');
   assert.match(r.stdout, /Reprise : iakaframe install --yes/);
   // La BANNIERE d'ouverture annonce toujours les 4 étapes (CA-19) ; ce qui ne doit JAMAIS
-  // apparaître, c'est l'EXÉCUTION de l'étape 3 (son message "non disponible") ni le récapitulatif
-  // final — la preuve que la chaîne s'est bien ARRÊTÉE à l'étape 2, pas déroulée jusqu'au bout.
-  assert.doesNotMatch(r.stdout, /IakaCockpit — non disponible/, 'l\'étape 3 ne doit jamais s\'EXÉCUTER après un refus à l\'étape 2');
-  assert.doesNotMatch(r.stdout, /Terminé : étapes 1-2 jouées/, 'aucun récapitulatif de complétion après un refus');
+  // apparaître, c'est l'EXÉCUTION de l'étape 3 (son en-tête « [3/4] ») ni le récapitulatif final —
+  // la preuve que la chaîne s'est bien ARRÊTÉE à l'étape 2, pas déroulée jusqu'au bout.
+  assert.doesNotMatch(r.stdout, /\n\[3\/4\]/, 'l\'étape 3 ne doit jamais s\'EXÉCUTER après un refus à l\'étape 2');
+  assert.doesNotMatch(r.stdout, /Terminé : /, 'aucun récapitulatif de complétion après un refus');
 });
 
-test('CA-04 : `--yes` saute TOUTES les validations — exécution complète, réellement écrite (aucune confirmation demandée)', () => {
+test('lot C.1 : `--yes` saute TOUTES les validations des étapes 1-2 (réellement écrites, AUCUNE confirmation demandée) ; la chaîne s\'arrête ENSUITE, loyalement, à l\'étape 3 faute de réseau (double toujours injoignable) — jamais un succès simulé, jamais une écriture hors --apps-dir', () => {
   const vivant = faireReservoirVivant({ version: '0.39.0' });
   const targetClaude = path.join(tmp(), 'claude');
-  const r = run(['install', '--root', vivant, '--target-claude', targetClaude, '--yes']);
-  assert.equal(r.status, 0, r.stderr);
-  assert.doesNotMatch(r.stdout, /REFUS/);
-  assert.ok(fs.existsSync(path.join(targetClaude, 'CLAUDE.md')), '--yes doit avoir réellement déployé le kit (étape 2)');
+  const appsDir = path.join(tmp(), 'apps');
+  const backupDir = path.join(tmp(), 'backups');
+  const r = run(['install', '--root', vivant, '--target-claude', targetClaude, '--apps-dir', appsDir, '--backup-dir', backupDir, '--yes']);
+  assert.notEqual(r.status, 0, 'CA-07 : la chaîne doit sortir en erreur, l\'étape 3 ayant été refusée faute de réseau');
+  assert.doesNotMatch(r.stdout, /non confirmé/, '--yes ne doit JAMAIS avoir laissé une confirmation en attente aux étapes 1-2');
+  assert.ok(fs.existsSync(path.join(targetClaude, 'CLAUDE.md')), '--yes doit avoir réellement déployé le kit (étape 2, avant l\'arrêt à l\'étape 3)');
   const cm = fs.readFileSync(path.join(targetClaude, 'CLAUDE.md'), 'utf8');
   assert.match(cm, /CLAUDE contract fixture \(install-verbe\.test\)/);
-  assert.match(r.stdout, /\[3\/4\] IakaCockpit — non disponible dans cette version/);
-  assert.match(r.stdout, /\[4\/4\] iakaFrameGUI — non disponible dans cette version/);
+  assert.match(r.stdout, /\[3\/4\] IakaCockpit/);
+  assert.match(r.stdout, /REFUS : aucune source n'a servi de manifeste exploitable pour IakaCockpit/);
+  assert.doesNotMatch(r.stdout, /\n\[4\/4\]/, 'l\'étape 4 ne doit jamais s\'EXÉCUTER après un refus à l\'étape 3');
+  assert.equal(fs.existsSync(appsDir), false, 'aucune écriture dans --apps-dir : rien n\'a jamais été résolu, donc rien à sauvegarder ni à poser');
 });
 
-test('étapes 3 et 4 sont TOUJOURS déclarées non disponibles, jamais simulées comme un succès', () => {
-  const vivant = faireReservoirVivant({ version: '0.39.0' });
+// CA-21 — verifie que la propriete tient dans la CHAINE COMPLETE (subprocess reel, `iakaframe
+// install`), pas seulement sur l'etape 2 ISOLEE (le test `etape2Methode` direct, plus bas dans ce
+// fichier, deja EXISTANT depuis le lot A). Un reservoir SANS install.mjs (le cas de l'utilisateur
+// nominal installe par la voie publique, R10) doit faire REFUSER la chaine des l'etape 2 — jamais
+// un succes silencieux, jamais un saut vers les etapes 3/4.
+test('CA-21 : aucun réservoir vivant (le cas nominal de la voie publique, R10) -> la CHAÎNE ENTIÈRE refuse à l\'étape 2, EN NOMMANT LA CAUSE, jamais un saut vers 3/4', () => {
+  const vide = tmp(); // pas d'install.mjs : precondition R10
   const targetClaude = path.join(tmp(), 'claude');
-  const r = run(['install', '--root', vivant, '--target-claude', targetClaude, '--yes']);
-  assert.match(r.stdout, /IakaCockpit — non disponible dans cette version \(lot C\.1, à venir\)\. Étape refusée explicitement, jamais simulée\./);
-  assert.match(r.stdout, /iakaFrameGUI — non disponible dans cette version \(lot C\.1, à venir\)\. Étape refusée explicitement, jamais simulée\./);
+  const appsDir = path.join(tmp(), 'apps');
+  const r = run(['install', '--root', vide, '--target-claude', targetClaude, '--apps-dir', appsDir, '--yes']);
+  assert.notEqual(r.status, 0, 'CA-21 : la chaîne doit sortir en erreur, jamais un succès silencieux');
+  assert.match(r.stdout, /REFUS : aucun réservoir vivant avec install\.mjs/, 'CA-21 : la cause EXACTE doit être nommée');
+  assert.match(r.stdout, /L'embarqué \(_bundled\/\) ne porte PAS d'install\.mjs/, 'CA-21 : où elle a été cherchée doit être dit');
+  assert.doesNotMatch(r.stdout, /\n\[3\/4\]/, 'CA-21 : les étapes 3/4 ne doivent JAMAIS être atteintes quand la chaîne est amputée dès l\'étape 2');
+  assert.equal(fs.existsSync(targetClaude), false, 'aucune écriture : ni CLAUDE.md (étape 2 refusée), ni --apps-dir (jamais atteint)');
+  assert.equal(fs.existsSync(appsDir), false);
 });
 
 // EXCEPTION documentee en tete de fichier : appel DIRECT (pas de sous-processus). Un `--root`

@@ -80,8 +80,8 @@ export const VERBES = [
   },
   {
     id: 'install',
-    resume: "Chaine complete d'installation (etapes 1+2, lot A) : CLI (mise a jour) + methode",
-    options: ['--dry-run', '--yes', '--root <dir>', '--hosts a,b', '--target-claude <dir>', '--backup-dir <dir>', '--json'],
+    resume: "Chaine complete d'installation (4 etapes, lots A+C.1) : CLI, methode, IakaCockpit, iakaFrameGUI",
+    options: ['--dry-run', '--yes', '--root <dir>', '--hosts a,b', '--target-claude <dir>', '--backup-dir <dir>', '--apps-dir <dir>', '--json'],
     sousVerbes: [],
     parametres: [],
     ecriture: true,
