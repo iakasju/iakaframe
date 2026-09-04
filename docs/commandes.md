@@ -9,7 +9,7 @@
 | Élément | Valeur |
 |---|---|
 | Dernière mise à jour | 2026-09-03 |
-| Version CLI documentée | `@naonedge/iakaframe` **v0.39.0** (source : `cli/package.json`) |
+| Version CLI documentée | `@naonedge/iakaframe` **v0.40.0** (source : `cli/package.json`) |
 | Commandes CLI couvertes | **40 / 40** verbes distincts (un par `case` de `cli/src/index.js`), **+ 1 alias** (`use` → `switch`) = **41 `case`** au total |
 | Sources de vérité | `~/.claude/CLAUDE.md` (déclencheurs), **`cli/src/lib/verbes.js`** (registre déclaratif — source UNIQUE de l'inventaire, dont dérivent le bloc `HELP` de `cli/src/index.js` et `iakaframe commands --json`), `cli/src/commands/*.js` |
 
