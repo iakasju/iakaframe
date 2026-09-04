@@ -635,7 +635,7 @@ export async function runInstall(argv) {
     terminer({ ok: false, error: 'étape 1 (CLI) refusée ou échouée', derniereEtapeTentee: 1, reprise: r1.reprise });
     return;
   }
-  etapesFaites.push(1);
+  if (!values['dry-run']) etapesFaites.push(1);
 
   // --- Corollaire AR-1/AR-4 (§5.5, CA-08) : le moteur DESARME AR-1 pour TOUTE la duree de la
   // chaine — jamais un chemin ou le CLI fraichement mis a jour (etape 1) declencherait le
@@ -663,7 +663,7 @@ export async function runInstall(argv) {
     terminer({ ok: false, error: 'étape 2 (méthode) refusée ou échouée', derniereEtapeTentee: 2, reprise: r2.reprise });
     return;
   }
-  etapesFaites.push(2);
+  if (!values['dry-run']) etapesFaites.push(2);
 
   const appsDir = resoudreAppsDir(values);
   const backupDir = resoudreBackupDir(values);
