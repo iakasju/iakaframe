@@ -878,5 +878,15 @@
     "dirty": true,
     "files": 1183,
     "note": "Deux lots livres le 2026-09-04 : C.1 (moteur de chaine) puis BUNDLE-INSTALL-MJS-ABSENT (install.mjs + kits embarques dans le tarball, AR-I(a)/AR-J(a)), gate Legolas PASS au premier passage chacun (1056/1055/0/1). L ecart du gate C.1 est ferme. Push Forgejo EN ATTENTE (NAS injoignable, Mac sur hotspot) ; GitHub a jour. Decision due : publier (tag -> CI -> npm) pour prouver le parcours de bout en bout. Suite : C.2 + B'-a dans iakaInstall."
+  },
+  {
+    "date": "2026-09-05 00:59",
+    "reason": "pause",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "efe195c merge: LOT contrat machine du verbe install — evenements, feu vert stdin, --json C-JSON, --events NDJSON (gate Legolas PASS au premier passage)",
+    "dirty": true,
+    "files": 1191,
+    "note": "Lot CONTRAT-MACHINE-DU-VERBE-INSTALL livre et fusionne (efe195c), gate PASS 16/16, prose identique octet pour octet au temoin, 1096 tests. Ecart a arbitrer : etatAtteint.etapesFaites en dry-run. Suite : C.2-b (pilotage reel de la facade) apres arbitrage. Push Forgejo EN ATTENTE ; GitHub a jour."
   }
 ]

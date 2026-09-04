@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-09-04 22:17 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-09-05 00:59 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
   <div class="k">Version</div><div>v0.39.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>f2395f0 merge: LOT install.mjs embarque — la charge de l etape 2 voyage avec le CLI (gate Legolas PASS au premier passage)</code></div>
+  <div class="k">Dernier commit</div><div><code>efe195c merge: LOT contrat machine du verbe install — evenements, feu vert stdin, --json C-JSON, --events NDJSON (gate Legolas PASS au premier passage)</code></div>
   <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
-  <div class="k">Fichiers</div><div>1183 (suivis + non ignores)</div>
-  <div class='k'>Note</div><div>Deux lots livres le 2026-09-04 : C.1 (moteur de chaine) puis BUNDLE-INSTALL-MJS-ABSENT (install.mjs + kits embarques dans le tarball, AR-I(a)/AR-J(a)), gate Legolas PASS au premier passage chacun (1056/1055/0/1). L ecart du gate C.1 est ferme. Push Forgejo EN ATTENTE (NAS injoignable, Mac sur hotspot) ; GitHub a jour. Decision due : publier (tag -&gt; CI -&gt; npm) pour prouver le parcours de bout en bout. Suite : C.2 + B'-a dans iakaInstall.</div>
+  <div class="k">Fichiers</div><div>1191 (suivis + non ignores)</div>
+  <div class='k'>Note</div><div>Lot CONTRAT-MACHINE-DU-VERBE-INSTALL livre et fusionne (efe195c), gate PASS 16/16, prose identique octet pour octet au temoin, 1096 tests. Ecart a arbitrer : etatAtteint.etapesFaites en dry-run. Suite : C.2-b (pilotage reel de la facade) apres arbitrage. Push Forgejo EN ATTENTE ; GitHub a jour.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>f2395f0</code></td><td>2026-09-04</td><td>merge: LOT install.mjs embarque — la charge de l etape 2 voyage avec le CLI (gate Legolas PASS au premier passage)</td></tr>
-<tr><td><code>9013b87</code></td><td>2026-09-04</td><td>docs(qualite): gate lot install.mjs embarque — PASS</td></tr>
-<tr><td><code>0a23f89</code></td><td>2026-09-04</td><td>docs(instruction): cocher CA-B1..CA-B13 avec preuve citée (non auto-validé)</td></tr>
-<tr><td><code>628ec07</code></td><td>2026-09-04</td><td>fix(test): empaqueter une copie isolée, jamais cli/ directement (course npm pack)</td></tr>
-<tr><td><code>372b3f0</code></td><td>2026-09-04</td><td>docs(instruction): amendement daté — R10 soldé, CA-21 → CA-21′ (CA-B12)</td></tr>
-<tr><td><code>27ebcef</code></td><td>2026-09-04</td><td>docs(commandes): décrire l'étape 2 selon AR-I(a) après embarquement (E-5, CA-B11)</td></tr>
-<tr><td><code>b75ae3b</code></td><td>2026-09-04</td><td>docs(install.mjs): rectifier la prémisse fausse du commentaire (E-6, CA-B10)</td></tr>
-<tr><td><code>93d009a</code></td><td>2026-09-04</td><td>test(install): la preuve packagée — étape 2 depuis un paquet extrait (CA-B5)</td></tr>
-<tr><td><code>57a3fdf</code></td><td>2026-09-04</td><td>test(bundle): garde sur le tarball réel (AR-J(a), CA-B6)</td></tr>
-<tr><td><code>dedfef3</code></td><td>2026-09-04</td><td>fix(install): dériver kitsDir du réservoir PORTEUR, réécrire le refus (CA-21')</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>efe195c</code></td><td>2026-09-05</td><td>merge: LOT contrat machine du verbe install — evenements, feu vert stdin, --json C-JSON, --events NDJSON (gate Legolas PASS au premier passage)</td></tr>
+<tr><td><code>86de602</code></td><td>2026-09-05</td><td>docs(qualite): gate lot contrat machine install — PASS</td></tr>
+<tr><td><code>7292651</code></td><td>2026-09-05</td><td>test(cli): registre de couverture C-JSON, motive et cliquete (CA-M16)</td></tr>
+<tr><td><code>c009a30</code></td><td>2026-09-05</td><td>test(cli): gardes du contrat machine install (CA-M1..M7, M9..M15)</td></tr>
+<tr><td><code>d593da5</code></td><td>2026-09-05</td><td>chore(cli): registre + doc a jour pour install (CA-M14)</td></tr>
+<tr><td><code>46da8cd</code></td><td>2026-09-05</td><td>feat(cli): install entre au contrat machine (--json C-JSON, --events NDJSON, --feu-vert)</td></tr>
+<tr><td><code>4526f83</code></td><td>2026-09-05</td><td>feat(cli): port de feu vert non-TTY sur stdin (AR-M1(a))</td></tr>
+<tr><td><code>4c142f9</code></td><td>2026-09-05</td><td>feat(cli): vocabulaire d'evenements ferme + emetteur NDJSON (lib/evenements.js)</td></tr>
+<tr><td><code>811247c</code></td><td>2026-09-05</td><td>test(install): enregistrer le temoin de prose AVANT toute modification</td></tr>
+<tr><td><code>e8c9f90</code></td><td>2026-09-05</td><td>docs(instruction): verdicts AR-M1(a) AR-M2(a) AR-M3(a) rendus par le decideur — contrat machine install</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-09-05 00:59</td><td><span class='r r-pause'>pause</span></td><td>v0.39.0</td><td>main</td><td>Lot CONTRAT-MACHINE-DU-VERBE-INSTALL livre et fusionne (efe195c), gate PASS 16/16, prose identique octet pour octet au temoin, 1096 tests. Ecart a arbitrer : etatAtteint.etapesFaites en dry-run. Suite : C.2-b (pilotage reel de la facade) apres arbitrage. Push Forgejo EN ATTENTE ; GitHub a jour.</td></tr>
 <tr><td>2026-09-04 22:17</td><td><span class='r r-pause'>pause</span></td><td>v0.39.0</td><td>main</td><td>Deux lots livres le 2026-09-04 : C.1 (moteur de chaine) puis BUNDLE-INSTALL-MJS-ABSENT (install.mjs + kits embarques dans le tarball, AR-I(a)/AR-J(a)), gate Legolas PASS au premier passage chacun (1056/1055/0/1). L ecart du gate C.1 est ferme. Push Forgejo EN ATTENTE (NAS injoignable, Mac sur hotspot) ; GitHub a jour. Decision due : publier (tag -&gt; CI -&gt; npm) pour prouver le parcours de bout en bout. Suite : C.2 + B'-a dans iakaInstall.</td></tr>
 <tr><td>2026-09-04 21:05</td><td><span class='r r-manual'>manual</span></td><td>v0.39.0</td><td>main</td><td>Recit de reprise corrige : prochaine etape = lot BUNDLE-INSTALL-MJS-ABSENT puis C.2 dans iakaInstall</td></tr>
 <tr><td>2026-09-04 21:04</td><td><span class='r r-manual'>manual</span></td><td>v0.39.0</td><td>main</td><td>Recit de reprise complete apres le lot C.1 (regeneration HTML)</td></tr>
