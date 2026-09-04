@@ -24,17 +24,19 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-09-04 21:03 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-09-04 21:05 - motif : manual - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
   <div class="k">Version</div><div>v0.39.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>e9bfdc0 merge: LOT C.1 — le moteur de la chaine d installation (gate Legolas PASS au premier passage)</code></div>
-  <div class="k">Arbre</div><div><span class='ok'>propre</span></div>
+  <div class="k">Dernier commit</div><div><code>a5bab91 docs(etat-des-lieux): recit de reprise apres le lot C.1 (PASS), push Forgejo en attente</code></div>
+  <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
   <div class="k">Fichiers</div><div>1180 (suivis + non ignores)</div>
-  <div class='k'>Note</div><div>LOT C.1 livre et fusionne : le moteur de la chaine d installation (4 etapes chainees, rollback 3 gardes, minisign, bundle app), gate Legolas PASS au premier passage (1048/1049 tests). Un ecart non bloquant a tracer : message de refus faux + reprise inoperante quand le reservoir vivant est plus ancien que l embarque (reservoir.js:142-155, install.js:223-228). Push Forgejo en attente (NAS hors de portee, Mac sur hotspot) ; GitHub a jour. Prochaine etape : lot C.2 (app d installation, depot neuf, cadrage Gandalf AR-E).</div>
+  <div class='k'>Note</div><div>Recit de reprise corrige : prochaine etape = lot BUNDLE-INSTALL-MJS-ABSENT puis C.2 dans iakaInstall</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>e9bfdc0</code></td><td>2026-09-04</td><td>merge: LOT C.1 — le moteur de la chaine d installation (gate Legolas PASS au premier passage)</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>a5bab91</code></td><td>2026-09-04</td><td>docs(etat-des-lieux): recit de reprise apres le lot C.1 (PASS), push Forgejo en attente</td></tr>
+<tr><td><code>85026fb</code></td><td>2026-09-04</td><td>chore(iakaframe): update etat des lieux + commit global (pause)</td></tr>
+<tr><td><code>e9bfdc0</code></td><td>2026-09-04</td><td>merge: LOT C.1 — le moteur de la chaine d installation (gate Legolas PASS au premier passage)</td></tr>
 <tr><td><code>dcfa812</code></td><td>2026-09-04</td><td>docs(qualite): gate lot C.1 (moteur chaine install) — PASS</td></tr>
 <tr><td><code>58ab128</code></td><td>2026-09-04</td><td>docs(instruction): BUNDLE-INSTALL-MJS-ABSENT cadre — l arbitrage du decideur est rendu</td></tr>
 <tr><td><code>9645574</code></td><td>2026-09-04</td><td>feat(cli): chaine les etapes 3/4 dans le verbe install (lot C.1, le moteur)</td></tr>
@@ -42,11 +44,11 @@ footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#55
 <tr><td><code>283bcd9</code></td><td>2026-09-04</td><td>feat(cli): resolution + verification + pose d'un bundle d'app (lib/app-bundle.js)</td></tr>
 <tr><td><code>97b1013</code></td><td>2026-09-04</td><td>feat(cli): moteur de rollback a trois gardes (lib/rollback.js, AR-5)</td></tr>
 <tr><td><code>462a9d2</code></td><td>2026-09-04</td><td>feat(cli): verification minisign offline (lib/minisign.js, lot C.1)</td></tr>
-<tr><td><code>23ee33f</code></td><td>2026-09-04</td><td>merge: LOT A — le verbe `install` + solde du lot 0 (gate Legolas PASS au 4e passage)</td></tr>
-<tr><td><code>fc87c4c</code></td><td>2026-09-04</td><td>fix(cli): borde le double reseau — hors du tarball publie, deux signaux requis</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-09-04 21:05</td><td><span class='r r-manual'>manual</span></td><td>v0.39.0</td><td>main</td><td>Recit de reprise corrige : prochaine etape = lot BUNDLE-INSTALL-MJS-ABSENT puis C.2 dans iakaInstall</td></tr>
+<tr><td>2026-09-04 21:04</td><td><span class='r r-manual'>manual</span></td><td>v0.39.0</td><td>main</td><td>Recit de reprise complete apres le lot C.1 (regeneration HTML)</td></tr>
 <tr><td>2026-09-04 21:03</td><td><span class='r r-pause'>pause</span></td><td>v0.39.0</td><td>main</td><td>LOT C.1 livre et fusionne : le moteur de la chaine d installation (4 etapes chainees, rollback 3 gardes, minisign, bundle app), gate Legolas PASS au premier passage (1048/1049 tests). Un ecart non bloquant a tracer : message de refus faux + reprise inoperante quand le reservoir vivant est plus ancien que l embarque (reservoir.js:142-155, install.js:223-228). Push Forgejo en attente (NAS hors de portee, Mac sur hotspot) ; GitHub a jour. Prochaine etape : lot C.2 (app d installation, depot neuf, cadrage Gandalf AR-E).</td></tr>
 <tr><td>2026-09-03 21:26</td><td><span class='r r-manual'>manual</span></td><td>v0.39.0</td><td>main</td><td>LOT A livre : mode guide du terminal, 3 paliers, --guide sur 10 cibles, regle unique de non-interactivite. Palier 2 NON RECETTE (geste humain, 2 OS).</td></tr>
 <tr><td>2026-09-03 18:54</td><td><span class='r r-manual'>manual</span></td><td>v0.39.0</td><td>main</td><td>Dette de canal fermee : fan-out sur les deux canaux, exit non nul si une cible echoue, face 2 hors gate. Endpoint iakabox retire. Cliquet 20-&gt;23.</td></tr>

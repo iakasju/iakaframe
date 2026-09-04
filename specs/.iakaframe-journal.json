@@ -848,5 +848,25 @@
     "dirty": false,
     "files": 1180,
     "note": "LOT C.1 livre et fusionne : le moteur de la chaine d installation (4 etapes chainees, rollback 3 gardes, minisign, bundle app), gate Legolas PASS au premier passage (1048/1049 tests). Un ecart non bloquant a tracer : message de refus faux + reprise inoperante quand le reservoir vivant est plus ancien que l embarque (reservoir.js:142-155, install.js:223-228). Push Forgejo en attente (NAS hors de portee, Mac sur hotspot) ; GitHub a jour. Prochaine etape : lot C.2 (app d installation, depot neuf, cadrage Gandalf AR-E)."
+  },
+  {
+    "date": "2026-09-04 21:04",
+    "reason": "manual",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "a5bab91 docs(etat-des-lieux): recit de reprise apres le lot C.1 (PASS), push Forgejo en attente",
+    "dirty": false,
+    "files": 1180,
+    "note": "Recit de reprise complete apres le lot C.1 (regeneration HTML)"
+  },
+  {
+    "date": "2026-09-04 21:05",
+    "reason": "manual",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "a5bab91 docs(etat-des-lieux): recit de reprise apres le lot C.1 (PASS), push Forgejo en attente",
+    "dirty": true,
+    "files": 1180,
+    "note": "Recit de reprise corrige : prochaine etape = lot BUNDLE-INSTALL-MJS-ABSENT puis C.2 dans iakaInstall"
   }
 ]
