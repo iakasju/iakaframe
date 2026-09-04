@@ -51,8 +51,16 @@ function empreinte(dir) {
   return out.join('\n');
 }
 
+// IAKAFRAME_INSTALL_TEST_DOUBLE=1 : le SEUL point d'injection reseau atteignable par un
+// sous-processus (cf. install.js, en tete de `runInstall`) — sans lui, l'etape 1 de ces tests
+// (fixture toujours EGALE a `courante`, donc jamais de mise a jour locale, cf. AR-2(c)) ferait un
+// VRAI appel reseau. Ce fichier ne modifie AUCUNE logique de production : il ne fait qu'injecter
+// un double toujours injoignable, exactement comme le prescrit le second gate qualite.
 function run(args, { input = '' } = {}) {
-  return spawnSync(process.execPath, [CLI, ...args], { encoding: 'utf8', input });
+  return spawnSync(process.execPath, [CLI, ...args], {
+    encoding: 'utf8', input,
+    env: { ...process.env, IAKAFRAME_INSTALL_TEST_DOUBLE: '1' },
+  });
 }
 
 test('CA-19 : bannierEtapes() annonce TOUJOURS "4 étapes / 3 téléchargements" (AR-A), les 4 étapes nommées', () => {

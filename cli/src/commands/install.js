@@ -13,10 +13,16 @@
 // « vraie premiere installation » appartient a l'app d'installation (lot C.2, hors perimetre),
 // jamais a ce verbe : AUCUN message d'ici ne doit dire « installe » quand il « met a jour ».
 //
-// AR-F/AR-H : l'etape 1 cherche d'abord un reservoir VIVANT plus recent (reservoir.js, local,
-// zero reseau — « le reservoir du poste prime sur le bundle ») ; si aucun n'est trouve, elle
-// retombe sur les sources RESEAU ORDONNEES d'AR-H (tarball GitHub = voie publique, registre npm
-// NAS = voie LAN), et DIT laquelle a repondu.
+// Ce qui GOUVERNE l'etape 1 (correction du 2026-09-04, second gate qualite — le premier
+// commentaire de cet en-tete citait « AR-F » pour une regle qui n'y est pas : R11, un commentaire
+// n'est pas un constat) : le principe HERITE et NON ROUVERT d'AR-2(c) du cadrage PARENT
+// (bundle-complet-install-4-composants.md § 4.0) — verbatim « le plus recent gagne » (vivant vs
+// embarque, PAR COMPARAISON DE VERSION). Concretement : reservoir.js (AR-F du cadrage COURANT)
+// tranche l'egalite ENTRE DEUX SOURCES LOCALES (vivant/embarque) — ni AR-F ni AR-H ne parlent du
+// reseau. C'est AR-2(c) qui impose la comparaison, et une comparaison ne peut conclure « a jour »
+// qu'APRES avoir consulte tout ce qui pourrait etre plus recent : le reservoir local (AR-F), PUIS
+// — si le local ne fournit aucune mise a jour stricte — les sources reseau ORDONNEES d'AR-H
+// (tarball GitHub = voie publique, registre npm NAS = voie LAN). Le CLI DIT laquelle a repondu.
 import { parseArgs } from 'node:util';
 import os from 'node:os';
 import path from 'node:path';
@@ -70,9 +76,10 @@ export function bannierEtapes() {
   ].join('\n');
 }
 
-// --- AR-H : sources RESEAU ordonnees, utilisees seulement si aucun reservoir vivant local -------
-// N'EST APPELE que quand `resoudreReservoir` n'a trouve AUCUN reservoir vivant (AR-F consequence
-// 4 : le vivant prime toujours localement, le reseau est un REPLI, pas un concurrent).
+// --- AR-H : sources RESEAU ordonnees ------------------------------------------------------------
+// Consultees quand le reservoir local (AR-F) ne fournit PAS de mise a jour stricte de la version
+// courante — jamais court-circuitees par la seule presence d'un vivant (cf. etape1Cli : un vivant
+// PLUS ANCIEN n'a RIEN etabli, la comparaison d'AR-2(c) doit continuer jusqu'au reseau).
 export async function sonderGitHubRelease({ fetchJson = getJson } = {}) {
   const res = await fetchJson(
     'https://api.github.com/repos/iakasju/iakaframe/releases/latest', 5000,
@@ -118,11 +125,11 @@ function ligneEssais(essais) {
 }
 
 // --- Etape 1/4 : le CLI (sens UNIQUE ici, AR-G : mise a jour) -----------------------------------
-// `sondes` (optionnel) : injection de test pour `sourcesOrdonneesCli` — jamais utilise par
-// l'execution reelle (defaut = les vraies sondes reseau), expose pour que le CONTREFACTUEL
-// « un vivant present ecarte le reseau, meme si une source distante annoncerait plus recent »
-// soit PROUVABLE sans jamais laisser une vraie sonde s'executer (cf. cli/test/
-// etape1-reseau-ecarte.test.js).
+// `sondes`/`execNpmInstall` (optionnels) : point d'INJECTION de test pour `sourcesOrdonneesCli`
+// et l'execution de la mise a jour — JAMAIS utilises par l'execution reelle (defaut = les vraies
+// sondes reseau / un vrai `npm`), exposes pour que les tests maitrisent le reseau PAR INJECTION,
+// jamais en modifiant la logique de production elle-meme (cf. cli/test/etape1-reseau-ecarte.test.js
+// et le double de cli/test/install-verbe.test.js, IAKAFRAME_INSTALL_TEST_DOUBLE).
 export async function etape1Cli({ reservoir, values, execNpmInstall, sondes }) {
   const courante = packageVersion();
   console.log(`\n[1/4] CLI — mise à jour (poste déjà équipé, AR-G) : version courante v${courante}`);
@@ -135,15 +142,16 @@ export async function etape1Cli({ reservoir, values, execNpmInstall, sondes }) {
       cible = { version: reservoir.vivantVersion, from: `réservoir vivant local (${cliDir})`, install: ['npm', ['install', '-g', cliDir]] };
     }
   }
-  // AR-F : « le réservoir du poste prime sur le bundle » — le réseau (AR-H) n'est un REPLI que
-  // quand AUCUN réservoir vivant n'a été trouvé DU TOUT (cf. l'en-tête de ce fichier et
-  // reservoir.js). Un vivant PRÉSENT (égal ou même plus ancien que la version courante) a déjà
-  // répondu localement : le consulter EN PLUS ferait un appel réseau à CHAQUE `install`, non
-  // requis par AR-F/AR-H, et c'est exactement le défaut mesuré par le gate qualité (une suite de
-  // tests dont l'issue dépendait de la disponibilité du réseau réel — « par circonstance », pas
-  // « par construction »). Seul le cas « aucun vivant » retombe sur le réseau.
+  // AR-2(c) du cadrage PARENT (herite, non rouvert) : « le plus récent gagne, par comparaison de
+  // version ». Le reservoir local (AR-F) vient de repondre ci-dessus ; s'il n'a fourni AUCUNE
+  // mise a jour stricte — vivant absent, a egalite, OU MEME PLUS ANCIEN que la version courante —
+  // la comparaison n'est PAS terminee : elle continue vers les sources reseau ORDONNEES d'AR-H.
+  // Un vivant present mais plus ancien n'a RIEN etabli sur ce qui existe ailleurs ; annoncer
+  // « déjà à jour » sans avoir consulte le réseau serait une affirmation SANS VERIFICATION —
+  // exactement le défaut mesuré par le gate qualité le 2026-09-04 (courant v0.39.0 face à un
+  // vivant v0.1.0 : la version précédente de ce fichier se taisait au lieu de comparer).
   let essaisReseau = null;
-  if (!cible && !reservoir.vivantPresent) {
+  if (!cible) {
     const r = await sourcesOrdonneesCli({ sondes });
     essaisReseau = r.essais;
     if (r.retenue && compareStr(r.retenue.version, courante) > 0) {
@@ -245,6 +253,30 @@ export async function etape2Methode({ reservoir, values }) {
   return { ok: true };
 }
 
+// --- Double de test reseau, accessible en SOUS-PROCESSUS -----------------------------------------
+// UNIQUE point d'injection reseau que `cli/test/install-verbe.test.js` peut atteindre : ce fichier
+// de test spawn le VRAI binaire CLI (`node src/index.js install ...`), et un sous-processus n'a
+// aucun moyen d'y injecter des fonctions JS comme le font les tests unitaires de
+// `cli/test/etape1-reseau-ecarte.test.js`. `IAKAFRAME_INSTALL_TEST_DOUBLE=1` active donc un
+// double DETERMINISTE et TOUJOURS INJOIGNABLE (jamais un « répond avec succès » fabriqué ici : la
+// propriété « une source qui répondrait avec une version plus récente est reprise » est déjà
+// prouvée par les sondes injectées DIRECTEMENT dans etape1-reseau-ecarte.test.js — ce double ne
+// couvre que « zéro réseau réel, jamais un `npm install -g` réel » pour les tests qui doivent
+// spawn le binaire complet). JAMAIS documenté dans `--help` : ce n'est pas une fonctionnalité
+// produit, c'est un point de test — toute autre valeur de l'environnement est ignorée (défaut =
+// les vraies sondes réseau, le vrai `npm`). La LOGIQUE de production (etape1Cli, ci-dessus) reste
+// INCHANGÉE par ce double : elle continue de consulter le réseau exactement comme en production,
+// seule la SOURCE consultée est remplacée.
+function sondeDoubleTest() {
+  return { nom: 'DOUBLE-TEST (IAKAFRAME_INSTALL_TEST_DOUBLE) : sonde toujours injoignable', repond: false };
+}
+function execNpmInstallDoubleTest() {
+  // Ne doit JAMAIS être atteint : les sondes du double sont toujours injoignables, `cible` reste
+  // donc toujours `null`. Un throw ici est une garde de défense en profondeur, pas un chemin
+  // normal — si elle se déclenche un jour, c'est qu'un test a changé le double sans le savoir.
+  throw new Error('IAKAFRAME_INSTALL_TEST_DOUBLE actif : execNpmInstall ne doit jamais être atteint (sondes toujours injoignables)');
+}
+
 export async function runInstall(argv) {
   const { values } = parseArgs({
     args: argv,
@@ -266,7 +298,11 @@ export async function runInstall(argv) {
 
   const reservoir = resoudreReservoir({ root: values.root });
 
-  const r1 = await etape1Cli({ reservoir, values });
+  const testDouble = process.env.IAKAFRAME_INSTALL_TEST_DOUBLE === '1';
+  const sondes = testDouble ? [sondeDoubleTest] : undefined;
+  const execNpmInstall = testDouble ? execNpmInstallDoubleTest : undefined;
+
+  const r1 = await etape1Cli({ reservoir, values, sondes, execNpmInstall });
   if (!r1.ok) { process.exitCode = 1; return; } // CA-07 : arret, deja enonce ci-dessus (etat atteint + commande de reprise)
 
   // --- Corollaire AR-1/AR-4 (§5.5, CA-08) : le moteur DESARME AR-1 pour TOUTE la duree de la
