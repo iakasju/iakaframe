@@ -43,9 +43,9 @@ test('G5a : chaque entree de lib/verbes.js correspond a un `case` de index.js (r
   assert.deepEqual(morts, [], `verbe(s) fantome(s) au registre, absent(s) du dispatch : ${morts.join(', ')}`);
 });
 
-test('G5a : 39 verbes distincts au dispatch (40 `case`, `use` alias de `switch`) — 38 mesures par l\'instruction + `commands` neuf (Lot 0)', () => {
+test('G5a : 40 verbes distincts au dispatch (41 `case`, `use` alias de `switch`) — 39 preexistants + `install` (lot A, chaine-complete-install-amorcage-dmg-msi.md)', () => {
   const casesIndex = caseVerbesDeIndex();
-  assert.equal(casesIndex.size, 39, "le compte de verbes DISTINCTS (apres fusion de l'alias use->switch) : 38 preexistants + `commands` (Lot 0)");
+  assert.equal(casesIndex.size, 40, "le compte de verbes DISTINCTS (apres fusion de l'alias use->switch) : 39 preexistants + `install` (lot A)");
 });
 
 // --- G5b : `--help` est DERIVE du registre, jamais une constante litterale ---------------------

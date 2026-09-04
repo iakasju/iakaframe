@@ -4,9 +4,12 @@
 //     modeles, collections, `kind`) — verifie par ABSENCE D'IMPORT des modules d'autorite (M7) :
 //     un moteur qui ne peut pas LIRE l'autorite ne peut pas la recopier.
 //   - G3b : `readline`/`process.stdin` ne sont importes/lus, pour le mode guide, QUE dans
-//     lib/interactif.js et lib/guidage.js — a l'exception des DEUX prompts PRE-EXISTANTS (M2,
-//     « prior art a reemployer ») de models.js (process roleKey) et onboard.js (askYesNo), grandfathered
-//     PAR NOM et non par blanket-exemption : toute AUTRE commande qui en importerait recreerait M3.
+//     lib/interactif.js (qui porte desormais `askYesNo`, SOURCE UNIQUE du prompt de confirmation
+//     — extrait d'onboard.js au lot `install` de chaine-complete-install-amorcage-dmg-msi.md pour
+//     que `install`, AR-4, le REUTILISE au lieu d'en recreer un second) et lib/guidage.js — a
+//     l'exception du prompt PRE-EXISTANT (M2, « prior art ») de models.js (process roleKey),
+//     grandfathered PAR NOM et non par blanket-exemption : toute AUTRE commande qui importerait
+//     readline/stdin DIRECTEMENT recreerait M3 — elle doit passer par lib/interactif.js.
 // G6 (non-collision /iaka) est deja verrouille par test/learning-skill.test.js — non duplique ici.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -51,9 +54,8 @@ test('G3a : lib/guidage.js ne contient aucune VALEUR metier connue en dur (hors 
 
 const LECTEURS_AUTORISES = new Set([
   'guidage.js',      // moteur de selection (ce lot)
-  'interactif.js',   // regle de non-interactivite (ce lot)
+  'interactif.js',   // regle de non-interactivite + askYesNo, SOURCE UNIQUE du prompt (ce lot)
   'models.js',       // process interactif PRE-EXISTANT (M2, prior art) — roleKey/cible/action
-  'onboard.js',      // askYesNo PRE-EXISTANT (M2, prior art) — confirmation --from-update
 ]);
 
 function fichiersImportantReadline(dir) {

@@ -79,6 +79,15 @@ export const VERBES = [
     guideClaudeCode: { generer: false, motif: 'reseau (push) — exclu explicitement du Lot B ; deja couvert par /iaka-update (skill iakaframe-update) — chute si --no-push devient le defaut ET si /iaka-update est retire du kit' },
   },
   {
+    id: 'install',
+    resume: "Chaine complete d'installation (etapes 1+2, lot A) : CLI (mise a jour) + methode",
+    options: ['--dry-run', '--yes', '--root <dir>', '--hosts a,b', '--target-claude <dir>', '--backup-dir <dir>', '--json'],
+    sousVerbes: [],
+    parametres: [],
+    ecriture: true,
+    guideClaudeCode: { generer: false, motif: 'destructif/reseau (mise a jour globale du CLI + deploiement du kit hote) — exclu explicitement du Lot B — chute si install gagne un mode non-mutant (dry-run seul, sans aucune ecriture possible meme avec --yes)' },
+  },
+  {
     id: 'repo',
     arguments: '[<nom>]',
     resume: "Branche le remote d'un depot git EXISTANT (geste provider-neutre)",

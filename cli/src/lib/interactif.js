@@ -25,6 +25,7 @@
 //
 // Zero dependance runtime. `env`/`stdin`/`stdout` sont INJECTES (defaut = les objets `process.*`
 // reels) — c'est ce qui rend la regle testable condition par condition sans TTY (G4).
+import readline from 'node:readline';
 
 // « absent/neutre » = non defini, chaine vide, '0' ou 'false' — certains runners exportent
 // litteralement `CI=false` (une variable presente mais FAUSSE ne doit pas activer le refus).
@@ -46,4 +47,17 @@ export function peutDemander({
   if (json === true) return false;
   if (guide !== true) return false;
   return true;
+}
+
+// Confirmation o/N a lecture unique — SOURCE UNIQUE du prompt readline (G3b, cli/test/
+// guard-guidage-autorite.test.js) : PRE-EXISTANT dans onboard.js (M2, prior art), EXTRAIT ici
+// pour que toute commande qui a besoin d'une confirmation (ex. `install`, AR-4) le REUTILISE au
+// lieu de recreer un second lecteur de readline/stdin — exactement ce que G3b interdit. DEFAUT =
+// non (seul 'o'/'oui' vaut oui). A n'appeler QUE derriere `peutDemander()` : un appelant non
+// interactif ne doit jamais atteindre ce prompt (le chemin sur reste le REFUS).
+export function askYesNo(question) {
+  return new Promise((resolve) => {
+    const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+    rl.question(question, (ans) => { rl.close(); resolve(/^o(ui)?$/i.test(String(ans).trim())); });
+  });
 }
