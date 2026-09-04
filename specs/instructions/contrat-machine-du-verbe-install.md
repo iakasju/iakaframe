@@ -227,6 +227,15 @@ observable et sont donc **soumis au décideur** :
 
 *Chacun porte ma recommandation. Aucun n'est tranché ici.*
 
+> **Verdicts rendus le 2026-09-05 par Stéphane** (relayés par 🔴 Aragorn, mot pour mot : *« go »* sur la
+> recommandation) : **AR-M1 → (a)** protocole ligne-par-ligne sur `stdin`, drapeau `--feu-vert refus|stdin`
+> (tranché par le cadreur, confirmé). **AR-M2 → (a)** `install` entre au contrat C-JSON : `--json` bufferise
+> et imprime UNE racine objet `{ok, count, evenements[], etatAtteint, reprise}`, le verbe entre dans
+> `NOMINAL` — changement observable assumé : `install --json` imprimait de la prose, il imprime du JSON.
+> **AR-M3 → (a)** flux NDJSON sur stdout sous `--events`, sous-processus capturés
+> (`stdio:['ignore','pipe','pipe']`) et ré-émis en `log-delegue` ; combinaisons incohérentes refusées
+> explicitement (CA-M12).
+
 ### AR-M1 — Par quel canal un programme donne-t-il un feu vert PAR étape ?
 
 C'est le manque n° 2 du prérequis, et le seul qui n'a **aucune** amorce dans le code (M-4).
