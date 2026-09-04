@@ -1,33 +1,33 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-05 00:59 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-05 01:49 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.39.0 |
-| Branche | main |
-| Dernier commit | efe195c merge: LOT contrat machine du verbe install — evenements, feu vert stdin, --json C-JSON, --events NDJSON (gate Legolas PASS au premier passage) |
+| Version | v0.40.0 |
+| Branche | chore/bump-0.40.0 |
+| Dernier commit | 403971e merge: fix etapesFaites en dry-run — aucune etape ne compte comme faite (gate Legolas PASS) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (suivis + non ignores) | 1191 |
-| Note | Lot CONTRAT-MACHINE-DU-VERBE-INSTALL livre et fusionne (efe195c), gate PASS 16/16, prose identique octet pour octet au temoin, 1096 tests. Ecart a arbitrer : etatAtteint.etapesFaites en dry-run. Suite : C.2-b (pilotage reel de la facade) apres arbitrage. Push Forgejo EN ATTENTE ; GitHub a jour. |
+| Fichiers (suivis + non ignores) | 1192 |
+| Note | Bump 0.40.0 : correctifs de fixtures d'install (install-verbe.test.js, install-prose-non-regression.test.js, temoin CA-M8) alignes sur la nouvelle version courante -- suite verte 1098/1097/0/1 sur 3 passages |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `403971e` | 2026-09-05 | merge: fix etapesFaites en dry-run — aucune etape ne compte comme faite (gate Legolas PASS) |
+| `26f1e83` | 2026-09-05 | docs(qualite): gate fix etapesFaites dry-run — PASS |
+| `e15c051` | 2026-09-05 | docs(commandes): install --dry-run — etapesFaites vide, symétrie des 4 étapes |
+| `6499d96` | 2026-09-05 | fix(install): symétrie dry-run — etapesFaites ne compte jamais une étape en dry-run |
+| `748e4f7` | 2026-09-05 | test(install): étape rouge — etapesFaites doit rester vide en dry-run |
+| `02c5f0b` | 2026-09-05 | docs(instruction): verdict — en dry-run aucune etape ne compte comme faite (ecart du gate) |
+| `5687619` | 2026-09-05 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `efe195c` | 2026-09-05 | merge: LOT contrat machine du verbe install — evenements, feu vert stdin, --json C-JSON, --events NDJSON (gate Legolas PASS au premier passage) |
 | `86de602` | 2026-09-05 | docs(qualite): gate lot contrat machine install — PASS |
 | `7292651` | 2026-09-05 | test(cli): registre de couverture C-JSON, motive et cliquete (CA-M16) |
-| `c009a30` | 2026-09-05 | test(cli): gardes du contrat machine install (CA-M1..M7, M9..M15) |
-| `d593da5` | 2026-09-05 | chore(cli): registre + doc a jour pour install (CA-M14) |
-| `46da8cd` | 2026-09-05 | feat(cli): install entre au contrat machine (--json C-JSON, --events NDJSON, --feu-vert) |
-| `4526f83` | 2026-09-05 | feat(cli): port de feu vert non-TTY sur stdin (AR-M1(a)) |
-| `4c142f9` | 2026-09-05 | feat(cli): vocabulaire d'evenements ferme + emetteur NDJSON (lib/evenements.js) |
-| `811247c` | 2026-09-05 | test(install): enregistrer le temoin de prose AVANT toute modification |
-| `e8c9f90` | 2026-09-05 | docs(instruction): verdicts AR-M1(a) AR-M2(a) AR-M3(a) rendus par le decideur — contrat machine install |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -142,10 +142,14 @@ d'avant**, remede verifie.
 ### Prochaine etape concrete
 
 0. ~~Lot `BUNDLE-INSTALL-MJS-ABSENT`~~ **LIVRE le 2026-09-04** (voir « Ou on en est »).
-0a. 👤 **Decider la publication** : `main` porte C.1 + install.mjs embarque, `cli/package.json` est
-   toujours a **0.39.0**. Taguer declenche le CI et la publication npm — **PUBLIER PERIME LE CORPUS**
-   (piege 9). Le parcours de bout en bout reel (§ 11 de l'instruction) n'est prouvable **qu'apres** une
-   release reelle : c'est un geste du decideur.
+0a. 👤 **Decider la publication** : lot `chore/bump-0.40.0` (Gimli, 2026-09-05) livre le
+   PREALABLE exige par C.2-b (AR-P3, verdict (a)) — `cli/package.json` porte desormais
+   **0.40.0** (README/vitrine, `docs/commandes.md`, etat des lieux et fixtures d'install
+   regeneres et alignes ; suite verte 1098/1097/0/1 sur 3 passages). **Aucun tag pose** (geste
+   reserve au decideur, cf. piege 9) : `main` ne porte encore que `v0.39.0`, deja publiee.
+   Taguer `v0.40.0` declenche le CI et la publication npm — c'est ce geste, PAS le bump, qui
+   reste du : le parcours de bout en bout reel (§ 11 de l'instruction) n'est prouvable
+   **qu'apres** cette release reelle.
 0b. ~~Lot C.2-a + B'-a~~ **LIVRE le 2026-09-05** dans `iakaInstall`. ~~Contrat machine~~ **LIVRE le
    2026-09-05** ici.
 0c. 👤 **Arbitrer `etatAtteint.etapesFaites` en dry-run** (ecart du gate, ci-dessus) — un correctif d'une
@@ -206,6 +210,8 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-05 01:49 | version | v0.40.0 | chore/bump-0.40.0 | Bump 0.40.0 : correctifs de fixtures d'install (install-verbe.test.js, install-prose-non-regression.test.js, temoin CA-M8) alignes sur la nouvelle version courante -- suite verte 1098/1097/0/1 sur 3 passages |
+| 2026-09-05 01:27 | version | v0.40.0 | chore/bump-0.40.0 | Montee de version 0.40.0 (bump ordonne par Aragorn, cf. specs/instructions/pilotage-reel-facade-contrat-machine.md) : cli/package.json = 0.39.0 -> 0.40.0, README (vitrine) et docs/commandes.md regeneres/alignes. Publication (tag v0.40.0 -> CI -> npm) laissee au decideur, condition prealable a C.2-b (facade iakaInstall). |
 | 2026-09-05 00:59 | pause | v0.39.0 | main | Lot CONTRAT-MACHINE-DU-VERBE-INSTALL livre et fusionne (efe195c), gate PASS 16/16, prose identique octet pour octet au temoin, 1096 tests. Ecart a arbitrer : etatAtteint.etapesFaites en dry-run. Suite : C.2-b (pilotage reel de la facade) apres arbitrage. Push Forgejo EN ATTENTE ; GitHub a jour. |
 | 2026-09-04 22:17 | pause | v0.39.0 | main | Deux lots livres le 2026-09-04 : C.1 (moteur de chaine) puis BUNDLE-INSTALL-MJS-ABSENT (install.mjs + kits embarques dans le tarball, AR-I(a)/AR-J(a)), gate Legolas PASS au premier passage chacun (1056/1055/0/1). L ecart du gate C.1 est ferme. Push Forgejo EN ATTENTE (NAS injoignable, Mac sur hotspot) ; GitHub a jour. Decision due : publier (tag -> CI -> npm) pour prouver le parcours de bout en bout. Suite : C.2 + B'-a dans iakaInstall. |
 | 2026-09-04 21:05 | manual | v0.39.0 | main | Recit de reprise corrige : prochaine etape = lot BUNDLE-INSTALL-MJS-ABSENT puis C.2 dans iakaInstall |

@@ -888,5 +888,25 @@
     "dirty": true,
     "files": 1191,
     "note": "Lot CONTRAT-MACHINE-DU-VERBE-INSTALL livre et fusionne (efe195c), gate PASS 16/16, prose identique octet pour octet au temoin, 1096 tests. Ecart a arbitrer : etatAtteint.etapesFaites en dry-run. Suite : C.2-b (pilotage reel de la facade) apres arbitrage. Push Forgejo EN ATTENTE ; GitHub a jour."
+  },
+  {
+    "date": "2026-09-05 01:27",
+    "reason": "version",
+    "version": "v0.40.0",
+    "branch": "chore/bump-0.40.0",
+    "commit": "403971e merge: fix etapesFaites en dry-run — aucune etape ne compte comme faite (gate Legolas PASS)",
+    "dirty": true,
+    "files": 1192,
+    "note": "Montee de version 0.40.0 (bump ordonne par Aragorn, cf. specs/instructions/pilotage-reel-facade-contrat-machine.md) : cli/package.json = 0.39.0 -> 0.40.0, README (vitrine) et docs/commandes.md regeneres/alignes. Publication (tag v0.40.0 -> CI -> npm) laissee au decideur, condition prealable a C.2-b (facade iakaInstall)."
+  },
+  {
+    "date": "2026-09-05 01:49",
+    "reason": "version",
+    "version": "v0.40.0",
+    "branch": "chore/bump-0.40.0",
+    "commit": "403971e merge: fix etapesFaites en dry-run — aucune etape ne compte comme faite (gate Legolas PASS)",
+    "dirty": true,
+    "files": 1192,
+    "note": "Bump 0.40.0 : correctifs de fixtures d'install (install-verbe.test.js, install-prose-non-regression.test.js, temoin CA-M8) alignes sur la nouvelle version courante -- suite verte 1098/1097/0/1 sur 3 passages"
   }
 ]
