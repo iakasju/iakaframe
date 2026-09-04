@@ -166,6 +166,14 @@ technique pour laquelle cet emplacement-là, et pas un autre, est le bon.
 *Deux questions changent un comportement observable chez l'utilisateur. Recommandation donnée pour
 chacune ; **le verdict appartient au décideur**.*
 
+> **Verdicts rendus le 2026-09-04 par Stéphane** (relayés par 🟠 Aragorn, mot pour mot : *« a, a »*) :
+> **AR-I → (a)** — le réservoir désigné par AR-F porte aussi la charge de l'étape 2 ; un vivant plus
+> ancien cède la place à l'embarqué, et le message de l'étape 2 nomme le chemin du réservoir porteur
+> (CA-B4). Ce verdict ferme du même coup l'écart relevé par le gate du lot C.1 (refus faux « aucun
+> réservoir vivant avec install.mjs » + reprise inopérante quand le vivant est plus ancien,
+> `docs/qualite/gate-lot-C1-moteur-chaine.md`). **AR-J → (a)** — la garde sur le tarball réel entre au
+> périmètre (CA-B6 actif), avec la neutralisation obligatoire de CA-B7.
+
 ### AR-I — Quel réservoir porte la charge de l'étape 2 quand l'embarqué gagne ?
 
 Le lot rend l'embarqué **capable** de porter la charge. Reste à dire **quand** il la porte.
