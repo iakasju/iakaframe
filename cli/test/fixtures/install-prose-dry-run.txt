@@ -6,18 +6,18 @@
   [4/4] iakaFrameGUI (téléchargement)
 
 
-[1/4] CLI — mise à jour (poste déjà équipé, AR-G) : version courante v0.39.0
-  réservoir : vivant <VIVANT> (v0.39.0) — embarqué v0.39.0, égalité, le vivant l'emporte
+[1/4] CLI — mise à jour (poste déjà équipé, AR-G) : version courante v0.40.0
+  réservoir : vivant <VIVANT> (v0.40.0) — embarqué v0.40.0, égalité, le vivant l'emporte
   sources réseau (AR-H) consultées :
     - DOUBLE-TEST (cli/test/fixtures/install-network-double.mjs) : sonde toujours injoignable : injoignable
-  déjà à jour (v0.39.0) — rien à installer.
+  déjà à jour (v0.40.0) — rien à installer.
 
   [garde AR-1/AR-4] AR-1 désarmé pour la durée de la chaîne (corollaire AR-1/AR-4, § 5.5) : le kit hôte reste absent jusqu'à validation explicite de l'étape 2
 
 [2/4] méthode — délégation à install.mjs (M4, non réimplémenté)
   quoi : kit(s) hôte(s) [claude] depuis <VIVANT>/kits
   où : <CLAUDE>
-  quelle version : v0.39.0
+  quelle version : v0.40.0
   ce qui sera fusionné : --merge par défaut (rien d'existant n'est écrasé sans --overwrite)
 
 == iakaframe — installeur multi-host (fan-out) ==

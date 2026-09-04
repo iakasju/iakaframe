@@ -43,7 +43,7 @@ function cliSansBundled() {
   return path.join(dir, 'src', 'index.js');
 }
 
-function faireReservoirVivant({ version = '0.39.0' } = {}) {
+function faireReservoirVivant({ version = '0.40.0' } = {}) {
   const dir = tmp();
   fs.copyFileSync(REAL_INSTALL_MJS, path.join(dir, 'install.mjs'));
   w(path.join(dir, 'cli', 'package.json'), JSON.stringify({ version }));
@@ -96,7 +96,7 @@ test('`install --help` n\'annonce jamais "trois installations" (CA-19, conséque
 });
 
 test('AR-G : le message de l\'étape 1 dit "mise à jour", JAMAIS "installe" (ce verbe joue le SEUL sens possible ici)', () => {
-  const vivant = faireReservoirVivant({ version: '0.39.0' });
+  const vivant = faireReservoirVivant({ version: '0.40.0' });
   const r = run(['install', '--dry-run', '--root', vivant, '--target-claude', path.join(tmp(), 'claude')]);
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stdout, /mise à jour \(poste déjà équipé, AR-G\)/);
@@ -104,13 +104,13 @@ test('AR-G : le message de l\'étape 1 dit "mise à jour", JAMAIS "installe" (ce
 });
 
 test('CA-05/CA-06 : la provenance du réservoir est affichée à l\'étape 1', () => {
-  const vivant = faireReservoirVivant({ version: '0.39.0' });
+  const vivant = faireReservoirVivant({ version: '0.40.0' });
   const r = run(['install', '--dry-run', '--root', vivant, '--target-claude', path.join(tmp(), 'claude')]);
   assert.match(r.stdout, /réservoir : vivant .* — embarqué v[\d.]+, égalité, le vivant l'emporte/);
 });
 
 test('CA-03 : `install --dry-run` décrit les 4 étapes et N\'ÉCRIT RIEN — prouvé par empreinte disque avant/après', () => {
-  const vivant = faireReservoirVivant({ version: '0.39.0' });
+  const vivant = faireReservoirVivant({ version: '0.40.0' });
   const targetClaude = path.join(tmp(), 'claude');
   const appsDir = path.join(tmp(), 'apps');
   const backupDir = path.join(tmp(), 'backups');
@@ -134,7 +134,7 @@ test('CA-03 : `install --dry-run` décrit les 4 étapes et N\'ÉCRIT RIEN — pr
 });
 
 test('CA-04 : chaque étape annonce quoi/où/version/fusion, ET refuse SANS confirmation en non-interactif (défaut sûr)', () => {
-  const vivant = faireReservoirVivant({ version: '0.39.0' });
+  const vivant = faireReservoirVivant({ version: '0.40.0' });
   const targetClaude = path.join(tmp(), 'claude');
   const r = run(['install', '--root', vivant, '--target-claude', targetClaude], { input: '' });
   assert.match(r.stdout, /quoi : kit\(s\) hôte/);
@@ -146,7 +146,7 @@ test('CA-04 : chaque étape annonce quoi/où/version/fusion, ET refuse SANS conf
 });
 
 test('CA-07 : une étape refusée ARRÊTE la chaîne (exit != 0) et ÉNONCE la commande de reprise', () => {
-  const vivant = faireReservoirVivant({ version: '0.39.0' });
+  const vivant = faireReservoirVivant({ version: '0.40.0' });
   const targetClaude = path.join(tmp(), 'claude');
   const r = run(['install', '--root', vivant, '--target-claude', targetClaude]);
   assert.notEqual(r.status, 0, 'CA-07 : le processus doit sortir en erreur quand la chaîne s\'arrête');
@@ -159,7 +159,7 @@ test('CA-07 : une étape refusée ARRÊTE la chaîne (exit != 0) et ÉNONCE la c
 });
 
 test('lot C.1 : `--yes` saute TOUTES les validations des étapes 1-2 (réellement écrites, AUCUNE confirmation demandée) ; la chaîne s\'arrête ENSUITE, loyalement, à l\'étape 3 faute de réseau (double toujours injoignable) — jamais un succès simulé, jamais une écriture hors --apps-dir', () => {
-  const vivant = faireReservoirVivant({ version: '0.39.0' });
+  const vivant = faireReservoirVivant({ version: '0.40.0' });
   const targetClaude = path.join(tmp(), 'claude');
   const appsDir = path.join(tmp(), 'apps');
   const backupDir = path.join(tmp(), 'backups');
