@@ -3,14 +3,17 @@
 // tarball publie. Trois chemins pourraient re-amputer le paquet sans que cette garde-la ne bouge
 // (modification de `files`, apparition d'un `.npmignore`, changement de traitement des
 // dot-repertoires par npm — N9/§0.4 de l'instruction du lot) : « une preuve se compare au
-// fichier, pas a une autre sortie ». Ce test empaquette REELLEMENT (`npm pack`), sur le depot
-// COURANT, et verifie ce qui part effectivement dans le tarball.
+// fichier, pas a une autre sortie ». Ce test empaquette REELLEMENT (`npm pack`), sur une COPIE
+// ISOLEE fidele du depot publiable, et verifie ce qui part effectivement dans le tarball.
 //
-// NEUTRALISATION CA-B7 (obligatoire, R-D) : `npm pack` declenche le prepack et REGENERE
-// cli/_bundled/ — effet de bord reel sur l'arbre de travail. AUCUN AUTRE test de la suite ne doit
-// dependre de la presence AMBIANTE de cli/_bundled/ (verifie : reservoir-ar-f.test.js et
-// install-verbe.test.js injectent desormais leur propre embarque controle, jamais l'ambiant —
-// cf. leurs en-tetes respectifs).
+// POURQUOI UNE COPIE ISOLEE, ET PAS `cli/` DIRECTEMENT (mesure sur ce poste) : `npm pack` declenche
+// le prepack, qui SUPPRIME puis REGENERE `_bundled/` (`bundle.js:42-43`, `fs.rmSync` + rebuild).
+// `node --test` execute les FICHIERS de test en parallele : un second test qui empaquette REELLEMENT
+// (cli/test/install-paquet-publie.test.js, CA-B5) le ferait DANS LA MEME `cli/_bundled/` en meme
+// temps, avec un ENOENT/tarball-corrompu au premier passage complet de la suite. Copier `cli/` +
+// ses cinq voisins requis (library/methods/teams/bindings/kits) + install.mjs dans un repertoire
+// NEUF, propre a ce test, rend le prepack DETERMINISTE et sans concurrence — sans jamais toucher a
+// l'arbre de travail reel (neutralisation CA-B7/R-D, renforcee au-dela du minimum exige).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -35,15 +38,35 @@ function tarDisponible() {
   return !r.error && r.status === 0;
 }
 
+// Copie ISOLEE et fidele du depot publiable (cli/ + les cinq voisins requis par ASSETS +
+// install.mjs) : `bundle.js` resout `repoRoot` d'un niveau au-dessus de sa propre position
+// (`import.meta.url`), donc le copier sous <racine neuve>/cli/scripts/ suffit a faire
+// fonctionner le prepack SUR LA COPIE, sans jamais lire ni ecrire dans le depot reel.
+function copierDepotPourPack() {
+  const root = tmp();
+  for (const d of ['library', 'methods', 'teams', 'bindings', 'kits', 'design-naonedge']) {
+    const src = path.join(REPO, d);
+    if (fs.existsSync(src)) fs.cpSync(src, path.join(root, d), { recursive: true });
+  }
+  fs.copyFileSync(path.join(REPO, 'install.mjs'), path.join(root, 'install.mjs'));
+  fs.cpSync(path.join(REPO, 'cli', 'scripts'), path.join(root, 'cli', 'scripts'), { recursive: true });
+  fs.cpSync(path.join(REPO, 'cli', 'src'), path.join(root, 'cli', 'src'), { recursive: true });
+  fs.copyFileSync(path.join(REPO, 'cli', 'package.json'), path.join(root, 'cli', 'package.json'));
+  const readme = path.join(REPO, 'cli', 'README.md');
+  if (fs.existsSync(readme)) fs.copyFileSync(readme, path.join(root, 'cli', 'README.md'));
+  return path.join(root, 'cli');
+}
+
 test('CA-B6 (AR-J(a)) : un `npm pack` RÉEL embarque _bundled/install.mjs ET _bundled/kits/** dans le tarball publié', (t) => {
   // SKIP explicite avec son code si l'environnement ne peut pas empaqueter — jamais un vert
   // (convention du corpus, cf. vitrine:en-ligne et registre:repli-latest).
   if (!npmDisponible()) return t.skip('npm indisponible sur ce poste — jamais un vert (AR-J(a))');
   if (!tarDisponible()) return t.skip('tar indisponible sur ce poste — jamais un vert (AR-J(a))');
 
+  const cliIsole = copierDepotPourPack();
   const dest = tmp();
   const pack = spawnSync('npm', ['pack', '--pack-destination', dest, '--json'], {
-    cwd: CLI_DIR, encoding: 'utf8',
+    cwd: cliIsole, encoding: 'utf8',
   });
   assert.equal(pack.status, 0, `npm pack a échoué (code ${pack.status}) :\n${pack.stderr}`);
 

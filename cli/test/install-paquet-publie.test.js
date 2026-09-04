@@ -11,6 +11,13 @@
 // chaîne complète pourrait déclencher un VRAI `npm install -g` contre le réseau réel. On appelle
 // donc `etape2Methode` DIRECTEMENT — même code de production que `runInstall`, importé depuis la
 // copie EXTRAITE, exception déjà pratiquée dans install-verbe.test.js (§ tête de fichier).
+//
+// COPIE ISOLÉE avant `npm pack` (renfort CA-B7/R-D) : `npm pack` déclenche le prepack, qui
+// SUPPRIME puis REGÉNÈRE `_bundled/`. `node --test` exécute les fichiers de test en parallèle ;
+// un autre test qui empaquette réellement au même instant (cli/test/bundle-tarball.test.js,
+// CA-B6) sur la MÊME `cli/_bundled/` produit un ENOENT/tarball corrompu (mesuré). Empaqueter une
+// copie NEUVE du dépôt publiable (jamais `cli/` directement) rend ce test déterministe et sans
+// concurrence, sans jamais toucher à l'arbre de travail réel.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
@@ -21,7 +28,6 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..');
-const CLI_DIR = path.join(REPO, 'cli');
 
 function tmp() { return fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-install-paquet-publie-')); }
 
@@ -43,14 +49,33 @@ function compterFichiers(dir, filtre) {
   }
 }
 
+// Copie ISOLEE et fidele du depot publiable — meme geste que cli/test/bundle-tarball.test.js
+// (dedoublonne a dessein : ce fichier est spawn dans un PROCESSUS separe par `node --test`, un
+// helper partage via import ne supprimerait pas la duplication de code, seulement son emplacement).
+function copierDepotPourPack() {
+  const root = tmp();
+  for (const d of ['library', 'methods', 'teams', 'bindings', 'kits', 'design-naonedge']) {
+    const src = path.join(REPO, d);
+    if (fs.existsSync(src)) fs.cpSync(src, path.join(root, d), { recursive: true });
+  }
+  fs.copyFileSync(path.join(REPO, 'install.mjs'), path.join(root, 'install.mjs'));
+  fs.cpSync(path.join(REPO, 'cli', 'scripts'), path.join(root, 'cli', 'scripts'), { recursive: true });
+  fs.cpSync(path.join(REPO, 'cli', 'src'), path.join(root, 'cli', 'src'), { recursive: true });
+  fs.copyFileSync(path.join(REPO, 'cli', 'package.json'), path.join(root, 'cli', 'package.json'));
+  const readme = path.join(REPO, 'cli', 'README.md');
+  if (fs.existsSync(readme)) fs.copyFileSync(readme, path.join(root, 'cli', 'README.md'));
+  return path.join(root, 'cli');
+}
+
 test('CA-B5 : depuis un paquet empaqueté/extrait, sur un poste SANS réservoir vivant, l\'étape 2 pose le kit — compté contre le kit source, jamais un nombre écrit en dur', async (t) => {
   if (!npmDisponible()) return t.skip('npm indisponible sur ce poste — jamais un vert (CA-B5)');
   if (!tarDisponible()) return t.skip('tar indisponible sur ce poste — jamais un vert (CA-B5)');
 
-  // 1. Empaqueter REELLEMENT.
+  // 1. Empaqueter REELLEMENT, sur une copie isolee (jamais `cli/` directement, cf. en-tete).
+  const cliIsole = copierDepotPourPack();
   const packDest = tmp();
   const pack = spawnSync('npm', ['pack', '--pack-destination', packDest, '--json'], {
-    cwd: CLI_DIR, encoding: 'utf8',
+    cwd: cliIsole, encoding: 'utf8',
   });
   assert.equal(pack.status, 0, `npm pack a échoué (code ${pack.status}) :\n${pack.stderr}`);
   const lignes = pack.stdout.split('\n');
