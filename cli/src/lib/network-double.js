@@ -2,6 +2,11 @@
 // TEST UNIQUEMENT, le double reseau qui vit HORS de `src/` (cli/test/fixtures/
 // install-network-double.mjs — jamais publie, cf. ce fichier pour le motif complet).
 //
+// LOT C.1 : le MEME mecanisme, les MEMES deux signaux, sont REUTILISES pour les etapes 3/4
+// (resolution du manifeste + telechargement d'un bundle d'app, lib/app-bundle.js) — jamais une
+// seconde porte. Ce module rend desormais aussi `resoudreEndpointsApp`/`telechargerApp`, chargees
+// depuis LE MEME fichier fixture, sous LA MEME garde.
+//
 // CE MODULE-CI EST PUBLIE (il vit dans src/, donc part dans le tarball — `files:
 // ["src","_bundled","README.md"]`), MAIS NE PORTE AUCUNE IMPLEMENTATION DE DOUBLE : ni sonde
 // fabriquee, ni execNpmInstall fabrique, ni URL, ni commande arbitraire — seulement la DECISION
@@ -34,17 +39,24 @@ export function doitActiverDouble(env = process.env) {
 // paquet publie ne porte pas `cli/test/`) — dans CE second cas, un diagnostic est ecrit sur
 // stderr (jamais un silence total quand le double a ete DEMANDE mais ne peut pas repondre).
 export async function resoudreDoubleReseau(env = process.env) {
-  if (!doitActiverDouble(env)) return { actif: false, sondes: undefined, execNpmInstall: undefined };
+  const vide = {
+    actif: false, sondes: undefined, execNpmInstall: undefined,
+    resoudreEndpointsApp: undefined, telechargerApp: undefined,
+  };
+  if (!doitActiverDouble(env)) return vide;
   try {
     const here = path.dirname(fileURLToPath(import.meta.url));
     const mod = await import(path.join(here, DOUBLE_REL));
-    return { actif: true, sondes: mod.sondes, execNpmInstall: mod.execNpmInstall };
+    return {
+      actif: true, sondes: mod.sondes, execNpmInstall: mod.execNpmInstall,
+      resoudreEndpointsApp: mod.resoudreEndpointsApp, telechargerApp: mod.telechargerApp,
+    };
   } catch (e) {
     console.error(
       `  ! IAKAFRAME_INSTALL_TEST_DOUBLE demande mais introuvable (${e && e.code || e}) — `
       + `repli sur les sondes reelles. Attendu hors d'un clone source complet (cli/test/ n'est `
       + `jamais publie).`,
     );
-    return { actif: false, sondes: undefined, execNpmInstall: undefined };
+    return vide;
   }
 }

@@ -1,7 +1,11 @@
 // iakaframe install — le verbe de la CHAINE COMPLETE (specs/instructions/
-// chaine-complete-install-amorcage-dmg-msi.md, lot A). Etapes 1 et 2 SEULEMENT (CLI + methode) :
-// les etapes 3 (IakaCockpit) et 4 (iakaFrameGUI) sont HORS PERIMETRE de ce lot (lot C.1, a venir)
-// et se refusent EXPLICITEMENT — jamais simulees.
+// chaine-complete-install-amorcage-dmg-msi.md). Lot A a livre les etapes 1 et 2 (CLI + methode).
+// LOT C.1 (ce fichier, desormais) ajoute les etapes 3 (IakaCockpit) et 4 (iakaFrameGUI) : chaque
+// bundle est resolu depuis des sources reseau ORDONNEES (lib/app-bundle.js, M10), sa signature
+// minisign VERIFIEE avant toute ecriture (CA-14), et la chaine porte un ROLLBACK a trois gardes
+// (AR-5, lib/rollback.js) si une etape echoue apres qu'une precedente a deja ecrit. Hors de la
+// SEULE plateforme couverte par ce lot (macOS, § 10 — la seule prouvable sur ce poste), les etapes
+// 3/4 refusent EXPLICITEMENT (CA-15) — jamais une simulation, jamais un silence.
 //
 // AR-A (comptage) : l'interface annonce TOUJOURS « 4 etapes / 3 telechargements », meme si seules
 // les etapes 1-2 sont fonctionnelles ici — fusionner CLI+methode serait interdit par AR-4 (§ 2 de
@@ -26,6 +30,7 @@
 import { parseArgs } from 'node:util';
 import os from 'node:os';
 import path from 'node:path';
+import fs from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { resoudreReservoir } from '../lib/reservoir.js';
 import { verifierAutoDeploiement } from '../lib/autodeploi.js';
@@ -33,12 +38,15 @@ import { packageVersion } from '../lib/version.js';
 import { peutDemander, askYesNo } from '../lib/interactif.js';
 import { getJson } from '../lib/http.js';
 import { resoudreDoubleReseau } from '../lib/network-double.js';
+import { APPS, cleManifestePlateforme, telechargerEtVerifier, poserBundleDarwin } from '../lib/app-bundle.js';
+import { resoudre } from '../lib/endpoints.js';
+import { sauvegarderAvantEtape, restaurerEtape, orchestrerRollback } from '../lib/rollback.js';
 
 const USAGE = `Usage : iakaframe install [options]
 
 La chaine complete d'installation (4 etapes / 3 telechargements, AR-A) : CLI - methode -
-IakaCockpit - iakaFrameGUI. CE LOT ne joue que les etapes 1 et 2 (CLI + methode) ; les
-etapes 3 et 4 refusent explicitement (lot C.1, a venir).
+IakaCockpit - iakaFrameGUI. Les etapes 3/4 ne s'executent reellement que sur la plateforme
+couverte par ce lot (macOS, § 10) ; ailleurs, elles refusent explicitement (CA-15).
 
 Options :
   --dry-run              Decrit les 4 etapes SANS RIEN ECRIRE (empreinte disque avant/apres identique)
@@ -46,7 +54,8 @@ Options :
   --root <dir>           Epingle un reservoir vivant precis (sinon <chapeau>/iakaframe)
   --hosts <a,b>          Hotes de l'etape 2 (defaut : claude — cf. install.mjs pour codex/openwebui)
   --target-claude <dir>  Cible de l'etape 2 pour l'hote claude (defaut : ~/.claude)
-  --backup-dir <dir>     Sauvegarde horodatee de l'etape 2 (passe a install.mjs, AR-5)
+  --backup-dir <dir>     Sauvegarde horodatee des etapes 2 (install.mjs) et 3/4 (AR-5, rollback)
+  --apps-dir <dir>       Cible des etapes 3/4 (defaut : ~/Applications, macOS)
   --json                 Sortie machine (desactive les confirmations interactives)`;
 
 // --- Confirmation par etape (AR-4) --------------------------------------------------------------
@@ -254,6 +263,120 @@ export async function etape2Methode({ reservoir, values }) {
   return { ok: true };
 }
 
+function resoudreAppsDir(values) {
+  return values['apps-dir'] || path.join(os.homedir(), 'Applications');
+}
+
+function resoudreBackupDir(values) {
+  return values['backup-dir'] || path.join(os.homedir(), '.iakaframe', 'install-backups');
+}
+
+// --- Etapes 3/4 : une app Tauri du portefeuille (IakaCockpit, iakaFrameGUI), lot C.1 ------------
+// Meme grammaire AR-4 que les etapes 1/2 (annonce quoi/ou/version/fusion puis feu vert, `--yes`
+// saute tout), MEME `confirmerEtape` (source unique du prompt, G3b). Ce que ce lot AJOUTE : la
+// resolution reseau ORDONNEE + la verification de signature (lib/app-bundle.js, CA-14) AVANT toute
+// ecriture, et la sauvegarde AR-5 (garde 1) juste avant l'ecriture elle-meme — jamais apres.
+// `resoudreEndpointsApp`/`telechargerApp` sont des points d'INJECTION de test (defaut : les VRAIES
+// fonctions reseau), meme idiome que `sondes`/`execNpmInstall` de l'etape 1. `plateforme` est un
+// point d'injection PUR (aucun reseau), reserve aux tests DIRECTS de CA-15 (cf. cli/test/
+// app-bundle.test.js) — jamais expose par un drapeau CLI : simuler une AUTRE plateforme que celle
+// reellement en cours d'execution n'a aucun sens hors d'un test.
+export async function etapeApp({
+  numero, appKey, values, appsDir, backupDir,
+  resoudreEndpointsApp = resoudre, telechargerApp,
+  plateforme,
+} = {}) {
+  const app = APPS[appKey];
+  console.log(`\n[${numero}/4] ${app.nom}`);
+
+  // CA-15 : hors plateforme couverte, REFUS EXPLICITE avant meme de toucher au reseau — jamais
+  // une simulation, jamais un silence.
+  // Meme doctrine que les etapes 1/2 (etape1Cli/etape2Methode) : `--dry-run` DECRIT sans jamais
+  // rien ECRIRE, mais il continue a consulter reseau/disque en LECTURE pour une description
+  // exacte (CA-03 : « prouve par empreinte disque, pas par lecture de code »). Une etape qui ne
+  // peut RIEN determiner (plateforme non couverte, reseau injoignable) n'a donc RIEN a ecrire de
+  // toute facon : en dry-run, elle le DIT et laisse la chaine continuer decrire les suivantes ;
+  // en execution reelle, la meme impossibilite ARRETE la chaine (CA-07) — c'est le seul point ou
+  // dry-run et reel divergent dans ce fichier, et c'est delibere.
+  const dryRun = Boolean(values['dry-run']);
+
+  const cle = cleManifestePlateforme(plateforme || {});
+  if (!cle) {
+    const plat = `${(plateforme && plateforme.platform) || os.platform()}-${(plateforme && plateforme.arch) || os.arch()}`;
+    console.log(`  REFUS : plateforme "${plat}" non couverte par ce lot (§ 10 — seul macOS est prouvé sur ce poste). Jamais une simulation.`);
+    if (!dryRun) {
+      console.log(`  Reprise : aucune — cette plateforme attend un lot dédié (recette réelle Windows/Linux, § 10).`);
+      return { ok: false, preuve: null };
+    }
+    console.log(`  [dry-run] rien à écrire de toute façon sur cette plateforme — la chaîne continue décrire les étapes suivantes.`);
+    return { ok: true, dryRun: true, preuve: null };
+  }
+
+  const res = await resoudreEndpointsApp(app.endpoints, {});
+  if (!res.retenu) {
+    console.log(`  sources consultées (ordre M10) :`);
+    for (const e of res.essais) console.log(`    - ${e.hote} : ${e.motif}`);
+    if (!dryRun) {
+      console.log(`  REFUS : aucune source n'a servi de manifeste exploitable pour ${app.nom}.`);
+      console.log(`  Reprise : iakaframe install --yes   (ou relancer une fois le réseau disponible)`);
+      return { ok: false, preuve: null };
+    }
+    console.log(`  [dry-run] aucune source n'a servi de manifeste exploitable pour ${app.nom} — rien à écrire de toute façon.`);
+    return { ok: true, dryRun: true, preuve: null };
+  }
+  const manifeste = res.manifeste;
+  const cible = path.join(appsDir, `${app.nom}.app`);
+  const dejaPresent = fs.existsSync(cible);
+  console.log(`  quoi : ${app.nom} v${manifeste.version} (plateforme ${cle}), depuis ${res.retenu.hote}`);
+  console.log(`  où : ${cible}`);
+  console.log(`  quelle version : v${manifeste.version}`);
+  console.log(`  ce qui sera fusionné : ${dejaPresent ? `${app.nom}.app existant à cette adresse sera REMPLACÉ (sauvegardé avant, AR-5)` : `pose neuve, rien n'existait à cette adresse`}`);
+
+  if (dryRun) {
+    console.log('  [dry-run] rien écrit (réseau consulté en lecture seule, aucune écriture disque).');
+    return { ok: true, dryRun: true, preuve: null };
+  }
+
+  const feuVert = await confirmerEtape({
+    yes: values.yes, json: values.json,
+    question: `Installer ${app.nom} v${manifeste.version} ? [o/N] `,
+  });
+  if (!feuVert) {
+    console.log(`  REFUS : installation de ${app.nom} non confirmée.`);
+    console.log(`  Reprise : iakaframe install --yes   (ou relancer en interactif)`);
+    return { ok: false, preuve: null };
+  }
+
+  const dl = await telechargerEtVerifier({ app, manifeste, cle, telecharger: telechargerApp });
+  if (!dl.ok) {
+    console.log(`  REFUS : ${dl.raison}`);
+    return { ok: false, preuve: null };
+  }
+  console.log(`  + signature vérifiée (minisign, ${app.nom}).`);
+
+  // AR-5 garde 1 : sauvegarde AVANT toute écriture. Si la sauvegarde elle-même échoue, on REFUSE
+  // d'écrire plutôt que d'écrire sans filet — même prudence que le refus de dérouler sans preuve.
+  let preuve;
+  try {
+    preuve = sauvegarderAvantEtape({ backupDir, etape: numero, cible });
+  } catch (e) {
+    console.log(`  REFUS : sauvegarde de sécurité impossible avant la pose (${e.message}) — rien n'est écrit.`);
+    return { ok: false, preuve: null };
+  }
+
+  const pose = poserBundleDarwin({ octets: dl.octets, cible });
+  if (!pose.ok) {
+    console.log(`  ÉCHEC : ${pose.raison}`);
+    // Echec APRES la sauvegarde : on a la preuve, on peut donc défaire immédiatement ce que CETTE
+    // écriture a pu poser partiellement — jamais un état à moitié écrit laissé tel quel.
+    const rb = restaurerEtape(preuve);
+    console.log(`  [rollback immédiat de l'étape ${numero}] ${rb.raison}`);
+    return { ok: false, preuve: null };
+  }
+  console.log(`  + ${app.nom} v${manifeste.version} posé à ${pose.cible}.`);
+  return { ok: true, preuve };
+}
+
 export async function runInstall(argv) {
   const { values } = parseArgs({
     args: argv,
@@ -264,6 +387,7 @@ export async function runInstall(argv) {
       hosts: { type: 'string' },
       'target-claude': { type: 'string' },
       'backup-dir': { type: 'string' },
+      'apps-dir': { type: 'string' },
       json: { type: 'boolean', default: false },
       help: { type: 'boolean', default: false },
     },
@@ -279,7 +403,7 @@ export async function runInstall(argv) {
   // network-double.js pour le motif complet (correction du 3e gate qualite, 2026-09-04). Ce
   // module NE PORTE AUCUNE implementation de double — seulement la decision + le chargement
   // conditionnel d'un fichier qui vit hors de `src/` (cli/test/fixtures/, jamais publie).
-  const { sondes, execNpmInstall } = await resoudreDoubleReseau();
+  const { sondes, execNpmInstall, resoudreEndpointsApp, telechargerApp } = await resoudreDoubleReseau();
 
   const r1 = await etape1Cli({ reservoir, values, sondes, execNpmInstall });
   if (!r1.ok) { process.exitCode = 1; return; } // CA-07 : arret, deja enonce ci-dessus (etat atteint + commande de reprise)
@@ -303,7 +427,31 @@ export async function runInstall(argv) {
   const r2 = await etape2Methode({ reservoir, values });
   if (!r2.ok) { process.exitCode = 1; return; } // CA-07
 
-  console.log(`\n[3/4] IakaCockpit — non disponible dans cette version (lot C.1, à venir). Étape refusée explicitement, jamais simulée.`);
-  console.log(`[4/4] iakaFrameGUI — non disponible dans cette version (lot C.1, à venir). Étape refusée explicitement, jamais simulée.`);
-  console.log(`\nTerminé : étapes 1-2 jouées, étapes 3-4 hors périmètre de ce lot (§ 5.3, cf. lot C.1).`);
+  const appsDir = resoudreAppsDir(values);
+  const backupDir = resoudreBackupDir(values);
+
+  const r3 = await etapeApp({
+    numero: 3, appKey: 'IakaCockpit', values, appsDir, backupDir,
+    resoudreEndpointsApp, telechargerApp,
+  });
+  if (!r3.ok) { process.exitCode = 1; return; } // CA-07 : rien n'a été écrit par l'étape 3, rien à défaire
+
+  const r4 = await etapeApp({
+    numero: 4, appKey: 'iakaFrameGUI', values, appsDir, backupDir,
+    resoudreEndpointsApp, telechargerApp,
+  });
+  if (!r4.ok) {
+    // AR-5 : l'étape 3 A ÉCRIT (r3.preuve non nulle, sauf dry-run) et la chaîne s'arrête quand
+    // même ici — c'est PRÉCISÉMENT le cas que le rollback existe pour couvrir. On ne défait QUE
+    // ce que la preuve permet de défaire (garde 1), jamais à l'aveugle.
+    if (r3.preuve) {
+      const rb = orchestrerRollback([r3.preuve]);
+      console.log(`\n[rollback] ${rb.resume}`);
+      for (const rap of rb.rapports) console.log(`  [étape ${rap.etape}] ${rap.raison}`);
+    }
+    process.exitCode = 1;
+    return; // CA-07
+  }
+
+  console.log(`\nTerminé : les 4 étapes ont été jouées.`);
 }

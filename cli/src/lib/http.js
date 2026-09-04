@@ -40,3 +40,22 @@ export async function sendJson(url, { method = 'POST', body = null, headers = {}
     clearTimeout(t);
   }
 }
+
+// Telechargement ANONYME d'octets bruts (aucun jeton, aucun en-tete d'autorisation) — ajoute pour
+// le verbe `install`, etapes 3/4 (lot C.1) : un bundle d'app signe se telecharge, se verifie
+// (minisign, cf. lib/minisign.js) puis se pose — jamais l'inverse. Meme contrat de retour que
+// `getJson`/`sendJson` (`ok`/`status`), avec `octets` (Buffer) a la place de `body`.
+export async function getBytes(url, timeoutMs = 30000) {
+  const ctrl = new AbortController();
+  const t = setTimeout(() => ctrl.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, { signal: ctrl.signal, redirect: 'follow' });
+    if (!res.ok) return { ok: false, status: res.status, octets: null };
+    const buf = Buffer.from(await res.arrayBuffer());
+    return { ok: true, status: res.status, octets: buf };
+  } catch {
+    return { ok: false, status: 0, octets: null };
+  } finally {
+    clearTimeout(t);
+  }
+}

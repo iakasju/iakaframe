@@ -29,3 +29,27 @@ export const sondes = [
 export function execNpmInstall() {
   throw new Error('install-network-double.mjs actif : execNpmInstall ne doit jamais être atteint (sondes toujours injoignables)');
 }
+
+// --- LOT C.1 — etapes 3/4 (lib/app-bundle.js) ---------------------------------------------------
+// MEME DOCTRINE que ci-dessus, MEME fichier : « sondes toujours injoignables ». La propriete
+// « une source qui repond avec un manifeste exploitable est reprise, et son bundle verifie/pose »
+// est deja prouvee par injection DIRECTE (sans passer par ce fichier) dans
+// cli/test/app-bundle.test.js. Ce double ne couvre, ici aussi, qu'un seul besoin : zero reseau
+// reel et zero telechargement reel pour les tests qui spawnent le binaire CLI complet
+// (cli/test/install-etapes-3-4.test.js).
+export async function resoudreEndpointsApp(endpoints) {
+  return {
+    retenu: null,
+    manifeste: null,
+    essais: endpoints.map((url) => ({
+      url, hote: 'DOUBLE-TEST (toujours injoignable)', status: 0, ok: false, motif: 'injoignable', ms: 0,
+    })),
+    complet: true,
+    mesureLe: new Date().toISOString(),
+  };
+}
+
+// Ne doit JAMAIS etre atteint : aucun manifeste n'est jamais retenu ci-dessus.
+export async function telechargerApp() {
+  throw new Error('install-network-double.mjs actif : telechargerApp ne doit jamais être atteint (aucun manifeste retenu)');
+}
