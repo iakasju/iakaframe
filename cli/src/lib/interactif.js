@@ -61,3 +61,54 @@ export function askYesNo(question) {
     rl.question(question, (ans) => { rl.close(); resolve(/^o(ui)?$/i.test(String(ans).trim())); });
   });
 }
+
+// --- Port de feu vert NON-TTY (AR-M1(a), contrat-machine-du-verbe-install.md § 5 etape 3) -------
+// SEUL endroit legitime pour ce second lecteur de `stdin` (G3b : `readline`/`process.stdin` ne se
+// lisent que dans ce fichier et lib/guidage.js) — jamais recree dans `commands/install.js`.
+// `askYesNo` (ci-dessus) N'EST PAS TOUCHE : c'est un chemin distinct, pour un protocole distinct.
+//
+// Lit UNE SEULE ligne sur `input` (non-TTY : l'option `terminal` de readline vaut `false` par
+// defaut hors TTY, § 0.5 de l'instruction — explicitement force ici pour ne JAMAIS dependre de
+// l'ambiant). Deux formes de reponse tolerees : un objet `{"etape":n,"reponse":"oui"|"non"}`, ou
+// une ligne nue `oui`/`non` (suppose repondre a `etape`, l'etape demandee). Rend TOUJOURS
+// `{ accorde, motif }` — jamais une exception : le defaut est le REFUS (CA-M5), sur cinq chemins
+// distincts, chacun motive :
+//   1. EOF avant toute ligne (stdin ferme/vide)         -> refus, motif "EOF sans reponse"
+//   2. ligne vide                                        -> refus, motif "ligne vide"
+//   3. JSON illisible ET ligne nue non reconnue          -> refus, motif "reponse non reconnue"
+//   4. `etape` de la reponse != `etape` demandee (CA-M6) -> refus, motif "reponse hors sequence"
+//   5. reponse "non" (explicite)                         -> refus, motif "feu vert refuse"
+// Jamais de timeout (§ 2 du lot : le client est une UI ou un humain clique — un delai
+// transformerait une hesitation en refus silencieux ; EOF est le signal de fin, pas l'horloge).
+export function lireLigneFeuVert({ etape, input = process.stdin } = {}) {
+  return new Promise((resolve) => {
+    let settled = false;
+    const rl = readline.createInterface({ input, terminal: false });
+    function conclure(accorde, motif) {
+      if (settled) return;
+      settled = true;
+      rl.close();
+      resolve({ accorde, motif });
+    }
+    rl.once('line', (ligneBrute) => {
+      const ligne = String(ligneBrute).trim();
+      if (ligne === '') { conclure(false, 'ligne vide'); return; }
+      let obj = null;
+      try { obj = JSON.parse(ligne); } catch { /* forme nue, traitee ci-dessous */ }
+      let etapeRepondue = etape;
+      let reponse = ligne;
+      if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
+        etapeRepondue = obj.etape;
+        reponse = obj.reponse;
+      }
+      if (etapeRepondue !== etape) {
+        conclure(false, `reponse hors sequence (etape ${JSON.stringify(etapeRepondue)} recue, ${etape} attendue) — CA-M6`);
+        return;
+      }
+      if (reponse === 'oui') { conclure(true, 'feu vert accorde sur stdin'); return; }
+      if (reponse === 'non') { conclure(false, 'feu vert refuse sur stdin'); return; }
+      conclure(false, `reponse non reconnue : ${JSON.stringify(reponse)}`);
+    });
+    rl.once('close', () => conclure(false, 'EOF sans reponse'));
+  });
+}
