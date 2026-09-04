@@ -1,11 +1,18 @@
 // iakaframe install — le verbe de la CHAINE COMPLETE (specs/instructions/
 // chaine-complete-install-amorcage-dmg-msi.md). Lot A a livre les etapes 1 et 2 (CLI + methode).
-// LOT C.1 (ce fichier, desormais) ajoute les etapes 3 (IakaCockpit) et 4 (iakaFrameGUI) : chaque
-// bundle est resolu depuis des sources reseau ORDONNEES (lib/app-bundle.js, M10), sa signature
-// minisign VERIFIEE avant toute ecriture (CA-14), et la chaine porte un ROLLBACK a trois gardes
-// (AR-5, lib/rollback.js) si une etape echoue apres qu'une precedente a deja ecrit. Hors de la
-// SEULE plateforme couverte par ce lot (macOS, § 10 — la seule prouvable sur ce poste), les etapes
-// 3/4 refusent EXPLICITEMENT (CA-15) — jamais une simulation, jamais un silence.
+// LOT C.1 a ajoute les etapes 3 (IakaCockpit) et 4 (iakaFrameGUI) : chaque bundle est resolu depuis
+// des sources reseau ORDONNEES (lib/app-bundle.js, M10), sa signature minisign VERIFIEE avant
+// toute ecriture (CA-14), et la chaine porte un ROLLBACK a trois gardes (AR-5, lib/rollback.js) si
+// une etape echoue apres qu'une precedente a deja ecrit. Hors de la SEULE plateforme couverte par
+// ce lot (macOS, § 10 — la seule prouvable sur ce poste), les etapes 3/4 refusent EXPLICITEMENT
+// (CA-15) — jamais une simulation, jamais un silence.
+//
+// LOT CONTRAT-MACHINE-DU-VERBE-INSTALL (specs/instructions/contrat-machine-du-verbe-install.md) :
+// ce lot n'AJOUTE aucune logique d'installation — il EXPOSE celle qui existe a un programme, en
+// plus de l'humain. Trois drapeaux neufs (`--events`, `--feu-vert refus|stdin`, et le sens ENFIN
+// VERIDIQUE de `--json`) ; UN SEUL emetteur (lib/evenements.js), deux facons de le vider. LA PROSE
+// HUMAINE NE BOUGE PAS D'UN OCTET (CA-M8) : chaque `console.log` devient `em.dire(<meme chaine>,
+// <evenement ou null>)` — en mode humain, `dire` ne fait QUE `console.log(prose)`, rien d'autre.
 //
 // AR-A (comptage) : l'interface annonce TOUJOURS « 4 etapes / 3 telechargements », meme si seules
 // les etapes 1-2 sont fonctionnelles ici — fusionner CLI+methode serait interdit par AR-4 (§ 2 de
@@ -35,12 +42,14 @@ import { spawnSync } from 'node:child_process';
 import { resoudreReservoir } from '../lib/reservoir.js';
 import { verifierAutoDeploiement } from '../lib/autodeploi.js';
 import { packageVersion } from '../lib/version.js';
-import { peutDemander, askYesNo } from '../lib/interactif.js';
+import { peutDemander, askYesNo, lireLigneFeuVert } from '../lib/interactif.js';
 import { getJson } from '../lib/http.js';
 import { resoudreDoubleReseau } from '../lib/network-double.js';
 import { APPS, cleManifestePlateforme, telechargerEtVerifier, poserBundleDarwin } from '../lib/app-bundle.js';
 import { resoudre } from '../lib/endpoints.js';
 import { sauvegarderAvantEtape, restaurerEtape, orchestrerRollback } from '../lib/rollback.js';
+import { creerEmetteur } from '../lib/evenements.js';
+import { emit, collection, fail } from '../lib/output.js';
 
 const USAGE = `Usage : iakaframe install [options]
 
@@ -56,17 +65,52 @@ Options :
   --target-claude <dir>  Cible de l'etape 2 pour l'hote claude (defaut : ~/.claude)
   --backup-dir <dir>     Sauvegarde horodatee des etapes 2 (install.mjs) et 3/4 (AR-5, rollback)
   --apps-dir <dir>       Cible des etapes 3/4 (defaut : ~/Applications, macOS)
-  --json                 Sortie machine (desactive les confirmations interactives)`;
+  --json                 Sortie machine C-JSON : bufferise et imprime UNE racine objet
+                         { ok, count, evenements[], etatAtteint, reprise } (contrat CONTRAT-
+                         MACHINE-DU-VERBE-INSTALL) — desactive aussi les confirmations interactives
+  --events               Flux NDJSON (contrat C-EVT) sur stdout, une ligne = un evenement — pour un
+                         programme qui pilote la chaine en direct (incompatible avec --json)
+  --feu-vert <mode>      Canal de consentement machine : "refus" (defaut, AR-4 tenu) ou "stdin"
+                         (lit une ligne de reponse par etape sur stdin — incompatible avec --json)`;
 
 // --- Confirmation par etape (AR-4) --------------------------------------------------------------
 // `--yes` saute TOUJOURS ; sinon confirmation interactive si le terminal le permet, REFUS par
 // defaut en non-interactif (le sur, jamais le suppose). `askYesNo` est le prompt UNIQUE (G3b,
 // cli/test/guard-guidage-autorite.test.js) : reutilise depuis lib/interactif.js, jamais recree ici.
-export async function confirmerEtape({ yes, json, question }) {
-  if (yes) return true;
+//
+// LOT CONTRAT-MACHINE : `em`/`etape`/`feuVert` sont des ports INJECTES, optionnels — meme idiome
+// que sondes/execNpmInstall (M-9). Le chemin HUMAIN (feuVert absent/'refus' et em.mode==='humain')
+// est ATTEINT A L'IDENTIQUE de ce qu'il etait avant ce lot (§ 2 point 3) : `em.dire(null, ...)`
+// n'imprime jamais rien en mode humain (evenements.js), donc AUCUNE prose n'est ajoutee ici.
+export async function confirmerEtape({ yes, json, question, em, etape, feuVert = 'refus' }) {
+  if (yes) {
+    if (em) em.dire(null, { evt: 'feu-vert', etape, champs: { accorde: true, canal: 'yes', motif: '--yes : validation sautee (AR-4)' } });
+    return true;
+  }
+  if (em) em.dire(null, { evt: 'demande-feu-vert', etape, champs: { question } });
+  if (feuVert === 'stdin') {
+    const { accorde, motif } = await lireLigneFeuVert({ etape });
+    if (em) em.dire(null, { evt: 'feu-vert', etape, champs: { accorde, canal: 'stdin', motif } });
+    return accorde;
+  }
   const interactive = peutDemander({ json: Boolean(json), guide: true });
-  if (!interactive) return false;
-  return askYesNo(question);
+  if (!interactive) {
+    if (em) {
+      em.dire(null, {
+        evt: 'feu-vert', etape,
+        champs: { accorde: false, canal: 'refus-par-defaut', motif: 'non-interactif (ou canal machine sans --feu-vert stdin) : refus par defaut, AR-4' },
+      });
+    }
+    return false;
+  }
+  const accorde = await askYesNo(question);
+  if (em) {
+    em.dire(null, {
+      evt: 'feu-vert', etape,
+      champs: { accorde, canal: 'tty', motif: accorde ? 'confirme au terminal' : 'refuse au terminal' },
+    });
+  }
+  return accorde;
 }
 
 // --- AR-A : les 4 etapes, toujours annoncees ------------------------------------------------
@@ -134,16 +178,53 @@ function ligneEssais(essais) {
   }).join('\n');
 }
 
+function essaisPourEvenement(essais) {
+  return (essais || []).map(e => ({
+    nom: e.nom,
+    repond: Boolean(e.repond),
+    exploitable: Boolean(e.exploitable),
+    ...(e.version ? { version: e.version } : {}),
+    ...(!e.repond ? { motif: 'injoignable' } : (!e.exploitable ? { motif: 'manifeste inexploitable' } : {})),
+  }));
+}
+
+// Execute un sous-processus DELEGUE. En mode HUMAIN (machineActif=false) : `stdio:'inherit'`
+// INCHANGE (M-5/M-6, comportement de production preexistant, jamais touche). En mode MACHINE
+// (json OU events) : `stdio: ['ignore','pipe','pipe']` — le `stdin` de l'enfant est COUPE (empeche
+// le vol de la ligne de consentement, M-5/R-M3) et chaque ligne de sa sortie est RE-EMISE en
+// evenement `log-delegue` (jamais perdue, jamais entrelacee avec la prose humaine, CA-M1).
+function executerEnfant(cmd, args, { em, etape, machineActif }) {
+  if (!machineActif) {
+    return spawnSync(cmd, args, { encoding: 'utf8', stdio: 'inherit' });
+  }
+  const res = spawnSync(cmd, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+  for (const [flux, texte] of [['stdout', res.stdout], ['stderr', res.stderr]]) {
+    if (!texte) continue;
+    for (const ligne of String(texte).split('\n')) {
+      if (ligne === '') continue;
+      em.dire(null, { evt: 'log-delegue', etape, champs: { flux, ligne } });
+    }
+  }
+  return res;
+}
+
 // --- Etape 1/4 : le CLI (sens UNIQUE ici, AR-G : mise a jour) -----------------------------------
 // `sondes`/`execNpmInstall` (optionnels) : point d'INJECTION de test pour `sourcesOrdonneesCli`
 // et l'execution de la mise a jour — JAMAIS utilises par l'execution reelle (defaut = les vraies
 // sondes reseau / un vrai `npm`), exposes pour que les tests maitrisent le reseau PAR INJECTION,
 // jamais en modifiant la logique de production elle-meme (cf. cli/test/etape1-reseau-ecarte.test.js
 // et le double de cli/test/install-verbe.test.js, IAKAFRAME_INSTALL_TEST_DOUBLE).
-export async function etape1Cli({ reservoir, values, execNpmInstall, sondes }) {
+export async function etape1Cli({ reservoir, values, execNpmInstall, sondes, em = creerEmetteur(), feuVert = 'refus' }) {
   const courante = packageVersion();
-  console.log(`\n[1/4] CLI — mise à jour (poste déjà équipé, AR-G) : version courante v${courante}`);
-  console.log(`  ${reservoir.provenance}`);
+  em.dire(`\n[1/4] CLI — mise à jour (poste déjà équipé, AR-G) : version courante v${courante}`, null);
+  em.dire(`  ${reservoir.provenance}`, {
+    evt: 'reservoir', etape: 1,
+    champs: {
+      source: reservoir.source, vivantRoot: reservoir.vivantRoot, vivantVersion: reservoir.vivantVersion,
+      embarqueDir: reservoir.embarqueDir, embarqueVersion: reservoir.embarqueVersion,
+      installMjsPath: reservoir.installMjsPath, provenance: reservoir.provenance,
+    },
+  });
 
   let cible = null; // { version, source, comment }
   if (reservoir.vivantPresent && reservoir.vivantVersion && reservoir.source === 'vivant') {
@@ -175,35 +256,57 @@ export async function etape1Cli({ reservoir, values, execNpmInstall, sondes }) {
     }
   }
 
+  const annonce = {
+    evt: 'etape-annoncee', etape: 1,
+    champs: {
+      quoi: 'CLI (paquet npm global @naonedge/iakaframe)',
+      ou: 'npm global',
+      version: cible ? cible.version : courante,
+      ceQuiSeraFusionne: cible
+        ? 'remplace le paquet global @naonedge/iakaframe existant'
+        : 'aucune mise a jour disponible : le paquet global reste tel quel',
+      sourceRetenue: cible ? { nom: cible.from, pourquoi: `v${cible.version} > courante v${courante}` } : null,
+      sourcesConsultees: essaisPourEvenement(essaisReseau),
+    },
+  };
+
   if (!cible) {
-    if (essaisReseau) console.log(`  sources réseau (AR-H) consultées :\n${ligneEssais(essaisReseau)}`);
-    console.log(`  déjà à jour (v${courante}) — rien à installer.`);
+    if (essaisReseau) em.dire(`  sources réseau (AR-H) consultées :\n${ligneEssais(essaisReseau)}`, null);
+    em.dire(`  déjà à jour (v${courante}) — rien à installer.`, annonce);
+    em.dire(null, { evt: 'etape-terminee', etape: 1, champs: { etat: 'sautee', detail: `déjà à jour (v${courante})` } });
     return { ok: true, misAJour: false };
   }
 
-  console.log(`  mise à jour disponible : v${courante} → v${cible.version} (source : ${cible.from})`);
-  console.log(`  ce qui sera fusionné : remplace le paquet global \`@naonedge/iakaframe\` existant`);
+  em.dire(`  mise à jour disponible : v${courante} → v${cible.version} (source : ${cible.from})`, annonce);
+  em.dire(`  ce qui sera fusionné : remplace le paquet global \`@naonedge/iakaframe\` existant`, null);
   if (values['dry-run']) {
-    console.log('  [dry-run] rien écrit.');
+    em.dire('  [dry-run] rien écrit.', null);
+    em.dire(null, { evt: 'etape-terminee', etape: 1, champs: { etat: 'dry-run', detail: `mise à jour v${courante} → v${cible.version} décrite, rien écrit` } });
     return { ok: true, misAJour: false, dryRun: true };
   }
   const ok = await confirmerEtape({
-    yes: values.yes, json: values.json,
+    yes: values.yes, json: values.json, em, etape: 1, feuVert,
     question: `Mettre à jour le CLI vers v${cible.version} depuis ${cible.from} ? [o/N] `,
   });
   if (!ok) {
-    console.log('  REFUS : mise à jour du CLI non confirmée.');
-    console.log(`  Reprise : iakaframe install --yes   (ou relancer en interactif)`);
-    return { ok: false, misAJour: false };
+    em.dire('  REFUS : mise à jour du CLI non confirmée.', null);
+    const reprise = `iakaframe install --yes   (ou relancer en interactif)`;
+    em.dire(`  Reprise : ${reprise}`, null);
+    em.dire(null, { evt: 'etape-terminee', etape: 1, champs: { etat: 'refusee', detail: 'mise à jour non confirmée' } });
+    return { ok: false, misAJour: false, reprise };
   }
   const [cmd, args] = cible.install;
-  const res = execNpmInstall ? execNpmInstall(cmd, args) : spawnSync(cmd, args, { encoding: 'utf8', stdio: 'inherit' });
+  const machineActif = em.mode !== 'humain';
+  const res = execNpmInstall ? execNpmInstall(cmd, args) : executerEnfant(cmd, args, { em, etape: 1, machineActif });
   if (res.status !== 0) {
-    console.log(`  ÉCHEC : ${cmd} ${args.join(' ')} (code ${res.status}).`);
-    console.log(`  Reprise : ${cmd} ${args.join(' ')}`);
-    return { ok: false, misAJour: false };
+    em.dire(`  ÉCHEC : ${cmd} ${args.join(' ')} (code ${res.status}).`, null);
+    const reprise = `${cmd} ${args.join(' ')}`;
+    em.dire(`  Reprise : ${reprise}`, null);
+    em.dire(null, { evt: 'etape-terminee', etape: 1, champs: { etat: 'echouee', detail: `code ${res.status}` } });
+    return { ok: false, misAJour: false, reprise };
   }
-  console.log(`  + CLI mis à jour vers v${cible.version}.`);
+  em.dire(`  + CLI mis à jour vers v${cible.version}.`, null);
+  em.dire(null, { evt: 'etape-terminee', etape: 1, champs: { etat: 'faite', detail: `mis à jour vers v${cible.version}` } });
   return { ok: true, misAJour: true };
 }
 
@@ -222,42 +325,59 @@ function compareStr(a, b) {
 // DESIGNE par AR-F (reservoir.source), jamais systematiquement le vivant. `kitsDir` doit donc etre
 // derive du reservoir PORTEUR (`path.dirname(reservoir.installMjsPath)`), pas de `vivantRoot` —
 // sinon un embarque porteur (vivantRoot === null) fait lever un TypeError (N5/R-B).
-export async function etape2Methode({ reservoir, values }) {
-  console.log(`\n[2/4] méthode — délégation à install.mjs (M4, non réimplémenté)`);
+export async function etape2Methode({ reservoir, values, em = creerEmetteur(), feuVert = 'refus' }) {
+  em.dire(`\n[2/4] méthode — délégation à install.mjs (M4, non réimplémenté)`, null);
   if (!reservoir.installMjsPath) {
-    // CA-21' (rectification datée de CA-21, 2026-09-04) : la charge n'est plus INTROUVABLE par
+    // CA-21' (rectification datee de CA-21, 2026-09-04) : la charge n'est plus INTROUVABLE par
     // construction sur un poste sans vivant (elle voyage avec le paquet, AR-I(a)) — le refus ne
     // se declenche donc plus que si NI le vivant NI l'embarque ne la portent (bundle ampute, R-A).
     // Le message nomme les DEUX chemins cherches, jamais une affirmation sur ce que `_bundled/`
     // NE porte pas (E-3 : c'etait le seul enonce faux LU PAR L'UTILISATEUR).
-    console.log(`  REFUS : la charge de la méthode (install.mjs) est introuvable.`);
-    console.log(`    cherchée : ${reservoir.installMjsCandidatVivant}   (réservoir vivant)`);
-    console.log(`               ${reservoir.installMjsCandidatEmbarque} (réservoir embarqué)`);
-    console.log(`    cause : ni l'arbre vivant ni le paquet embarqué ne la portent — un paquet publié qui ne`);
-    console.log(`            la porte pas est un bundle incomplet (garde \`required\` de cli/scripts/bundle.js).`);
-    console.log(`    Reprise : iakaframe install --root <chemin-vers-un-clone-iakaframe>`);
-    return { ok: false };
+    em.dire(`  REFUS : la charge de la méthode (install.mjs) est introuvable.`, null);
+    em.dire(`    cherchée : ${reservoir.installMjsCandidatVivant}   (réservoir vivant)`, null);
+    em.dire(`               ${reservoir.installMjsCandidatEmbarque} (réservoir embarqué)`, null);
+    em.dire(`    cause : ni l'arbre vivant ni le paquet embarqué ne la portent — un paquet publié qui ne`, null);
+    em.dire(`            la porte pas est un bundle incomplet (garde \`required\` de cli/scripts/bundle.js).`, null);
+    const reprise = `iakaframe install --root <chemin-vers-un-clone-iakaframe>`;
+    em.dire(`    Reprise : ${reprise}`, null);
+    em.dire(null, {
+      evt: 'etape-terminee', etape: 2,
+      champs: { etat: 'echouee', detail: 'install.mjs introuvable (ni vivant ni embarqué)' },
+    });
+    return { ok: false, reprise };
   }
   const kitsDir = path.join(path.dirname(reservoir.installMjsPath), 'kits');
   const hosts = values.hosts || 'claude';
   const targetClaude = values['target-claude'] || path.join(os.homedir(), '.claude');
-  console.log(`  quoi : kit(s) hôte(s) [${hosts}] depuis ${kitsDir}`);
-  console.log(`  où : ${targetClaude}`);
+  em.dire(`  quoi : kit(s) hôte(s) [${hosts}] depuis ${kitsDir}`, null);
+  em.dire(`  où : ${targetClaude}`, null);
   const versionAffichee = reservoir.source === 'vivant'
     ? (reservoir.vivantVersion == null ? 'version indéterminée' : `v${reservoir.vivantVersion}`)
     : `v${reservoir.embarqueVersion}`;
-  console.log(`  quelle version : ${versionAffichee}`);
-  console.log(`  ce qui sera fusionné : --merge par défaut (rien d'existant n'est écrasé sans --overwrite)`);
+  em.dire(`  quelle version : ${versionAffichee}`, null);
+  em.dire(`  ce qui sera fusionné : --merge par défaut (rien d'existant n'est écrasé sans --overwrite)`, {
+    evt: 'etape-annoncee', etape: 2,
+    champs: {
+      quoi: `kit(s) hôte(s) [${hosts}]`,
+      ou: targetClaude,
+      version: versionAffichee,
+      ceQuiSeraFusionne: '--merge par défaut (rien d\'existant n\'est écrasé sans --overwrite)',
+      sourceRetenue: { nom: reservoir.source, pourquoi: reservoir.provenance },
+      sourcesConsultees: [],
+    },
+  });
 
   if (!values['dry-run']) {
     const ok = await confirmerEtape({
-      yes: values.yes, json: values.json,
+      yes: values.yes, json: values.json, em, etape: 2, feuVert,
       question: `Déployer/mettre à jour le kit méthode sur [${hosts}] ? [o/N] `,
     });
     if (!ok) {
-      console.log('  REFUS : déploiement de la méthode non confirmé.');
-      console.log(`  Reprise : iakaframe install --yes   (ou relancer en interactif)`);
-      return { ok: false };
+      em.dire('  REFUS : déploiement de la méthode non confirmé.', null);
+      const reprise = `iakaframe install --yes   (ou relancer en interactif)`;
+      em.dire(`  Reprise : ${reprise}`, null);
+      em.dire(null, { evt: 'etape-terminee', etape: 2, champs: { etat: 'refusee', detail: 'déploiement non confirmé' } });
+      return { ok: false, reprise };
     }
   }
 
@@ -268,12 +388,19 @@ export async function etape2Methode({ reservoir, values }) {
   if (values['dry-run']) args.push('--dry-run');
   args.push('--yes'); // la confirmation AR-4 vient d'avoir lieu CI-DESSUS ; install.mjs ne redemande pas une 2e fois
   if (values['backup-dir']) args.push('--backup-dir', values['backup-dir']);
-  const res = spawnSync(process.execPath, args, { encoding: 'utf8', stdio: 'inherit' });
+  const machineActif = em.mode !== 'humain';
+  const res = executerEnfant(process.execPath, args, { em, etape: 2, machineActif });
   if (res.status !== 0) {
-    console.log(`  ÉCHEC : install.mjs a rendu le code ${res.status}.`);
-    console.log(`  Reprise : node ${reservoir.installMjsPath} --kits-dir ${kitsDir} --hosts ${hosts} --target-claude ${targetClaude}`);
-    return { ok: false };
+    em.dire(`  ÉCHEC : install.mjs a rendu le code ${res.status}.`, null);
+    const reprise = `node ${reservoir.installMjsPath} --kits-dir ${kitsDir} --hosts ${hosts} --target-claude ${targetClaude}`;
+    em.dire(`  Reprise : ${reprise}`, null);
+    em.dire(null, { evt: 'etape-terminee', etape: 2, champs: { etat: 'echouee', detail: `code ${res.status}` } });
+    return { ok: false, reprise };
   }
+  em.dire(null, {
+    evt: 'etape-terminee', etape: 2,
+    champs: { etat: values['dry-run'] ? 'dry-run' : 'faite', detail: 'kit méthode déployé/à jour' },
+  });
   return { ok: true };
 }
 
@@ -298,10 +425,10 @@ function resoudreBackupDir(values) {
 export async function etapeApp({
   numero, appKey, values, appsDir, backupDir,
   resoudreEndpointsApp = resoudre, telechargerApp,
-  plateforme,
+  plateforme, em = creerEmetteur(), feuVert = 'refus',
 } = {}) {
   const app = APPS[appKey];
-  console.log(`\n[${numero}/4] ${app.nom}`);
+  em.dire(`\n[${numero}/4] ${app.nom}`, null);
 
   // CA-15 : hors plateforme couverte, REFUS EXPLICITE avant meme de toucher au reseau — jamais
   // une simulation, jamais un silence.
@@ -317,56 +444,87 @@ export async function etapeApp({
   const cle = cleManifestePlateforme(plateforme || {});
   if (!cle) {
     const plat = `${(plateforme && plateforme.platform) || os.platform()}-${(plateforme && plateforme.arch) || os.arch()}`;
-    console.log(`  REFUS : plateforme "${plat}" non couverte par ce lot (§ 10 — seul macOS est prouvé sur ce poste). Jamais une simulation.`);
+    em.dire(`  REFUS : plateforme "${plat}" non couverte par ce lot (§ 10 — seul macOS est prouvé sur ce poste). Jamais une simulation.`, null);
     if (!dryRun) {
-      console.log(`  Reprise : aucune — cette plateforme attend un lot dédié (recette réelle Windows/Linux, § 10).`);
-      return { ok: false, preuve: null };
+      const reprise = 'aucune — cette plateforme attend un lot dédié (recette réelle Windows/Linux, § 10)';
+      em.dire(`  Reprise : ${reprise}`, null);
+      em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: `plateforme "${plat}" non couverte` } });
+      return { ok: false, preuve: null, reprise };
     }
-    console.log(`  [dry-run] rien à écrire de toute façon sur cette plateforme — la chaîne continue décrire les étapes suivantes.`);
+    em.dire(`  [dry-run] rien à écrire de toute façon sur cette plateforme — la chaîne continue décrire les étapes suivantes.`, null);
+    em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'dry-run', detail: `plateforme "${plat}" non couverte` } });
     return { ok: true, dryRun: true, preuve: null };
   }
 
   const res = await resoudreEndpointsApp(app.endpoints, {});
   if (!res.retenu) {
-    console.log(`  sources consultées (ordre M10) :`);
-    for (const e of res.essais) console.log(`    - ${e.hote} : ${e.motif}`);
+    em.dire(`  sources consultées (ordre M10) :`, null);
+    for (const e of res.essais) em.dire(`    - ${e.hote} : ${e.motif}`, null);
+    const annonceEchec = {
+      evt: 'etape-annoncee', etape: numero,
+      champs: {
+        quoi: app.nom, ou: null, version: null, ceQuiSeraFusionne: null,
+        sourceRetenue: null,
+        sourcesConsultees: res.essais.map(e => ({ nom: e.hote, repond: Boolean(e.status), exploitable: Boolean(e.ok), motif: e.motif })),
+      },
+    };
     if (!dryRun) {
-      console.log(`  REFUS : aucune source n'a servi de manifeste exploitable pour ${app.nom}.`);
-      console.log(`  Reprise : iakaframe install --yes   (ou relancer une fois le réseau disponible)`);
-      return { ok: false, preuve: null };
+      em.dire(`  REFUS : aucune source n'a servi de manifeste exploitable pour ${app.nom}.`, annonceEchec);
+      const reprise = `iakaframe install --yes   (ou relancer une fois le réseau disponible)`;
+      em.dire(`  Reprise : ${reprise}`, null);
+      em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: 'aucune source exploitable' } });
+      return { ok: false, preuve: null, reprise };
     }
-    console.log(`  [dry-run] aucune source n'a servi de manifeste exploitable pour ${app.nom} — rien à écrire de toute façon.`);
+    em.dire(`  [dry-run] aucune source n'a servi de manifeste exploitable pour ${app.nom} — rien à écrire de toute façon.`, annonceEchec);
+    em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'dry-run', detail: 'aucune source exploitable' } });
     return { ok: true, dryRun: true, preuve: null };
   }
   const manifeste = res.manifeste;
   const cible = path.join(appsDir, `${app.nom}.app`);
   const dejaPresent = fs.existsSync(cible);
-  console.log(`  quoi : ${app.nom} v${manifeste.version} (plateforme ${cle}), depuis ${res.retenu.hote}`);
-  console.log(`  où : ${cible}`);
-  console.log(`  quelle version : v${manifeste.version}`);
-  console.log(`  ce qui sera fusionné : ${dejaPresent ? `${app.nom}.app existant à cette adresse sera REMPLACÉ (sauvegardé avant, AR-5)` : `pose neuve, rien n'existait à cette adresse`}`);
+  em.dire(`  quoi : ${app.nom} v${manifeste.version} (plateforme ${cle}), depuis ${res.retenu.hote}`, null);
+  em.dire(`  où : ${cible}`, null);
+  em.dire(`  quelle version : v${manifeste.version}`, null);
+  const ceQuiSeraFusionne = dejaPresent
+    ? `${app.nom}.app existant à cette adresse sera REMPLACÉ (sauvegardé avant, AR-5)`
+    : `pose neuve, rien n'existait à cette adresse`;
+  em.dire(`  ce qui sera fusionné : ${ceQuiSeraFusionne}`, {
+    evt: 'etape-annoncee', etape: numero,
+    champs: {
+      quoi: `${app.nom} v${manifeste.version} (plateforme ${cle})`,
+      ou: cible,
+      version: manifeste.version,
+      ceQuiSeraFusionne,
+      sourceRetenue: { nom: res.retenu.hote, pourquoi: 'manifeste exploitable retenu (ordre M10, AR-H)' },
+      sourcesConsultees: res.essais.map(e => ({ nom: e.hote, repond: Boolean(e.status), exploitable: Boolean(e.ok), motif: e.motif })),
+    },
+  });
 
   if (dryRun) {
-    console.log('  [dry-run] rien écrit (réseau consulté en lecture seule, aucune écriture disque).');
+    em.dire('  [dry-run] rien écrit (réseau consulté en lecture seule, aucune écriture disque).', null);
+    em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'dry-run', detail: `${app.nom} v${manifeste.version} décrit, rien écrit` } });
     return { ok: true, dryRun: true, preuve: null };
   }
 
-  const feuVert = await confirmerEtape({
-    yes: values.yes, json: values.json,
+  const feuVertOk = await confirmerEtape({
+    yes: values.yes, json: values.json, em, etape: numero, feuVert,
     question: `Installer ${app.nom} v${manifeste.version} ? [o/N] `,
   });
-  if (!feuVert) {
-    console.log(`  REFUS : installation de ${app.nom} non confirmée.`);
-    console.log(`  Reprise : iakaframe install --yes   (ou relancer en interactif)`);
-    return { ok: false, preuve: null };
+  if (!feuVertOk) {
+    em.dire(`  REFUS : installation de ${app.nom} non confirmée.`, null);
+    const reprise = `iakaframe install --yes   (ou relancer en interactif)`;
+    em.dire(`  Reprise : ${reprise}`, null);
+    em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'refusee', detail: 'installation non confirmée' } });
+    return { ok: false, preuve: null, reprise };
   }
 
   const dl = await telechargerEtVerifier({ app, manifeste, cle, telecharger: telechargerApp });
   if (!dl.ok) {
-    console.log(`  REFUS : ${dl.raison}`);
+    em.dire(`  REFUS : ${dl.raison}`, null);
+    em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: dl.raison } });
     return { ok: false, preuve: null };
   }
-  console.log(`  + signature vérifiée (minisign, ${app.nom}).`);
+  em.dire(`  + signature vérifiée (minisign, ${app.nom}).`, null);
 
   // AR-5 garde 1 : sauvegarde AVANT toute écriture. Si la sauvegarde elle-même échoue, on REFUSE
   // d'écrire plutôt que d'écrire sans filet — même prudence que le refus de dérouler sans preuve.
@@ -374,20 +532,23 @@ export async function etapeApp({
   try {
     preuve = sauvegarderAvantEtape({ backupDir, etape: numero, cible });
   } catch (e) {
-    console.log(`  REFUS : sauvegarde de sécurité impossible avant la pose (${e.message}) — rien n'est écrit.`);
+    em.dire(`  REFUS : sauvegarde de sécurité impossible avant la pose (${e.message}) — rien n'est écrit.`, null);
+    em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: `sauvegarde impossible : ${e.message}` } });
     return { ok: false, preuve: null };
   }
 
   const pose = poserBundleDarwin({ octets: dl.octets, cible });
   if (!pose.ok) {
-    console.log(`  ÉCHEC : ${pose.raison}`);
+    em.dire(`  ÉCHEC : ${pose.raison}`, null);
     // Echec APRES la sauvegarde : on a la preuve, on peut donc défaire immédiatement ce que CETTE
     // écriture a pu poser partiellement — jamais un état à moitié écrit laissé tel quel.
     const rb = restaurerEtape(preuve);
-    console.log(`  [rollback immédiat de l'étape ${numero}] ${rb.raison}`);
+    em.dire(`  [rollback immédiat de l'étape ${numero}] ${rb.raison}`, null);
+    em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: pose.raison } });
     return { ok: false, preuve: null };
   }
-  console.log(`  + ${app.nom} v${manifeste.version} posé à ${pose.cible}.`);
+  em.dire(`  + ${app.nom} v${manifeste.version} posé à ${pose.cible}.`, null);
+  em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'faite', detail: `${app.nom} v${manifeste.version} posé` } });
   return { ok: true, preuve };
 }
 
@@ -403,13 +564,42 @@ export async function runInstall(argv) {
       'backup-dir': { type: 'string' },
       'apps-dir': { type: 'string' },
       json: { type: 'boolean', default: false },
+      events: { type: 'boolean', default: false },
+      'feu-vert': { type: 'string', default: 'refus' },
       help: { type: 'boolean', default: false },
     },
   });
   if (values.help) { console.log(USAGE); return; }
 
-  console.log(`==== iakaframe install ====`);
-  console.log(bannierEtapes());
+  // --- Refus explicite des combinaisons incoherentes, AVANT TOUT EFFET (CA-M12) ------------------
+  if (values.json && values.events) {
+    fail(true, 'combinaison incohérente : --json et --events ne peuvent pas être utilisés ensemble (--json bufferise et imprime une seule racine en fin de chaîne ; --events diffuse une ligne NDJSON par événement, immédiatement) — choisir un seul des deux');
+    return;
+  }
+  if (values.json && values['feu-vert'] === 'stdin') {
+    fail(true, 'combinaison incohérente : --json et --feu-vert stdin ne peuvent pas être utilisés ensemble (--json bufferise : un client ne verrait la demande de feu vert qu\'après la fin de la chaîne, jamais à temps pour y répondre)');
+    return;
+  }
+  if (!['refus', 'stdin'].includes(values['feu-vert'])) {
+    const msg = `--feu-vert doit valoir "refus" ou "stdin" (reçu : "${values['feu-vert']}")`;
+    if (values.json) { fail(true, msg); } else { console.error(msg); process.exitCode = 1; }
+    return;
+  }
+
+  const emetteurMode = values.json ? 'json' : (values.events ? 'events' : 'humain');
+  const em = creerEmetteur({ mode: emetteurMode });
+  const feuVert = values['feu-vert'];
+
+  const courante = packageVersion();
+  em.dire(`==== iakaframe install ====`, null);
+  em.dire(bannierEtapes(), {
+    evt: 'debut', etape: null,
+    champs: {
+      versionCli: courante, totalEtapes: 4, telechargements: 3,
+      dryRun: Boolean(values['dry-run']), plateforme: `${os.platform()}-${os.arch()}`,
+      mode: emetteurMode,
+    },
+  });
 
   const reservoir = resoudreReservoir({ root: values.root });
 
@@ -419,8 +609,33 @@ export async function runInstall(argv) {
   // conditionnel d'un fichier qui vit hors de `src/` (cli/test/fixtures/, jamais publie).
   const { sondes, execNpmInstall, resoudreEndpointsApp, telechargerApp } = await resoudreDoubleReseau();
 
-  const r1 = await etape1Cli({ reservoir, values, sondes, execNpmInstall });
-  if (!r1.ok) { process.exitCode = 1; return; } // CA-07 : arret, deja enonce ci-dessus (etat atteint + commande de reprise)
+  const etapesFaites = [];
+
+  function terminer({ ok, error, derniereEtapeTentee, reprise }) {
+    const etatAtteint = {
+      derniereEtapeTentee,
+      etapesFaites: [...etapesFaites],
+      etapesNonTentees: [1, 2, 3, 4].filter(n => n > derniereEtapeTentee),
+    };
+    const finChamps = { ok, etatAtteint, reprise: reprise || null };
+    if (!ok && error) finChamps.error = error;
+    em.dire(null, { evt: 'fin', etape: null, champs: finChamps });
+    if (values.json) {
+      if (ok) {
+        emit(true, collection('evenements', em.evenements, { etatAtteint, reprise: reprise || null }), undefined);
+      } else {
+        fail(true, error || 'la chaîne d\'installation a échoué', { evenements: em.evenements, count: em.evenements.length, etatAtteint, reprise: reprise || null });
+      }
+    }
+    if (!ok) process.exitCode = 1;
+  }
+
+  const r1 = await etape1Cli({ reservoir, values, sondes, execNpmInstall, em, feuVert });
+  if (!r1.ok) { // CA-07 : arret, deja enonce ci-dessus (etat atteint + commande de reprise)
+    terminer({ ok: false, error: 'étape 1 (CLI) refusée ou échouée', derniereEtapeTentee: 1, reprise: r1.reprise });
+    return;
+  }
+  etapesFaites.push(1);
 
   // --- Corollaire AR-1/AR-4 (§5.5, CA-08) : le moteur DESARME AR-1 pour TOUTE la duree de la
   // chaine — jamais un chemin ou le CLI fraichement mis a jour (etape 1) declencherait le
@@ -438,24 +653,34 @@ export async function runInstall(argv) {
       targetClaude,
       desarme: true,
     });
-    console.log(`\n  [garde AR-1/AR-4] ${rapportAr1.raison}`);
+    em.dire(`\n  [garde AR-1/AR-4] ${rapportAr1.raison}`, {
+      evt: 'garde-ar1', etape: 1, champs: { desarme: true, raison: rapportAr1.raison },
+    });
   }
 
-  const r2 = await etape2Methode({ reservoir, values });
-  if (!r2.ok) { process.exitCode = 1; return; } // CA-07
+  const r2 = await etape2Methode({ reservoir, values, em, feuVert });
+  if (!r2.ok) { // CA-07
+    terminer({ ok: false, error: 'étape 2 (méthode) refusée ou échouée', derniereEtapeTentee: 2, reprise: r2.reprise });
+    return;
+  }
+  etapesFaites.push(2);
 
   const appsDir = resoudreAppsDir(values);
   const backupDir = resoudreBackupDir(values);
 
   const r3 = await etapeApp({
     numero: 3, appKey: 'IakaCockpit', values, appsDir, backupDir,
-    resoudreEndpointsApp, telechargerApp,
+    resoudreEndpointsApp, telechargerApp, em, feuVert,
   });
-  if (!r3.ok) { process.exitCode = 1; return; } // CA-07 : rien n'a été écrit par l'étape 3, rien à défaire
+  if (!r3.ok) { // CA-07 : rien n'a été écrit par l'étape 3, rien à défaire
+    terminer({ ok: false, error: 'étape 3 (IakaCockpit) refusée ou échouée', derniereEtapeTentee: 3, reprise: r3.reprise });
+    return;
+  }
+  if (!r3.dryRun) etapesFaites.push(3);
 
   const r4 = await etapeApp({
     numero: 4, appKey: 'iakaFrameGUI', values, appsDir, backupDir,
-    resoudreEndpointsApp, telechargerApp,
+    resoudreEndpointsApp, telechargerApp, em, feuVert,
   });
   if (!r4.ok) {
     // AR-5 : l'étape 3 A ÉCRIT (r3.preuve non nulle, sauf dry-run) et la chaîne s'arrête quand
@@ -463,12 +688,17 @@ export async function runInstall(argv) {
     // ce que la preuve permet de défaire (garde 1), jamais à l'aveugle.
     if (r3.preuve) {
       const rb = orchestrerRollback([r3.preuve]);
-      console.log(`\n[rollback] ${rb.resume}`);
-      for (const rap of rb.rapports) console.log(`  [étape ${rap.etape}] ${rap.raison}`);
+      em.dire(`\n[rollback] ${rb.resume}`, {
+        evt: 'rollback', etape: 4,
+        champs: { resume: rb.resume, defaits: rb.defaits, nonDefaits: rb.nonDefaits, rapports: rb.rapports },
+      });
+      for (const rap of rb.rapports) em.dire(`  [étape ${rap.etape}] ${rap.raison}`, null);
     }
-    process.exitCode = 1;
+    terminer({ ok: false, error: 'étape 4 (iakaFrameGUI) refusée ou échouée', derniereEtapeTentee: 4, reprise: r4.reprise });
     return; // CA-07
   }
+  if (!r4.dryRun) etapesFaites.push(4);
 
-  console.log(`\nTerminé : les 4 étapes ont été jouées.`);
+  em.dire(`\nTerminé : les 4 étapes ont été jouées.`, null);
+  terminer({ ok: true, derniereEtapeTentee: 4 });
 }

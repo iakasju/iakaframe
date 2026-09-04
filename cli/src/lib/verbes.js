@@ -80,12 +80,16 @@ export const VERBES = [
   },
   {
     id: 'install',
-    resume: "Chaine complete d'installation (4 etapes, lots A+C.1) : CLI, methode, IakaCockpit, iakaFrameGUI",
-    options: ['--dry-run', '--yes', '--root <dir>', '--hosts a,b', '--target-claude <dir>', '--backup-dir <dir>', '--apps-dir <dir>', '--json'],
+    resume: "Chaine complete d'installation (4 etapes, lots A+C.1+CONTRAT-MACHINE) : CLI, methode, IakaCockpit, iakaFrameGUI",
+    options: ['--dry-run', '--yes', '--root <dir>', '--hosts a,b', '--target-claude <dir>', '--backup-dir <dir>', '--apps-dir <dir>', '--json', '--events', '--feu-vert refus|stdin'],
     sousVerbes: [],
     parametres: [],
     ecriture: true,
-    guideClaudeCode: { generer: false, motif: 'destructif/reseau (mise a jour globale du CLI + deploiement du kit hote) — exclu explicitement du Lot B — chute si install gagne un mode non-mutant (dry-run seul, sans aucune ecriture possible meme avec --yes)' },
+    guideClaudeCode: {
+      generer: false,
+      motif: 'destructif/reseau (mise a jour globale du CLI + deploiement du kit hote) — exclu explicitement du Lot B — chute si install gagne un mode non-mutant (dry-run seul, sans aucune ecriture possible meme avec --yes). '
+        + '`--events`/`--feu-vert` (lot CONTRAT-MACHINE-DU-VERBE-INSTALL) ne changent pas ce motif : ils exposent la meme chaine destructive a un programme, ils ne la rendent pas moins destructive.',
+    },
   },
   {
     id: 'repo',
