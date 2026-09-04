@@ -351,6 +351,33 @@ test('CA-M11 : `install --json` en échec -> {ok:false, error, etatAtteint, repr
 });
 
 // =================================================================================================
+// Écart signalé par le gate (docs/qualite/gate-contrat-machine-install.md, § Écarts) — verdict
+// complémentaire du décideur (specs/instructions/contrat-machine-du-verbe-install.md, § 3) : en
+// `--dry-run`, AUCUNE étape ne compte comme faite, symétriquement pour les quatre étapes.
+// =================================================================================================
+
+test('Écart gate — `install --dry-run --json` : etatAtteint.etapesFaites est VIDE (aucune étape, y compris 1/2)', () => {
+  const vivant = faireReservoirVivant({ version: '0.39.0' });
+  const r = run(['install', '--dry-run', '--json', '--root', vivant, '--target-claude', path.join(tmp(), 'claude'), '--apps-dir', path.join(tmp(), 'apps'), '--backup-dir', path.join(tmp(), 'backups'), '--yes']);
+  assert.equal(r.status, 0, r.stderr);
+  const obj = JSON.parse(r.stdout);
+  assert.equal(obj.ok, true);
+  assert.deepEqual(obj.etatAtteint.etapesFaites, [], 'en dry-run, etapesFaites doit rester vide pour les 4 étapes (symétrie 1/2 vs 3/4)');
+  // CONTREFACTUEL : le code actuel (avant correction) pousse 1 et 2 sans condition de dryRun ->
+  // etapesFaites vaudrait [1, 2] ici -> rouge sur ce deepEqual.
+});
+
+test('Écart gate — `install --dry-run --events` : evt:"fin" porte etatAtteint.etapesFaites VIDE', () => {
+  const vivant = faireReservoirVivant({ version: '0.39.0' });
+  const r = run(['install', '--dry-run', '--events', '--root', vivant, '--target-claude', path.join(tmp(), 'claude'), '--apps-dir', path.join(tmp(), 'apps'), '--backup-dir', path.join(tmp(), 'backups'), '--yes']);
+  assert.equal(r.status, 0, r.stderr);
+  const lignes = lignesNdjson(r.stdout).map((l) => JSON.parse(l));
+  const fin = lignes[lignes.length - 1];
+  assert.equal(fin.evt, 'fin');
+  assert.deepEqual(fin.etatAtteint.etapesFaites, [], 'en dry-run, etapesFaites doit rester vide pour les 4 étapes (symétrie 1/2 vs 3/4)');
+});
+
+// =================================================================================================
 // CA-M12 — Les combinaisons incohérentes sont refusées, jamais dégradées.
 // =================================================================================================
 
