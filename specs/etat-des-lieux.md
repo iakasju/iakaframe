@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-04 21:05 (motif: manual).
+> Genere par iakaframe (CLI) le 2026-09-04 22:17 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,29 +9,41 @@
 |---|---|
 | Version | v0.39.0 |
 | Branche | main |
-| Dernier commit | a5bab91 docs(etat-des-lieux): recit de reprise apres le lot C.1 (PASS), push Forgejo en attente |
+| Dernier commit | f2395f0 merge: LOT install.mjs embarque — la charge de l etape 2 voyage avec le CLI (gate Legolas PASS au premier passage) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (suivis + non ignores) | 1180 |
-| Note | Recit de reprise corrige : prochaine etape = lot BUNDLE-INSTALL-MJS-ABSENT puis C.2 dans iakaInstall |
+| Fichiers (suivis + non ignores) | 1183 |
+| Note | Deux lots livres le 2026-09-04 : C.1 (moteur de chaine) puis BUNDLE-INSTALL-MJS-ABSENT (install.mjs + kits embarques dans le tarball, AR-I(a)/AR-J(a)), gate Legolas PASS au premier passage chacun (1056/1055/0/1). L ecart du gate C.1 est ferme. Push Forgejo EN ATTENTE (NAS injoignable, Mac sur hotspot) ; GitHub a jour. Decision due : publier (tag -> CI -> npm) pour prouver le parcours de bout en bout. Suite : C.2 + B'-a dans iakaInstall. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `a5bab91` | 2026-09-04 | docs(etat-des-lieux): recit de reprise apres le lot C.1 (PASS), push Forgejo en attente |
-| `85026fb` | 2026-09-04 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `e9bfdc0` | 2026-09-04 | merge: LOT C.1 — le moteur de la chaine d installation (gate Legolas PASS au premier passage) |
-| `dcfa812` | 2026-09-04 | docs(qualite): gate lot C.1 (moteur chaine install) — PASS |
-| `58ab128` | 2026-09-04 | docs(instruction): BUNDLE-INSTALL-MJS-ABSENT cadre — l arbitrage du decideur est rendu |
-| `9645574` | 2026-09-04 | feat(cli): chaine les etapes 3/4 dans le verbe install (lot C.1, le moteur) |
-| `7b9714b` | 2026-09-04 | feat(cli): etend le double reseau aux etapes 3/4 (meme mecanisme, deux signaux) |
-| `283bcd9` | 2026-09-04 | feat(cli): resolution + verification + pose d'un bundle d'app (lib/app-bundle.js) |
-| `97b1013` | 2026-09-04 | feat(cli): moteur de rollback a trois gardes (lib/rollback.js, AR-5) |
-| `462a9d2` | 2026-09-04 | feat(cli): verification minisign offline (lib/minisign.js, lot C.1) |
+| `f2395f0` | 2026-09-04 | merge: LOT install.mjs embarque — la charge de l etape 2 voyage avec le CLI (gate Legolas PASS au premier passage) |
+| `9013b87` | 2026-09-04 | docs(qualite): gate lot install.mjs embarque — PASS |
+| `0a23f89` | 2026-09-04 | docs(instruction): cocher CA-B1..CA-B13 avec preuve citée (non auto-validé) |
+| `628ec07` | 2026-09-04 | fix(test): empaqueter une copie isolée, jamais cli/ directement (course npm pack) |
+| `372b3f0` | 2026-09-04 | docs(instruction): amendement daté — R10 soldé, CA-21 → CA-21′ (CA-B12) |
+| `27ebcef` | 2026-09-04 | docs(commandes): décrire l'étape 2 selon AR-I(a) après embarquement (E-5, CA-B11) |
+| `b75ae3b` | 2026-09-04 | docs(install.mjs): rectifier la prémisse fausse du commentaire (E-6, CA-B10) |
+| `93d009a` | 2026-09-04 | test(install): la preuve packagée — étape 2 depuis un paquet extrait (CA-B5) |
+| `57a3fdf` | 2026-09-04 | test(bundle): garde sur le tarball réel (AR-J(a), CA-B6) |
+| `dedfef3` | 2026-09-04 | fix(install): dériver kitsDir du réservoir PORTEUR, réécrire le refus (CA-21') |
 
 ## Reprise du travail (a completer par Cowork)
 
-- **Ou on en est** (2026-09-04) : le **LOT C.1 — le moteur de la chaine d'installation** est livre et
+- **Ou on en est** (2026-09-04, soir) : **DEUX lots livres et fusionnes le meme jour, PASS Legolas au
+  PREMIER passage chacun.** Le second, **`BUNDLE-INSTALL-MJS-ABSENT`** (`f2395f0`, 10 commits Gimli) :
+  le tarball npm publie **embarque `install.mjs` et les kits** (`cli/scripts/bundle.js`, asset requis du
+  prepack) ; l'etape 2 delegue au **reservoir PORTEUR designe par AR-F** (AR-I(a) : un vivant plus ancien
+  cede a l'embarque, provenance et chemin du kit nomment le porteur, CA-B4) ; une **garde sur le tarball
+  REEL** (`npm pack` + `tar -tzf`, AR-J(a), CA-B6) et **LA PREUVE** (etape 2 jouee depuis un paquet
+  extrait, 6/6 hooks, 35/35 commands, CA-B5). Suite : **1056 tests, 1055 pass, 0 fail, 1 skip**
+  (ripgrep absent, preexistant). Rapport : `docs/qualite/gate-bundle-install-mjs-embarque.md`.
+  **L'ecart du gate C.1 (refus faux sur vivant plus ancien) est FERME par ce lot** (CA-B4). R10 solde,
+  CA-21 → CA-21′. Angle mort preexistant, non bloquant : `node --test` decouvre aussi
+  `cli/_bundled/library/skills/iakaframe-appflowy-doc/test.mjs` quand `_bundled/` existe (+1 test).
+
+- **Plus tot le meme jour** : le **LOT C.1 — le moteur de la chaine d'installation** est livre et
   fusionne sur `main` (`e9bfdc0`), **PASS Legolas au PREMIER passage** (1048/1049 tests, 1 skip
   preexistant hors sujet). Le verbe `install` joue les **4 etapes chainees** (CLI, methode, IakaCockpit,
   iakaFrameGUI), avec validation par etape (AR-4), **rollback a trois gardes** (AR-5, contrefactuels
@@ -110,10 +122,11 @@ d'avant**, remede verifie.
 
 ### Prochaine etape concrete
 
-0. **Lot `BUNDLE-INSTALL-MJS-ABSENT`** — `install.mjs` entre au tarball (arbitrage rendu le 2026-09-04,
-   instruction `specs/instructions/bundle-install-mjs-embarque.md` cadree par Gandalf, deja sur `main`).
-   **L'arbre principal est libre** : Gimli peut l'executer maintenant. C'est LE lot qui rouvre
-   `install.js`/`reservoir.js` : y embarquer l'ecart C.1 ci-dessus.
+0. ~~Lot `BUNDLE-INSTALL-MJS-ABSENT`~~ **LIVRE le 2026-09-04** (voir « Ou on en est »).
+0a. 👤 **Decider la publication** : `main` porte C.1 + install.mjs embarque, `cli/package.json` est
+   toujours a **0.39.0**. Taguer declenche le CI et la publication npm — **PUBLIER PERIME LE CORPUS**
+   (piege 9). Le parcours de bout en bout reel (§ 11 de l'instruction) n'est prouvable **qu'apres** une
+   release reelle : c'est un geste du decideur.
 0b. **Lot C.2 + B'-a** — l'app d'installation dans le depot **`iakaInstall`** (deja cree : Forgejo +
    GitHub, prive, `productName` fige, `PROJET.md` amorce) et son ossature de release. Cadrage Gandalf
    d'abord. Critere structurel : **tout etat affiche est obtenable en CLI** (R3 ; CA-10 le garantit
@@ -168,6 +181,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-04 22:17 | pause | v0.39.0 | main | Deux lots livres le 2026-09-04 : C.1 (moteur de chaine) puis BUNDLE-INSTALL-MJS-ABSENT (install.mjs + kits embarques dans le tarball, AR-I(a)/AR-J(a)), gate Legolas PASS au premier passage chacun (1056/1055/0/1). L ecart du gate C.1 est ferme. Push Forgejo EN ATTENTE (NAS injoignable, Mac sur hotspot) ; GitHub a jour. Decision due : publier (tag -> CI -> npm) pour prouver le parcours de bout en bout. Suite : C.2 + B'-a dans iakaInstall. |
 | 2026-09-04 21:05 | manual | v0.39.0 | main | Recit de reprise corrige : prochaine etape = lot BUNDLE-INSTALL-MJS-ABSENT puis C.2 dans iakaInstall |
 | 2026-09-04 21:04 | manual | v0.39.0 | main | Recit de reprise complete apres le lot C.1 (regeneration HTML) |
 | 2026-09-04 21:03 | pause | v0.39.0 | main | LOT C.1 livre et fusionne : le moteur de la chaine d installation (4 etapes chainees, rollback 3 gardes, minisign, bundle app), gate Legolas PASS au premier passage (1048/1049 tests). Un ecart non bloquant a tracer : message de refus faux + reprise inoperante quand le reservoir vivant est plus ancien que l embarque (reservoir.js:142-155, install.js:223-228). Push Forgejo en attente (NAS hors de portee, Mac sur hotspot) ; GitHub a jour. Prochaine etape : lot C.2 (app d installation, depot neuf, cadrage Gandalf AR-E). |

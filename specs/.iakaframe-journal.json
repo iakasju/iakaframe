@@ -868,5 +868,15 @@
     "dirty": true,
     "files": 1180,
     "note": "Recit de reprise corrige : prochaine etape = lot BUNDLE-INSTALL-MJS-ABSENT puis C.2 dans iakaInstall"
+  },
+  {
+    "date": "2026-09-04 22:17",
+    "reason": "pause",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "f2395f0 merge: LOT install.mjs embarque — la charge de l etape 2 voyage avec le CLI (gate Legolas PASS au premier passage)",
+    "dirty": true,
+    "files": 1183,
+    "note": "Deux lots livres le 2026-09-04 : C.1 (moteur de chaine) puis BUNDLE-INSTALL-MJS-ABSENT (install.mjs + kits embarques dans le tarball, AR-I(a)/AR-J(a)), gate Legolas PASS au premier passage chacun (1056/1055/0/1). L ecart du gate C.1 est ferme. Push Forgejo EN ATTENTE (NAS injoignable, Mac sur hotspot) ; GitHub a jour. Decision due : publier (tag -> CI -> npm) pour prouver le parcours de bout en bout. Suite : C.2 + B'-a dans iakaInstall."
   }
 ]
