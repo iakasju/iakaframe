@@ -19,12 +19,19 @@ const bundled = path.join(cliDir, '_bundled');
 //
 // `required: true` = le framework est INUTILISABLE sans : on refuse de produire un bundle
 // mutile plutot que de publier en silence. C'est cette garde qui manquait.
+//
+// DEFAUT REPARE (BUNDLE-INSTALL-MJS-ABSENT, 2026-09-04) : `install.mjs` — la CHARGE de l'etape 2
+// de la chaine d'installation (specs/instructions/chaine-complete-install-amorcage-dmg-msi.md) —
+// manquait AUSSI a cette liste. Un CLI installe par la voie publique (tarball/npm) ne pouvait
+// donc structurellement pas jouer l'etape 2 : `required: true` s'applique desormais a la charge
+// de la methode elle-meme, pas seulement a la bibliotheque.
 const ASSETS = [
   { name: 'library', required: true },
   { name: 'methods', required: true },
   { name: 'teams', required: true },
   { name: 'bindings', required: true },
   { name: 'kits', required: true },
+  { name: 'install.mjs', required: true },
   { name: 'design-naonedge', required: false },
   { name: 'agents', required: false },
   { name: 'skills', required: false },
@@ -39,6 +46,19 @@ function copyDir(src, dst) {
   }
 }
 
+// `install.mjs` est un FICHIER, pas un repertoire : `copyDir` presuppose un repertoire
+// (`mkdirSync(dst)` PUIS `readdirSync(src)`) et casserait le prepack sur une entree fichier — en
+// laissant en outre un repertoire parasite derriere lui. `copyEntry` branche explicitement sur la
+// nature de la source, jamais un `mkdirSync(dst)` inconditionnel.
+function copyEntry(src, dst) {
+  if (fs.statSync(src).isDirectory()) {
+    copyDir(src, dst);
+  } else {
+    fs.mkdirSync(path.dirname(dst), { recursive: true });
+    fs.copyFileSync(src, dst);
+  }
+}
+
 fs.rmSync(bundled, { recursive: true, force: true });
 fs.mkdirSync(bundled, { recursive: true });
 
@@ -47,7 +67,7 @@ const manquants = [];
 for (const a of ASSETS) {
   const src = path.join(repoRoot, a.name);
   if (fs.existsSync(src)) {
-    copyDir(src, path.join(bundled, a.name));
+    copyEntry(src, path.join(bundled, a.name));
     n++;
     console.log(`  + _bundled/${a.name}`);
   } else if (a.required) {

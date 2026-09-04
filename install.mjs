@@ -47,7 +47,13 @@ const HOST_KINDS = ['claude', 'codex', 'openwebui'];
 const NON_HOST_KINDS = ['ollama', 'ollama-local', 'ollama-distant', 'ollama-localhost', 'ollama-lan', 'anythingllm', 'chatgpt', 'litellm'];
 
 // Nom de dossier de kit pour un host (kits/iakaframe-<host>). Choix ASSUME cote installeur
-// standalone (la frame embarque install.mjs SANS cli/) : pas d'import de cli/src/lib/vocab.js.
+// standalone — RECTIFIE (COMMENTAIRE-FAUX-INSTALL-MJS-50, 2026-09-04) : la premisse « la frame
+// embarque install.mjs SANS cli/ » etait DEJA FAUSSE depuis le 2026-07-18 (frames/releases/
+// StefFrame2/cli/package.json existe) et BUNDLE-INSTALL-MJS-ABSENT vient d'ajouter un TROISIEME
+// emplacement (cli/_bundled/install.mjs, A COTE d'un cli/ bien present). La premisse JUSTE, qui ne
+// peut plus etre demente par une mesure : install.mjs doit tourner depuis N'IMPORTE QUEL
+// emplacement — racine de depot, racine de frame, ou cli/_bundled/ — SANS JAMAIS supposer un cli/
+// voisin. La decision, elle, ne change pas : pas d'import de cli/src/lib/vocab.js.
 const kitDirName = (host) => `iakaframe-${host}`;
 
 // Cible de config par defaut, par host. openwebui = null : pas de dir local fiable (conteneurise)
