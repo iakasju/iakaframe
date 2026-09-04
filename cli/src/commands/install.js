@@ -218,21 +218,35 @@ function compareStr(a, b) {
 }
 
 // --- Etape 2/4 : la methode, par DELEGATION a install.mjs (M4, non reimplemente) ----------------
+// AR-I(a) (BUNDLE-INSTALL-MJS-ABSENT) : le reservoir qui PORTE la charge de l'etape 2 est celui
+// DESIGNE par AR-F (reservoir.source), jamais systematiquement le vivant. `kitsDir` doit donc etre
+// derive du reservoir PORTEUR (`path.dirname(reservoir.installMjsPath)`), pas de `vivantRoot` —
+// sinon un embarque porteur (vivantRoot === null) fait lever un TypeError (N5/R-B).
 export async function etape2Methode({ reservoir, values }) {
   console.log(`\n[2/4] méthode — délégation à install.mjs (M4, non réimplémenté)`);
   if (!reservoir.installMjsPath) {
-    console.log(`  REFUS : aucun réservoir vivant avec install.mjs (${reservoir.provenance}).`);
-    console.log(`  L'embarqué (_bundled/) ne porte PAS d'install.mjs (cli/scripts/bundle.js ne le copie pas) —`);
-    console.log(`  impossible de déléguer sans un arbre vivant. Reprise : iakaframe install --root <chemin-vers-un-clone-iakaframe>`);
+    // CA-21' (rectification datée de CA-21, 2026-09-04) : la charge n'est plus INTROUVABLE par
+    // construction sur un poste sans vivant (elle voyage avec le paquet, AR-I(a)) — le refus ne
+    // se declenche donc plus que si NI le vivant NI l'embarque ne la portent (bundle ampute, R-A).
+    // Le message nomme les DEUX chemins cherches, jamais une affirmation sur ce que `_bundled/`
+    // NE porte pas (E-3 : c'etait le seul enonce faux LU PAR L'UTILISATEUR).
+    console.log(`  REFUS : la charge de la méthode (install.mjs) est introuvable.`);
+    console.log(`    cherchée : ${reservoir.installMjsCandidatVivant}   (réservoir vivant)`);
+    console.log(`               ${reservoir.installMjsCandidatEmbarque} (réservoir embarqué)`);
+    console.log(`    cause : ni l'arbre vivant ni le paquet embarqué ne la portent — un paquet publié qui ne`);
+    console.log(`            la porte pas est un bundle incomplet (garde \`required\` de cli/scripts/bundle.js).`);
+    console.log(`    Reprise : iakaframe install --root <chemin-vers-un-clone-iakaframe>`);
     return { ok: false };
   }
-  const vivantRoot = reservoir.vivantRoot;
-  const kitsDir = path.join(vivantRoot, 'kits');
+  const kitsDir = path.join(path.dirname(reservoir.installMjsPath), 'kits');
   const hosts = values.hosts || 'claude';
   const targetClaude = values['target-claude'] || path.join(os.homedir(), '.claude');
   console.log(`  quoi : kit(s) hôte(s) [${hosts}] depuis ${kitsDir}`);
   console.log(`  où : ${targetClaude}`);
-  console.log(`  quelle version : ${reservoir.vivantVersion == null ? 'version indéterminée' : `v${reservoir.vivantVersion}`}`);
+  const versionAffichee = reservoir.source === 'vivant'
+    ? (reservoir.vivantVersion == null ? 'version indéterminée' : `v${reservoir.vivantVersion}`)
+    : `v${reservoir.embarqueVersion}`;
+  console.log(`  quelle version : ${versionAffichee}`);
   console.log(`  ce qui sera fusionné : --merge par défaut (rien d'existant n'est écrasé sans --overwrite)`);
 
   if (!values['dry-run']) {
@@ -417,7 +431,10 @@ export async function runInstall(argv) {
     const targetClaude = values['target-claude'] || path.join(os.homedir(), '.claude');
     const rapportAr1 = verifierAutoDeploiement({
       installMjsPath: reservoir.installMjsPath,
-      kitsDir: path.join(reservoir.vivantRoot, 'kits'),
+      // N5/R-B : derive du reservoir PORTEUR (dirname d'installMjsPath), jamais de vivantRoot —
+      // un embarque porteur a `vivantRoot === null`, et `path.join(null, 'kits')` leverait un
+      // TypeError AVANT meme l'appel (evaluation eager de l'argument).
+      kitsDir: path.join(path.dirname(reservoir.installMjsPath), 'kits'),
       targetClaude,
       desarme: true,
     });

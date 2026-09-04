@@ -25,6 +25,24 @@ const REAL_INSTALL_MJS = path.join(REPO, 'install.mjs');
 function tmp() { return fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-install-verbe-')); }
 function w(p, s) { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); }
 
+// Copie ISOLEE du CLI (src/ + package.json, JAMAIS _bundled/) : point de test pour un embarqué
+// GARANTI AMPUTÉ, indépendant de l'état AMBIANT de cli/_bundled/ sur ce poste (CA-B7 : le verdict
+// de la suite ne doit JAMAIS dépendre de sa présence). `embarqueDir()` (reservoir.js) se résout
+// relativement à SA PROPRE localisation (deux niveaux au-dessus de lib/) : copier src/ SANS
+// _bundled/ vers un répertoire NEUF garantit donc un embarqué sans install.mjs, quel que soit
+// l'état du vrai cli/_bundled/. Le double réseau (fixtures/install-network-double.mjs) est copié
+// à son emplacement relatif attendu pour que le sous-processus n'atteigne JAMAIS le réseau réel.
+function cliSansBundled() {
+  const dir = tmp();
+  fs.cpSync(path.join(REPO, 'cli', 'src'), path.join(dir, 'src'), { recursive: true });
+  fs.copyFileSync(path.join(REPO, 'cli', 'package.json'), path.join(dir, 'package.json'));
+  w(
+    path.join(dir, 'test', 'fixtures', 'install-network-double.mjs'),
+    fs.readFileSync(path.join(REPO, 'cli', 'test', 'fixtures', 'install-network-double.mjs'), 'utf8'),
+  );
+  return path.join(dir, 'src', 'index.js');
+}
+
 function faireReservoirVivant({ version = '0.39.0' } = {}) {
   const dir = tmp();
   fs.copyFileSync(REAL_INSTALL_MJS, path.join(dir, 'install.mjs'));
@@ -157,33 +175,42 @@ test('lot C.1 : `--yes` saute TOUTES les validations des étapes 1-2 (réellemen
   assert.equal(fs.existsSync(appsDir), false, 'aucune écriture dans --apps-dir : rien n\'a jamais été résolu, donc rien à sauvegarder ni à poser');
 });
 
-// CA-21 — verifie que la propriete tient dans la CHAINE COMPLETE (subprocess reel, `iakaframe
-// install`), pas seulement sur l'etape 2 ISOLEE (le test `etape2Methode` direct, plus bas dans ce
-// fichier, deja EXISTANT depuis le lot A). Un reservoir SANS install.mjs (le cas de l'utilisateur
-// nominal installe par la voie publique, R10) doit faire REFUSER la chaine des l'etape 2 — jamais
-// un succes silencieux, jamais un saut vers les etapes 3/4.
-test('CA-21 : aucun réservoir vivant (le cas nominal de la voie publique, R10) -> la CHAÎNE ENTIÈRE refuse à l\'étape 2, EN NOMMANT LA CAUSE, jamais un saut vers 3/4', () => {
-  const vide = tmp(); // pas d'install.mjs : precondition R10
+// CA-21' (rectification datée de CA-21, BUNDLE-INSTALL-MJS-ABSENT, 2026-09-04) — verifie que la
+// propriete tient dans la CHAINE COMPLETE (subprocess reel, `iakaframe install`), pas seulement
+// sur l'etape 2 ISOLEE (le test `etape2Methode` direct, plus bas dans ce fichier). DECLENCHEUR
+// NEUF (§ 4 de l'instruction du lot) : la charge n'est plus introuvable sur le SEUL critere
+// « aucun reservoir vivant » — elle voyage desormais avec le paquet (AR-I(a)). Le seul cas qui
+// REFUSE encore est un BUNDLE AMPUTE (l'embarque ne porte PAS install.mjs, ex. clone frais sans
+// `npm run bundle`) ET aucun vivant. Cette precondition est rendue DETERMINISTE — jamais
+// dependante de l'AMBIANT `cli/_bundled/` de ce poste (N7/CA-B7) — via `cliSansBundled()` : une
+// copie ISOLEE du CLI dont l'embarque n'a structurellement pas de `_bundled/`.
+test('CA-21\' : ni vivant ni embarqué porteur (bundle AMPUTÉ) -> la CHAÎNE ENTIÈRE refuse à l\'étape 2, EN NOMMANT LES DEUX CHEMINS, jamais un saut vers 3/4', () => {
+  const cliEntry = cliSansBundled();
+  const vide = tmp(); // pas d'install.mjs : precondition (aucun vivant)
   const targetClaude = path.join(tmp(), 'claude');
   const appsDir = path.join(tmp(), 'apps');
-  const r = run(['install', '--root', vide, '--target-claude', targetClaude, '--apps-dir', appsDir, '--yes']);
-  assert.notEqual(r.status, 0, 'CA-21 : la chaîne doit sortir en erreur, jamais un succès silencieux');
-  assert.match(r.stdout, /REFUS : aucun réservoir vivant avec install\.mjs/, 'CA-21 : la cause EXACTE doit être nommée');
-  assert.match(r.stdout, /L'embarqué \(_bundled\/\) ne porte PAS d'install\.mjs/, 'CA-21 : où elle a été cherchée doit être dit');
-  assert.doesNotMatch(r.stdout, /\n\[3\/4\]/, 'CA-21 : les étapes 3/4 ne doivent JAMAIS être atteintes quand la chaîne est amputée dès l\'étape 2');
+  const r = spawnSync(process.execPath, [
+    cliEntry, 'install', '--root', vide, '--target-claude', targetClaude, '--apps-dir', appsDir, '--yes',
+  ], { encoding: 'utf8', env: { ...process.env, IAKAFRAME_INSTALL_TEST_DOUBLE: '1' } });
+  assert.notEqual(r.status, 0, 'CA-21\' : la chaîne doit sortir en erreur, jamais un succès silencieux');
+  assert.match(r.stdout, /REFUS : la charge de la méthode \(install\.mjs\) est introuvable\./, 'CA-21\' : la cause EXACTE doit être nommée');
+  assert.match(r.stdout, /cherchée : .*install\.mjs {3}\(réservoir vivant\)/, 'CA-21\' : le chemin vivant cherché doit être nommé');
+  assert.match(r.stdout, /_bundled[\\/]install\.mjs \(réservoir embarqué\)/, 'CA-21\' : le chemin embarqué cherché doit être nommé');
+  assert.doesNotMatch(r.stdout, /ne porte PAS d'install\.mjs/, 'CA-21\' : plus aucune affirmation sur ce que `_bundled/` NE porte pas (E-3)');
+  assert.doesNotMatch(r.stdout, /\n\[3\/4\]/, 'CA-21\' : les étapes 3/4 ne doivent JAMAIS être atteintes quand la chaîne est amputée dès l\'étape 2');
   assert.equal(fs.existsSync(targetClaude), false, 'aucune écriture : ni CLAUDE.md (étape 2 refusée), ni --apps-dir (jamais atteint)');
   assert.equal(fs.existsSync(appsDir), false);
 });
 
-// EXCEPTION documentee en tete de fichier : appel DIRECT (pas de sous-processus). Un `--root`
-// vide fait tomber l'ETAPE 1 dans le repli reseau REEL d'AR-H (aucun vivant => sondes reelles,
-// cf. install.js) — un sous-processus n'a AUCUN moyen de le maitriser. Cette assertion ne porte
-// que sur `etape2Methode`, la MEME fonction exportee que celle appelee par `runInstall` : le
-// code sous test est identique, seul le point d'entree change.
-test('étape 2 : aucun réservoir vivant avec install.mjs -> refus EXPLICITE (jamais un repli silencieux sur l\'embarqué)', async () => {
+// EXCEPTION documentee en tete de fichier : appel DIRECT (pas de sous-processus). Cette assertion
+// ne porte que sur `etape2Methode`, la MEME fonction exportee que celle appelee par `runInstall` :
+// le code sous test est identique, seul le point d'entree change. RETOURNE (N7) : embarqué
+// INJECTE et VIDE (deterministe), jamais l'ambiant `cli/_bundled/`.
+test('CA-21\' : étape 2, embarqué injecté AMPUTÉ et aucun vivant -> refus EXPLICITE nommant les deux chemins (jamais un repli silencieux)', async () => {
   const vide = tmp();
-  const reservoir = resoudreReservoir({ root: vide });
-  assert.equal(reservoir.installMjsPath, null, 'precondition : pas de reservoir vivant');
+  const embarqueVide = tmp(); // `_bundled/` absent : embarque AMPUTE, deterministe
+  const reservoir = resoudreReservoir({ root: vide, embarqueDir: embarqueVide });
+  assert.equal(reservoir.installMjsPath, null, 'precondition : ni vivant ni embarque porteur');
   const lignes = [];
   const originalLog = console.log;
   console.log = (...args) => lignes.push(args.join(' '));
@@ -195,6 +222,50 @@ test('étape 2 : aucun réservoir vivant avec install.mjs -> refus EXPLICITE (ja
   }
   const sortie = lignes.join('\n');
   assert.equal(r.ok, false);
-  assert.match(sortie, /REFUS : aucun réservoir vivant avec install\.mjs/);
-  assert.match(sortie, /L'embarqué \(_bundled\/\) ne porte PAS d'install\.mjs/);
+  assert.match(sortie, /REFUS : la charge de la méthode \(install\.mjs\) est introuvable\./);
+  assert.match(sortie, new RegExp(`cherchée : ${path.join(vide, 'install.mjs').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`));
+  assert.match(sortie, new RegExp(path.join(embarqueVide, '_bundled', 'install.mjs').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  assert.doesNotMatch(sortie, /ne porte PAS d'install\.mjs/, 'E-3 : plus aucune affirmation sur ce que `_bundled/` NE porte pas');
+});
+
+// CA-B4 (AR-I(a)) — reproduit EXACTEMENT le cas signalé par le gate du lot C.1
+// (docs/qualite/gate-lot-C1-moteur-chaine.md) : un réservoir VIVANT existe mais est PLUS ANCIEN
+// que l'embarqué. Avant ce lot, l'étape 2 REFUSAIT en affirmant « aucun réservoir vivant avec
+// install.mjs » (FAUX : un vivant existe) et proposait une reprise INOPÉRANTE (`--root` d'un
+// clone qui, justement, existe déjà). Ce lot ferme l'écart par construction (AR-I(a)) : l'étape 2
+// DÉLÈGUE à l'EMBARQUÉ, porteur désigné, et NOMME SON chemin — jamais celui du vivant qu'elle
+// vient d'écarter. Contrefactuel R-B inclus : `vivantRoot === null` côté embarqué gagnant ne doit
+// JAMAIS lever de TypeError (`path.join(null, 'kits')`).
+test('CA-B4 : vivant PLUS ANCIEN + embarqué PORTEUR -> l\'étape 2 délègue à l\'EMBARQUÉ, nomme SON chemin, et ne plante pas (contrefactuel R-B)', async () => {
+  const vivant = faireReservoirVivant({ version: '0.0.1' }); // plus ancien que l'embarque injecte
+  const embarque = tmp();
+  fs.mkdirSync(path.join(embarque, '_bundled', 'kits', 'iakaframe-claude', 'global'), { recursive: true });
+  fs.copyFileSync(REAL_INSTALL_MJS, path.join(embarque, '_bundled', 'install.mjs'));
+  w(path.join(embarque, '_bundled', 'kits', 'iakaframe-claude', 'global', 'CLAUDE.md'), 'CLAUDE contract fixture (embarqué porteur, CA-B4)\n');
+
+  const reservoir = resoudreReservoir({ root: vivant, embarqueDir: embarque });
+  assert.equal(reservoir.source, 'embarque', 'AR-I(a) : un vivant plus ancien cède la place à l\'embarqué');
+  assert.equal(reservoir.installMjsPath, path.join(embarque, '_bundled', 'install.mjs'));
+
+  const targetClaude = path.join(tmp(), 'claude');
+  const lignes = [];
+  const originalLog = console.log;
+  console.log = (...args) => lignes.push(args.join(' '));
+  let r;
+  try {
+    r = await etape2Methode({ reservoir, values: { yes: true, 'target-claude': targetClaude } });
+  } finally {
+    console.log = originalLog;
+  }
+  const sortie = lignes.join('\n');
+  assert.equal(r.ok, true, sortie);
+  assert.match(
+    sortie,
+    new RegExp(`depuis ${path.join(embarque, '_bundled', 'kits').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
+    'CA-B4 : le message doit nommer le chemin du réservoir PORTEUR (embarqué), pas le vivant écarté',
+  );
+  assert.doesNotMatch(sortie, new RegExp(path.join(vivant, 'kits').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'le chemin du vivant écarté ne doit PAS apparaître');
+  assert.ok(fs.existsSync(path.join(targetClaude, 'CLAUDE.md')), 'le kit doit avoir été posé DEPUIS l\'embarqué');
+  const cm = fs.readFileSync(path.join(targetClaude, 'CLAUDE.md'), 'utf8');
+  assert.match(cm, /CLAUDE contract fixture \(embarqué porteur, CA-B4\)/);
 });
