@@ -31,9 +31,21 @@
 
 ## Reprise du travail (a completer par Cowork)
 
-- **Ou on en est** : le **LOT A du mode guide** est livre et fusionne — c'etait le plus gros lot de
-  la serie (~5,25 j), **PASS au PREMIER passage**. Les trois depots sont alignes sur **les trois
-  references** (local, NAS, GitHub), arbres propres.
+- **Ou on en est** (2026-09-04) : le **LOT C.1 — le moteur de la chaine d'installation** est livre et
+  fusionne sur `main` (`e9bfdc0`), **PASS Legolas au PREMIER passage** (1048/1049 tests, 1 skip
+  preexistant hors sujet). Le verbe `install` joue les **4 etapes chainees** (CLI, methode, IakaCockpit,
+  iakaFrameGUI), avec validation par etape (AR-4), **rollback a trois gardes** (AR-5, contrefactuels
+  testes sur disque), **verification minisign** avant toute ecriture (CA-14), refus explicite hors macOS
+  (CA-15) et refus nomme sans reservoir vivant (CA-21). Rapport : `docs/qualite/gate-lot-C1-moteur-chaine.md`.
+  ⚠️ **Push Forgejo EN ATTENTE** : le Mac etait sur un partage de connexion, le NAS injoignable ;
+  **GitHub est a jour** (`main` + branche). Au retour sur le LAN : `git push origin main`.
+  **Ecart non bloquant a traiter dans le prochain lot touchant `install.js`/`reservoir.js`** : quand un
+  reservoir vivant existe mais est **plus ancien** que l'embarque, le refus de l'etape 2 dit « aucun
+  reservoir vivant avec install.mjs » (faux) et la commande de reprise proposee est celle qui vient
+  d'echouer (`reservoir.js:142-155`, `install.js:223-228`).
+
+- **Avant C.1** : le **LOT A du mode guide** est livre et fusionne — c'etait le plus gros lot de
+  la serie (~5,25 j), **PASS au PREMIER passage**.
 
 ### Le mode guide du terminal — LIVRE (lots 0, B et A ; la serie est complete)
 
@@ -98,6 +110,10 @@ d'avant**, remede verifie.
 
 ### Prochaine etape concrete
 
+0. **Lot C.2 + B'-a** — l'app d'installation en **depot neuf** (AR-E(a)) et son ossature de release :
+   commence par un **cadrage Gandalf** (le depot n'existe pas, tout est a nommer), puis Gimli. Critere
+   structurel : **tout etat affiche est obtenable en CLI** (R3, CA-10 le garantit cote moteur).
+   Ecart C.1 ci-dessus a embarquer dans le premier lot qui rouvre `install.js`.
 1. 👤 **Les trois gestes ci-dessus.**
 2. **`RESERVOIR-REDECLENCHE`** *(inscrit au backlog le 2026-09-03)* — le seuil du reservoir compte
    des **occurrences**, pas des **observations neuves**. Mesure : **8 propositions pour 2 sujets**,
