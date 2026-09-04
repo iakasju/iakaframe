@@ -235,6 +235,13 @@ observable et sont donc **soumis au décideur** :
 > **AR-M3 → (a)** flux NDJSON sur stdout sous `--events`, sous-processus capturés
 > (`stdio:['ignore','pipe','pipe']`) et ré-émis en `log-delegue` ; combinaisons incohérentes refusées
 > explicitement (CA-M12).
+>
+> **Verdict complementaire du 2026-09-05 (Stephane, « go » sur la recommandation d'Aragorn), apres l'ecart
+> non bloquant du gate** (`docs/qualite/gate-contrat-machine-install.md`) : **en `--dry-run`, AUCUNE etape
+> ne compte comme faite** — `etatAtteint.etapesFaites` reste vide pour les quatre etapes, symetriquement
+> (aujourd'hui 1/2 sont comptees sans condition, 3/4 exclues, `install.js:638,666,679,700`). La regle est
+> ecrite dans le contrat (`docs/commandes.md`, ligne `install`) et gardee par un test qui rougit si une
+> etape en dry-run est comptee. Correctif hors lot initial, joue en `fix/etapes-faites-dry-run`.
 
 ### AR-M1 — Par quel canal un programme donne-t-il un feu vert PAR étape ?
 
