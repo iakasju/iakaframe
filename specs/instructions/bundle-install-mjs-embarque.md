@@ -441,21 +441,35 @@ rectification. **Aucune autre ligne d'`install.mjs` ne bouge.**
 
 *Numérotés `CA-B*` pour ne **jamais** collisionner avec les CA-01..CA-21 de l'instruction parente.*
 
-- [ ] **CA-B1** — `install.mjs` figure dans `ASSETS` de `cli/scripts/bundle.js` avec
+- [x] **CA-B1** — `install.mjs` figure dans `ASSETS` de `cli/scripts/bundle.js` avec
       **`required: true`**, et `cli/test/bundle-assets.test.js` l'inclut dans sa liste énumérée.
       **Contrefactuel obligatoire** : source retirée ⇒ le prepack **REFUSE** avec
       `bundle REFUSE : asset(s) requis manquant(s) : install.mjs` et **sort en code 1**. *Une garde
       qui ne peut pas rougir n'est pas une garde.*
-- [ ] **CA-B2** — Après un bundle, `cli/_bundled/install.mjs` est un **FICHIER** (jamais un
+      **Preuve (Gimli, non auto-validée)** : `cli/scripts/bundle.js:22-31`, `cli/test/
+      bundle-assets.test.js:13-23` (vérifie le CODE de la garde par regex). **Contrefactuel
+      automatisé** : `cli/test/bundle-tarball.test.js` (test « CA-B6, contrefactuel : install.mjs
+      absent de la racine... ») exerce le VRAI `bundle.js` sur un dépôt isolé sans `install.mjs` →
+      exit ≠ 0, message exact. Rejoué aussi MANUELLEMENT sur le dépôt réel (renommage temporaire de
+      `install.mjs`, `node scripts/bundle.js` → exit 1, message exact, restauré).
+- [x] **CA-B2** — Après un bundle, `cli/_bundled/install.mjs` est un **FICHIER** (jamais un
       répertoire, N3), **identique octet pour octet** à `install.mjs` de la racine — comparé au
       **fichier**, pas à une sortie de script.
-- [ ] **CA-B3** — `cli/package.json` est **inchangé par ce lot** (`git diff` vide sur ce fichier).
+      **Preuve** : `cli/test/bundle-assets.test.js` (test « CA-B2 : si le bundle est genere sur ce
+      poste, _bundled/install.mjs est un fichier identique a la racine »).
+- [x] **CA-B3** — `cli/package.json` est **inchangé par ce lot** (`git diff` vide sur ce fichier).
       *Critère en négatif, délibéré : il interdit le geste inutile de N2.*
-- [ ] **CA-B4** — **AR-I une fois tranché** : sur un embarqué **injecté** portant `install.mjs` +
+      **Preuve** : `git diff main..feat/bundle-install-mjs-embarque -- cli/package.json` rend une
+      sortie vide (vérifié).
+- [x] **CA-B4** — **AR-I une fois tranché** : sur un embarqué **injecté** portant `install.mjs` +
       `kits/`, l'étape 2 **délègue** et **nomme le chemin réel** du kit posé — et la garde AR-1
       (`install.js:292-298`) **traverse le même chemin sans lever**. **Contrefactuel R-B** :
       exercé avec `vivantRoot === null`, aucune exception n'est levée.
-- [ ] **CA-B5** — **LA PREUVE, et la seule qui vaille.** Sur un paquet **réellement empaqueté**
+      **Preuve** : `cli/test/install-verbe.test.js` (test « CA-B4 : vivant PLUS ANCIEN + embarqué
+      PORTEUR... »), et `cli/test/reservoir-ar-f.test.js` (test « AR-F(a)+AR-I(a) : vivant
+      STRICTEMENT plus ancien, embarqué PORTEUR... »). Contrefactuel rejoué manuellement (retour
+      temporaire à l'ancien `install.js` via `git stash` ciblé) : les deux tests rougissent.
+- [x] **CA-B5** — **LA PREUVE, et la seule qui vaille.** Sur un paquet **réellement empaqueté**
       (`npm pack`), **extrait** et **installé** (préfixe temporaire, jamais global), l'étape 2
       appelée **depuis la copie installée** (R-C : jamais la chaîne complète), sur un poste
       **sans réservoir vivant**, pose dans une cible temporaire :
@@ -467,35 +481,68 @@ rectification. **Aucune autre ligne d'`install.mjs` ne bouge.**
       du clone. **Aucun nombre écrit en dur** (R-E) : la comparaison se fait **contre le kit
       source**. Si l'environnement ne peut pas empaqueter : **SKIP explicite avec son code, jamais
       un vert.**
-- [ ] **CA-B6** *(si **AR-J(a)**)* — Un empaquetage réel liste `_bundled/install.mjs` **et**
+      **Preuve** : `cli/test/install-paquet-publie.test.js` — empaquette une copie isolée du dépôt
+      publiable, extrait, importe le code de production DEPUIS l'extraction, appelle
+      `etape2Methode` directement (R-C), compte (a)-(d) contre le kit source de l'extraction.
+- [x] **CA-B6** *(si **AR-J(a)**)* — Un empaquetage réel liste `_bundled/install.mjs` **et**
       `_bundled/kits/**` parmi ce qui part. **Contrefactuel** : entrée retirée d'`ASSETS` ⇒ la
       garde **rougit en nommant le fichier manquant**.
-- [ ] **CA-B7** — **Aucun test de la suite ne dépend de la présence ambiante de `cli/_bundled/`.**
+      **Preuve** : `cli/test/bundle-tarball.test.js` — `npm pack` réel + `tar -tzf`, et son test
+      contrefactuel dédié (dépôt temporaire sans `install.mjs`, le vrai `bundle.js` copié).
+- [x] **CA-B7** — **Aucun test de la suite ne dépend de la présence ambiante de `cli/_bundled/`.**
       Éprouvé en jouant la suite **deux fois** — `cli/_bundled/` absent, puis présent — pour un
       **verdict identique**. *(R-D : sans ce critère, AR-J(a) empoisonne la suite.)*
-- [ ] **CA-B8** — **Registre des énoncés (§ 7) soldé.** Un balayage du dépôt sur le vocabulaire
+      **Preuve** : suite complète rejouée `_bundled/` absent (1055 tests, 1054 pass, 1 skip) puis
+      présent (1056 tests, 1055 pass, 1 skip) — diff des verdicts **identique** hors UNE ligne
+      étrangère au lot (angle mort signalé ci-dessous). Les tests de CE lot injectent tous leur
+      propre embarqué contrôlé (`embarqueDir`), jamais l'ambiant.
+      **Angle mort signalé, non introduit par ce lot** : `node --test` (sans argument) découvre
+      RÉCURSIVEMENT tout fichier nommé `test.mjs` sous le CWD — y compris
+      `cli/_bundled/library/skills/iakaframe-appflowy-doc/test.mjs` quand `_bundled/` existe (copie
+      de `library/skills/iakaframe-appflowy-doc/test.mjs`, asset `skills` bundlé). C'est un
+      comportement PRÉEXISTANT du découvreur de `node --test` conjugué à un fichier déjà nommé
+      `test.mjs` dans `library/`, sans rapport avec `install.mjs`/reservoir/install.js. Explique
+      l'écart de 1 test entre les deux passages ci-dessus ; hors périmètre § 5 de ce lot.
+- [x] **CA-B8** — **Registre des énoncés (§ 7) soldé.** Un balayage du dépôt sur le vocabulaire
       `N'A PAS d'install\.mjs|ne porte PAS d'install\.mjs|ne le copie pas|n'en contient pas|SANS
       cli/` ne ramène **aucune occurrence vivante** — à l'exception des **rectifications datées**
       des fichiers d'instruction, qui **citent** l'énoncé faux pour le marquer et sont **nommées
       une à une** dans le commit. *(La liste de motifs est un **exemple**, pas une énumération :
       les six lignes du § 7 se vérifient **à la lecture**, jamais par le seul grep — angle mort
       déclaré, même discipline que le registre du `latest`.)*
-- [ ] **CA-B9** — **CA-21′**, forme conservée, déclencheur neuf : **ni vivant, ni embarqué
+      **Preuve** : balayage rejoué (`grep -rn` sur le vocabulaire ci-dessus, hors `.js`/`.mjs`/
+      `.md`) — seules occurrences restantes : `install.mjs:51` (citation datée, E-6) et
+      `docs/qualite/gate-lot-C1-moteur-chaine.md` (rapport de gate HISTORIQUE et CLOS, hors § 8 de
+      ce lot — je ne l'ai délibérément PAS réécrit : c'est un procès-verbal daté d'un état de code
+      révolu, pas une affirmation vivante ; **point signalé à Legolas pour arbitrage**, je ne me
+      l'auto-valide pas).
+- [x] **CA-B9** — **CA-21′**, forme conservée, déclencheur neuf : **ni vivant, ni embarqué
       porteur** ⇒ l'étape 2 **REFUSE**, nomme **quoi** manque (`install.mjs`, la charge de la
       méthode) et **où** ç'a été cherché — **les DEUX chemins**, vivant candidat **et** embarqué.
       **Ni succès silencieux, ni erreur obscure, ni étape sautée sans le dire.** Éprouvé sur un
       embarqué **injecté et vide** (déterministe, N7). **Le message ne contient plus aucune
       affirmation sur ce que `_bundled/` ne porte pas.**
-- [ ] **CA-B10** — `install.mjs:50` : **prémisse corrigée, décision conservée** (pas d'import de
+      **Preuve** : `cli/test/install-verbe.test.js` (tests « CA-21' : ni vivant ni embarqué
+      porteur... » en sous-processus via `cliSansBundled()`, et « CA-21' : étape 2, embarqué
+      injecté AMPUTÉ... » en appel direct).
+- [x] **CA-B10** — `install.mjs:50` : **prémisse corrigée, décision conservée** (pas d'import de
       `cli/src/lib/vocab.js`), **rectification datée**. **Le reste d'`install.mjs` est
       inchangé** (`git diff` limité à ce commentaire).
-- [ ] **CA-B11** — `docs/commandes.md:248` décrit le comportement **réel** de l'étape 2 après
+      **Preuve** : `install.mjs:49-56` (commentaire rectifié) ; `git diff main..HEAD -- install.mjs`
+      limité à ce bloc de commentaire (vérifié).
+- [x] **CA-B11** — `docs/commandes.md:248` décrit le comportement **réel** de l'étape 2 après
       **AR-I** — **dans le même lot**, convention permanente du portefeuille.
-- [ ] **CA-B12** — `chaine-complete-install-amorcage-dmg-msi.md` porte l'amendement **daté** :
+      **Preuve** : `docs/commandes.md:248` réécrit (commit `27ebcef`).
+- [x] **CA-B12** — `chaine-complete-install-amorcage-dmg-msi.md` porte l'amendement **daté** :
       **R10 soldé** (avec le commit qui le solde), **CA-21 → CA-21′**, § 5.4 rectifié, **inconnue 4
       du § 11 fermée**. **La rédaction d'origine est conservée, pas effacée.**
-- [ ] **CA-B13** — Suite complète du CLI verte, **chaque commande avec SA ligne, SON code de sortie
+      **Preuve** : `specs/instructions/chaine-complete-install-amorcage-dmg-msi.md` § 5.4, § 8
+      (ligne R10), § 9 (CA-21), § 11 (inconnue 4) — commit `372b3f0`.
+- [x] **CA-B13** — Suite complète du CLI verte, **chaque commande avec SA ligne, SON code de sortie
       et SON chiffre**. Une formule d'ensemble (« tout est vert ») vaut **FAIL**.
+      **Preuve** : `node --test` (répertoire `cli/`) → `tests 1056`, `pass 1055`, `fail 0`,
+      `cancelled 0`, `skipped 1`, `todo 0` (le skip est `recall : moteur ripgrep...`, préexistant,
+      hors périmètre). Rejoué deux fois, verdict stable.
 
 ---
 
