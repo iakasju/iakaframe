@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-03 21:26 (motif: manual).
+> Genere par iakaframe (CLI) le 2026-09-04 21:03 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.39.0 |
 | Branche | main |
-| Dernier commit | 6f71dd6 docs(backlog): RESERVOIR-REDECLENCHE — le seuil compte des occurrences, pas des observations neuves |
+| Dernier commit | e9bfdc0 merge: LOT C.1 — le moteur de la chaine d installation (gate Legolas PASS au premier passage) |
 | Arbre | propre |
-| Fichiers (suivis + non ignores) | 1158 |
-| Note | LOT A livre : mode guide du terminal, 3 paliers, --guide sur 10 cibles, regle unique de non-interactivite. Palier 2 NON RECETTE (geste humain, 2 OS). |
+| Fichiers (suivis + non ignores) | 1180 |
+| Note | LOT C.1 livre et fusionne : le moteur de la chaine d installation (4 etapes chainees, rollback 3 gardes, minisign, bundle app), gate Legolas PASS au premier passage (1048/1049 tests). Un ecart non bloquant a tracer : message de refus faux + reprise inoperante quand le reservoir vivant est plus ancien que l embarque (reservoir.js:142-155, install.js:223-228). Push Forgejo en attente (NAS hors de portee, Mac sur hotspot) ; GitHub a jour. Prochaine etape : lot C.2 (app d installation, depot neuf, cadrage Gandalf AR-E). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `6f71dd6` | 2026-09-03 | docs(backlog): RESERVOIR-REDECLENCHE — le seuil compte des occurrences, pas des observations neuves |
-| `ff10cd7` | 2026-09-03 | merge: LOT A — le mode guide du terminal (gate Legolas PASS au premier passage) |
-| `d7a1685` | 2026-09-03 | fix(lot A): CA-10 — autorite vide geree, meme avec entree libre permise |
-| `48f3af3` | 2026-09-03 | docs(lot A): docs/commandes.md a jour + recette manuelle CA-13 (palier 2) |
-| `368b3e5` | 2026-09-03 | docs(lot A): --guide dans le registre (lib/verbes.js) pour les 10 cibles |
-| `c30f220` | 2026-09-03 | test(lot A): G1/G2 sur les 10 cibles — deux controles positifs, pas un temoin vide |
-| `2380937` | 2026-09-03 | feat(lot A): --guide cable sur les 10 cibles (A2/A3/A4/A5) |
-| `dbe6c97` | 2026-09-03 | feat(lot A): paliers 1+2 — moteur de selection lib/guidage.js |
-| `ce1199d` | 2026-09-03 | feat(lot A): palier 0 — refus loquaces sur les 10 cibles guidees |
-| `d61b4af` | 2026-09-03 | feat(lot A): noyau du mode guide terminal — lib/interactif.js, regle unique |
+| `e9bfdc0` | 2026-09-04 | merge: LOT C.1 — le moteur de la chaine d installation (gate Legolas PASS au premier passage) |
+| `dcfa812` | 2026-09-04 | docs(qualite): gate lot C.1 (moteur chaine install) — PASS |
+| `58ab128` | 2026-09-04 | docs(instruction): BUNDLE-INSTALL-MJS-ABSENT cadre — l arbitrage du decideur est rendu |
+| `9645574` | 2026-09-04 | feat(cli): chaine les etapes 3/4 dans le verbe install (lot C.1, le moteur) |
+| `7b9714b` | 2026-09-04 | feat(cli): etend le double reseau aux etapes 3/4 (meme mecanisme, deux signaux) |
+| `283bcd9` | 2026-09-04 | feat(cli): resolution + verification + pose d'un bundle d'app (lib/app-bundle.js) |
+| `97b1013` | 2026-09-04 | feat(cli): moteur de rollback a trois gardes (lib/rollback.js, AR-5) |
+| `462a9d2` | 2026-09-04 | feat(cli): verification minisign offline (lib/minisign.js, lot C.1) |
+| `23ee33f` | 2026-09-04 | merge: LOT A — le verbe `install` + solde du lot 0 (gate Legolas PASS au 4e passage) |
+| `fc87c4c` | 2026-09-04 | fix(cli): borde le double reseau — hors du tarball publie, deux signaux requis |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -148,6 +148,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-04 21:03 | pause | v0.39.0 | main | LOT C.1 livre et fusionne : le moteur de la chaine d installation (4 etapes chainees, rollback 3 gardes, minisign, bundle app), gate Legolas PASS au premier passage (1048/1049 tests). Un ecart non bloquant a tracer : message de refus faux + reprise inoperante quand le reservoir vivant est plus ancien que l embarque (reservoir.js:142-155, install.js:223-228). Push Forgejo en attente (NAS hors de portee, Mac sur hotspot) ; GitHub a jour. Prochaine etape : lot C.2 (app d installation, depot neuf, cadrage Gandalf AR-E). |
 | 2026-09-03 21:26 | manual | v0.39.0 | main | LOT A livre : mode guide du terminal, 3 paliers, --guide sur 10 cibles, regle unique de non-interactivite. Palier 2 NON RECETTE (geste humain, 2 OS). |
 | 2026-09-03 18:54 | manual | v0.39.0 | main | Dette de canal fermee : fan-out sur les deux canaux, exit non nul si une cible echoue, face 2 hors gate. Endpoint iakabox retire. Cliquet 20->23. |
 | 2026-09-03 14:51 | manual | v0.39.0 | main | Mode guide du CLI livre (lots 0+B) : 33 commandes /iaka-*, registre unique, aide derivee. Amendement A : la garde de vocabulaire echoue. A-1 clos. |

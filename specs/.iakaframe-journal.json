@@ -838,5 +838,15 @@
     "dirty": false,
     "files": 1158,
     "note": "LOT A livre : mode guide du terminal, 3 paliers, --guide sur 10 cibles, regle unique de non-interactivite. Palier 2 NON RECETTE (geste humain, 2 OS)."
+  },
+  {
+    "date": "2026-09-04 21:03",
+    "reason": "pause",
+    "version": "v0.39.0",
+    "branch": "main",
+    "commit": "e9bfdc0 merge: LOT C.1 — le moteur de la chaine d installation (gate Legolas PASS au premier passage)",
+    "dirty": false,
+    "files": 1180,
+    "note": "LOT C.1 livre et fusionne : le moteur de la chaine d installation (4 etapes chainees, rollback 3 gardes, minisign, bundle app), gate Legolas PASS au premier passage (1048/1049 tests). Un ecart non bloquant a tracer : message de refus faux + reprise inoperante quand le reservoir vivant est plus ancien que l embarque (reservoir.js:142-155, install.js:223-228). Push Forgejo en attente (NAS hors de portee, Mac sur hotspot) ; GitHub a jour. Prochaine etape : lot C.2 (app d installation, depot neuf, cadrage Gandalf AR-E)."
   }
 ]
