@@ -25,6 +25,21 @@ function faireVivant({ version } = {}) {
   return dir;
 }
 
+// Embarque INJECTE (N7/CA-B7) : jamais l'ambiant `cli/_bundled/` (gitignore, absent en clone
+// frais, present si `npm run bundle` a tourne) — un test dont le verdict depend de cette ambiance
+// n'est pas une garde. `withInstaller: false` = bundle AMPUTE (garde requise du prepack absente
+// de ce fixture, cas exerce par CA-B9/CA-21').
+function faireEmbarque({ withInstaller = true, version } = {}) {
+  const dir = tmp();
+  fs.mkdirSync(path.join(dir, '_bundled'), { recursive: true });
+  if (version !== undefined) fs.writeFileSync(path.join(dir, '_bundled', 'VERSION'), `v${version}\n`);
+  if (withInstaller) {
+    fs.mkdirSync(path.join(dir, '_bundled', 'kits'), { recursive: true });
+    fs.writeFileSync(path.join(dir, '_bundled', 'install.mjs'), '// installeur embarque factice\n');
+  }
+  return dir;
+}
+
 test('compareVersions : ordre numerique simple, segments manquants = 0', () => {
   assert.equal(compareVersions('0.39.0', '0.39.0'), 0);
   assert.equal(compareVersions('0.40.0', '0.39.0'), 1);
@@ -67,12 +82,30 @@ test('AR-F(a) : vivant STRICTEMENT plus récent -> vivant l\'emporte, provenance
   assert.match(r.provenance, /plus récent, le vivant l'emporte$/);
 });
 
-test('AR-F(a) : vivant STRICTEMENT plus ancien -> embarqué l\'emporte, provenance dit "plus ancien"', () => {
+// RETOURNE (BUNDLE-INSTALL-MJS-ABSENT, AR-I(a), N7/E-4) : avant ce lot, l'embarque gagnant
+// n'avait JAMAIS d'install.mjs (le _bundled n'en portait pas). Depuis, un embarque PORTEUR
+// devient la charge de l'etape 2 — c'est exactement le cas signale par le gate du lot C.1 (vivant
+// plus ancien -> refus faux + reprise inoperante). Embarque INJECTE (deterministe, N7).
+test('AR-F(a)+AR-I(a) : vivant STRICTEMENT plus ancien, embarqué PORTEUR -> embarqué l\'emporte ET délègue à SON install.mjs', () => {
+  const embarque = faireEmbarque({ withInstaller: true });
   const vivant = faireVivant({ version: '0.0.1' });
-  const r = resoudreReservoir({ root: vivant });
+  const r = resoudreReservoir({ root: vivant, embarqueDir: embarque });
   assert.equal(r.source, 'embarque');
-  assert.equal(r.installMjsPath, null, 'embarque gagnant : aucun install.mjs (le _bundled n\'en porte pas) — pas de faux chemin');
+  assert.equal(r.installMjsPath, path.join(embarque, '_bundled', 'install.mjs'), 'AR-I(a) : le réservoir DÉSIGNÉ (embarqué) porte AUSSI la charge de l\'étape 2');
+  assert.equal(r.installMjsCandidatVivant, path.join(vivant, 'install.mjs'));
+  assert.equal(r.installMjsCandidatEmbarque, path.join(embarque, '_bundled', 'install.mjs'));
   assert.match(r.provenance, /^réservoir : embarqué \(v.*\) — vivant v0\.0\.1, plus ancien$/);
+});
+
+// Contrefactuel du cas ci-dessus : le vivant est plus ancien, MAIS le bundle est AMPUTÉ
+// (`_bundled/` présent, sans install.mjs — le mode d'échec exact que R-A nomme). Aucun chemin
+// fabriqué qui n'existe pas : `installMjsPath` reste `null`, à charge pour CA-21' de le dire.
+test('AR-I(a), contrefactuel : vivant plus ancien, embarqué AMPUTÉ (sans install.mjs) -> installMjsPath reste null', () => {
+  const embarque = faireEmbarque({ withInstaller: false });
+  const vivant = faireVivant({ version: '0.0.1' });
+  const r = resoudreReservoir({ root: vivant, embarqueDir: embarque });
+  assert.equal(r.source, 'embarque');
+  assert.equal(r.installMjsPath, null, 'bundle ampute : aucun chemin fabrique qui n\'existe pas');
 });
 
 // --- CA-06 : version INDETERMINEE (AR-F conséquence 2) -----------------------------------------
@@ -85,14 +118,30 @@ test('CA-06 : vivant SANS version (install.mjs sans cli/) -> le vivant l\'emport
 });
 
 // --- Aucun réservoir vivant du tout -------------------------------------------------------------
-test('aucun réservoir vivant trouvé (install.mjs absent) -> embarqué par défaut, dit explicitement', () => {
+// RETOURNE (N7/E-4) : embarque INJECTE, jamais l'ambiant. Ici l'embarque est AMPUTÉ (sans
+// install.mjs) : ni vivant ni embarqué ne portent la charge -> `installMjsPath` reste `null`
+// (précondition déterministe de CA-21', couverte côté install.js).
+test('aucun réservoir vivant ET embarqué AMPUTÉ -> embarqué par défaut, installMjsPath null, dit explicitement', () => {
   const vide = tmp();
-  const r = resoudreReservoir({ root: vide });
+  const embarque = faireEmbarque({ withInstaller: false });
+  const r = resoudreReservoir({ root: vide, embarqueDir: embarque });
   assert.equal(r.source, 'embarque');
   assert.equal(r.vivantRoot, null);
   assert.equal(r.vivantPresent, false);
   assert.equal(r.installMjsPath, null);
+  assert.equal(r.installMjsCandidatVivant, path.join(vide, 'install.mjs'));
+  assert.equal(r.installMjsCandidatEmbarque, path.join(embarque, '_bundled', 'install.mjs'));
   assert.match(r.provenance, /^réservoir : embarqué \(v.*\) — aucun réservoir vivant trouvé \(install\.mjs absent sous .*\)$/);
+});
+
+// AR-I(a) : vivant ABSENT, embarqué PORTEUR -> l'embarqué devient la charge (le cas NOMINAL de
+// l'utilisateur installé par la voie publique, une fois le lot livré).
+test('AR-I(a) : aucun réservoir vivant, embarqué PORTEUR -> embarqué devient la charge de l\'étape 2', () => {
+  const vide = tmp();
+  const embarque = faireEmbarque({ withInstaller: true });
+  const r = resoudreReservoir({ root: vide, embarqueDir: embarque });
+  assert.equal(r.source, 'embarque');
+  assert.equal(r.installMjsPath, path.join(embarque, '_bundled', 'install.mjs'));
 });
 
 // --- Format imposé littéralement (§ 4.0, les 3 exemples cités) ----------------------------------

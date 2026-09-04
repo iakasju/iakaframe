@@ -40,8 +40,11 @@ export function embarqueDir() {
   return path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..', '..');
 }
 
-export function embarqueInfo() {
-  const dir = embarqueDir();
+// `dir` optionnel = point d'INJECTION (BUNDLE-INSTALL-MJS-ABSENT, AR-J) : par defaut,
+// l'embarque REEL (`embarqueDir()`), celui du CLI qui tourne. Les gardes qui doivent rester
+// DETERMINISTES (independantes de la presence AMBIANTE de `cli/_bundled/`, N7/CA-B7)
+// construisent un embarque CONTROLE et le passent ici — jamais expose en CLI.
+export function embarqueInfo(dir = embarqueDir()) {
   const versionFile = path.join(dir, '_bundled', 'VERSION');
   let version = null;
   try {
@@ -51,11 +54,23 @@ export function embarqueInfo() {
   return { dir, version };
 }
 
+// Chemin de l'install.mjs EMBARQUE (BUNDLE-INSTALL-MJS-ABSENT) : `<dir>/_bundled/install.mjs`
+// S'IL EXISTE, jamais un chemin fabrique qui n'existe pas (`resoudreReservoir` ne doit jamais
+// deleguer a un fichier absent). `dir` = racine de l'embarque (embarqueInfo().dir), pas la racine
+// du depot.
+export function embarqueInstallMjsPath(dir) {
+  const p = path.join(dir, '_bundled', 'install.mjs');
+  try { return fs.existsSync(p) ? p : null; } catch { return null; }
+}
+
 // --- Reservoir VIVANT : un arbre source sur disque, marque par la presence d'`install.mjs` --
 // (M4 : « l'installeur de la methode existe deja... a la racine du depot »). C'est CE marqueur,
 // pas `library/`+`methods/` (marqueur plus large de `kit.js:hasFrameworkMarker`, qui matcherait
-// aussi `_bundled/`, lequel N'A PAS d'install.mjs, cf. cli/scripts/bundle.js:ASSETS) : le
-// reservoir vivant de l'etape 2 doit pouvoir EXECUTER install.mjs, pas seulement lister une lib.
+// aussi `_bundled/`) : un reservoir doit pouvoir EXECUTER install.mjs, pas seulement lister une
+// lib. RECTIFIE (BUNDLE-INSTALL-MJS-ABSENT, 2026-09-04, E-1) : `_bundled/` PORTE desormais
+// install.mjs (cf. cli/scripts/bundle.js:ASSETS) — c'est precisement le BUT du lot. Le marqueur
+// reste discriminant SANS ambiguite : les deux reservoirs ne sont jamais resolus par le meme
+// chemin (`candidateVivantRoot` pour le vivant, `embarqueDir()` pour l'embarque, cf. R-H).
 export function vivantHasInstaller(dir) {
   try { return fs.existsSync(path.join(dir, 'install.mjs')); } catch { return false; }
 }
@@ -116,14 +131,24 @@ export function formatProvenance({ source, vivantRoot, vivantVersion: vv, embarq
   return `réservoir : embarqué (v${ev}) — vivant v${vv}, plus ancien`;
 }
 
-// --- Resolution complete, AR-F(a) --------------------------------------------------------------
-export function resoudreReservoir({ root } = {}) {
-  const embarque = embarqueInfo();
+// --- Resolution complete, AR-F(a) + AR-I(a) -----------------------------------------------------
+// AR-I(a) (BUNDLE-INSTALL-MJS-ABSENT, verdict du decideur 2026-09-04) : « le reservoir DESIGNE par
+// AR-F porte AUSSI la charge de l'etape 2 ». Vivant gagnant -> <vivant>/install.mjs + <vivant>/
+// kits. Embarque gagnant (vivant absent OU vivant plus ancien) -> _bundled/install.mjs +
+// _bundled/kits — mais SEULEMENT s'il les porte reellement (sinon `installMjsPath` reste `null`,
+// et c'est CA-21' qui le nomme, jamais un chemin fabrique). `embarqueDir` (parametre) est le point
+// d'INJECTION de test (AR-J, N7/CA-B7) : optionnel, defaut = l'embarque REEL du CLI qui tourne.
+export function resoudreReservoir({ root, embarqueDir: embarqueDirParam } = {}) {
+  const embarque = embarqueInfo(embarqueDirParam);
   const vivantRoot = candidateVivantRoot(root);
   const present = vivantHasInstaller(vivantRoot);
+  const installMjsCandidatVivant = path.join(vivantRoot, 'install.mjs');
+  const installMjsCandidatEmbarque = path.join(embarque.dir, '_bundled', 'install.mjs');
+  const installMjsEmbarque = embarqueInstallMjsPath(embarque.dir);
 
   if (!present) {
     const info = {
+      // AR-I(a) : vivant ABSENT -> l'embarque porte la charge s'il la porte reellement.
       source: 'embarque',
       vivantRoot: null,
       vivantRootCandidat: vivantRoot,
@@ -131,9 +156,9 @@ export function resoudreReservoir({ root } = {}) {
       vivantVersion: null,
       embarqueDir: embarque.dir,
       embarqueVersion: embarque.version,
-      installMjsPath: null, // AUCUN install.mjs embarque (cli/scripts/bundle.js ne le copie pas) :
-      // l'etape 2 ne peut pas deleguer sans un reservoir vivant. Signale explicitement par
-      // install.js, jamais un repli silencieux sur un install.mjs qui n'existe pas.
+      installMjsPath: installMjsEmbarque,
+      installMjsCandidatVivant,
+      installMjsCandidatEmbarque,
     };
     info.provenance = `réservoir : embarqué (v${embarque.version}) — aucun réservoir vivant trouvé (install.mjs absent sous ${vivantRoot})`;
     return info;
@@ -150,7 +175,12 @@ export function resoudreReservoir({ root } = {}) {
     vivantVersion: vv,
     embarqueDir: embarque.dir,
     embarqueVersion: embarque.version,
-    installMjsPath: source === 'vivant' ? path.join(vivantRoot, 'install.mjs') : null,
+    // AR-I(a) : vivant present mais PLUS ANCIEN (source === 'embarque') -> l'embarque porte la
+    // charge s'il la porte reellement, JAMAIS un repli sur le vivant plus ancien (ce serait
+    // faire mentir la provenance imprimee a l'etape 1, cf. § 3 AR-I motif 1).
+    installMjsPath: source === 'vivant' ? installMjsCandidatVivant : installMjsEmbarque,
+    installMjsCandidatVivant,
+    installMjsCandidatEmbarque,
     provenance: formatProvenance({ source, vivantRoot, vivantVersion: vv, embarqueVersion: embarque.version }),
   };
 }
