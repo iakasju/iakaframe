@@ -20,8 +20,8 @@ const CLI = path.join(HERE, '..', 'src', 'index.js');
 const REPO = path.join(HERE, '..', '..');           // vraie bibliotheque du depot
 const CMD_DIR = path.join(HERE, '..', 'src', 'commands');
 
-function cli(args) {
-  const r = spawnSync('node', [CLI, ...args], { cwd: REPO, encoding: 'utf8' });
+function cli(args, extraEnv = {}) {
+  const r = spawnSync('node', [CLI, ...args], { cwd: REPO, encoding: 'utf8', env: { ...process.env, ...extraEnv } });
   return { stdout: r.stdout, stderr: r.stderr, status: r.status };
 }
 
@@ -66,7 +66,16 @@ const BARE = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-bare-'));
   g(GITD, ['remote', 'add', 'origin', BARE]); g(GITD, ['push', '-q', 'origin', 'main']);
 }
 
-// (nom, args, cle de collection attendue | null pour une ressource/rapport a plat)
+// Dedies au verbe `install` (contrat-machine-du-verbe-install.md, AR-M2(a)) : reservoir vivant =
+// le DEPOT REEL lui-meme (--root REPO), reseau TOUJOURS injoignable (double, meme garde que
+// install-verbe.test.js) -> chemin DETERMINISTE "deja a jour" (etape 1 sautee, aucune confirmation
+// requise), etapes 3/4 en dry-run decrivent sans exiger de reseau exploitable.
+const INSTALL_CLAUDE = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-install-claude-'));
+const INSTALL_APPS = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-install-apps-'));
+const INSTALL_BACKUPS = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-install-backups-'));
+const INSTALL_ENV = { IAKAFRAME_INSTALL_TEST_DOUBLE: '1' };
+
+// (nom, args, cle de collection attendue | null pour une ressource/rapport a plat, env supplementaire)
 const NOMINAL = [
   ['list', ['list', '--json'], 'collections'],
   ['list <type>', ['list', 'personas', '--json'], 'items'],
@@ -87,11 +96,17 @@ const NOMINAL = [
   ['close', ['close', '--json', '--home', HOME], null],
   ['services', ['services', '--json', '--hosts', '127.0.0.1', '--timeout', '1'], 'services'],
   ['canaux', ['canaux', '--json', '--path', GITD, '--timeout', '5'], 'canaux'],
+  [
+    'install',
+    ['install', '--dry-run', '--json', '--yes', '--root', REPO, '--target-claude', INSTALL_CLAUDE, '--apps-dir', INSTALL_APPS, '--backup-dir', INSTALL_BACKUPS],
+    'evenements',
+    INSTALL_ENV,
+  ],
 ];
 
-for (const [name, args, collKey] of NOMINAL) {
+for (const [name, args, collKey, extraEnv] of NOMINAL) {
   test(`C-JSON nominal : ${name} -> objet { ok:true } (jamais un tableau/scalaire nu)`, () => {
-    const { stdout } = cli(args);
+    const { stdout } = cli(args, extraEnv || {});
     let obj;
     assert.doesNotThrow(() => { obj = JSON.parse(stdout); }, `stdout non JSON : ${stdout.slice(0, 120)}`);
     assert.equal(typeof obj, 'object');
@@ -112,11 +127,12 @@ const ERRORS = [
   ['assemble <inconnus>', ['assemble', 'nope', 'nope', '--json']],
   ['memory list sans cible', ['memory', 'list', '--json', '--home', HOME]],
   ['canaux hors depot git', ['canaux', '--json', '--path', EMPTY]],
+  ['install <combinaison incoherente>', ['install', '--json', '--events', '--root', EMPTY], INSTALL_ENV],
 ];
 
-for (const [name, args] of ERRORS) {
+for (const [name, args, extraEnv] of ERRORS) {
   test(`C-JSON erreur : ${name} -> { ok:false, error } sur stdout, exit 1, rien sur stderr`, () => {
-    const { stdout, stderr, status } = cli(args);
+    const { stdout, stderr, status } = cli(args, extraEnv || {});
     assert.equal(status, 1, 'exitCode 1 attendu');
     assert.equal(stderr.trim(), '', 'aucun texte humain sur stderr en mode --json');
     const obj = JSON.parse(stdout);
@@ -127,5 +143,5 @@ for (const [name, args] of ERRORS) {
 }
 
 test.after(() => {
-  for (const d of [HOME, OBS, EMPTY, PROJ, GITD, BARE]) fs.rmSync(d, { recursive: true, force: true });
+  for (const d of [HOME, OBS, EMPTY, PROJ, GITD, BARE, INSTALL_CLAUDE, INSTALL_APPS, INSTALL_BACKUPS]) fs.rmSync(d, { recursive: true, force: true });
 });
