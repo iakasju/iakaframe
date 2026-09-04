@@ -682,6 +682,18 @@ en une passe (autre verbe, à cadrer séparément) · toute réécriture de `ins
 > **Ce que le lot C DOIT faire en attendant** : ne pas prétendre. Voir **CA-21** — sur un poste sans
 > réservoir vivant, l'étape 2 **refuse en nommant la cause**. Un refus lisible est tenable ; un
 > succès silencieux ou une erreur obscure ne le sont pas.
+>
+> **AMENDEMENT DATÉ le 2026-09-04, après exécution du lot successeur.** Le décideur a arbitré
+> l'amendement de `bundle.js` **au périmètre** (verdict verbatim relayé par 🟠 Aragorn : *« a, a »*,
+> AR-I(a) et AR-J(a)) — cadré par 🔵 Gandalf dans `specs/instructions/bundle-install-mjs-embarque.md`
+> et exécuté par ⚒️ Gimli sur la branche `feat/bundle-install-mjs-embarque` (commits `20ab476` à
+> `27ebcef`). **R10 est SOLDÉ** : `install.mjs` voyage désormais avec le paquet publié
+> (`cli/_bundled/install.mjs`, asset `required: true`), et le réservoir **DÉSIGNÉ par AR-F** porte
+> aussi la charge de l'étape 2 (AR-I(a)) — l'utilisateur nominal de la voie publique n'est plus
+> amputé. **CA-21 devient CA-21′** (§ 9, rectification datée sur place, texte d'origine conservé) :
+> le déclencheur du refus n'est plus « aucun réservoir vivant » mais « ni vivant ni embarqué
+> porteur » (bundle amputé). **La rédaction ci-dessus est conservée telle quelle** — datée, jamais
+> effacée : ce qu'elle décrivait comme un angle mort assumé est désormais un cas fermé.
 
 - **C.1 — Le moteur.** Les **quatre** étapes enchaînées comme verbes du CLI, validation par étape
   (AR-4), **rollback automatique + ses trois gardes** (AR-5) : ne défaire que ce qu'on peut
@@ -882,7 +894,7 @@ proposé était juste, et il ne bouge pas.
 | R7 | **Une troisième app fait diverger les conventions du portefeuille** (vitrine, convergence, porteurs de version) et le premier symptôme est une vitrine qui ment. | AR-E(a) : **dupliquer** la convention, cliquet de convergence relevé à trois frères, face en ligne active dès la première release. |
 | R8 | **On déclare « livré » ce qui n'est que « buildé »** sur Windows, Linux et macOS Intel. Le précédent AR-6 a déjà coûté ce faux vert. | § 10 : gate humain **déclaré**, jamais compté comme couvert. Aucun critère d'acceptation ne le suppose. |
 | R9 | **Le lot recode ce qui existe déjà** (lots 0 et B) parce que le cadrage parent le décrit comme à faire. | § 5.1 et § 5.2 : état mesuré, avec chemins et lignes. **Ces morceaux sont explicitement exclus.** |
-| **R10** *(inscrit le 2026-09-04)* | **La chaîne est amputée pour l'utilisateur nominal.** `install.mjs` ne part dans **aucun** artefact publié (`bundle.js:22-31`, `cli/package.json:12-16`) : un CLI installé par la **voie publique actée par AR-H(a)** ne peut **structurellement pas** jouer l'étape 2, et le moteur C.1 **héritera** de l'impasse. Le risque n'est pas qu'elle existe — c'est qu'elle reste **muette** et se découvre chez l'utilisateur. | **Prérequis d'entrée du lot C, écrit** (§ 5.4). **CA-21** : le refus est **explicite et nomme la cause**, jamais un succès silencieux. Le remède de fond est le successeur **`BUNDLE-INSTALL-MJS-ABSENT`**, **hors périmètre, soumis à arbitrage** — l'inscrire ici sans arbitrage serait décider à la place du décideur ce que le tarball publié contient. |
+| **R10** *(inscrit le 2026-09-04, SOLDÉ le 2026-09-04)* | **La chaîne est amputée pour l'utilisateur nominal.** `install.mjs` ne part dans **aucun** artefact publié (`bundle.js:22-31`, `cli/package.json:12-16`) : un CLI installé par la **voie publique actée par AR-H(a)** ne peut **structurellement pas** jouer l'étape 2, et le moteur C.1 **héritera** de l'impasse. Le risque n'est pas qu'elle existe — c'est qu'elle reste **muette** et se découvre chez l'utilisateur. | **Prérequis d'entrée du lot C, écrit** (§ 5.4). **CA-21** : le refus est **explicite et nomme la cause**, jamais un succès silencieux. Le remède de fond est le successeur **`BUNDLE-INSTALL-MJS-ABSENT`**, **hors périmètre, soumis à arbitrage** — l'inscrire ici sans arbitrage serait décider à la place du décideur ce que le tarball publié contient. ⇒ **SOLDÉ** : arbitré AR-I(a)/AR-J(a) et livré (commits `20ab476`..`27ebcef`, branche `feat/bundle-install-mjs-embarque`) — `install.mjs` embarqué, résolu, délégué ; CA-21 devenu **CA-21′** (§ 9). |
 | **R11** *(inscrit le 2026-09-04)* | **Un commentaire du code est pris pour une mesure.** C'est arrivé **dans ce cadrage même** : `install.mjs:50` affirme « la frame embarque install.mjs SANS cli/ », c'est **faux**, et cette phrase a produit une illustration fausse en § 4.0 (AR-F). Le commentaire est toujours là et contaminera le prochain lecteur. | Discipline `canon-avant-citation` : **un fait annoncé comme mesuré doit l'avoir été sur l'objet**, pas sur ce qu'on en dit. Successeur nommé **`COMMENTAIRE-FAUX-INSTALL-MJS-50`**, hors périmètre (§ 4.0). |
 
 ---
@@ -940,13 +952,21 @@ proposé était juste, et il ne bouge pas.
 - [ ] **CA-20** — Le `release.yml` de l'installeur est **épinglé au SHA**, comme celui des deux
       apps. *(Le `release.yml` d'`iakaframe` ne l'est toujours pas — dette **connue et inscrite** à
       son backlog, **hors périmètre de ce lot**.)*
-- [ ] **CA-21** *(ajouté le 2026-09-04, réponse à R10)* — Sur un poste **sans réservoir vivant à
-      proximité** — cas de l'utilisateur nominal installé par la voie publique (AR-H(a)) —,
-      l'**étape 2 REFUSE en nommant la cause** : la charge de la méthode est introuvable, et le
-      message dit **quoi** manque et **où** elle était cherchée. **Ni succès silencieux, ni erreur
-      obscure, ni étape sautée sans le dire.** Éprouvé par un test qui place le CLI hors de portée
-      de tout réservoir vivant. *(Ce critère ne répare pas l'impasse — il interdit qu'elle soit
-      muette. Le remède est le successeur `BUNDLE-INSTALL-MJS-ABSENT`, § 5.4.)*
+- [x] **CA-21** *(ajouté le 2026-09-04, réponse à R10 — RECTIFIÉ EN CA-21′ le 2026-09-04, texte
+      d'origine conservé, jamais effacé)* — Sur un poste **sans réservoir vivant à proximité** —
+      cas de l'utilisateur nominal installé par la voie publique (AR-H(a)) —, l'**étape 2 REFUSE en
+      nommant la cause** : la charge de la méthode est introuvable, et le message dit **quoi**
+      manque et **où** elle était cherchée. **Ni succès silencieux, ni erreur obscure, ni étape
+      sautée sans le dire.** Éprouvé par un test qui place le CLI hors de portée de tout réservoir
+      vivant. *(Ce critère ne répare pas l'impasse — il interdit qu'elle soit muette. Le remède est
+      le successeur `BUNDLE-INSTALL-MJS-ABSENT`, § 5.4.)*
+      ⇒ **CA-21′** (successeur livré, `specs/instructions/bundle-install-mjs-embarque.md` § 4/CA-B9) :
+      la lettre de CA-21 exigeait un refus **dès qu'aucun réservoir vivant n'existe** — cette lettre
+      tombe, car la charge n'est plus introuvable dans ce seul cas (elle voyage avec le paquet,
+      AR-I(a)). **La forme survit** : *aucune charge de méthode n'est résoluble ⇒ refus explicite
+      qui nomme quoi manque et où c'était cherché*. **Déclencheur neuf** : ni le vivant ni
+      l'embarqué ne portent `install.mjs` (bundle amputé). Éprouvé, déterministe (embarqué injecté,
+      jamais l'ambiant), sur `cli/test/install-verbe.test.js` et `cli/test/reservoir-ar-f.test.js`.
 
 ---
 
@@ -995,11 +1015,15 @@ s'est **concentré** sur C.1 (le rollback) au lieu d'être dilué sur quatre lot
    déclaration d'absence**. Tant que l'adhésion Apple n'est pas achetée, chaque utilisateur macOS
    qui télécharge le DMG passe par le parcours Sequoia. Le lot livre le CI prêt et l'aveu écrit ;
    il ne livre pas une installation lisse, et **ne doit jamais laisser croire le contraire**.
-4. **R10 / `BUNDLE-INSTALL-MJS-ABSENT`** *(2026-09-04)* : si le décideur arbitre l'amendement de
-   `bundle.js` **au périmètre** du lot C, compter **+0,5 j**. **Non compté au total ci-dessus**,
-   parce qu'il n'est pas arbitré — et **l'y compter d'office reviendrait à décider à sa place** ce
-   que le tarball publié contient. **Le total reste donc ≈ 8,75 j** : les rectifications du
-   2026-09-04 ne déplacent **aucun** chiffre.
+4. **R10 / `BUNDLE-INSTALL-MJS-ABSENT`** *(2026-09-04, FERMÉE le 2026-09-04)* : si le décideur
+   arbitre l'amendement de `bundle.js` **au périmètre** du lot C, compter **+0,5 j**. **Non compté
+   au total ci-dessus**, parce qu'il n'est pas arbitré — et **l'y compter d'office reviendrait à
+   décider à sa place** ce que le tarball publié contient. **Le total reste donc ≈ 8,75 j** : les
+   rectifications du 2026-09-04 ne déplacent **aucun** chiffre.
+   ⇒ **Inconnue fermée** : le décideur a arbitré AR-I(a)/AR-J(a) et le successeur a été livré
+   (`specs/instructions/bundle-install-mjs-embarque.md`, chiffré **≈ 1 j** avec la garde de tarball,
+   contre l'estimation indicative de 0,5 j) — comme lot **autonome**, **ajouté à côté** du total
+   parent (≈ 8,75 j), jamais fondu dedans.
 
 ---
 
