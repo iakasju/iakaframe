@@ -32,6 +32,7 @@ import { verifierAutoDeploiement } from '../lib/autodeploi.js';
 import { packageVersion } from '../lib/version.js';
 import { peutDemander, askYesNo } from '../lib/interactif.js';
 import { getJson } from '../lib/http.js';
+import { resoudreDoubleReseau } from '../lib/network-double.js';
 
 const USAGE = `Usage : iakaframe install [options]
 
@@ -253,30 +254,6 @@ export async function etape2Methode({ reservoir, values }) {
   return { ok: true };
 }
 
-// --- Double de test reseau, accessible en SOUS-PROCESSUS -----------------------------------------
-// UNIQUE point d'injection reseau que `cli/test/install-verbe.test.js` peut atteindre : ce fichier
-// de test spawn le VRAI binaire CLI (`node src/index.js install ...`), et un sous-processus n'a
-// aucun moyen d'y injecter des fonctions JS comme le font les tests unitaires de
-// `cli/test/etape1-reseau-ecarte.test.js`. `IAKAFRAME_INSTALL_TEST_DOUBLE=1` active donc un
-// double DETERMINISTE et TOUJOURS INJOIGNABLE (jamais un « répond avec succès » fabriqué ici : la
-// propriété « une source qui répondrait avec une version plus récente est reprise » est déjà
-// prouvée par les sondes injectées DIRECTEMENT dans etape1-reseau-ecarte.test.js — ce double ne
-// couvre que « zéro réseau réel, jamais un `npm install -g` réel » pour les tests qui doivent
-// spawn le binaire complet). JAMAIS documenté dans `--help` : ce n'est pas une fonctionnalité
-// produit, c'est un point de test — toute autre valeur de l'environnement est ignorée (défaut =
-// les vraies sondes réseau, le vrai `npm`). La LOGIQUE de production (etape1Cli, ci-dessus) reste
-// INCHANGÉE par ce double : elle continue de consulter le réseau exactement comme en production,
-// seule la SOURCE consultée est remplacée.
-function sondeDoubleTest() {
-  return { nom: 'DOUBLE-TEST (IAKAFRAME_INSTALL_TEST_DOUBLE) : sonde toujours injoignable', repond: false };
-}
-function execNpmInstallDoubleTest() {
-  // Ne doit JAMAIS être atteint : les sondes du double sont toujours injoignables, `cible` reste
-  // donc toujours `null`. Un throw ici est une garde de défense en profondeur, pas un chemin
-  // normal — si elle se déclenche un jour, c'est qu'un test a changé le double sans le savoir.
-  throw new Error('IAKAFRAME_INSTALL_TEST_DOUBLE actif : execNpmInstall ne doit jamais être atteint (sondes toujours injoignables)');
-}
-
 export async function runInstall(argv) {
   const { values } = parseArgs({
     args: argv,
@@ -298,9 +275,11 @@ export async function runInstall(argv) {
 
   const reservoir = resoudreReservoir({ root: values.root });
 
-  const testDouble = process.env.IAKAFRAME_INSTALL_TEST_DOUBLE === '1';
-  const sondes = testDouble ? [sondeDoubleTest] : undefined;
-  const execNpmInstall = testDouble ? execNpmInstallDoubleTest : undefined;
+  // Double de test reseau, DEUX signaux requis, jamais documente dans --help : voir lib/
+  // network-double.js pour le motif complet (correction du 3e gate qualite, 2026-09-04). Ce
+  // module NE PORTE AUCUNE implementation de double — seulement la decision + le chargement
+  // conditionnel d'un fichier qui vit hors de `src/` (cli/test/fixtures/, jamais publie).
+  const { sondes, execNpmInstall } = await resoudreDoubleReseau();
 
   const r1 = await etape1Cli({ reservoir, values, sondes, execNpmInstall });
   if (!r1.ok) { process.exitCode = 1; return; } // CA-07 : arret, deja enonce ci-dessus (etat atteint + commande de reprise)
