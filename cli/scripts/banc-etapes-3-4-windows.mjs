@@ -60,6 +60,18 @@ function execDesinstalleurInstrumente(cmd, args) {
   mesuresDesinstalleur.push({ cmd, args, status: res.status, dureeMs: Date.now() - debut });
   return res;
 }
+// AJOUT reprise AR-W20 (2026-09-06, post PREMIERE MESURE REELLE de ce banc, run 33997947501) :
+// `restaurerEtape` relit desormais le registre APRES le retour du desinstalleur (§ specs/
+// instructions/etapes-3-4-windows-linux.md, CA-W11 reprise) — ce double n'est PAS un second
+// chemin, c'est le MEME `reg.exe` reel que `regQueryBrut` ci-dessous, juste instrumente pour
+// mesurer combien de relectures ont ete necessaires (idem M-10 : le VRAI spawnSync est appele).
+const mesuresRelectureRegistre = [];
+function execRegInstrumente(cmd, args) {
+  const debut = Date.now();
+  const res = spawnSync(cmd, args, { encoding: 'utf8' });
+  mesuresRelectureRegistre.push({ cmd, args, status: res.status, dureeMs: Date.now() - debut });
+  return res;
+}
 
 async function poserReel({ appKey, numero }) {
   const evenements = [];
@@ -153,17 +165,20 @@ if (rA.ok) {
     }
   }
 
-  // Rollback REEL — scenario A, « rien n'existait avant » (uninstall.exe /S) ---------------------
+  // Rollback REEL — scenario A, « rien n'existait avant » (uninstall.exe /S _?=<InstallLocation>,
+  // AR-W20) -----------------------------------------------------------------------------------
   if (!rollbackDemande) {
     L.push(ligne('Rollback REEL (scenario A)', 'entree `rollback=true` requise', 'DESACTIVE par l\'entree `rollback=false` du declenchement — non joue, non simule', 'NON-MESURE'));
   } else {
-    const rbA = restaurerEtape(rA.preuve, { execDesinstalleur: execDesinstalleurInstrumente });
+    const avantRelecturesA = mesuresRelectureRegistre.length;
+    const rbA = restaurerEtape(rA.preuve, { execDesinstalleur: execDesinstalleurInstrumente, execReg: execRegInstrumente });
     const appelUninstallA = mesuresDesinstalleur[mesuresDesinstalleur.length - 1];
+    const relecturesA = mesuresRelectureRegistre.length - avantRelecturesA;
     const apresRollbackA = trouverSousCleExacte('IakaCockpit');
     L.push(ligne(
-      'Rollback REEL (scenario A, uninstall.exe /S via `restaurerEtape` module reel)',
-      'ok:true, defait:true, code de sortie uninstall.exe = 0, cle DISPARUE ensuite',
-      `ok:${rbA.ok}, defait:${rbA.defait}, codeUninstall=${appelUninstallA && appelUninstallA.status}, sousClesRestantes=${apresRollbackA.sousCles.length}, raison="${rbA.raison}"`,
+      'Rollback REEL (scenario A, uninstall.exe /S _?=<InstallLocation> via `restaurerEtape` module reel, AR-W20)',
+      'ok:true, defait:true, code de sortie uninstall.exe = 0, cle DISPARUE ET confirmee par relecture du module',
+      `ok:${rbA.ok}, defait:${rbA.defait}, codeUninstall=${appelUninstallA && appelUninstallA.status}, relecturesRegistre=${relecturesA}, sousClesRestantes=${apresRollbackA.sousCles.length}, raison="${rbA.raison}"`,
       rbA.ok && rbA.defait && apresRollbackA.sousCles.length === 0 ? 'PASS' : 'FAIL',
     ));
   }
@@ -259,12 +274,14 @@ if (rGui.ok) {
   if (!rollbackDemande) {
     L.push(ligne('iakaFrameGUI : rollback REEL', 'entree `rollback=true` requise', 'DESACTIVE par l\'entree `rollback=false` — non joue, non simule (runner laisse tel quel)', 'NON-MESURE'));
   } else {
-    const rbGui = restaurerEtape(rGui.preuve, { execDesinstalleur: execDesinstalleurInstrumente });
+    const avantRelecturesGui = mesuresRelectureRegistre.length;
+    const rbGui = restaurerEtape(rGui.preuve, { execDesinstalleur: execDesinstalleurInstrumente, execReg: execRegInstrumente });
+    const relecturesGui = mesuresRelectureRegistre.length - avantRelecturesGui;
     const apresGui = trouverSousCleExacte('iakaFrameGUI');
     L.push(ligne(
-      'iakaFrameGUI : rollback REEL (uninstall.exe /S)',
-      'ok:true, defait:true, cle DISPARUE',
-      `ok:${rbGui.ok}, defait:${rbGui.defait}, sousClesRestantes=${apresGui.sousCles.length}`,
+      'iakaFrameGUI : rollback REEL (uninstall.exe /S _?=<InstallLocation>, AR-W20)',
+      'ok:true, defait:true, cle DISPARUE ET confirmee par relecture du module',
+      `ok:${rbGui.ok}, defait:${rbGui.defait}, relecturesRegistre=${relecturesGui}, sousClesRestantes=${apresGui.sousCles.length}`,
       rbGui.ok && rbGui.defait && apresGui.sousCles.length === 0 ? 'PASS' : 'FAIL',
     ));
   }
