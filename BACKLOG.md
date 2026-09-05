@@ -10,6 +10,26 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### CI-RELEASE-LATEST-NON-MAITRISE — le `make_latest` calcule du workflow n'a PAS agi (2026-09-05)
+
+- **Mesure** : tag `v0.40.0` pousse a 09:59:39Z (run `33959443438`). La release et son asset
+  `naonedge-iakaframe-0.40.0.tgz` (686 323 o, sha256
+  `21fe0f9421cf14af97a273d7f06bb645e980004ae8c53efc028c359716ca1032`) ont ete crees a 09:59:55Z, MAIS
+  `releases/latest` repondait toujours `v0.39.0` a 09:59:56Z : l'etape « Verifier ce qu'est devenu le
+  latest » a rougi (`exit 1`) et nomme le rattrapage. **La garde a fait exactement son travail** — c'est
+  la premiere fois qu'elle mesure le risque central en conditions reelles (M-4 reste du, ceci n'est pas
+  M-4 : ici le manifeste n'etait pas perime, c'est le pointeur `latest` qui l'etait).
+- **Rattrapage applique par Aragorn a ~10:0xZ** (feu vert de publication donne par le decideur) :
+  `gh release edit v0.40.0 --latest` → `releases/latest` = `v0.40.0` (verifie), `vitrine:en-ligne` → OK.
+  Coherent avec M1 (2026-09-01) : `--latest` (true) AGIT ; le `make_latest` calcule dans `release.yml`
+  (acteur `softprops`) ne l'a pas fait, ou pas a temps (cf. la course de « douze minutes » deja notee
+  dans les commentaires du workflow, l. 49-73).
+- **A cadrer** : soit l'etape « Verifier » RATTRAPE elle-meme (`gh release edit  --latest`)
+  puis re-mesure, au lieu de seulement rougir ; soit on mesure d'abord POURQUOI `make_latest` est
+  inerte (valeur calculee ? ordre des etapes ? API asynchrone ?). Une preuve se compare au fichier :
+  relire le log complet du run `33959443438`, etape « rang » et etape `softprops`.
+- Successeur legitime de `CI-RELEASE-AUCUN-EPINGLAGE` (toujours ouvert, trois tags flottants).
+
 ### M-4 — la seule preuve du risque central, REPORTEE par le decideur (2026-09-03)
 
 > Mesure due au decideur, nommee au § 5 de
