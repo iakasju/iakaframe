@@ -721,6 +721,88 @@ test('AR-5, chaîné réel Windows : étape 3 pose (rien avant) puis étape 4 é
   assert.match(rb.rapports[0].raison, /RESIDU NON RETABLI/, 'AR-W5 garde 3 : le résidu de registre/raccourcis doit être ÉNONCÉ dans le rapport de rollback');
 });
 
+// ==================================================================================================
+// Reprise post-gate FAIL (2026-09-06) — cas (b) chaîné réel : la pose Windows RÉUSSIT (setup.exe /S
+// -> code 0) mais la relecture du registre APRÈS coup ne rend AUCUN InstallLocation exploitable
+// (§2.3 point 3, commentaire nommé install.js:679-680). `orchestrerRollback` doit rendre un énoncé
+// nommé — JAMAIS une TypeError fuitée jusque dans l'événement structuré `rollback` (install.js:
+// 826-830, `--events`/`--json`). Cf. docs/qualite/gate-etapes-3-4-windows.md § Reprise Gimli, pt 2.b.
+// ==================================================================================================
+
+/** Comme `fabriquerExecRegAvantApres`, mais le registre reste ILLISIBLE (InstallLocation) MÊME
+ * APRÈS la pose — la clé de désinstallation existe (l'installeur a bien tourné), sa valeur
+ * `InstallLocation` ne l'est jamais (§2.3 cas 3, "présent mais illisible/vide/disparu"). */
+function fabriquerExecRegInstallLocationIntrouvableApresPose({ poseFaite }) {
+  return (cmd, args) => {
+    if (!poseFaite.valeur) return { status: 1, stdout: '' }; // avant la pose : rien d'installé
+    if (args.includes('/v')) return { status: 1, stdout: '' }; // APRÈS la pose : InstallLocation illisible
+    return { status: 0, stdout: 'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\IakaCockpit\r\n' };
+  };
+}
+
+test('AR-W5, cas (b) chaîné réel Windows : pose RÉUSSIT mais InstallLocation reste introuvable après coup -> orchestrerRollback rend un énoncé nommé, JAMAIS une TypeError, dans l\'événement structuré `rollback` (--events)', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const s3 = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  const poseFaite = { valeur: false };
+  const execReg = fabriquerExecRegInstallLocationIntrouvableApresPose({ poseFaite });
+  const execSetupWindows = () => { poseFaite.valeur = true; return { status: 0 }; };
+
+  silence.activer();
+  let r3;
+  try {
+    r3 = await avecAppPatchee('IakaCockpit', s3.app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp: s3.resoudreEndpointsApp, telechargerApp: s3.telechargerApp,
+      plateforme: { platform: 'win32', arch: 'x64' }, execReg, execSetupWindows,
+    }));
+  } finally { silence.desactiver(); }
+  // la pose a RÉUSSI (code 0), mais l'emplacement n'a jamais pu être déterminé — précisément le
+  // cas nommé et promis par le commentaire d'install.js:679-680.
+  assert.equal(r3.ok, true);
+  assert.equal(r3.preuve.cible, null);
+  assert.deepEqual(r3.preuve.windowsUninstall, { chemin: null });
+
+  // étape 4 échoue (réseau injoignable), déclenche le rollback de l'étape 3 — même câblage que
+  // le tail de `runInstall` (src/commands/install.js:823-834).
+  const resoudreEndpointsApp4 = async () => ({ retenu: null, manifeste: null, essais: [{ hote: 'x', ok: false, motif: 'injoignable' }], complet: true, mesureLe: new Date().toISOString() });
+  silence.activer();
+  let r4;
+  try {
+    r4 = await etapeApp({
+      numero: 4, appKey: 'iakaFrameGUI', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp: resoudreEndpointsApp4, plateforme: { platform: 'win32', arch: 'x64' },
+    });
+  } finally { silence.desactiver(); }
+  assert.equal(r4.ok, false);
+
+  const rb = orchestrerRollback([r3.preuve]);
+  assert.equal(rb.rapports.length, 1);
+  assert.equal(rb.rapports[0].ok, false, 'un résidu non identifiable ne peut jamais être rendu comme un rollback réussi');
+  assert.doesNotMatch(rb.rapports[0].raison, /TypeError/, 'GARDE 3 conçue : jamais une fuite d\'exception Node brute');
+  assert.doesNotMatch(rb.rapports[0].raison, /\bnull\b/i, 'GARDE 3 conçue : jamais le mot "null" dans la raison rendue');
+  assert.match(rb.rapports[0].raison, /residu Windows non identifiable/i);
+
+  // MÊME construction, verbatim, que le tail de runInstall (install.js:826-833) — mode `events` :
+  // chaque ligne NDJSON doit PARSER et ne contenir ni "TypeError" ni le mot "null".
+  const lignes = [];
+  const em = creerEmetteur({ mode: 'events', ecrire: (s) => lignes.push(s) });
+  em.dire(`\n[rollback] ${rb.resume}`, {
+    evt: 'rollback', etape: 4,
+    champs: { resume: rb.resume, defaits: rb.defaits, nonDefaits: rb.nonDefaits, rapports: rb.rapports },
+  });
+  assert.equal(lignes.length, 1);
+  const ligne = lignes[0];
+  assert.doesNotMatch(ligne, /TypeError/, 'le contrat machine ne doit jamais porter de fuite d\'exception brute');
+  let parsed;
+  assert.doesNotThrow(() => { parsed = JSON.parse(ligne); }, 'la ligne NDJSON doit être PARSABLE (CA-M1)');
+  assert.equal(parsed.evt, 'rollback');
+  assert.equal(parsed.rapports[0].ok, false);
+  assert.doesNotMatch(parsed.rapports[0].raison, /TypeError/);
+  assert.doesNotMatch(parsed.rapports[0].raison, /\bnull\b/i);
+  assert.match(parsed.rapports[0].raison, /residu Windows non identifiable/i);
+});
+
 test('AR-W8/CA-W17 : sur la plateforme Windows simulée (--events, mode "json"), tout evt/etat émis reste dans le vocabulaire FERMÉ — aucun état nouveau', async () => {
   const appsDir = tmp();
   const backupDir = tmp();

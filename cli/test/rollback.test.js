@@ -260,6 +260,57 @@ test('AR-W5, chaîné via orchestrerRollback : execDesinstalleur se propage à C
   assert.deepEqual(rb.defaits, [3]);
 });
 
+// ==================================================================================================
+// Reprise post-gate FAIL (2026-09-06) — cible Windows encore `null` au moment du rollback : la
+// garde 3 doit ÉNONCER un résidu nommé, jamais laisser fuir une TypeError de `fs.rmSync(null, …)`.
+// Cf. docs/qualite/gate-etapes-3-4-windows.md § Reprise demandée à Gimli, point 1.
+// ==================================================================================================
+
+test('AR-W5, cas (a) "pose échouée AVANT complétion de la preuve" (§2.3) : `restaurerEtape` sur une preuve ouverte par `ouvrirPreuveWindowsSansExistant` et JAMAIS complétée -> énoncé nommé, JAMAIS une TypeError, JAMAIS le mot "null"', () => {
+  const racine = tmp();
+  const backupDir = path.join(racine, 'backups');
+  // la pose a échoué AVANT que `completerPreuveWindowsApresPose` ne soit appelée (aucun uninstall.exe
+  // connu, aucune cible connue) — exactement `install.js:663`, rollback immédiat de l'étape.
+  const preuveOuverte = ouvrirPreuveWindowsSansExistant({ backupDir, etape: 3 });
+  assert.equal(preuveOuverte.cible, null);
+  assert.equal(preuveOuverte.windowsUninstall, null);
+
+  const rapport = restaurerEtape(preuveOuverte);
+  assert.equal(rapport.ok, false, 'un résidu non identifiable ne peut jamais être rendu comme un succès');
+  assert.equal(rapport.defait, false);
+  assert.doesNotMatch(rapport.raison, /TypeError/, 'GARDE 3 conçue : jamais une fuite d\'exception Node brute');
+  assert.doesNotMatch(rapport.raison, /\bnull\b/i, 'GARDE 3 conçue : jamais le mot "null" dans la raison rendue');
+  assert.match(rapport.raison, /residu Windows non identifiable/i, 'la garde 3 doit ÉNONCER nommément le résidu (AR-W5, §2.3 point 3)');
+});
+
+test('AR-W5, cas (b) "pose réussie mais InstallLocation introuvable après coup" (§2.3) : `restaurerEtape` sur une preuve complétée avec `cible:null` -> énoncé nommé, JAMAIS une TypeError, JAMAIS le mot "null"', () => {
+  const racine = tmp();
+  const backupDir = path.join(racine, 'backups');
+  const preuveOuverte = ouvrirPreuveWindowsSansExistant({ backupDir, etape: 3 });
+  // simule install.js:679-685 : la pose a RÉUSSI (setup.exe /S -> code 0) mais la relecture du
+  // registre APRÈS coup ne rend aucun InstallLocation exploitable -> `cible` ET `cheminUninstall`
+  // restent `null`, `windowsUninstall` devient un OBJET dont `.chemin` est `null` (jamais `null`
+  // lui-même) — précisément le cas nommé par le commentaire d'`install.js:679-680`.
+  const preuve = completerPreuveWindowsApresPose(preuveOuverte, { cible: null, cheminUninstall: null });
+  assert.equal(preuve.cible, null);
+  assert.deepEqual(preuve.windowsUninstall, { chemin: null });
+
+  const rapport = restaurerEtape(preuve);
+  assert.equal(rapport.ok, false);
+  assert.equal(rapport.defait, false);
+  assert.doesNotMatch(rapport.raison, /TypeError/, 'GARDE 3 conçue : jamais une fuite d\'exception Node brute');
+  assert.doesNotMatch(rapport.raison, /\bnull\b/i, 'GARDE 3 conçue : jamais le mot "null" dans la raison rendue');
+  assert.match(rapport.raison, /residu Windows non identifiable/i, 'la garde 3 doit ÉNONCER nommément le résidu (AR-W5, §2.3 point 3)');
+
+  // même énoncé dans le rapport d'orchestrerRollback (le canal réellement consommé par
+  // l'événement structuré `rollback`, install.js:826-830) — pas seulement l'appel direct.
+  const rb = orchestrerRollback([preuve]);
+  assert.equal(rb.rapports.length, 1);
+  assert.equal(rb.rapports[0].ok, false);
+  assert.doesNotMatch(rb.rapports[0].raison, /TypeError/);
+  assert.doesNotMatch(rb.rapports[0].raison, /\bnull\b/i);
+});
+
 test('sauvegarderAvantEtape SANS `plateforme` (macOS/Linux, appel PRÉ-EXISTANT) : le champ `plateforme` vaut `null`, AUCUN suffixe de résidu — comportement byte-identique à avant ce lot', () => {
   const racine = tmp();
   const cible = path.join(racine, 'App.app');
