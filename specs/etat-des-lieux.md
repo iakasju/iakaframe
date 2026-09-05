@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-06 00:29 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-06 01:06 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -8,26 +8,26 @@
 | Champ | Valeur |
 |---|---|
 | Version | v0.40.0 |
-| Branche | main |
-| Dernier commit | 69bc68e merge: lot W-W — etapes 3/4 sur Windows (NSIS currentUser, registre, rollback residu enonce), gate Legolas PASS au second passage |
+| Branche | feat/banc-ci-etapes-3-4 |
+| Dernier commit | fb37af8 docs(qualite): gate banc CI etapes 3/4 — PASS |
 | Arbre | propre |
-| Fichiers (suivis + non ignores) | 1200 |
-| Note | Lots W-L (Linux) et W-W (Windows) livres et fusionnes : les etapes 3/4 posent IakaCockpit et iakaFrameGUI sur les 3 OS (AppImage + chmod ; .exe NSIS /S currentUser, sauvegarde par registre HKCU, rollback avec residu ENONCE ; .msi jamais, perMachine en dur). Gates PASS (W-W au 2e passage : TypeError sur cible null fuyait dans le contrat machine, corrigee test rouge d abord). 1145 tests. Rollback macOS/Linux identique a l octet. Reste : banc CI de preuve (CA-W19, Gimli), recette reelle Windows/Linux (gate humain), push Forgejo EN ATTENTE. |
+| Fichiers (suivis + non ignores) | 1206 |
+| Note | Banc de preuve CI des etapes 3/4 livre et fusionne (workflow_dispatch seul, SHA epingles verifies, scripts appelant l API reelle du module, bac a sable RUNNER_TEMP, mesures comparees a l attendu, UAC et GUI declares non prouvables). Gate PASS 1157 tests, 2 ecarts mineurs de demonstration. LE CADRAGE ETAPES-3-4-WINDOWS-LINUX EST ENTIEREMENT LIVRE (W-L, W-W, banc). Reste au decideur : declencher le banc, bump + publication 0.41.0 (le 0.40.0 embarque par iakaInstall n a pas les etapes 3/4 multi-OS), recette reelle, push Forgejo. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `fb37af8` | 2026-09-06 | docs(qualite): gate banc CI etapes 3/4 — PASS |
+| `b2be260` | 2026-09-06 | docs(instruction): coche CA-W19 « ecrit, non execute » (banc CI etapes 3/4) |
+| `cfa14de` | 2026-09-06 | docs: documente le banc de preuve CI des etapes 3/4 dans commandes.md |
+| `bcd5387` | 2026-09-06 | test(cli): garde statique du banc de preuve CI etapes 3/4 |
+| `0660fd6` | 2026-09-06 | feat(cli): banc de preuve CI des etapes 3/4 (workflow + scripts de mesure) |
+| `2982eb0` | 2026-09-06 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `69bc68e` | 2026-09-06 | merge: lot W-W — etapes 3/4 sur Windows (NSIS currentUser, registre, rollback residu enonce), gate Legolas PASS au second passage |
 | `a08261e` | 2026-09-06 | docs(qualite): re-gate lot W-W etapes 3-4 Windows — PASS |
 | `d006f9e` | 2026-09-06 | docs: documenter le résidu Windows énoncé sur cible indéterminée (CA-W11) |
 | `783ec27` | 2026-09-06 | fix(rollback): énoncer nommément le résidu Windows quand la cible reste null |
-| `f63eb58` | 2026-09-06 | test(rollback): reproduire la TypeError sur cible Windows null (gate FAIL) |
-| `c49a5fc` | 2026-09-06 | docs(qualite): gate lot W-W etapes 3-4 Windows — FAIL |
-| `a529e4a` | 2026-09-05 | docs: cocher les CA-W du lot W-W (Windows) avec preuve |
-| `b95c7c2` | 2026-09-05 | docs(commandes): documenter la couverture Windows du verbe install (lot W-W) |
-| `4272be3` | 2026-09-05 | feat(cli): câbler Windows dans etapeApp — découverte registre, pose, CA-W9 (lot W-W) |
-| `30e0f13` | 2026-09-05 | feat(cli): rollback.js — cas Windows (uninstall.exe /S) + résidu énoncé (AR-W5) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -210,6 +210,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-06 01:06 | pause | v0.40.0 | feat/banc-ci-etapes-3-4 | Banc de preuve CI des etapes 3/4 livre et fusionne (workflow_dispatch seul, SHA epingles verifies, scripts appelant l API reelle du module, bac a sable RUNNER_TEMP, mesures comparees a l attendu, UAC et GUI declares non prouvables). Gate PASS 1157 tests, 2 ecarts mineurs de demonstration. LE CADRAGE ETAPES-3-4-WINDOWS-LINUX EST ENTIEREMENT LIVRE (W-L, W-W, banc). Reste au decideur : declencher le banc, bump + publication 0.41.0 (le 0.40.0 embarque par iakaInstall n a pas les etapes 3/4 multi-OS), recette reelle, push Forgejo. |
 | 2026-09-06 00:29 | pause | v0.40.0 | main | Lots W-L (Linux) et W-W (Windows) livres et fusionnes : les etapes 3/4 posent IakaCockpit et iakaFrameGUI sur les 3 OS (AppImage + chmod ; .exe NSIS /S currentUser, sauvegarde par registre HKCU, rollback avec residu ENONCE ; .msi jamais, perMachine en dur). Gates PASS (W-W au 2e passage : TypeError sur cible null fuyait dans le contrat machine, corrigee test rouge d abord). 1145 tests. Rollback macOS/Linux identique a l octet. Reste : banc CI de preuve (CA-W19, Gimli), recette reelle Windows/Linux (gate humain), push Forgejo EN ATTENTE. |
 | 2026-09-05 18:24 | pause | v0.40.0 | main | v0.40.0 PUBLIEE le 2026-09-05 (tag pose par Stephane, run 33959443438, asset naonedge-iakaframe-0.40.0.tgz sha256 21fe0f94..., latest = v0.40.0 apres rattrapage manuel : make_latest du workflow inerte, backlog CI-RELEASE-LATEST-NON-MAITRISE). Depuis : le CLI 0.40.0 est embarque par iakaInstall v0.1.1 (release complete 4/4, latest). Lot C de la chaine d installation ENTIEREMENT livre sur les deux depots. Successeurs iakaframe : C-JSON-COUVERTURE-COMPLETE, ETAPES-3-4-WINDOWS-LINUX, CI-RELEASE-LATEST-NON-MAITRISE ; litteral de version dans faireReservoirVivant a deriver de package.json. Push Forgejo EN ATTENTE (NAS injoignable depuis le 04) ; GitHub a jour. |
 | 2026-09-05 01:49 | version | v0.40.0 | chore/bump-0.40.0 | Bump 0.40.0 : correctifs de fixtures d'install (install-verbe.test.js, install-prose-non-regression.test.js, temoin CA-M8) alignes sur la nouvelle version courante -- suite verte 1098/1097/0/1 sur 3 passages |
