@@ -45,16 +45,29 @@ export async function sendJson(url, { method = 'POST', body = null, headers = {}
 // le verbe `install`, etapes 3/4 (lot C.1) : un bundle d'app signe se telecharge, se verifie
 // (minisign, cf. lib/minisign.js) puis se pose — jamais l'inverse. Meme contrat de retour que
 // `getJson`/`sendJson` (`ok`/`status`), avec `octets` (Buffer) a la place de `body`.
-export async function getBytes(url, timeoutMs = 30000) {
+//
+// TIMEOUT PORTE A 180000ms (2026-09-05, lot ETAPES-3-4-WINDOWS-LINUX/W-L, mesure 0.2 de
+// specs/instructions/etapes-3-4-windows-linux.md, R-W1) : l'ancien defaut (30000ms, herite du lot
+// C.1 ou seul le `.app.tar.gz` — ~14 Mo — etait telecharge) COUPAIT la mesure REELLE de
+// l'AppImage : `IakaCockpit_0.32.2_amd64.AppImage` (92 379 640 octets, asset reel de la release
+// GitHub v0.32.2) telecharge en 51,9s sur ce poste (curl, 2026-09-05) et
+// `iakaFrameGUI_0.1.8_amd64.AppImage` (83 753 464 octets) en 44,8s — TOUS DEUX au-dela des 30s.
+// Le `.exe` NSIS (~12,7 Mo) et le `.app.tar.gz` (~14,8 Mo) restent tres en-deca (~5s) : ce timeout
+// ne change RIEN pour macOS, il corrige un defaut qui n'affectait QUE l'unique appelant de
+// `getBytes` (lib/app-bundle.js:`telechargerEtVerifier`) une fois Linux couvert.
+export async function getBytes(url, timeoutMs = 180000) {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), timeoutMs);
   try {
     const res = await fetch(url, { signal: ctrl.signal, redirect: 'follow' });
-    if (!res.ok) return { ok: false, status: res.status, octets: null };
+    if (!res.ok) return { ok: false, status: res.status, octets: null, expire: false };
     const buf = Buffer.from(await res.arrayBuffer());
-    return { ok: true, status: res.status, octets: buf };
-  } catch {
-    return { ok: false, status: 0, octets: null };
+    return { ok: true, status: res.status, octets: buf, expire: false };
+  } catch (e) {
+    // R-W1 : DISTINGUER l'avortement par timeout (AbortError) d'un autre echec reseau (DNS,
+    // connexion refusee...) — le premier dit "le delai est trop court pour cet octet", le second
+    // dit "le reseau ne repond pas" : deux reprises differentes pour l'humain qui lit `detail`.
+    return { ok: false, status: 0, octets: null, expire: e && e.name === 'AbortError' };
   } finally {
     clearTimeout(t);
   }
