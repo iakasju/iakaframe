@@ -13,7 +13,7 @@ en place, au lieu de le réinventer à chaque fois.
 ## Installation
 
 <!-- vitrine:debut:installation -->
-La version scellée courante est **[v0.39.0](https://github.com/iakasju/iakaframe/releases/tag/v0.39.0)** — voir
+La version scellée courante est **[v0.40.0](https://github.com/iakasju/iakaframe/releases/tag/v0.40.0)** — voir
 [toutes les versions](https://github.com/iakasju/iakaframe/releases).
 
 **Prérequis :** Node.js **≥ 20** (rien d'autre : la CLI est en Node pur, **zéro
@@ -21,16 +21,16 @@ dépendance** runtime, identique sous Windows, macOS et Linux).
 
 ### Installer depuis la release — voie recommandée
 
-Un seul fichier à télécharger sur la [page de la release](https://github.com/iakasju/iakaframe/releases/tag/v0.39.0) :
+Un seul fichier à télécharger sur la [page de la release](https://github.com/iakasju/iakaframe/releases/tag/v0.40.0) :
 
 | Fichier | Commande |
 |---|---|
-| `naonedge-iakaframe-0.39.0.tgz` | `npm install -g naonedge-iakaframe-0.39.0.tgz` |
+| `naonedge-iakaframe-0.40.0.tgz` | `npm install -g naonedge-iakaframe-0.40.0.tgz` |
 
 ```bash
 # 1. Télécharger le fichier ci-dessus depuis la page de la release (Assets)
 # 2. L'installer globalement — identique sous Windows, macOS et Linux
-npm install -g naonedge-iakaframe-0.39.0.tgz
+npm install -g naonedge-iakaframe-0.40.0.tgz
 
 # 3. Vérifier
 iakaframe --help
@@ -42,7 +42,7 @@ iakaframe banner IAKAFRAME
 ```bash
 # 1. Récupérer l'archive de la version depuis la page des releases
 #    (Assets > Source code), puis la décompresser
-cd iakaframe-0.39.0
+cd iakaframe-0.40.0
 
 # 2. Installer la CLI globalement depuis le dossier cli/
 npm install -g ./cli
