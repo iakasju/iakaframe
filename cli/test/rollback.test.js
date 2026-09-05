@@ -190,7 +190,7 @@ test('AR-W5, cas "une version existait" (§2.3 point 2) : sauvegarderAvantEtape(
   assert.doesNotMatch(rapport.raison, /^restaure.*jamais efface\)$/, 'précondition : le texte doit bien continuer après la parenthèse (le suffixe est concaténé, pas remplacé)');
 });
 
-test('AR-W5, cas "rien n\'existait avant" (§2.3 point 3) : ouvrirPreuveWindowsSansExistant + completerPreuveWindowsApresPose -> le rollback lance `uninstall.exe /S`, JAMAIS un rmSync du dossier', () => {
+test('AR-W5, cas "rien n\'existait avant" (§2.3 point 3) : ouvrirPreuveWindowsSansExistant + completerPreuveWindowsApresPose -> le rollback lance `uninstall.exe /S _?=<InstallLocation>`, RELIT le registre, JAMAIS un rmSync du dossier avant confirmation', () => {
   const racine = tmp();
   const backupDir = path.join(racine, 'backups');
   const cible = path.join(racine, 'IakaCockpit'); // simule le dossier que le NSIS a choisi lui-même
@@ -218,18 +218,23 @@ test('AR-W5, cas "rien n\'existait avant" (§2.3 point 3) : ouvrirPreuveWindowsS
     fs.rmSync(cible, { recursive: true, force: true });
     return { status: 0 };
   };
+  // AR-W20 (reprise post-mesure-réelle du 2026-09-06) : la clé de désinstallation est CONFIRMÉE
+  // disparue par le port `execReg` — un `reg query` réel rend un code NON NUL quand la clé n'existe
+  // plus (même format que `decouvrirInstallationWindows`, app-bundle.js).
+  const execReg = () => ({ status: 1 });
 
-  const rapport = restaurerEtape(preuve, { execDesinstalleur });
+  const rapport = restaurerEtape(preuve, { execDesinstalleur, execReg });
   assert.equal(rapport.ok, true);
   assert.equal(appelsDesinstalleur, 1);
-  assert.deepEqual(argsRecus, ['/S'], 'désinstallation SILENCIEUSE, E-5');
+  assert.deepEqual(argsRecus, ['/S', `_?=${cible}`], 'désinstallation SILENCIEUSE et SYNCHRONE (`_?=`, doc NSIS Chapter3.html), E-5 + garde 3 nouvelle');
   assert.equal(fs.existsSync(cible), false);
   assert.match(rapport.raison, /desinstalle via/);
+  assert.match(rapport.raison, /cle de desinstallation confirmee disparue/);
   assert.match(rapport.raison, /RESIDU NON RETABLI/, 'garde 3 : le résidu est énoncé aussi sur ce chemin');
   assert.doesNotMatch(rapport.raison, /retire :/, 'CONTREFACTUEL implicite : ce chemin ne doit JAMAIS emprunter la formule générique "retire :" (rmSync direct)');
 });
 
-test('AR-W5, CONTREFACTUEL : `uninstall.exe /S` rend un code NON NUL -> ÉCHEC NOMMÉ, jamais un succès supposé, garde 3 énonce', () => {
+test('AR-W5, CONTREFACTUEL : `uninstall.exe /S _?=...` rend un code NON NUL -> ÉCHEC NOMMÉ, jamais un succès supposé, garde 3 énonce (registre jamais interrogé)', () => {
   const racine = tmp();
   const backupDir = path.join(racine, 'backups');
   const cible = path.join(racine, 'IakaCockpit');
@@ -238,14 +243,17 @@ test('AR-W5, CONTREFACTUEL : `uninstall.exe /S` rend un code NON NUL -> ÉCHEC N
   const preuve = completerPreuveWindowsApresPose(preuveOuverte, { cible, cheminUninstall });
 
   const execDesinstalleur = () => ({ status: 1 });
-  const rapport = restaurerEtape(preuve, { execDesinstalleur });
+  let appelsReg = 0;
+  const execReg = () => { appelsReg++; return { status: 1 }; };
+  const rapport = restaurerEtape(preuve, { execDesinstalleur, execReg });
   assert.equal(rapport.ok, false);
   assert.equal(rapport.defait, false);
   assert.match(rapport.raison, /ECHEC de la desinstallation/);
   assert.match(rapport.raison, /code 1/);
+  assert.equal(appelsReg, 0, 'un code de sortie non nul n\'a pas besoin d\'être confirmé par le registre : refus immédiat');
 });
 
-test('AR-W5, chaîné via orchestrerRollback : execDesinstalleur se propage à CHAQUE preuve Windows, comptage exact', () => {
+test('AR-W5, chaîné via orchestrerRollback : execDesinstalleur ET execReg se propagent à CHAQUE preuve Windows, comptage exact', () => {
   const racine = tmp();
   const backupDir = path.join(racine, 'backups');
   const cible = path.join(racine, 'IakaCockpit');
@@ -253,11 +261,97 @@ test('AR-W5, chaîné via orchestrerRollback : execDesinstalleur se propage à C
   const preuve = completerPreuveWindowsApresPose(preuveOuverte, { cible, cheminUninstall: path.join(cible, 'uninstall.exe') });
 
   let appels = 0;
+  let appelsReg = 0;
   const execDesinstalleur = () => { appels++; return { status: 0 }; };
-  const rb = orchestrerRollback([preuve], { execDesinstalleur });
+  const execReg = () => { appelsReg++; return { status: 1 }; }; // clé disparue dès la première relecture
+  const rb = orchestrerRollback([preuve], { execDesinstalleur, execReg });
   assert.equal(appels, 1);
+  assert.equal(appelsReg, 1);
   assert.equal(rb.nonDefaits.length, 0);
   assert.deepEqual(rb.defaits, [3]);
+});
+
+// ==================================================================================================
+// AR-W20 — reprise post-PREMIÈRE MESURE RÉELLE du banc CI Windows (2026-09-06, run `33997947501`,
+// job `banc (windows-latest)`) : les DEUX lignes de mesure « Rollback REEL » sont tombées 🔴 FAIL —
+// `restaurerEtape` rendait `ok:true, defait:true` alors que `sousClesRestantes=1` (la sous-clé de
+// désinstallation était TOUJOURS PRÉSENTE juste après le retour de `uninstall.exe /S`, code 0).
+// Cause confirmée par la documentation NSIS officielle (nsis.sourceforge.io/Docs/Chapter3.html,
+// § « Command Line Parameters ») : SANS `_?=`, « the uninstaller [...] copies itself to the
+// temporary directory and runs from there » et REND LA MAIN IMMÉDIATEMENT — le code de sortie 0
+// mesuré n'atteste alors que le LANCEMENT de la copie temporaire, jamais la fin réelle de la
+// désinstallation. `_?=<InstallLocation>` « stops the uninstaller from copying itself to the
+// temporary directory and running from there » — exécution EN PLACE, et `spawnSync` (déjà
+// utilisé par ce module) attend alors la fin RÉELLE du processus.
+// ==================================================================================================
+
+test('AR-W20 (reprise post-mesure-réelle du 2026-09-06, run CI 33997947501) : `uninstall.exe /S` rend code 0 IMMÉDIATEMENT (rejoue le DÉFAUT MESURÉ, doc NSIS Chapter3.html) mais le registre montre ENCORE la clé -> `restaurerEtape` REFUSE, ne déclare JAMAIS `defait:true`', () => {
+  const racine = tmp();
+  const backupDir = path.join(racine, 'backups');
+  const cible = path.join(racine, 'IakaCockpit');
+  const preuveOuverte = ouvrirPreuveWindowsSansExistant({ backupDir, etape: 3 });
+  const cheminUninstall = path.join(cible, 'uninstall.exe');
+  const preuve = completerPreuveWindowsApresPose(preuveOuverte, { cible, cheminUninstall });
+
+  // Double `execDesinstalleur` REJOUANT LE DÉFAUT MESURÉ : rend 0 immédiatement SANS avoir
+  // réellement défait quoi que ce soit (asynchrone, comme un NSIS lancé sans `_?=`).
+  const execDesinstalleur = () => ({ status: 0 });
+  // Double `execReg` REJOUANT LA MESURE RÉELLE DU RUN CI 33997947501 : `sousClesRestantes=1`,
+  // la sous-clé de désinstallation est TOUJOURS présente juste après le retour du désinstalleur.
+  const execReg = () => ({ status: 0 }); // `reg query` réussit = la clé EXISTE encore
+  const attendre = () => {}; // bornée, jamais une attente réelle dans un test
+
+  const rapport = restaurerEtape(preuve, { execDesinstalleur, execReg, attendre });
+  assert.equal(rapport.ok, false, 'DÉFAUT RÉEL DU RUN CI : un code 0 ne doit JAMAIS suffire à déclarer defait:true');
+  assert.equal(rapport.defait, false);
+  assert.match(rapport.raison, /desinstalleur lance, code 0, mais la cle de desinstallation est toujours presente/, 'raison CONÇUE verbatim (ordre de mission Aragorn)');
+  assert.match(rapport.raison, /desinstallation NON confirmee/);
+  assert.match(rapport.raison, /reprise manuelle/);
+  assert.doesNotMatch(rapport.raison, /^desinstalle via/, 'jamais un "désinstallé" affirmatif tant que la clé est encore présente');
+});
+
+test('AR-W20, l\'appel au désinstalleur porte `_?=<InstallLocation>` (doc NSIS Chapter3.html : exécution EN PLACE et synchrone, jamais la copie vers %TEMP%)', () => {
+  const racine = tmp();
+  const backupDir = path.join(racine, 'backups');
+  const cible = path.join(racine, 'IakaCockpit');
+  const preuveOuverte = ouvrirPreuveWindowsSansExistant({ backupDir, etape: 3 });
+  const cheminUninstall = path.join(cible, 'uninstall.exe');
+  const preuve = completerPreuveWindowsApresPose(preuveOuverte, { cible, cheminUninstall });
+
+  let argsRecus = null;
+  const execDesinstalleur = (cmd, args) => { argsRecus = args; return { status: 0 }; };
+  const execReg = () => ({ status: 1 }); // clé disparue : confirmation immédiate
+  restaurerEtape(preuve, { execDesinstalleur, execReg });
+  assert.deepEqual(argsRecus, ['/S', `_?=${cible}`], '`_?=` DOIT porter l\'InstallLocation EXACT, dernier paramètre de la ligne de commande (doc NSIS)');
+});
+
+test('AR-W20, résidu du désinstalleur EN PLACE (`_?=` empêche l\'auto-suppression par copie vers %TEMP%, doc NSIS Chapter4.html § "Uninstall Section") : le rollback NOMME le résidu si le nettoyage best-effort échoue, sans jamais faire échouer le verdict de désinstallation déjà CONFIRMÉE', () => {
+  const racine = tmp();
+  const backupDir = path.join(racine, 'backups');
+  const cible = path.join(racine, 'IakaCockpit');
+  fs.mkdirSync(cible, { recursive: true });
+  fs.writeFileSync(path.join(cible, 'uninstall.exe'), 'residu (jamais efface par lui-meme avec _?=, cf. doc NSIS)');
+  const preuveOuverte = ouvrirPreuveWindowsSansExistant({ backupDir, etape: 3 });
+  const preuve = completerPreuveWindowsApresPose(preuveOuverte, { cible, cheminUninstall: path.join(cible, 'uninstall.exe') });
+
+  // simule le résidu DOCUMENTÉ : le désinstalleur a réellement désinstallé (clé disparue), mais
+  // n'a PAS pu se supprimer lui-même (exécution en place, `_?=`) — le dossier reste sur le disque.
+  const execDesinstalleur = () => ({ status: 0 });
+  const execReg = () => ({ status: 1 }); // clé CONFIRMÉE disparue : la désinstallation réelle a eu lieu
+
+  // CONTREFACTUEL : le nettoyage best-effort du résidu est rendu IMPOSSIBLE (dossier parent en
+  // lecture seule) — pour prouver que l'échec du nettoyage est ÉNONCÉ, jamais masqué, et jamais
+  // bloquant pour le verdict "désinstallation confirmée".
+  fs.chmodSync(racine, 0o555);
+  try {
+    const rapport = restaurerEtape(preuve, { execDesinstalleur, execReg });
+    assert.equal(rapport.ok, true, 'la désinstallation elle-même EST confirmée (clé disparue) : un résidu de nettoyage ne doit pas faire échouer ce verdict');
+    assert.equal(rapport.defait, true);
+    assert.match(rapport.raison, /RESIDU NON NETTOYE/, 'garde 3 : le résidu de nettoyage doit être NOMMÉ, jamais tu');
+    assert.match(rapport.raison, /desinstalle via/);
+  } finally {
+    fs.chmodSync(racine, 0o755); // rétablit les droits pour que le bac à sable (tmp()) soit nettoyable
+  }
 });
 
 // ==================================================================================================
