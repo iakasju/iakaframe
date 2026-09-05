@@ -558,25 +558,41 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
 
 ### Lot W-L — Linux
 
-- [ ] **CA-W1** — `cleManifestePlateforme({platform:'linux',arch:'x64'})` rend le couple
+- [x] **CA-W1** — `cleManifestePlateforme({platform:'linux',arch:'x64'})` rend le couple
       `{installeur:'linux-x86_64-appimage', generique:'linux-x86_64'}`.
       **Contrefactuel** : inverser l'ordre du couple ⇒ le test de sélection (CA-W2) rougit.
-- [ ] **CA-W2** — La sélection lit **la clé d'installeur d'abord**, la générique **en repli**, sur
+      **Preuve** : `cli/src/lib/app-bundle.js` (`cleManifestePlateforme`) ;
+      `cli/test/app-bundle.test.js` test `CA-W1 : linux/x64 est COUVERT depuis le lot W-L`.
+- [x] **CA-W2** — La sélection lit **la clé d'installeur d'abord**, la générique **en repli**, sur
       un manifeste de fixture portant les deux **avec des URL différentes**.
       **Contrefactuel** : retirer le repli ⇒ un manifeste sans clé d'installeur fait rougir
       nommément. ⚠️ **Verrou anti-témoin-vide** : les deux clés doivent porter des URL
       **distinctes**, sinon le test serait satisfait quelle que soit celle qui gagne.
-- [ ] **CA-W3** — Pose neuve : l'AppImage est écrite à `<apps-dir>/<Nom>.AppImage`, **octet pour
+      **Preuve** : `cli/src/lib/app-bundle.js` (`resoudreCleManifeste`) ;
+      `cli/test/app-bundle.test.js` tests `CA-W2 : resoudreCleManifeste lit la clé INSTALLEUR
+      d'abord…` (URL `appimage-url` ≠ `generique-url`) et `CA-W2, CONTREFACTUEL (repli
+      manquant)…`.
+- [x] **CA-W3** — Pose neuve : l'AppImage est écrite à `<apps-dir>/<Nom>.AppImage`, **octet pour
       octet** identique à ce qui a été vérifié, et son mode porte le bit d'exécution
       (`fs.statSync(cible).mode & 0o111` non nul). *Mesurable sur ce poste.*
       **Contrefactuel** : retirer le `chmod` ⇒ rougit.
-- [ ] **CA-W4** — **AR-5 garde 1** : la sauvegarde est prise **avant** l'écriture, et
+      **Preuve** : `cli/src/lib/app-bundle.js` (`poserBundleLinux`) ; `cli/test/app-bundle.test.js`
+      tests `CA-W3 : poserBundleLinux écrit l'octet EXACT et pose le bit d'exécution` et son
+      CONTREFACTUEL joué séparément ; chaîné réel dans
+      `cli/test/install-etapes-3-4.test.js` test `CA-W3/CA-W4 : Linux, chemin positif…`.
+- [x] **CA-W4** — **AR-5 garde 1** : la sauvegarde est prise **avant** l'écriture, et
       `preuve.existaitAvant` vaut `false` sur une pose neuve, `true` sur un remplacement — **sur un
       fichier**, pas seulement un dossier.
-- [ ] **CA-W5** — **AR-5 garde 2** : une AppImage **déjà présente** est **restaurée** à l'octet
+      **Preuve** : `cli/test/install-etapes-3-4.test.js` tests `CA-W3/CA-W4 : Linux, chemin
+      positif…` (`existaitAvant=false`) et `CA-W5, chaîné réel…` (`existaitAvant=true`), rollback.js
+      **réutilisé sans modification** (M2, `git diff --stat cli/src/lib/rollback.js` vide).
+- [x] **CA-W5** — **AR-5 garde 2** : une AppImage **déjà présente** est **restaurée** à l'octet
       quand l'étape 4 échoue après que l'étape 3 a écrit. **Jamais effacée.**
       **Contrefactuel** : forcer la branche « retirer » ⇒ rougit.
-- [ ] **CA-W6** — **Non-repli sur `-deb`/`-rpm`** : sur un manifeste où
+      **Preuve** : `cli/test/app-bundle.test.js` test `CA-W5 : poserBundleLinux REMPLACE…` (unitaire)
+      et `cli/test/install-etapes-3-4.test.js` test `CA-W5, chaîné réel : une AppImage DÉJÀ
+      PRÉSENTE (fichier, pas dossier) est RESTAURÉE, jamais effacée`.
+- [x] **CA-W6** — **Non-repli sur `-deb`/`-rpm`** : sur un manifeste où
       `linux-x86_64-appimage` **et** `linux-x86_64` sont absents mais `linux-x86_64-deb` et
       `-rpm` sont présents **et signés**, l'étape **REFUSE en nommant l'AppImage manquante** et
       **n'écrit rien**.
@@ -584,9 +600,16 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
       ⚠️ **C'est le critère le plus facile à rendre vide** : la fixture doit contenir des entrées
       `-deb`/`-rpm` **valides**, sinon le refus s'expliquerait par leur invalidité et non par le
       non-repli.
-- [ ] **CA-W7** — `--dry-run` sur Linux **n'écrit rien**, prouvé par **empreinte du répertoire
+      **Preuve** : `cli/test/app-bundle.test.js` test `CA-W6 : un manifeste portant SEULEMENT
+      -deb/-rpm (signés, valides) -> AUCUNE résolution` (fixture avec `sig-deb-valide`/
+      `sig-rpm-valide`) ; chaîné réel dans `cli/test/install-etapes-3-4.test.js` test `CA-W6,
+      chaîné réel : manifeste Linux SANS AppImage exploitable…` (0 appel de téléchargement,
+      `reprise` nomme « AppImage »).
+- [x] **CA-W7** — `--dry-run` sur Linux **n'écrit rien**, prouvé par **empreinte du répertoire
       cible avant/après**, pas par lecture de code — et la chaîne **continue** à décrire les étapes
       suivantes, comme aujourd'hui (`install.js:438-441`).
+      **Preuve** : `cli/test/install-etapes-3-4.test.js` test `CA-W7 : Linux, --dry-run — empreinte
+      disque IDENTIQUE avant/après…`.
 
 ### Lot W-W — Windows
 
@@ -611,22 +634,47 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
 
 ### Transverses
 
-- [ ] **CA-W14** — **Non-régression macOS** : tous les tests macOS existants
+- [~] **CA-W14** — **Non-régression macOS** : tous les tests macOS existants
       (`app-bundle.test.js`, `install-etapes-3-4.test.js`) passent **sans qu'une seule de leurs
       lignes soit modifiée**. *Un test qu'il faut retoucher pour qu'il passe est un signal.*
-- [ ] **CA-W15** — Le refus CA-15 **survit** : `linux/arm64`, `win32/arm64`, `darwin/ia32` rendent
+      **ÉCART ASSUMÉ ET SIGNALÉ (pas silencieux)** : § 2.1 mandate que `cleManifestePlateforme`
+      cesse de rendre une chaîne et rende un couple `{installeur, generique}` — les DEUX tests qui
+      exercent DIRECTEMENT le contrat de cette fonction (`app-bundle.test.js`, ex-lignes 60-69) ont
+      dû être mis à jour pour le nouveau contrat (sinon la suite serait rouge, pas verte). **Rien
+      d'autre** dans ce fichier n'a bougé (CA-14, `resoudreManifesteApp`, `poserBundleDarwin` :
+      lignes identiques). `install-etapes-3-4.test.js` et `rollback.test.js` : **zéro ligne
+      modifiée**, confirmé par `node --test` **et** par relecture — tous les ajouts Linux sont en
+      APPEND, en fin de fichier. Ce fichier (`app-bundle.test.js`) est explicitement au périmètre
+      "écrits" du lot (§ 6) — la lettre de CA-W14 (deux fichiers, zéro ligne) ne peut pas être
+      tenue AU MOT PRÈS sans contredire le mandat du § 2.1 lui-même ; l'ESPRIT (comportement macOS
+      inchangé, aucune régression) est tenu et prouvé par la suite verte. Verdict à Legolas.
+- [x] **CA-W15** — Le refus CA-15 **survit** : `linux/arm64`, `win32/arm64`, `darwin/ia32` rendent
       toujours un refus nommé, sans consulter le réseau (le compteur de `resoudreEndpointsApp`
       reste à 0, comme `install-etapes-3-4.test.js:105` le prouve déjà pour `win32/x64`).
-- [ ] **CA-W16** — **CA-14 tenu sur les trois plateformes** : un bundle dont l'octet servi ne
+      **Décision explicite de ce lot** : `cleManifestePlateforme` n'ajoute PAS win32 à sa table
+      dans W-L (seul linux/x64 est ajouté) — la table Windows arrive avec `poserBundleWindows` au
+      lot W-W, pour ne jamais faire dépendre CA-W15 d'une branche de pose qui n'existe pas encore.
+      **Preuve** : `cli/test/app-bundle.test.js` test `CA-W15 : win32/x64, linux/arm64 et
+      darwin/ia32 restent NON couverts` ; `install-etapes-3-4.test.js:91-106` (win32/x64, 0 appel
+      réseau) **inchangé, toujours vert**.
+- [~] **CA-W16** — **CA-14 tenu sur les trois plateformes** : un bundle dont l'octet servi ne
       correspond pas à la signature annoncée est **refusé** et **rien n'est écrit**, sur Linux et
-      sur Windows comme sur macOS.
-- [ ] **CA-W17** — **Le contrat machine est inchangé** : aucun `evt` ni `etat` nouveau ;
+      sur Windows comme sur macOS. **Ce lot (W-L) ne prouve que macOS + Linux** ; Windows reste dû
+      au lot W-W. **Preuve (Linux)** : `cli/test/install-etapes-3-4.test.js` test `CA-W16 : Linux,
+      CA-14 tenu — signature invalide sur l'AppImage…` (macOS déjà prouvé, inchangé).
+- [x] **CA-W17** — **Le contrat machine est inchangé** : aucun `evt` ni `etat` nouveau ;
       `cli/src/lib/evenements.js` a un `git diff` **vide**. Les motifs nouveaux passent par
       `detail`.
-- [ ] **CA-W18** — `docs/commandes.md` décrit le comportement des trois plateformes, **dans le même
+      **Preuve** : `git diff --stat cli/src/lib/evenements.js` (vide) ;
+      `cli/test/install-etapes-3-4.test.js` test `AR-W8/CA-W17 : sur la plateforme Linux simulée
+      (--events, mode "json")…` (tout `evt`/`etat` émis appartient au vocabulaire fermé).
+- [x] **CA-W18** — `docs/commandes.md` décrit le comportement des trois plateformes, **dans le même
       lot**.
+      **Preuve** : `docs/commandes.md`, ligne `install` (paragraphe étapes 3/4 réécrit : macOS +
+      Linux couverts, Windows refusé jusqu'à W-W, non-repli deb/rpm, gate humain nommé).
 - [ ] **CA-W19** — Le banc CI existe, ses actions sont **épinglées au SHA**, et sa limite (« un
-      runner n'est pas un poste ») est **écrite dans le fichier**.
+      runner n'est pas un poste ») est **écrite dans le fichier**. **HORS PÉRIMÈTRE de ce lot**
+      (Étape 3 de § 5, non demandée dans cet ordre de mission) — non fait, non simulé.
 
 ### 🛑 Gate humain, déclaré par OS — jamais compté comme couvert
 
