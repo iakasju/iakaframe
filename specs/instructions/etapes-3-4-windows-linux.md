@@ -264,6 +264,15 @@ on ne choisit même pas où (E-4).
 
 *Présentés avec recommandation. **Le décideur tranche ; je ne tranche pas à sa place.***
 
+> **Verdicts rendus le 2026-09-05 par Stéphane** (mot pour mot : *« reco »*), inscrits par 🔴 Aragorn :
+> **AR-W1 → (a)** le `.exe` NSIS (`currentUser`, sans UAC) ; le `.msi` reste un véhicule d'amorçage.
+> **AR-W2 → (a)** `.deb`/`.rpm` exclus (root, rollback non honnête). **AR-W3 → (a)** `--apps-dir`, défaut
+> `~/Applications`. **AR-W4 → (a)** pas de `.desktop`, successeur `LANCEUR-DESKTOP-LINUX`. **AR-W5 → (a)**
+> sauvegarde = dossier découvert par le registre, refus d'écrire s'il est indéterminable, résidu de registre
+> énoncé. **AR-W6 → (a)** Linux d'abord (lot W-L), Windows ensuite (lot W-W), gatés séparément.
+> **AR-W7 → (a)** banc CI `workflow_dispatch` épinglé au SHA, jamais déclenché par un agent.
+> **AR-W8 → (a)** aucun état nouveau, `iakaInstall` non touché.
+
 ### AR-W1 — Sur Windows, quel artefact pose-t-on ?
 
 - **(a) Le `.exe` NSIS** (`windows-x86_64-nsis`, qui est aussi le porteur de la clé générique
