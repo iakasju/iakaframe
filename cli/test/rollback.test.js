@@ -7,7 +7,10 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { sauvegarderAvantEtape, restaurerEtape, orchestrerRollback } from '../src/lib/rollback.js';
+import {
+  sauvegarderAvantEtape, restaurerEtape, orchestrerRollback,
+  ouvrirPreuveWindowsSansExistant, completerPreuveWindowsApresPose,
+} from '../src/lib/rollback.js';
 
 function tmp() { return fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-rollback-')); }
 
@@ -159,4 +162,111 @@ test('orchestrerRollback([]) : rien à défaire -> résumé explicite, pas un "t
   const rb = orchestrerRollback([null, undefined]);
   assert.equal(rb.rapports.length, 0);
   assert.match(rb.resume, /rien a defaire/);
+});
+
+// ==================================================================================================
+// Lot ETAPES-3-4-WINDOWS-LINUX / W-W (Windows) — ajouts 2026-09-05. RIEN CI-DESSUS N'EST TOUCHE.
+// ==================================================================================================
+
+test('AR-W5, cas "une version existait" (§2.3 point 2) : sauvegarderAvantEtape({plateforme:"windows"}) restaure le DOSSIER, garde 3 énonce le RÉSIDU de registre/raccourcis', () => {
+  const racine = tmp();
+  const installLocation = path.join(racine, 'IakaCockpit');
+  fs.mkdirSync(installLocation, { recursive: true });
+  fs.writeFileSync(path.join(installLocation, 'app.exe'), 'ANCIENNE VERSION');
+  const backupDir = path.join(racine, 'backups');
+
+  const preuve = sauvegarderAvantEtape({ backupDir, etape: 3, cible: installLocation, plateforme: 'windows' });
+  assert.equal(preuve.existaitAvant, true);
+  assert.equal(preuve.plateforme, 'windows');
+
+  // simule ce que ferait poserBundleWindows (l'installeur NSIS réécrit les fichiers en place)
+  fs.writeFileSync(path.join(installLocation, 'app.exe'), 'NOUVELLE VERSION');
+
+  const rapport = restaurerEtape(preuve);
+  assert.equal(rapport.ok, true);
+  assert.equal(fs.readFileSync(path.join(installLocation, 'app.exe'), 'utf8'), 'ANCIENNE VERSION', 'garde 2 : le dossier pré-existant doit être de retour');
+  assert.match(rapport.raison, /restaure.*deja present.*jamais efface/, 'la formule EXISTANTE (macOS/Linux) doit rester intacte, juste suivie du résidu');
+  assert.match(rapport.raison, /RESIDU NON RETABLI/, 'garde 3, second usage (AR-W5) : le résidu de registre/raccourcis doit être NOMMÉ');
+  assert.doesNotMatch(rapport.raison, /^restaure.*jamais efface\)$/, 'précondition : le texte doit bien continuer après la parenthèse (le suffixe est concaténé, pas remplacé)');
+});
+
+test('AR-W5, cas "rien n\'existait avant" (§2.3 point 3) : ouvrirPreuveWindowsSansExistant + completerPreuveWindowsApresPose -> le rollback lance `uninstall.exe /S`, JAMAIS un rmSync du dossier', () => {
+  const racine = tmp();
+  const backupDir = path.join(racine, 'backups');
+  const cible = path.join(racine, 'IakaCockpit'); // simule le dossier que le NSIS a choisi lui-même
+
+  const preuveOuverte = ouvrirPreuveWindowsSansExistant({ backupDir, etape: 3 });
+  assert.equal(preuveOuverte.existaitAvant, false);
+  assert.equal(preuveOuverte.cible, null, 'AVANT la pose, la cible Windows "rien avant" est INCONNUE (E-4)');
+
+  // simule la pose réelle (poserBundleWindows a exécuté le setup.exe) + la relecture du registre
+  fs.mkdirSync(cible, { recursive: true });
+  fs.writeFileSync(path.join(cible, 'app.exe'), 'posé par CETTE chaîne');
+  const cheminUninstall = path.join(cible, 'uninstall.exe');
+  const preuve = completerPreuveWindowsApresPose(preuveOuverte, { cible, cheminUninstall });
+  assert.equal(preuve.cible, cible);
+  assert.equal(preuve.windowsUninstall.chemin, cheminUninstall);
+
+  let appelsDesinstalleur = 0;
+  let argsRecus = null;
+  const execDesinstalleur = (cmd, args) => {
+    appelsDesinstalleur++;
+    argsRecus = args;
+    assert.equal(cmd, cheminUninstall);
+    // le désinstalleur réel supprimerait les fichiers — on le simule pour prouver que c'est LUI
+    // qui agit, jamais un `rmSync` direct du moteur de rollback.
+    fs.rmSync(cible, { recursive: true, force: true });
+    return { status: 0 };
+  };
+
+  const rapport = restaurerEtape(preuve, { execDesinstalleur });
+  assert.equal(rapport.ok, true);
+  assert.equal(appelsDesinstalleur, 1);
+  assert.deepEqual(argsRecus, ['/S'], 'désinstallation SILENCIEUSE, E-5');
+  assert.equal(fs.existsSync(cible), false);
+  assert.match(rapport.raison, /desinstalle via/);
+  assert.match(rapport.raison, /RESIDU NON RETABLI/, 'garde 3 : le résidu est énoncé aussi sur ce chemin');
+  assert.doesNotMatch(rapport.raison, /retire :/, 'CONTREFACTUEL implicite : ce chemin ne doit JAMAIS emprunter la formule générique "retire :" (rmSync direct)');
+});
+
+test('AR-W5, CONTREFACTUEL : `uninstall.exe /S` rend un code NON NUL -> ÉCHEC NOMMÉ, jamais un succès supposé, garde 3 énonce', () => {
+  const racine = tmp();
+  const backupDir = path.join(racine, 'backups');
+  const cible = path.join(racine, 'IakaCockpit');
+  const preuveOuverte = ouvrirPreuveWindowsSansExistant({ backupDir, etape: 3 });
+  const cheminUninstall = path.join(cible, 'uninstall.exe');
+  const preuve = completerPreuveWindowsApresPose(preuveOuverte, { cible, cheminUninstall });
+
+  const execDesinstalleur = () => ({ status: 1 });
+  const rapport = restaurerEtape(preuve, { execDesinstalleur });
+  assert.equal(rapport.ok, false);
+  assert.equal(rapport.defait, false);
+  assert.match(rapport.raison, /ECHEC de la desinstallation/);
+  assert.match(rapport.raison, /code 1/);
+});
+
+test('AR-W5, chaîné via orchestrerRollback : execDesinstalleur se propage à CHAQUE preuve Windows, comptage exact', () => {
+  const racine = tmp();
+  const backupDir = path.join(racine, 'backups');
+  const cible = path.join(racine, 'IakaCockpit');
+  const preuveOuverte = ouvrirPreuveWindowsSansExistant({ backupDir, etape: 3 });
+  const preuve = completerPreuveWindowsApresPose(preuveOuverte, { cible, cheminUninstall: path.join(cible, 'uninstall.exe') });
+
+  let appels = 0;
+  const execDesinstalleur = () => { appels++; return { status: 0 }; };
+  const rb = orchestrerRollback([preuve], { execDesinstalleur });
+  assert.equal(appels, 1);
+  assert.equal(rb.nonDefaits.length, 0);
+  assert.deepEqual(rb.defaits, [3]);
+});
+
+test('sauvegarderAvantEtape SANS `plateforme` (macOS/Linux, appel PRÉ-EXISTANT) : le champ `plateforme` vaut `null`, AUCUN suffixe de résidu — comportement byte-identique à avant ce lot', () => {
+  const racine = tmp();
+  const cible = path.join(racine, 'App.app');
+  fs.mkdirSync(cible, { recursive: true });
+  const backupDir = path.join(racine, 'backups');
+  const preuve = sauvegarderAvantEtape({ backupDir, etape: 3, cible });
+  assert.equal(preuve.plateforme, null);
+  const rapport = restaurerEtape(preuve);
+  assert.doesNotMatch(rapport.raison, /RESIDU/, 'aucune preuve macOS/Linux ne doit jamais porter la mention du résidu Windows');
 });
