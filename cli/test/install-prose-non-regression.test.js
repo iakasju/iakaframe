@@ -16,6 +16,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { packageVersion } from '../src/lib/version.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..');
@@ -26,7 +27,10 @@ const TEMOIN = path.join(HERE, 'fixtures', 'install-prose-dry-run.txt');
 function tmp() { return fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-prose-')); }
 function w(p, s) { fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, s); }
 
-function faireReservoirVivant({ version = '0.40.0' } = {}) {
+// `version` par defaut DERIVE de l'autorite (cli/package.json, cf. src/lib/version.js) — jamais
+// un litteral fige : sans cette derivation, chaque bump de version devait re-toucher ce defaut
+// a la main (ecart signale au gate du bump 0.40.0, docs/qualite/gate-bump-0.40.0.md § Ecarts).
+function faireReservoirVivant({ version = packageVersion() } = {}) {
   const dir = tmp();
   fs.copyFileSync(REAL_INSTALL_MJS, path.join(dir, 'install.mjs'));
   w(path.join(dir, 'cli', 'package.json'), JSON.stringify({ version }));
@@ -51,7 +55,7 @@ function normaliser(stdout, jetons) {
 }
 
 test('CA-M8 — LA PROSE HUMAINE NE BOUGE PAS D\'UN OCTET : `install --dry-run` (sans drapeau neuf) === témoin figé à l\'étape 1', () => {
-  const vivant = faireReservoirVivant({ version: '0.40.0' });
+  const vivant = faireReservoirVivant();
   const targetClaude = path.join(tmp(), 'claude');
   const appsDir = path.join(tmp(), 'apps');
   const backupDir = path.join(tmp(), 'backups');
@@ -72,7 +76,7 @@ test('CA-M8, non-régression croisée : `install --dry-run` en mode HUMAIN ne co
   // du vocabulaire machine — distinct d'une simple ligne commençant par "[" (prose légitime, ex.
   // "[1/4] CLI"), d'où le test `JSON.parse` + vérification du champ `evt`, jamais une regex naïve
   // sur le premier caractère.
-  const vivant = faireReservoirVivant({ version: '0.40.0' });
+  const vivant = faireReservoirVivant();
   const r = run(['install', '--dry-run', '--root', vivant, '--target-claude', path.join(tmp(), 'claude'), '--apps-dir', path.join(tmp(), 'apps'), '--backup-dir', path.join(tmp(), 'backups'), '--yes']);
   const fuites = [];
   for (const ligne of r.stdout.split('\n')) {
@@ -108,7 +112,7 @@ function empreinte(dir) {
 
 for (const [nom, flags] of [['--dry-run', []], ['--dry-run --events', ['--events']], ['--dry-run --json', ['--json']]]) {
   test(`CA-M9 : "${nom}" n'écrit RIEN — empreinte disque avant/après identique (les TROIS invocations exigées par l'instruction)`, () => {
-    const vivant = faireReservoirVivant({ version: '0.40.0' });
+    const vivant = faireReservoirVivant();
     const targetClaude = path.join(tmp(), 'claude');
     const appsDir = path.join(tmp(), 'apps');
     const backupDir = path.join(tmp(), 'backups');
