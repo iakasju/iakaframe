@@ -908,5 +908,15 @@
     "dirty": true,
     "files": 1192,
     "note": "Bump 0.40.0 : correctifs de fixtures d'install (install-verbe.test.js, install-prose-non-regression.test.js, temoin CA-M8) alignes sur la nouvelle version courante -- suite verte 1098/1097/0/1 sur 3 passages"
+  },
+  {
+    "date": "2026-09-05 18:24",
+    "reason": "pause",
+    "version": "v0.40.0",
+    "branch": "main",
+    "commit": "3cc9c87 docs(backlog): CI-RELEASE-LATEST-NON-MAITRISE — make_latest inerte sur v0.40.0, rattrapage manuel applique",
+    "dirty": false,
+    "files": 1195,
+    "note": "v0.40.0 PUBLIEE le 2026-09-05 (tag pose par Stephane, run 33959443438, asset naonedge-iakaframe-0.40.0.tgz sha256 21fe0f94..., latest = v0.40.0 apres rattrapage manuel : make_latest du workflow inerte, backlog CI-RELEASE-LATEST-NON-MAITRISE). Depuis : le CLI 0.40.0 est embarque par iakaInstall v0.1.1 (release complete 4/4, latest). Lot C de la chaine d installation ENTIEREMENT livre sur les deux depots. Successeurs iakaframe : C-JSON-COUVERTURE-COMPLETE, ETAPES-3-4-WINDOWS-LINUX, CI-RELEASE-LATEST-NON-MAITRISE ; litteral de version dans faireReservoirVivant a deriver de package.json. Push Forgejo EN ATTENTE (NAS injoignable depuis le 04) ; GitHub a jour."
   }
 ]

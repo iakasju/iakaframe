@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-09-05 01:49 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-09-05 18:24 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
   <div class="k">Version</div><div>v0.40.0</div>
-  <div class="k">Branche</div><div>chore/bump-0.40.0</div>
-  <div class="k">Dernier commit</div><div><code>403971e merge: fix etapesFaites en dry-run — aucune etape ne compte comme faite (gate Legolas PASS)</code></div>
-  <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
-  <div class="k">Fichiers</div><div>1192 (suivis + non ignores)</div>
-  <div class='k'>Note</div><div>Bump 0.40.0 : correctifs de fixtures d'install (install-verbe.test.js, install-prose-non-regression.test.js, temoin CA-M8) alignes sur la nouvelle version courante -- suite verte 1098/1097/0/1 sur 3 passages</div>
+  <div class="k">Branche</div><div>main</div>
+  <div class="k">Dernier commit</div><div><code>3cc9c87 docs(backlog): CI-RELEASE-LATEST-NON-MAITRISE — make_latest inerte sur v0.40.0, rattrapage manuel applique</code></div>
+  <div class="k">Arbre</div><div><span class='ok'>propre</span></div>
+  <div class="k">Fichiers</div><div>1195 (suivis + non ignores)</div>
+  <div class='k'>Note</div><div>v0.40.0 PUBLIEE le 2026-09-05 (tag pose par Stephane, run 33959443438, asset naonedge-iakaframe-0.40.0.tgz sha256 21fe0f94..., latest = v0.40.0 apres rattrapage manuel : make_latest du workflow inerte, backlog CI-RELEASE-LATEST-NON-MAITRISE). Depuis : le CLI 0.40.0 est embarque par iakaInstall v0.1.1 (release complete 4/4, latest). Lot C de la chaine d installation ENTIEREMENT livre sur les deux depots. Successeurs iakaframe : C-JSON-COUVERTURE-COMPLETE, ETAPES-3-4-WINDOWS-LINUX, CI-RELEASE-LATEST-NON-MAITRISE ; litteral de version dans faireReservoirVivant a deriver de package.json. Push Forgejo EN ATTENTE (NAS injoignable depuis le 04) ; GitHub a jour.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>403971e</code></td><td>2026-09-05</td><td>merge: fix etapesFaites en dry-run — aucune etape ne compte comme faite (gate Legolas PASS)</td></tr>
-<tr><td><code>26f1e83</code></td><td>2026-09-05</td><td>docs(qualite): gate fix etapesFaites dry-run — PASS</td></tr>
-<tr><td><code>e15c051</code></td><td>2026-09-05</td><td>docs(commandes): install --dry-run — etapesFaites vide, symétrie des 4 étapes</td></tr>
-<tr><td><code>6499d96</code></td><td>2026-09-05</td><td>fix(install): symétrie dry-run — etapesFaites ne compte jamais une étape en dry-run</td></tr>
-<tr><td><code>748e4f7</code></td><td>2026-09-05</td><td>test(install): étape rouge — etapesFaites doit rester vide en dry-run</td></tr>
-<tr><td><code>02c5f0b</code></td><td>2026-09-05</td><td>docs(instruction): verdict — en dry-run aucune etape ne compte comme faite (ecart du gate)</td></tr>
-<tr><td><code>5687619</code></td><td>2026-09-05</td><td>chore(iakaframe): update etat des lieux + commit global (pause)</td></tr>
-<tr><td><code>efe195c</code></td><td>2026-09-05</td><td>merge: LOT contrat machine du verbe install — evenements, feu vert stdin, --json C-JSON, --events NDJSON (gate Legolas PASS au premier passage)</td></tr>
-<tr><td><code>86de602</code></td><td>2026-09-05</td><td>docs(qualite): gate lot contrat machine install — PASS</td></tr>
-<tr><td><code>7292651</code></td><td>2026-09-05</td><td>test(cli): registre de couverture C-JSON, motive et cliquete (CA-M16)</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>3cc9c87</code></td><td>2026-09-05</td><td>docs(backlog): CI-RELEASE-LATEST-NON-MAITRISE — make_latest inerte sur v0.40.0, rattrapage manuel applique</td></tr>
+<tr><td><code>fde0f09</code></td><td>2026-09-05</td><td>docs(release): message du tag v0.40.0 pret a l usage (-F)</td></tr>
+<tr><td><code>950b72d</code></td><td>2026-09-05</td><td>docs(backlog): solder la dette de publication v0.39.0, nommer le tag v0.40.0 du</td></tr>
+<tr><td><code>02f8135</code></td><td>2026-09-05</td><td>merge: bump 0.40.0 — quatre lots empiles depuis 0.39.0, pret a taguer (gate Legolas PASS)</td></tr>
+<tr><td><code>b3c3da6</code></td><td>2026-09-05</td><td>docs(qualite): gate bump 0.40.0 — PASS</td></tr>
+<tr><td><code>fed4b8f</code></td><td>2026-09-05</td><td>docs(release): notes v0.40.0 — texte de tag annoté à l'usage d'Aragorn</td></tr>
+<tr><td><code>12da3e1</code></td><td>2026-09-05</td><td>chore(etat): régénérer l'état des lieux sur v0.40.0</td></tr>
+<tr><td><code>5c7ed64</code></td><td>2026-09-05</td><td>test(install): aligner les fixtures reservoir vivant + témoin CA-M8 sur 0.40.0</td></tr>
+<tr><td><code>eebd075</code></td><td>2026-09-05</td><td>docs(commandes): version CLI documentée 0.39.0 -&gt; 0.40.0</td></tr>
+<tr><td><code>1aae447</code></td><td>2026-09-05</td><td>docs(readme): régénérer la vitrine sur v0.40.0</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-09-05 18:24</td><td><span class='r r-pause'>pause</span></td><td>v0.40.0</td><td>main</td><td>v0.40.0 PUBLIEE le 2026-09-05 (tag pose par Stephane, run 33959443438, asset naonedge-iakaframe-0.40.0.tgz sha256 21fe0f94..., latest = v0.40.0 apres rattrapage manuel : make_latest du workflow inerte, backlog CI-RELEASE-LATEST-NON-MAITRISE). Depuis : le CLI 0.40.0 est embarque par iakaInstall v0.1.1 (release complete 4/4, latest). Lot C de la chaine d installation ENTIEREMENT livre sur les deux depots. Successeurs iakaframe : C-JSON-COUVERTURE-COMPLETE, ETAPES-3-4-WINDOWS-LINUX, CI-RELEASE-LATEST-NON-MAITRISE ; litteral de version dans faireReservoirVivant a deriver de package.json. Push Forgejo EN ATTENTE (NAS injoignable depuis le 04) ; GitHub a jour.</td></tr>
 <tr><td>2026-09-05 01:49</td><td><span class='r r-version'>version</span></td><td>v0.40.0</td><td>chore/bump-0.40.0</td><td>Bump 0.40.0 : correctifs de fixtures d'install (install-verbe.test.js, install-prose-non-regression.test.js, temoin CA-M8) alignes sur la nouvelle version courante -- suite verte 1098/1097/0/1 sur 3 passages</td></tr>
 <tr><td>2026-09-05 01:27</td><td><span class='r r-version'>version</span></td><td>v0.40.0</td><td>chore/bump-0.40.0</td><td>Montee de version 0.40.0 (bump ordonne par Aragorn, cf. specs/instructions/pilotage-reel-facade-contrat-machine.md) : cli/package.json = 0.39.0 -&gt; 0.40.0, README (vitrine) et docs/commandes.md regeneres/alignes. Publication (tag v0.40.0 -&gt; CI -&gt; npm) laissee au decideur, condition prealable a C.2-b (facade iakaInstall).</td></tr>
 <tr><td>2026-09-05 00:59</td><td><span class='r r-pause'>pause</span></td><td>v0.39.0</td><td>main</td><td>Lot CONTRAT-MACHINE-DU-VERBE-INSTALL livre et fusionne (efe195c), gate PASS 16/16, prose identique octet pour octet au temoin, 1096 tests. Ecart a arbitrer : etatAtteint.etapesFaites en dry-run. Suite : C.2-b (pilotage reel de la facade) apres arbitrage. Push Forgejo EN ATTENTE ; GitHub a jour.</td></tr>
