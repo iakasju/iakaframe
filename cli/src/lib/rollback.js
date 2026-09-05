@@ -161,6 +161,27 @@ export function restaurerEtape(preuve, { execDesinstalleur = (cmd, args) => spaw
         raison: `desinstalle via ${preuveDisque.windowsUninstall.chemin} /S (rien n'existait avant la chaine — garde 2, jamais efface)${suffixeResiduWindows}`,
       };
     }
+    // GARDE 3, reprise post-gate FAIL du 2026-09-06 (docs/qualite/gate-etapes-3-4-windows.md,
+    // § Reprise Gimli pt 1) : sur Windows, la cible peut rester `null` — soit la pose a echoue
+    // AVANT toute completion de la preuve (`ouvrirPreuveWindowsSansExistant` jamais suivie de
+    // `completerPreuveWindowsApresPose`), soit la pose a REUSSI mais la relecture du registre
+    // APRES coup n'a rendu aucun `InstallLocation` exploitable — le cas que le commentaire
+    // d'`install.js:679-680` nomme et promet de "faire echouer nommement, garde 3". Ni `rmSync`
+    // (cible null leverait une TypeError generique masquant la vraie cause), ni `exec` (aucun
+    // executable connu a lancer) : la garde 3 ENONCE ce residu au lieu de tomber dans la branche
+    // generique macOS/Linux qui suit.
+    if (preuveDisque.plateforme === 'windows'
+      && !preuveDisque.cible
+      && !(preuveDisque.windowsUninstall && preuveDisque.windowsUninstall.chemin)) {
+      const installeurATourne = preuveDisque.windowsUninstall !== null && preuveDisque.windowsUninstall !== undefined;
+      const etatInstalleur = installeurATourne
+        ? 'l\'installeur a tourne (la pose a reussi) mais la relecture du registre apres coup n\'a rendu aucun InstallLocation exploitable'
+        : 'la pose a echoue avant meme qu\'un emplacement d\'installation ne soit connu';
+      return {
+        ok: false, defait: false,
+        raison: `REFUS : residu Windows non identifiable, aucune action de rollback possible sans emplacement connu (garde 3, AR-W5) — ${etatInstalleur}. NON DEFAIT : les fichiers eventuellement poses par l'installeur, la cle de registre de desinstallation, les raccourcis du menu Demarrer. Reprise manuelle : chercher l'application dans « Applications et fonctionnalites » (parametres Windows) ou son uninstall.exe sous %LOCALAPPDATA%.`,
+      };
+    }
     fs.rmSync(preuveDisque.cible, { recursive: true, force: true });
     return { ok: true, defait: true, raison: `retire : ${preuveDisque.cible} (rien n'existait avant la chaine — jamais pose par un tiers, garde 2)` };
   } catch (e) {
