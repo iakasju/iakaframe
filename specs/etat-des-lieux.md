@@ -1,23 +1,23 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-06 01:44 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-06 01:53 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
 
 | Champ | Valeur |
 |---|---|
-| Version | v0.40.0 |
-| Branche | main |
-| Dernier commit | 610c2bd merge: fix rollback Windows — uninstall.exe /S _?= synchrone + confirmation par registre (gate Legolas PASS) |
-| Arbre | propre |
+| Version | v0.41.0 |
+| Branche | chore/bump-0.41.0 |
+| Dernier commit | 3baf20e chore(iakaframe): update etat des lieux + commit global (pause) |
+| Arbre | MODIFICATIONS NON COMMITEES |
 | Fichiers (suivis + non ignores) | 1207 |
-| Note | Premier run reel du banc (33997947501) : Linux 100 % vert ; Windows vert sauf les 2 rollbacks par uninstall.exe (code 0 mais cle de registre encore presente). Cause confirmee dans la doc NSIS : sans _?= le desinstalleur se copie dans TEMP et rend la main avant la fin. Correctif fusionne (gate PASS, 1160 tests) : /S _?=<InstallLocation> synchrone, relecture du registre avant tout verdict, residu uninstall.exe enonce. Ecart de methode : Gimli a nomme AR-W20 de son chef — precision d AR-W5(a), a renommer. Reste : 2e run du banc (decideur), bump 0.41.0, push Forgejo. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `3baf20e` | 2026-09-06 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `610c2bd` | 2026-09-06 | merge: fix rollback Windows — uninstall.exe /S _?= synchrone + confirmation par registre (gate Legolas PASS) |
 | `f8126a4` | 2026-09-06 | docs(qualite): gate fix rollback Windows uninstall synchrone — PASS |
 | `efaf242` | 2026-09-06 | docs: mesure reelle du run CI Windows (33997947501) et correctif _?= (AR-W20) |
@@ -27,7 +27,6 @@
 | `e34c1af` | 2026-09-06 | merge: banc de preuve CI des etapes 3/4 (CA-W19), ecrit non execute (gate Legolas PASS) |
 | `103f00a` | 2026-09-06 | Revert "docs(etat-des-lieux): corriger en place la note du checkpoint 4f12648 (concernait iakaframe, lancee du mauvais repertoire)" |
 | `49d2487` | 2026-09-06 | docs(etat-des-lieux): corriger en place la note du checkpoint 4f12648 (concernait iakaframe, lancee du mauvais repertoire) |
-| `45dae6f` | 2026-09-06 | chore(iakaframe): update etat des lieux + commit global (pause) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -210,6 +209,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-06 01:53 | version | v0.41.0 | chore/bump-0.41.0 |  |
 | 2026-09-06 01:44 | pause | v0.40.0 | main | Premier run reel du banc (33997947501) : Linux 100 % vert ; Windows vert sauf les 2 rollbacks par uninstall.exe (code 0 mais cle de registre encore presente). Cause confirmee dans la doc NSIS : sans _?= le desinstalleur se copie dans TEMP et rend la main avant la fin. Correctif fusionne (gate PASS, 1160 tests) : /S _?=<InstallLocation> synchrone, relecture du registre avant tout verdict, residu uninstall.exe enonce. Ecart de methode : Gimli a nomme AR-W20 de son chef — precision d AR-W5(a), a renommer. Reste : 2e run du banc (decideur), bump 0.41.0, push Forgejo. |
 | 2026-09-06 01:06 | pause | v0.40.0 | feat/banc-ci-etapes-3-4 | Banc de preuve CI des etapes 3/4 livre et fusionne (workflow_dispatch seul, SHA epingles verifies, scripts appelant l API reelle du module, bac a sable RUNNER_TEMP, mesures comparees a l attendu, UAC et GUI declares non prouvables). Gate PASS 1157 tests, 2 ecarts mineurs de demonstration. LE CADRAGE ETAPES-3-4-WINDOWS-LINUX EST ENTIEREMENT LIVRE (W-L, W-W, banc). Reste au decideur : declencher le banc, bump + publication 0.41.0 (le 0.40.0 embarque par iakaInstall n a pas les etapes 3/4 multi-OS), recette reelle, push Forgejo. |
 | 2026-09-06 00:29 | pause | v0.40.0 | main | Lots W-L (Linux) et W-W (Windows) livres et fusionnes : les etapes 3/4 posent IakaCockpit et iakaFrameGUI sur les 3 OS (AppImage + chmod ; .exe NSIS /S currentUser, sauvegarde par registre HKCU, rollback avec residu ENONCE ; .msi jamais, perMachine en dur). Gates PASS (W-W au 2e passage : TypeError sur cible null fuyait dans le contrat machine, corrigee test rouge d abord). 1145 tests. Rollback macOS/Linux identique a l octet. Reste : banc CI de preuve (CA-W19, Gimli), recette reelle Windows/Linux (gate humain), push Forgejo EN ATTENTE. |

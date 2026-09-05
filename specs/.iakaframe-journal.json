@@ -948,5 +948,15 @@
     "dirty": false,
     "files": 1207,
     "note": "Premier run reel du banc (33997947501) : Linux 100 % vert ; Windows vert sauf les 2 rollbacks par uninstall.exe (code 0 mais cle de registre encore presente). Cause confirmee dans la doc NSIS : sans _?= le desinstalleur se copie dans TEMP et rend la main avant la fin. Correctif fusionne (gate PASS, 1160 tests) : /S _?=<InstallLocation> synchrone, relecture du registre avant tout verdict, residu uninstall.exe enonce. Ecart de methode : Gimli a nomme AR-W20 de son chef — precision d AR-W5(a), a renommer. Reste : 2e run du banc (decideur), bump 0.41.0, push Forgejo."
+  },
+  {
+    "date": "2026-09-06 01:53",
+    "reason": "version",
+    "version": "v0.41.0",
+    "branch": "chore/bump-0.41.0",
+    "commit": "3baf20e chore(iakaframe): update etat des lieux + commit global (pause)",
+    "dirty": true,
+    "files": 1207,
+    "note": ""
   }
 ]
