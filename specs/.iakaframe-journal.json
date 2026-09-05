@@ -918,5 +918,15 @@
     "dirty": false,
     "files": 1195,
     "note": "v0.40.0 PUBLIEE le 2026-09-05 (tag pose par Stephane, run 33959443438, asset naonedge-iakaframe-0.40.0.tgz sha256 21fe0f94..., latest = v0.40.0 apres rattrapage manuel : make_latest du workflow inerte, backlog CI-RELEASE-LATEST-NON-MAITRISE). Depuis : le CLI 0.40.0 est embarque par iakaInstall v0.1.1 (release complete 4/4, latest). Lot C de la chaine d installation ENTIEREMENT livre sur les deux depots. Successeurs iakaframe : C-JSON-COUVERTURE-COMPLETE, ETAPES-3-4-WINDOWS-LINUX, CI-RELEASE-LATEST-NON-MAITRISE ; litteral de version dans faireReservoirVivant a deriver de package.json. Push Forgejo EN ATTENTE (NAS injoignable depuis le 04) ; GitHub a jour."
+  },
+  {
+    "date": "2026-09-06 00:29",
+    "reason": "pause",
+    "version": "v0.40.0",
+    "branch": "main",
+    "commit": "69bc68e merge: lot W-W — etapes 3/4 sur Windows (NSIS currentUser, registre, rollback residu enonce), gate Legolas PASS au second passage",
+    "dirty": false,
+    "files": 1200,
+    "note": "Lots W-L (Linux) et W-W (Windows) livres et fusionnes : les etapes 3/4 posent IakaCockpit et iakaFrameGUI sur les 3 OS (AppImage + chmod ; .exe NSIS /S currentUser, sauvegarde par registre HKCU, rollback avec residu ENONCE ; .msi jamais, perMachine en dur). Gates PASS (W-W au 2e passage : TypeError sur cible null fuyait dans le contrat machine, corrigee test rouge d abord). 1145 tests. Rollback macOS/Linux identique a l octet. Reste : banc CI de preuve (CA-W19, Gimli), recette reelle Windows/Linux (gate humain), push Forgejo EN ATTENTE."
   }
 ]

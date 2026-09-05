@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-09-05 18:24 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-09-06 00:29 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
   <div class="k">Version</div><div>v0.40.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>3cc9c87 docs(backlog): CI-RELEASE-LATEST-NON-MAITRISE — make_latest inerte sur v0.40.0, rattrapage manuel applique</code></div>
+  <div class="k">Dernier commit</div><div><code>69bc68e merge: lot W-W — etapes 3/4 sur Windows (NSIS currentUser, registre, rollback residu enonce), gate Legolas PASS au second passage</code></div>
   <div class="k">Arbre</div><div><span class='ok'>propre</span></div>
-  <div class="k">Fichiers</div><div>1195 (suivis + non ignores)</div>
-  <div class='k'>Note</div><div>v0.40.0 PUBLIEE le 2026-09-05 (tag pose par Stephane, run 33959443438, asset naonedge-iakaframe-0.40.0.tgz sha256 21fe0f94..., latest = v0.40.0 apres rattrapage manuel : make_latest du workflow inerte, backlog CI-RELEASE-LATEST-NON-MAITRISE). Depuis : le CLI 0.40.0 est embarque par iakaInstall v0.1.1 (release complete 4/4, latest). Lot C de la chaine d installation ENTIEREMENT livre sur les deux depots. Successeurs iakaframe : C-JSON-COUVERTURE-COMPLETE, ETAPES-3-4-WINDOWS-LINUX, CI-RELEASE-LATEST-NON-MAITRISE ; litteral de version dans faireReservoirVivant a deriver de package.json. Push Forgejo EN ATTENTE (NAS injoignable depuis le 04) ; GitHub a jour.</div>
+  <div class="k">Fichiers</div><div>1200 (suivis + non ignores)</div>
+  <div class='k'>Note</div><div>Lots W-L (Linux) et W-W (Windows) livres et fusionnes : les etapes 3/4 posent IakaCockpit et iakaFrameGUI sur les 3 OS (AppImage + chmod ; .exe NSIS /S currentUser, sauvegarde par registre HKCU, rollback avec residu ENONCE ; .msi jamais, perMachine en dur). Gates PASS (W-W au 2e passage : TypeError sur cible null fuyait dans le contrat machine, corrigee test rouge d abord). 1145 tests. Rollback macOS/Linux identique a l octet. Reste : banc CI de preuve (CA-W19, Gimli), recette reelle Windows/Linux (gate humain), push Forgejo EN ATTENTE.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>3cc9c87</code></td><td>2026-09-05</td><td>docs(backlog): CI-RELEASE-LATEST-NON-MAITRISE — make_latest inerte sur v0.40.0, rattrapage manuel applique</td></tr>
-<tr><td><code>fde0f09</code></td><td>2026-09-05</td><td>docs(release): message du tag v0.40.0 pret a l usage (-F)</td></tr>
-<tr><td><code>950b72d</code></td><td>2026-09-05</td><td>docs(backlog): solder la dette de publication v0.39.0, nommer le tag v0.40.0 du</td></tr>
-<tr><td><code>02f8135</code></td><td>2026-09-05</td><td>merge: bump 0.40.0 — quatre lots empiles depuis 0.39.0, pret a taguer (gate Legolas PASS)</td></tr>
-<tr><td><code>b3c3da6</code></td><td>2026-09-05</td><td>docs(qualite): gate bump 0.40.0 — PASS</td></tr>
-<tr><td><code>fed4b8f</code></td><td>2026-09-05</td><td>docs(release): notes v0.40.0 — texte de tag annoté à l'usage d'Aragorn</td></tr>
-<tr><td><code>12da3e1</code></td><td>2026-09-05</td><td>chore(etat): régénérer l'état des lieux sur v0.40.0</td></tr>
-<tr><td><code>5c7ed64</code></td><td>2026-09-05</td><td>test(install): aligner les fixtures reservoir vivant + témoin CA-M8 sur 0.40.0</td></tr>
-<tr><td><code>eebd075</code></td><td>2026-09-05</td><td>docs(commandes): version CLI documentée 0.39.0 -&gt; 0.40.0</td></tr>
-<tr><td><code>1aae447</code></td><td>2026-09-05</td><td>docs(readme): régénérer la vitrine sur v0.40.0</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>69bc68e</code></td><td>2026-09-06</td><td>merge: lot W-W — etapes 3/4 sur Windows (NSIS currentUser, registre, rollback residu enonce), gate Legolas PASS au second passage</td></tr>
+<tr><td><code>a08261e</code></td><td>2026-09-06</td><td>docs(qualite): re-gate lot W-W etapes 3-4 Windows — PASS</td></tr>
+<tr><td><code>d006f9e</code></td><td>2026-09-06</td><td>docs: documenter le résidu Windows énoncé sur cible indéterminée (CA-W11)</td></tr>
+<tr><td><code>783ec27</code></td><td>2026-09-06</td><td>fix(rollback): énoncer nommément le résidu Windows quand la cible reste null</td></tr>
+<tr><td><code>f63eb58</code></td><td>2026-09-06</td><td>test(rollback): reproduire la TypeError sur cible Windows null (gate FAIL)</td></tr>
+<tr><td><code>c49a5fc</code></td><td>2026-09-06</td><td>docs(qualite): gate lot W-W etapes 3-4 Windows — FAIL</td></tr>
+<tr><td><code>a529e4a</code></td><td>2026-09-05</td><td>docs: cocher les CA-W du lot W-W (Windows) avec preuve</td></tr>
+<tr><td><code>b95c7c2</code></td><td>2026-09-05</td><td>docs(commandes): documenter la couverture Windows du verbe install (lot W-W)</td></tr>
+<tr><td><code>4272be3</code></td><td>2026-09-05</td><td>feat(cli): câbler Windows dans etapeApp — découverte registre, pose, CA-W9 (lot W-W)</td></tr>
+<tr><td><code>30e0f13</code></td><td>2026-09-05</td><td>feat(cli): rollback.js — cas Windows (uninstall.exe /S) + résidu énoncé (AR-W5)</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-09-06 00:29</td><td><span class='r r-pause'>pause</span></td><td>v0.40.0</td><td>main</td><td>Lots W-L (Linux) et W-W (Windows) livres et fusionnes : les etapes 3/4 posent IakaCockpit et iakaFrameGUI sur les 3 OS (AppImage + chmod ; .exe NSIS /S currentUser, sauvegarde par registre HKCU, rollback avec residu ENONCE ; .msi jamais, perMachine en dur). Gates PASS (W-W au 2e passage : TypeError sur cible null fuyait dans le contrat machine, corrigee test rouge d abord). 1145 tests. Rollback macOS/Linux identique a l octet. Reste : banc CI de preuve (CA-W19, Gimli), recette reelle Windows/Linux (gate humain), push Forgejo EN ATTENTE.</td></tr>
 <tr><td>2026-09-05 18:24</td><td><span class='r r-pause'>pause</span></td><td>v0.40.0</td><td>main</td><td>v0.40.0 PUBLIEE le 2026-09-05 (tag pose par Stephane, run 33959443438, asset naonedge-iakaframe-0.40.0.tgz sha256 21fe0f94..., latest = v0.40.0 apres rattrapage manuel : make_latest du workflow inerte, backlog CI-RELEASE-LATEST-NON-MAITRISE). Depuis : le CLI 0.40.0 est embarque par iakaInstall v0.1.1 (release complete 4/4, latest). Lot C de la chaine d installation ENTIEREMENT livre sur les deux depots. Successeurs iakaframe : C-JSON-COUVERTURE-COMPLETE, ETAPES-3-4-WINDOWS-LINUX, CI-RELEASE-LATEST-NON-MAITRISE ; litteral de version dans faireReservoirVivant a deriver de package.json. Push Forgejo EN ATTENTE (NAS injoignable depuis le 04) ; GitHub a jour.</td></tr>
 <tr><td>2026-09-05 01:49</td><td><span class='r r-version'>version</span></td><td>v0.40.0</td><td>chore/bump-0.40.0</td><td>Bump 0.40.0 : correctifs de fixtures d'install (install-verbe.test.js, install-prose-non-regression.test.js, temoin CA-M8) alignes sur la nouvelle version courante -- suite verte 1098/1097/0/1 sur 3 passages</td></tr>
 <tr><td>2026-09-05 01:27</td><td><span class='r r-version'>version</span></td><td>v0.40.0</td><td>chore/bump-0.40.0</td><td>Montee de version 0.40.0 (bump ordonne par Aragorn, cf. specs/instructions/pilotage-reel-facade-contrat-machine.md) : cli/package.json = 0.39.0 -&gt; 0.40.0, README (vitrine) et docs/commandes.md regeneres/alignes. Publication (tag v0.40.0 -&gt; CI -&gt; npm) laissee au decideur, condition prealable a C.2-b (facade iakaInstall).</td></tr>

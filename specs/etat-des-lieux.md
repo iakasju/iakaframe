@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-05 18:24 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-06 00:29 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.40.0 |
 | Branche | main |
-| Dernier commit | 3cc9c87 docs(backlog): CI-RELEASE-LATEST-NON-MAITRISE — make_latest inerte sur v0.40.0, rattrapage manuel applique |
+| Dernier commit | 69bc68e merge: lot W-W — etapes 3/4 sur Windows (NSIS currentUser, registre, rollback residu enonce), gate Legolas PASS au second passage |
 | Arbre | propre |
-| Fichiers (suivis + non ignores) | 1195 |
-| Note | v0.40.0 PUBLIEE le 2026-09-05 (tag pose par Stephane, run 33959443438, asset naonedge-iakaframe-0.40.0.tgz sha256 21fe0f94..., latest = v0.40.0 apres rattrapage manuel : make_latest du workflow inerte, backlog CI-RELEASE-LATEST-NON-MAITRISE). Depuis : le CLI 0.40.0 est embarque par iakaInstall v0.1.1 (release complete 4/4, latest). Lot C de la chaine d installation ENTIEREMENT livre sur les deux depots. Successeurs iakaframe : C-JSON-COUVERTURE-COMPLETE, ETAPES-3-4-WINDOWS-LINUX, CI-RELEASE-LATEST-NON-MAITRISE ; litteral de version dans faireReservoirVivant a deriver de package.json. Push Forgejo EN ATTENTE (NAS injoignable depuis le 04) ; GitHub a jour. |
+| Fichiers (suivis + non ignores) | 1200 |
+| Note | Lots W-L (Linux) et W-W (Windows) livres et fusionnes : les etapes 3/4 posent IakaCockpit et iakaFrameGUI sur les 3 OS (AppImage + chmod ; .exe NSIS /S currentUser, sauvegarde par registre HKCU, rollback avec residu ENONCE ; .msi jamais, perMachine en dur). Gates PASS (W-W au 2e passage : TypeError sur cible null fuyait dans le contrat machine, corrigee test rouge d abord). 1145 tests. Rollback macOS/Linux identique a l octet. Reste : banc CI de preuve (CA-W19, Gimli), recette reelle Windows/Linux (gate humain), push Forgejo EN ATTENTE. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `3cc9c87` | 2026-09-05 | docs(backlog): CI-RELEASE-LATEST-NON-MAITRISE — make_latest inerte sur v0.40.0, rattrapage manuel applique |
-| `fde0f09` | 2026-09-05 | docs(release): message du tag v0.40.0 pret a l usage (-F) |
-| `950b72d` | 2026-09-05 | docs(backlog): solder la dette de publication v0.39.0, nommer le tag v0.40.0 du |
-| `02f8135` | 2026-09-05 | merge: bump 0.40.0 — quatre lots empiles depuis 0.39.0, pret a taguer (gate Legolas PASS) |
-| `b3c3da6` | 2026-09-05 | docs(qualite): gate bump 0.40.0 — PASS |
-| `fed4b8f` | 2026-09-05 | docs(release): notes v0.40.0 — texte de tag annoté à l'usage d'Aragorn |
-| `12da3e1` | 2026-09-05 | chore(etat): régénérer l'état des lieux sur v0.40.0 |
-| `5c7ed64` | 2026-09-05 | test(install): aligner les fixtures reservoir vivant + témoin CA-M8 sur 0.40.0 |
-| `eebd075` | 2026-09-05 | docs(commandes): version CLI documentée 0.39.0 -> 0.40.0 |
-| `1aae447` | 2026-09-05 | docs(readme): régénérer la vitrine sur v0.40.0 |
+| `69bc68e` | 2026-09-06 | merge: lot W-W — etapes 3/4 sur Windows (NSIS currentUser, registre, rollback residu enonce), gate Legolas PASS au second passage |
+| `a08261e` | 2026-09-06 | docs(qualite): re-gate lot W-W etapes 3-4 Windows — PASS |
+| `d006f9e` | 2026-09-06 | docs: documenter le résidu Windows énoncé sur cible indéterminée (CA-W11) |
+| `783ec27` | 2026-09-06 | fix(rollback): énoncer nommément le résidu Windows quand la cible reste null |
+| `f63eb58` | 2026-09-06 | test(rollback): reproduire la TypeError sur cible Windows null (gate FAIL) |
+| `c49a5fc` | 2026-09-06 | docs(qualite): gate lot W-W etapes 3-4 Windows — FAIL |
+| `a529e4a` | 2026-09-05 | docs: cocher les CA-W du lot W-W (Windows) avec preuve |
+| `b95c7c2` | 2026-09-05 | docs(commandes): documenter la couverture Windows du verbe install (lot W-W) |
+| `4272be3` | 2026-09-05 | feat(cli): câbler Windows dans etapeApp — découverte registre, pose, CA-W9 (lot W-W) |
+| `30e0f13` | 2026-09-05 | feat(cli): rollback.js — cas Windows (uninstall.exe /S) + résidu énoncé (AR-W5) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -210,6 +210,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-06 00:29 | pause | v0.40.0 | main | Lots W-L (Linux) et W-W (Windows) livres et fusionnes : les etapes 3/4 posent IakaCockpit et iakaFrameGUI sur les 3 OS (AppImage + chmod ; .exe NSIS /S currentUser, sauvegarde par registre HKCU, rollback avec residu ENONCE ; .msi jamais, perMachine en dur). Gates PASS (W-W au 2e passage : TypeError sur cible null fuyait dans le contrat machine, corrigee test rouge d abord). 1145 tests. Rollback macOS/Linux identique a l octet. Reste : banc CI de preuve (CA-W19, Gimli), recette reelle Windows/Linux (gate humain), push Forgejo EN ATTENTE. |
 | 2026-09-05 18:24 | pause | v0.40.0 | main | v0.40.0 PUBLIEE le 2026-09-05 (tag pose par Stephane, run 33959443438, asset naonedge-iakaframe-0.40.0.tgz sha256 21fe0f94..., latest = v0.40.0 apres rattrapage manuel : make_latest du workflow inerte, backlog CI-RELEASE-LATEST-NON-MAITRISE). Depuis : le CLI 0.40.0 est embarque par iakaInstall v0.1.1 (release complete 4/4, latest). Lot C de la chaine d installation ENTIEREMENT livre sur les deux depots. Successeurs iakaframe : C-JSON-COUVERTURE-COMPLETE, ETAPES-3-4-WINDOWS-LINUX, CI-RELEASE-LATEST-NON-MAITRISE ; litteral de version dans faireReservoirVivant a deriver de package.json. Push Forgejo EN ATTENTE (NAS injoignable depuis le 04) ; GitHub a jour. |
 | 2026-09-05 01:49 | version | v0.40.0 | chore/bump-0.40.0 | Bump 0.40.0 : correctifs de fixtures d'install (install-verbe.test.js, install-prose-non-regression.test.js, temoin CA-M8) alignes sur la nouvelle version courante -- suite verte 1098/1097/0/1 sur 3 passages |
 | 2026-09-05 01:27 | version | v0.40.0 | chore/bump-0.40.0 | Montee de version 0.40.0 (bump ordonne par Aragorn, cf. specs/instructions/pilotage-reel-facade-contrat-machine.md) : cli/package.json = 0.39.0 -> 0.40.0, README (vitrine) et docs/commandes.md regeneres/alignes. Publication (tag v0.40.0 -> CI -> npm) laissee au decideur, condition prealable a C.2-b (facade iakaInstall). |
