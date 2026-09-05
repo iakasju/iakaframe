@@ -668,12 +668,66 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
       gardes AR-5 en bac à sable, `raison` identiques à l'octet entre HEAD et `main`.
       `docs/commandes.md:249` complété d'une phrase nommant ce cas. Suite complète : `tests 1145,
       pass 1144, fail 0, skipped 1` (attendu ≥ 1142, +3 tests).
+      **Reprise post-PREMIÈRE MESURE RÉELLE du banc CI Windows (2026-09-06, run `33997947501`,
+      job `banc (windows-latest)`)** — les DEUX lignes de mesure « Rollback REEL » (scénario A
+      IakaCockpit et iakaFrameGUI) sont tombées **FAIL**, nommément : `restaurerEtape` rendait
+      `ok:true, defait:true, codeUninstall=0` alors que `sousClesRestantes=1` — la sous-clé de
+      désinstallation était **toujours présente** juste après le retour de `uninstall.exe /S`.
+      Hypothèse d'Aragorn, **vérifiée** dans la documentation NSIS officielle
+      (`nsis.sourceforge.io/Docs/Chapter3.html`, § « Command Line Parameters », consultée le
+      2026-09-06, citation verbatim) : « `_?=` sets `$INSTDIR`. It also stops the uninstaller
+      from copying itself to the temporary directory and running from there. It can be used
+      along with `ExecWait` to wait for the uninstaller to finish. » — **sans** `_?=`, le
+      désinstalleur NSIS se copie dans `%TEMP%` et **rend la main immédiatement**, la
+      désinstallation réelle continuant dans le processus copié : un code de sortie `0` n'atteste
+      alors que le **lancement** de la copie, jamais la fin réelle. Même doc
+      (`Chapter4.html` § 4.6.2 « Uninstall Section ») : l'auto-suppression du désinstalleur ne
+      fonctionne QUE parce qu'il tourne depuis cette copie temporaire (« the uninstaller is
+      transparently copied to the system temporary directory for the uninstall ») — `_?=` la
+      désactivant, `uninstall.exe` et son dossier **peuvent rester sur le disque** même la
+      désinstallation confirmée (résidu **documenté**, pas une supposition). **Correctif**
+      (`cli/src/lib/rollback.js`, `restaurerEtape`, branche Windows "rien n'existait avant"
+      uniquement — macOS/Linux inchangés à l'octet, rejoué en bac à sable) : l'appel porte
+      désormais `/S _?=<InstallLocation>` ; un code `0` ne suffit plus, la disparition de la
+      sous-clé est **confirmée** par relecture du registre (port `execReg`, même idiome que
+      `decouvrirInstallationWindows`), bornée à 10 relectures espacées (port `attendre`
+      injectable) en défense si NSIS restait asynchrone malgré `_?=` ; sinon `ok:false`, raison
+      **conçue** : « désinstalleur lancé, code 0, mais la clé de désinstallation est toujours
+      présente : désinstallation NON confirmée ; reprise manuelle : … » — jamais un « restauré ».
+      Le résidu de nettoyage (`uninstall.exe`/dossier non auto-supprimés par `_?=`) fait l'objet
+      d'un nettoyage best-effort **après** confirmation ; un échec de ce nettoyage est **énoncé**
+      (`RESIDU NON NETTOYE`), jamais masqué, et ne fait jamais échouer le verdict de
+      désinstallation déjà confirmée. **Preuve** : tests rouges d'abord (`cli/test/rollback.test.js`,
+      double `execDesinstalleur` rendant `0` immédiatement pendant qu'un double `execReg` continue
+      de trouver la clé) puis correctif, tests `AR-W20 (reprise post-mesure-réelle du
+      2026-09-06, run CI 33997947501)…`, `AR-W20, l'appel au désinstalleur porte
+      \`_?=<InstallLocation>\`…`, `AR-W20, résidu du désinstalleur EN PLACE…` ; adaptation au
+      nouveau contrat des tests existants `AR-W5, cas "rien n'existait avant"…` et `AR-W5, chaîné
+      via orchestrerRollback…` (même discipline que CA-W14) ; chaîné réel dans
+      `cli/test/install-etapes-3-4.test.js` test `AR-5, chaîné réel Windows…` (adapté au nouveau
+      contrat, `_?=<InstallLocation>` + `execReg` de confirmation injectés). Le banc CI
+      (`cli/scripts/banc-etapes-3-4-windows.mjs`) garde ses deux lignes de mesure — elles ont
+      fait leur travail — et thread désormais un `execReg` instrumenté (même idiome que
+      `execDesinstalleurInstrumente`, le VRAI `reg.exe` est appelé) ; l'attendu devient « clé
+      DISPARUE ET confirmée par relecture du module » (au lieu de « clé DISPARUE ensuite », qui
+      laissait entendre une coïncidence entre deux mesures indépendantes). `docs/commandes.md:249`
+      complété du mécanisme `_?=` et du nettoyage best-effort. Témoin CA-M8 (prose humaine)
+      intact, non touché par ce correctif. Suite complète : `tests 1160, pass 1159, fail 0,
+      skipped 1` (attendu ≥ 1157, +3 tests). **Ce que seul un nouveau run réel du banc CI prouve** :
+      que le code 0 devient enfin significatif sur un runner Windows réel — ce poste ne peut que
+      prouver le mécanisme en isolation (ports injectés), jamais le comportement réel de
+      `uninstall.exe` (§ 8, gate humain/CI par OS, inchangé).
 - [x] **CA-W12** — **Code de sortie non nul de l'installeur** ⇒ étape `echouee`, **le code est dans
       le `detail`**, la chaîne s'arrête (CA-07 hérité), et le rollback des étapes précédentes joue.
       **Preuve** : `cli/src/lib/app-bundle.js` (`poserBundleWindows`, code ≠ 0 ⇒ `{ok:false,
       raison}` nommant le code, 2 = abandon NSIS nommé explicitement) ; `cli/test/app-bundle.test.js`
       (3 tests dont code 2 et code 1603) ; chaîné dans `cli/test/install-etapes-3-4.test.js` test
       `CA-W12 : code de sortie NON NUL de l'installeur…` (`detail` matche `/code 1603/`).
+      **Mesure réelle (run CI `33997947501`, 2026-09-06)** : `codeSetup=0` confirmé **PASS** sur
+      les deux poses réelles (IakaCockpit scénario A « `codeSetup=0 (2245 ms)` » et scénario B) —
+      ce critère n'était **pas** en cause dans les deux lignes FAIL du run (celles-ci portaient sur
+      le rollback, `restaurerEtape`, reprise documentée sous CA-W11 ci-dessus) : la pose elle-même
+      et son code de sortie sont, eux, correctement mesurés et déjà couverts.
 - [x] **CA-W13** — `--dry-run` sur Windows **n'écrit rien et ne lance aucun sous-processus**
       (compteur = 0).
       **Preuve** : `cli/test/install-etapes-3-4.test.js` test `CA-W13 : Windows, --dry-run…`
