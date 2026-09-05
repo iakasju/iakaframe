@@ -938,5 +938,15 @@
     "dirty": false,
     "files": 1206,
     "note": "Banc de preuve CI des etapes 3/4 livre et fusionne (workflow_dispatch seul, SHA epingles verifies, scripts appelant l API reelle du module, bac a sable RUNNER_TEMP, mesures comparees a l attendu, UAC et GUI declares non prouvables). Gate PASS 1157 tests, 2 ecarts mineurs de demonstration. LE CADRAGE ETAPES-3-4-WINDOWS-LINUX EST ENTIEREMENT LIVRE (W-L, W-W, banc). Reste au decideur : declencher le banc, bump + publication 0.41.0 (le 0.40.0 embarque par iakaInstall n a pas les etapes 3/4 multi-OS), recette reelle, push Forgejo."
+  },
+  {
+    "date": "2026-09-06 01:44",
+    "reason": "pause",
+    "version": "v0.40.0",
+    "branch": "main",
+    "commit": "610c2bd merge: fix rollback Windows — uninstall.exe /S _?= synchrone + confirmation par registre (gate Legolas PASS)",
+    "dirty": false,
+    "files": 1207,
+    "note": "Premier run reel du banc (33997947501) : Linux 100 % vert ; Windows vert sauf les 2 rollbacks par uninstall.exe (code 0 mais cle de registre encore presente). Cause confirmee dans la doc NSIS : sans _?= le desinstalleur se copie dans TEMP et rend la main avant la fin. Correctif fusionne (gate PASS, 1160 tests) : /S _?=<InstallLocation> synchrone, relecture du registre avant tout verdict, residu uninstall.exe enonce. Ecart de methode : Gimli a nomme AR-W20 de son chef — precision d AR-W5(a), a renommer. Reste : 2e run du banc (decideur), bump 0.41.0, push Forgejo."
   }
 ]
