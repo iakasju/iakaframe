@@ -649,6 +649,25 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
       "une version existait"…` et `AR-W5, cas "rien n'existait avant"…` ; chaîné réel dans
       `cli/test/install-etapes-3-4.test.js` test `AR-5, chaîné réel Windows…` (`rb.rapports[0]
       .raison` matche `/RESIDU NON RETABLI/`).
+      **Reprise post-gate FAIL (2026-09-06)** — cas **cible indéterminée**, trouvé et reproduit
+      deux fois par Legolas hors harnais (`docs/qualite/gate-etapes-3-4-windows.md`) : quand
+      `preuveDisque.plateforme==='windows'` ET ni `cible` ni `windowsUninstall.chemin` ne sont
+      connus (pose jamais complétée — `cli/src/commands/install.js:663`, rollback immédiat —, ou
+      pose réussie mais `InstallLocation` introuvable après coup — `install.js:679-680`),
+      `restaurerEtape` (`cli/src/lib/rollback.js`) rend désormais un énoncé nommé
+      (`/residu Windows non identifiable/i`) au lieu de tomber dans la branche générique
+      `fs.rmSync` héritée de macOS/Linux (qui levait une `TypeError` sur `cible===null`, capturée
+      génériquement et rendue verbatim dans la `raison`, y compris dans l'événement structuré
+      `rollback`). **Preuve** : `cli/test/rollback.test.js` tests `AR-W5, cas (a) "pose échouée
+      AVANT complétion de la preuve"…` et `AR-W5, cas (b) "pose réussie mais InstallLocation
+      introuvable après coup"…` ; chaîné réel avec ports `execReg`/`execSetupWindows` injectés dans
+      `cli/test/install-etapes-3-4.test.js` test `AR-W5, cas (b) chaîné réel Windows…`, qui vérifie
+      en plus que la ligne NDJSON de l'événement structuré `rollback` (mode `--events`) **parse**
+      et ne contient ni `TypeError` ni le mot `null`. Non-régression : la nouvelle branche est
+      conditionnée à `plateforme==='windows'`, jamais atteinte par macOS/Linux ; rejeu des trois
+      gardes AR-5 en bac à sable, `raison` identiques à l'octet entre HEAD et `main`.
+      `docs/commandes.md:249` complété d'une phrase nommant ce cas. Suite complète : `tests 1145,
+      pass 1144, fail 0, skipped 1` (attendu ≥ 1142, +3 tests).
 - [x] **CA-W12** — **Code de sortie non nul de l'installeur** ⇒ étape `echouee`, **le code est dans
       le `detail`**, la chaîne s'arrête (CA-07 hérité), et le rollback des étapes précédentes joue.
       **Preuve** : `cli/src/lib/app-bundle.js` (`poserBundleWindows`, code ≠ 0 ⇒ `{ok:false,
