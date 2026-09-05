@@ -45,7 +45,10 @@ import { packageVersion } from '../lib/version.js';
 import { peutDemander, askYesNo, lireLigneFeuVert } from '../lib/interactif.js';
 import { getJson } from '../lib/http.js';
 import { resoudreDoubleReseau } from '../lib/network-double.js';
-import { APPS, cleManifestePlateforme, telechargerEtVerifier, poserBundleDarwin } from '../lib/app-bundle.js';
+import {
+  APPS, cleManifestePlateforme, resoudreCleManifeste, familleDePose, nomFichierCible,
+  telechargerEtVerifier, poserBundleDarwin, poserBundleLinux,
+} from '../lib/app-bundle.js';
 import { resoudre } from '../lib/endpoints.js';
 import { sauvegarderAvantEtape, restaurerEtape, orchestrerRollback } from '../lib/rollback.js';
 import { creerEmetteur } from '../lib/evenements.js';
@@ -480,18 +483,48 @@ export async function etapeApp({
     return { ok: true, dryRun: true, preuve: null };
   }
   const manifeste = res.manifeste;
-  const cible = path.join(appsDir, `${app.nom}.app`);
+  const famille = familleDePose(cle);
+  const cible = path.join(appsDir, nomFichierCible(app.nom, famille));
+
+  // Selection installeur -> generique (M6, fonction pure resoudreCleManifeste) : un manifeste qui
+  // ne porte NI la cle installeur NI la cle generique (ex. seulement `-deb`/`-rpm`, CA-W6) est un
+  // REFUS EXPLICITE nommant la forme manquante — JAMAIS un repli silencieux sur une autre forme.
+  const cleResolue = resoudreCleManifeste(manifeste, cle);
+  if (!cleResolue) {
+    const nomForme = famille === 'linux' ? 'AppImage' : (cle.installeur || cle.generique);
+    const raisonManquante = `${nomForme} introuvable dans le manifeste ${app.nom} v${manifeste.version} (clé installeur "${cle.installeur}" et clé générique "${cle.generique}" absentes ou sans URL) — ${app.nom} ne se replie JAMAIS sur ".deb"/".rpm"`;
+    const annonceEchec = {
+      evt: 'etape-annoncee', etape: numero,
+      champs: {
+        quoi: `${app.nom} v${manifeste.version} (plateforme ${cle.generique})`, ou: cible, version: manifeste.version,
+        ceQuiSeraFusionne: null,
+        sourceRetenue: { nom: res.retenu.hote, pourquoi: 'manifeste exploitable retenu (ordre M10, AR-H)' },
+        sourcesConsultees: res.essais.map(e => ({ nom: e.hote, repond: Boolean(e.status), exploitable: Boolean(e.ok), motif: e.motif })),
+      },
+    };
+    if (!dryRun) {
+      em.dire(`  REFUS : ${raisonManquante}`, annonceEchec);
+      const reprise = `iakaframe install --yes   (ou attendre une release qui publie ${nomForme})`;
+      em.dire(`  Reprise : ${reprise}`, null);
+      em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: raisonManquante } });
+      return { ok: false, preuve: null, reprise };
+    }
+    em.dire(`  [dry-run] ${raisonManquante} — rien à écrire de toute façon.`, annonceEchec);
+    em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'dry-run', detail: raisonManquante } });
+    return { ok: true, dryRun: true, preuve: null };
+  }
+
   const dejaPresent = fs.existsSync(cible);
-  em.dire(`  quoi : ${app.nom} v${manifeste.version} (plateforme ${cle}), depuis ${res.retenu.hote}`, null);
+  em.dire(`  quoi : ${app.nom} v${manifeste.version} (plateforme ${cleResolue}), depuis ${res.retenu.hote}`, null);
   em.dire(`  où : ${cible}`, null);
   em.dire(`  quelle version : v${manifeste.version}`, null);
   const ceQuiSeraFusionne = dejaPresent
-    ? `${app.nom}.app existant à cette adresse sera REMPLACÉ (sauvegardé avant, AR-5)`
+    ? `${path.basename(cible)} existant à cette adresse sera REMPLACÉ (sauvegardé avant, AR-5)`
     : `pose neuve, rien n'existait à cette adresse`;
   em.dire(`  ce qui sera fusionné : ${ceQuiSeraFusionne}`, {
     evt: 'etape-annoncee', etape: numero,
     champs: {
-      quoi: `${app.nom} v${manifeste.version} (plateforme ${cle})`,
+      quoi: `${app.nom} v${manifeste.version} (plateforme ${cleResolue})`,
       ou: cible,
       version: manifeste.version,
       ceQuiSeraFusionne,
@@ -518,7 +551,7 @@ export async function etapeApp({
     return { ok: false, preuve: null, reprise };
   }
 
-  const dl = await telechargerEtVerifier({ app, manifeste, cle, telecharger: telechargerApp });
+  const dl = await telechargerEtVerifier({ app, manifeste, cle: cleResolue, telecharger: telechargerApp });
   if (!dl.ok) {
     em.dire(`  REFUS : ${dl.raison}`, null);
     em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: dl.raison } });
@@ -537,7 +570,13 @@ export async function etapeApp({
     return { ok: false, preuve: null };
   }
 
-  const pose = poserBundleDarwin({ octets: dl.octets, cible });
+  // Trois formes de pose, une seule doctrine de sauvegarde (§ 2.2) : macOS INCHANGE, Linux neuf
+  // dans ce lot (W-L). Windows (poserBundleWindows) arrive au lot W-W — `famille` ne peut PAS
+  // valoir 'windows' ici tant que `cleManifestePlateforme` ne couvre pas win32 (ce lot ne l'etend
+  // pas, AR-W6 : lots gates separement).
+  const pose = famille === 'linux'
+    ? poserBundleLinux({ octets: dl.octets, cible })
+    : poserBundleDarwin({ octets: dl.octets, cible });
   if (!pose.ok) {
     em.dire(`  ÉCHEC : ${pose.raison}`, null);
     // Echec APRES la sauvegarde : on a la preuve, on peut donc défaire immédiatement ce que CETTE

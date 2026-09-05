@@ -41,20 +41,83 @@ export const APPS = {
   },
 };
 
-// --- CA-15 : la plateforme COUVERTE par ce lot, et REFUS EXPLICITE pour toutes les autres -------
-// § 10 de l'instruction : « prouvable sur ce poste (macOS arm64) » est la SEULE recette reelle
-// disponible a l'execution de ce lot. Le format `.app.tar.gz` (cles GENERIQUES `darwin-*` du
-// manifeste, cf. M11) est la SEULE forme installable SANS assistant interactif ni privilege
-// eleve sur AUCUNE des quatre plateformes — extraction + copie, rien d'autre. Windows (`.msi`/
-// `.exe`) et Linux (`.deb`/`.rpm`/`.AppImage`) exigent soit un installeur a invoquer (msiexec,
-// dpkg/rpm) soit un rendu executable + lancement (AppImage) : hors de portee de ce qui est
-// PROUVABLE ici (§ 10), donc HORS de ce que ce lot IMPLEMENTE — jamais simule.
+// --- CA-15 : la plateforme COUVERTE, et REFUS EXPLICITE pour toutes les autres ------------------
+// § 10 de l'instruction C.1 disait : « prouvable sur ce poste (macOS arm64) » est la SEULE
+// recette reelle disponible a l'execution du lot C.1. Le motif ci-dessous (« .app.tar.gz est la
+// SEULE forme installable SANS assistant interactif ni privilege eleve sur AUCUNE des quatre
+// plateformes ») etait JUSTE a ce moment-la — il ne l'est PLUS.
+//
+// RECTIFICATION DATEE (2026-09-05, lot ETAPES-3-4-WINDOWS-LINUX/W-L,
+// specs/instructions/etapes-3-4-windows-linux.md § 1) : ce motif est FAUX sur Linux, et FAUX pour
+// le `.exe` NSIS de Windows. Une AppImage se pose par une COPIE DE L'OCTET + un bit d'execution
+// (`chmod +x`) — strictement le MEME geste que macOS, SANS installeur tiers, SANS privilege eleve
+// (E-6/E-8 du cadrage). Le NSIS Windows, en mode `currentUser` (defaut des deux apps, M7, E-2),
+// n'eleve pas non plus. Seuls le `.msi` Windows (`perMachine` FORCE par le gabarit WiX de Tauri,
+// sans aucun parametre pour le changer, E-1), le `.deb` et le `.rpm` (ecriture dans l'arbre
+// systeme + enregistrement aupres du gestionnaire de paquets, E-9) EXIGENT un privilege eleve —
+// et ce sont EXACTEMENT les trois formes que ce portefeuille EXCLUT (AR-W1(a), AR-W2(a)), pas
+// parce qu'elles seraient hors de portee technique, mais parce qu'elles elevent. Ce commentaire
+// d'origine est laisse EN PLACE ci-dessus, NON EFFACE : il documente ce qui etait vrai quand seul
+// macOS etait prouve (§ 10 du cadrage parent, lot C.1).
+//
+// TABLE DE CLES (§ 2.1 du lot W-L/W-W) : `cleManifestePlateforme` rend un COUPLE ORDONNE
+// `{ installeur, generique }`, lu DANS L'ORDRE DU PLUGIN updater (M6) : `{os}-{arch}-{installer}`
+// PUIS `{os}-{arch}`. C'est la convention que les deux apps PUBLIENT deja et que leur propre
+// client consomme deja (`tauri-plugin-updater` 2.10.1) — on la REUTILISE, on n'en invente pas une
+// seconde. `installeur` vaut `null` quand aucune forme installeur n'existe pour cette plateforme
+// (macOS : seule la forme generique `.app.tar.gz` existe, AR-3 de L40).
 export function cleManifestePlateforme({ platform = os.platform(), arch = os.arch() } = {}) {
   if (platform === 'darwin') {
-    if (arch === 'arm64') return 'darwin-aarch64';
-    if (arch === 'x64') return 'darwin-x86_64';
+    if (arch === 'arm64') return { installeur: null, generique: 'darwin-aarch64' };
+    if (arch === 'x64') return { installeur: null, generique: 'darwin-x86_64' };
+  }
+  if (platform === 'linux' && arch === 'x64') {
+    return { installeur: 'linux-x86_64-appimage', generique: 'linux-x86_64' };
+  }
+  // « Tout le reste » n'est pas vide, et c'est deliberer (§ 2.1) : linux/arm64, win32/* et
+  // darwin/ia32 restent NON COUVERTS — les manifestes reels ne portent que du x86_64 hors macOS
+  // (M5). Le refus CA-15 survit a ce lot ; il retrecit, il ne disparait pas (CA-W15).
+  return null;
+}
+
+/**
+ * Selection installeur -> generique (M6), en FONCTION PURE : recoit le couple ordonne rendu par
+ * `cleManifestePlateforme` et le manifeste resolu, et rend la clé PLATE (une chaine) a lire dans
+ * `manifeste.platforms`, en essayant `installeur` D'ABORD, `generique` EN REPLI — jamais l'inverse.
+ * Rend `null` si NI L'UNE NI L'AUTRE n'existe : c'est le cas CA-W6 (un manifeste qui ne porte QUE
+ * `-deb`/`-rpm` ne doit JAMAIS faire gagner ces clés par defaut — ce non-repli est le critere).
+ */
+export function resoudreCleManifeste(manifeste, cle) {
+  const platforms = (manifeste && manifeste.platforms) || {};
+  if (!cle) return null;
+  if (cle.installeur && platforms[cle.installeur] && platforms[cle.installeur].url) {
+    return cle.installeur;
+  }
+  if (cle.generique && platforms[cle.generique] && platforms[cle.generique].url) {
+    return cle.generique;
   }
   return null;
+}
+
+/**
+ * Famille de pose (macOS / Linux / Windows), derivee du couple `cle` — SOURCE UNIQUE (le prefixe
+ * de la clé generique, qui encode deja la plateforme), jamais une seconde lecture de `os.platform()`
+ * qui pourrait diverger de ce que `plateforme` a simule dans un test (M10 : `plateforme` est un
+ * point d'injection PUR).
+ */
+export function familleDePose(cle) {
+  if (!cle || !cle.generique) return null;
+  if (cle.generique.startsWith('darwin-')) return 'darwin';
+  if (cle.generique.startsWith('linux-')) return 'linux';
+  if (cle.generique.startsWith('windows-')) return 'windows';
+  return null;
+}
+
+/** Nom de fichier cible, par famille de pose — le `.app` n'est plus ecrit en dur (M3). */
+export function nomFichierCible(appNom, famille) {
+  if (famille === 'linux') return `${appNom}.AppImage`;
+  if (famille === 'windows') return `${appNom}-setup.exe`; // lot W-W : forme temporaire, non posee telle quelle
+  return `${appNom}.app`; // darwin, inchange
 }
 
 /**
@@ -127,5 +190,24 @@ export function poserBundleDarwin({ octets, cible }) {
     return { ok: true, cible };
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });
+  }
+}
+
+/**
+ * Pose un bundle AppImage (Linux, lot W-L, § 2.2) : ECRIT LES OCTETS DEJA VERIFIES (CA-14 est en
+ * amont, rien a y toucher) directement a `cible`, puis pose le bit d'execution. Rien d'autre — pas
+ * d'archive a ouvrir, pas de sous-processus, pas de dependance. La cible est un FICHIER
+ * remplaçable dans son entier : `sauvegarderAvantEtape`/`restaurerEtape` (lib/rollback.js)
+ * fonctionnent SANS modification (M2) — l'appelant a DEJA pris la sauvegarde AVANT cet appel,
+ * exactement comme `poserBundleDarwin`.
+ */
+export function poserBundleLinux({ octets, cible }) {
+  try {
+    fs.mkdirSync(path.dirname(cible), { recursive: true });
+    fs.writeFileSync(cible, octets);
+    fs.chmodSync(cible, 0o755);
+    return { ok: true, cible };
+  } catch (e) {
+    return { ok: false, raison: `écriture de l'AppImage a échoué (${cible}) : ${e.message}` };
   }
 }

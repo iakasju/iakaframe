@@ -11,7 +11,8 @@ import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { generateKeyPairSync, createHash, sign as cryptoSign, randomBytes } from 'node:crypto';
 import {
-  APPS, cleManifestePlateforme, resoudreManifesteApp, telechargerEtVerifier, poserBundleDarwin,
+  APPS, cleManifestePlateforme, resoudreCleManifeste, familleDePose, nomFichierCible,
+  resoudreManifesteApp, telechargerEtVerifier, poserBundleDarwin, poserBundleLinux,
 } from '../src/lib/app-bundle.js';
 
 function tmp() { return fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-app-bundle-')); }
@@ -57,14 +58,25 @@ function fabriquerBundleAppTarGz({ appName = 'FixtureApp', contenu = 'contenu fi
 
 // --- CA-15 : couverture de plateforme -------------------------------------------------------------
 
-test('CA-15 : darwin/arm64 et darwin/x64 sont COUVERTS (les seuls prouvables sur ce poste, § 10)', () => {
-  assert.equal(cleManifestePlateforme({ platform: 'darwin', arch: 'arm64' }), 'darwin-aarch64');
-  assert.equal(cleManifestePlateforme({ platform: 'darwin', arch: 'x64' }), 'darwin-x86_64');
+// MODIFIE PAR LE LOT ETAPES-3-4-WINDOWS-LINUX/W-L (2026-09-05) : § 2.1 mandate que
+// `cleManifestePlateforme` cesse de rendre une clé UNIQUE et rende un COUPLE ORDONNE
+// `{ installeur, generique }` (M6) — ce fichier est explicitement au perimetre "ecrits" du lot
+// (§ 6 de l'instruction). Ces deux tests, qui exercent DIRECTEMENT le contrat de cette fonction,
+// sont donc mis a jour pour le nouveau contrat ; aucun AUTRE test de ce fichier (CA-14,
+// resoudreManifesteApp, poserBundleDarwin, plus bas) n'est touché — c'est LA le perimetre protege
+// par CA-W14/R-W8.
+test('CA-15 : darwin/arm64 et darwin/x64 sont COUVERTS (les seuls prouvables sur ce poste, § 10) — couple {installeur:null, generique}', () => {
+  assert.deepEqual(cleManifestePlateforme({ platform: 'darwin', arch: 'arm64' }), { installeur: null, generique: 'darwin-aarch64' });
+  assert.deepEqual(cleManifestePlateforme({ platform: 'darwin', arch: 'x64' }), { installeur: null, generique: 'darwin-x86_64' });
 });
 
-test('CA-15 : win32 et linux ne sont PAS couverts par ce lot -> null, jamais une clé inventée', () => {
-  assert.equal(cleManifestePlateforme({ platform: 'win32', arch: 'x64' }), null);
-  assert.equal(cleManifestePlateforme({ platform: 'linux', arch: 'x64' }), null);
+test('CA-W1 : linux/x64 est COUVERT depuis le lot W-L — couple {installeur:"linux-x86_64-appimage", generique:"linux-x86_64"}', () => {
+  assert.deepEqual(cleManifestePlateforme({ platform: 'linux', arch: 'x64' }), { installeur: 'linux-x86_64-appimage', generique: 'linux-x86_64' });
+});
+
+test('CA-W15 : win32/x64, linux/arm64 et darwin/ia32 restent NON couverts -> null (le refus CA-15 survit, il rétrécit)', () => {
+  assert.equal(cleManifestePlateforme({ platform: 'win32', arch: 'x64' }), null, 'Windows reste hors périmètre tant que le lot W-W ne l\'implémente pas (AR-W6 : lots gatés séparément)');
+  assert.equal(cleManifestePlateforme({ platform: 'linux', arch: 'arm64' }), null, 'le manifeste réel ne porte que du linux x86_64 (M5)');
   assert.equal(cleManifestePlateforme({ platform: 'darwin', arch: 'ia32' }), null, 'darwin sur une archi NI arm64 NI x64 (ex. 32 bits) : non couvert non plus');
 });
 
@@ -190,4 +202,102 @@ test('poserBundleDarwin : archive CORROMPUE (pas un vrai gzip) -> ÉCHEC explici
   assert.equal(res.ok, false);
   assert.match(res.raison, /tar.*echoue/);
   assert.equal(fs.existsSync(cible), false);
+});
+
+// ==================================================================================================
+// Lot ETAPES-3-4-WINDOWS-LINUX / W-L (Linux) — ajouts 2026-09-05, RIEN CI-DESSUS N'EST TOUCHE
+// (hors les deux tests CA-15 modifiés plus haut pour le nouveau contrat de cleManifestePlateforme).
+// ==================================================================================================
+
+// --- CA-W2 : selection installeur -> generique, clé d'installeur D'ABORD, generique EN REPLI ------
+
+test('CA-W2 : resoudreCleManifeste lit la clé INSTALLEUR d\'abord quand les deux existent (URL distinctes)', () => {
+  const cle = { installeur: 'linux-x86_64-appimage', generique: 'linux-x86_64' };
+  const manifeste = {
+    version: '1.0.0',
+    platforms: {
+      'linux-x86_64-appimage': { url: 'https://example.invalid/appimage-url', signature: 'sig-a' },
+      'linux-x86_64': { url: 'https://example.invalid/generique-url', signature: 'sig-b' },
+    },
+  };
+  assert.equal(resoudreCleManifeste(manifeste, cle), 'linux-x86_64-appimage');
+});
+
+test('CA-W2, CONTREFACTUEL (repli manquant) : sans clé installeur, un manifeste ne portant QUE la générique est quand même résolu', () => {
+  const cle = { installeur: 'linux-x86_64-appimage', generique: 'linux-x86_64' };
+  const manifeste = {
+    version: '1.0.0',
+    platforms: { 'linux-x86_64': { url: 'https://example.invalid/generique-seule', signature: 'sig-b' } },
+  };
+  assert.equal(resoudreCleManifeste(manifeste, cle), 'linux-x86_64', 'le repli sur la clé générique doit fonctionner quand la clé installeur est absente');
+});
+
+// --- CA-W6 : NON-repli sur `-deb`/`-rpm` (le critère le plus facile à rendre vide, § 8) -----------
+
+test('CA-W6 : un manifeste portant SEULEMENT `-deb`/`-rpm` (signés, valides) -> AUCUNE résolution, jamais un repli', () => {
+  const cle = { installeur: 'linux-x86_64-appimage', generique: 'linux-x86_64' };
+  const manifeste = {
+    version: '1.0.0',
+    platforms: {
+      // Entrées VALIDES et SIGNEES, exactement le piège du critère : si la fonction se repliait
+      // sur l'une d'elles, ce test ne rougirait PAS pour la bonne raison.
+      'linux-x86_64-deb': { url: 'https://example.invalid/x.deb', signature: 'sig-deb-valide' },
+      'linux-x86_64-rpm': { url: 'https://example.invalid/x.rpm', signature: 'sig-rpm-valide' },
+    },
+  };
+  assert.equal(resoudreCleManifeste(manifeste, cle), null, 'CONTREFACTUEL : ajouter un repli sur `-deb`/`-rpm` ferait rougir ce test');
+});
+
+test('CA-W2/CA-W6 : entrée sans `url` (signature seule) ne compte pas comme exploitable', () => {
+  const cle = { installeur: 'linux-x86_64-appimage', generique: 'linux-x86_64' };
+  const manifeste = { version: '1.0.0', platforms: { 'linux-x86_64-appimage': { signature: 'sig-sans-url' } } };
+  assert.equal(resoudreCleManifeste(manifeste, cle), null);
+});
+
+// --- familleDePose / nomFichierCible : dérivation pure, source unique (M3) -------------------------
+
+test('familleDePose : darwin/linux dérivés de la clé générique, source unique (pas de .app en dur, M3)', () => {
+  assert.equal(familleDePose({ installeur: null, generique: 'darwin-aarch64' }), 'darwin');
+  assert.equal(familleDePose({ installeur: null, generique: 'darwin-x86_64' }), 'darwin');
+  assert.equal(familleDePose({ installeur: 'linux-x86_64-appimage', generique: 'linux-x86_64' }), 'linux');
+  assert.equal(familleDePose(null), null);
+});
+
+test('nomFichierCible : `.app` pour darwin (inchangé), `.AppImage` pour linux (le `.app` en dur disparaît, M3)', () => {
+  assert.equal(nomFichierCible('IakaCockpit', 'darwin'), 'IakaCockpit.app');
+  assert.equal(nomFichierCible('IakaCockpit', 'linux'), 'IakaCockpit.AppImage');
+});
+
+// --- CA-W3/CA-W4 : poserBundleLinux, pose reelle sur disque (bit d'execution) ----------------------
+
+test('CA-W3 : poserBundleLinux écrit l\'octet EXACT et pose le bit d\'exécution (0o755)', () => {
+  const octets = Buffer.from('contenu AppImage fixture, octet pour octet');
+  const racine = tmp();
+  const cible = path.join(racine, 'FixtureApp.AppImage');
+  const res = poserBundleLinux({ octets, cible });
+  assert.equal(res.ok, true);
+  assert.deepEqual(fs.readFileSync(cible), octets, 'CA-W3 : octet pour octet, identique à ce qui a été vérifié');
+  const mode = fs.statSync(cible).mode;
+  assert.notEqual(mode & 0o111, 0, 'CA-W3 : le bit d\'exécution doit être posé');
+});
+
+test('CA-W3, CONTREFACTUEL : sans chmod, le bit d\'exécution serait absent (garde la valeur du test précédent honnête)', () => {
+  const octets = Buffer.from('contenu');
+  const racine = tmp();
+  const cible = path.join(racine, 'SansChmod.AppImage');
+  fs.mkdirSync(path.dirname(cible), { recursive: true });
+  fs.writeFileSync(cible, octets); // même écriture que poserBundleLinux, SANS le chmod
+  const mode = fs.statSync(cible).mode;
+  assert.equal(mode & 0o111, 0, 'précondition du contrefactuel : une simple writeFileSync ne pose PAS le bit d\'exécution sur ce système');
+});
+
+test('CA-W5 : poserBundleLinux REMPLACE un fichier déjà présent à la cible (la sauvegarde reste la responsabilité de l\'appelant, AR-5)', () => {
+  const racine = tmp();
+  const cible = path.join(racine, 'FixtureApp.AppImage');
+  fs.mkdirSync(racine, { recursive: true });
+  fs.writeFileSync(cible, Buffer.from('ancienne version'));
+  const octets = Buffer.from('nouvelle version, octet neuf');
+  const res = poserBundleLinux({ octets, cible });
+  assert.equal(res.ok, true);
+  assert.deepEqual(fs.readFileSync(cible), octets);
 });

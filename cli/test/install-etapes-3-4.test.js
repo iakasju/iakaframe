@@ -17,6 +17,7 @@ import { generateKeyPairSync, createHash, sign as cryptoSign, randomBytes } from
 import { etapeApp } from '../src/commands/install.js';
 import { APPS } from '../src/lib/app-bundle.js';
 import { orchestrerRollback } from '../src/lib/rollback.js';
+import { creerEmetteur, EVENEMENTS, ETATS_ETAPE } from '../src/lib/evenements.js';
 
 function tmp() { return fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-install-etapes34-')); }
 
@@ -236,4 +237,198 @@ test('AR-5, contrefactuel bout-en-bout : la sauvegarde de l\'étape 3 disparaît
   assert.equal(rb.nonDefaits.length, 1);
   assert.match(rb.resume, /PARTIEL/);
   assert.equal(fs.readFileSync(path.join(cible3, 'Contents', 'MacOS', 'marker.txt'), 'utf8'), 'neuf', 'RIEN ne doit avoir été touché : ni supprimé, ni restauré à l\'aveugle sur une preuve dont la sauvegarde a disparu');
+});
+
+// ==================================================================================================
+// Lot ETAPES-3-4-WINDOWS-LINUX / W-L (Linux) — ajouts 2026-09-05. Chaînage RÉEL via `etapeApp`,
+// `plateforme` INJECTÉE à `{platform:'linux',arch:'x64'}` (le point d'injection PUR de M10,
+// jamais un drapeau CLI) — RIEN CI-DESSUS N'EST TOUCHÉ.
+// ==================================================================================================
+
+/** Empreinte récursive du système de fichiers : chemins relatifs triés + contenu (CA-W7). */
+function empreinte(dir) {
+  const out = [];
+  const walk = (d, rel) => {
+    let entries = [];
+    try { entries = fs.readdirSync(d, { withFileTypes: true }); } catch { return; }
+    for (const e of entries.sort((a, b) => a.name.localeCompare(b.name))) {
+      const p = path.join(d, e.name);
+      const r = rel ? path.join(rel, e.name) : e.name;
+      if (e.isDirectory()) walk(p, r);
+      else out.push(`${r}:${fs.readFileSync(p).toString('base64')}`);
+    }
+  };
+  walk(dir, '');
+  return out.join('\n');
+}
+
+/** Un COUPLE app+manifeste+bundle valides pour LINUX (clé installeur `linux-x86_64-appimage`). */
+function scenarioLinuxValide({ appKey, contenu = 'contenu AppImage neuf' }) {
+  const app = { ...APPS[appKey], pubkey: null };
+  const { privateKey, keyId, pubkeyB64 } = fabriquerPaire();
+  app.pubkey = pubkeyB64;
+  const octets = Buffer.from(contenu);
+  const signature = signer({ octets, privateKey, keyId, fichier: `${app.nom}.AppImage` });
+  const manifeste = {
+    version: '9.9.9',
+    platforms: { 'linux-x86_64-appimage': { url: `https://example.invalid/${app.nom}.AppImage`, signature } },
+  };
+  const resoudreEndpointsApp = async () => ({
+    retenu: { hote: 'nas-fixture' }, manifeste, essais: [{ hote: 'nas-fixture', ok: true, motif: 'ok' }], complet: true, mesureLe: new Date().toISOString(),
+  });
+  const telechargerApp = async () => ({ ok: true, status: 200, octets });
+  return { app, resoudreEndpointsApp, telechargerApp, octets };
+}
+
+test('CA-W16 : Linux, CA-14 tenu — signature invalide sur l\'AppImage -> etapeApp refuse, RIEN écrit dans --apps-dir', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const { app, resoudreEndpointsApp } = scenarioLinuxValide({ appKey: 'IakaCockpit' });
+  // CONTREFACTUEL : le serveur sert un octet DIFFÉRENT de celui qui a été signé.
+  const telechargerApp = async () => ({ ok: true, status: 200, octets: Buffer.from('AppImage ALTÉRÉE, pas celle qui a été signée') });
+
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'linux', arch: 'x64' },
+    }));
+  } finally { silence.desactiver(); }
+
+  assert.equal(r.ok, false);
+  assert.equal(r.preuve, null);
+  assert.equal(fs.existsSync(path.join(appsDir, 'IakaCockpit.AppImage')), false, 'CA-W16 : CA-14 tenu sur Linux comme sur macOS — signature invalide -> rien écrit');
+});
+
+test('CA-W3/CA-W4 : Linux, chemin positif — pose neuve d\'IakaCockpit.AppImage, écrite avec le bit d\'exécution', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const { app, resoudreEndpointsApp, telechargerApp, octets } = scenarioLinuxValide({ appKey: 'IakaCockpit' });
+
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'linux', arch: 'x64' },
+    }));
+  } finally { silence.desactiver(); }
+
+  assert.equal(r.ok, true);
+  assert.ok(r.preuve);
+  assert.equal(r.preuve.existaitAvant, false);
+  const cible = path.join(appsDir, 'IakaCockpit.AppImage');
+  assert.deepEqual(fs.readFileSync(cible), octets, 'CA-W3 : octet pour octet');
+  assert.notEqual(fs.statSync(cible).mode & 0o111, 0, 'CA-W3 : bit d\'exécution posé par la chaîne réelle');
+});
+
+test('CA-W5, chaîné réel : une AppImage DÉJÀ PRÉSENTE (fichier, pas dossier) est RESTAURÉE, jamais effacée', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const cible = path.join(appsDir, 'IakaCockpit.AppImage');
+  fs.mkdirSync(appsDir, { recursive: true });
+  fs.writeFileSync(cible, Buffer.from('AppImage PRÉ-EXISTANTE'));
+
+  const s = scenarioLinuxValide({ appKey: 'IakaCockpit', contenu: 'posé par CETTE chaîne' });
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', s.app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp: s.resoudreEndpointsApp, telechargerApp: s.telechargerApp,
+      plateforme: { platform: 'linux', arch: 'x64' },
+    }));
+  } finally { silence.desactiver(); }
+  assert.equal(r.ok, true);
+  assert.equal(r.preuve.existaitAvant, true, 'AR-5 garde 1, sur un FICHIER Linux (pas un dossier) : la préexistence est bien mesurée');
+  assert.deepEqual(fs.readFileSync(cible), Buffer.from('posé par CETTE chaîne'), 'précondition : la chaîne a bien remplacé le contenu');
+
+  const rb = orchestrerRollback([r.preuve]);
+  assert.equal(rb.nonDefaits.length, 0);
+  assert.deepEqual(fs.readFileSync(cible), Buffer.from('AppImage PRÉ-EXISTANTE'), 'AR-5 garde 2, sur un FICHIER : le contenu PRÉ-EXISTANT doit être de retour, jamais effacé');
+});
+
+test('CA-W6, chaîné réel : manifeste Linux SANS AppImage exploitable (seulement -deb/-rpm signés) -> REFUS, RIEN écrit', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const app = { ...APPS.IakaCockpit, pubkey: fabriquerPaire().pubkeyB64 };
+  const manifeste = {
+    version: '9.9.9',
+    platforms: {
+      'linux-x86_64-deb': { url: 'https://example.invalid/x.deb', signature: 'sig-deb-valide' },
+      'linux-x86_64-rpm': { url: 'https://example.invalid/x.rpm', signature: 'sig-rpm-valide' },
+    },
+  };
+  const resoudreEndpointsApp = async () => ({
+    retenu: { hote: 'nas-fixture' }, manifeste, essais: [{ hote: 'nas-fixture', ok: true, motif: 'ok' }], complet: true, mesureLe: new Date().toISOString(),
+  });
+  let appelsTelechargement = 0;
+  const telechargerApp = async () => { appelsTelechargement++; return { ok: true, status: 200, octets: Buffer.from('jamais utilisé') }; };
+
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'linux', arch: 'x64' },
+    }));
+  } finally { silence.desactiver(); }
+
+  assert.equal(r.ok, false);
+  assert.equal(r.preuve, null);
+  assert.equal(appelsTelechargement, 0, 'CA-W6 : ne doit MÊME PAS tenter de télécharger le .deb/.rpm');
+  assert.equal(fs.existsSync(path.join(appsDir, 'IakaCockpit.AppImage')), false);
+  assert.match(r.reprise || '', /publie AppImage/, 'la reprise doit nommer la forme manquante');
+});
+
+test('CA-W7 : Linux, `--dry-run` — empreinte disque IDENTIQUE avant/après, la chaîne décrit sans écrire', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const s = scenarioLinuxValide({ appKey: 'IakaCockpit' });
+
+  const avant = empreinte(appsDir);
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', s.app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true, 'dry-run': true }, appsDir, backupDir,
+      resoudreEndpointsApp: s.resoudreEndpointsApp, telechargerApp: s.telechargerApp,
+      plateforme: { platform: 'linux', arch: 'x64' },
+    }));
+  } finally { silence.desactiver(); }
+  const apres = empreinte(appsDir);
+
+  assert.equal(r.ok, true);
+  assert.equal(r.dryRun, true);
+  assert.equal(apres, avant, 'CA-W7 : --dry-run ne doit RIEN écrire — prouvé par empreinte disque, pas par lecture de code');
+  assert.equal(fs.existsSync(path.join(appsDir, 'IakaCockpit.AppImage')), false);
+});
+
+test('AR-W8/CA-W17 : sur la plateforme Linux simulée (--events, mode "json"), tout evt/etat émis reste dans le vocabulaire FERMÉ — aucun état nouveau', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const s = scenarioLinuxValide({ appKey: 'IakaCockpit' });
+  const em = creerEmetteur({ mode: 'json' });
+
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', s.app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp: s.resoudreEndpointsApp, telechargerApp: s.telechargerApp,
+      plateforme: { platform: 'linux', arch: 'x64' }, em,
+    }));
+  } catch (e) { throw e; }
+
+  assert.equal(r.ok, true);
+  assert.ok(em.evenements.length > 0, 'la chaîne Linux doit émettre des événements comme la chaîne macOS');
+  const hors = [];
+  for (const o of em.evenements) {
+    if (!EVENEMENTS.includes(o.evt)) hors.push(o.evt);
+    if (o.evt === 'etape-terminee' && !ETATS_ETAPE.includes(o.etat)) hors.push(`etat:${o.etat}`);
+  }
+  assert.deepEqual(hors, [], `valeur(s) hors vocabulaire émise(s) sur le chemin Linux : ${hors.join(', ')}`);
+  // CA-W17 : la motivation ("plateforme non couverte", "AppImage introuvable"...) passe par
+  // `detail` (texte libre), jamais par un evt/etat neuf — vérifié ici par l'appartenance stricte
+  // au vocabulaire gelé, et par un `git diff --stat cli/src/lib/evenements.js` vide (revue humaine).
 });
