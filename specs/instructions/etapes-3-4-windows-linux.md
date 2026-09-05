@@ -613,24 +613,71 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
 
 ### Lot W-W — Windows
 
-- [ ] **CA-W8** — `cleManifestePlateforme({platform:'win32',arch:'x64'})` rend
+- [x] **CA-W8** — `cleManifestePlateforme({platform:'win32',arch:'x64'})` rend
       `{installeur:'windows-x86_64-nsis', generique:'windows-x86_64'}`, et **le `.msi` n'est
       jamais lu** — même exigence de fixture non vide que CA-W6.
-- [ ] **CA-W9** — L'annonce d'étape sur Windows **dit que `--apps-dir` ne s'applique pas** et
+      **Preuve** : `cli/src/lib/app-bundle.js` (`cleManifestePlateforme`) ;
+      `cli/test/app-bundle.test.js` test `CA-W8 : win32/x64 est COUVERT depuis le lot W-W…` ;
+      chaîné réel (manifeste ne portant que `windows-x86_64-msi`, signé et valide, sans repli)
+      dans `cli/test/install-etapes-3-4.test.js` test `CA-W8, chaîné réel : manifeste Windows
+      SANS .exe NSIS exploitable…` (0 appel de téléchargement).
+- [x] **CA-W9** — L'annonce d'étape sur Windows **dit que `--apps-dir` ne s'applique pas** et
       nomme la cible réelle (ou son indétermination). Aucun message ne prétend poser dans
       `--apps-dir`.
       **Contrefactuel** : rétablir l'annonce macOS ⇒ rougit.
-- [ ] **CA-W10** — **Refus d'écrire (§ 2.3)** : registre simulé indiquant une version installée
+      **Preuve** : `cli/src/commands/install.js` (`etapeApp`, bloc `famille === 'windows'`,
+      `NOTE_APPS_DIR_WINDOWS`, `appsDirSansEffet:true`) ; `cli/test/install-etapes-3-4.test.js`
+      test `CA-W8/CA-W9, chaîné réel : Windows, pose neuve…` (empreinte `--apps-dir` identique
+      avant/après, `InstallLocation` découvert APRÈS la pose, jamais depuis `--apps-dir`).
+- [x] **CA-W10** — **Refus d'écrire (§ 2.3)** : registre simulé indiquant une version installée
       **sans `InstallLocation` exploitable** ⇒ l'étape **refuse**, **aucun sous-processus
       d'installation n'est lancé** (compteur d'appels sur le port injecté = 0), rien n'est écrit.
       **Contrefactuel** : supprimer le refus ⇒ l'installeur est lancé et le compteur rougit.
-- [ ] **CA-W11** — **AR-5 garde 3, résidu énoncé** : le rapport de rollback Windows **nomme** ce
+      **Preuve** : `cli/src/lib/app-bundle.js` (`decouvrirInstallationWindows`) ;
+      `cli/test/install-etapes-3-4.test.js` tests `CA-W10 : registre simulé — clé PRÉSENTE mais
+      InstallLocation INEXPLOITABLE…` (compteur=0) et son CONTREFACTUEL joué séparément
+      (`CA-W10, CONTREFACTUEL implicite…`, même registre mais `InstallLocation` exploitable ⇒
+      l'installeur est bien lancé, compteur=1) ; unitaire dans `cli/test/app-bundle.test.js`
+      (4 tests `decouvrirInstallationWindows`, dont clé absente / valeur illisible / dossier
+      disparu / valeur vide).
+- [x] **CA-W11** — **AR-5 garde 3, résidu énoncé** : le rapport de rollback Windows **nomme** ce
       qu'il n'a pas su défaire (registre, raccourcis). Aucun « restauré » global n'est imprimé.
       **Contrefactuel** : remplacer l'énoncé par une phrase d'ensemble ⇒ rougit.
-- [ ] **CA-W12** — **Code de sortie non nul de l'installeur** ⇒ étape `echouee`, **le code est dans
+      **Preuve** : `cli/src/lib/rollback.js` (`restaurerEtape`, suffixe `RESIDU NON RETABLI`
+      ajouté UNIQUEMENT quand `preuve.plateforme==='windows'`, dans les DEUX branches —
+      restauration de dossier ET désinstallation) ; `cli/test/rollback.test.js` tests `AR-W5, cas
+      "une version existait"…` et `AR-W5, cas "rien n'existait avant"…` ; chaîné réel dans
+      `cli/test/install-etapes-3-4.test.js` test `AR-5, chaîné réel Windows…` (`rb.rapports[0]
+      .raison` matche `/RESIDU NON RETABLI/`).
+      **Reprise post-gate FAIL (2026-09-06)** — cas **cible indéterminée**, trouvé et reproduit
+      deux fois par Legolas hors harnais (`docs/qualite/gate-etapes-3-4-windows.md`) : quand
+      `preuveDisque.plateforme==='windows'` ET ni `cible` ni `windowsUninstall.chemin` ne sont
+      connus (pose jamais complétée — `cli/src/commands/install.js:663`, rollback immédiat —, ou
+      pose réussie mais `InstallLocation` introuvable après coup — `install.js:679-680`),
+      `restaurerEtape` (`cli/src/lib/rollback.js`) rend désormais un énoncé nommé
+      (`/residu Windows non identifiable/i`) au lieu de tomber dans la branche générique
+      `fs.rmSync` héritée de macOS/Linux (qui levait une `TypeError` sur `cible===null`, capturée
+      génériquement et rendue verbatim dans la `raison`, y compris dans l'événement structuré
+      `rollback`). **Preuve** : `cli/test/rollback.test.js` tests `AR-W5, cas (a) "pose échouée
+      AVANT complétion de la preuve"…` et `AR-W5, cas (b) "pose réussie mais InstallLocation
+      introuvable après coup"…` ; chaîné réel avec ports `execReg`/`execSetupWindows` injectés dans
+      `cli/test/install-etapes-3-4.test.js` test `AR-W5, cas (b) chaîné réel Windows…`, qui vérifie
+      en plus que la ligne NDJSON de l'événement structuré `rollback` (mode `--events`) **parse**
+      et ne contient ni `TypeError` ni le mot `null`. Non-régression : la nouvelle branche est
+      conditionnée à `plateforme==='windows'`, jamais atteinte par macOS/Linux ; rejeu des trois
+      gardes AR-5 en bac à sable, `raison` identiques à l'octet entre HEAD et `main`.
+      `docs/commandes.md:249` complété d'une phrase nommant ce cas. Suite complète : `tests 1145,
+      pass 1144, fail 0, skipped 1` (attendu ≥ 1142, +3 tests).
+- [x] **CA-W12** — **Code de sortie non nul de l'installeur** ⇒ étape `echouee`, **le code est dans
       le `detail`**, la chaîne s'arrête (CA-07 hérité), et le rollback des étapes précédentes joue.
-- [ ] **CA-W13** — `--dry-run` sur Windows **n'écrit rien et ne lance aucun sous-processus**
+      **Preuve** : `cli/src/lib/app-bundle.js` (`poserBundleWindows`, code ≠ 0 ⇒ `{ok:false,
+      raison}` nommant le code, 2 = abandon NSIS nommé explicitement) ; `cli/test/app-bundle.test.js`
+      (3 tests dont code 2 et code 1603) ; chaîné dans `cli/test/install-etapes-3-4.test.js` test
+      `CA-W12 : code de sortie NON NUL de l'installeur…` (`detail` matche `/code 1603/`).
+- [x] **CA-W13** — `--dry-run` sur Windows **n'écrit rien et ne lance aucun sous-processus**
       (compteur = 0).
+      **Preuve** : `cli/test/install-etapes-3-4.test.js` test `CA-W13 : Windows, --dry-run…`
+      (compteur `execSetupWindows`=0, empreinte `--apps-dir` identique avant/après).
 
 ### Transverses
 
@@ -649,19 +696,21 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
       tenue AU MOT PRÈS sans contredire le mandat du § 2.1 lui-même ; l'ESPRIT (comportement macOS
       inchangé, aucune régression) est tenu et prouvé par la suite verte. Verdict à Legolas.
 - [x] **CA-W15** — Le refus CA-15 **survit** : `linux/arm64`, `win32/arm64`, `darwin/ia32` rendent
-      toujours un refus nommé, sans consulter le réseau (le compteur de `resoudreEndpointsApp`
-      reste à 0, comme `install-etapes-3-4.test.js:105` le prouve déjà pour `win32/x64`).
-      **Décision explicite de ce lot** : `cleManifestePlateforme` n'ajoute PAS win32 à sa table
-      dans W-L (seul linux/x64 est ajouté) — la table Windows arrive avec `poserBundleWindows` au
-      lot W-W, pour ne jamais faire dépendre CA-W15 d'une branche de pose qui n'existe pas encore.
-      **Preuve** : `cli/test/app-bundle.test.js` test `CA-W15 : win32/x64, linux/arm64 et
-      darwin/ia32 restent NON couverts` ; `install-etapes-3-4.test.js:91-106` (win32/x64, 0 appel
-      réseau) **inchangé, toujours vert**.
-- [~] **CA-W16** — **CA-14 tenu sur les trois plateformes** : un bundle dont l'octet servi ne
-      correspond pas à la signature annoncée est **refusé** et **rien n'est écrit**, sur Linux et
-      sur Windows comme sur macOS. **Ce lot (W-L) ne prouve que macOS + Linux** ; Windows reste dû
-      au lot W-W. **Preuve (Linux)** : `cli/test/install-etapes-3-4.test.js` test `CA-W16 : Linux,
-      CA-14 tenu — signature invalide sur l'AppImage…` (macOS déjà prouvé, inchangé).
+      toujours un refus nommé, sans consulter le réseau. **MIS À JOUR PAR LE LOT W-W** :
+      `win32/x64` est désormais **COUVERT** (déplacé vers CA-W8) — la liste des cas non couverts
+      passe de `win32/x64, linux/arm64, darwin/ia32` (W-L) à `win32/arm64, linux/arm64,
+      darwin/ia32` (W-W), même discipline que le déplacement analogue déjà fait pour macOS/Linux
+      au lot précédent. **Preuve** : `cli/test/app-bundle.test.js` test `CA-W15 : win32/arm64,
+      linux/arm64 et darwin/ia32 restent NON couverts…` (mis à jour) et test neuf `CA-W8 :
+      win32/x64 est COUVERT…` ; `cli/test/install-etapes-3-4.test.js` test `CA-15 : plateforme NON
+      couverte…` (mis à jour, `win32/arm64` remplace `win32/x64`, 0 appel réseau, toujours vert).
+- [x] **CA-W16** — **CA-14 tenu sur les trois plateformes** : un bundle dont l'octet servi ne
+      correspond pas à la signature annoncée est **refusé** et **rien n'est écrit**, sur macOS,
+      Linux **et Windows**. **Preuve (Linux, lot W-L)** : `cli/test/install-etapes-3-4.test.js`
+      test `CA-W16 : Linux, CA-14 tenu — signature invalide sur l'AppImage…`. **Preuve (Windows,
+      lot W-W)** : même fichier, test `CA-W16 : Windows, CA-14 tenu — signature invalide sur le
+      setup.exe…` (compteur `execSetupWindows`=0 : l'installeur n'est même pas lancé). macOS
+      inchangé, déjà prouvé.
 - [x] **CA-W17** — **Le contrat machine est inchangé** : aucun `evt` ni `etat` nouveau ;
       `cli/src/lib/evenements.js` a un `git diff` **vide**. Les motifs nouveaux passent par
       `detail`.
@@ -670,8 +719,10 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
       (--events, mode "json")…` (tout `evt`/`etat` émis appartient au vocabulaire fermé).
 - [x] **CA-W18** — `docs/commandes.md` décrit le comportement des trois plateformes, **dans le même
       lot**.
-      **Preuve** : `docs/commandes.md`, ligne `install` (paragraphe étapes 3/4 réécrit : macOS +
-      Linux couverts, Windows refusé jusqu'à W-W, non-repli deb/rpm, gate humain nommé).
+      **Preuve** : `docs/commandes.md`, ligne `install` (paragraphe étapes 3/4 réécrit, lot W-L
+      puis W-W : macOS + Linux + Windows couverts, `--apps-dir` sans effet sur Windows, non-repli
+      deb/rpm/msi, découverte registre + trois cas de sauvegarde/rollback Windows décrits, gate
+      humain nommé par OS).
 - [ ] **CA-W19** — Le banc CI existe, ses actions sont **épinglées au SHA**, et sa limite (« un
       runner n'est pas un poste ») est **écrite dans le fichier**. **HORS PÉRIMÈTRE de ce lot**
       (Étape 3 de § 5, non demandée dans cet ordre de mission) — non fait, non simulé.

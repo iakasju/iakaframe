@@ -74,7 +74,14 @@ export function cleManifestePlateforme({ platform = os.platform(), arch = os.arc
   if (platform === 'linux' && arch === 'x64') {
     return { installeur: 'linux-x86_64-appimage', generique: 'linux-x86_64' };
   }
-  // « Tout le reste » n'est pas vide, et c'est deliberer (§ 2.1) : linux/arm64, win32/* et
+  // AJOUT LOT W-W (2026-09-05, § 2.1) : `windows-x86_64-nsis` D'ABORD (le `.exe` NSIS, AR-W1(a) —
+  // le SEUL artefact Windows que ce lot lit), `windows-x86_64` en repli (M6). **Le `.msi` n'est
+  // JAMAIS lu** : sa clé (`windows-x86_64-msi`) n'apparait NULLE PART dans ce fichier — pas meme
+  // comme un repli refuse explicitement, exactement comme AR-W2(a) exclut `-deb`/`-rpm` sur Linux.
+  if (platform === 'win32' && arch === 'x64') {
+    return { installeur: 'windows-x86_64-nsis', generique: 'windows-x86_64' };
+  }
+  // « Tout le reste » n'est pas vide, et c'est deliberer (§ 2.1) : linux/arm64, win32/arm64 et
   // darwin/ia32 restent NON COUVERTS — les manifestes reels ne portent que du x86_64 hors macOS
   // (M5). Le refus CA-15 survit a ce lot ; il retrecit, il ne disparait pas (CA-W15).
   return null;
@@ -209,5 +216,102 @@ export function poserBundleLinux({ octets, cible }) {
     return { ok: true, cible };
   } catch (e) {
     return { ok: false, raison: `écriture de l'AppImage a échoué (${cible}) : ${e.message}` };
+  }
+}
+
+// ==================================================================================================
+// Lot ETAPES-3-4-WINDOWS-LINUX / W-W (Windows) — ajouts 2026-09-05. RIEN CI-DESSUS N'EST TOUCHE
+// (macOS et Linux inchanges, y compris leurs commentaires).
+// ==================================================================================================
+
+function execRegReel(cmd, args) { return spawnSync(cmd, args, { encoding: 'utf8' }); }
+function execSpawnReel(cmd, args) { return spawnSync(cmd, args, { encoding: 'utf8' }); }
+
+/**
+ * AR-5 Windows (§ 2.3 de l'instruction) : decouvre si une version de `productName` est DEJA
+ * installee, en lisant la cle de desinstallation HKCU deja MESUREE et GATEE a l'etape 0 de ce
+ * portefeuille (`HKCU\Software\Microsoft\Windows\CurrentVersion\Uninstall\<productName>`, nom
+ * LITTERAL — pas de GUID, SHCTX=HKCU en `currentUser`). DEUX requetes `reg query` distinctes,
+ * jamais une seule : la premiere teste la PRESENCE de la cle (sans `/v`), la seconde lit la valeur
+ * `InstallLocation` (`/v`) — un `reg.exe` reel rend un code non nul dans les DEUX cas ("cle
+ * absente" ET "cle presente mais valeur absente"), et ce fichier ne peut pas les distinguer avec
+ * UNE seule requete. `execReg` est le port d'INJECTION (M-10, meme idiome que `sondes`/
+ * `execNpmInstall`) : la production lance le VRAI `reg.exe`, sans shell (spawnSync avec un
+ * tableau d'arguments, jamais une chaine interpretee) ; les tests injectent un double qui rejoue
+ * le FORMAT REEL de sortie Windows (mesure fournie par Aragorn a l'etape 0 : lignes tabulees
+ * `InstallLocation    REG_SZ    "C:\Users\x\AppData\Local\IakaCockpit"`, guillemets LITTERAUX
+ * inclus dans la valeur — le NSIS de Tauri les ecrit tels quels via `"$INSTDIR"`).
+ *
+ * Rend TROIS formes, jamais une quatrieme (§ 2.3) :
+ *   - `{ existe:false, installLocation:null }` — rien n'est installe (rollback = uninstall.exe
+ *     apres coup, cas "rien avant") ;
+ *   - `{ existe:true, installLocation:<chemin> }` — cle trouvee, `InstallLocation` LISIBLE (apres
+ *     retrait des guillemets litteraux) ET le dossier EXISTE reellement sur le disque (verifie ici
+ *     par `fs.existsSync`, jamais suppose) ;
+ *   - `{ existe:true, installLocation:null }` — cle trouvee mais la valeur est absente, illisible,
+ *     VIDE, ou pointe sur un dossier DISPARU : c'est le cas qui commande le REFUS D'ECRIRE au
+ *     site d'appel (etapeApp) — CE FICHIER NE REFUSE RIEN LUI-MEME, il MESURE et rend le fait tel
+ *     quel ; c'est a l'appelant de decider, exactement comme `resoudreCleManifeste` ne refuse pas
+ *     non plus, il rend `null` et laisse `etapeApp` REFUSER en NOMMANT la cause (CA-W6/CA-W10).
+ */
+export function decouvrirInstallationWindows({ productName, execReg = execRegReel } = {}) {
+  const cle = `HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\${productName}`;
+  const resCle = execReg('reg', ['query', cle]);
+  if (!resCle || resCle.status !== 0) {
+    return { existe: false, installLocation: null };
+  }
+  const resValeur = execReg('reg', ['query', cle, '/v', 'InstallLocation']);
+  if (!resValeur || resValeur.status !== 0) {
+    return { existe: true, installLocation: null };
+  }
+  const sortie = String(resValeur.stdout || '');
+  const m = sortie.match(/InstallLocation\s+REG_SZ\s+(.*)/i);
+  if (!m) return { existe: true, installLocation: null };
+  let valeur = m[1].trim();
+  // Les guillemets LITTERAUX poses par le NSIS (`"$INSTDIR"`, mesure d'etape 0) sont retires ICI,
+  // jamais a la source : `reg.exe` les rend TELS QUELS, ils font partie de la donnee stockee.
+  if (valeur.length >= 2 && valeur.startsWith('"') && valeur.endsWith('"')) {
+    valeur = valeur.slice(1, -1).trim();
+  }
+  if (!valeur || !fs.existsSync(valeur)) {
+    return { existe: true, installLocation: null }; // absente, vide, OU dossier disparu (§2.3 cas 3)
+  }
+  return { existe: true, installLocation: valeur };
+}
+
+/**
+ * Pose Windows (§ 2.2) : ecrit l'octet DEJA VERIFIE (CA-14 est en amont, rien a y toucher) dans un
+ * fichier TEMPORAIRE `<tmp>/<nomFichier>`, puis EXECUTE l'installeur NSIS en silencieux — `/S`
+ * SEUL (AR-W1(a) tranche : le `.exe` NSIS `currentUser`, sans UAC ; JAMAIS `/R`, qui relancerait
+ * l'app sans un second consentement — le feu vert de CETTE etape couvre la pose, pas un
+ * redemarrage, AR-4). Node pur, `spawnSync` avec un TABLEAU d'arguments (jamais un shell, jamais
+ * une chaine interpretee). Le code de sortie de l'installeur EST le verdict (§ 2.2) : non nul ⇒
+ * ECHEC NOMME avec le code — 2 est le code d'ABANDON par defaut de NSIS (mesure d'etape 0), 0 le
+ * SEUL succes reconnu ; aucun autre code n'est suppose. Le temporaire est SUPPRIME dans TOUS les
+ * cas (succes, echec, exception) — jamais laisse trainer sur le disque de l'utilisateur.
+ *
+ * Cette fonction NE CONNAIT PAS et NE CHOISIT PAS le dossier d'installation reel (E-4 : `/D=`
+ * n'agit pas en silencieux) — c'est `decouvrirInstallationWindows`, appelee par l'appelant APRES
+ * un succes, qui l'apprend en relisant le registre. `exec` est le port d'INJECTION (M-10) : la
+ * production lance le VRAI `<setup>.exe /S`, les tests injectent un double qui compte ses appels
+ * (CA-W10/CA-W13 : ce compteur doit rester a 0 en refus et en dry-run) et rejoue un code de
+ * sortie 0/2.
+ */
+export function poserBundleWindows({ octets, nomFichier, exec = execSpawnReel }) {
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-install-bundle-win-'));
+  const setupPath = path.join(tmpDir, nomFichier);
+  try {
+    fs.writeFileSync(setupPath, octets);
+    const res = exec(setupPath, ['/S']);
+    const code = res && typeof res.status === 'number' ? res.status : null;
+    if (code !== 0) {
+      const raison = code === 2
+        ? `installeur NSIS ABANDONNE (code de sortie 2, abandon par defaut de NSIS) : ${nomFichier} /S`
+        : `\`${nomFichier} /S\` a echoue (code ${code === null ? 'indetermine' : code})`;
+      return { ok: false, raison };
+    }
+    return { ok: true };
+  } finally {
+    fs.rmSync(tmpDir, { recursive: true, force: true });
   }
 }

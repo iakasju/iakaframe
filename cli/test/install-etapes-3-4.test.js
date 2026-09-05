@@ -89,6 +89,10 @@ function avecAppPatchee(appKey, app, fn) {
   try { return fn(); } finally { APPS[appKey] = original; }
 }
 
+// MODIFIE PAR LE LOT ETAPES-3-4-WINDOWS-LINUX/W-W (2026-09-05) : `win32/x64` est desormais COUVERT
+// (§ 2.1, AR-W1(a)) — ce test, qui exerce DIRECTEMENT le refus CA-15, est mis a jour pour utiliser
+// `win32/arm64` (toujours NON couvert, M5) a la place. Le chainage reel de win32/x64 est couvert
+// plus bas par les tests W-W dedies.
 test('CA-15 : plateforme NON couverte -> refus explicite, ZÉRO appel réseau (le résolveur n\'est jamais invoqué)', async () => {
   let appels = 0;
   const resoudreEndpointsApp = async () => { appels++; return { retenu: null, essais: [] }; };
@@ -98,7 +102,7 @@ test('CA-15 : plateforme NON couverte -> refus explicite, ZÉRO appel réseau (l
     r = await etapeApp({
       numero: 3, appKey: 'IakaCockpit', values: { yes: true },
       appsDir: tmp(), backupDir: tmp(),
-      resoudreEndpointsApp, plateforme: { platform: 'win32', arch: 'x64' },
+      resoudreEndpointsApp, plateforme: { platform: 'win32', arch: 'arm64' },
     });
   } finally { silence.desactiver(); }
   assert.equal(r.ok, false);
@@ -431,4 +435,397 @@ test('AR-W8/CA-W17 : sur la plateforme Linux simulée (--events, mode "json"), t
   // CA-W17 : la motivation ("plateforme non couverte", "AppImage introuvable"...) passe par
   // `detail` (texte libre), jamais par un evt/etat neuf — vérifié ici par l'appartenance stricte
   // au vocabulaire gelé, et par un `git diff --stat cli/src/lib/evenements.js` vide (revue humaine).
+});
+
+// ==================================================================================================
+// Lot ETAPES-3-4-WINDOWS-LINUX / W-W (Windows) — ajouts 2026-09-05. Chaînage RÉEL via `etapeApp`,
+// `plateforme` INJECTÉE à `{platform:'win32',arch:'x64'}`, `execReg`/`execSetupWindows` INJECTÉS
+// (M-10, ports dédiés à ce lot) — RIEN CI-DESSUS N'EST TOUCHÉ.
+// ==================================================================================================
+
+/** Un COUPLE app+manifeste+bundle valides pour WINDOWS (clé installeur `windows-x86_64-nsis`). */
+function scenarioWindowsValide({ appKey, contenu = 'contenu setup.exe neuf' }) {
+  const app = { ...APPS[appKey], pubkey: null };
+  const { privateKey, keyId, pubkeyB64 } = fabriquerPaire();
+  app.pubkey = pubkeyB64;
+  const octets = Buffer.from(contenu);
+  const signature = signer({ octets, privateKey, keyId, fichier: `${app.nom}-setup.exe` });
+  const manifeste = {
+    version: '9.9.9',
+    platforms: { 'windows-x86_64-nsis': { url: `https://example.invalid/${app.nom}-setup.exe`, signature } },
+  };
+  const resoudreEndpointsApp = async () => ({
+    retenu: { hote: 'nas-fixture' }, manifeste, essais: [{ hote: 'nas-fixture', ok: true, motif: 'ok' }], complet: true, mesureLe: new Date().toISOString(),
+  });
+  const telechargerApp = async () => ({ ok: true, status: 200, octets });
+  return { app, resoudreEndpointsApp, telechargerApp, octets };
+}
+
+/**
+ * Double `execReg` STATEFUL : rejoue "rien d'installé" TANT QUE l'installeur n'a pas encore été
+ * exécuté (`poseFaite.valeur === false`), puis "clé présente, InstallLocation résolue vers
+ * `installLocation`" UNE FOIS la pose faite — exactement le fait mesuré du § 2.3 point 3 : on ne
+ * découvre l'emplacement REEL qu'APRÈS coup, en relisant le registre.
+ */
+function fabriquerExecRegAvantApres({ installLocation, poseFaite }) {
+  return (cmd, args) => {
+    if (!poseFaite.valeur) return { status: 1, stdout: '' }; // avant la pose : rien d'installé
+    if (args.includes('/v')) return { status: 0, stdout: `    InstallLocation    REG_SZ    "${installLocation}"\r\n` };
+    return { status: 0, stdout: 'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\IakaCockpit\r\n' };
+  };
+}
+
+test('CA-W8/CA-W9, chaîné réel : Windows, pose neuve — `setup.exe /S` exécuté (jamais `/R`), --apps-dir JAMAIS écrit, InstallLocation découvert APRÈS la pose', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const { app, resoudreEndpointsApp, telechargerApp } = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  const installLocation = path.join(tmp(), 'IakaCockpitInstalle');
+  fs.mkdirSync(installLocation, { recursive: true });
+  const poseFaite = { valeur: false };
+  const execReg = fabriquerExecRegAvantApres({ installLocation, poseFaite });
+  let appelsSetup = 0;
+  let argsSetup = null;
+  const execSetupWindows = (cmd, args) => { appelsSetup++; argsSetup = args; poseFaite.valeur = true; return { status: 0 }; };
+
+  const avant = empreinte(appsDir);
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'win32', arch: 'x64' },
+      execReg, execSetupWindows,
+    }));
+  } finally { silence.desactiver(); }
+  const apres = empreinte(appsDir);
+
+  assert.equal(r.ok, true);
+  assert.equal(appelsSetup, 1);
+  assert.deepEqual(argsSetup, ['/S'], 'AR-W1(a) : silencieux SANS relance');
+  assert.ok(r.preuve);
+  assert.equal(r.preuve.existaitAvant, false);
+  assert.equal(r.preuve.windowsUninstall.chemin, path.join(installLocation, 'uninstall.exe'), '§2.3 point 3 : l\'uninstall.exe QUE LA POSE VIENT DE CRÉER, découvert après coup');
+  assert.equal(apres, avant, 'CA-W9 : --apps-dir n\'est JAMAIS écrit sur Windows, quel que soit le résultat');
+});
+
+test('CA-W16 : Windows, CA-14 tenu — signature invalide sur le setup.exe -> etapeApp refuse, AUCUN installeur lancé, rien écrit', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const { app, resoudreEndpointsApp } = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  // CONTREFACTUEL : le serveur sert un octet DIFFÉRENT de celui qui a été signé.
+  const telechargerApp = async () => ({ ok: true, status: 200, octets: Buffer.from('setup.exe ALTÉRÉ, pas celui qui a été signé') });
+  const execReg = () => ({ status: 1, stdout: '' }); // rien d'installé avant
+  let appelsSetup = 0;
+  const execSetupWindows = () => { appelsSetup++; return { status: 0 }; };
+
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'win32', arch: 'x64' },
+      execReg, execSetupWindows,
+    }));
+  } finally { silence.desactiver(); }
+
+  assert.equal(r.ok, false);
+  assert.equal(r.preuve, null);
+  assert.equal(appelsSetup, 0, 'CA-W16/CA-14 : une signature invalide doit REFUSER avant même de lancer l\'installeur');
+});
+
+test('CA-W10 : registre simulé — clé PRÉSENTE mais InstallLocation INEXPLOITABLE -> REFUS D\'ÉCRIRE, AUCUN installeur lancé (compteur=0), rien écrit', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const { app, resoudreEndpointsApp, telechargerApp } = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  const execReg = (cmd, args) => {
+    if (args.includes('/v')) return { status: 1, stdout: '' }; // InstallLocation illisible
+    return { status: 0, stdout: 'HKEY_CURRENT_USER\\...\\IakaCockpit\r\n' }; // la clé EXISTE
+  };
+  let appelsSetup = 0;
+  const execSetupWindows = () => { appelsSetup++; return { status: 0 }; };
+
+  const avant = empreinte(appsDir);
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'win32', arch: 'x64' },
+      execReg, execSetupWindows,
+    }));
+  } finally { silence.desactiver(); }
+  const apres = empreinte(appsDir);
+
+  assert.equal(r.ok, false);
+  assert.equal(r.preuve, null);
+  assert.equal(appelsSetup, 0, 'CA-W10 : aucun sous-processus d\'installation ne doit être lancé quand la sauvegarde est impossible');
+  assert.equal(apres, avant);
+  assert.match(r.reprise || '', /désinstaller/);
+});
+
+test('CA-W10, CONTREFACTUEL implicite : le MÊME registre (clé présente, InstallLocation exploitable) laisse l\'installeur se lancer — la garde ne rougit QUE sur l\'indétermination', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const { app, resoudreEndpointsApp, telechargerApp } = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  const installLocation = path.join(tmp(), 'IakaCockpitDejaLa');
+  fs.mkdirSync(installLocation, { recursive: true });
+  fs.writeFileSync(path.join(installLocation, 'app.exe'), 'ancienne version');
+  const execReg = (cmd, args) => {
+    if (args.includes('/v')) return { status: 0, stdout: `    InstallLocation    REG_SZ    "${installLocation}"\r\n` };
+    return { status: 0, stdout: 'HKEY_CURRENT_USER\\...\\IakaCockpit\r\n' };
+  };
+  let appelsSetup = 0;
+  const execSetupWindows = () => { appelsSetup++; return { status: 0 }; };
+
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'win32', arch: 'x64' },
+      execReg, execSetupWindows,
+    }));
+  } finally { silence.desactiver(); }
+
+  assert.equal(r.ok, true);
+  assert.equal(appelsSetup, 1);
+  assert.equal(r.preuve.existaitAvant, true);
+  assert.equal(r.preuve.plateforme, 'windows');
+  assert.equal(fs.readFileSync(path.join(installLocation, 'app.exe'), 'utf8'), 'ancienne version', 'précondition : la sauvegarde a bien été prise AVANT le (faux) lancement de l\'installeur');
+});
+
+test('CA-W12 : code de sortie NON NUL de l\'installeur -> étape ÉCHOUÉE, le code figure dans `detail`, rien de nouveau sur le disque', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const { app, resoudreEndpointsApp, telechargerApp } = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  const execReg = () => ({ status: 1, stdout: '' }); // rien d'installé avant
+  const execSetupWindows = () => ({ status: 1603 });
+  const em = creerEmetteur({ mode: 'json' });
+
+  const r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+    numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+    resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'win32', arch: 'x64' },
+    execReg, execSetupWindows, em,
+  }));
+
+  assert.equal(r.ok, false);
+  assert.equal(r.preuve, null);
+  const term = em.evenements.find((e) => e.evt === 'etape-terminee');
+  assert.equal(term.etat, 'echouee');
+  assert.match(term.detail, /code 1603/);
+});
+
+test('CA-W13 : Windows, `--dry-run` — AUCUN sous-processus lancé (compteur=0), rien écrit, empreinte identique', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const { app, resoudreEndpointsApp, telechargerApp } = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  const execReg = () => ({ status: 1, stdout: '' });
+  let appelsSetup = 0;
+  const execSetupWindows = () => { appelsSetup++; return { status: 0 }; };
+
+  const avant = empreinte(appsDir);
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true, 'dry-run': true }, appsDir, backupDir,
+      resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'win32', arch: 'x64' },
+      execReg, execSetupWindows,
+    }));
+  } finally { silence.desactiver(); }
+  const apres = empreinte(appsDir);
+
+  assert.equal(r.ok, true);
+  assert.equal(r.dryRun, true);
+  assert.equal(appelsSetup, 0, 'CA-W13 : aucun sous-processus ne doit être lancé en dry-run');
+  assert.equal(apres, avant);
+});
+
+test('CA-W8, chaîné réel : manifeste Windows SANS `.exe` NSIS exploitable (seulement `.msi` signé) -> REFUS, JAMAIS de repli sur le MSI, RIEN téléchargé', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const app = { ...APPS.IakaCockpit, pubkey: fabriquerPaire().pubkeyB64 };
+  const manifeste = {
+    version: '9.9.9',
+    platforms: { 'windows-x86_64-msi': { url: 'https://example.invalid/x.msi', signature: 'sig-msi-valide' } },
+  };
+  const resoudreEndpointsApp = async () => ({
+    retenu: { hote: 'nas-fixture' }, manifeste, essais: [{ hote: 'nas-fixture', ok: true, motif: 'ok' }], complet: true, mesureLe: new Date().toISOString(),
+  });
+  let appelsTelechargement = 0;
+  const telechargerApp = async () => { appelsTelechargement++; return { ok: true, status: 200, octets: Buffer.from('jamais utilisé') }; };
+
+  silence.activer();
+  let r;
+  try {
+    r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'win32', arch: 'x64' },
+    }));
+  } finally { silence.desactiver(); }
+
+  assert.equal(r.ok, false);
+  assert.equal(r.preuve, null);
+  assert.equal(appelsTelechargement, 0, 'CA-W8 : le `.msi` ne doit JAMAIS être téléchargé en repli');
+  assert.match(r.reprise || '', /publie/);
+});
+
+// --- AR-5 : rollback CHAÎNÉ réel Windows (étape 3 pose, étape 4 échoue, uninstall.exe /S lancé) ---
+
+test('AR-5, chaîné réel Windows : étape 3 pose (rien avant) puis étape 4 échoue -> orchestrerRollback lance `uninstall.exe /S`, JAMAIS un rmSync du dossier', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const s3 = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  const installLocation = path.join(tmp(), 'IakaCockpitInstalle3');
+  fs.mkdirSync(installLocation, { recursive: true });
+  const poseFaite = { valeur: false };
+  const execReg = fabriquerExecRegAvantApres({ installLocation, poseFaite });
+  const execSetupWindows = () => { poseFaite.valeur = true; return { status: 0 }; };
+
+  silence.activer();
+  let r3;
+  try {
+    r3 = await avecAppPatchee('IakaCockpit', s3.app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp: s3.resoudreEndpointsApp, telechargerApp: s3.telechargerApp,
+      plateforme: { platform: 'win32', arch: 'x64' }, execReg, execSetupWindows,
+    }));
+  } finally { silence.desactiver(); }
+  assert.equal(r3.ok, true);
+  const cheminUninstall = path.join(installLocation, 'uninstall.exe');
+  assert.equal(r3.preuve.windowsUninstall.chemin, cheminUninstall);
+
+  // étape 4 échoue (réseau injoignable), même câblage que le précédent chaîné Linux
+  const resoudreEndpointsApp4 = async () => ({ retenu: null, manifeste: null, essais: [{ hote: 'x', ok: false, motif: 'injoignable' }], complet: true, mesureLe: new Date().toISOString() });
+  silence.activer();
+  let r4;
+  try {
+    r4 = await etapeApp({
+      numero: 4, appKey: 'iakaFrameGUI', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp: resoudreEndpointsApp4, plateforme: { platform: 'win32', arch: 'x64' },
+    });
+  } finally { silence.desactiver(); }
+  assert.equal(r4.ok, false);
+
+  let appelsDesinstalleur = 0;
+  const execDesinstalleur = (cmd, args) => {
+    appelsDesinstalleur++;
+    assert.equal(cmd, cheminUninstall);
+    assert.deepEqual(args, ['/S']);
+    return { status: 0 };
+  };
+  const rb = orchestrerRollback([r3.preuve], { execDesinstalleur });
+  assert.equal(appelsDesinstalleur, 1, 'AR-5 : le rollback Windows doit lancer `uninstall.exe /S`, jamais un rmSync direct du dossier');
+  assert.equal(rb.nonDefaits.length, 0);
+  assert.match(rb.rapports[0].raison, /desinstalle via/);
+  assert.match(rb.rapports[0].raison, /RESIDU NON RETABLI/, 'AR-W5 garde 3 : le résidu de registre/raccourcis doit être ÉNONCÉ dans le rapport de rollback');
+});
+
+// ==================================================================================================
+// Reprise post-gate FAIL (2026-09-06) — cas (b) chaîné réel : la pose Windows RÉUSSIT (setup.exe /S
+// -> code 0) mais la relecture du registre APRÈS coup ne rend AUCUN InstallLocation exploitable
+// (§2.3 point 3, commentaire nommé install.js:679-680). `orchestrerRollback` doit rendre un énoncé
+// nommé — JAMAIS une TypeError fuitée jusque dans l'événement structuré `rollback` (install.js:
+// 826-830, `--events`/`--json`). Cf. docs/qualite/gate-etapes-3-4-windows.md § Reprise Gimli, pt 2.b.
+// ==================================================================================================
+
+/** Comme `fabriquerExecRegAvantApres`, mais le registre reste ILLISIBLE (InstallLocation) MÊME
+ * APRÈS la pose — la clé de désinstallation existe (l'installeur a bien tourné), sa valeur
+ * `InstallLocation` ne l'est jamais (§2.3 cas 3, "présent mais illisible/vide/disparu"). */
+function fabriquerExecRegInstallLocationIntrouvableApresPose({ poseFaite }) {
+  return (cmd, args) => {
+    if (!poseFaite.valeur) return { status: 1, stdout: '' }; // avant la pose : rien d'installé
+    if (args.includes('/v')) return { status: 1, stdout: '' }; // APRÈS la pose : InstallLocation illisible
+    return { status: 0, stdout: 'HKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\IakaCockpit\r\n' };
+  };
+}
+
+test('AR-W5, cas (b) chaîné réel Windows : pose RÉUSSIT mais InstallLocation reste introuvable après coup -> orchestrerRollback rend un énoncé nommé, JAMAIS une TypeError, dans l\'événement structuré `rollback` (--events)', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const s3 = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  const poseFaite = { valeur: false };
+  const execReg = fabriquerExecRegInstallLocationIntrouvableApresPose({ poseFaite });
+  const execSetupWindows = () => { poseFaite.valeur = true; return { status: 0 }; };
+
+  silence.activer();
+  let r3;
+  try {
+    r3 = await avecAppPatchee('IakaCockpit', s3.app, () => etapeApp({
+      numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp: s3.resoudreEndpointsApp, telechargerApp: s3.telechargerApp,
+      plateforme: { platform: 'win32', arch: 'x64' }, execReg, execSetupWindows,
+    }));
+  } finally { silence.desactiver(); }
+  // la pose a RÉUSSI (code 0), mais l'emplacement n'a jamais pu être déterminé — précisément le
+  // cas nommé et promis par le commentaire d'install.js:679-680.
+  assert.equal(r3.ok, true);
+  assert.equal(r3.preuve.cible, null);
+  assert.deepEqual(r3.preuve.windowsUninstall, { chemin: null });
+
+  // étape 4 échoue (réseau injoignable), déclenche le rollback de l'étape 3 — même câblage que
+  // le tail de `runInstall` (src/commands/install.js:823-834).
+  const resoudreEndpointsApp4 = async () => ({ retenu: null, manifeste: null, essais: [{ hote: 'x', ok: false, motif: 'injoignable' }], complet: true, mesureLe: new Date().toISOString() });
+  silence.activer();
+  let r4;
+  try {
+    r4 = await etapeApp({
+      numero: 4, appKey: 'iakaFrameGUI', values: { yes: true }, appsDir, backupDir,
+      resoudreEndpointsApp: resoudreEndpointsApp4, plateforme: { platform: 'win32', arch: 'x64' },
+    });
+  } finally { silence.desactiver(); }
+  assert.equal(r4.ok, false);
+
+  const rb = orchestrerRollback([r3.preuve]);
+  assert.equal(rb.rapports.length, 1);
+  assert.equal(rb.rapports[0].ok, false, 'un résidu non identifiable ne peut jamais être rendu comme un rollback réussi');
+  assert.doesNotMatch(rb.rapports[0].raison, /TypeError/, 'GARDE 3 conçue : jamais une fuite d\'exception Node brute');
+  assert.doesNotMatch(rb.rapports[0].raison, /\bnull\b/i, 'GARDE 3 conçue : jamais le mot "null" dans la raison rendue');
+  assert.match(rb.rapports[0].raison, /residu Windows non identifiable/i);
+
+  // MÊME construction, verbatim, que le tail de runInstall (install.js:826-833) — mode `events` :
+  // chaque ligne NDJSON doit PARSER et ne contenir ni "TypeError" ni le mot "null".
+  const lignes = [];
+  const em = creerEmetteur({ mode: 'events', ecrire: (s) => lignes.push(s) });
+  em.dire(`\n[rollback] ${rb.resume}`, {
+    evt: 'rollback', etape: 4,
+    champs: { resume: rb.resume, defaits: rb.defaits, nonDefaits: rb.nonDefaits, rapports: rb.rapports },
+  });
+  assert.equal(lignes.length, 1);
+  const ligne = lignes[0];
+  assert.doesNotMatch(ligne, /TypeError/, 'le contrat machine ne doit jamais porter de fuite d\'exception brute');
+  let parsed;
+  assert.doesNotThrow(() => { parsed = JSON.parse(ligne); }, 'la ligne NDJSON doit être PARSABLE (CA-M1)');
+  assert.equal(parsed.evt, 'rollback');
+  assert.equal(parsed.rapports[0].ok, false);
+  assert.doesNotMatch(parsed.rapports[0].raison, /TypeError/);
+  assert.doesNotMatch(parsed.rapports[0].raison, /\bnull\b/i);
+  assert.match(parsed.rapports[0].raison, /residu Windows non identifiable/i);
+});
+
+test('AR-W8/CA-W17 : sur la plateforme Windows simulée (--events, mode "json"), tout evt/etat émis reste dans le vocabulaire FERMÉ — aucun état nouveau', async () => {
+  const appsDir = tmp();
+  const backupDir = tmp();
+  const { app, resoudreEndpointsApp, telechargerApp } = scenarioWindowsValide({ appKey: 'IakaCockpit' });
+  const installLocation = path.join(tmp(), 'IakaCockpitInstalle4');
+  fs.mkdirSync(installLocation, { recursive: true });
+  const poseFaite = { valeur: false };
+  const execReg = fabriquerExecRegAvantApres({ installLocation, poseFaite });
+  const execSetupWindows = () => { poseFaite.valeur = true; return { status: 0 }; };
+  const em = creerEmetteur({ mode: 'json' });
+
+  const r = await avecAppPatchee('IakaCockpit', app, () => etapeApp({
+    numero: 3, appKey: 'IakaCockpit', values: { yes: true }, appsDir, backupDir,
+    resoudreEndpointsApp, telechargerApp, plateforme: { platform: 'win32', arch: 'x64' },
+    execReg, execSetupWindows, em,
+  }));
+
+  assert.equal(r.ok, true);
+  assert.ok(em.evenements.length > 0, 'la chaîne Windows doit émettre des événements comme les chaînes macOS/Linux');
+  const hors = [];
+  for (const o of em.evenements) {
+    if (!EVENEMENTS.includes(o.evt)) hors.push(o.evt);
+    if (o.evt === 'etape-terminee' && !ETATS_ETAPE.includes(o.etat)) hors.push(`etat:${o.etat}`);
+  }
+  assert.deepEqual(hors, [], `valeur(s) hors vocabulaire émise(s) sur le chemin Windows : ${hors.join(', ')}`);
 });

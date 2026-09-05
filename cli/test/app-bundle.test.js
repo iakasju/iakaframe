@@ -13,6 +13,7 @@ import { generateKeyPairSync, createHash, sign as cryptoSign, randomBytes } from
 import {
   APPS, cleManifestePlateforme, resoudreCleManifeste, familleDePose, nomFichierCible,
   resoudreManifesteApp, telechargerEtVerifier, poserBundleDarwin, poserBundleLinux,
+  decouvrirInstallationWindows, poserBundleWindows,
 } from '../src/lib/app-bundle.js';
 
 function tmp() { return fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-app-bundle-')); }
@@ -74,10 +75,19 @@ test('CA-W1 : linux/x64 est COUVERT depuis le lot W-L — couple {installeur:"li
   assert.deepEqual(cleManifestePlateforme({ platform: 'linux', arch: 'x64' }), { installeur: 'linux-x86_64-appimage', generique: 'linux-x86_64' });
 });
 
-test('CA-W15 : win32/x64, linux/arm64 et darwin/ia32 restent NON couverts -> null (le refus CA-15 survit, il rétrécit)', () => {
-  assert.equal(cleManifestePlateforme({ platform: 'win32', arch: 'x64' }), null, 'Windows reste hors périmètre tant que le lot W-W ne l\'implémente pas (AR-W6 : lots gatés séparément)');
+// MODIFIE PAR LE LOT ETAPES-3-4-WINDOWS-LINUX/W-W (2026-09-05) : win32/x64 est desormais COUVERT
+// (§ 2.1, AR-W1(a)) — ce test, qui exerce DIRECTEMENT le contrat de `cleManifestePlateforme`,
+// est mis a jour pour retirer win32/x64 de la liste des cas NON couverts (deplace vers CA-W8
+// ci-dessous) et le remplacer par win32/arm64 (jamais couvert, le manifeste ne porte que du
+// x86_64 hors macOS, M5) — la meme discipline que le lot W-L avait deja appliquee a CA-15.
+test('CA-W15 : win32/arm64, linux/arm64 et darwin/ia32 restent NON couverts -> null (le refus CA-15 survit, il rétrécit)', () => {
+  assert.equal(cleManifestePlateforme({ platform: 'win32', arch: 'arm64' }), null, 'le manifeste réel ne porte que du windows x86_64 (M5) — win32/x64, lui, est COUVERT depuis le lot W-W (CA-W8)');
   assert.equal(cleManifestePlateforme({ platform: 'linux', arch: 'arm64' }), null, 'le manifeste réel ne porte que du linux x86_64 (M5)');
   assert.equal(cleManifestePlateforme({ platform: 'darwin', arch: 'ia32' }), null, 'darwin sur une archi NI arm64 NI x64 (ex. 32 bits) : non couvert non plus');
+});
+
+test('CA-W8 : win32/x64 est COUVERT depuis le lot W-W — couple {installeur:"windows-x86_64-nsis", generique:"windows-x86_64"}, le `.msi` n\'est JAMAIS lu', () => {
+  assert.deepEqual(cleManifestePlateforme({ platform: 'win32', arch: 'x64' }), { installeur: 'windows-x86_64-nsis', generique: 'windows-x86_64' });
 });
 
 // --- resolution de manifeste (ordre M10, via lib/endpoints.js reutilise) -------------------------
@@ -300,4 +310,113 @@ test('CA-W5 : poserBundleLinux REMPLACE un fichier déjà présent à la cible (
   const res = poserBundleLinux({ octets, cible });
   assert.equal(res.ok, true);
   assert.deepEqual(fs.readFileSync(cible), octets);
+});
+
+// ==================================================================================================
+// Lot ETAPES-3-4-WINDOWS-LINUX / W-W (Windows) — ajouts 2026-09-05, RIEN CI-DESSUS N'EST TOUCHE
+// (hors les deux tests CA-15/CA-W15 mis à jour plus haut pour le contrat étendu à win32/x64).
+// ==================================================================================================
+
+// --- decouvrirInstallationWindows : double `execReg` REJOUANT LE FORMAT REEL de `reg query` -------
+// (mesure fournie par Aragorn a l'etape 0, tabulation `InstallLocation    REG_SZ    "<chemin>"`,
+// guillemets LITTERAUX inclus — le NSIS de Tauri les ecrit via `"$INSTDIR"`).
+
+test('decouvrirInstallationWindows : AUCUNE clé de registre -> {existe:false, installLocation:null}, ZÉRO appel de plus que nécessaire', () => {
+  let appels = 0;
+  const execReg = (cmd, args) => {
+    appels++;
+    assert.equal(cmd, 'reg');
+    assert.deepEqual(args.slice(0, 2), ['query', 'HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\IakaCockpit']);
+    return { status: 1, stdout: '' }; // reg.exe : cle introuvable
+  };
+  const res = decouvrirInstallationWindows({ productName: 'IakaCockpit', execReg });
+  assert.deepEqual(res, { existe: false, installLocation: null });
+  assert.equal(appels, 1, 'CONTREFACTUEL : si la clé est absente, la valeur InstallLocation ne doit MÊME PAS être interrogée');
+});
+
+test('decouvrirInstallationWindows : clé PRÉSENTE + InstallLocation LISIBLE, guillemets littéraux retirés, dossier EXISTANT -> installLocation résolu', () => {
+  const racine = tmp();
+  const dossier = path.join(racine, 'IakaCockpit');
+  fs.mkdirSync(dossier, { recursive: true });
+  const execReg = (cmd, args) => {
+    if (args.includes('/v')) {
+      return { status: 0, stdout: `\r\nHKEY_CURRENT_USER\\Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\IakaCockpit\r\n    InstallLocation    REG_SZ    "${dossier}"\r\n\r\n` };
+    }
+    return { status: 0, stdout: 'HKEY_CURRENT_USER\\...\\IakaCockpit\r\n' };
+  };
+  const res = decouvrirInstallationWindows({ productName: 'IakaCockpit', execReg });
+  assert.deepEqual(res, { existe: true, installLocation: dossier }, 'les guillemets littéraux de la valeur registre doivent être retirés');
+});
+
+test('decouvrirInstallationWindows : clé PRÉSENTE mais requête InstallLocation en ÉCHEC (reg.exe rend un code non nul) -> installLocation NULL (indéterminable)', () => {
+  const execReg = (cmd, args) => {
+    if (args.includes('/v')) return { status: 1, stdout: '' };
+    return { status: 0, stdout: 'HKEY_CURRENT_USER\\...\\IakaCockpit\r\n' };
+  };
+  const res = decouvrirInstallationWindows({ productName: 'IakaCockpit', execReg });
+  assert.deepEqual(res, { existe: true, installLocation: null });
+});
+
+test('decouvrirInstallationWindows : clé PRÉSENTE, InstallLocation LISIBLE mais pointant sur un dossier DISPARU -> installLocation NULL (§2.3 cas 3, jamais supposé existant)', () => {
+  const chemin = path.join(tmp(), 'DossierQuiNexistePas');
+  const execReg = (cmd, args) => {
+    if (args.includes('/v')) return { status: 0, stdout: `    InstallLocation    REG_SZ    "${chemin}"\r\n` };
+    return { status: 0, stdout: 'HKEY_CURRENT_USER\\...\\IakaCockpit\r\n' };
+  };
+  const res = decouvrirInstallationWindows({ productName: 'IakaCockpit', execReg });
+  assert.deepEqual(res, { existe: true, installLocation: null }, 'CONTREFACTUEL : un chemin lu dans le registre mais absent du disque ne doit JAMAIS être rendu comme exploitable');
+});
+
+test('decouvrirInstallationWindows : clé PRÉSENTE, InstallLocation VIDE (chaîne vide entre guillemets) -> installLocation NULL', () => {
+  const execReg = (cmd, args) => {
+    if (args.includes('/v')) return { status: 0, stdout: `    InstallLocation    REG_SZ    ""\r\n` };
+    return { status: 0, stdout: 'HKEY_CURRENT_USER\\...\\IakaCockpit\r\n' };
+  };
+  const res = decouvrirInstallationWindows({ productName: 'IakaCockpit', execReg });
+  assert.deepEqual(res, { existe: true, installLocation: null });
+});
+
+// --- poserBundleWindows : exécution silencieuse, `exec` injecté, code de sortie = le verdict -----
+
+test('poserBundleWindows : code de sortie 0 -> ok:true, l\'installeur reçoit EXACTEMENT `/S` (jamais `/R`, AR-W1(a))', () => {
+  const octets = Buffer.from('faux setup.exe, contenu fixture');
+  let appels = 0;
+  let cheminRecu = null;
+  const exec = (cmd, args) => {
+    appels++;
+    cheminRecu = cmd;
+    assert.deepEqual(args, ['/S'], 'AR-W1(a) : silencieux SANS relance — jamais `/R`');
+    assert.ok(fs.existsSync(cmd), 'précondition : l\'octet doit avoir été écrit AVANT l\'exécution');
+    assert.deepEqual(fs.readFileSync(cmd), octets, 'CA-14 en amont : l\'octet exécuté doit être EXACTEMENT celui déjà vérifié');
+    return { status: 0 };
+  };
+  const res = poserBundleWindows({ octets, nomFichier: 'IakaCockpit-setup.exe', exec });
+  assert.equal(res.ok, true);
+  assert.equal(appels, 1);
+  assert.equal(fs.existsSync(cheminRecu), false, 'le fichier temporaire doit être SUPPRIMÉ après exécution, succès compris');
+});
+
+test('poserBundleWindows, CONTREFACTUEL : code de sortie 2 (abandon NSIS par défaut) -> ok:false, raison NOMME l\'abandon', () => {
+  const octets = Buffer.from('fixture');
+  const exec = () => ({ status: 2 });
+  const res = poserBundleWindows({ octets, nomFichier: 'IakaCockpit-setup.exe', exec });
+  assert.equal(res.ok, false);
+  assert.match(res.raison, /ABANDONNE.*code de sortie 2/i);
+});
+
+test('poserBundleWindows : code de sortie NON NUL autre que 2 -> ok:false, le code EXACT figure dans la raison', () => {
+  const octets = Buffer.from('fixture');
+  const exec = () => ({ status: 1603 }); // code générique d'échec Windows Installer, ici juste "autre que 0/2"
+  const res = poserBundleWindows({ octets, nomFichier: 'IakaCockpit-setup.exe', exec });
+  assert.equal(res.ok, false);
+  assert.match(res.raison, /code 1603/);
+});
+
+test('poserBundleWindows : le fichier temporaire est SUPPRIMÉ même en cas d\'ÉCHEC (jamais laissé traîner)', () => {
+  const octets = Buffer.from('fixture');
+  let cheminRecu = null;
+  const exec = (cmd) => { cheminRecu = cmd; return { status: 1 }; };
+  const res = poserBundleWindows({ octets, nomFichier: 'IakaCockpit-setup.exe', exec });
+  assert.equal(res.ok, false);
+  assert.equal(fs.existsSync(cheminRecu), false);
 });

@@ -48,9 +48,13 @@ import { resoudreDoubleReseau } from '../lib/network-double.js';
 import {
   APPS, cleManifestePlateforme, resoudreCleManifeste, familleDePose, nomFichierCible,
   telechargerEtVerifier, poserBundleDarwin, poserBundleLinux,
+  decouvrirInstallationWindows, poserBundleWindows,
 } from '../lib/app-bundle.js';
 import { resoudre } from '../lib/endpoints.js';
-import { sauvegarderAvantEtape, restaurerEtape, orchestrerRollback } from '../lib/rollback.js';
+import {
+  sauvegarderAvantEtape, restaurerEtape, orchestrerRollback,
+  ouvrirPreuveWindowsSansExistant, completerPreuveWindowsApresPose,
+} from '../lib/rollback.js';
 import { creerEmetteur } from '../lib/evenements.js';
 import { emit, collection, fail } from '../lib/output.js';
 
@@ -425,10 +429,15 @@ function resoudreBackupDir(values) {
 // point d'injection PUR (aucun reseau), reserve aux tests DIRECTS de CA-15 (cf. cli/test/
 // app-bundle.test.js) — jamais expose par un drapeau CLI : simuler une AUTRE plateforme que celle
 // reellement en cours d'execution n'a aucun sens hors d'un test.
+// `execReg`/`execSetupWindows` (AJOUT LOT W-W, optionnels) : ports d'INJECTION (M-10, meme idiome
+// que `resoudreEndpointsApp`/`telechargerApp`/`plateforme`) — tout ce qui touche `reg`,
+// `setup.exe` passe par eux. Defaut : les VRAIES fonctions (lib/app-bundle.js), jamais exposes par
+// un drapeau CLI (simuler ces sous-processus n'a de sens qu'en test, comme `plateforme`).
 export async function etapeApp({
   numero, appKey, values, appsDir, backupDir,
   resoudreEndpointsApp = resoudre, telechargerApp,
   plateforme, em = creerEmetteur(), feuVert = 'refus',
+  execReg, execSetupWindows,
 } = {}) {
   const app = APPS[appKey];
   em.dire(`\n[${numero}/4] ${app.nom}`, null);
@@ -484,7 +493,11 @@ export async function etapeApp({
   }
   const manifeste = res.manifeste;
   const famille = familleDePose(cle);
-  const cible = path.join(appsDir, nomFichierCible(app.nom, famille));
+  // CA-W9 : sur Windows, `--apps-dir` N'A AUCUN EFFET (E-4, l'installeur silencieux ne permet pas
+  // de piloter le chemin) — `cible` n'est donc PAS derive d'`appsDir` pour cette famille, jamais
+  // meme comme valeur affichee (aucun message ne doit pretendre poser dans `--apps-dir`). Elle
+  // reste `null` jusqu'a la decouverte reelle par le registre, plus bas.
+  const cible = famille === 'windows' ? null : path.join(appsDir, nomFichierCible(app.nom, famille));
 
   // Selection installeur -> generique (M6, fonction pure resoudreCleManifeste) : un manifeste qui
   // ne porte NI la cle installeur NI la cle generique (ex. seulement `-deb`/`-rpm`, CA-W6) est un
@@ -514,27 +527,79 @@ export async function etapeApp({
     return { ok: true, dryRun: true, preuve: null };
   }
 
-  const dejaPresent = fs.existsSync(cible);
+  // AR-5 Windows (§ 2.3) : la DECOUVERTE precede la messagerie — l'annonce doit dire la VRAIE
+  // cible (ou son indetermination), jamais `--apps-dir` (CA-W9). Pour macOS/Linux, rien ne change
+  // (fs.existsSync sur la cible calculee plus haut).
+  let dejaPresent;
+  let libelleOu;
+  let ceQuiSeraFusionne;
+  let decouverteWin = null;
+  const NOTE_APPS_DIR_WINDOWS = "--apps-dir sans effet sur Windows (E-4 : l'installeur NSIS silencieux ne permet pas de piloter le chemin, CA-W9) — l'emplacement réel est décidé par l'installeur (%LOCALAPPDATA%, NSIS currentUser, AR-W1(a))";
+
+  if (famille === 'windows') {
+    decouverteWin = decouvrirInstallationWindows({ productName: app.nom, execReg });
+    dejaPresent = decouverteWin.existe;
+
+    // § 2.3 point 2, AR-5 garde 1 (moitié "avant") : une clé de registre existe mais
+    // `InstallLocation` est absente, illisible, ou pointe sur un dossier disparu -> REFUS
+    // D'ÉCRIRE, avant même de demander un feu vert ou de télécharger quoi que ce soit. Une
+    // sauvegarde qu'on ne peut pas prendre n'autorise pas à écrire quand même.
+    if (decouverteWin.existe && !decouverteWin.installLocation) {
+      const raisonRefus = `emplacement d'installation INDÉTERMINABLE (clé de registre HKCU\\...\\Uninstall\\${app.nom} présente mais InstallLocation absente, illisible, ou pointant sur un dossier disparu) — REFUS D'ÉCRIRE, aucun filet de sécurité possible sans elle (§ 2.3, AR-5 garde 1)`;
+      const annonceRefus = {
+        evt: 'etape-annoncee', etape: numero,
+        champs: {
+          quoi: `${app.nom} v${manifeste.version} (plateforme ${cleResolue})`, ou: null, version: manifeste.version,
+          ceQuiSeraFusionne: null, appsDirSansEffet: true,
+          sourceRetenue: { nom: res.retenu.hote, pourquoi: 'manifeste exploitable retenu (ordre M10, AR-H)' },
+          sourcesConsultees: res.essais.map(e => ({ nom: e.hote, repond: Boolean(e.status), exploitable: Boolean(e.ok), motif: e.motif })),
+        },
+      };
+      if (!dryRun) {
+        em.dire(`  REFUS : ${raisonRefus}`, annonceRefus);
+        const reprise = `désinstaller manuellement la version existante de ${app.nom} (menu Windows) puis relancer iakaframe install --yes`;
+        em.dire(`  Reprise : ${reprise}`, null);
+        em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: raisonRefus } });
+        return { ok: false, preuve: null, reprise };
+      }
+      em.dire(`  [dry-run] ${raisonRefus} — rien à écrire de toute façon.`, annonceRefus);
+      em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'dry-run', detail: raisonRefus } });
+      return { ok: true, dryRun: true, preuve: null };
+    }
+
+    libelleOu = dejaPresent
+      ? decouverteWin.installLocation
+      : "déterminé par l'installeur après la pose (aucune version installée actuellement, %LOCALAPPDATA% par défaut du NSIS)";
+    ceQuiSeraFusionne = dejaPresent
+      ? `version déjà installée à ${decouverteWin.installLocation} : SAUVEGARDÉE avant relance de l'installeur (AR-5)`
+      : `pose neuve : aucune version installée actuellement (registre HKCU vide pour ${app.nom})`;
+  } else {
+    dejaPresent = fs.existsSync(cible);
+    libelleOu = cible;
+    ceQuiSeraFusionne = dejaPresent
+      ? `${path.basename(cible)} existant à cette adresse sera REMPLACÉ (sauvegardé avant, AR-5)`
+      : `pose neuve, rien n'existait à cette adresse`;
+  }
+
   em.dire(`  quoi : ${app.nom} v${manifeste.version} (plateforme ${cleResolue}), depuis ${res.retenu.hote}`, null);
-  em.dire(`  où : ${cible}`, null);
+  em.dire(`  où : ${libelleOu}`, null);
+  if (famille === 'windows') em.dire(`  note : ${NOTE_APPS_DIR_WINDOWS}`, null);
   em.dire(`  quelle version : v${manifeste.version}`, null);
-  const ceQuiSeraFusionne = dejaPresent
-    ? `${path.basename(cible)} existant à cette adresse sera REMPLACÉ (sauvegardé avant, AR-5)`
-    : `pose neuve, rien n'existait à cette adresse`;
   em.dire(`  ce qui sera fusionné : ${ceQuiSeraFusionne}`, {
     evt: 'etape-annoncee', etape: numero,
     champs: {
       quoi: `${app.nom} v${manifeste.version} (plateforme ${cleResolue})`,
-      ou: cible,
+      ou: libelleOu,
       version: manifeste.version,
       ceQuiSeraFusionne,
+      ...(famille === 'windows' ? { appsDirSansEffet: true } : {}),
       sourceRetenue: { nom: res.retenu.hote, pourquoi: 'manifeste exploitable retenu (ordre M10, AR-H)' },
       sourcesConsultees: res.essais.map(e => ({ nom: e.hote, repond: Boolean(e.status), exploitable: Boolean(e.ok), motif: e.motif })),
     },
   });
 
   if (dryRun) {
-    em.dire('  [dry-run] rien écrit (réseau consulté en lecture seule, aucune écriture disque).', null);
+    em.dire('  [dry-run] rien écrit (réseau/registre consultés en lecture seule, aucune écriture disque).', null);
     em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'dry-run', detail: `${app.nom} v${manifeste.version} décrit, rien écrit` } });
     return { ok: true, dryRun: true, preuve: null };
   }
@@ -561,22 +626,36 @@ export async function etapeApp({
 
   // AR-5 garde 1 : sauvegarde AVANT toute écriture. Si la sauvegarde elle-même échoue, on REFUSE
   // d'écrire plutôt que d'écrire sans filet — même prudence que le refus de dérouler sans preuve.
+  // Sur Windows, la découverte (§ 2.3) a DÉJÀ EU LIEU ci-dessus : soit on sauvegarde le dossier
+  // trouvé (`dejaPresent`), soit on OUVRE une preuve "sans existant" (`ouvrirPreuveWindowsSansExistant`,
+  // AUCUNE cible connue avant la pose, E-4) — jamais un troisième cas (le REFUS était déjà rendu
+  // plus haut, avant même la demande de feu vert).
   let preuve;
   try {
-    preuve = sauvegarderAvantEtape({ backupDir, etape: numero, cible });
+    if (famille === 'windows') {
+      preuve = dejaPresent
+        ? sauvegarderAvantEtape({ backupDir, etape: numero, cible: decouverteWin.installLocation, plateforme: 'windows' })
+        : ouvrirPreuveWindowsSansExistant({ backupDir, etape: numero });
+    } else {
+      preuve = sauvegarderAvantEtape({ backupDir, etape: numero, cible });
+    }
   } catch (e) {
     em.dire(`  REFUS : sauvegarde de sécurité impossible avant la pose (${e.message}) — rien n'est écrit.`, null);
     em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: `sauvegarde impossible : ${e.message}` } });
     return { ok: false, preuve: null };
   }
 
-  // Trois formes de pose, une seule doctrine de sauvegarde (§ 2.2) : macOS INCHANGE, Linux neuf
-  // dans ce lot (W-L). Windows (poserBundleWindows) arrive au lot W-W — `famille` ne peut PAS
-  // valoir 'windows' ici tant que `cleManifestePlateforme` ne couvre pas win32 (ce lot ne l'etend
-  // pas, AR-W6 : lots gates separement).
-  const pose = famille === 'linux'
-    ? poserBundleLinux({ octets: dl.octets, cible })
-    : poserBundleDarwin({ octets: dl.octets, cible });
+  // Quatre formes de pose desormais (§ 2.2) : macOS et Linux INCHANGES. Windows (AJOUT LOT W-W)
+  // n'ECRIT PAS directement `cible` (il n'y en a pas de connue, E-4) : il EXECUTE l'installeur
+  // NSIS en silencieux (`poserBundleWindows`), port `execSetupWindows` injectable (M-10).
+  let pose;
+  if (famille === 'windows') {
+    pose = poserBundleWindows({ octets: dl.octets, nomFichier: nomFichierCible(app.nom, famille), exec: execSetupWindows });
+  } else if (famille === 'linux') {
+    pose = poserBundleLinux({ octets: dl.octets, cible });
+  } else {
+    pose = poserBundleDarwin({ octets: dl.octets, cible });
+  }
   if (!pose.ok) {
     em.dire(`  ÉCHEC : ${pose.raison}`, null);
     // Echec APRES la sauvegarde : on a la preuve, on peut donc défaire immédiatement ce que CETTE
@@ -586,7 +665,27 @@ export async function etapeApp({
     em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'echouee', detail: pose.raison } });
     return { ok: false, preuve: null };
   }
-  em.dire(`  + ${app.nom} v${manifeste.version} posé à ${pose.cible}.`, null);
+
+  // Sur Windows, un succès de pose N'APPREND PAS où l'installeur a écrit (E-4) : on RELIT le
+  // registre (§ 2.3 point 3, « l'uninstall.exe que la pose vient de créer ») pour COMPLÉTER la
+  // preuve avec le chemin de l'`uninstall.exe` que le rollback devra lancer si une étape suivante
+  // échoue — jamais supposé, toujours mesuré une seconde fois. Rien à faire ici pour macOS/Linux
+  // (`pose.cible` est déjà la vérité).
+  let cibleAffichee = pose.cible;
+  if (famille === 'windows') {
+    if (dejaPresent) {
+      cibleAffichee = decouverteWin.installLocation; // déjà connu, la pose a réécrit au même endroit
+    } else {
+      const decouverteApres = decouvrirInstallationWindows({ productName: app.nom, execReg });
+      cibleAffichee = decouverteApres.installLocation
+        || 'INDÉTERMINÉE après pose (registre relu sans InstallLocation exploitable — un rollback ultérieur échouera nommément, garde 3)';
+      const cheminUninstall = decouverteApres.installLocation
+        ? path.join(decouverteApres.installLocation, 'uninstall.exe')
+        : null;
+      preuve = completerPreuveWindowsApresPose(preuve, { cible: decouverteApres.installLocation, cheminUninstall });
+    }
+  }
+  em.dire(`  + ${app.nom} v${manifeste.version} posé à ${cibleAffichee}.`, null);
   em.dire(null, { evt: 'etape-terminee', etape: numero, champs: { etat: 'faite', detail: `${app.nom} v${manifeste.version} posé` } });
   return { ok: true, preuve };
 }
