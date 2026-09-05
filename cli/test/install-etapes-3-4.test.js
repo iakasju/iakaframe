@@ -711,13 +711,20 @@ test('AR-5, chaîné réel Windows : étape 3 pose (rien avant) puis étape 4 é
   const execDesinstalleur = (cmd, args) => {
     appelsDesinstalleur++;
     assert.equal(cmd, cheminUninstall);
-    assert.deepEqual(args, ['/S']);
+    // AR-W20 (reprise post-mesure-réelle du 2026-09-06, run CI 33997947501) : `_?=<InstallLocation>`
+    // force l'exécution EN PLACE et SYNCHRONE (doc NSIS Chapter3.html) — sans lui, le désinstalleur
+    // se copie dans %TEMP% et rend la main immédiatement, précisément le défaut mesuré en réel.
+    assert.deepEqual(args, ['/S', `_?=${installLocation}`]);
     return { status: 0 };
   };
-  const rb = orchestrerRollback([r3.preuve], { execDesinstalleur });
-  assert.equal(appelsDesinstalleur, 1, 'AR-5 : le rollback Windows doit lancer `uninstall.exe /S`, jamais un rmSync direct du dossier');
+  // AR-W20 : la clé de désinstallation est CONFIRMÉE disparue par relecture du registre — un
+  // `reg query` réel rend un code non nul quand la clé n'existe plus.
+  const execRegConfirmationDisparition = () => ({ status: 1 });
+  const rb = orchestrerRollback([r3.preuve], { execDesinstalleur, execReg: execRegConfirmationDisparition });
+  assert.equal(appelsDesinstalleur, 1, 'AR-5 : le rollback Windows doit lancer `uninstall.exe /S _?=<InstallLocation>`, jamais un rmSync direct du dossier');
   assert.equal(rb.nonDefaits.length, 0);
   assert.match(rb.rapports[0].raison, /desinstalle via/);
+  assert.match(rb.rapports[0].raison, /cle de desinstallation confirmee disparue/, 'AR-W20 : la confirmation par relecture du registre doit être NOMMÉE dans le rapport');
   assert.match(rb.rapports[0].raison, /RESIDU NON RETABLI/, 'AR-W5 garde 3 : le résidu de registre/raccourcis doit être ÉNONCÉ dans le rapport de rollback');
 });
 
