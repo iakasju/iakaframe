@@ -1,0 +1,28 @@
+iakaframe v0.40.0 — le verbe install prend un contrat machine
+
+Trois lots fonctionnels et un correctif, empilés depuis v0.39.0 :
+
+- Lot C.1 (e9bfdc0) : le moteur de la chaîne d'installation — 4 étapes chaînées (CLI, méthode,
+  IakaCockpit, iakaFrameGUI), rollback à 3 gardes, vérification minisign, bundle applicatif.
+- Lot install.mjs embarqué (f2395f0) : la charge de l'étape 2 (délégation à install.mjs) voyage
+  désormais AVEC le CLI publié (_bundled/install.mjs + _bundled/kits/**) — un clone frais sans
+  réservoir vivant local n'est plus bloqué dès l'étape 2.
+- Lot contrat machine du verbe install (efe195c) : événements NDJSON (--events), feu vert par
+  stdin (--feu-vert stdin) et sortie JSON réelle (--json). Changement observable : `install --json`
+  imprimait de la prose humaine ; il imprime désormais un objet JSON unique
+  ({ok, count, evenements, etatAtteint, reprise} en succès ; {ok:false, error, etatAtteint, reprise}
+  en échec, stderr strictement vide). --json et --events/--feu-vert stdin sont mutuellement
+  exclusifs (refus explicite nommant les drapeaux). La prose humaine par défaut (`install`,
+  `install --dry-run`) n'a pas bougé d'un octet (gate PASS, comparaison au témoin, contrefactuel
+  joué).
+- Correctif etapesFaites en dry-run (403971e) : aucune étape ne compte comme "faite" dans
+  etatAtteint.etapesFaites tant que --dry-run est actif, y compris les étapes 1/2 (asymétrie
+  signalée par le gate du lot précédent, désormais fermée).
+
+Prérequis du cadrage C.2-b (pilotage réel de la façade iakaInstall, AR-P3 verdict (a)) : cette
+version doit être publiée avant que la façade n'embarque le CLI.
+
+Successeurs nommés (hors périmètre de ce lot, déclarés) : C-JSON-COUVERTURE-COMPLETE (les ~20
+autres verbes du CLI n'ont pas de sortie --json), ETAPES-3-4-WINDOWS-LINUX (les étapes 3/4 de la
+chaîne refusent explicitement hors macOS), SIDECAR-CLI-AUTONOME (autonomie du sidecar CLI côté
+façade).
