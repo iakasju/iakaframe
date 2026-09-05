@@ -723,9 +723,27 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
       puis W-W : macOS + Linux + Windows couverts, `--apps-dir` sans effet sur Windows, non-repli
       deb/rpm/msi, découverte registre + trois cas de sauvegarde/rollback Windows décrits, gate
       humain nommé par OS).
-- [ ] **CA-W19** — Le banc CI existe, ses actions sont **épinglées au SHA**, et sa limite (« un
-      runner n'est pas un poste ») est **écrite dans le fichier**. **HORS PÉRIMÈTRE de ce lot**
-      (Étape 3 de § 5, non demandée dans cet ordre de mission) — non fait, non simulé.
+- [~] **CA-W19** — Le banc CI existe, ses actions sont **épinglées au SHA**, et sa limite (« un
+      runner n'est pas un poste ») est **écrite dans le fichier**. **ÉCRIT, NON EXÉCUTÉ**
+      (reprise du 2026-09-06, ordre de mission Aragorn, Étape 3 de § 5) — **jamais annoncé
+      « couvert »** : le déclenchement (`gh workflow run`) reste un acte du décideur (AR-W7),
+      refusé aux agents, et rien ne prouve ici que le workflow s'exécute réellement sans erreur
+      sur un runner GitHub réel tant qu'il n'a pas été lancé au moins une fois.
+      **Preuve (écriture)** : `.github/workflows/banc-etapes-3-4.yml` (`workflow_dispatch`
+      UNIQUEMENT, actions `actions/checkout`/`actions/setup-node` épinglées à un SHA complet
+      vérifié le 2026-09-06 via `gh api repos/<org>/<repo>/git/ref/tags/<tag>`, cartouche
+      d'honnêteté UAC et « runner ≠ poste » écrit dans le fichier) ;
+      `cli/scripts/banc-etapes-3-4-linux.mjs` et `-windows.mjs` (mesures réelles via l'API du
+      module — `etapeApp`, `restaurerEtape`, `decouvrirInstallationWindows` — jamais réimplémentées
+      dans le YAML) ; `cli/scripts/lib/banc-support.mjs` (bac à sable strict sous
+      `$RUNNER_TEMP`). **Garde statique** (12 tests, jamais un run réel) :
+      `cli/test/guard-banc-etapes-3-4.test.js` — `workflow_dispatch` seul (contrefactuel : ajout
+      de `push:` rougit nommément), épinglage SHA complet + commentaire de version (contrefactuel :
+      SHA remplacé par un tag flottant rougit nommément), zéro `secrets.*`, zéro écriture hors bac
+      à sable, `--yes` documenté et justifié dans le cartouche. Suite complète : `tests 1157,
+      pass 1156, fail 0, skipped 1` (+12 tests neufs, aucune régression). `docs/commandes.md`
+      § B.1 bis, commande exacte pour le décideur. **Non fait ici** : le déclenchement réel, donc
+      la preuve d'exécution effective sur `ubuntu-latest`/`windows-latest` — verdict à Legolas.
 
 ### 🛑 Gate humain, déclaré par OS — jamais compté comme couvert
 
