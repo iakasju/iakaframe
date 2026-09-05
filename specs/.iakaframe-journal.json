@@ -937,6 +937,6 @@
     "commit": "fb37af8 docs(qualite): gate banc CI etapes 3/4 — PASS",
     "dirty": false,
     "files": 1206,
-    "note": "NOTE CORRIGEE EN PLACE (2026-09-06) : le checkpoint precedent portait par erreur une note relative a iakaframe (banc CI etapes 3/4), lancee depuis le mauvais repertoire par Aragorn. Etat iakaInstall INCHANGE depuis le lot C.3 (13cf959) : v0.1.1 latest, vitrine, release brouillon. Reste au decideur : run de preuve casser, recette reelle, bump ressource CLI quand 0.41.0 sera publiee (AR-P5), push Forgejo."
+    "note": "Banc de preuve CI des etapes 3/4 livre et fusionne (workflow_dispatch seul, SHA epingles verifies, scripts appelant l API reelle du module, bac a sable RUNNER_TEMP, mesures comparees a l attendu, UAC et GUI declares non prouvables). Gate PASS 1157 tests, 2 ecarts mineurs de demonstration. LE CADRAGE ETAPES-3-4-WINDOWS-LINUX EST ENTIEREMENT LIVRE (W-L, W-W, banc). Reste au decideur : declencher le banc, bump + publication 0.41.0 (le 0.40.0 embarque par iakaInstall n a pas les etapes 3/4 multi-OS), recette reelle, push Forgejo."
   }
 ]
