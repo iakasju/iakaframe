@@ -1,0 +1,148 @@
+name: banc-etapes-3-4
+
+# BANC DE PREUVE CI des etapes 3/4 (CA-W19, specs/instructions/etapes-3-4-windows-linux.md § 5
+# Etape 3, § 8 « gate humain par OS », AR-W7(a)). Ce workflow mesure sur des runners REELS ce
+# qu'un poste macOS ne peut pas mesurer : le comportement de `iakaframe install` sur Linux
+# (pose de l'AppImage, chmod, `--appimage-extract`, rollback au sha256) et sur Windows
+# (installeur NSIS en silencieux, registre de desinstallation, rollback reel).
+#
+# ⚠️ CE QUE CE BANC PROUVE, ET CE QU'IL NE PROUVE PAS (AR-W7, ecrit ici a dessein, pas seulement
+# dans la doc) : un runner GitHub Actions N'EST PAS un poste d'utilisateur. Il n'a ni session
+# interactive, ni profil charge, ni UAC dans les memes conditions (le compte d'execution
+# `windows-latest` est membre du groupe Administrateurs — cf. le cartouche de
+# `cli/scripts/banc-etapes-3-4-windows.mjs` pour le detail de ce que cela empeche de prouver).
+# CE BANC PROUVE QUE LA MECANIQUE S'EXECUTE REELLEMENT (reseau, minisign, ecriture, registre,
+# rollback) ; IL NE PROUVE PAS LA RECETTE sur une machine d'utilisateur reelle. Le gate humain du
+# § 8 de l'instruction reste du, quel que soit le resultat de ce workflow.
+#
+# DECLENCHEMENT — `workflow_dispatch` UNIQUEMENT, JAMAIS `push`/`tags`/`schedule`. Le declenchement
+# est un ACTE DU DECIDEUR (AR-W7) : aucun agent ne lance ce workflow. Verifie statiquement par
+# cli/test/guard-banc-etapes-3-4.test.js (contrefactuel : ajouter `push:` fait rougir ce test-la,
+# nommement).
+#
+# EPINGLAGE AU SHA — chaque `uses:` porte le SHA complet (40 hex) de l'action, avec un commentaire
+# nommant le tag verifie (`gh api repos/<org>/<repo>/git/ref/tags/<tag>` — mesure du 2026-09-06,
+# reprise dans le cartouche de chaque etape ci-dessous). C'est une exigence EXPLICITE d'AR-W7 : ne
+# pas recopier la dette d'epinglage deja connue de `release.yml` (non epingle, cf. son propre
+# cartouche « EPINGLAGE — SIGNALE, NON TRAITE »). Verifie statiquement par le meme test de garde.
+#
+# `--yes` EST ACCEPTABLE ICI (cartouche, pas une derogation tacite) : ce banc est un run
+# AUTOMATISE, jamais interactif. Le feu vert AR-4 (« chaque etape s'annonce puis attend un feu
+# vert ») est port par le DECIDEUR au moment ou IL declenche ce workflow (`workflow_dispatch`) —
+# `--yes` a l'interieur du banc ne fait que sauter une confirmation de TERMINAL qui n'existerait
+# de toute facon pas sur un runner sans TTY. Le geste de consentement, lui, a deja eu lieu.
+#
+# ZERO ECRITURE HORS `${{ runner.temp }}` — jamais `~/.claude`, jamais `~/Applications`. Les
+# scripts `cli/scripts/banc-etapes-3-4-{linux,windows}.mjs` REFUSENT de demarrer si `$RUNNER_TEMP`
+# est absent (`racineBacASable()`, cli/scripts/lib/banc-support.mjs). Verifie statiquement.
+on:
+  workflow_dispatch:
+    inputs:
+      os:
+        description: 'Plateforme(s) a mesurer'
+        type: choice
+        required: true
+        default: 'les-deux'
+        options:
+          - les-deux
+          - ubuntu-latest
+          - windows-latest
+      rollback:
+        description: 'Jouer les mesures de rollback reel (backup + restauration/desinstallation)'
+        type: boolean
+        required: true
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  # ------------------------------------------------------------------------------------------------
+  # Traduit l'entree `os` (choix humain) en matrice de jobs. Ne fait AUCUNE mesure : c'est un
+  # aiguillage pur, sur ubuntu-latest (le job le moins cher a lever).
+  # ------------------------------------------------------------------------------------------------
+  plan:
+    runs-on: ubuntu-latest
+    outputs:
+      matrice: ${{ steps.calcul.outputs.matrice }}
+    steps:
+      - name: Calculer la matrice depuis l'entree `os`
+        id: calcul
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "${{ inputs.os }}" in
+            les-deux) echo 'matrice=["ubuntu-latest","windows-latest"]' >> "$GITHUB_OUTPUT" ;;
+            ubuntu-latest) echo 'matrice=["ubuntu-latest"]' >> "$GITHUB_OUTPUT" ;;
+            windows-latest) echo 'matrice=["windows-latest"]' >> "$GITHUB_OUTPUT" ;;
+            *) echo "::error::valeur d'entree 'os' inconnue : ${{ inputs.os }}"; exit 1 ;;
+          esac
+
+  banc:
+    needs: plan
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJson(needs.plan.outputs.matrice) }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      # actions/checkout — tag v4.4.0 verifie le 2026-09-06 :
+      #   gh api repos/actions/checkout/git/ref/tags/v4.4.0 --jq '.object'
+      #   -> {"sha":"11d5960a326750d5838078e36cf38b85af677262","type":"commit"}
+      - name: Checkout du depot
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      # actions/setup-node — tag v4.4.0 verifie le 2026-09-06 :
+      #   gh api repos/actions/setup-node/git/ref/tags/v4.4.0 --jq '.object'
+      #   -> {"sha":"49933ea5288caeca8642d1e84afbd3f7d6820020","type":"commit"}
+      - name: Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - name: Verifier que la CLI demarre
+        shell: bash
+        working-directory: cli
+        run: node src/index.js --help
+
+      # Etapes 1/2 : UNIQUEMENT en --dry-run (AR-A : la chaine annonce toujours 4 etapes / 3
+      # telechargements et les joue TOUTES, mais on ne veut PAS de `npm install -g` reel sur un
+      # runner ephemere — cf. cartouche de l'ordre de mission). Les etapes 3/4, elles, sont jouees
+      # avec des ports REELS par le script dedie ci-dessous (l'API du module, jamais reimplementee
+      # ici) : `--dry-run` n'exercerait qu'une DESCRIPTION de la pose, pas la pose elle-meme.
+      - name: Chaine complete en --dry-run (etapes 1-4, empreinte disque avant/apres)
+        shell: bash
+        run: |
+          set -euo pipefail
+          DRYRUN_APPS="${RUNNER_TEMP}/dryrun-apps"
+          mkdir -p "$DRYRUN_APPS"
+          AVANT="$(find "$DRYRUN_APPS" | sort)"
+          node cli/src/index.js install --dry-run --yes \
+            --root "$GITHUB_WORKSPACE" \
+            --target-claude "${RUNNER_TEMP}/dryrun-claude" \
+            --apps-dir "$DRYRUN_APPS" \
+            --backup-dir "${RUNNER_TEMP}/dryrun-backups"
+          APRES="$(find "$DRYRUN_APPS" | sort)"
+          if [ "$AVANT" != "$APRES" ]; then
+            echo "::error::--dry-run a ECRIT dans --apps-dir (empreinte disque differente avant/apres)"
+            diff <(echo "$AVANT") <(echo "$APRES") || true
+            exit 1
+          fi
+          echo "OK : empreinte disque de --apps-dir identique avant/apres --dry-run"
+
+      # Etapes 3/4, ports REELS — voir le cartouche de chaque script pour le detail des mesures
+      # (Linux : pose + chmod + --appimage-extract + rollback au sha256 ; Windows : pose NSIS
+      # silencieuse + registre de desinstallation + rollback reel, deux scenarios).
+      - name: Mesures reelles Linux (etapes 3/4)
+        if: matrix.os == 'ubuntu-latest'
+        shell: bash
+        run: node cli/scripts/banc-etapes-3-4-linux.mjs
+        env:
+          BANC_ROLLBACK: ${{ inputs.rollback }}
+
+      - name: Mesures reelles Windows (etapes 3/4)
+        if: matrix.os == 'windows-latest'
+        shell: bash
+        run: node cli/scripts/banc-etapes-3-4-windows.mjs
+        env:
+          BANC_ROLLBACK: ${{ inputs.rollback }}
