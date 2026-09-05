@@ -256,6 +256,56 @@ interactif partout — mode guidé du terminal § B.0 **et** confirmations exist
 > compte : lancé depuis un arbre lié, le lanceur de poste peut exécuter le CLI d'un **autre**
 > dépôt, et la discordance n'est lisible que si les deux chemins sont affichés ensemble.
 
+## B.1 bis Banc de preuve CI — étapes 3/4 (Windows/Linux)
+
+*CA-W19, `specs/instructions/etapes-3-4-windows-linux.md` § 5 Étape 3, § 8 « gate humain par
+OS ». **Écrit, non exécuté** — jamais annoncé « couvert » : voir § « Ce que ce banc prouve / ne
+prouve pas » ci-dessous.*
+
+`.github/workflows/banc-etapes-3-4.yml` mesure, sur des runners GitHub Actions **réels**, ce
+qu'un poste macOS ne peut pas mesurer par lecture de code : la pose réelle de l'AppImage sur
+`ubuntu-latest` et de l'installeur NSIS sur `windows-latest`. **Déclenchement `workflow_dispatch`
+UNIQUEMENT** (aucun `push`, aucun tag, aucun `schedule`) — c'est un **acte du décideur**, jamais
+d'un agent (AR-W7) :
+
+```bash
+gh workflow run banc-etapes-3-4.yml --repo iakasju/iakaframe -f os=les-deux -f rollback=true
+```
+
+Entrées : `os` (`ubuntu-latest` \| `windows-latest` \| `les-deux`, défaut `les-deux`), `rollback`
+(booléen, défaut `true` — désactive les mesures de rollback réel si `false`, sans les simuler).
+Toutes les actions (`actions/checkout`, `actions/setup-node`) sont **épinglées à un SHA complet**
+(vérifié via `gh api repos/<org>/<repo>/git/ref/tags/<tag>` — jamais un tag flottant), à la
+différence de `release.yml`, dont la dette d'épinglage est **déjà signalée, non traitée**, dans
+son propre cartouche (ce banc ne la recopie pas).
+
+**Ce que le banc mesure** — via l'API du CLI directement (`etapeApp`, `restaurerEtape`,
+`decouvrirInstallationWindows`, avec les **ports réseau/registre réels**, jamais réimplémentés
+dans le YAML : `cli/scripts/banc-etapes-3-4-linux.mjs` et `-windows.mjs`) :
+- **Linux** : pose réelle des deux AppImage (réseau ordonné M10 + minisign CA-14), bit
+  d'exécution, `--appimage-extract` (contournement E-7 sans FUSE), rollback réel **au sha256**
+  d'une AppImage préexistante (jamais effacée, jamais un vert muet).
+- **Windows** : pose réelle via `setup.exe /S`, lecture **exhaustive** du registre de
+  désinstallation (nom **exact** de la sous-clé créée par le NSIS — résout enfin R-W9, jusqu'ici
+  non mesuré), `InstallLocation`/`UninstallString` **bruts** (guillemets inclus), comparaison au
+  chemin réellement calculé par `decouvrirInstallationWindows`, **deux scénarios de rollback réel**
+  (« rien n'existait avant » → `uninstall.exe /S`, cle disparue ; « une version existait » →
+  restauration du dossier au sha256, résidu de registre **énoncé**, jamais tu).
+- Empreinte disque `--dry-run` de la chaîne complète (étapes 1-4), avant toute mesure réelle.
+
+**Ce que ce banc prouve, et ce qu'il ne prouve pas** (AR-W7, honnêteté écrite dans le workflow et
+les scripts eux-mêmes, pas seulement ici) : un runner GitHub Actions **n'est pas** un poste
+d'utilisateur — pas de session interactive, pas de profil chargé, pas d'UAC dans les mêmes
+conditions (le compte d'exécution `windows-latest` est administrateur : ce banc mesure un signal
+**structurel** — l'installation atterrit sous `%LOCALAPPDATA%`, jamais *Program Files* — mais ne
+peut **pas** prouver l'absence d'invite UAC pour un utilisateur **non-administrateur**). Il ne
+tente pas non plus un lancement GUI complet de l'AppImage (runner headless, sans serveur
+d'affichage). **Ce banc prouve que la mécanique s'exécute réellement ; il ne prouve pas la
+recette sur une machine d'utilisateur réelle** — le gate humain par OS de l'instruction (§ 8)
+reste dû quel que soit le verdict de ce workflow. Garde statique (workflow_dispatch seul,
+épinglage SHA, zéro secret, zéro écriture hors `${{ runner.temp }}`, `--yes` justifié) :
+`cli/test/guard-banc-etapes-3-4.test.js`.
+
 ## B.2 Diagnostic & exécution
 
 | Commande | Usage / options principales | Rôle |
