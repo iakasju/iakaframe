@@ -211,6 +211,9 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   `cli/test/guard-version-source-unique.test.js`, face en ligne
   `cli/scripts/vitrine-en-ligne.js` (anonyme, hors gate), `make_latest` **calculé** dans
   `.github/workflows/release.yml`.
+  > ✅ **SOLDÉ le 2026-09-02** : `v0.39.0` publiée (run CI `33635520511`, asset `naonedge-iakaframe-0.39.0.tgz`).
+  > **Au 2026-09-05 l'autorité est `0.40.0`** (merge `02f8135`, gate PASS) : le tag `v0.40.0` est le nouvel acte dû
+  > au décideur (`docs/releases/v0.40.0.md` porte le texte du tag annoté). Le paragraphe ci-dessous est conservé daté.
   **RESTE DÛ — acte du décideur, refusé aux agents** : publier `v0.39.0` depuis la version
   d'autorité, avec des notes qui **assument l'agrégat** (v0.21.0 … v0.39.0 non publiées
   individuellement, détail dans le journal de `specs/etat-des-lieux.md`) — cf. **CA-7/CA-8** et
