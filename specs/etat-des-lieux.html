@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-09-06 01:53 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-09-06 02:40 - motif : version - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
   <div class="k">Version</div><div>v0.41.0</div>
-  <div class="k">Branche</div><div>chore/bump-0.41.0</div>
-  <div class="k">Dernier commit</div><div><code>3baf20e chore(iakaframe): update etat des lieux + commit global (pause)</code></div>
-  <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
-  <div class="k">Fichiers</div><div>1207 (suivis + non ignores)</div>
-  
+  <div class="k">Branche</div><div>main</div>
+  <div class="k">Dernier commit</div><div><code>52f5f22 merge: bump 0.41.0 — etapes 3/4 sur les 3 OS prouvees, pret a taguer (gate Legolas PASS)</code></div>
+  <div class="k">Arbre</div><div><span class='ok'>propre</span></div>
+  <div class="k">Fichiers</div><div>1210 (suivis + non ignores)</div>
+  <div class='k'>Note</div><div>v0.41.0 PUBLIEE (tag Stephane, run 34001818646, asset sha256 d8799b7d..., install.mjs + kits + etapes 3/4 multi-OS verifies sur l octet retelecharge). make_latest du workflow INERTE pour la 2e fois sur 2 publications (release creee, latest reste sur la precedente) → rattrapage gh release edit --latest par Aragorn ; CI-RELEASE-LATEST-NON-MAITRISE devient prioritaire. Suite : bump ressource iakaInstall vers 0.41.0 (AR-P5) → v0.1.2. Push Forgejo EN ATTENTE.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>3baf20e</code></td><td>2026-09-06</td><td>chore(iakaframe): update etat des lieux + commit global (pause)</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>52f5f22</code></td><td>2026-09-06</td><td>merge: bump 0.41.0 — etapes 3/4 sur les 3 OS prouvees, pret a taguer (gate Legolas PASS)</td></tr>
+<tr><td><code>ea3ff59</code></td><td>2026-09-06</td><td>docs(qualite): gate bump 0.41.0 — PASS</td></tr>
+<tr><td><code>a61e475</code></td><td>2026-09-06</td><td>docs: consigner les deux runs reels du banc (33997947501, 33999564308)</td></tr>
+<tr><td><code>2a320d2</code></td><td>2026-09-06</td><td>docs(releases): notes de version v0.41.0</td></tr>
+<tr><td><code>7f98b2c</code></td><td>2026-09-06</td><td>docs: renommer le sigle AR-W20 en AR-W5(a), precision uninstall synchrone</td></tr>
+<tr><td><code>0272527</code></td><td>2026-09-06</td><td>test(install): temoin CA-M8 sur 0.41.0</td></tr>
+<tr><td><code>3af849e</code></td><td>2026-09-06</td><td>refactor(test): deriver faireReservoirVivant() de l'autorite de version</td></tr>
+<tr><td><code>0557613</code></td><td>2026-09-06</td><td>chore(cli): bump 0.40.0 -&gt; 0.41.0 (source unique de version)</td></tr>
+<tr><td><code>3baf20e</code></td><td>2026-09-06</td><td>chore(iakaframe): update etat des lieux + commit global (pause)</td></tr>
 <tr><td><code>610c2bd</code></td><td>2026-09-06</td><td>merge: fix rollback Windows — uninstall.exe /S _?= synchrone + confirmation par registre (gate Legolas PASS)</td></tr>
-<tr><td><code>f8126a4</code></td><td>2026-09-06</td><td>docs(qualite): gate fix rollback Windows uninstall synchrone — PASS</td></tr>
-<tr><td><code>efaf242</code></td><td>2026-09-06</td><td>docs: mesure reelle du run CI Windows (33997947501) et correctif _?= (AR-W20)</td></tr>
-<tr><td><code>a1bb520</code></td><td>2026-09-06</td><td>fix(banc): thread execReg instrumente vers restaurerEtape (AR-W20)</td></tr>
-<tr><td><code>fdebbd8</code></td><td>2026-09-06</td><td>fix(rollback): uninstall.exe /S synchrone (_?=) + confirmation par relecture registre (AR-W20)</td></tr>
-<tr><td><code>1499b4e</code></td><td>2026-09-06</td><td>test(rollback): rouge — code 0 de uninstall.exe ne prouve pas la desinstallation (AR-W20)</td></tr>
-<tr><td><code>e34c1af</code></td><td>2026-09-06</td><td>merge: banc de preuve CI des etapes 3/4 (CA-W19), ecrit non execute (gate Legolas PASS)</td></tr>
-<tr><td><code>103f00a</code></td><td>2026-09-06</td><td>Revert "docs(etat-des-lieux): corriger en place la note du checkpoint 4f12648 (concernait iakaframe, lancee du mauvais repertoire)"</td></tr>
-<tr><td><code>49d2487</code></td><td>2026-09-06</td><td>docs(etat-des-lieux): corriger en place la note du checkpoint 4f12648 (concernait iakaframe, lancee du mauvais repertoire)</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-09-06 02:40</td><td><span class='r r-version'>version</span></td><td>v0.41.0</td><td>main</td><td>v0.41.0 PUBLIEE (tag Stephane, run 34001818646, asset sha256 d8799b7d..., install.mjs + kits + etapes 3/4 multi-OS verifies sur l octet retelecharge). make_latest du workflow INERTE pour la 2e fois sur 2 publications (release creee, latest reste sur la precedente) → rattrapage gh release edit --latest par Aragorn ; CI-RELEASE-LATEST-NON-MAITRISE devient prioritaire. Suite : bump ressource iakaInstall vers 0.41.0 (AR-P5) → v0.1.2. Push Forgejo EN ATTENTE.</td></tr>
 <tr><td>2026-09-06 01:53</td><td><span class='r r-version'>version</span></td><td>v0.41.0</td><td>chore/bump-0.41.0</td><td></td></tr>
 <tr><td>2026-09-06 01:44</td><td><span class='r r-pause'>pause</span></td><td>v0.40.0</td><td>main</td><td>Premier run reel du banc (33997947501) : Linux 100 % vert ; Windows vert sauf les 2 rollbacks par uninstall.exe (code 0 mais cle de registre encore presente). Cause confirmee dans la doc NSIS : sans _?= le desinstalleur se copie dans TEMP et rend la main avant la fin. Correctif fusionne (gate PASS, 1160 tests) : /S _?=&lt;InstallLocation&gt; synchrone, relecture du registre avant tout verdict, residu uninstall.exe enonce. Ecart de methode : Gimli a nomme AR-W20 de son chef — precision d AR-W5(a), a renommer. Reste : 2e run du banc (decideur), bump 0.41.0, push Forgejo.</td></tr>
 <tr><td>2026-09-06 01:06</td><td><span class='r r-pause'>pause</span></td><td>v0.40.0</td><td>feat/banc-ci-etapes-3-4</td><td>Banc de preuve CI des etapes 3/4 livre et fusionne (workflow_dispatch seul, SHA epingles verifies, scripts appelant l API reelle du module, bac a sable RUNNER_TEMP, mesures comparees a l attendu, UAC et GUI declares non prouvables). Gate PASS 1157 tests, 2 ecarts mineurs de demonstration. LE CADRAGE ETAPES-3-4-WINDOWS-LINUX EST ENTIEREMENT LIVRE (W-L, W-W, banc). Reste au decideur : declencher le banc, bump + publication 0.41.0 (le 0.40.0 embarque par iakaInstall n a pas les etapes 3/4 multi-OS), recette reelle, push Forgejo.</td></tr>

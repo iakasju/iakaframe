@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-06 01:53 (motif: version).
+> Genere par iakaframe (CLI) le 2026-09-06 02:40 (motif: version).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -8,25 +8,26 @@
 | Champ | Valeur |
 |---|---|
 | Version | v0.41.0 |
-| Branche | chore/bump-0.41.0 |
-| Dernier commit | 3baf20e chore(iakaframe): update etat des lieux + commit global (pause) |
-| Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (suivis + non ignores) | 1207 |
+| Branche | main |
+| Dernier commit | 52f5f22 merge: bump 0.41.0 — etapes 3/4 sur les 3 OS prouvees, pret a taguer (gate Legolas PASS) |
+| Arbre | propre |
+| Fichiers (suivis + non ignores) | 1210 |
+| Note | v0.41.0 PUBLIEE (tag Stephane, run 34001818646, asset sha256 d8799b7d..., install.mjs + kits + etapes 3/4 multi-OS verifies sur l octet retelecharge). make_latest du workflow INERTE pour la 2e fois sur 2 publications (release creee, latest reste sur la precedente) → rattrapage gh release edit --latest par Aragorn ; CI-RELEASE-LATEST-NON-MAITRISE devient prioritaire. Suite : bump ressource iakaInstall vers 0.41.0 (AR-P5) → v0.1.2. Push Forgejo EN ATTENTE. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `52f5f22` | 2026-09-06 | merge: bump 0.41.0 — etapes 3/4 sur les 3 OS prouvees, pret a taguer (gate Legolas PASS) |
+| `ea3ff59` | 2026-09-06 | docs(qualite): gate bump 0.41.0 — PASS |
+| `a61e475` | 2026-09-06 | docs: consigner les deux runs reels du banc (33997947501, 33999564308) |
+| `2a320d2` | 2026-09-06 | docs(releases): notes de version v0.41.0 |
+| `7f98b2c` | 2026-09-06 | docs: renommer le sigle AR-W20 en AR-W5(a), precision uninstall synchrone |
+| `0272527` | 2026-09-06 | test(install): temoin CA-M8 sur 0.41.0 |
+| `3af849e` | 2026-09-06 | refactor(test): deriver faireReservoirVivant() de l'autorite de version |
+| `0557613` | 2026-09-06 | chore(cli): bump 0.40.0 -> 0.41.0 (source unique de version) |
 | `3baf20e` | 2026-09-06 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `610c2bd` | 2026-09-06 | merge: fix rollback Windows — uninstall.exe /S _?= synchrone + confirmation par registre (gate Legolas PASS) |
-| `f8126a4` | 2026-09-06 | docs(qualite): gate fix rollback Windows uninstall synchrone — PASS |
-| `efaf242` | 2026-09-06 | docs: mesure reelle du run CI Windows (33997947501) et correctif _?= (AR-W20) |
-| `a1bb520` | 2026-09-06 | fix(banc): thread execReg instrumente vers restaurerEtape (AR-W20) |
-| `fdebbd8` | 2026-09-06 | fix(rollback): uninstall.exe /S synchrone (_?=) + confirmation par relecture registre (AR-W20) |
-| `1499b4e` | 2026-09-06 | test(rollback): rouge — code 0 de uninstall.exe ne prouve pas la desinstallation (AR-W20) |
-| `e34c1af` | 2026-09-06 | merge: banc de preuve CI des etapes 3/4 (CA-W19), ecrit non execute (gate Legolas PASS) |
-| `103f00a` | 2026-09-06 | Revert "docs(etat-des-lieux): corriger en place la note du checkpoint 4f12648 (concernait iakaframe, lancee du mauvais repertoire)" |
-| `49d2487` | 2026-09-06 | docs(etat-des-lieux): corriger en place la note du checkpoint 4f12648 (concernait iakaframe, lancee du mauvais repertoire) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -209,6 +210,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-06 02:40 | version | v0.41.0 | main | v0.41.0 PUBLIEE (tag Stephane, run 34001818646, asset sha256 d8799b7d..., install.mjs + kits + etapes 3/4 multi-OS verifies sur l octet retelecharge). make_latest du workflow INERTE pour la 2e fois sur 2 publications (release creee, latest reste sur la precedente) → rattrapage gh release edit --latest par Aragorn ; CI-RELEASE-LATEST-NON-MAITRISE devient prioritaire. Suite : bump ressource iakaInstall vers 0.41.0 (AR-P5) → v0.1.2. Push Forgejo EN ATTENTE. |
 | 2026-09-06 01:53 | version | v0.41.0 | chore/bump-0.41.0 |  |
 | 2026-09-06 01:44 | pause | v0.40.0 | main | Premier run reel du banc (33997947501) : Linux 100 % vert ; Windows vert sauf les 2 rollbacks par uninstall.exe (code 0 mais cle de registre encore presente). Cause confirmee dans la doc NSIS : sans _?= le desinstalleur se copie dans TEMP et rend la main avant la fin. Correctif fusionne (gate PASS, 1160 tests) : /S _?=<InstallLocation> synchrone, relecture du registre avant tout verdict, residu uninstall.exe enonce. Ecart de methode : Gimli a nomme AR-W20 de son chef — precision d AR-W5(a), a renommer. Reste : 2e run du banc (decideur), bump 0.41.0, push Forgejo. |
 | 2026-09-06 01:06 | pause | v0.40.0 | feat/banc-ci-etapes-3-4 | Banc de preuve CI des etapes 3/4 livre et fusionne (workflow_dispatch seul, SHA epingles verifies, scripts appelant l API reelle du module, bac a sable RUNNER_TEMP, mesures comparees a l attendu, UAC et GUI declares non prouvables). Gate PASS 1157 tests, 2 ecarts mineurs de demonstration. LE CADRAGE ETAPES-3-4-WINDOWS-LINUX EST ENTIEREMENT LIVRE (W-L, W-W, banc). Reste au decideur : declencher le banc, bump + publication 0.41.0 (le 0.40.0 embarque par iakaInstall n a pas les etapes 3/4 multi-OS), recette reelle, push Forgejo. |

@@ -958,5 +958,15 @@
     "dirty": true,
     "files": 1207,
     "note": ""
+  },
+  {
+    "date": "2026-09-06 02:40",
+    "reason": "version",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "52f5f22 merge: bump 0.41.0 — etapes 3/4 sur les 3 OS prouvees, pret a taguer (gate Legolas PASS)",
+    "dirty": false,
+    "files": 1210,
+    "note": "v0.41.0 PUBLIEE (tag Stephane, run 34001818646, asset sha256 d8799b7d..., install.mjs + kits + etapes 3/4 multi-OS verifies sur l octet retelecharge). make_latest du workflow INERTE pour la 2e fois sur 2 publications (release creee, latest reste sur la precedente) → rattrapage gh release edit --latest par Aragorn ; CI-RELEASE-LATEST-NON-MAITRISE devient prioritaire. Suite : bump ressource iakaInstall vers 0.41.0 (AR-P5) → v0.1.2. Push Forgejo EN ATTENTE."
   }
 ]
