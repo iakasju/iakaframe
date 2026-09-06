@@ -699,9 +699,9 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
       (`RESIDU NON NETTOYE`), jamais masqué, et ne fait jamais échouer le verdict de
       désinstallation déjà confirmée. **Preuve** : tests rouges d'abord (`cli/test/rollback.test.js`,
       double `execDesinstalleur` rendant `0` immédiatement pendant qu'un double `execReg` continue
-      de trouver la clé) puis correctif, tests `AR-W20 (reprise post-mesure-réelle du
-      2026-09-06, run CI 33997947501)…`, `AR-W20, l'appel au désinstalleur porte
-      \`_?=<InstallLocation>\`…`, `AR-W20, résidu du désinstalleur EN PLACE…` ; adaptation au
+      de trouver la clé) puis correctif, tests `AR-W5(a), précision uninstall synchrone (reprise post-mesure-réelle du
+      2026-09-06, run CI 33997947501)…`, `AR-W5(a), précision uninstall synchrone, l'appel au désinstalleur porte
+      \`_?=<InstallLocation>\`…`, `AR-W5(a), précision uninstall synchrone, résidu du désinstalleur EN PLACE…` ; adaptation au
       nouveau contrat des tests existants `AR-W5, cas "rien n'existait avant"…` et `AR-W5, chaîné
       via orchestrerRollback…` (même discipline que CA-W14) ; chaîné réel dans
       `cli/test/install-etapes-3-4.test.js` test `AR-5, chaîné réel Windows…` (adapté au nouveau

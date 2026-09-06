@@ -60,7 +60,7 @@ function execDesinstalleurInstrumente(cmd, args) {
   mesuresDesinstalleur.push({ cmd, args, status: res.status, dureeMs: Date.now() - debut });
   return res;
 }
-// AJOUT reprise AR-W20 (2026-09-06, post PREMIERE MESURE REELLE de ce banc, run 33997947501) :
+// AJOUT reprise AR-W5(a), précision uninstall synchrone (2026-09-06, post PREMIERE MESURE REELLE de ce banc, run 33997947501) :
 // `restaurerEtape` relit desormais le registre APRES le retour du desinstalleur (§ specs/
 // instructions/etapes-3-4-windows-linux.md, CA-W11 reprise) — ce double n'est PAS un second
 // chemin, c'est le MEME `reg.exe` reel que `regQueryBrut` ci-dessous, juste instrumente pour
@@ -166,7 +166,7 @@ if (rA.ok) {
   }
 
   // Rollback REEL — scenario A, « rien n'existait avant » (uninstall.exe /S _?=<InstallLocation>,
-  // AR-W20) -----------------------------------------------------------------------------------
+  // AR-W5(a), précision uninstall synchrone) -----------------------------------------------------------------------------------
   if (!rollbackDemande) {
     L.push(ligne('Rollback REEL (scenario A)', 'entree `rollback=true` requise', 'DESACTIVE par l\'entree `rollback=false` du declenchement — non joue, non simule', 'NON-MESURE'));
   } else {
@@ -176,7 +176,7 @@ if (rA.ok) {
     const relecturesA = mesuresRelectureRegistre.length - avantRelecturesA;
     const apresRollbackA = trouverSousCleExacte('IakaCockpit');
     L.push(ligne(
-      'Rollback REEL (scenario A, uninstall.exe /S _?=<InstallLocation> via `restaurerEtape` module reel, AR-W20)',
+      'Rollback REEL (scenario A, uninstall.exe /S _?=<InstallLocation> via `restaurerEtape` module reel, AR-W5(a), précision uninstall synchrone)',
       'ok:true, defait:true, code de sortie uninstall.exe = 0, cle DISPARUE ET confirmee par relecture du module',
       `ok:${rbA.ok}, defait:${rbA.defait}, codeUninstall=${appelUninstallA && appelUninstallA.status}, relecturesRegistre=${relecturesA}, sousClesRestantes=${apresRollbackA.sousCles.length}, raison="${rbA.raison}"`,
       rbA.ok && rbA.defait && apresRollbackA.sousCles.length === 0 ? 'PASS' : 'FAIL',
@@ -279,7 +279,7 @@ if (rGui.ok) {
     const relecturesGui = mesuresRelectureRegistre.length - avantRelecturesGui;
     const apresGui = trouverSousCleExacte('iakaFrameGUI');
     L.push(ligne(
-      'iakaFrameGUI : rollback REEL (uninstall.exe /S _?=<InstallLocation>, AR-W20)',
+      'iakaFrameGUI : rollback REEL (uninstall.exe /S _?=<InstallLocation>, AR-W5(a), précision uninstall synchrone)',
       'ok:true, defait:true, cle DISPARUE ET confirmee par relecture du module',
       `ok:${rbGui.ok}, defait:${rbGui.defait}, relecturesRegistre=${relecturesGui}, sousClesRestantes=${apresGui.sousCles.length}`,
       rbGui.ok && rbGui.defait && apresGui.sousCles.length === 0 ? 'PASS' : 'FAIL',

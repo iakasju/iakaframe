@@ -218,7 +218,7 @@ test('AR-W5, cas "rien n\'existait avant" (§2.3 point 3) : ouvrirPreuveWindowsS
     fs.rmSync(cible, { recursive: true, force: true });
     return { status: 0 };
   };
-  // AR-W20 (reprise post-mesure-réelle du 2026-09-06) : la clé de désinstallation est CONFIRMÉE
+  // AR-W5(a), précision uninstall synchrone (reprise post-mesure-réelle du 2026-09-06) : la clé de désinstallation est CONFIRMÉE
   // disparue par le port `execReg` — un `reg query` réel rend un code NON NUL quand la clé n'existe
   // plus (même format que `decouvrirInstallationWindows`, app-bundle.js).
   const execReg = () => ({ status: 1 });
@@ -272,7 +272,7 @@ test('AR-W5, chaîné via orchestrerRollback : execDesinstalleur ET execReg se p
 });
 
 // ==================================================================================================
-// AR-W20 — reprise post-PREMIÈRE MESURE RÉELLE du banc CI Windows (2026-09-06, run `33997947501`,
+// AR-W5(a), précision uninstall synchrone — reprise post-PREMIÈRE MESURE RÉELLE du banc CI Windows (2026-09-06, run `33997947501`,
 // job `banc (windows-latest)`) : les DEUX lignes de mesure « Rollback REEL » sont tombées 🔴 FAIL —
 // `restaurerEtape` rendait `ok:true, defait:true` alors que `sousClesRestantes=1` (la sous-clé de
 // désinstallation était TOUJOURS PRÉSENTE juste après le retour de `uninstall.exe /S`, code 0).
@@ -285,7 +285,7 @@ test('AR-W5, chaîné via orchestrerRollback : execDesinstalleur ET execReg se p
 // utilisé par ce module) attend alors la fin RÉELLE du processus.
 // ==================================================================================================
 
-test('AR-W20 (reprise post-mesure-réelle du 2026-09-06, run CI 33997947501) : `uninstall.exe /S` rend code 0 IMMÉDIATEMENT (rejoue le DÉFAUT MESURÉ, doc NSIS Chapter3.html) mais le registre montre ENCORE la clé -> `restaurerEtape` REFUSE, ne déclare JAMAIS `defait:true`', () => {
+test('AR-W5(a), précision uninstall synchrone (reprise post-mesure-réelle du 2026-09-06, run CI 33997947501) : `uninstall.exe /S` rend code 0 IMMÉDIATEMENT (rejoue le DÉFAUT MESURÉ, doc NSIS Chapter3.html) mais le registre montre ENCORE la clé -> `restaurerEtape` REFUSE, ne déclare JAMAIS `defait:true`', () => {
   const racine = tmp();
   const backupDir = path.join(racine, 'backups');
   const cible = path.join(racine, 'IakaCockpit');
@@ -310,7 +310,7 @@ test('AR-W20 (reprise post-mesure-réelle du 2026-09-06, run CI 33997947501) : `
   assert.doesNotMatch(rapport.raison, /^desinstalle via/, 'jamais un "désinstallé" affirmatif tant que la clé est encore présente');
 });
 
-test('AR-W20, l\'appel au désinstalleur porte `_?=<InstallLocation>` (doc NSIS Chapter3.html : exécution EN PLACE et synchrone, jamais la copie vers %TEMP%)', () => {
+test('AR-W5(a), précision uninstall synchrone, l\'appel au désinstalleur porte `_?=<InstallLocation>` (doc NSIS Chapter3.html : exécution EN PLACE et synchrone, jamais la copie vers %TEMP%)', () => {
   const racine = tmp();
   const backupDir = path.join(racine, 'backups');
   const cible = path.join(racine, 'IakaCockpit');
@@ -325,7 +325,7 @@ test('AR-W20, l\'appel au désinstalleur porte `_?=<InstallLocation>` (doc NSIS 
   assert.deepEqual(argsRecus, ['/S', `_?=${cible}`], '`_?=` DOIT porter l\'InstallLocation EXACT, dernier paramètre de la ligne de commande (doc NSIS)');
 });
 
-test('AR-W20, résidu du désinstalleur EN PLACE (`_?=` empêche l\'auto-suppression par copie vers %TEMP%, doc NSIS Chapter4.html § "Uninstall Section") : le rollback NOMME le résidu si le nettoyage best-effort échoue, sans jamais faire échouer le verdict de désinstallation déjà CONFIRMÉE', () => {
+test('AR-W5(a), précision uninstall synchrone, résidu du désinstalleur EN PLACE (`_?=` empêche l\'auto-suppression par copie vers %TEMP%, doc NSIS Chapter4.html § "Uninstall Section") : le rollback NOMME le résidu si le nettoyage best-effort échoue, sans jamais faire échouer le verdict de désinstallation déjà CONFIRMÉE', () => {
   const racine = tmp();
   const backupDir = path.join(racine, 'backups');
   const cible = path.join(racine, 'IakaCockpit');
