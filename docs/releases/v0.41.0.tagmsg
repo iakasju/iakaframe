@@ -25,10 +25,13 @@ Changement observable : les étapes 3/4 posent IakaCockpit et iakaFrameGUI sur m
 Windows par désinstalleur synchrone avec résidu énoncé ; refus explicite conservé pour
 `win32/arm64` et toute clé de manifeste absente.
 
-Preuve : un run réel du banc CI (`33997947501`, 2026-09-06) a mesuré les deux plateformes dans
-la même exécution matricielle. Reste gate humain : UAC sur compte non-administrateur, lancement
-GUI complet de l'AppImage, recette sur machine réelle. Un second run du banc, post-correctif,
-reste dû (décideur).
+Preuve : deux runs réels du banc CI. Run `33997947501` (2026-09-06, os=les-deux, avant
+correctif) : Linux 100 % vert, Windows vert sauf les deux rollbacks (c'est cette mesure qui a
+motivé le correctif). Run `33999564308` (2026-09-06, os=windows-latest rollback=true, après
+fusion du correctif) : 16 mesures dont 15 PASS, les deux rollbacks confirmés par relecture du
+registre, seule reste NON-MESURE l'absence d'UAC sur compte non-administrateur. Reste gate
+humain : UAC sur compte non-administrateur, lancement GUI complet de l'AppImage, recette sur
+machine réelle.
 
 Successeurs nommés (hors périmètre de ce lot, déclarés) : LANCEUR-DESKTOP-LINUX (aucun
 `.desktop` écrit), C-JSON-COUVERTURE-COMPLETE (les ~20 autres verbes du CLI n'ont pas de sortie

@@ -777,12 +777,12 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
       puis W-W : macOS + Linux + Windows couverts, `--apps-dir` sans effet sur Windows, non-repli
       deb/rpm/msi, découverte registre + trois cas de sauvegarde/rollback Windows décrits, gate
       humain nommé par OS).
-- [~] **CA-W19** — Le banc CI existe, ses actions sont **épinglées au SHA**, et sa limite (« un
-      runner n'est pas un poste ») est **écrite dans le fichier**. **ÉCRIT, NON EXÉCUTÉ**
-      (reprise du 2026-09-06, ordre de mission Aragorn, Étape 3 de § 5) — **jamais annoncé
-      « couvert »** : le déclenchement (`gh workflow run`) reste un acte du décideur (AR-W7),
-      refusé aux agents, et rien ne prouve ici que le workflow s'exécute réellement sans erreur
-      sur un runner GitHub réel tant qu'il n'a pas été lancé au moins une fois.
+- [x] **CA-W19** — Le banc CI existe, ses actions sont **épinglées au SHA**, sa limite (« un
+      runner n'est pas un poste ») est **écrite dans le fichier**, et il a désormais été
+      **EXÉCUTÉ : 2 runs, mesures citées** (déclenchés par le décideur, AR-W7 — jamais un
+      agent) — **jamais annoncé « couvert » au-delà de ce qui est réellement mesuré** : les
+      gates humains § 9/tableau ci-dessous (UAC sur compte non-administrateur, lancement GUI
+      complet de l'AppImage, recette sur machine réelle) restent entiers.
       **Preuve (écriture)** : `.github/workflows/banc-etapes-3-4.yml` (`workflow_dispatch`
       UNIQUEMENT, actions `actions/checkout`/`actions/setup-node` épinglées à un SHA complet
       vérifié le 2026-09-06 via `gh api repos/<org>/<repo>/git/ref/tags/<tag>`, cartouche
@@ -790,14 +790,34 @@ faire rougir **ce critère-là, nommément**, et qui est **révoquée avec preuv
       `cli/scripts/banc-etapes-3-4-linux.mjs` et `-windows.mjs` (mesures réelles via l'API du
       module — `etapeApp`, `restaurerEtape`, `decouvrirInstallationWindows` — jamais réimplémentées
       dans le YAML) ; `cli/scripts/lib/banc-support.mjs` (bac à sable strict sous
-      `$RUNNER_TEMP`). **Garde statique** (12 tests, jamais un run réel) :
+      `$RUNNER_TEMP`). **Garde statique** (12 tests, distincte des runs réels) :
       `cli/test/guard-banc-etapes-3-4.test.js` — `workflow_dispatch` seul (contrefactuel : ajout
       de `push:` rougit nommément), épinglage SHA complet + commentaire de version (contrefactuel :
       SHA remplacé par un tag flottant rougit nommément), zéro `secrets.*`, zéro écriture hors bac
-      à sable, `--yes` documenté et justifié dans le cartouche. Suite complète : `tests 1157,
-      pass 1156, fail 0, skipped 1` (+12 tests neufs, aucune régression). `docs/commandes.md`
-      § B.1 bis, commande exacte pour le décideur. **Non fait ici** : le déclenchement réel, donc
-      la preuve d'exécution effective sur `ubuntu-latest`/`windows-latest` — verdict à Legolas.
+      à sable, `--yes` documenté et justifié dans le cartouche.
+      **Preuve (exécution, 2 runs réels sur `iakasju/iakaframe`)** :
+      - **Run `33997947501`** (2026-09-06, `os=les-deux`, avant le correctif uninstall
+        synchrone) : job `banc (ubuntu-latest)` **100 % vert** ; job `banc (windows-latest)`
+        vert sauf les **deux** lignes de rollback (« Rollback REEL (scénario A…) » et
+        « iakaFrameGUI : rollback REEL… ») — `ok:true, defait:true, codeUninstall=0` alors que
+        `sousClesRestantes=1` (la sous-clé de désinstallation était encore présente juste après
+        le retour de `uninstall.exe /S`). C'est cette mesure réelle qui a motivé le correctif
+        `_?=<InstallLocation>` (lot `610c2bd`, `docs/qualite/gate-rollback-windows-uninstall-synchrone.md`).
+      - **Run `33999564308`** (2026-09-05T23:46:48Z / 2026-09-06 heure locale, `os=windows-latest
+        rollback=true`, **après** fusion du correctif) : job `banc (windows-latest)`
+        **conclusion `success`**, **16 mesures dont 15 `✅ PASS`** — les deux rollbacks
+        (scénario A IakaCockpit et iakaFrameGUI) rendent désormais `ok:true, defait:true,
+        relecturesRegistre=1, sousClesRestantes=0` (clé confirmée disparue par relecture du
+        registre) — et **1 `⚪ NON-MESURE`** (« Absence d'UAC pour un utilisateur
+        NON-ADMINISTRATEUR », gate humain déclaré comme tel, jamais un `PASS` de complaisance).
+        Vérifié en lecture seule (`gh run view 33999564308 --repo iakasju/iakaframe --json
+        status,conclusion,jobs,createdAt` puis `--log`, filtré sur les lignes `✅|🔴|⚪` du job
+        `banc (windows-latest)`).
+      Suite locale complète au moment de ce lot : `tests 1160, pass 1159, fail 0, skipped 1`.
+      `docs/commandes.md` § B.1 bis, commande exacte pour le décideur. **Ce qui reste
+      NON prouvé par ces deux runs** (gate humain, inchangé) : UAC sur un compte Windows
+      réellement non-administrateur, lancement GUI complet de l'AppImage sur une distribution
+      Linux, recette sur machine physique hors runner CI.
 
 ### 🛑 Gate humain, déclaré par OS — jamais compté comme couvert
 
