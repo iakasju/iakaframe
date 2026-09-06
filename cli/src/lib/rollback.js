@@ -107,7 +107,7 @@ export function completerPreuveWindowsApresPose(preuve, { cible = null, cheminUn
 // avant ce lot (aucune de leurs preuves ne porte `windowsUninstall`, la branche n'est jamais
 // atteinte pour elles).
 //
-// `execReg`/`attendre` (AJOUT reprise AR-W20, 2026-09-06, apres la PREMIERE MESURE REELLE du banc
+// `execReg`/`attendre` (AJOUT reprise AR-W5(a), précision uninstall synchrone, 2026-09-06, apres la PREMIERE MESURE REELLE du banc
 // CI Windows — run `33997947501`, job `banc (windows-latest)`) : les DEUX lignes de mesure
 // « Rollback REEL » sont tombees FAIL — `restaurerEtape` rendait `ok:true, defait:true` alors que
 // la sous-cle de desinstallation etait TOUJOURS PRESENTE (`sousClesRestantes=1`) juste apres le
@@ -140,7 +140,7 @@ function attendreReel(ms) {
 /**
  * Confirme, par relecture BORNEE du registre (`execReg`, port d'injection), que la sous-cle de
  * desinstallation de `installLocation` a REELLEMENT disparu — jamais suppose du seul code de
- * sortie de l'installeur (AR-W20). Meme construction de cle que `decouvrirInstallationWindows`
+ * sortie de l'installeur (AR-W5(a), précision uninstall synchrone). Meme construction de cle que `decouvrirInstallationWindows`
  * (app-bundle.js) : `HKCU\...\Uninstall\<nom du dossier d'installation>` — le nom du produit est
  * le nom du dossier, jamais devine autrement (aucune dependance croisee vers app-bundle.js,
  * rollback.js reste isole, cf. cartouche de test).
@@ -201,10 +201,10 @@ export function restaurerEtape(preuve, {
     // Cas Windows "rien n'existait avant" (§ 2.3 point 3) : on ne RETIRE PAS le dossier par
     // `rmSync` (ce serait un demi-rollback qui laisserait l'enregistrement de desinstallation,
     // les raccourcis et les associations derriere lui, § 2.3) — on lance l'`uninstall.exe` que la
-    // pose a cree, en silencieux ET SYNCHRONE (`/S _?=<InstallLocation>`, E-5 + AR-W20 — sans
+    // pose a cree, en silencieux ET SYNCHRONE (`/S _?=<InstallLocation>`, E-5 + AR-W5(a), précision uninstall synchrone — sans
     // `_?=`, le desinstalleur se copie dans %TEMP% et rend la main immediatement, doc NSIS
     // Chapter3.html, precisement le defaut mesure par le run CI 33997947501). Son code de sortie
-    // NE SUFFIT PLUS a lui seul (AR-W20) : la disparition de la sous-cle de registre est ENSUITE
+    // NE SUFFIT PLUS a lui seul (AR-W5(a), précision uninstall synchrone) : la disparition de la sous-cle de registre est ENSUITE
     // CONFIRMEE par relecture (`execReg`) avant de rendre `defait:true`.
     if (preuveDisque.windowsUninstall && preuveDisque.windowsUninstall.chemin) {
       const installLocation = preuveDisque.cible;
@@ -217,13 +217,13 @@ export function restaurerEtape(preuve, {
           raison: `ECHEC de la desinstallation (${preuveDisque.windowsUninstall.chemin} ${args.join(' ')}, code ${code === null ? 'indetermine' : code}) — garde 3 : enonce, jamais un "restaure" global`,
         };
       }
-      // AR-W20 : un code 0 ne prouve rien tant que la cle n'a pas REELLEMENT disparu (mesure du
+      // AR-W5(a), précision uninstall synchrone : un code 0 ne prouve rien tant que la cle n'a pas REELLEMENT disparu (mesure du
       // run CI 33997947501 : code 0 ET sousClesRestantes=1). Relecture BORNEE avant tout verdict.
       const disparue = cleDeDesinstallationDisparue(execReg, installLocation, attendre);
       if (!disparue) {
         return {
           ok: false, defait: false,
-          raison: `desinstalleur lance, code 0, mais la cle de desinstallation est toujours presente : desinstallation NON confirmee ; reprise manuelle : verifier ${preuveDisque.windowsUninstall.chemin} ou "Applications et fonctionnalites" (parametres Windows) — garde 3, AR-W20`,
+          raison: `desinstalleur lance, code 0, mais la cle de desinstallation est toujours presente : desinstallation NON confirmee ; reprise manuelle : verifier ${preuveDisque.windowsUninstall.chemin} ou "Applications et fonctionnalites" (parametres Windows) — garde 3, AR-W5(a), précision uninstall synchrone`,
         };
       }
       // `_?=` empeche le desinstalleur de se copier dans %TEMP% pour s'auto-supprimer en cours
@@ -280,7 +280,7 @@ export function restaurerEtape(preuve, {
  * `null`/`undefined` (etape jamais atteinte, ou refusee avant toute ecriture) : elles sont
  * filtrees, elles n'ont rien a defaire.
  */
-// `execDesinstalleur`/`execReg`/`attendre` (AJOUTS LOT W-W puis reprise AR-W20) : simples relais
+// `execDesinstalleur`/`execReg`/`attendre` (AJOUTS LOT W-W puis reprise AR-W5(a), précision uninstall synchrone) : simples relais
 // vers `restaurerEtape` pour chaque preuve — voir leur documentation ci-dessus. Absence =>
 // comportement PRE-EXISTANT inchange (defauts reels de `restaurerEtape`).
 export function orchestrerRollback(preuves, { execDesinstalleur, execReg, attendre } = {}) {

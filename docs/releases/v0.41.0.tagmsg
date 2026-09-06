@@ -1,0 +1,40 @@
+iakaframe v0.41.0 — les étapes 3/4 de `install` couvrent Linux et Windows
+
+Quatre lots, empilés depuis v0.40.0 :
+
+- Lot W-L (c34fe75) : les étapes 3/4 (IakaCockpit, iakaFrameGUI) posent l'AppImage vérifiée
+  (minisign) + `chmod +x` sous `<apps-dir>/<Nom>.AppImage` sur Linux, même drapeau et même
+  défaut (`~/Applications`) qu'macOS. Aucun `.desktop` écrit.
+- Lot W-W (69bc68e) : sur Windows, exécute l'installeur `.exe` NSIS `currentUser` en silencieux
+  (`/S`, jamais `/R`, jamais le `.msi`) ; `--apps-dir` n'a aucun effet (annoncé explicitement) ;
+  lit le registre de désinstallation avant d'écrire, sauvegarde une version installée connue,
+  refuse d'écrire si `InstallLocation` est indéterminable.
+- Banc de preuve CI des étapes 3/4 (e34c1af, CA-W19) : workflow `workflow_dispatch` dédié,
+  mesure réelle sur runners GitHub Actions (`ubuntu-latest`/`windows-latest`), SHA des actions
+  tierces épinglés et revérifiés, bac à sable sous `$RUNNER_TEMP`, aucun secret référencé.
+- Correctif rollback Windows — uninstall synchrone (610c2bd) : le run réel du banc
+  (`33997947501`) a mesuré Linux 100 % vert et Windows vert sauf les deux rollbacks par
+  `uninstall.exe` (code 0 mais clé de registre encore présente). Cause confirmée dans la doc
+  NSIS officielle : sans `_?=`, le désinstalleur se copie dans `%TEMP%` et rend la main avant la
+  fin réelle. Correctif : `/S _?=<InstallLocation>` synchrone, confirmation par relecture du
+  registre avant tout verdict `defait:true`, résidu de nettoyage énoncé si le best-effort
+  échoue.
+
+Changement observable : les étapes 3/4 posent IakaCockpit et iakaFrameGUI sur macOS, Linux
+(AppImage) et Windows (`.exe` NSIS silencieux) ; `--apps-dir` sans effet sur Windows ; rollback
+Windows par désinstalleur synchrone avec résidu énoncé ; refus explicite conservé pour
+`win32/arm64` et toute clé de manifeste absente.
+
+Preuve : deux runs réels du banc CI. Run `33997947501` (2026-09-06, os=les-deux, avant
+correctif) : Linux 100 % vert, Windows vert sauf les deux rollbacks (c'est cette mesure qui a
+motivé le correctif). Run `33999564308` (2026-09-06, os=windows-latest rollback=true, après
+fusion du correctif) : 16 mesures dont 15 PASS, les deux rollbacks confirmés par relecture du
+registre, seule reste NON-MESURE l'absence d'UAC sur compte non-administrateur. Reste gate
+humain : UAC sur compte non-administrateur, lancement GUI complet de l'AppImage, recette sur
+machine réelle.
+
+Successeurs nommés (hors périmètre de ce lot, déclarés) : LANCEUR-DESKTOP-LINUX (aucun
+`.desktop` écrit), C-JSON-COUVERTURE-COMPLETE (les ~20 autres verbes du CLI n'ont pas de sortie
+--json), CI-RELEASE-LATEST-NON-MAITRISE (le `make_latest` du workflow de release reste inerte),
+durcissement des contrefactuels `secrets.X`/`os.homedir(` de la garde statique du banc
+(mécanisme fonctionnel, démonstration-test à renforcer).
