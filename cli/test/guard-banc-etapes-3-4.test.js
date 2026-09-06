@@ -102,9 +102,25 @@ test('CONTREFACTUEL (2) : remplacer un SHA par un tag flottant fait rougir la ga
 });
 
 // --- (3) aucun secret reference -------------------------------------------------------------------
-test('banc CI : aucun `secrets.*` reference (aucun secret n\'est necessaire a ce banc)', () => {
+test('TEMOIN (3) : le texte REEL du workflow ne reference aucun `secrets.*`', () => {
   const contenu = fs.readFileSync(WORKFLOW, 'utf8');
   assert.doesNotMatch(contenu, /secrets\./, 'ce banc ne publie rien : aucun secret ne devrait y etre lu');
+});
+
+test('CONTREFACTUEL (3) : injecter `${{ secrets.FOO }}` dans une etape du texte REEL fait rougir la garde "aucun secret"', () => {
+  const contenu = fs.readFileSync(WORKFLOW, 'utf8');
+  // Mutation EN MEMOIRE du texte reel du workflow (jamais du fichier sur disque) : on greffe une
+  // reference a un secret juste apres une etape `run:` reellement presente dans le fichier.
+  const mute = contenu.replace(
+    /(run: node src\/index\.js --help\n)/,
+    '$1      - run: echo ${{ secrets.FOO }}\n',
+  );
+  assert.notEqual(mute, contenu, 'la mutation doit reellement modifier le texte (ancre `- run: node src/index.js --help` introuvable ?)');
+  assert.throws(
+    () => assert.doesNotMatch(mute, /secrets\./, 'ce banc ne publie rien : aucun secret ne devrait y etre lu'),
+    /secret/i,
+    'la mutation doit etre DETECTEE, nommement (secrets. present)',
+  );
 });
 
 // --- (4) aucune ecriture hors ${{ runner.temp }} ---------------------------------------------------
@@ -126,13 +142,30 @@ test('banc CI : les scripts de pose reelle exigent $RUNNER_TEMP (refusent de dev
   }
 });
 
-test('CONTREFACTUEL (4) : une ecriture simulee vers ~/Applications fait rougir la garde de bac a sable', () => {
-  const contenuMute = "const appsDir = path.join(os.homedir(), 'Applications');";
-  assert.throws(() => {
-    for (const motif of MOTIFS_HORS_BAC_A_SABLE) {
-      assert.doesNotMatch(contenuMute, motif);
-    }
-  });
+test('TEMOIN (4) : le contenu REEL de banc-etapes-3-4-linux.mjs ne reference jamais os.homedir()', () => {
+  const fichier = SCRIPTS.find((f) => f.endsWith('banc-etapes-3-4-linux.mjs'));
+  const contenu = fs.readFileSync(fichier, 'utf8');
+  for (const motif of MOTIFS_HORS_BAC_A_SABLE) {
+    assert.doesNotMatch(contenu, motif);
+  }
+});
+
+test('CONTREFACTUEL (4) : injecter `os.homedir(` dans le contenu REEL de banc-etapes-3-4-linux.mjs fait rougir la garde de bac a sable', () => {
+  const fichier = SCRIPTS.find((f) => f.endsWith('banc-etapes-3-4-linux.mjs'));
+  const contenu = fs.readFileSync(fichier, 'utf8');
+  // Mutation EN MEMOIRE du contenu REEL du script (jamais du fichier sur disque) : on ajoute une
+  // ligne qui referencerait un chemin hors bac a sable, comme le ferait une vraie regression.
+  const mute = `${contenu}\nconst appsDir = path.join(os.homedir(), 'Applications');\n`;
+  assert.notEqual(mute, contenu, 'la mutation doit reellement modifier le texte');
+  assert.throws(
+    () => {
+      for (const motif of MOTIFS_HORS_BAC_A_SABLE) {
+        assert.doesNotMatch(mute, motif);
+      }
+    },
+    /os\.homedir\(/,
+    'la mutation doit etre DETECTEE, nommement (os.homedir( present)',
+  );
 });
 
 // --- `--yes` documente dans le cartouche (pas une derogation tacite) -------------------------------
