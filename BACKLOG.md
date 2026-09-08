@@ -10,7 +10,14 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
-### CI-RELEASE-LATEST-NON-MAITRISE — le `make_latest` calcule du workflow n'a PAS agi (2026-09-05)
+### CI-RELEASE-LATEST-NON-MAITRISE — le `make_latest` du workflow n'est PAS inerte : il est CALCULE A `false` (2026-09-05, titre corrige le 2026-09-08)
+
+> ⚠️ **Titre corrige le 2026-09-08** (cadrage `specs/instructions/ci-release-latest-non-maitrise.md`).
+> Le titre d'origine, *« le `make_latest` calcule du workflow n'a PAS agi »*, laissait croire que la
+> valeur calculee etait IGNOREE par `softprops/action-gh-release`. C'est FAUX, et ce n'est pas une
+> nuance de style : la valeur **agit parfaitement**, elle est simplement **calculee a `false`** par
+> une comparaison devenue impossible a satisfaire (§ 2.1 du cadrage). Titre d'origine **date, pas
+> efface**, ci-dessous entre parentheses pour memoire de recherche.
 
 - **Mesure** : tag `v0.40.0` pousse a 09:59:39Z (run `33959443438`). La release et son asset
   `naonedge-iakaframe-0.40.0.tgz` (686 323 o, sha256
@@ -24,11 +31,62 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   Coherent avec M1 (2026-09-01) : `--latest` (true) AGIT ; le `make_latest` calcule dans `release.yml`
   (acteur `softprops`) ne l'a pas fait, ou pas a temps (cf. la course de « douze minutes » deja notee
   dans les commentaires du workflow, l. 49-73).
-- **A cadrer** : soit l'etape « Verifier » RATTRAPE elle-meme (`gh release edit  --latest`)
-  puis re-mesure, au lieu de seulement rougir ; soit on mesure d'abord POURQUOI `make_latest` est
-  inerte (valeur calculee ? ordre des etapes ? API asynchrone ?). Une preuve se compare au fichier :
-  relire le log complet du run `33959443438`, etape « rang » et etape `softprops`.
-- Successeur legitime de `CI-RELEASE-AUCUN-EPINGLAGE` (toujours ouvert, trois tags flottants).
+- **Meme defaut reproduit le 2026-09-06** sur `v0.41.0` (run `34001818646`) : rattrapage identique
+  applique par Aragorn.
+- ✅ **CAUSE MESUREE et CORRIGEE le 2026-09-08** (lot `fix/ci-release-latest`, cadrage
+  `specs/instructions/ci-release-latest-non-maitrise.md`). Cliquet **CA-L1** confirme au log verbatim
+  du run `34001818646` : `DECISION : v0.41.0 n'est PAS le plus haut (v0.40.0) -> make_latest=false.`
+  **Cause** : l'etape `rang` compare `$TAG` a la population des releases **DEJA PUBLIEES**, mais elle
+  tourne **AVANT** que `softprops` cree la release du tag courant — `$TAG` n'est donc **jamais** dans
+  cette population, et `[ "$TAG" = "$PLUS_HAUT" ]` est **structurellement inatteignable** sur une
+  publication normale. **Regression du fix R-2** (2026-09-02, qui avait change le referent des TAGS
+  vers les RELEASES sans deplacer la comparaison) : confirmee sur les trois runs connus
+  (`v0.39.0` avant R-2 → `true` → latest OK ; `v0.40.0`/`v0.41.0` apres R-2 → `false` → latest en
+  retard). **Correctif (AR-1(a))** : la comparaison fait desormais entrer `$TAG` dans la population
+  AVANT le tri. **Filet (AR-2(a))** : l'etape « Verifier » RATTRAPE elle-meme
+  (`gh release edit "$PLUS_HAUT" --latest`) puis RE-MESURE, au lieu de seulement rougir — acquis
+  AR-7=(a) de L44, deja livre a `IakaCockpit`/`iakaFrameGUI`, rattrape ici. Preuve locale :
+  `cli/test/release-latest-shell.test.js` (jambe d'execution, faux `gh` + vrai `jq`), rouge avant
+  correctif puis vert (commits `test(ci):` puis `fix(ci):`).
+- 👤 **RESTE DU — gates humains, jamais couverts par une garde locale (§ 8 du cadrage)** :
+  - **CA-L11** — pousser la pre-release instrument `v0.41.1-rc.1` : `git tag v0.41.1-rc.1 && git push
+    origin v0.41.1-rc.1`. Attendu : run vert, `releases/latest` **inchange** (reste sur le plus haut
+    semver PLEIN), etape `rang` imprime `make_latest=false` (contrefactuel gratuit — prouve
+    « ne vole pas », rien d'autre).
+  - **CA-L12** — LA preuve du lot, au **prochain tag reel** (`v0.42.0`) : `git tag v0.42.0 && git push
+    origin v0.42.0`. Attendu : `releases/latest` = `v0.42.0` **sans aucun rattrapage manuel**, etape
+    « Verifier » imprime `latest maitrise : v0.42.0`, `npm run vitrine:en-ligne` (depuis `cli/`) ne
+    remonte pas d'ecart E-1. **Tant que ce critere n'est pas joue, le lot est livre mais NON PROUVE.**
+  - **CA-L13** — suppression eventuelle de `v0.41.1-rc.1` (elle sera creee NON-preversion, § AR-6 du
+    cadrage) : acte de release, reserve au decideur, jamais un agent.
+- Successeur legitime de `CI-RELEASE-AUCUN-EPINGLAGE`, **soldee dans ce meme lot** (§ *Fait*
+  ci-dessous) — les trois `uses:` sont desormais epingles au SHA.
+
+### REGISTRE-REPLI-LATEST-DETTE-CROISEE — `registre:repli-latest` ne peut pas atteindre `0` global (constate le 2026-09-08)
+
+> *(Constate par ⚒️ Gimli au gate du lot `fix/ci-release-latest`, hors perimetre de ce lot —
+> `docs/qualite/gate-ci-release-latest.md` § Ecart. Les cinq fichiers touches par ce lot sont, eux,
+> a `0` derive : verifie en filtrant la sortie du script sur leurs chemins.)*
+
+`npm run registre:repli-latest` (depuis `cli/`) rend `1` sur `main`, **avant meme** ce lot, pour
+trois causes distinctes, aucune dans le perimetre de `CI-RELEASE-LATEST-NON-MAITRISE` :
+
+1. **Pollution de balayage** : `iakaframe/.claude/worktrees/agent-ad0d5f08878d103e5/` est un
+   `git worktree` REEL mais orphelin (`git worktree list` le confirme), non exclu par
+   `balayage.exclus` (qui ne connait que `node_modules`/`dist`/`target`/`.git`/`build`/`coverage`/
+   `package-lock.json`/`.next`) : ses fichiers sont comptes comme neufs pour le depot `iakaframe`.
+2. **Dette non triee, deja sur `main`** : `specs/etat-des-lieux.md`, plusieurs
+   `specs/instructions/*.md` (dont le cadrage `ci-release-latest-non-maitrise.md` lui-meme — hors
+   ecriture pour un agent de dev), `cli/src/commands/install.js`, `docs/releases/v0.41.0.md`.
+3. **`--ecrire` REFUSE TOUT, meme le re-ancrage legitime** : 38 ancres de
+   `IakaCockpit/scripts/vitrine-en-ligne.mjs` et `iakaFrameGUI/scripts/vitrine-en-ligne.mjs`
+   pointent au-dela de la fin d'un fichier qui n'a plus que 113 lignes — defaut **de ces deux
+   depots**, hors etancheite d'un agent qui n'ecrit que dans son depot courant.
+- **A cadrer** : (a) exclure `.claude/` du balayeur (`cli/scripts/registre-repli-latest.js`,
+  `balayage.exclus`) ; (b) trier a la main la dette de `specs/etat-des-lieux.md` et des
+  `specs/instructions/*.md` non couverts ; (c) corriger les 38 ancres perimees de
+  `scripts/vitrine-en-ligne.mjs` **dans `IakaCockpit` et `iakaFrameGUI`** (deux depots, un lot
+  chacun ou un lot transverse arbitre par le decideur).
 
 ### M-4 — la seule preuve du risque central, REPORTEE par le decideur (2026-09-03)
 
@@ -266,26 +324,6 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   `git merge-base --is-ancestor 45a857b v0.20.4` → **faux**. **Douze jours, pas douze minutes**, et
   la preuve ne coûte **ni réseau ni quota d'API**. Le successeur remplace l'observable dans le
   commentaire (et dans l'encadré du workflow s'il le reprend).
-
-- [ ] **`CI-RELEASE-AUCUN-EPINGLAGE` — le workflow de ce dépôt n'épingle RIEN.** *(SIGNALÉ au gate
-  🏹 Legolas du 2026-08-29 ; hors périmètre L42 — lot à part, l'épingler « tant qu'on y est » aurait
-  été un débordement. Confirmé hors périmètre au gate du 2026-09-02, lot
-  `fix/R2-et-levee-absence-iakaframe` — successeur légitime, aucune mesure de ce lot ne le réfute.)*
-  `.github/workflows/release.yml` emploie **trois tags flottants** :
-  `actions/checkout@v4` (l. 23), `actions/setup-node@v4` (l. 27), `softprops/action-gh-release@v2`
-  (l. 84, au 2026-08-29 ; **l. 176 depuis le 2026-09-02**, le cartouche du lot ci-dessus ayant
-  allongé le fichier). Les deux dépôts jumeaux ont reçu l'acquis de **L41** — épinglage au **SHA de
-  40 caractères** + cliquet `fixtures/tauri-action-pin.json` (référent : SHA, `sha256` de
-  l'`action.yml`, entrées déclarées, entrées vérifiées absentes) ; **ce dépôt-ci ne l'a pas**. Au
-  2026-08-29, c'était précisément celui dont le workflow **n'avait jamais tourné** (cf.
-  `CI-CLI-JAMAIS-EXECUTE`, *daté, pas effacé*) : la dérive d'une action y entrerait sans que rien ne
-  l'ait jamais éprouvée. **⚠️ MIS À JOUR le 2026-09-02** : le workflow a désormais tourné **une
-  fois** (run `33635520511`, `completed`/`success`) — l'argument change de forme mais pas de
-  conclusion : une **unique** exécution réussie n'éprouve ni la dérive d'une action tierce ni les
-  branches d'erreur du job ; l'épinglage reste dû, pour la même raison structurelle qu'avant, avec
-  une observation en moins pour la motiver. Portée : épingler les trois, poser le référent
-  et son cliquet à l'image de L41, et **relire l'`action.yml` au SHA retenu** avant de déclarer une
-  entrée supportée — la leçon D-4 de L41, où `uploadUpdaterJson` était ignoré en silence.
 
 - [ ] **`README-REMOTE-IAKABOX-MORTE` — le README public cite un dépôt git qui n'existe plus.**
   *(SIGNALÉ, non traité — hors zone générée, hors L42 : lot à part.)* Le `README.md` de la racine
@@ -616,6 +654,37 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
       était la mienne.
 
 ## Fait
+
+### Soldé le 2026-09-08 (lot `fix/ci-release-latest`, cadrage `ci-release-latest-non-maitrise.md`)
+
+- [x] **`CI-RELEASE-AUCUN-EPINGLAGE` — le workflow de ce dépôt n'épingle RIEN.** *(SIGNALÉ au gate
+  🏹 Legolas du 2026-08-29 ; hors périmètre L42 — lot à part, l'épingler « tant qu'on y est » aurait
+  été un débordement. Confirmé hors périmètre au gate du 2026-09-02, lot
+  `fix/R2-et-levee-absence-iakaframe` — successeur légitime, aucune mesure de ce lot ne le réfute.)*
+  `.github/workflows/release.yml` emploie **trois tags flottants** :
+  `actions/checkout@v4` (l. 23), `actions/setup-node@v4` (l. 27), `softprops/action-gh-release@v2`
+  (l. 84, au 2026-08-29 ; **l. 176 depuis le 2026-09-02**, le cartouche du lot ci-dessus ayant
+  allongé le fichier). Les deux dépôts jumeaux ont reçu l'acquis de **L41** — épinglage au **SHA de
+  40 caractères** + cliquet `fixtures/tauri-action-pin.json` (référent : SHA, `sha256` de
+  l'`action.yml`, entrées déclarées, entrées vérifiées absentes) ; **ce dépôt-ci ne l'a pas**. Au
+  2026-08-29, c'était précisément celui dont le workflow **n'avait jamais tourné** (cf.
+  `CI-CLI-JAMAIS-EXECUTE`, *daté, pas effacé*) : la dérive d'une action y entrerait sans que rien ne
+  l'ait jamais éprouvée. **⚠️ MIS À JOUR le 2026-09-02** : le workflow a désormais tourné **une
+  fois** (run `33635520511`, `completed`/`success`) — l'argument change de forme mais pas de
+  conclusion : une **unique** exécution réussie n'éprouve ni la dérive d'une action tierce ni les
+  branches d'erreur du job ; l'épinglage reste dû, pour la même raison structurelle qu'avant, avec
+  une observation en moins pour la motiver. Portée : épingler les trois, poser le référent
+  et son cliquet à l'image de L41, et **relire l'`action.yml` au SHA retenu** avant de déclarer une
+  entrée supportée — la leçon D-4 de L41, où `uploadUpdaterJson` était ignoré en silence.
+  > ✅ **SOLDÉ le 2026-09-08** (lot `fix/ci-release-latest`, AR-4(a) du cadrage
+  > `CI-RELEASE-LATEST-NON-MAITRISE`) : les trois `uses:` sont épinglés au **SHA de 40 caractères**
+  > (`actions/checkout@11d5960a…`, `actions/setup-node@49933ea5…`,
+  > `softprops/action-gh-release@3bb12739…`), tag lisible en commentaire de fin de ligne. Cliquet :
+  > `cli/fixtures/actions-pin.json` (SHA + `sha256` de l'`action.yml` + entrées déclarées, mesurés le
+  > 2026-09-08 par `gh api repos/<action>/git/ref/tags/<tag>` — les trois objets rendus sont de type
+  > `commit`, aucun tag annoté à déréférencer). Garde : `cli/test/release-latest-shell.test.js`
+  > (CA-L6, contrefactuel : un SHA différent dans la fixture, ou une entrée retirée, fait rougir).
+  > Texte d'origine conservé intégralement ci-dessus, daté, pas effacé.
 
 ### Levés le 2026-09-02 (lot `fix/R2-et-levee-absence-iakaframe`, gate FAIL → re-mesure)
 

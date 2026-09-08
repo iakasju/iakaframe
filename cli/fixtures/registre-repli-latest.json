@@ -234,15 +234,18 @@
     },
     "iakaframe": {
       "couverts": {
-        ".github/workflows/release.yml": 26,
-        "BACKLOG.md": 4,
+        ".github/workflows/release.yml": 36,
+        "BACKLOG.md": 16,
         "cli/scripts/lib/vitrine.js": 1,
-        "cli/scripts/vitrine-en-ligne.js": 9,
+        "cli/scripts/vitrine-en-ligne.js": 12,
         "specs/etat-des-lieux.md": 21,
         "specs/instructions/contrefactuel-ca5-procedure-decideur.md": 70,
         "specs/instructions/contrefactuel-du-vol-de-latest.md": 77,
         "specs/instructions/installer-depuis-rien.md": 43,
-        "specs/instructions/re-cadrage-garde-latest.md": 88
+        "specs/instructions/re-cadrage-garde-latest.md": 88,
+        "cli/scripts/lib/release-shell.js": 3,
+        "cli/test/release-latest-shell.test.js": 22,
+        "docs/qualite/gate-ci-release-latest.md": 7
       },
       "horsCouverture": {
         "cli/scripts/registre-repli-latest.js": "LE VERIFICATEUR LUI-MEME : il cite le motif qu il balaie. S auto-exclure est ici honnete, pas complaisant — il ne PORTE aucun enonce sur le repli, il les compte.",
@@ -254,35 +257,45 @@
       },
       "lignesHorsCouverture": {
         ".github/workflows/release.yml": {
-          "164": {
-            "motif": "Echo humain repetant la conclusion de la ligne 163 (hors motif) pour l'operateur qui lit les logs — cablage/plomberie, n'affirme rien de nouveau sur le mecanisme.",
-            "extrait": "            echo \"  $TAG sera donc la premiere -> make_latest=true\"",
-            "empreinte": "18d2306901bf51eab6353ec0e0db50df8257d5c93ffdb83dba8d66ce232a1936"
-          },
-          "165": {
-            "motif": "`echo \"make_latest=true\" >> $GITHUB_OUTPUT` (branche \"aucune release\", ajoutee le 2026-09-02) — cablage de sortie de step, identique a celui de la ligne 168. Transporte la decision, ne l'enonce pas ; l'enonce correspondant est la ligne 163 (hors motif, ne contient pas \"latest\").",
-            "extrait": "            echo \"make_latest=true\" >> \"$GITHUB_OUTPUT\"",
-            "empreinte": "d409adddddd5f48d2c6b62b4a9147fa24565f840df03c3034b153edc1e3ad013"
-          },
-          "168": {
-            "motif": "`echo \"make_latest=true\" >> $GITHUB_OUTPUT` — cablage de sortie de step. Transporte la decision, ne l'enonce pas ; la ligne 167 qui l'enonce est inscrite.",
-            "extrait": "            echo \"make_latest=true\" >> \"$GITHUB_OUTPUT\"",
-            "empreinte": "d409adddddd5f48d2c6b62b4a9147fa24565f840df03c3034b153edc1e3ad013"
-          },
-          "172": {
-            "motif": "Idem pour `make_latest=false` ; l'enonce correspondant est la ligne 170, inscrite.",
+          "191": {
+            "motif": "Cablage de sortie de step (branche « aucun candidat semver », ni release publiee ni tag courant ne matchant le filtre) : ecrit make_latest=false. Transporte la decision, ne l'affirme pas. Re-ancree le 2026-09-08 (AR-1(a)), remplace les anciennes cles 164/165/168 (branche 'premiere' disparue avec la comparaison morte).",
             "extrait": "            echo \"make_latest=false\" >> \"$GITHUB_OUTPUT\"",
             "empreinte": "1f63fa9f1f018749b7a98ec9d8574647b11d454b37c562d65e4c52c7668dc7f0"
           },
-          "182": {
-            "motif": "`make_latest: ${{ steps.rang.outputs.make_latest }}` — cablage de l'input de l'action. Passe la valeur calculee, n'affirme rien.",
-            "extrait": "          make_latest: ${{ steps.rang.outputs.make_latest }}",
-            "empreinte": "15f50162bd608fd216a0cb707c8835072f78ce324c69db321b27374b7ae3e776"
+          "194": {
+            "motif": "Cablage de sortie de step (branche nominale, le tag EST le plus haut une fois lui-meme compte) : ecrit make_latest=true. Transporte la decision ; l'enonce correspondant est la ligne 193, inscrite. Re-ancree le 2026-09-08.",
+            "extrait": "            echo \"make_latest=true\" >> \"$GITHUB_OUTPUT\"",
+            "empreinte": "d409adddddd5f48d2c6b62b4a9147fa24565f840df03c3034b153edc1e3ad013"
           },
-          "208": {
-            "motif": "`EFFECTIF=$(gh api .../releases/latest ...)` — mesure de l'effet reel par le job. Geste ; la conclusion est aux lignes voisines, inscrites.",
+          "198": {
+            "motif": "Cablage de sortie de step (branche else, le tag n'est PAS le plus haut) : ecrit make_latest=false. Transporte la decision ; l'enonce correspondant est la ligne 196, inscrite. Re-ancree le 2026-09-08 (ex-ligne 172).",
+            "extrait": "            echo \"make_latest=false\" >> \"$GITHUB_OUTPUT\"",
+            "empreinte": "1f63fa9f1f018749b7a98ec9d8574647b11d454b37c562d65e4c52c7668dc7f0"
+          },
+          "211": {
+            "motif": "`make_latest: \"${{ steps.rang.outputs.make_latest }}\"` — cablage de l'input de l'action, desormais CITE EN CHAINE (AR-1(a), durcissement). Passe la valeur calculee ; le contrat est enonce a la ligne 208, inscrite. Re-ancree le 2026-09-08 (ex-ligne 182, guillemets ajoutes).",
+            "extrait": "          make_latest: \"${{ steps.rang.outputs.make_latest }}\"",
+            "empreinte": "39f286c8cc37733e3d800b17302dbd12915864c3daf75789684c69a632c24f48"
+          },
+          "247": {
+            "motif": "`EFFECTIF=$(gh api .../releases/latest ...)` — mesure de l'effet reel par le job (PREMIERE mesure). Geste ; la conclusion est a la ligne suivante (VERIFICATION, hors motif direct). Re-ancree le 2026-09-08 (ex-ligne 208).",
             "extrait": "          EFFECTIF=$(gh api \"repos/${{ github.repository }}/releases/latest\" --jq '.tag_name')",
             "empreinte": "e3d1c98b92423823cc586d58d88ad7b687221500da2c51e07aa2a308dc22707e"
+          },
+          "251": {
+            "motif": "`if ! gh release edit \"$PLUS_HAUT\" --latest --repo ...; then` — invocation du rattrapage AR-2(a). Appel d'API, cablage ; la decision de l'executer est enoncee a la ligne 250, inscrite.",
+            "extrait": "            if ! gh release edit \"$PLUS_HAUT\" --latest --repo \"${{ github.repository }}\"; then",
+            "empreinte": "a3517021387ea5adc596800a2777dc96d110b1f0509f8d0c3dd37f951edd696c"
+          },
+          "256": {
+            "motif": "`EFFECTIF=$(gh api .../releases/latest ...)` — RE-mesure de l'effet reel apres le rattrapage AR-2(a) (duplicat du geste de la ligne 247, branche de re-verification). Geste, n'affirme rien de nouveau.",
+            "extrait": "            EFFECTIF=$(gh api \"repos/${{ github.repository }}/releases/latest\" --jq '.tag_name')",
+            "empreinte": "81e2ad08db32048ab310d5f2207992c79cb3ab66f2e1f58d2017856a84885aed"
+          },
+          "260": {
+            "motif": "Duplicat du message RATTRAPAGE MANUEL de la ligne 253 (iakaframe/balayage/release.yml/006), imprime sur la branche de re-verification (apres rattrapage tente et toujours faux). Meme enonce, meme empreinte, deuxieme site : cablage de sortie, pas une affirmation neuve.",
+            "extrait": "              echo \"::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}\"",
+            "empreinte": "2d04d4d766f255bcece205aa8c658f0077d32ef9190a581c6bd4fbf86d1b54a6"
           }
         },
         "cli/scripts/vitrine-en-ligne.js": {
@@ -541,6 +554,88 @@
             "motif": "Etape 3.2 : protocole du rejeu sur le banc (vol reel puis job). Prescription de geste, pas enonce sur le repli. Triee a la main le 2026-09-01 (L44, etape 5.5).",
             "extrait": "3.2 Rejouer sur le banc la **séquence complète** : vol réel (`gh release create` sans `--latest`)",
             "empreinte": "828e1528abe9fa55608f3c366ced38901ec4f8c2354602aafe994ce7ff26e23c"
+          }
+        },
+        "cli/test/release-latest-shell.test.js": {
+          "88": {
+            "motif": "Citation VERBATIM figee du script AVANT correctif (SCRIPT_RANG_AVANT_CORRECTIF_a1e0072, temoin historique permanent) : $TAG sera donc la premiere. Reproduction de donnee, pas une affirmation neuve du fichier de test lui-meme.",
+            "extrait": "  '  echo \"  $TAG sera donc la premiere -> make_latest=true\"',",
+            "empreinte": "fc61031f82ac808272c13a42c371e4a4c7ad912440acbe540c1862aa68f2a5c2"
+          },
+          "89": {
+            "motif": "Citation VERBATIM figee du script AVANT correctif (SCRIPT_RANG_AVANT_CORRECTIF_a1e0072, temoin historique permanent) : make_latest=true (aucune release). Reproduction de donnee, pas une affirmation neuve du fichier de test lui-meme.",
+            "extrait": "  '  echo \"make_latest=true\" >> \"$GITHUB_OUTPUT\"',",
+            "empreinte": "f9f3d52f62f31b424d80a1d8aa044ee78bacefe732ac6c6bcc6b8938e9c32189"
+          },
+          "91": {
+            "motif": "Citation VERBATIM figee du script AVANT correctif (SCRIPT_RANG_AVANT_CORRECTIF_a1e0072, temoin historique permanent) : DECISION EST le plus haut. Reproduction de donnee, pas une affirmation neuve du fichier de test lui-meme.",
+            "extrait": "  '  echo \"DECISION : $TAG EST le plus haut -> make_latest=true\"',",
+            "empreinte": "919b733f50c04b60fc384dc6f187e57c204fae8286fbd2d84353bf4bdb350859"
+          },
+          "92": {
+            "motif": "Citation VERBATIM figee du script AVANT correctif (SCRIPT_RANG_AVANT_CORRECTIF_a1e0072, temoin historique permanent) : make_latest=true (elif). Reproduction de donnee, pas une affirmation neuve du fichier de test lui-meme.",
+            "extrait": "  '  echo \"make_latest=true\" >> \"$GITHUB_OUTPUT\"',",
+            "empreinte": "f9f3d52f62f31b424d80a1d8aa044ee78bacefe732ac6c6bcc6b8938e9c32189"
+          },
+          "94": {
+            "motif": "Citation VERBATIM figee du script AVANT correctif (SCRIPT_RANG_AVANT_CORRECTIF_a1e0072, temoin historique permanent) : n'est PAS le plus haut. Reproduction de donnee, pas une affirmation neuve du fichier de test lui-meme.",
+            "extrait": "  '  echo \"DECISION : $TAG n\\'est PAS le plus haut ($PLUS_HAUT) -> make_latest=false.\"',",
+            "empreinte": "4e30a5aeeaed372a1d1c37de4aa315c3c0a801a199fab8c2ceb7bbca26aabb7b"
+          },
+          "96": {
+            "motif": "Citation VERBATIM figee du script AVANT correctif (SCRIPT_RANG_AVANT_CORRECTIF_a1e0072, temoin historique permanent) : make_latest=false (else). Reproduction de donnee, pas une affirmation neuve du fichier de test lui-meme.",
+            "extrait": "  '  echo \"make_latest=false\" >> \"$GITHUB_OUTPUT\"',",
+            "empreinte": "0d096cc24de33bc950c81041c395463b31c466dd1416e4640c2e8d38da93d123"
+          },
+          "182": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "  'CA-L2 — NOMINAL, texte ACTUEL du workflow : tag neuf le plus haut -> make_latest=true',",
+            "empreinte": "1dbc9c05b0ba7ba3ad068d7378ec44a1f15f5f12024181c146c57f6d66bab098"
+          },
+          "188": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "    assert.match(r.sortieGithubOutput, /^make_latest=true$/m, r.sortieGithubOutput);",
+            "empreinte": "a5b2651a664cf20b692bc9cd697107693d707ac327287211de222418f00a9d69"
+          },
+          "201": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "    assert.match(r.sortieGithubOutput, /^make_latest=false$/m, r.sortieGithubOutput);",
+            "empreinte": "5723e500858ef0e0cce237b49cc55ef65c45fa61c007e63b4d745c0177b5b988"
+          },
+          "207": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "  'CA-L3 — la protection contre le VOL n\\'est PAS perdue : rejeu d\\'un tag ANCIEN -> make_latest=false',",
+            "empreinte": "2d130aecba9c0a4b8dfb71fb03bf489065de48c22ea57fa9510e23d6bf019d80"
+          },
+          "213": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "    assert.match(r.sortieGithubOutput, /^make_latest=false$/m, r.sortieGithubOutput);",
+            "empreinte": "5723e500858ef0e0cce237b49cc55ef65c45fa61c007e63b4d745c0177b5b988"
+          },
+          "224": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "    assert.match(r.sortieGithubOutput, /^make_latest=false$/m, r.sortieGithubOutput);",
+            "empreinte": "5723e500858ef0e0cce237b49cc55ef65c45fa61c007e63b4d745c0177b5b988"
+          },
+          "229": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "  'premiere publication (aucune release existante) avec un tag semver valide -> make_latest=true',",
+            "empreinte": "309730497486850da9604dfad770803d926dbabfa431dba1136a9bc038c183e4"
+          },
+          "235": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "    assert.match(r.sortieGithubOutput, /^make_latest=true$/m, r.sortieGithubOutput);",
+            "empreinte": "a5b2651a664cf20b692bc9cd697107693d707ac327287211de222418f00a9d69"
+          },
+          "282": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "    assert.match(sortie, /RATTRAPAGE MANUEL : gh release edit v0\\.40\\.0 --latest/, sortie);",
+            "empreinte": "de365d8cbc3f88d29838a1a74e3b7153bd9173123e7839180671f529bb319f12"
+          },
+          "393": {
+            "motif": "Cablage de test (titre de `test()` ou patron d'assertion `assert.match`) : porte le vocabulaire du repli pour NOMMER ou VERIFIER un cas, n'affirme rien de nouveau sur le mecanisme lui-meme.",
+            "extrait": "test('CA-L7 — le contrat de `make_latest` de softprops est LU au SHA retenu, pas suppose', () => {",
+            "empreinte": "ad4ec59c34a67f2a8559612019448d2720e29641391ec094c2d16d4004f24a31"
           }
         }
       }
@@ -2944,7 +3039,7 @@
       "id": "iakaframe/L44/cartouche/mecanisme-creation",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 46,
+      "ligne": 51,
       "extrait": "      # │ suit le drapeau `make_latest`, de DEFAUT `true`. C'est la CREATION d'une release        │",
       "empreinte": "da71deb8c1a574bb013e862d921e5573837559f6cf64d6482eee3a129338c825"
     },
@@ -2952,7 +3047,7 @@
       "id": "iakaframe/L44/cartouche/acteur-softprops",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 49,
+      "ligne": 54,
       "extrait": "      # │ ICI l'acteur est `softprops`, PAS `tauri-action`, et il DECLARE `make_latest` : on      │",
       "empreinte": "3e8bf0561f67200000faa6eec11ca33e8868fdb9072112f4f242c93cf95c0432"
     },
@@ -2960,7 +3055,7 @@
       "id": "iakaframe/L44/cartouche/jamais-tourne",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 59,
+      "ligne": 64,
       "extrait": "      # │ main. Le calcul de `make_latest` ci-dessous, comme la production du tarball, n'ont      │",
       "empreinte": "1aebcbee46f30565b6cea590ff93c7bb9169eecfc21f832242cefe2993b76d52"
     },
@@ -2968,7 +3063,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/true-agit",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 77,
+      "ligne": 82,
       "extrait": "      # │   `--latest` (true) via `gh release edit` . . . AGIT           M1,  2026-09-01          │",
       "empreinte": "bcfa943146f9e990f0f86678d90730bdb66f93858f451346d9aa02c8757e791d"
     },
@@ -2976,7 +3071,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/false-gh-inerte",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 78,
+      "ligne": 83,
       "extrait": "      # │   `--latest=false` via `gh release edit` . . .  inerte         2026-08-29 (L43)         │",
       "empreinte": "9ad40c05db3aaa88cfb228fcc4ec823badeef09dbb659f02f906db3ffedc6a90"
     },
@@ -2984,7 +3079,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/false-patch-inerte",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 79,
+      "ligne": 84,
       "extrait": "      # │   `make_latest=false` via `PATCH` brut . . . .  inerte         M2,  2026-09-01          │",
       "empreinte": "2e6f76c819f3c371aa9106f1bde93e4385ffcc1a26782bc4515ab3b4b0bc1c48"
     },
@@ -2992,7 +3087,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/legacy-patch-agit",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 80,
+      "ligne": 85,
       "extrait": "      # │   `make_latest=legacy` via `PATCH` brut . . . . AGIT           M3b, 2026-09-01          │",
       "empreinte": "b91cf67398fe54fa43bfdaecb3d51c749ab5780e0e1aba43c1f6f0e6c9e5fbd0"
     },
@@ -3000,7 +3095,7 @@
       "id": "iakaframe/L44/cartouche/ecritures/legacy-gh-inatteignable",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 81,
+      "ligne": 86,
       "extrait": "      # │   `--latest=legacy` via `gh release edit` . . . INATTEIGNABLE  M3a, 2026-09-01          │",
       "empreinte": "e450e336184b4d0562c12c2d93cbd26a760c64322a5e648677949a8b6ea6e1c1"
     },
@@ -3008,7 +3103,7 @@
       "id": "iakaframe/L44/cartouche/drapeau-booleen",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 82,
+      "ligne": 87,
       "extrait": "      # │ La derniere ligne n'est pas une note de bas de page : `--latest` est un drapeau         │",
       "empreinte": "7d132b37a342ac73b89a9d3bd4c0aa87efeaf34ce6ff158552e1504228571a1c"
     },
@@ -3016,7 +3111,7 @@
       "id": "iakaframe/L44/cartouche/ou-siege-le-no-op",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 86,
+      "ligne": 102,
       "extrait": "      # │ OU SIEGE LE NO-OP : ni dans le client, ni dans le transport, ni dans la lecture.        │",
       "empreinte": "30286d677902cb6404bc68a210809f163660452ae1f8deec477891d8a610d7b0"
     },
@@ -3024,7 +3119,7 @@
       "id": "iakaframe/L44/cartouche/detecte-rougit-dicte",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 92,
+      "ligne": 108,
       "extrait": "      # │ ROUGIT et DICTE un rattrapage — `gh release edit <plus haut> --latest`. M1              │",
       "empreinte": "01e8cc17f95053f04bde85fa84f7ac8881d1d45ec669e05e6f27a789334dbb5c"
     },
@@ -3032,7 +3127,7 @@
       "id": "iakaframe/L44/cartouche/residu",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 124,
+      "ligne": 140,
       "extrait": "      # │ `make_latest=legacy`, elle n'est atteignable que par `PATCH`, et elle n'est PAS         │",
       "empreinte": "387a2b4da7e5259e3efce77f7a17ac030787ec8c85a883eaf41901752b2eae6f"
     },
@@ -3040,7 +3135,7 @@
       "id": "iakaframe/L44/cartouche/doc-github-refutee",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 130,
+      "ligne": 146,
       "extrait": "      # │ LA DOC DE GITHUB EST REFUTEE PAR MESURE : `GET /releases/latest` y est dit rendre       │",
       "empreinte": "a94e3018bac4d0b8c55883bad32dd9b1e88fa8d96fbc864ba3804f5ad2ea2807"
     },
@@ -3048,18 +3143,18 @@
       "id": "iakaframe/balayage/release.yml/004",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 167,
+      "ligne": 193,
       "classe": "repli",
       "statut": "CONFORME",
-      "extrait": "            echo \"DECISION : $TAG EST le plus haut -> make_latest=true\"",
-      "empreinte": "48f6c945518c3b2b5fabe0f633f83313e2ee742abea156d94cd381df6ceca3e9",
+      "extrait": "            echo \"DECISION : $TAG EST le plus haut, UNE FOIS LUI-MEME COMPTE -> make_latest=true\"",
+      "empreinte": "563677fcbc9044484a73c6c8570e9d303cd8069a3f54ad84779e555963b3a3cf",
       "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaframe/balayage/release.yml/005",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 170,
+      "ligne": 196,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "            echo \"DECISION : $TAG n'est PAS le plus haut ($PLUS_HAUT) -> make_latest=false.\"",
@@ -3070,18 +3165,18 @@
       "id": "iakaframe/balayage/release.yml/006",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 212,
+      "ligne": 253,
       "classe": "repli",
       "statut": "CONFORME",
-      "extrait": "            echo \"::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}\"",
-      "empreinte": "a113a894cf4a45e9664e820e0d9e90440f6444626bdaf8478f456cfe5f333880",
+      "extrait": "              echo \"::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}\"",
+      "empreinte": "2d04d4d766f255bcece205aa8c658f0077d32ef9190a581c6bd4fbf86d1b54a6",
       "note": "Inscrit par le BALAYAGE DE COMPLETUDE du 2026-08-30 (6e passage) : ligne du motif dans un fichier couvert. Aucun gate ne l'avait pointee — c'est le critere D-5 qui l'a fait entrer."
     },
     {
       "id": "iakaframe/L44/backlog/remede-reaffirmation",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 117,
+      "ligne": 259,
       "extrait": "  `gh release edit \"$PLUS_HAUT\" --latest` au lieu de l'imprimer (AR-7 = (a), sur la mesure M1) ;",
       "empreinte": "b38989106177c69b0576005a9db87dfa5b0554c78edc064a251b39d874efa0d0"
     },
@@ -3089,7 +3184,7 @@
       "id": "iakaframe/L44/backlog/consignation-mesures",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 121,
+      "ligne": 263,
       "extrait": "  **cinq écritures**, la réfutation mesurée de la doc GitHub sur `GET /releases/latest`, le",
       "empreinte": "10f249dd7014933b5264647a0f7eab3fb31d318b2d6c7ed69c5a5fc86f4e400e"
     },
@@ -3097,7 +3192,7 @@
       "id": "iakaframe/balayage/BACKLOG/001",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 148,
+      "ligne": 290,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "  `cli/scripts/vitrine-en-ligne.js` (anonyme, hors gate), `make_latest` **calculé** dans",
@@ -3108,7 +3203,7 @@
       "id": "iakaframe/balayage/BACKLOG/002",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 550,
+      "ligne": 706,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "  été **déposé à la main**. Conséquence : le tarball recommandé au visiteur **et** le `make_latest`",
@@ -3119,7 +3214,7 @@
       "id": "iakaframe/make_latest/non-eprouve",
       "depot": "iakaframe",
       "chemin": "BACKLOG.md",
-      "ligne": 551,
+      "ligne": 707,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "  calculé posé par L42 sont **non éprouvés**. Le statut est écrit là où on le lira —",
@@ -3273,7 +3368,7 @@
       "id": "iakaframe/E-1/message/12",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 130,
+      "ligne": 143,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "if (latest && plusHaut && latest !== plusHaut) {",
@@ -3284,7 +3379,7 @@
       "id": "iakaframe/E-1/message/13",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 131,
+      "ligne": 144,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "  ecarts.push(",
@@ -3295,7 +3390,7 @@
       "id": "iakaframe/E-1/message/14",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 132,
+      "ligne": 145,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "    `E-1 : « latest » designe ${latest} alors que ${plusHaut} existe. C'est la CREATION d'une ` +",
@@ -3306,7 +3401,7 @@
       "id": "iakaframe/E-1/message/15",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 133,
+      "ligne": 146,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "      'release qui prend le drapeau (make_latest omis, defaut true) ; republier un tag dont la ' +",
@@ -3317,7 +3412,7 @@
       "id": "iakaframe/E-1/message/16",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 134,
+      "ligne": 147,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "      \"release EXISTE n'y touche pas au SHA epingle (R-1, L43). Rattrapage a TENTER : \" +",
@@ -3328,22 +3423,22 @@
       "id": "iakaframe/E-1/message/17",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 135,
+      "ligne": 148,
       "classe": "repli",
       "statut": "CONFORME",
-      "extrait": "      `gh release edit ${plusHaut} --latest — MESURE le 2026-09-01 (M1, banc prive) : cette ` +",
-      "empreinte": "bf4ad9df00b1342b35c0371c2f2b91624b4a37db9c2cb983b0ce31f73622ee57",
+      "extrait": "      `gh release edit ${plusHaut} --latest — MESURE le 2026-09-01 (M1, banc prive) et REJOUEE ` +",
+      "empreinte": "07e6bdf64638aadcc4519d0325a0c05847983589eaf2570777b5016e66e79be0",
       "note": "Ligne du bloc « E-1/message » — motif d inscription a l entree 01 du meme bloc. RE-RECTIFIE LE 2026-09-01 (lot L44) : M1 a mesure que l ecriture `true` AGIT ; le message cessait donc d etre vrai. Empreinte re-inscrite A LA MAIN, entree par entree."
     },
     {
       "id": "iakaframe/E-1/message/18",
       "depot": "iakaframe",
       "chemin": "cli/scripts/vitrine-en-ligne.js",
-      "ligne": 136,
+      "ligne": 150,
       "classe": "repli",
       "statut": "CONFORME",
-      "extrait": "      \"ecriture AGIT et PRIME sur tout calcul. Jamais rejouee sur CE depot-ci.\",",
-      "empreinte": "d7cae79d00abc3f42f4c1a39fdb6acb059d8054c2431256113a496df00ea39d8",
+      "extrait": "      \"33959443438/34001818646) : cette ecriture AGIT et PRIME sur tout calcul, sur le banc COMME ICI.\",",
+      "empreinte": "2a6e38f8e09866623a0809a9497d4afee62836deb03fe51b0ec8db6cedaf0a22",
       "note": "Ligne du bloc « E-1/message » — motif d inscription a l entree 01 du meme bloc. RE-RECTIFIE LE 2026-09-01 (lot L44) : M1 a mesure que l ecriture `true` AGIT ; le message cessait donc d etre vrai. Empreinte re-inscrite A LA MAIN, entree par entree."
     },
     {
@@ -6310,7 +6405,7 @@
       "id": "iakaframe/fixR2/cartouche/referent-releases-vs-tags",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 102,
+      "ligne": 118,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "      # │ `GET /releases/latest` ne peut JAMAIS rendre qu'un tag PORTEUR D'UNE RELEASE. Sur ce    │",
@@ -6321,7 +6416,7 @@
       "id": "iakaframe/fixR2/code/referent-releases-vs-tags",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 149,
+      "ligne": 165,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "          # `GET /releases/latest` ne peut jamais rendre qu'un tag PORTEUR D'UNE RELEASE. Le filtre",
@@ -6332,12 +6427,284 @@
       "id": "iakaframe/fixR2/code/releases-latest-ignore-draft-prerelease",
       "depot": "iakaframe",
       "chemin": ".github/workflows/release.yml",
-      "ligne": 151,
+      "ligne": 167,
       "classe": "repli",
       "statut": "CONFORME",
       "extrait": "          # versions. `select(.draft|not)`/`select(.prerelease|not)` : l'endpoint `/releases/latest`",
       "empreinte": "cdc33be5e3e6675b74849f38e8c0512d22c7808a3372d77ca2f28702d7a65961",
       "note": "Affirme que releases/latest ignore deja les brouillons et preversions -- justifie le filtre select(.draft|not)/select(.prerelease|not) du referent corrige (fix R-2, 2026-09-02)."
+    },
+    {
+      "id": "iakaframe/L44/cartouche/sixieme-ecriture-intro",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 93,
+      "extrait": "      # │ CI-RELEASE-LATEST-NON-MAITRISE) : `make_latest=false` pose A LA CREATION AGIT — le       │",
+      "empreinte": "7e3eebc184dcd414d4af1c2b2195d8c19e628f45adaea706beeef34dfdae320f"
+    },
+    {
+      "id": "iakaframe/L44/cartouche/sixieme-ecriture-observation",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 94,
+      "extrait": "      # │ pointeur reste sur l'ancienne release — alors que `make_latest=false` par `PATCH` sur    │",
+      "empreinte": "8f04f65f80d10a7896d95bb11c68b777c3183e5e294817c6c9b40a448308adc0"
+    },
+    {
+      "id": "iakaframe/L44/cartouche/sixieme-ecriture-mesure",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 98,
+      "extrait": "      # │ chacun a CREE sa release avec `make_latest=false` (calcule, § 2.1) et le pointeur EST    │",
+      "empreinte": "504c69f157234168952d095641df1dc9b2f37ad5da103caed3b04c0b08bf94a7"
+    },
+    {
+      "id": "iakaframe/L44/cartouche/sixieme-ecriture-tableau",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 100,
+      "extrait": "      # │   `make_latest=false` a la CREATION . . . . . . AGIT     33959443438 / 34001818646       │",
+      "empreinte": "e58cd7a8575dfe6dcaa9e2239645b3509e89b6ffd66d2f9c9a18a6bd5a6b76c2"
+    },
+    {
+      "id": "iakaframe/AR1/code/cause-comparaison-morte",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 175,
+      "extrait": "          # `make_latest=false` DEUX FOIS, alors que le tag publie ETAIT le plus haut semver. Cause :",
+      "empreinte": "2aeb24f134c27c9375a869110c3fc790985d410512868d810aabe4a5c45ef170"
+    },
+    {
+      "id": "iakaframe/AR1/code/make_latest-cite-en-chaine",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 208,
+      "extrait": "          # Cite EN CHAINE (AR-1(a), durcissement joint) : `make_latest` est declare par",
+      "empreinte": "8d286c8116636f3580419c144b9f63998c6a11f62d260abef116ea1edc617d32"
+    },
+    {
+      "id": "iakaframe/AR2/cartouche/m1-mesure-agit",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 222,
+      "extrait": "      # 2026-09-01, banc iakasju/latest-contrefactuel) : `gh release edit <tag> --latest` AGIT. La",
+      "empreinte": "9ad1e63fe9e1dc3c8adf3d58885b7a183ae9cb916600c863be5b8cf112a25410"
+    },
+    {
+      "id": "iakaframe/AR2/code/rattrapage-annonce",
+      "depot": "iakaframe",
+      "chemin": ".github/workflows/release.yml",
+      "ligne": 250,
+      "extrait": "            echo \"latest en retard : RATTRAPAGE (AR-2a) -> gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}\"",
+      "empreinte": "94fd50bb672d399fa6af933f09013d5de01f35c7808eb05b56c7a4a19832205b"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/titre-corrige",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 13,
+      "extrait": "### CI-RELEASE-LATEST-NON-MAITRISE — le `make_latest` du workflow n'est PAS inerte : il est CALCULE A `false` (2026-09-05, titre corrige le 2026-09-08)",
+      "empreinte": "8a98435b2521e8c4092eb589899514ba78b715dd75748fd1703f31838ffed715"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/note-titre-corrige",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 16,
+      "extrait": "> Le titre d'origine, *« le `make_latest` calcule du workflow n'a PAS agi »*, laissait croire que la",
+      "empreinte": "ab99679f95873dc6f663e7223bcd96f826425659bbe411e5b6cb69306c591a06"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/mesure-v040-pointeur",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 25,
+      "extrait": "  `releases/latest` repondait toujours `v0.39.0` a 09:59:56Z : l'etape « Verifier ce qu'est devenu le",
+      "empreinte": "32b42bf0b4765f61cbff69b8dcaefb7ab9517114b431a218d04ea159c977564c"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/rattrapage-v040",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 30,
+      "extrait": "  `gh release edit v0.40.0 --latest` → `releases/latest` = `v0.40.0` (verifie), `vitrine:en-ligne` → OK.",
+      "empreinte": "e90fa5a35ae2ef716c2dab1f158bcb20b3d92687491ad7d7cbba5ad0c147b557"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/coherence-m1",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 31,
+      "extrait": "  Coherent avec M1 (2026-09-01) : `--latest` (true) AGIT ; le `make_latest` calcule dans `release.yml`",
+      "empreinte": "c9594a562abcb4bafa6679fb3e9063862f1cf077eb18ffb93624646c8c699604"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/decision-log-verbatim",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 38,
+      "extrait": "  du run `34001818646` : `DECISION : v0.41.0 n'est PAS le plus haut (v0.40.0) -> make_latest=false.`",
+      "empreinte": "22b2a06c45ca6431dad51af4abee314da82ccbc4d0eb85b96f699a7d6f0a85f7"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/ar2-filet",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 47,
+      "extrait": "  (`gh release edit \"$PLUS_HAUT\" --latest`) puis RE-MESURE, au lieu de seulement rougir — acquis",
+      "empreinte": "4a4fe3e717602da3555e6925d6946b4a8fd554d3fbe819bde148ea44b370b671"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/ca-l11-attendu",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 53,
+      "extrait": "    origin v0.41.1-rc.1`. Attendu : run vert, `releases/latest` **inchange** (reste sur le plus haut",
+      "empreinte": "161e732a82679d190699279cf1ad34d7b9787b8272708ba8194be1215ea8fb1b"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/ca-l11-attendu-suite",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 54,
+      "extrait": "    semver PLEIN), etape `rang` imprime `make_latest=false` (contrefactuel gratuit — prouve",
+      "empreinte": "d98d408afac4cd8e382e9b2ba11bacf1192a7c0f8a892755c0af439249d49222"
+    },
+    {
+      "id": "iakaframe/CI-RELEASE-LATEST-NON-MAITRISE/ca-l12-attendu",
+      "depot": "iakaframe",
+      "chemin": "BACKLOG.md",
+      "ligne": 57,
+      "extrait": "    origin v0.42.0`. Attendu : `releases/latest` = `v0.42.0` **sans aucun rattrapage manuel**, etape",
+      "empreinte": "4875be272e21e0a77065840a8e808dfe1bb983abbe101849a54a2fd6fb44f7dd"
+    },
+    {
+      "id": "iakaframe/E-1/rectification-2026-09-08/01",
+      "depot": "iakaframe",
+      "chemin": "cli/scripts/vitrine-en-ligne.js",
+      "ligne": 134,
+      "extrait": "// geste DEUX FOIS SUR CE DEPOT-CI, sous feu vert du decideur : `gh release edit v0.40.0 --latest`",
+      "empreinte": "dc71c4992e25bef0d1786f781246b1513f65f4718762c4fd83830298cdd21251"
+    },
+    {
+      "id": "iakaframe/E-1/rectification-2026-09-08/02",
+      "depot": "iakaframe",
+      "chemin": "cli/scripts/vitrine-en-ligne.js",
+      "ligne": 135,
+      "extrait": "// (2026-09-05, apres le run `33959443438`) et `gh release edit v0.41.0 --latest` (2026-09-06,",
+      "empreinte": "beedcd268095489a8cccdefea5159f53bb0d2a3a9294a91d649d24ed76b9a6c3"
+    },
+    {
+      "id": "iakaframe/E-1/rectification-2026-09-08/03",
+      "depot": "iakaframe",
+      "chemin": "cli/scripts/vitrine-en-ligne.js",
+      "ligne": 137,
+      "extrait": "// CI-RELEASE-LATEST-NON-MAITRISE, `gh api repos/iakasju/iakaframe/releases/latest` mesure). Cette",
+      "empreinte": "e25018e1b76580b8ad0036f13c3abdfb9527ca78c3d1dfb34b71a7bc4c90a02e"
+    },
+    {
+      "id": "iakaframe/AR5/lib/limite-make-latest",
+      "depot": "iakaframe",
+      "chemin": "cli/scripts/lib/release-shell.js",
+      "ligne": 20,
+      "extrait": "// sémantique serveur de `make_latest`). Il prouve UNE chose précise et suffisante : ce que",
+      "empreinte": "94c17cd84ffa21bee1855f669f965dfbc00bbba5ce77333e54c7f90bc31c4125"
+    },
+    {
+      "id": "iakaframe/AR5/lib/simulation-endpoints",
+      "depot": "iakaframe",
+      "chemin": "cli/scripts/lib/release-shell.js",
+      "ligne": 95,
+      "extrait": "// simulées : `gh api` (GET releases / GET releases/latest) et `gh release edit <tag> --latest`",
+      "empreinte": "04913066da8cc1879d8b74dc2e3962669b5b5f158bc7e2fa1c7558bbb7dda4d4"
+    },
+    {
+      "id": "iakaframe/AR5/test/entete-mecanisme",
+      "depot": "iakaframe",
+      "chemin": "cli/test/release-latest-shell.test.js",
+      "ligne": 5,
+      "extrait": "// v0.41.0) : l'etape `rang` calcule `make_latest` en comparant `$TAG` au plus haut semver tire de",
+      "empreinte": "9550bb331cf5dd04992bb535dbf4b19c9a2b2b215fe46ae4f5a6b35cb3c3867d"
+    },
+    {
+      "id": "iakaframe/AR5/test/entete-branche-morte",
+      "depot": "iakaframe",
+      "chemin": "cli/test/release-latest-shell.test.js",
+      "ligne": 9,
+      "extrait": "// branche `elif` est MORTE, et le flot tombe systematiquement sur `make_latest=false`. Mesure au",
+      "empreinte": "212d880f744f7b6aa3322dae709324edfd810aaeda76fec418748803a287db83"
+    },
+    {
+      "id": "iakaframe/AR5/test/entete-decision-verbatim",
+      "depot": "iakaframe",
+      "chemin": "cli/test/release-latest-shell.test.js",
+      "ligne": 11,
+      "extrait": "//   DECISION : v0.41.0 n'est PAS le plus haut (v0.40.0) -> make_latest=false.",
+      "empreinte": "e5d0dd46af76c0d7486ca7ab177951bf7eed98f9fba7734e700e6be5900c99e7"
+    },
+    {
+      "id": "iakaframe/AR5/test/entete-yaml-correct-valeur-fausse",
+      "depot": "iakaframe",
+      "chemin": "cli/test/release-latest-shell.test.js",
+      "ligne": 16,
+      "extrait": "// `make_latest: ${{ steps.rang.outputs.make_latest }}` est PARFAITEMENT correct en texte — c'est",
+      "empreinte": "65c81c853e1c548244c4c9e15d0db9a66ae49497ac8f24b370af30cdae230e37"
+    },
+    {
+      "id": "iakaframe/AR5/test/entete-limite-declaree",
+      "depot": "iakaframe",
+      "chemin": "cli/test/release-latest-shell.test.js",
+      "ligne": 37,
+      "extrait": "// semantique serveur de `make_latest`). Il prouve UNE chose precise et suffisante : ce que",
+      "empreinte": "c7ec867cc2ca39775e7e10f7055ef5bd4550848cb74fe53f2984b86d08519091"
+    },
+    {
+      "id": "iakaframe/gate/ca-l1-verbatim",
+      "depot": "iakaframe",
+      "chemin": "docs/qualite/gate-ci-release-latest.md",
+      "ligne": 16,
+      "extrait": "| CA-L1 (cliquet) | `gh run view --job 101401920072 --repo iakasju/iakaframe --log` (run `34001818646`, v0.41.0) | `DECISION : v0.41.0 n'est PAS le plus haut (v0.40.0) -> make_latest=false.` puis `make_latest: false` — **confirme § 2.1, cliquet levé** |",
+      "empreinte": "39e2263bb88a039aeb386ca959140ea8a634e4e40ea6340ddff148607acd4580"
+    },
+    {
+      "id": "iakaframe/gate/02-verbatim",
+      "depot": "iakaframe",
+      "chemin": "docs/qualite/gate-ci-release-latest.md",
+      "ligne": 17,
+      "extrait": "| 0.2 | même étape, run `33959443438` (v0.40.0) | `DECISION : v0.40.0 n'est PAS le plus haut (v0.39.0) -> make_latest=false.` — même mécanisme |",
+      "empreinte": "baacdbcb88ef44876a4a9ef8e4d67d2c69afa3d2d9f7d806be06437abae7ccfb"
+    },
+    {
+      "id": "iakaframe/gate/contrefactuel-v039",
+      "depot": "iakaframe",
+      "chemin": "docs/qualite/gate-ci-release-latest.md",
+      "ligne": 18,
+      "extrait": "| Contrefactuel § 2.2 | run `33635520511` (v0.39.0, avant fix R-2) | `DECISION : v0.39.0 EST le plus haut -> make_latest=true` — la régression est datée, pas générale |",
+      "empreinte": "128e59b7a95c549a59e8cca4479a63bfe486fed6af413cc2f5f5b5046e529849"
+    },
+    {
+      "id": "iakaframe/gate/04-etat-releases",
+      "depot": "iakaframe",
+      "chemin": "docs/qualite/gate-ci-release-latest.md",
+      "ligne": 19,
+      "extrait": "| 0.4 | `gh api repos/iakasju/iakaframe/releases` + `.../releases/latest` | 4 releases (v0.41.0, v0.40.0, v0.39.0, v0.20.4), `latest` = `v0.41.0` (déjà rattrapé manuellement par Aragorn avant ce lot) |",
+      "empreinte": "37a2943e286e723f79ff55ec25bc2c916bf156f465a94e5966f26c68d1f21c28"
+    },
+    {
+      "id": "iakaframe/gate/06-contrat-make-latest",
+      "depot": "iakaframe",
+      "chemin": "docs/qualite/gate-ci-release-latest.md",
+      "ligne": 21,
+      "extrait": "| 0.6 | lecture `action.yml` de `softprops` au SHA retenu | `make_latest` : « Can be `true`, `false`, or `legacy`… », pas de `default:` YAML — type **chaîne** ; `prerelease` : « Defaults to false », non fourni par ce workflow |",
+      "empreinte": "8cd69196c4ad1efee236826fd362c0b2988fba47536099f826f369545ab125d4"
+    },
+    {
+      "id": "iakaframe/gate/fichiers-livres-pin",
+      "depot": "iakaframe",
+      "chemin": "docs/qualite/gate-ci-release-latest.md",
+      "ligne": 76,
+      "extrait": "- `cli/fixtures/actions-pin.json` — cliquet d'épinglage (SHA + sha256 + contrat `make_latest`).",
+      "empreinte": "08d1ad123878ae62b611e27a51618f317954a3e5ce5645a8abe8953008c0fb97"
     }
   ],
   "clesDeProse": {

@@ -127,13 +127,27 @@ constats.push(`autorite (pkg) : v${autorite}`);
 // release ne portait ce tag avant), il n'en a pas EDITE une deja existante. Seule la PREMISE
 // (« ce workflow n'ayant jamais tourne ») est perimee ; la CONCLUSION qu'elle appuyait tient
 // toujours, pour une autre raison : le cas mesure ici est une CREATION, pas une EDITION.
+//
+// ⚠️ RECTIFIE A NOUVEAU LE 2026-09-08 (lot fix/ci-release-latest, CI-RELEASE-LATEST-NON-MAITRISE).
+// La clause finale du message ci-dessous, « Jamais rejouee sur CE depot-ci » (2026-09-01), est
+// DATEE, PAS EFFACEE : elle disait vrai le jour ou elle a ete ecrite. DEPUIS, Aragorn a REJOUE ce
+// geste DEUX FOIS SUR CE DEPOT-CI, sous feu vert du decideur : `gh release edit v0.40.0 --latest`
+// (2026-09-05, apres le run `33959443438`) et `gh release edit v0.41.0 --latest` (2026-09-06,
+// apres le run `34001818646`). Les DEUX FOIS l'ecriture a AGI (§ 0.3/0.4 de l'instruction
+// CI-RELEASE-LATEST-NON-MAITRISE, `gh api repos/iakasju/iakaframe/releases/latest` mesure). Cette
+// mesure S'AJOUTE a M1 (banc prive) : ce n'est plus SEULEMENT mesure ailleurs, c'est mesure ICI,
+// deux fois. CE QUI RESTE VRAI : le message informe toujours d'un rattrapage MANUEL possible ;
+// depuis ce meme lot, l'etape « Verifier ce qu'est devenu le latest » de `.github/workflows/
+// release.yml` EXECUTE ce rattrapage elle-meme (AR-2(a)) — ce script-ci, lui, reste une sonde
+// EXTERNE et ANONYME, independante de la CI, et continue de le proposer a l'operateur humain.
 if (latest && plusHaut && latest !== plusHaut) {
   ecarts.push(
     `E-1 : « latest » designe ${latest} alors que ${plusHaut} existe. C'est la CREATION d'une ` +
       'release qui prend le drapeau (make_latest omis, defaut true) ; republier un tag dont la ' +
       "release EXISTE n'y touche pas au SHA epingle (R-1, L43). Rattrapage a TENTER : " +
-      `gh release edit ${plusHaut} --latest — MESURE le 2026-09-01 (M1, banc prive) : cette ` +
-      "ecriture AGIT et PRIME sur tout calcul. Jamais rejouee sur CE depot-ci.",
+      `gh release edit ${plusHaut} --latest — MESURE le 2026-09-01 (M1, banc prive) et REJOUEE ` +
+      'deux fois SUR CE DEPOT-CI (2026-09-05 sur v0.40.0, 2026-09-06 sur v0.41.0, runs ' +
+      "33959443438/34001818646) : cette ecriture AGIT et PRIME sur tout calcul, sur le banc COMME ICI.",
   );
 }
 

@@ -20,11 +20,16 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      # AR-4(a) (2026-09-08) — EPINGLE au SHA de 40 caracteres (lu + verifie contre un tag annote
+      # eventuel via `gh api repos/<action>/git/ref/tags/<tag>` : les trois objets rendus sont de
+      # type `commit`, aucune dereference necessaire). Solde CI-RELEASE-AUCUN-EPINGLAGE
+      # (BACKLOG.md). Cliquet : cli/fixtures/actions-pin.json (SHA + sha256 de l'action.yml +
+      # entrees declarees). Contrefactuel : cli/test/release-latest-shell.test.js (CA-L6).
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           ref: ${{ github.event.inputs.tag || github.ref }}
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 20
 
@@ -82,6 +87,17 @@ jobs:
       # │ La derniere ligne n'est pas une note de bas de page : `--latest` est un drapeau         │
       # │ BOOLEEN (`strconv.ParseBool`), donc le regime `legacy` est HORS D'ATTEINTE de           │
       # │ `gh`.                                                                                   │
+      # │                                                                                         │
+      # │ SIXIEME ECRITURE, MESUREE le 2026-09-05/06, SUR CE DEPOT-CI (pas sur le banc) — la      │
+      # │ PREMIERE de la serie a etre mesuree hors banc. Observation NEUVE (§ 2.3 de l'instruction │
+      # │ CI-RELEASE-LATEST-NON-MAITRISE) : `make_latest=false` pose A LA CREATION AGIT — le       │
+      # │ pointeur reste sur l'ancienne release — alors que `make_latest=false` par `PATCH` sur    │
+      # │ une release EXISTANTE (M2 ci-dessus) est INERTE. PAS UNE CONTRADICTION : poser un        │
+      # │ drapeau a la creation et retirer le pointeur d'une release qui le detient sont deux      │
+      # │ operations differentes. Source : runs 33959443438 (v0.40.0) et 34001818646 (v0.41.0),    │
+      # │ chacun a CREE sa release avec `make_latest=false` (calcule, § 2.1) et le pointeur EST    │
+      # │ RESTE sur la release precedente les deux fois — exactement le comportement AGIT.         │
+      # │   `make_latest=false` a la CREATION . . . . . . AGIT     33959443438 / 34001818646       │
       # │                                                                                         │
       # │ OU SIEGE LE NO-OP : ni dans le client, ni dans le transport, ni dans la lecture.        │
       # │ M2 et M3b portent sur la MEME release, le MEME endpoint, le MEME champ, et seule        │
@@ -153,18 +169,28 @@ jobs:
           # memes. Appel et tri SEPARES a dessein : un echec de `gh api` doit rester un ECHEC (`set -e`
           # abandonne), et le `|| true` sur le tri seul evite qu'un `grep` sans resultat n'abandonne le
           # job AVANT le test « aucune release », qui serait sinon inatteignable.
+          #
+          # FIX AR-1(a) (2026-09-08, CI-RELEASE-LATEST-NON-MAITRISE) — LA COMPARAISON ETAIT MORTE.
+          # Mesure aux runs reels 33959443438 (v0.40.0) et 34001818646 (v0.41.0) :
+          # `make_latest=false` DEUX FOIS, alors que le tag publie ETAIT le plus haut semver. Cause :
+          # cette etape tourne AVANT que `softprops` cree la release du tag courant (etape
+          # suivante) — $TAG n'est donc JAMAIS dans $RELEASES, et `[ "$TAG" = "$PLUS_HAUT" ]` ne
+          # peut JAMAIS etre vrai sur une publication normale. Remede : faire entrer $TAG dans la
+          # POPULATION avant le tri, puis decider si le sommet de ce tri EST le tag courant. Le
+          # referent (releases publiees, brouillons/preversions exclus) et le filtre semver sont
+          # CONSERVES tels quels — seule la comparaison change.
           RELEASES=$(gh api "repos/${{ github.repository }}/releases" --paginate \
             --jq '.[] | select(.draft|not) | select(.prerelease|not) | .tag_name')
-          PLUS_HAUT=$(printf '%s\n' "$RELEASES" \
+          POPULATION=$(printf '%s\n%s\n' "$RELEASES" "$TAG")
+          PLUS_HAUT=$(printf '%s\n' "$POPULATION" \
             | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | sort -V | tail -1 || true)
           echo "tag publie      : $TAG"
-          echo "plus haut semver publie (hors le tag courant, pas encore cree) : ${PLUS_HAUT:-(aucun)}"
+          echo "plus haut semver, LE TAG COURANT COMPTE dans la population : ${PLUS_HAUT:-(aucun)}"
           if [ -z "$PLUS_HAUT" ]; then
-            echo "AUCUNE release non-brouillon non-preversion portant un tag de version pour l'instant :"
-            echo "  $TAG sera donc la premiere -> make_latest=true"
-            echo "make_latest=true" >> "$GITHUB_OUTPUT"
+            echo "AUCUN tag de version (publie OU courant) ne matche le filtre semver -> rien a designer."
+            echo "make_latest=false" >> "$GITHUB_OUTPUT"
           elif [ "$TAG" = "$PLUS_HAUT" ]; then
-            echo "DECISION : $TAG EST le plus haut -> make_latest=true"
+            echo "DECISION : $TAG EST le plus haut, UNE FOIS LUI-MEME COMPTE -> make_latest=true"
             echo "make_latest=true" >> "$GITHUB_OUTPUT"
           else
             echo "DECISION : $TAG n'est PAS le plus haut ($PLUS_HAUT) -> make_latest=false."
@@ -173,19 +199,32 @@ jobs:
           fi
 
       - name: Attacher le tarball a la release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           files: '*.tgz'
           # CALCULE a l'etape precedente. Ne JAMAIS remplacer par une constante : ce serait
           # reintroduire le defaut sous une autre forme.
-          make_latest: ${{ steps.rang.outputs.make_latest }}
+          # Cite EN CHAINE (AR-1(a), durcissement joint) : `make_latest` est declare par
+          # `softprops/action-gh-release` (cli/fixtures/actions-pin.json, mesure 2026-09-08) comme
+          # acceptant les CHAINES `"true"`/`"false"`/`"legacy"`, jamais un booleen YAML natif.
+          make_latest: "${{ steps.rang.outputs.make_latest }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # CA-6 — le workflow DIT ce qu'il a fait du latest, y compris quand il a decide de NE PAS le
       # poser. Un « OK » muet ne se relit pas ; et si la designation a rate, l'echec NOMME la
       # commande de rattrapage (R6). Le tarball, lui, est deja attache : rien n'est perdu.
+      #
+      # FIX AR-2(a) (2026-09-08, CI-RELEASE-LATEST-NON-MAITRISE) — CETTE ETAPE NE SE CONTENTE PLUS
+      # DE DETECTER ET ROUGIR : mesuree deux fois de suite (runs 33959443438, 34001818646), la
+      # detection dictait un rattrapage qu'Aragorn devait rejouer A LA MAIN. Geste MESURE (M1,
+      # 2026-09-01, banc iakasju/latest-contrefactuel) : `gh release edit <tag> --latest` AGIT. La
+      # branche du vol EXECUTE desormais ce geste au lieu de l'imprimer (AR-7 = (a) de L44, deja
+      # livre a IakaCockpit/iakaFrameGUI — patron : iakaInstall/.github/workflows/release.yml:361-374),
+      # PUIS RE-MESURE, et ne sort vert que si la re-mesure concorde. `gh release edit <tag>` par
+      # TAG (pas par `id`) reste sur : softprops cree ici une release PUBLIEE, jamais un brouillon
+      # (les reserves cli/cli#10140/#11589 portent sur les brouillons).
       - name: Verifier ce qu'est devenu le latest
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -208,8 +247,18 @@ jobs:
           EFFECTIF=$(gh api "repos/${{ github.repository }}/releases/latest" --jq '.tag_name')
           echo "VERIFICATION : latest effectif = $EFFECTIF (attendu : $PLUS_HAUT)"
           if [ "$EFFECTIF" != "$PLUS_HAUT" ]; then
-            echo "::error::le latest effectif ($EFFECTIF) n'est pas le plus haut semver ($PLUS_HAUT)."
-            echo "::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}"
-            exit 1
+            echo "latest en retard : RATTRAPAGE (AR-2a) -> gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}"
+            if ! gh release edit "$PLUS_HAUT" --latest --repo "${{ github.repository }}"; then
+              echo "::error::le rattrapage automatique a ECHOUE (appel \`gh release edit\` en erreur)."
+              echo "::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}"
+              exit 1
+            fi
+            EFFECTIF=$(gh api "repos/${{ github.repository }}/releases/latest" --jq '.tag_name')
+            echo "RE-VERIFICATION : latest effectif = $EFFECTIF (attendu : $PLUS_HAUT)"
+            if [ "$EFFECTIF" != "$PLUS_HAUT" ]; then
+              echo "::error::le latest effectif ($EFFECTIF) n'est pas le plus haut semver ($PLUS_HAUT) apres rattrapage."
+              echo "::error::RATTRAPAGE MANUEL : gh release edit $PLUS_HAUT --latest --repo ${{ github.repository }}"
+              exit 1
+            fi
           fi
           echo "latest maitrise : $PLUS_HAUT"

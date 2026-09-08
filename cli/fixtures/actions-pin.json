@@ -1,0 +1,61 @@
+{
+  "_lire": "AR-4(a) / CI-RELEASE-AUCUN-EPINGLAGE — LE REFERENT EPINGLE des trois `uses:` de `.github/workflows/release.yml`. Ce fichier est la SOURCE du cliquet : il porte le SHA contre lequel le comportement de chaque action a ete LU, et le jeu d'entrees que cette version DECLARE reellement. Toute mutation de test se fait ICI, jamais dans le workflow. Patron : `IakaCockpit/fixtures/tauri-action-pin.json` (lot L41), adapte a trois actions au lieu d'une.",
+  "_pourquoi": "Le workflow epinglait `@v4`/`@v4`/`@v2` — des tags DEPLACABLES. AR-4(a) les fige au SHA de 40 caracteres, et couple l'epinglage a UNE lecture qui sert aussi AR-1/AR-2 : le contrat de `make_latest` declare par `softprops/action-gh-release`. Lu et mesure le 2026-09-08 (etape 0.5/0.6 de l'instruction ci-jointe).",
+  "actions": {
+    "actions/checkout": {
+      "sha": "11d5960a326750d5838078e36cf38b85af677262",
+      "version": "v4",
+      "actionYmlSha256": "6188f6991491ed38977347cdaad0b0cd921a6d6232892363c91f433c22954f4f",
+      "luLe": "2026-09-08",
+      "luComment": "gh api repos/actions/checkout/git/ref/tags/v4 (objet de type 'commit', SHA direct, aucun tag annote a dereferencer) ; gh api repos/actions/checkout/contents/action.yml?ref=<sha> pour la source.",
+      "entreesDeclarees": [
+        "repository", "ref", "token", "ssh-key", "ssh-known-hosts", "ssh-strict", "ssh-user",
+        "persist-credentials", "path", "clean", "filter", "sparse-checkout",
+        "sparse-checkout-cone-mode", "fetch-depth", "fetch-tags", "show-progress", "lfs",
+        "submodules", "set-safe-directory", "github-server-url", "allow-unsafe-pr-checkout"
+      ],
+      "entreesPoseesDansCeWorkflow": ["ref"]
+    },
+    "actions/setup-node": {
+      "sha": "49933ea5288caeca8642d1e84afbd3f7d6820020",
+      "version": "v4",
+      "actionYmlSha256": "8aee59063ebc272d850507febb30930de2684be1b1240cf5f3dff13179fcff0b",
+      "luLe": "2026-09-08",
+      "luComment": "gh api repos/actions/setup-node/git/ref/tags/v4 (objet de type 'commit', SHA direct) ; gh api repos/actions/setup-node/contents/action.yml?ref=<sha>.",
+      "entreesDeclarees": [
+        "always-auth", "node-version", "node-version-file", "architecture", "check-latest",
+        "registry-url", "scope", "token", "cache", "cache-dependency-path", "mirror",
+        "mirror-token"
+      ],
+      "entreesPoseesDansCeWorkflow": ["node-version"]
+    },
+    "softprops/action-gh-release": {
+      "sha": "3bb12739c298aeb8a4eeaf626c5b8d85266b0e65",
+      "version": "v2",
+      "actionYmlSha256": "f7221c20c67d2c8ff47e6613413bedfc0e5d839cfb74f6e5d12b47a7cada2fec",
+      "luLe": "2026-09-08",
+      "luComment": "gh api repos/softprops/action-gh-release/git/ref/tags/v2 (objet de type 'commit', SHA direct) ; gh api repos/softprops/action-gh-release/contents/action.yml?ref=<sha> — LECTURE QUI ETABLIT AUSSI LE CONTRAT DE make_latest (AR-4, raison 2 de l'instruction : une seule lecture sert les deux objets, epinglage ET correctif).",
+      "entreesDeclarees": [
+        "body", "body_path", "name", "tag_name", "draft", "prerelease", "preserve_order",
+        "files", "working_directory", "overwrite_files", "fail_on_unmatched_files",
+        "repository", "token", "target_commitish", "discussion_category_name",
+        "generate_release_notes", "previous_tag", "append_body", "make_latest"
+      ],
+      "entreesPoseesDansCeWorkflow": ["tag_name", "files", "make_latest"],
+      "contratMakeLatest": {
+        "description": "Specifies whether this release should be set as the latest release for the repository. Drafts and prereleases cannot be set as latest. Can be `true`, `false`, or `legacy`. Uses GitHub api default if not provided",
+        "required": false,
+        "defautYaml": null,
+        "type": "chaine (action.yml ne type pas ses inputs — GitHub Actions les traite tous comme des chaines ; la description enumere les trois valeurs acceptees `true`/`false`/`legacy`, TOUTES trois des CHAINES, jamais un booleen natif)",
+        "constat": "Aucune cle `default:` YAML sur `make_latest` : omise, l'action retombe sur le defaut cote API GitHub (make_latest=true a la creation). C'est PRECISEMENT pourquoi §2.1 de l'instruction est confirme : la valeur N'EST PAS ignoree quand elle est fournie (elle n'a pas de defaut interne qui l'ecraserait) — elle est transmise TELLE QUELLE, et c'est sa VALEUR CALCULEE (false) qui fait reculer le pointeur."
+      },
+      "contratPrerelease": {
+        "description": "Identify the release as a prerelease. Defaults to false",
+        "required": false,
+        "defautYaml": null,
+        "constat": "Meme absence de cle `default:` YAML ; la description dit neanmoins 'Defaults to false'. Ce workflow ne fournit JAMAIS cette entree (§ 0.6/§4 Exclu de l'instruction) : une release creee ici, y compris `v0.41.1-rc.1` (instrument AR-6), sera donc NON-PREVERSION quel que soit le suffixe du tag — comportement CONFIRME par cette lecture, pas suppose."
+      }
+    }
+  },
+  "_siLeShaChange": "NE PAS lever la garde en recopiant le nouveau SHA. Re-lire `action.yml` AU NOUVEAU SHA (au minimum `make_latest` et `prerelease` pour softprops), verifier que les entrees posees dans le workflow (`entreesPoseesDansCeWorkflow`) restent DECLAREES, PUIS mettre a jour ce fichier."
+}
