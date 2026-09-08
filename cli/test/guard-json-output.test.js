@@ -93,6 +93,68 @@ fs.writeFileSync(
 close(REVIEW_HOME, { now: new Date('2026-09-08T00:00:00Z') });
 const REVIEW_PROPOSAL_ID = listProposals(REVIEW_HOME)[0]?.id;
 
+// =================================================================================================
+// J2 (C-JSON-COUVERTURE-COMPLETE, § 5 etape 6) : les 9 ECRIVAINS/interactifs restants, mesures en
+// BAC A SABLE par les drapeaux de redirection DEJA EXISTANTS (AR-J2(b)) — zero ligne de production,
+// zero --dry-run invente. Trois familles de bacs a sable, montees UNE fois pour tout le fichier.
+// =================================================================================================
+
+// --- bibliotheque jetable (fabrique une mini-bibliotheque tmp, JAMAIS la vraie library/ du depot —
+// meme patron que cli/test/remove.test.js:mkLib) : dediee a `add`/`remove`/`attach`/`detach`. -----
+function ecrireLib(root, fichiers) {
+  for (const [rel, contenu] of fichiers) {
+    const p = path.join(root, rel);
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    fs.writeFileSync(p, contenu);
+  }
+}
+
+// `add` : racine VIERGE — le scaffold pool (`add skill <id>`) cree lui-meme library/skills/<id>/.
+const ADD_LIB = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-add-'));
+
+// `remove` : UN skill orphelin (non reference) — RESTRICT ne bloque donc pas le retrait direct.
+const REMOVE_LIB = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-remove-'));
+ecrireLib(REMOVE_LIB, [
+  ['library/skills/orphan-skill-j2/SKILL.md', '---\nid: orphan-skill-j2\nname: orphelin\n---\n# skill orphelin j2\n'],
+]);
+
+// `attach`/`detach` : DEUX personas (l'un sans le skill, l'autre l'ayant deja) + le skill materialise
+// — attach et detach s'exercent chacun sur SA propre persona, sans dependre de l'ordre des tests.
+const ATTACH_LIB = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-attach-'));
+ecrireLib(ATTACH_LIB, [
+  ['library/personas/p-sans-skill.md', '---\nid: p-sans-skill\nname: SansSkill\nroleKey: dev\nskills: []\n---\n# p-sans-skill\n'],
+  ['library/personas/p-avec-skill.md', '---\nid: p-avec-skill\nname: AvecSkill\nroleKey: dev\nskills: [demo-skill-j2]\n---\n# p-avec-skill\n'],
+  ['library/skills/demo-skill-j2/SKILL.md', '---\nid: demo-skill-j2\nname: demo\n---\n# skill demo j2\n'],
+]);
+
+// --- projet jetable (--path/--project) : dedie a `skills`, `models` (bare + set + unset), `switch`.
+// La BIBLIOTHEQUE reste la VRAIE du depot (REPO, lue seule — meme patron deja en place pour
+// `agents status --project PROJ`/`config --path PROJ` plus haut) : seule la CIBLE d'ecriture change.
+const SKILLS_PROJ = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-skills-'));
+const MODELS_PROJ = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-models-'));
+// Pre-seed une surcharge SUR UNE AUTRE persona (legolas), pour que `models unset` (NOMINAL,
+// ci-dessous) ait reellement quelque chose a retirer SANS toucher a la surcharge posee par
+// `models set` (gimli) : les deux invocations mesurees restent independantes l'une de l'autre.
+{
+  const r = spawnSync('node', [CLI, 'models', 'set', 'legolas', 'sonnet', '--path', MODELS_PROJ, '--json'], { cwd: REPO, encoding: 'utf8' });
+  if (r.status !== 0) throw new Error(`bootstrap models set (legolas) a echoue : ${r.stdout}${r.stderr}`);
+}
+const SWITCH_PROJ = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-switch-'));
+
+// --- canon jetable (--home/--source) : dedie a `consolidate`. Source VIDE : `fiches:0` est un etat
+// nominal legitime (le rapport reste ok:true), et evite toute dependance au contenu REEL du
+// portefeuille (§ 0.5 : non mesure, jamais suppose).
+const CONSOLIDATE_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-consolidate-home-'));
+const CONSOLIDATE_SRC = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-consolidate-src-'));
+
+// --- chapeau jetable (--root) : dedie a `range`. `--list`/`--branches` sont LECTURE SEULE (aucun
+// restic lance, cf. range.js) ; le cas ECRIVAIN (`--dry-run`) est REPOUSSE en ERRORS ci-dessous avec
+// `--password-command false` — echec DETERMINISTE et INSTANTANE (aucune ecriture, aucune attente
+// reseau), au lieu de dependre de la joignabilite REELLE du LAN iakabox (fragile hors LAN comme SUR
+// le LAN — precision d'execution, AR-J2(b)).
+const RANGE_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-range-'));
+fs.mkdirSync(path.join(RANGE_ROOT, 'demo-projet-j2', '.git'), { recursive: true });
+
 // (nom, args, cle de collection attendue | null pour une ressource/rapport a plat, env supplementaire)
 const NOMINAL = [
   ['list', ['list', '--json'], 'collections'],
@@ -133,6 +195,24 @@ const NOMINAL = [
   ['produit path', ['produit', 'path', '--json', '--project', PROJ], null],
   ['produit config', ['produit', 'config', '--json', '--project', PROJ], null],
   ['produit list', ['produit', 'list', '--json', '--project', PROJ], 'entries'],
+  // --- J2 (C-JSON-COUVERTURE-COMPLETE) : les 9 ecrivains/interactifs restants, grain SOUS-VERBE
+  // (AR-J1(b)), bac a sable par les drapeaux EXISTANTS (AR-J2(b)) — cliquet 9 -> 0. ------------
+  ['skills', ['skills', '--json', '--project', SKILLS_PROJ], 'skills'],
+  // models (bare, sans set/unset) : json:true fait sortir AVANT le process interactif (models.js:1104)
+  // — deja mesure a l'etape 0 comme non-interactif sous --json ; rapport a PLAT (count = roles.length,
+  // pas targets.length — precision d'execution sur la mesure du cadrage, cf. rapport de remise).
+  ['models', ['models', '--json', '--hosts', '127.0.0.1', '--timeout', '1', '--path', MODELS_PROJ], null],
+  ['models set', ['models', 'set', 'gimli', 'sonnet', '--path', MODELS_PROJ, '--json'], null],
+  // cible legolas (pre-seede en preambule), PAS gimli : les deux invocations mesurees restent
+  // independantes l'une de l'autre (cf. commentaire de bootstrap de MODELS_PROJ ci-dessus).
+  ['models unset', ['models', 'unset', 'legolas', '--path', MODELS_PROJ, '--json'], null],
+  ['add', ['add', 'skill', 'demo-skill-add-j2', '--root', ADD_LIB, '--json'], null],
+  ['remove', ['remove', 'skill', 'orphan-skill-j2', '--root', REMOVE_LIB, '--json'], null],
+  ['attach', ['attach', 'demo-skill-j2', '--persona', 'p-sans-skill', '--root', ATTACH_LIB, '--json'], null],
+  ['detach', ['detach', 'demo-skill-j2', '--persona', 'p-avec-skill', '--root', ATTACH_LIB, '--json'], null],
+  ['switch', ['switch', 'iakaframe', 'iakaframe-8', '--path', SWITCH_PROJ, '--json'], null],
+  ['consolidate', ['consolidate', '--home', CONSOLIDATE_HOME, '--source', CONSOLIDATE_SRC, '--json'], null],
+  ['range --list', ['range', '--list', '--root', RANGE_ROOT, '--json'], 'projets'],
 ];
 
 for (const [name, args, collKey, extraEnv] of NOMINAL) {
@@ -149,6 +229,60 @@ for (const [name, args, collKey, extraEnv] of NOMINAL) {
     }
   });
 }
+
+// --- (2ter) J2 : EMPREINTE DISQUE des 9 ecrivains — l'effet reel, pas seulement la charge JSON.
+// S'execute APRES la boucle NOMINAL ci-dessus (node:test joue les tests d'un MEME fichier dans leur
+// ORDRE DE DEFINITION, jamais en parallele au sein d'un fichier) : les invocations ont deja eu lieu,
+// on en verifie ici la TRACE sur disque, et QUE dans le bac a sable (jamais REPO). ------------------
+
+test('C-JSON empreinte (J2) : skills a ecrit sous SKILLS_PROJ/.claude/skills/ (jamais ailleurs)', () => {
+  const dir = path.join(SKILLS_PROJ, '.claude', 'skills');
+  assert.ok(fs.existsSync(dir), 'aucun skill deploye sous le bac a sable');
+  assert.ok(fs.readdirSync(dir).length > 0, 'le dossier skills est vide');
+});
+
+test('C-JSON empreinte (J2) : models set a pose la surcharge ET projete le contrat sous MODELS_PROJ', () => {
+  const overrides = JSON.parse(fs.readFileSync(path.join(MODELS_PROJ, 'iakaframe.json'), 'utf8'));
+  assert.equal(overrides.modelOverrides?.gimli, 'sonnet', 'surcharge gimli:sonnet absente de iakaframe.json');
+});
+
+test('C-JSON empreinte (J2) : models unset a retire SEULEMENT la surcharge/le contrat legolas (gimli intact)', () => {
+  assert.ok(!fs.existsSync(path.join(MODELS_PROJ, '.claude', 'agents', 'legolas.md')), 'le contrat de projet de legolas aurait du etre retire par unset');
+  const overrides = JSON.parse(fs.readFileSync(path.join(MODELS_PROJ, 'iakaframe.json'), 'utf8'));
+  assert.equal(overrides.modelOverrides?.legolas, undefined, 'la surcharge legolas aurait du etre retiree');
+  assert.equal(overrides.modelOverrides?.gimli, 'sonnet', 'unset a du toucher la surcharge gimli, posee par le test precedent');
+});
+
+test('C-JSON empreinte (J2) : add a materialise le skill scaffolde sous ADD_LIB (jamais dans la vraie library/)', () => {
+  assert.ok(fs.existsSync(path.join(ADD_LIB, 'library', 'skills', 'demo-skill-add-j2', 'SKILL.md')), 'skill scaffolde introuvable sous le bac a sable');
+  assert.ok(!fs.existsSync(path.join(REPO, 'library', 'skills', 'demo-skill-add-j2')), 'FUITE : le scaffold a ecrit dans la VRAIE bibliotheque du depot');
+});
+
+test('C-JSON empreinte (J2) : remove a deplace le skill orphelin en corbeille (non destructif)', () => {
+  assert.ok(!fs.existsSync(path.join(REMOVE_LIB, 'library', 'skills', 'orphan-skill-j2')), 'le skill retire est encore a son emplacement d\'origine');
+  const trashDirs = fs.readdirSync(REMOVE_LIB).filter((n) => n.startsWith('.trash-'));
+  assert.ok(trashDirs.length > 0, 'aucune corbeille creee par remove');
+});
+
+test('C-JSON empreinte (J2) : attach a mute skills:[] du SEUL persona cible (ATTACH_LIB)', () => {
+  const src = fs.readFileSync(path.join(ATTACH_LIB, 'library', 'personas', 'p-sans-skill.md'), 'utf8');
+  assert.match(src, /skills: \[demo-skill-j2\]/, 'attach n\'a pas ecrit demo-skill-j2 dans skills:[] de p-sans-skill');
+});
+
+test('C-JSON empreinte (J2) : detach a retire le skill du SEUL persona cible (ATTACH_LIB)', () => {
+  const src = fs.readFileSync(path.join(ATTACH_LIB, 'library', 'personas', 'p-avec-skill.md'), 'utf8');
+  assert.match(src, /skills: \[\]/, 'detach n\'a pas retire demo-skill-j2 de skills:[] de p-avec-skill');
+});
+
+test('C-JSON empreinte (J2) : switch a deploye le contrat + le marqueur sous SWITCH_PROJ', () => {
+  assert.ok(fs.existsSync(path.join(SWITCH_PROJ, '.claude', 'agents', 'gimli.md')), 'contrat gimli non deploye par switch');
+  assert.ok(fs.existsSync(path.join(SWITCH_PROJ, '.claude', 'iakaframe-kit.json')), 'marqueur iakaframe-kit.json absent');
+});
+
+test('C-JSON empreinte (J2) : consolidate a produit l\'apercu sous CONSOLIDATE_HOME (canon reel jamais mute par ce lot)', () => {
+  assert.ok(fs.existsSync(path.join(CONSOLIDATE_HOME, 'consolidation', 'DIFF.md')), 'DIFF.md absent du staging de consolidation');
+  assert.ok(fs.existsSync(path.join(CONSOLIDATE_HOME, 'consolidation', 'RAPPORT.md')), 'RAPPORT.md absent du staging de consolidation');
+});
 
 // --- (2bis) CONTRAT DE SORTIE : discipline d'erreur machine (regle 4) -----------------------------
 
@@ -170,6 +304,15 @@ const ERRORS = [
     ['vendor-check', '--strict', '--json'],
     { IAKAFRAME_GUI_ROOT: path.join(EMPTY, 'gui-definitivement-absent') },
   ],
+  // range --dry-run : `--password-command false` fait echouer restic AVANT tout acces reseau reel
+  // (Fatal: Resolving password failed), en ~200ms, sans dependre de la joignabilite du LAN iakabox
+  // dans un sens ou l'autre (cf. commentaire de RANGE_ROOT ci-dessus). Rien n'est ecrit : le --dry-run
+  // deja porte par `range` (AR-J2(b), precision d'execution) ne fait jamais la difference ici, restic
+  // echoue avant de l'interpreter.
+  [
+    'range --dry-run <mot de passe injoignable>',
+    ['range', 'demo-projet-j2', '--dry-run', '--root', RANGE_ROOT, '--password-command', 'false', '--json'],
+  ],
 ];
 
 for (const [name, args, extraEnv] of ERRORS) {
@@ -184,6 +327,14 @@ for (const [name, args, extraEnv] of ERRORS) {
   });
 }
 
+test('C-JSON empreinte (J2) : range --dry-run (mot de passe injoignable) n\'a rien ecrit sous RANGE_ROOT', () => {
+  assert.deepEqual(fs.readdirSync(RANGE_ROOT), ['demo-projet-j2'], 'range a laisse une trace inattendue dans le chapeau jetable');
+});
+
 test.after(() => {
-  for (const d of [HOME, OBS, EMPTY, PROJ, GITD, BARE, INSTALL_CLAUDE, INSTALL_APPS, INSTALL_BACKUPS, REVIEW_HOME]) fs.rmSync(d, { recursive: true, force: true });
+  for (const d of [
+    HOME, OBS, EMPTY, PROJ, GITD, BARE, INSTALL_CLAUDE, INSTALL_APPS, INSTALL_BACKUPS, REVIEW_HOME,
+    ADD_LIB, REMOVE_LIB, ATTACH_LIB, SKILLS_PROJ, MODELS_PROJ, SWITCH_PROJ,
+    CONSOLIDATE_HOME, CONSOLIDATE_SRC, RANGE_ROOT,
+  ]) fs.rmSync(d, { recursive: true, force: true });
 });
