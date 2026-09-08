@@ -1,0 +1,1 @@
++ skill demo-skill-add-temoin scaffolde dans <LIB>/library/skills/demo-skill-add-temoin/SKILL.md
