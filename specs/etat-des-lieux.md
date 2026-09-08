@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-08 09:17 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-08 10:52 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | 69f1d34 merge: CI-RELEASE-LATEST-NON-MAITRISE — comparaison de rang corrigee, filet actif, actions epinglees, jambe d execution (gate Legolas PASS) |
+| Dernier commit | 1fa39f8 merge: C-JSON-COUVERTURE-COMPLETE J0+J1 — temoins de prose, config declare, regle 6, garde de derivation, 9 lecteurs en NOMINAL, cliquet 14 -> 9 (gate Legolas PASS) |
 | Arbre | propre |
-| Fichiers (suivis + non ignores) | 1218 |
-| Note | CI-RELEASE-LATEST-NON-MAITRISE livre et fusionne (gate PASS, 1191 tests) : cause = comparaison morte depuis R-2 (make_latest calcule a false, 3 runs prouves) ; correctif = tag courant dans la population avant tri, filet actif gh release edit --latest + re-mesure, 3 actions epinglees au SHA (CI-RELEASE-AUCUN-EPINGLAGE solde), jambe d execution shell (29 tests), registre re-ancre (474 -> 473). Reste au decideur : v0.41.1-rc.1 (ne doit PAS devenir latest) puis v0.42.0 = LA preuve ; push github, pas origin. Successeur REGISTRE-REPLI-LATEST-DETTE-CROISEE. |
+| Fichiers (suivis + non ignores) | 1230 |
+| Note | C-JSON J0+J1 livres et fusionnes (gate PASS, 1214 tests) : inconnue n1 levee par execution (aucun verbe accepte-et-ignore, lot de PREUVE), config declare, regle 6 du contrat, garde de derivation declare<->parse<->documente, 9 lecteurs purs en NOMINAL, cliquet 14 -> 9, temoins de prose. J2 engage (ecrivains en bac a sable, cliquet 9 -> 0) sur recommandation du gate. Successeurs : frame verify sans count, J3 (AR-J4 + garde de completude). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `1fa39f8` | 2026-09-08 | merge: C-JSON-COUVERTURE-COMPLETE J0+J1 — temoins de prose, config declare, regle 6, garde de derivation, 9 lecteurs en NOMINAL, cliquet 14 -> 9 (gate Legolas PASS) |
+| `a391f59` | 2026-09-08 | docs(qualite): gate C-JSON J0+J1 — PASS |
+| `2d5f37c` | 2026-09-08 | docs(json): mesures d'execution etape 0 (CA-J1) |
+| `36abbd7` | 2026-09-08 | chore(json): cliquet 14 -> 9 (lot J1 ferme) |
+| `833fa67` | 2026-09-08 | test(json): 9 lecteurs en NOMINAL, grain sous-verbe (AR-J1(b), lot J1) |
+| `cfd9de9` | 2026-09-08 | feat(json): regle 6 (abstention legale) + garde de derivation registre<->parse<->doc |
+| `53f487e` | 2026-09-08 | fix(json): config declare --json au registre et dans la doc (ecart ferme) |
+| `7532d2a` | 2026-09-08 | test(json): temoins de prose humaine avant toute modification (CA-J8) |
+| `50bc0e4` | 2026-09-08 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `69f1d34` | 2026-09-08 | merge: CI-RELEASE-LATEST-NON-MAITRISE — comparaison de rang corrigee, filet actif, actions epinglees, jambe d execution (gate Legolas PASS) |
-| `a5fc9b1` | 2026-09-08 | docs(qualite): gate CI-RELEASE-LATEST-NON-MAITRISE — PASS (écart remote signalé) |
-| `714f92b` | 2026-09-08 | chore(registre): payer la dette du repli-latest pour les 5 fichiers du lot |
-| `c660983` | 2026-09-08 | docs(backlog): corriger le titre CI-RELEASE-LATEST-NON-MAITRISE, solder l'epinglage |
-| `bf59904` | 2026-09-08 | docs(vitrine): rectifier l'enonce E-1 perime, daté (rejoue deux fois sur ce depot) |
-| `c49235c` | 2026-09-08 | docs(ci): inscrire la sixieme ecriture mesuree (make_latest=false a la creation AGIT) |
-| `2392bd9` | 2026-09-08 | fix(ci): make_latest calcule correctement + filet actif + epinglage SHA (AR-1/AR-2/AR-4) |
-| `c6c9ae9` | 2026-09-08 | test(ci): jambe d'execution AR-5(a) capturant le defaut make_latest=false EN ROUGE |
-| `a1e0072` | 2026-09-08 | docs(instruction): cadrages CI-RELEASE-LATEST-NON-MAITRISE et C-JSON-COUVERTURE-COMPLETE — verdicts comme recommande |
-| `824abde` | 2026-09-08 | merge: durcissement de la garde du banc — contrefactuels sur le texte reel (gate Legolas PASS) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -210,6 +210,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-08 10:52 | pause | v0.41.0 | main | C-JSON J0+J1 livres et fusionnes (gate PASS, 1214 tests) : inconnue n1 levee par execution (aucun verbe accepte-et-ignore, lot de PREUVE), config declare, regle 6 du contrat, garde de derivation declare<->parse<->documente, 9 lecteurs purs en NOMINAL, cliquet 14 -> 9, temoins de prose. J2 engage (ecrivains en bac a sable, cliquet 9 -> 0) sur recommandation du gate. Successeurs : frame verify sans count, J3 (AR-J4 + garde de completude). |
 | 2026-09-08 09:17 | pause | v0.41.0 | main | CI-RELEASE-LATEST-NON-MAITRISE livre et fusionne (gate PASS, 1191 tests) : cause = comparaison morte depuis R-2 (make_latest calcule a false, 3 runs prouves) ; correctif = tag courant dans la population avant tri, filet actif gh release edit --latest + re-mesure, 3 actions epinglees au SHA (CI-RELEASE-AUCUN-EPINGLAGE solde), jambe d execution shell (29 tests), registre re-ancre (474 -> 473). Reste au decideur : v0.41.1-rc.1 (ne doit PAS devenir latest) puis v0.42.0 = LA preuve ; push github, pas origin. Successeur REGISTRE-REPLI-LATEST-DETTE-CROISEE. |
 | 2026-09-06 02:40 | version | v0.41.0 | main | v0.41.0 PUBLIEE (tag Stephane, run 34001818646, asset sha256 d8799b7d..., install.mjs + kits + etapes 3/4 multi-OS verifies sur l octet retelecharge). make_latest du workflow INERTE pour la 2e fois sur 2 publications (release creee, latest reste sur la precedente) → rattrapage gh release edit --latest par Aragorn ; CI-RELEASE-LATEST-NON-MAITRISE devient prioritaire. Suite : bump ressource iakaInstall vers 0.41.0 (AR-P5) → v0.1.2. Push Forgejo EN ATTENTE. |
 | 2026-09-06 01:53 | version | v0.41.0 | chore/bump-0.41.0 |  |

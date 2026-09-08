@@ -978,5 +978,15 @@
     "dirty": false,
     "files": 1218,
     "note": "CI-RELEASE-LATEST-NON-MAITRISE livre et fusionne (gate PASS, 1191 tests) : cause = comparaison morte depuis R-2 (make_latest calcule a false, 3 runs prouves) ; correctif = tag courant dans la population avant tri, filet actif gh release edit --latest + re-mesure, 3 actions epinglees au SHA (CI-RELEASE-AUCUN-EPINGLAGE solde), jambe d execution shell (29 tests), registre re-ancre (474 -> 473). Reste au decideur : v0.41.1-rc.1 (ne doit PAS devenir latest) puis v0.42.0 = LA preuve ; push github, pas origin. Successeur REGISTRE-REPLI-LATEST-DETTE-CROISEE."
+  },
+  {
+    "date": "2026-09-08 10:52",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "1fa39f8 merge: C-JSON-COUVERTURE-COMPLETE J0+J1 — temoins de prose, config declare, regle 6, garde de derivation, 9 lecteurs en NOMINAL, cliquet 14 -> 9 (gate Legolas PASS)",
+    "dirty": false,
+    "files": 1230,
+    "note": "C-JSON J0+J1 livres et fusionnes (gate PASS, 1214 tests) : inconnue n1 levee par execution (aucun verbe accepte-et-ignore, lot de PREUVE), config declare, regle 6 du contrat, garde de derivation declare<->parse<->documente, 9 lecteurs purs en NOMINAL, cliquet 14 -> 9, temoins de prose. J2 engage (ecrivains en bac a sable, cliquet 9 -> 0) sur recommandation du gate. Successeurs : frame verify sans count, J3 (AR-J4 + garde de completude)."
   }
 ]
