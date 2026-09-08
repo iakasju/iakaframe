@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-06 02:40 (motif: version).
+> Genere par iakaframe (CLI) le 2026-09-08 09:17 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | 52f5f22 merge: bump 0.41.0 — etapes 3/4 sur les 3 OS prouvees, pret a taguer (gate Legolas PASS) |
+| Dernier commit | 69f1d34 merge: CI-RELEASE-LATEST-NON-MAITRISE — comparaison de rang corrigee, filet actif, actions epinglees, jambe d execution (gate Legolas PASS) |
 | Arbre | propre |
-| Fichiers (suivis + non ignores) | 1210 |
-| Note | v0.41.0 PUBLIEE (tag Stephane, run 34001818646, asset sha256 d8799b7d..., install.mjs + kits + etapes 3/4 multi-OS verifies sur l octet retelecharge). make_latest du workflow INERTE pour la 2e fois sur 2 publications (release creee, latest reste sur la precedente) → rattrapage gh release edit --latest par Aragorn ; CI-RELEASE-LATEST-NON-MAITRISE devient prioritaire. Suite : bump ressource iakaInstall vers 0.41.0 (AR-P5) → v0.1.2. Push Forgejo EN ATTENTE. |
+| Fichiers (suivis + non ignores) | 1218 |
+| Note | CI-RELEASE-LATEST-NON-MAITRISE livre et fusionne (gate PASS, 1191 tests) : cause = comparaison morte depuis R-2 (make_latest calcule a false, 3 runs prouves) ; correctif = tag courant dans la population avant tri, filet actif gh release edit --latest + re-mesure, 3 actions epinglees au SHA (CI-RELEASE-AUCUN-EPINGLAGE solde), jambe d execution shell (29 tests), registre re-ancre (474 -> 473). Reste au decideur : v0.41.1-rc.1 (ne doit PAS devenir latest) puis v0.42.0 = LA preuve ; push github, pas origin. Successeur REGISTRE-REPLI-LATEST-DETTE-CROISEE. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `52f5f22` | 2026-09-06 | merge: bump 0.41.0 — etapes 3/4 sur les 3 OS prouvees, pret a taguer (gate Legolas PASS) |
-| `ea3ff59` | 2026-09-06 | docs(qualite): gate bump 0.41.0 — PASS |
-| `a61e475` | 2026-09-06 | docs: consigner les deux runs reels du banc (33997947501, 33999564308) |
-| `2a320d2` | 2026-09-06 | docs(releases): notes de version v0.41.0 |
-| `7f98b2c` | 2026-09-06 | docs: renommer le sigle AR-W20 en AR-W5(a), precision uninstall synchrone |
-| `0272527` | 2026-09-06 | test(install): temoin CA-M8 sur 0.41.0 |
-| `3af849e` | 2026-09-06 | refactor(test): deriver faireReservoirVivant() de l'autorite de version |
-| `0557613` | 2026-09-06 | chore(cli): bump 0.40.0 -> 0.41.0 (source unique de version) |
-| `3baf20e` | 2026-09-06 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `610c2bd` | 2026-09-06 | merge: fix rollback Windows — uninstall.exe /S _?= synchrone + confirmation par registre (gate Legolas PASS) |
+| `69f1d34` | 2026-09-08 | merge: CI-RELEASE-LATEST-NON-MAITRISE — comparaison de rang corrigee, filet actif, actions epinglees, jambe d execution (gate Legolas PASS) |
+| `a5fc9b1` | 2026-09-08 | docs(qualite): gate CI-RELEASE-LATEST-NON-MAITRISE — PASS (écart remote signalé) |
+| `714f92b` | 2026-09-08 | chore(registre): payer la dette du repli-latest pour les 5 fichiers du lot |
+| `c660983` | 2026-09-08 | docs(backlog): corriger le titre CI-RELEASE-LATEST-NON-MAITRISE, solder l'epinglage |
+| `bf59904` | 2026-09-08 | docs(vitrine): rectifier l'enonce E-1 perime, daté (rejoue deux fois sur ce depot) |
+| `c49235c` | 2026-09-08 | docs(ci): inscrire la sixieme ecriture mesuree (make_latest=false a la creation AGIT) |
+| `2392bd9` | 2026-09-08 | fix(ci): make_latest calcule correctement + filet actif + epinglage SHA (AR-1/AR-2/AR-4) |
+| `c6c9ae9` | 2026-09-08 | test(ci): jambe d'execution AR-5(a) capturant le defaut make_latest=false EN ROUGE |
+| `a1e0072` | 2026-09-08 | docs(instruction): cadrages CI-RELEASE-LATEST-NON-MAITRISE et C-JSON-COUVERTURE-COMPLETE — verdicts comme recommande |
+| `824abde` | 2026-09-08 | merge: durcissement de la garde du banc — contrefactuels sur le texte reel (gate Legolas PASS) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -210,6 +210,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-08 09:17 | pause | v0.41.0 | main | CI-RELEASE-LATEST-NON-MAITRISE livre et fusionne (gate PASS, 1191 tests) : cause = comparaison morte depuis R-2 (make_latest calcule a false, 3 runs prouves) ; correctif = tag courant dans la population avant tri, filet actif gh release edit --latest + re-mesure, 3 actions epinglees au SHA (CI-RELEASE-AUCUN-EPINGLAGE solde), jambe d execution shell (29 tests), registre re-ancre (474 -> 473). Reste au decideur : v0.41.1-rc.1 (ne doit PAS devenir latest) puis v0.42.0 = LA preuve ; push github, pas origin. Successeur REGISTRE-REPLI-LATEST-DETTE-CROISEE. |
 | 2026-09-06 02:40 | version | v0.41.0 | main | v0.41.0 PUBLIEE (tag Stephane, run 34001818646, asset sha256 d8799b7d..., install.mjs + kits + etapes 3/4 multi-OS verifies sur l octet retelecharge). make_latest du workflow INERTE pour la 2e fois sur 2 publications (release creee, latest reste sur la precedente) → rattrapage gh release edit --latest par Aragorn ; CI-RELEASE-LATEST-NON-MAITRISE devient prioritaire. Suite : bump ressource iakaInstall vers 0.41.0 (AR-P5) → v0.1.2. Push Forgejo EN ATTENTE. |
 | 2026-09-06 01:53 | version | v0.41.0 | chore/bump-0.41.0 |  |
 | 2026-09-06 01:44 | pause | v0.40.0 | main | Premier run reel du banc (33997947501) : Linux 100 % vert ; Windows vert sauf les 2 rollbacks par uninstall.exe (code 0 mais cle de registre encore presente). Cause confirmee dans la doc NSIS : sans _?= le desinstalleur se copie dans TEMP et rend la main avant la fin. Correctif fusionne (gate PASS, 1160 tests) : /S _?=<InstallLocation> synchrone, relecture du registre avant tout verdict, residu uninstall.exe enonce. Ecart de methode : Gimli a nomme AR-W20 de son chef — precision d AR-W5(a), a renommer. Reste : 2e run du banc (decideur), bump 0.41.0, push Forgejo. |

@@ -968,5 +968,15 @@
     "dirty": false,
     "files": 1210,
     "note": "v0.41.0 PUBLIEE (tag Stephane, run 34001818646, asset sha256 d8799b7d..., install.mjs + kits + etapes 3/4 multi-OS verifies sur l octet retelecharge). make_latest du workflow INERTE pour la 2e fois sur 2 publications (release creee, latest reste sur la precedente) → rattrapage gh release edit --latest par Aragorn ; CI-RELEASE-LATEST-NON-MAITRISE devient prioritaire. Suite : bump ressource iakaInstall vers 0.41.0 (AR-P5) → v0.1.2. Push Forgejo EN ATTENTE."
+  },
+  {
+    "date": "2026-09-08 09:17",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "69f1d34 merge: CI-RELEASE-LATEST-NON-MAITRISE — comparaison de rang corrigee, filet actif, actions epinglees, jambe d execution (gate Legolas PASS)",
+    "dirty": false,
+    "files": 1218,
+    "note": "CI-RELEASE-LATEST-NON-MAITRISE livre et fusionne (gate PASS, 1191 tests) : cause = comparaison morte depuis R-2 (make_latest calcule a false, 3 runs prouves) ; correctif = tag courant dans la population avant tri, filet actif gh release edit --latest + re-mesure, 3 actions epinglees au SHA (CI-RELEASE-AUCUN-EPINGLAGE solde), jambe d execution shell (29 tests), registre re-ancre (474 -> 473). Reste au decideur : v0.41.1-rc.1 (ne doit PAS devenir latest) puis v0.42.0 = LA preuve ; push github, pas origin. Successeur REGISTRE-REPLI-LATEST-DETTE-CROISEE."
   }
 ]
