@@ -1,0 +1,24 @@
+frame verify : OK - 288 fichiers, 0 fuite bloquante.
+  miroir : <REPO>/frames/releases/StefFrame2
+
+  G1  Secrets & infra                           0  ok
+  G2  Marque / portefeuille (allowlist)         0  ok
+  G3  Identite du decideur                      0  ok
+  G4  Couche produit & references pendantes     0  ok
+  G5  Ports d'infra                             0  ok
+  G6  Noms propres residuels                   21  avertissement
+
+  G6 - 21 avertissement(s), 1 token(s) distinct(s).
+      Hermes
+      --verbose pour le detail (non bloquant par construction).
+
+  Ce que le gate n'attrape PAS (relecture humaine toujours requise avant diffusion) :
+    - Un nom propre minuscule sans prefixe de marque : `hermes` en prose passe tout (G2 ne le voit pas, G6 non plus).
+    - Un fait prive sans nom propre (« le serveur du salon », « mon fils ») : structurellement invisible, aucune classe de motifs n'atteint la semantique.
+    - Une IP publique ou un domaine reel : G1 ne cible que les plages privees ; elargir produirait un bruit inacceptable.
+    - Un port de l'allowlist, ou ecrit en variable/calcul (`PORT_BASE + 1`).
+    - Le contenu des archives `.zip` et de tout binaire : non inspectable.
+    - Une fuite entree dans le CANON : les gates portent sur le miroir, elle n'est vue qu'a la propagation suivante.
+    - La casse et les variantes TYPOGRAPHIQUES au-dela du prevu. G2/G3 sont casse-insensibles, mais la forme SEPAREE d'un terme de marque (`iaka-hub`, `iaka.cloud`, `iaka_secret`) N'EST PAS couverte : `RE_BRAND` s'arrete au separateur et retombe sur `iaka`, qui est dans l'allowlist. Arbitrage ASSUME : `iaka` nu compte 32 occurrences legitimes dans le miroir ; le retirer de l'allowlist rendrait le gate inutilisable. La forme COLLEE (`iakaHub`, `iakabox`) reste, elle, bien attrapee.
+    - G6 ne lit que les fichiers `.md`, et seulement leur PROSE : un nom propre dans du code source (`.js`, `.ps1`…), dans un bloc de code ``` ou dans un span `code` n'est pas signale. Mesure : 4 occurrences de `Hermes` sur 25 (3 dans un arbre en bloc de code, 1 dans un commentaire `.js`). Elargir noierait la sortie sous les identifiants de code (3020 occurrences brutes mesurees).
+    - Le gate ne rend PAS la relecture humaine inutile avant une diffusion a des tiers.

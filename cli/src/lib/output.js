@@ -7,6 +7,12 @@
 //   4. Erreur = { ok:false, error, ...diag } sur STDOUT, process.exitCode = 1, RIEN d'humain sur
 //      stderr en mode `--json`.
 //   5. `--json` est PARTOUT un booleen (aucune commande ne le detourne vers un fichier/valeur).
+//   6. ABSTENTION LEGALE (AR-J3, lot C-JSON-COUVERTURE-COMPLETE) : `ok:false` avec exit 0 est admis
+//      SI ET SEULEMENT SI la charge porte un champ `status` non vide qui NOMME l'abstention (« je
+//      n'ai rien pu mesurer » — ex. `vendor-check` quand le frere GUI est absent, status:"skipped").
+//      Reservee strictement a ce cas : JAMAIS a « j'ai mesure et c'est mauvais » (qui reste regle 4,
+//      exit 1). Un verbe qui rend `ok:false` sans `status` en exit 0 est un « accepte-et-ignore »
+//      deguise, pas une abstention (garde : cli/test/guard-json-couverture.test.js, CA-J4).
 // Ce module est le VERROU anti-derive : ajouter une sortie machine sans passer par lui doit etre
 // visible en revue (garde test/guard-json-output.test.js). Zero dependance runtime.
 

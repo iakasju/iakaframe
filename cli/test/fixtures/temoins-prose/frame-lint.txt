@@ -1,0 +1,9 @@
+frame lint --all : OK - 8 frame(s) validee(s).
+  design-thinking          ok
+  gtd                      ok  [1 avert.]
+  iakaframe                ok  [4 avert.]
+  kanban                   ok
+  lean-startup             ok
+  scrum                    ok  [1 avert.]
+  shapeup                  ok  [2 avert.]
+  waterfall                ok

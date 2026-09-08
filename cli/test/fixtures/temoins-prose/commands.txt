@@ -1,0 +1,45 @@
+╔══════════════╦════════════════════════════════════════════════════════════════════════╦════════════════════════════════════════════════╗
+║ verbe        ║ resume                                                                 ║ sous-verbes                                    ║
+╠══════════════╬════════════════════════════════════════════════════════════════════════╬════════════════════════════════════════════════╣
+║ onboard      ║ Met en place la methode : structure + Forgejo + commit + etat des l... ║                                                ║
+║ init         ║ Deploie le kit + marqueur .iakaframe (non destructif)                  ║                                                ║
+║ snapshot     ║ Etat des lieux du projet (journal + MD + HTML)                         ║                                                ║
+║ update       ║ Checkpoint : snapshot + commit global + push                           ║                                                ║
+║ install      ║ Chaine complete d'installation (4 etapes, lots A+C.1+CONTRAT-MACHIN... ║                                                ║
+║ repo         ║ Branche le remote d'un depot git EXISTANT (geste provider-neutre)      ║                                                ║
+║ services     ║ Sonde git(Forgejo) / Ollama / ComfyUI                                  ║                                                ║
+║ canaux       ║ Etat des depots synchrones, MESURE EN DIRECT (a jour/retard/avance/... ║                                                ║
+║ endpoints    ║ Pendant en LECTURE de canaux : etat MESURE des endpoints d'auto-upd... ║                                                ║
+║ config       ║ Ecrit/maj <projet>/iakaframe.json (runner + nœud)                      ║                                                ║
+║ agents       ║ Equipe de personas : list | affect | fullteam | status                 ║ list, affect, fullteam, status                 ║
+║ skills       ║ Deploie l'union resolue des skills -> <cible>/.claude/skills/ (non ... ║ deploy                                         ║
+║ models       ║ Modeles d'IA suggeres par roleKey + mise a disposition (INTERACTIF)    ║ set, unset                                     ║
+║ go           ║ Lance action du projet via son runner (claude-code|ollama|litellm|c... ║                                                ║
+║ banner       ║ Titre ASCII (FIGlet embarque, zero dep)                                ║                                                ║
+║ brief        ║ Entree projet : titre + tableau (derniere etape + backlog) + agents    ║                                                ║
+║ recap        ║ Fermeture : tableau recap session (commits + agents + projet)          ║                                                ║
+║ jalon        ║ Cadre un jalon (gate) : titre Standard + tableau emetteur/contenu/r... ║                                                ║
+║ list         ║ Inventaire de la bibliotheque (pool + assemblages) par scan            ║                                                ║
+║ show         ║ Contrat d'un atome/assemblage : frontmatter + corps                    ║                                                ║
+║ add          ║ Livre un assemblage, ou scaffolde un atome de pool type neuf (valid... ║                                                ║
+║ remove       ║ Retire l'assemblage/skill : team|method|binding|skill (le - de add)    ║                                                ║
+║ attach       ║ Attache un skill a un persona : mute skills:[] du persona              ║                                                ║
+║ detach       ║ Detache un skill d'un persona : retire de skills:[] (le - de attach)   ║                                                ║
+║ assemble     ║ Compose un kit (methode+team[+binding]) - dry-run par defaut           ║                                                ║
+║ vendor-check ║ Constate que les 86 fixtures vendorees de iakaFrameGUI sont fideles... ║                                                ║
+║ frame        ║ Garde d'anonymisation du miroir + graphe + ossature d'un frame         ║ verify, lint, new, use                         ║
+║ switch       ║ Bascule un PROJET (execution) vers une methode/team (alias : use)      ║                                                ║
+║ memory       ║ Canon du portefeuille : init|path|config|list|add|replace|remove       ║ init, path, config, list, add, replace, remove ║
+║ produit      ║ Canon PROJET (connaissance du produit, revisee EN PLACE, versionnee... ║ init, path, config, list, add, replace, remove ║
+║ open         ║ Charge le canon (PROFIL+REGISTRE) a l'ouverture, scope-agnostique, ... ║                                                ║
+║ recall       ║ Rappel plein-texte sur l'historique brut du canon (transcripts/)       ║                                                ║
+║ close        ║ Revue de cloture : rejoue transcripts/ -> propositions typees dans ... ║                                                ║
+║ review       ║ Revue du reservoir (garde de consentement) : list|show|apply|reject... ║ list, show, apply, reject, auto                ║
+║ consolidate  ║ Consolidation initiale : fond les fiches memoire portefeuille en un... ║                                                ║
+║ observe      ║ Observation SILENCIEUSE d'Odin (store non-gate, distinct du canon r... ║ list                                           ║
+║ portfolio    ║ Vue agregee du portefeuille (LECTURE SEULE) : def/version/arbre/com... ║                                                ║
+║ range        ║ Sauvegarde le portefeuille (depot restic chiffre), SUR COMMANDE ; -... ║                                                ║
+║ root         ║ Affiche le dossier chapeau resolu (~/work | C:\work)                   ║                                                ║
+║ commands     ║ Inventaire machine des verbes et sous-verbes (source unique de l'ai... ║                                                ║
+╚══════════════╩════════════════════════════════════════════════════════════════════════╩════════════════════════════════════════════════╝
+Total verbes : 40

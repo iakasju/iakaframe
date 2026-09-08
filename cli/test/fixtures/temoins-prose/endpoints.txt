@@ -1,0 +1,8 @@
+
+=== iakaframe endpoints : . ===
+mesure EN DIRECT le <TS>
+  [--]  127.0.0.1:1                  injoignable (pas de reponse, <MS> ms)
+
+RETENU : AUCUN — aucun endpoint ne sert de manifeste exploitable.
+REDONDANCE : 0 canal sert — CA-11 NON tenu : rien sur quoi basculer.
+
