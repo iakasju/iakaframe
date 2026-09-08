@@ -1,8 +1,11 @@
 // CA-J8 (specs/instructions/c-json-couverture-complete.md § 5 étape 1 / § 8) — la prose HUMAINE
 // des verbes touchés par le lot C-JSON-COUVERTURE-COMPLETE (J0 : `config` ; J1 : les 9 lecteurs
-// purs) ne bouge pas d'un octet. Les témoins (cli/test/fixtures/temoins-prose/*.txt) ont été
-// enregistrés à l'ÉTAPE 1 du lot, AVANT toute modification de production — un témoin enregistré
-// après coup n'aurait rien prouvé (même discipline que CA-M8, cli/test/install-prose-non-regression.test.js).
+// purs ; J2 : les 9 écrivains/interactifs) ne bouge pas d'un octet. Les témoins
+// (cli/test/fixtures/temoins-prose/*.txt) ont été enregistrés à l'ÉTAPE 1 du lot, AVANT toute
+// modification de production — un témoin enregistré après coup n'aurait rien prouvé (même
+// discipline que CA-M8, cli/test/install-prose-non-regression.test.js). Pour J2, aucune ligne de
+// `cli/src/commands/*.js` n'est modifiée par ce lot (§ 2 : lot de gardes) : le témoin protège contre
+// une régression FUTURE, pas contre celle de ce commit.
 //
 // NORMALISATION (liste ÉCRITE, volontairement COURTE) : les seuls jetons remplacés sont ceux dont
 // la valeur est un ARTEFACT D'EXÉCUTION (chemin de sandbox jetable, horodatage ISO, latence en ms),
@@ -10,14 +13,26 @@
 //   - <TS>          horodatage ISO de `endpoints` (mesure « EN DIRECT »)
 //   - <MS>           latence en ms de la sonde `endpoints`
 //   - <REPO>         racine du dépôt (chemin absolu, dépend de la machine)
-//   - <PROJ>         dossier projet jetable (`produit path`/`config`/`list`)
+//   - <PROJ>         dossier projet jetable (`produit path`/`config`/`list`, `skills`, `models set`,
+//                    `switch`)
+//   - <LIB>          bibliothèque jetable (`add`, `remove`)
+//   - <TRASH>        dossier de corbeille horodaté `.trash-<ts>` (`remove`)
+//   - <SRC> / <HOME> source/canon jetables (`consolidate`)
+//   - <ROOT>         chapeau jetable (`range --list`)
 //   - <GUI_ABSENT>   chemin jetable inexistant passé à IAKAFRAME_GUI_ROOT (`vendor-check`)
 //
 // CAVEAT ASSUMÉ (à nommer, pas à cacher) : `frame verify` et `frame lint --all` lisent le contenu
 // RÉEL du dépôt (miroir frames/releases/, bibliothèque de frames). Si ce contenu évolue pour une
 // raison sans rapport avec ce lot (un frame ajouté, un token G6 de plus), CE témoin devra être
 // régénéré dans LE COMMIT qui fait bouger ce contenu — ce n'est pas une régression du lot C-JSON,
-// c'est la garde qui fait exactement ce qu'elle promet : signaler qu'un octet a changé.
+// c'est la garde qui fait exactement ce qu'elle promet : signaler qu'un octet a changé. MÊME CAVEAT
+// pour `skills` et `switch` (J2) : la liste des skills/personas déployés reflète le contenu RÉEL de
+// `library/` — un skill ajouté au dépôt fait bouger ces deux témoins, sans rapport avec ce lot.
+//
+// PÉRIMÈTRE ASSUMÉ (J2) : `models` (bare, sans sous-verbe) N'A PAS de témoin ici — sa prose humaine
+// affiche un âge de suggestions calculé PAR RAPPORT À AUJOURD'HUI (non déterministe d'un jour sur
+// l'autre) et son chemin interactif est explicitement réservé à J3 (AR-J4, § 4 « Exclu » de ce
+// lot). `models set`/`unset`, eux, sont déterministes et témoignés.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
@@ -92,4 +107,69 @@ test('CA-J8 : vendor-check en abstention (prose) inchangée, hors chemin jetable
   const absent = path.join(os.tmpdir(), 'iakaframe-gui-absent-temoin-test-' + Date.now());
   const normalise = normaliser(run(['vendor-check'], { IAKAFRAME_GUI_ROOT: absent }), [[absent, '<GUI_ABSENT>']]);
   comparer('vendor-check', normalise);
+});
+
+// =================================================================================================
+// J2 (C-JSON-COUVERTURE-COMPLETE, § 5 étape 6) — témoins des 9 écrivains/interactifs. Mêmes bacs à
+// sable (drapeaux de redirection existants, AR-J2(b)) que cli/test/guard-json-output.test.js, mais
+// des SANDBOXES INDÉPENDANTES (jamais partagées entre les deux fichiers) : un témoin de prose n'a
+// pas à connaître l'état d'un autre test.
+// =================================================================================================
+
+function ecrireLib(root, fichiers) {
+  for (const [rel, contenu] of fichiers) {
+    const p = path.join(root, rel);
+    fs.mkdirSync(path.dirname(p), { recursive: true });
+    fs.writeFileSync(p, contenu);
+  }
+}
+
+test('CA-J8 : skills (prose) inchangée, hors chemin du projet jetable', () => {
+  const PROJ = tmp('iaka-prose-skills-');
+  comparer('skills', normaliser(run(['skills', '--project', PROJ]), [[PROJ, '<PROJ>']]));
+});
+
+test('CA-J8 : models set (prose) inchangée, hors chemin du projet jetable', () => {
+  const PROJ = tmp('iaka-prose-models-');
+  comparer('models-set', normaliser(run(['models', 'set', 'gimli', 'sonnet', '--path', PROJ]), [[PROJ, '<PROJ>']]));
+});
+
+test('CA-J8 : add (prose) inchangée, hors chemin de la bibliothèque jetable', () => {
+  const LIB = tmp('iaka-prose-add-');
+  comparer('add', normaliser(run(['add', 'skill', 'demo-skill-add-temoin', '--root', LIB]), [[LIB, '<LIB>']]));
+});
+
+test('CA-J8 : remove (prose) inchangée, hors chemin de bibliothèque et horodatage de corbeille', () => {
+  const LIB = tmp('iaka-prose-remove-');
+  ecrireLib(LIB, [['library/skills/orphan-skill-temoin/SKILL.md', '---\nid: orphan-skill-temoin\nname: orphelin\n---\n# skill orphelin temoin\n']]);
+  const out = normaliser(run(['remove', 'skill', 'orphan-skill-temoin', '--root', LIB]), [[LIB, '<LIB>']])
+    .replace(/\.trash-\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}/g, '<TRASH>');
+  comparer('remove', out);
+});
+
+test('CA-J8 : attach/detach (prose) inchangée, hors chemin de bibliothèque jetable', () => {
+  const LIB = tmp('iaka-prose-attach-');
+  ecrireLib(LIB, [
+    ['library/personas/p-temoin.md', '---\nid: p-temoin\nname: Temoin\nroleKey: dev\nskills: []\n---\n# p-temoin\n'],
+    ['library/skills/demo-skill-temoin/SKILL.md', '---\nid: demo-skill-temoin\nname: demo\n---\n# skill demo temoin\n'],
+  ]);
+  comparer('attach', normaliser(run(['attach', 'demo-skill-temoin', '--persona', 'p-temoin', '--root', LIB]), [[LIB, '<LIB>']]));
+  comparer('detach', normaliser(run(['detach', 'demo-skill-temoin', '--persona', 'p-temoin', '--root', LIB]), [[LIB, '<LIB>']]));
+});
+
+test('CA-J8 : switch (prose) inchangée, hors chemin du projet jetable', () => {
+  const PROJ = tmp('iaka-prose-switch-');
+  comparer('switch', normaliser(run(['switch', 'iakaframe', 'iakaframe-8', '--path', PROJ]), [[PROJ, '<PROJ>']]));
+});
+
+test('CA-J8 : consolidate (prose) inchangée, hors chemins source/canon jetables', () => {
+  const SRC = tmp('iaka-prose-consolidate-src-');
+  const HOME = tmp('iaka-prose-consolidate-home-');
+  comparer('consolidate', normaliser(run(['consolidate', '--home', HOME, '--source', SRC]), [[SRC, '<SRC>'], [HOME, '<HOME>']]));
+});
+
+test('CA-J8 : range --list (prose) inchangée, hors chemin du chapeau jetable', () => {
+  const ROOT = tmp('iaka-prose-range-');
+  fs.mkdirSync(path.join(ROOT, 'demo-projet-temoin', '.git'), { recursive: true });
+  comparer('range-list', normaliser(run(['range', '--list', '--root', ROOT]), [[ROOT, '<ROOT>']]));
 });

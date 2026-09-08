@@ -1,0 +1,1 @@
++ skill demo-skill-temoin attaché à p-temoin  (skills: [demo-skill-temoin])

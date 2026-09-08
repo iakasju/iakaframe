@@ -1,0 +1,9 @@
+Consolidation initiale — source <SRC>
+  0 fiche(s) lue(s), 0 ignorée(s) — canon (staging) <HOME>
+  PROFIL : 168/2000 chars — 0 retenue(s), 0 écartée(s)
+  REGISTRE : 176/3200 chars — 0 retenue(s), 0 écartée(s)
+
+Aperçu + diff dans : <HOME>/consolidation
+  PROFIL.proposed.md · REGISTRE.proposed.md · DIFF.md · RAPPORT.md
+
+Le canon réel n'est PAS muté. Revoir le DIFF puis appliquer à la main = geste humain gate (§ 8).

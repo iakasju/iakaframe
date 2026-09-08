@@ -1,0 +1,4 @@
+OK - surcharge posee : gimli -> sonnet  (<PROJ>/iakaframe.json)
+  contrat de projet : <PROJ>/.claude/agents/gimli.md
+  ! projection non ignoree par le .gitignore de ce projet : ajouter '/.claude/agents/'
+    (A-3 : la decision reste versionnee dans iakaframe.json, la projection ne l'est pas)

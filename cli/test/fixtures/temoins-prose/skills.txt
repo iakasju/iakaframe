@@ -1,0 +1,22 @@
+Deploiement des skills -> <PROJ>/.claude/skills :
+  + iakaframe-odin                 written
+  + iakastart                      written
+  + iakaframe-aragorn              written
+  + iakaframe-jalon                written
+  + iakaframe-cadrage              written
+  + iakaframe-lecture-maquettes    written
+  + iakaframe-fabrication          written
+  + iakaframe-gestion-de-source    written
+  + iakaframe-git                  written
+  + iakaframe-forgejo              written
+  + iakaframe-conteneurisation     written
+  + iakaframe-docker               written
+  + iakaframe-qualite              written
+  + iakaframe-deploiement          written
+  + iakaframe-surveillance         written
+  + iakaframe-naonedge             written
+  + iakaframe-nathalie             written
+  + iakaframe-memoire-humaine      written
+  + iakaframe-appflowy-doc         written
+  + iakaframe-frame                written
+20 skill(s) dans l'union deployee.

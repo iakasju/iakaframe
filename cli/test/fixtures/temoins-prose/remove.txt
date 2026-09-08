@@ -1,0 +1,2 @@
+− skill orphan-skill-temoin retiré (archivé dans <LIB>/<TRASH>)
+  trace : <LIB>/<TRASH>/manifest.json  (restaurable)

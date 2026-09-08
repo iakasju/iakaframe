@@ -1,0 +1,4 @@
+bascule <PROJ> → méthode iakaframe / team iakaframe-8 (node claude)
+  personas déployées : odin, aragorn, gandalf, gimli, legolas, charon, helm, loki, nathalie, feanor
+  skills déployées   : iakaframe-odin, iakastart, iakaframe-aragorn, iakaframe-jalon, iakaframe-cadrage, iakaframe-lecture-maquettes, iakaframe-fabrication, iakaframe-gestion-de-source, iakaframe-git, iakaframe-forgejo, iakaframe-conteneurisation, iakaframe-docker, iakaframe-qualite, iakaframe-deploiement, iakaframe-surveillance, iakaframe-naonedge, iakaframe-nathalie, iakaframe-memoire-humaine, iakaframe-appflowy-doc, iakaframe-frame
+  marqueur : .claude/iakaframe-kit.json
