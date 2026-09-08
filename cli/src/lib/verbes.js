@@ -127,7 +127,7 @@ export const VERBES = [
   {
     id: 'config',
     resume: "Ecrit/maj <projet>/iakaframe.json (runner + nœud)",
-    options: ['--path <dir>', '--runner claude-code|ollama|litellm|codex', '--node <n>', '--aider-model <m>'],
+    options: ['--path <dir>', '--runner claude-code|ollama|litellm|codex', '--node <n>', '--aider-model <m>', '--json'],
     sousVerbes: [],
     parametres: [
       { nom: 'runner', autorite: { symbole: 'RUNNER_KINDS', module: 'lib/vocab.js' } },

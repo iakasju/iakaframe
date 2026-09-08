@@ -3,6 +3,7 @@
   "horsCouvertureCount": 14,
   "verbes": [
     { "id": "install", "couverture": ["c-json", "evenements"] },
+    { "id": "config", "couverture": ["c-json"] },
     { "id": "list", "couverture": ["c-json"] },
     { "id": "show", "couverture": ["c-json"] },
     { "id": "assemble", "couverture": ["c-json"] },
