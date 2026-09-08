@@ -653,6 +653,19 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
       d'autre ») et l'a remontée au lieu de la garder : geste juste des deux côtés, l'omission
       était la mienne.
 
+- [ ] **C-JSON-COUVERTURE-COMPLETE — J3 restant (interactifs & verrou).** Cadrage
+      `specs/instructions/c-json-couverture-complete.md`. **J0+J1 gatés PASS** (`docs/qualite/gate-c-json-j0-j1.md`,
+      cliquet 14 → 9) ; **J2 fermé par ⚒️ Gimli le 2026-09-08** (branche `feat/c-json-j2`, non encore
+      gaté) : les 9 derniers verbes du registre (`skills`, `models`, `add`, `remove`, `attach`,
+      `detach`, `switch`, `consolidate`, `range`) sont mesurés en bac à sable (drapeaux de
+      redirection existants, AR-J2(b) — zéro `--dry-run` inventé, zéro ligne de production hors
+      2 lignes de doc `--root` manquantes sur `add`/`attach`/`detach`), `couverture-json.json` :
+      `horsCouvertureCount` **9 → 0**. Suite complète 1244/1243/0/1.
+      **Reste (J3)** : le refus explicite `--json`/`--guide` (AR-J4(c), 9 sites de production /
+      10 cibles guidées) et la **garde de complétude G-J1** (qui rend l'échappatoire
+      `hors-couverture` impossible plutôt que seulement vide à l'instant T) — cf. § 5 étapes 7-8 et
+      § 8 CA-J12/CA-J13 du cadrage. **Attend le gate Legolas de J2** avant d'être engagé.
+
 ## Fait
 
 ### Soldé le 2026-09-08 (lot `fix/ci-release-latest`, cadrage `ci-release-latest-non-maitrise.md`)
