@@ -1,6 +1,6 @@
 {
-  "_lisezMoi": "Registre de couverture C-JSON (contrat-machine-du-verbe-install.md § 4 point 6, CA-M16). Une entree par verbe declarant '--json' dans cli/src/lib/verbes.js (top-level OU sous-verbe) — le compte est DERIVE de verbes.js par le test, jamais ecrit en dur ici. 'hors-couverture' = pas encore mesure par guard-json-output.test.js:NOMINAL (M-10) ; chaque entree hors-couverture PORTE UN MOTIF. Le champ horsCouvertureCount est le CLIQUET : toute variation doit etre visible dans CE commit.",
-  "horsCouvertureCount": 14,
+  "_lisezMoi": "Registre de couverture C-JSON (contrat-machine-du-verbe-install.md § 4 point 6, CA-M16 ; grain VERBE tenu par arbitrage AR-J1(b) du lot C-JSON-COUVERTURE-COMPLETE — le grain fin, SOUS-VERBE, est porte par NOMINAL/ERRORS de guard-json-output.test.js, jamais ici). Une entree par verbe declarant '--json' dans cli/src/lib/verbes.js (top-level OU sous-verbe) — le compte est DERIVE de verbes.js par le test, jamais ecrit en dur ici. 'hors-couverture' = pas encore mesure par guard-json-output.test.js:NOMINAL/ERRORS ; chaque entree hors-couverture PORTE UN MOTIF. Vocabulaire de couverture : 'c-json' (NOMINAL), 'c-json-erreur' (ERRORS), 'evenements' (--events, install). Le champ horsCouvertureCount est le CLIQUET : toute variation doit etre visible dans CE commit.",
+  "horsCouvertureCount": 9,
   "verbes": [
     { "id": "install", "couverture": ["c-json", "evenements"] },
     { "id": "config", "couverture": ["c-json"] },
@@ -17,19 +17,19 @@
     { "id": "services", "couverture": ["c-json"] },
     { "id": "canaux", "couverture": ["c-json"] },
     { "id": "portfolio", "couverture": ["c-json"] },
-    { "id": "endpoints", "couverture": ["hors-couverture"], "motif": "verbe de lecture reseau (mesure d'auto-update) — pas encore mesure par NOMINAL, aucun cas nominal SANS reseau identifie. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "skills", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot (CONTRAT-MACHINE-DU-VERBE-INSTALL ne porte que sur install). Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "models", "couverture": ["hors-couverture"], "motif": "process interactif multi-etapes (cf. docs/commandes.md), pas de cas nominal simple sans hote reseau. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "add", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — verbe d'ecriture sur fichier fourni, pas mesure par NOMINAL. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "remove", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — symetrique de `add`, non mesure par NOMINAL. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "attach", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — necessite une paire skill/persona existante en fixture, non montee par NOMINAL. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "detach", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — symetrique de `attach`. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "vendor-check", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — verifie une copie GUI externe (IAKAFRAME_GUI_ROOT), pas de cas nominal sans cette dependance. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "frame", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — sous-verbes de composition de frame, non montes par NOMINAL. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "switch", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — bascule le pointeur .iakaframe d'un projet, pas mesure par NOMINAL. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "produit", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — canon PROJET, memes sous-verbes que `memory` mais jamais montes par NOMINAL. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "consolidate", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — non mesure par NOMINAL. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "range", "couverture": ["hors-couverture"], "motif": "hors perimetre de ce lot — non mesure par NOMINAL. Successeur : C-JSON-COUVERTURE-COMPLETE" },
-    { "id": "commands", "couverture": ["hors-couverture"], "motif": "utilise par les gardes de registre elles-memes (guard-verbes-registre.test.js) mais jamais ajoute a NOMINAL de guard-json-output.test.js. Successeur : C-JSON-COUVERTURE-COMPLETE" }
+    { "id": "endpoints", "couverture": ["c-json"] },
+    { "id": "frame", "couverture": ["c-json"] },
+    { "id": "produit", "couverture": ["c-json"] },
+    { "id": "commands", "couverture": ["c-json"] },
+    { "id": "vendor-check", "couverture": ["c-json-erreur"] },
+    { "id": "skills", "couverture": ["hors-couverture"], "motif": "hors perimetre du lot J1 (lecteurs purs) — verbe ECRIVAIN (deploie des skills sur disque), a mesurer en bac a sable J2. Successeur : C-JSON-COUVERTURE-COMPLETE (lot J2)" },
+    { "id": "models", "couverture": ["hors-couverture"], "motif": "process interactif multi-etapes (cf. docs/commandes.md), pas de cas nominal simple sans hote reseau — J2 (set/unset ecrivains) ou J3 (top-level interactif). Successeur : C-JSON-COUVERTURE-COMPLETE" },
+    { "id": "add", "couverture": ["hors-couverture"], "motif": "hors perimetre du lot J1 — verbe d'ecriture sur fichier fourni, a mesurer en bibliotheque jetable J2. Successeur : C-JSON-COUVERTURE-COMPLETE (lot J2)" },
+    { "id": "remove", "couverture": ["hors-couverture"], "motif": "hors perimetre du lot J1 — symetrique de `add`, ecrivain, J2. Successeur : C-JSON-COUVERTURE-COMPLETE (lot J2)" },
+    { "id": "attach", "couverture": ["hors-couverture"], "motif": "hors perimetre du lot J1 — necessite une paire skill/persona existante en fixture jetable, ecrivain, J2. Successeur : C-JSON-COUVERTURE-COMPLETE (lot J2)" },
+    { "id": "detach", "couverture": ["hors-couverture"], "motif": "hors perimetre du lot J1 — symetrique de `attach`, ecrivain, J2. Successeur : C-JSON-COUVERTURE-COMPLETE (lot J2)" },
+    { "id": "switch", "couverture": ["hors-couverture"], "motif": "hors perimetre du lot J1 — bascule le pointeur .iakaframe d'un projet, ecrivain, J2. Successeur : C-JSON-COUVERTURE-COMPLETE (lot J2)" },
+    { "id": "consolidate", "couverture": ["hors-couverture"], "motif": "hors perimetre du lot J1 — ecrivain (staging de consolidation), J2. Successeur : C-JSON-COUVERTURE-COMPLETE (lot J2)" },
+    { "id": "range", "couverture": ["hors-couverture"], "motif": "hors perimetre du lot J1 — ecrivain (depot restic), deja --dry-run, J2. Successeur : C-JSON-COUVERTURE-COMPLETE (lot J2)" }
   ]
 }
