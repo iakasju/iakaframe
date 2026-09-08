@@ -1,0 +1,3 @@
+Canon produit (<PROJ>/specs/canon/PRODUIT.md) :
+  plafond       : PRODUIT ≤ 4000 caractères
+  consolidation : 80 %

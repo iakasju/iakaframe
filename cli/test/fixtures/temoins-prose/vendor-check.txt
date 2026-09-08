@@ -1,0 +1,4 @@
+vendor-check : SKIP - depot iakaFrameGUI introuvable (clone isole) - aucune comparaison effectuee
+  chemins essayes :
+    - <GUI_ABSENT>
+  override : IAKAFRAME_GUI_ROOT=<chemin absolu vers iakaFrameGUI>
