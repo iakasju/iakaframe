@@ -988,5 +988,15 @@
     "dirty": false,
     "files": 1230,
     "note": "C-JSON J0+J1 livres et fusionnes (gate PASS, 1214 tests) : inconnue n1 levee par execution (aucun verbe accepte-et-ignore, lot de PREUVE), config declare, regle 6 du contrat, garde de derivation declare<->parse<->documente, 9 lecteurs purs en NOMINAL, cliquet 14 -> 9, temoins de prose. J2 engage (ecrivains en bac a sable, cliquet 9 -> 0) sur recommandation du gate. Successeurs : frame verify sans count, J3 (AR-J4 + garde de completude)."
+  },
+  {
+    "date": "2026-09-08 11:30",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "f3e4591 merge: C-JSON-COUVERTURE-COMPLETE J2 — 9 ecrivains en bac a sable, cliquet 9 -> 0 (gate Legolas PASS)",
+    "dirty": false,
+    "files": 1240,
+    "note": "C-JSON J2 livre et fusionne (gate PASS, 1245 tests) : les 9 ecrivains/interactifs prouves en bac a sable strict (grain sous-verbe, drapeaux existants), garde d empreinte disque du depot reel, cliquet 9 -> 0. Ecart pour J3 : verbes.js ne declare pas --root sur attach/detach (parse + documente). J3 = refus explicite --json/--guide (AR-J4c, 9 sites) + garde de completude G-J1 + --root declare. Successeur : frame verify sans count."
   }
 ]
