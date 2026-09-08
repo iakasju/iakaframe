@@ -88,6 +88,17 @@ jobs:
       # │ BOOLEEN (`strconv.ParseBool`), donc le regime `legacy` est HORS D'ATTEINTE de           │
       # │ `gh`.                                                                                   │
       # │                                                                                         │
+      # │ SIXIEME ECRITURE, MESUREE le 2026-09-05/06, SUR CE DEPOT-CI (pas sur le banc) — la      │
+      # │ PREMIERE de la serie a etre mesuree hors banc. Observation NEUVE (§ 2.3 de l'instruction │
+      # │ CI-RELEASE-LATEST-NON-MAITRISE) : `make_latest=false` pose A LA CREATION AGIT — le       │
+      # │ pointeur reste sur l'ancienne release — alors que `make_latest=false` par `PATCH` sur    │
+      # │ une release EXISTANTE (M2 ci-dessus) est INERTE. PAS UNE CONTRADICTION : poser un        │
+      # │ drapeau a la creation et retirer le pointeur d'une release qui le detient sont deux      │
+      # │ operations differentes. Source : runs 33959443438 (v0.40.0) et 34001818646 (v0.41.0),    │
+      # │ chacun a CREE sa release avec `make_latest=false` (calcule, § 2.1) et le pointeur EST    │
+      # │ RESTE sur la release precedente les deux fois — exactement le comportement AGIT.         │
+      # │   `make_latest=false` a la CREATION . . . . . . AGIT     33959443438 / 34001818646       │
+      # │                                                                                         │
       # │ OU SIEGE LE NO-OP : ni dans le client, ni dans le transport, ni dans la lecture.        │
       # │ M2 et M3b portent sur la MEME release, le MEME endpoint, le MEME champ, et seule        │
       # │ la VALEUR les separe — or M3b a bouge le pointeur. Il siege dans la SEMANTIQUE DE       │
