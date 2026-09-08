@@ -14,6 +14,9 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { ensureLayout } from '../src/lib/memory.js';
+import { close } from '../src/lib/close.js';
+import { listProposals } from '../src/lib/review.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const CLI = path.join(HERE, '..', 'src', 'index.js');
@@ -75,6 +78,21 @@ const INSTALL_APPS = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-install-a
 const INSTALL_BACKUPS = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-install-backups-'));
 const INSTALL_ENV = { IAKAFRAME_INSTALL_TEST_DOUBLE: '1' };
 
+// Canon jetable dedie a `review show` (lecteur J1, C-JSON-COUVERTURE-COMPLETE) : une proposition
+// deposee par le pipeline REEL (`close`), jamais une frontmatter ecrite a la main — meme patron que
+// cli/test/review.test.js:tmpCanonWithProposals. Le sous-verbe ne peut pas se mesurer sans au moins
+// UNE proposition en attente ; on la fabrique une fois, ici, pour tout le fichier.
+const REVIEW_HOME = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-review-'));
+ensureLayout(REVIEW_HOME);
+fs.mkdirSync(path.join(REVIEW_HOME, 'transcripts'), { recursive: true });
+fs.writeFileSync(
+  path.join(REVIEW_HOME, 'transcripts', 'seed.md'),
+  '@correction(registre) c-json :: la garde de sortie machine se mesure en execution\n'
+  + '@correction(registre) c-json :: la garde de sortie machine se mesure en execution\n',
+);
+close(REVIEW_HOME, { now: new Date('2026-09-08T00:00:00Z') });
+const REVIEW_PROPOSAL_ID = listProposals(REVIEW_HOME)[0]?.id;
+
 // (nom, args, cle de collection attendue | null pour une ressource/rapport a plat, env supplementaire)
 const NOMINAL = [
   ['list', ['list', '--json'], 'collections'],
@@ -102,6 +120,19 @@ const NOMINAL = [
     'evenements',
     INSTALL_ENV,
   ],
+  // --- J1 (C-JSON-COUVERTURE-COMPLETE) : les 9 lecteurs purs, grain SOUS-VERBE (AR-J1(b)) ---------
+  ['commands', ['commands', '--json'], 'verbes'],
+  // endpoints : hote injoignable en 127.0.0.1:1 + --timeout court (AR-J2(b) precision d'execution,
+  // meme patron que `services --hosts 127.0.0.1` ci-dessus) — la SONDE echoue, le RAPPORT reste ok:true.
+  ['endpoints', ['endpoints', '--json', '--url', 'http://127.0.0.1:1/x', '--timeout', '1'], 'essais'],
+  // frame verify : rapport a plat { ok, checked, findings } — PAS de cle `count` frere de `findings`
+  // (constate a l'etape 0, hors perimetre de ce lot, cf. rapport de remise) : collKey volontairement null.
+  ['frame verify', ['frame', 'verify', '--json'], null],
+  ['frame lint --all', ['frame', 'lint', '--all', '--json'], 'findings'],
+  ['review show', ['review', 'show', REVIEW_PROPOSAL_ID, '--json', '--home', REVIEW_HOME], null],
+  ['produit path', ['produit', 'path', '--json', '--project', PROJ], null],
+  ['produit config', ['produit', 'config', '--json', '--project', PROJ], null],
+  ['produit list', ['produit', 'list', '--json', '--project', PROJ], 'entries'],
 ];
 
 for (const [name, args, collKey, extraEnv] of NOMINAL) {
@@ -128,6 +159,17 @@ const ERRORS = [
   ['memory list sans cible', ['memory', 'list', '--json', '--home', HOME]],
   ['canaux hors depot git', ['canaux', '--json', '--path', EMPTY]],
   ['install <combinaison incoherente>', ['install', '--json', '--events', '--root', EMPTY], INSTALL_ENV],
+  // vendor-check --strict, frere GUI ABSENT (aucun --gui : resolution par IAKAFRAME_GUI_ROOT, cf.
+  // vendor.js:resolveGuiRoot) : l'ABSTENTION (regle 6, AR-J3) est PROMUE en erreur sous --strict
+  // (vendor-check.js:268-277) -> { ok:false, error: reason, status:'skipped' }, exit 1, stderr vide.
+  // C'est la SEULE forme de vendor-check qui porte reellement `error` (le cas DRIFT ne le porte
+  // pas — cf. rapport de remise § etape 0) ; c'est donc la seule eligible a la garde ERRORS
+  // generique (qui exige `typeof obj.error === 'string'`).
+  [
+    'vendor-check --strict <gui absent>',
+    ['vendor-check', '--strict', '--json'],
+    { IAKAFRAME_GUI_ROOT: path.join(EMPTY, 'gui-definitivement-absent') },
+  ],
 ];
 
 for (const [name, args, extraEnv] of ERRORS) {
@@ -143,5 +185,5 @@ for (const [name, args, extraEnv] of ERRORS) {
 }
 
 test.after(() => {
-  for (const d of [HOME, OBS, EMPTY, PROJ, GITD, BARE, INSTALL_CLAUDE, INSTALL_APPS, INSTALL_BACKUPS]) fs.rmSync(d, { recursive: true, force: true });
+  for (const d of [HOME, OBS, EMPTY, PROJ, GITD, BARE, INSTALL_CLAUDE, INSTALL_APPS, INSTALL_BACKUPS, REVIEW_HOME]) fs.rmSync(d, { recursive: true, force: true });
 });
