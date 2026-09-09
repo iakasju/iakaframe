@@ -1,0 +1,18 @@
+{
+  "_lisezMoi": "Registre du BALAYAGE de derivation option (specs/instructions/registre-options-root-path-projet.md, AR-R4). La garde generique verbesEnDeriveOption (guard-json-couverture.test.js) verifie 'declare <=> parse <=> documente' pour les 4 options listees dans optionsBalayees, sur TOUS les verbes reels — rien de plus. Ce fichier NOMME ce que ce balayage NE couvre PAS (horsBalayage), avec un motif NON VIDE et un successeur pour chaque entree, a l'image de couverture-json.json (horsCouvertureCount). Une garde doit dire ce qu'elle ne garde pas : ce registre est ce dire, jamais une liste blanche muette.",
+  "optionsBalayees": [
+    { "option": "--json", "motif": "contrat C-JSON (regle 5 : toujours booleen), balaye depuis J0-J3" },
+    { "option": "--root", "motif": "AR-R3(a) — chapeau (~/work) ou racine de bibliotheque selon le verbe, deux sens jamais unifies (index.js:110-111)" },
+    { "option": "--path", "motif": "AR-R3(a) — dossier projet/depot cible, semantique stable sur tous les verbes qui le declarent" },
+    { "option": "--project", "motif": "AR-R3(a) — deux familles non unifiees (<dir> vs <nom>, cf. mesures-etape-0-registre-options.md § Table C), mais chacune verifiee la ou elle est declaree" }
+  ],
+  "horsBalayage": [
+    { "verbe": "assemble", "option": "--node", "motif": "parse (assemble.js:34) sans etre au registre ; mesure par 🔵 Gandalf au cadrage (§ AR-R4), hors du triplet root/path/project balaye ici", "successeur": "REGISTRE-OPTIONS-BALAYAGE-COMPLET" },
+    { "verbe": "assemble", "option": "--force", "motif": "parse (assemble.js:35) sans etre au registre ; meme mesure", "successeur": "REGISTRE-OPTIONS-BALAYAGE-COMPLET" },
+    { "verbe": "assemble", "option": "--ascii", "motif": "parse (assemble.js:36) sans etre au registre ; meme mesure", "successeur": "REGISTRE-OPTIONS-BALAYAGE-COMPLET" },
+    { "verbe": "observe", "option": "--portfolio", "motif": "parse (observe.js:28) ET documente (docs/commandes.md, ligne observe) sans etre au registre — promesse publiee, inventaire machine muet", "successeur": "REGISTRE-OPTIONS-BALAYAGE-COMPLET" },
+    { "verbe": "commands", "option": "--ascii", "motif": "parse (commands.js:39) ET documente (docs/commandes.md, ligne commands) sans etre au registre", "successeur": "REGISTRE-OPTIONS-BALAYAGE-COMPLET" },
+    { "verbe": "models", "option": "--binding", "motif": "parse (models.js:1055) ET documente (docs/commandes.md, ligne models) sans etre au registre du sous-verbe concerne", "successeur": "REGISTRE-OPTIONS-BALAYAGE-COMPLET" }
+  ],
+  "horsBalayageCount": 6
+}

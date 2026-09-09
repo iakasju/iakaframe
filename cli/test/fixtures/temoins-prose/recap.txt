@@ -1,0 +1,7 @@
+╔═════════════════════╦════════════════════════════════════════════════════════════════╗
+║ Champ               ║ Valeur                                                         ║
+╠═════════════════════╬════════════════════════════════════════════════════════════════╣
+║ Projet              ║ PROJETTEMOIN                                                   ║
+║ Commits (session)   ║ (pas de depot git ou aucun commit)                             ║
+║ Personas mobilisees ║ aragorn, charon, gandalf, gimli, helm, legolas, loki, nathalie ║
+╚═════════════════════╩════════════════════════════════════════════════════════════════╝

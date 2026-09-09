@@ -16,6 +16,7 @@ import { VERBES } from '../src/lib/verbes.js';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const FIXTURE_PATH = path.join(HERE, 'fixtures', 'couverture-json.json');
+const FIXTURE_OPTIONS_PATH = path.join(HERE, 'fixtures', 'couverture-options.json');
 const CMD_DIR = path.join(HERE, '..', 'src', 'commands');
 const DOCS_PATH = path.join(HERE, '..', '..', 'docs', 'commandes.md');
 const CLI = path.join(HERE, '..', 'src', 'index.js');
@@ -234,7 +235,20 @@ function declareOption(v, option) {
   return false;
 }
 
+// ANGLE MORT (a), CA-R8, hérité de `gate-c-json-j3.md:260-264` et REDIT ici, jamais maquillé : la
+// dérivation est TEXTUELLE (`fs.readFileSync` + regex), pas un parsing AST. Une ligne `parseArgs`
+// NEUTRALISÉE par `//` compte encore comme « parsée » ; une ligne de tableau `docs/commandes.md`
+// située dans un bloc de code (```) compterait encore comme « documentée ». Cette garde ne PEUT
+// PAS distinguer du code mort de du code vivant : elle lit des octets, pas un arbre syntaxique.
+// Successeur nommé pour lever cet angle mort : `GARDES-DERIVATION-PAR-AST`.
 function parseOptionDansFichier(id, cmdDir, option) {
+  // Exception NOMMÉE (AR-R3, CA-R6) : `root` n'a pas de fichier de commande — la preuve de
+  // « parsé » est la présence LITTÉRALE de l'option dans `cli/src/index.js`, jamais une liste
+  // blanche muette qui renverrait `true` sans preuve.
+  const exception = EXCEPTIONS_PARSE_INLINE[id];
+  if (exception && exception.option === option) {
+    return fs.readFileSync(INDEX_PATH, 'utf8').includes(`'${option}'`);
+  }
   const p = path.join(cmdDir, fichierDeCommande(id));
   if (!fs.existsSync(p)) return false;
   const cle = CLE_PAR_OPTION[option];
@@ -243,6 +257,13 @@ function parseOptionDansFichier(id, cmdDir, option) {
   return re.test(fs.readFileSync(p, 'utf8'));
 }
 
+// ANGLE MORT (b), CA-R8, redit ici (côté « option » de la dérivation ; le côté `--json` porte le
+// même défaut depuis J0-J3, non ré-explicité à chaque fonction) : `ligne.includes(option)` est un
+// `includes` NU sur SOUS-CHAÎNE — `--project` matcherait une ligne qui ne mentionne QUE
+// `--projects` (un drapeau hypothétique différent). Le côté « déclaré » de cette garde est propre
+// (`optionDeclaree` plus haut exige l'égalité stricte ou un espace suivant) ; le côté « doc » ne
+// l'est pas. Aucune formulation de ce fichier ni du rapport de remise ne doit laisser croire à une
+// garde sémantique : c'est un `includes` textuel, jamais un parseur de tableau Markdown.
 function docMentionneOption(id, docText, option) {
   const idEchappe = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const re = new RegExp('^\\|\\s*`' + idEchappe + '(?:[\\s`]|$)');
@@ -261,23 +282,30 @@ function verbesEnDeriveOption(verbes, { cmdDir, docText, option }) {
   return out;
 }
 
-// Balayage STRICT (zero drift exige), verbe par verbe, sur `--json` UNIQUEMENT : c'est la garde
-// PRE-EXISTANTE (J0), revarifiee ici via le mecanisme GENERIQUE pour prouver son uniformite avec
-// la version dediee ci-dessus. `--root`/`--path`/`--project` ne sont PAS balayes en mode strict sur
-// TOUT le registre ICI : la mesure REELLE (jouee a l'ecriture de cette extension, cf. rapport de
-// remise) a trouve, au-dela d'attach/detach (le SUJET de ce lot), une DETTE PRE-EXISTANTE et SANS
-// RAPPORT avec C-JSON — `config`/`go`/`brief`/`recap`/`assemble` parsent `--root` sans le declarer
-// ni le documenter, `switch` le declare sans le documenter, le verbe `root` echappe a l'heuristique
-// de parse (il n'utilise pas parseArgs classique) ; `go`/`brief`/`recap` parsent un alias `--project`
-// non declare/documente, `observe` le documente sans le declarer, `repo` declare+parse `--path` sans
-// le documenter. Balayer ces options en mode BLOQUANT ICI ferait echouer le gate sur une dette qui
-// n'est PAS celle de ce lot (§ 2 : « aucune retouche de confort, aucune harmonisation de champs » —
-// la corriger serait un lot a part entiere). Le MECANISME generique est neanmoins prouve pour LES
-// QUATRE options (contrefactuel dans les deux sens, sondes SYNTHETIQUES, ci-dessous) ET la preuve
-// POSITIVE que ce lot tient sa promesse (attach/detach desormais clean sur --root/--json, temoin
-// positif ci-dessous). Successeur nomme pour le reste : REGISTRE-OPTIONS-ROOT-PATH-PROJET (cf.
-// BACKLOG.md).
-for (const option of ['--json']) {
+// AR-R3 (REGISTRE-OPTIONS-ROOT-PATH-PROJET, § 5 étape 7) — le verbe `root` implémente `--root` EN
+// LIGNE dans `index.js` (`rest.indexOf('--root')`, `index.js:165-169`) : PAS de `parseArgs`
+// classique, PAS de `commands/root.js`. L'heuristique générique de « parse » (lire un fichier de
+// commande) est donc structurellement aveugle à ce verbe. Plutôt qu'une LISTE BLANCHE MUETTE qui
+// l'exclurait silencieusement du balayage, l'exception est NOMMÉE et prouvée par une PREUVE
+// POSITIVE : la présence littérale de `'--root'` dans `cli/src/index.js` (le SEUL fichier qui
+// l'implémente). Si cette ligne disparaît un jour (déplacement de `root` vers `commands/root.js`,
+// refonte de l'inline), la preuve devient fausse et la garde rougit, NOMMANT `root` (CA-R6).
+// Jamais un déplacement de `root` en commands/root.js pour le confort de ce test (§ 4 « Exclu »).
+const INDEX_PATH = path.join(HERE, '..', 'src', 'index.js');
+const EXCEPTIONS_PARSE_INLINE = {
+  root: { option: '--root', motif: "implementation en ligne, index.js:165-169 (rest.indexOf('--root'), pas de commands/root.js)" },
+};
+
+// Balayage STRICT (zéro dérive exigé), verbe par verbe, sur les QUATRE options du contrat de
+// dérivation (`--json`, `--root`, `--path`, `--project` — AR-R3(a) de REGISTRE-OPTIONS-ROOT-PATH-
+// PROJET). La boucle ne portait QUE `--json` (J0-J3) : `config`/`go`/`brief`/`recap`/`assemble`
+// parsaient `--root` sans le déclarer ni le documenter, `switch` le déclarait sans le documenter,
+// `go`/`brief`/`recap` parsaient un alias `--project` non déclaré/documenté, `observe` le
+// documentait sans le déclarer, `repo` déclarait+parsait `--path` sans documenter le verbe — les 8
+// écarts fermés par ce lot (commits déclarant `--root`/`--project` + ligne `repo` neuve). La garde
+// est désormais verte du premier coup sur les 4 options, PARCE QUE ces 8 écarts sont fermés — pas
+// parce que le mécanisme aurait été affaibli.
+for (const option of ['--json', '--root', '--path', '--project']) {
   test(`G-J2 (grain option) : derivation registre <-> parse <-> doc tient pour ${option} sur TOUS les verbes REELS`, () => {
     const docText = fs.readFileSync(DOCS_PATH, 'utf8');
     const derives = verbesEnDeriveOption(VERBES, { cmdDir: CMD_DIR, docText, option });
@@ -297,6 +325,109 @@ test('G-J2 (grain option, témoin négatif 2) : `--project` ajouté au registre 
   const sonde = { id: 'banner', options: ['--project <dir>'], sousVerbes: [] };
   const derives = verbesEnDeriveOption([sonde], { cmdDir: CMD_DIR, docText, option: '--project' });
   assert.deepEqual(derives.map((d) => d.id), ['banner'], 'un `--project` déclaré sans parseArgs réel (banner.js ne le porte pas) doit être nommé par la garde');
+});
+
+// CA-R5 (§ 5 étape 8) — contrefactuels COMPLETS : un par option, DANS LES DEUX SENS, sur sondes
+// synthétiques. Les deux tests ci-dessus (`add`/--root retiré, `banner`/--project ajouté) couvrent
+// déjà une direction chacun ; les 6 tests table-driven qui suivent couvrent les 6 combinaisons
+// restantes (4 options × 2 sens − les 2 déjà écrits ci-dessus). `onboard` (parse+doc `--path`) et
+// `agents` (parse+doc `--project`) sont les verbes RÉELS retenus pour la direction « retrait » —
+// `banner` (ne parse aucune des 4 options) reste le sonde-témoin pour la direction « ajout ».
+const CONTREFACTUELS_DEUX_SENS = [
+  { option: '--json', sens: 'retire', verbeReel: 'list', motif: "list.js le parse et docs/commandes.md le documente" },
+  { option: '--json', sens: 'ajoute', motif: "banner.js ne le porte pas" },
+  { option: '--root', sens: 'ajoute', motif: "banner.js ne le porte pas" },
+  { option: '--path', sens: 'retire', verbeReel: 'onboard', motif: "onboard.js le parse et docs/commandes.md le documente" },
+  { option: '--path', sens: 'ajoute', motif: "banner.js ne le porte pas" },
+  { option: '--project', sens: 'retire', verbeReel: 'agents', motif: "agents.js le parse et docs/commandes.md le documente" },
+];
+
+for (const { option, sens, verbeReel, motif } of CONTREFACTUELS_DEUX_SENS) {
+  if (sens === 'retire') {
+    test(`G-J2 (grain option, CA-R5) : ${option} retiré du registre d'un verbe REELLEMENT parse+documente (${verbeReel}) est détecté, nommant \`${verbeReel}\``, () => {
+      const docText = fs.readFileSync(DOCS_PATH, 'utf8');
+      const sonde = { id: verbeReel, options: [], sousVerbes: [] };
+      const derives = verbesEnDeriveOption([sonde], { cmdDir: CMD_DIR, docText, option });
+      assert.deepEqual(derives.map((d) => d.id), [verbeReel], `un ${option} retiré du registre (${motif}) doit être nommé par la garde`);
+    });
+  } else {
+    test(`G-J2 (grain option, CA-R5) : ${option} ajouté au registre d'un verbe qui NE LE PARSE PAS (banner) est détecté, nommant \`banner\``, () => {
+      const docText = fs.readFileSync(DOCS_PATH, 'utf8');
+      const sonde = { id: 'banner', options: [`${option} <x>`], sousVerbes: [] };
+      const derives = verbesEnDeriveOption([sonde], { cmdDir: CMD_DIR, docText, option });
+      assert.deepEqual(derives.map((d) => d.id), ['banner'], `un ${option} déclaré sans parseArgs réel (${motif}) doit être nommé par la garde`);
+    });
+  }
+}
+
+// =================================================================================================
+// CA-R7 (AR-R4(a), § 5 étape 9) — le balayage de dérivation ci-dessus porte 4 options ; tout ce
+// qu'il NE couvre PAS (`--node`, `--force`, `--ascii`, `--portfolio`, `--binding`…) n'est pas tu :
+// `cli/test/fixtures/couverture-options.json` le NOMME, le MOTIVE et le CHIFFRE — même patron que
+// `couverture-json.json` (`horsCouvertureCount`, CA-M16 en tête de ce fichier).
+// =================================================================================================
+
+function chargerFixtureOptions() {
+  return JSON.parse(fs.readFileSync(FIXTURE_OPTIONS_PATH, 'utf8'));
+}
+
+// Fonctions PURES, réutilisées par le test réel ET par les contrefactuels sur COPIE altérée en
+// mémoire (jamais le fichier sur disque) — même discipline que `verbesEnDeriveOption` plus haut.
+function entreesSansMotif(fixtureOptions) {
+  return fixtureOptions.horsBalayage.filter((e) => !(typeof e.motif === 'string' && e.motif.trim().length > 0));
+}
+function entreesSansSuccesseur(fixtureOptions) {
+  return fixtureOptions.horsBalayage.filter((e) => !(typeof e.successeur === 'string' && e.successeur.trim().length > 0));
+}
+function cliquetHorsBalayageJuste(fixtureOptions) {
+  return fixtureOptions.horsBalayageCount === fixtureOptions.horsBalayage.length;
+}
+
+test('CA-R7 : `optionsBalayees` du registre correspond EXACTEMENT aux options réellement balayées par la boucle bloquante', () => {
+  const fixture = chargerFixtureOptions();
+  const declarees = fixture.optionsBalayees.map((o) => o.option).sort();
+  assert.deepEqual(declarees, ['--json', '--path', '--project', '--root'], 'le registre doit nommer exactement les options que la boucle bloquante balaye — ni plus, ni moins');
+  // CONTREFACTUEL (joué et révoqué, cf. rapport de remise) : retirer une option de la boucle
+  // bloquante SANS retirer son entrée `optionsBalayees` (ou l'inverse) -> ce test rougit.
+});
+
+test('CA-R7 : chaque entrée hors-balayage porte un motif NON VIDE et un successeur NOMMÉ (jamais une exclusion silencieuse)', () => {
+  const fixture = chargerFixtureOptions();
+  const sansMotif = entreesSansMotif(fixture);
+  assert.deepEqual(sansMotif.map((e) => `${e.verbe} ${e.option}`), [], `entrée(s) hors-balayage SANS motif : ${sansMotif.map((e) => `${e.verbe} ${e.option}`).join(', ')}`);
+  const sansSuccesseur = entreesSansSuccesseur(fixture);
+  assert.deepEqual(sansSuccesseur.map((e) => `${e.verbe} ${e.option}`), [], `entrée(s) hors-balayage SANS successeur : ${sansSuccesseur.map((e) => `${e.verbe} ${e.option}`).join(', ')}`);
+  // CONTREFACTUEL : ajouter au registre une entrée hors-balayage avec `motif: ''` (ou champ absent)
+  // -> `sansMotif` la contient -> rouge, NOMMANT l'entrée fautive (verbe + option). Rejoué ci-dessous
+  // sur une copie EN MÉMOIRE, jamais sur le fichier réel.
+});
+
+test('CA-R7 : au moins les 4 écarts adjacents mesurés au cadrage figurent dans horsBalayage', () => {
+  const fixture = chargerFixtureOptions();
+  const cles = fixture.horsBalayage.map((e) => `${e.verbe} ${e.option}`);
+  for (const attendu of ['assemble --node', 'assemble --force', 'assemble --ascii', 'observe --portfolio', 'commands --ascii', 'models --binding']) {
+    assert.ok(cles.includes(attendu), `écart adjacent attendu absent de horsBalayage : ${attendu}`);
+  }
+});
+
+test('CA-R7 : le CLIQUET (`horsBalayageCount`) reflète le compte RÉEL — toute variation doit être un geste explicite dans le commit qui la fait', () => {
+  const fixture = chargerFixtureOptions();
+  assert.ok(cliquetHorsBalayageJuste(fixture), 'horsBalayageCount doit être tenu à jour DANS LE MÊME COMMIT que toute entrée hors-balayage ajoutée/retirée — sinon la dérive est silencieuse');
+  // CONTREFACTUEL (joué en deux temps et révoqué, même patron que CA-M16) :
+  //   1. ajouter au registre une entrée hors-balayage SANS motif -> le test précédent rougit, la nommant.
+  //   2. retirer une entrée SANS ajuster horsBalayageCount -> CE test rougit (compte désaccordé du réel).
+  //   Deux rouges DISTINCTS, chacun nommant sa cause. Rejoué ci-dessous sur une copie EN MÉMOIRE.
+});
+
+test('CA-R7 (contrefactuel joué EN MÉMOIRE, jamais sur disque) : une entrée hors-balayage sans motif ou sans successeur est détectée par les fonctions RÉELLES du test', () => {
+  const alteree = { horsBalayage: [{ verbe: 'sonde', option: '--sonde', motif: '', successeur: 'X' }, { verbe: 'sonde2', option: '--sonde2', motif: 'x', successeur: '' }] };
+  assert.deepEqual(entreesSansMotif(alteree).map((e) => `${e.verbe} ${e.option}`), ['sonde --sonde'], 'la fonction réelle doit nommer l\'entrée sans motif');
+  assert.deepEqual(entreesSansSuccesseur(alteree).map((e) => `${e.verbe} ${e.option}`), ['sonde2 --sonde2'], 'la fonction réelle doit nommer l\'entrée sans successeur');
+});
+
+test('CA-R7 (contrefactuel joué EN MÉMOIRE) : un compte désaccordé du réel est détecté par la fonction RÉELLE du test', () => {
+  const alteree = { horsBalayage: [{ verbe: 'sonde', option: '--sonde', motif: 'x', successeur: 'X' }], horsBalayageCount: 0 };
+  assert.equal(cliquetHorsBalayageJuste(alteree), false, 'un compte à 0 pour 1 entrée réelle doit être rejeté par la fonction réelle');
 });
 
 test('G-J2 (grain option, témoin positif) : `attach`/`detach` (--root, désormais déclarés) ne remontent JAMAIS comme fautifs sur --root/--json', () => {

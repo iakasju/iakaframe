@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-09-09 23:29 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-09-10 00:49 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
   <div class="k">Version</div><div>v0.41.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>0084b61 merge: C-JSON J3 — refus explicite --json+--guide, G-J1 complétude, --root attach/detach (gate PASS)</code></div>
-  <div class="k">Arbre</div><div><span class='ok'>propre</span></div>
-  <div class="k">Fichiers</div><div>1245 (suivis + non ignores)</div>
-  <div class='k'>Note</div><div>C-JSON-COUVERTURE-COMPLETE entierement livre : J3 fusionne (gate PASS, refus explicite --json+--guide, G-J1 complete, --root attach/detach), cliquet a 0 verrouille, 1263 tests. Successeurs : REGISTRE-GRAIN-SOUS-VERBE, REGISTRE-OPTIONS-ROOT-PATH-PROJET, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, G-J1 aveugle au code commente.</div>
+  <div class="k">Dernier commit</div><div><code>28ccd7f merge: REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 — options --root/--project déclarées et documentées, garde ouverte aux 4 options (gate PASS)</code></div>
+  <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
+  <div class="k">Fichiers</div><div>1260 (suivis + non ignores)</div>
+  <div class='k'>Note</div><div>REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 livre (gate PASS sans ecart) : --root declare sur config/go/brief/recap/assemble, --project &lt;nom&gt; sur go/brief/recap/observe, ligne doc repo complete, boucle verbesEnDeriveOption ouverte aux 4 options + entree motivee root, registre couverture-options.json (6 ecarts motives) + cliquet. Suite 1287/1286/0/1. Successeurs : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET ; REGISTRE-GRAIN-SOUS-VERBE en cours dans une session parallele (worktree .wt/).</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>0084b61</code></td><td>2026-09-09</td><td>merge: C-JSON J3 — refus explicite --json+--guide, G-J1 complétude, --root attach/detach (gate PASS)</td></tr>
-<tr><td><code>7268fe0</code></td><td>2026-09-09</td><td>docs(qualite): gate C-JSON J3 — PASS</td></tr>
-<tr><td><code>ee23630</code></td><td>2026-09-09</td><td>chore(backlog): C-JSON-COUVERTURE-COMPLETE entierement livre, successeurs nommes</td></tr>
-<tr><td><code>c1b8417</code></td><td>2026-09-09</td><td>docs(commandes): precedence --json/--guide (AR-J4c)</td></tr>
-<tr><td><code>1678e92</code></td><td>2026-09-09</td><td>fix(registre): --root declare sur attach/detach + G-J2 au grain option</td></tr>
-<tr><td><code>7221989</code></td><td>2026-09-09</td><td>test(json): garde de completude G-J1 (+ couverture frame new/use manquante)</td></tr>
-<tr><td><code>335cb78</code></td><td>2026-09-09</td><td>fix(json): frame verify porte count, frere de findings (regle 3)</td></tr>
-<tr><td><code>347deb5</code></td><td>2026-09-09</td><td>feat(json): refus explicite --json + --guide sur les 9 sites de guidage (AR-J4c)</td></tr>
-<tr><td><code>30a5629</code></td><td>2026-09-09</td><td>test(json): temoins prose + --guide non-TTY des 4 dernieres cibles guidees (J3)</td></tr>
-<tr><td><code>20dd430</code></td><td>2026-09-08</td><td>chore(iakaframe): update etat des lieux + commit global (pause)</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>28ccd7f</code></td><td>2026-09-10</td><td>merge: REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 — options --root/--project déclarées et documentées, garde ouverte aux 4 options (gate PASS)</td></tr>
+<tr><td><code>6442255</code></td><td>2026-09-10</td><td>docs(qualite): gate REGISTRE-OPTIONS R1+R2 — PASS</td></tr>
+<tr><td><code>8cabc94</code></td><td>2026-09-10</td><td>docs(qualite): remise Gimli -&gt; Legolas REGISTRE-OPTIONS-ROOT-PATH-PROJET</td></tr>
+<tr><td><code>8857872</code></td><td>2026-09-10</td><td>docs(instructions): coche CA-R1..CA-R10 avec preuve en regard</td></tr>
+<tr><td><code>15487c7</code></td><td>2026-09-10</td><td>chore(backlog): REGISTRE-OPTIONS-ROOT-PATH-PROJET livre, en attente du gate Legolas</td></tr>
+<tr><td><code>bfd7bad</code></td><td>2026-09-10</td><td>docs(cli): redit les deux angles morts de la derivation par option (CA-R8)</td></tr>
+<tr><td><code>875cf32</code></td><td>2026-09-10</td><td>test(cli): contrefactuels 2 sens x 4 options + registre hors-balayage (AR-R4)</td></tr>
+<tr><td><code>95cebba</code></td><td>2026-09-10</td><td>test(cli): ouvre le balayage de derivation aux 4 options (AR-R3/CA-R5/CA-R6)</td></tr>
+<tr><td><code>c6305a9</code></td><td>2026-09-10</td><td>docs(qualite): mesures d'execution etape 0 REGISTRE-OPTIONS-ROOT-PATH-PROJET</td></tr>
+<tr><td><code>89ad496</code></td><td>2026-09-10</td><td>feat(cli): declare --project sur go/brief/recap/observe + doc repo (AR-R1/AR-R2)</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-09-10 00:49</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 livre (gate PASS sans ecart) : --root declare sur config/go/brief/recap/assemble, --project &lt;nom&gt; sur go/brief/recap/observe, ligne doc repo complete, boucle verbesEnDeriveOption ouverte aux 4 options + entree motivee root, registre couverture-options.json (6 ecarts motives) + cliquet. Suite 1287/1286/0/1. Successeurs : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET ; REGISTRE-GRAIN-SOUS-VERBE en cours dans une session parallele (worktree .wt/).</td></tr>
 <tr><td>2026-09-09 23:29</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>C-JSON-COUVERTURE-COMPLETE entierement livre : J3 fusionne (gate PASS, refus explicite --json+--guide, G-J1 complete, --root attach/detach), cliquet a 0 verrouille, 1263 tests. Successeurs : REGISTRE-GRAIN-SOUS-VERBE, REGISTRE-OPTIONS-ROOT-PATH-PROJET, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, G-J1 aveugle au code commente.</td></tr>
 <tr><td>2026-09-08 11:30</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>C-JSON J2 livre et fusionne (gate PASS, 1245 tests) : les 9 ecrivains/interactifs prouves en bac a sable strict (grain sous-verbe, drapeaux existants), garde d empreinte disque du depot reel, cliquet 9 -&gt; 0. Ecart pour J3 : verbes.js ne declare pas --root sur attach/detach (parse + documente). J3 = refus explicite --json/--guide (AR-J4c, 9 sites) + garde de completude G-J1 + --root declare. Successeur : frame verify sans count.</td></tr>
 <tr><td>2026-09-08 10:52</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>C-JSON J0+J1 livres et fusionnes (gate PASS, 1214 tests) : inconnue n1 levee par execution (aucun verbe accepte-et-ignore, lot de PREUVE), config declare, regle 6 du contrat, garde de derivation declare&lt;-&gt;parse&lt;-&gt;documente, 9 lecteurs purs en NOMINAL, cliquet 14 -&gt; 9, temoins de prose. J2 engage (ecrivains en bac a sable, cliquet 9 -&gt; 0) sur recommandation du gate. Successeurs : frame verify sans count, J3 (AR-J4 + garde de completude).</td></tr>

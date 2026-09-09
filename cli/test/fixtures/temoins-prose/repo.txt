@@ -1,0 +1,3 @@
+REFUS : '<PROJ>' n'est pas un depot git.
+  Ce verbe branche/cree le remote d'un depot EXISTANT ; il n'initialise jamais.
+  Pour amorcer un projet : iakaframe onboard --path <PROJ>
