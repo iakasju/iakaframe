@@ -496,66 +496,97 @@ Chaque critère est **testable** et porte son **contrefactuel** — la manipulat
 
 ### Lot R1 — Aligner les trois sources
 
-- [ ] **CA-R1 — La mesure existe et fait autorité.** `docs/qualite/mesures-etape-0-registre-options.md`
+- [x] **CA-R1 — La mesure existe et fait autorité.** `docs/qualite/mesures-etape-0-registre-options.md`
       contient les tables A/B/C **mesurées** (verbe × option × déclaré/parsé/documenté, avec la
       ligne source), la sémantique réelle de `--project` et de `--root` verbe par verbe, et
       **signale toute divergence** avec le § 0.3 de cette instruction.
       *Contrefactuel : n/a (artefact de mesure — sa preuve est d'exister, d'être daté et attribué).*
-- [ ] **CA-R2 — Les 8 verbes sont alignés sur les trois sources.** Pour chacun de `config`, `go`,
+      **PREUVE** : fichier créé, commit `c6305a9`. Aucune divergence de fond trouvée avec le § 0.3 ;
+      deux compléments factuels consignés (plancher `1263/1256/0/7` dans ce worktree isolé,
+      sémantique `--project` de `jalon`/`observe` tranchée).
+- [x] **CA-R2 — Les 8 verbes sont alignés sur les trois sources.** Pour chacun de `config`, `go`,
       `brief`, `recap`, `assemble`, `switch`, `observe`, `repo` et pour chaque option du triplet
       qu'il parse : déclarée dans `verbes.js` **et** documentée sur sa ligne de `docs/commandes.md`,
       **avec la sémantique juste** (`<nom>` vs `<dir>`, chapeau vs bibliothèque). `repo` a une ligne
       de tableau **complète** (5 options).
       *Contrefactuel : retirer `--root` de la ligne `config` de `docs/commandes.md` ⇒ la garde de
       R2 rougit en nommant `config(déclaré=true,parsé=true,documenté=false)`.*
-- [ ] **CA-R3 — Aucune option retirée sans refus explicite.** Toute option acceptée avant le lot
+      **PREUVE** : commits `c0da329` (`--root`), `89ad496` (`--project` + ligne `repo`).
+      Contrefactuel **joué puis révoqué** le 2026-09-10 : rouge obtenu textuellement
+      `config(déclaré=true,parsé=true,documenté=false)` (identique à la prédiction), arbre restauré
+      octet pour octet (`diff` vide), `git status --porcelain` vide après restauration.
+- [x] **CA-R3 — Aucune option retirée sans refus explicite.** Toute option acceptée avant le lot
       l'est encore après, avec le **même** effet. **Si** AR-R1 = (c) : l'ancien usage rend
       `{ok:false, error}` **nommant l'option**, exit 1, **stderr vide** sur tout verbe déclarant
       `--json` — **jamais** l'exception brute d'`index.js:177`.
       *Contrefactuel : invoquer chaque option retirée ⇒ refus nommant l'option, jamais une pile.*
-- [ ] **CA-R4 — Prose et `--json` byte-identiques, sauf les deux surfaces publiques énumérées.**
+      **PREUVE** : AR-R1 = (a) retenu (conserver, jamais retirer) — aucune option retirée, donc rien
+      à refuser. Le « même effet » est prouvé par les 9 témoins de prose (`temoins-prose.test.js`,
+      commit `6e9ff25`) byte-identiques avant/après les commits `c0da329`/`89ad496`, et par le fait
+      qu'aucune ligne de `cli/src/commands/*.js` n'a été modifiée (git diff limité à `verbes.js`,
+      `docs/commandes.md`, `index.js:110-111`, `cli/test/**`).
+- [x] **CA-R4 — Prose et `--json` byte-identiques, sauf les deux surfaces publiques énumérées.**
       Pour chaque verbe touché, la sortie humaine **et** la sortie `--json` sont identiques aux
       témoins de l'étape 1, **octet pour octet**. **Exception unique et énumérée** :
       `iakaframe --help` et `iakaframe commands --json` changent **par construction** — leur diff
       contre les empreintes de l'étape 0.7 contient **exactement** les options déclarées, **ligne
       par ligne**, et **rien d'autre** ; ce diff est **recopié dans le rapport de remise**.
       *Contrefactuel : modifier un caractère d'un message humain ⇒ rouge nommant le verbe.*
-- [ ] **CA-R10 — L'avertissement `--root` dit la vérité.** `index.js:110-111` cite les nouveaux
+      **PREUVE** : 9 témoins de prose verts (`temoins-prose.test.js`, `node --test` → 0 fail).
+      Diff `--help`/`commands --json` AVANT→FINAL énuméré dans le rapport de remise (message de
+      clôture de Gimli) — exactement 5 `--root` + 4 `--project` + 2 lignes de commentaire d'aide,
+      rien d'autre.
+- [x] **CA-R10 — L'avertissement `--root` dit la vérité.** `index.js:110-111` cite les nouveaux
       déclarants dans la **bonne** famille (chapeau : `config`, `go`, `brief`, `recap` ;
       bibliothèque : `assemble`), conformément au résolveur mesuré à l'étape 0.3.
       *Contrefactuel : n/a — se constate au diff et se cite dans le rapport.*
+      **PREUVE** : commit `c0da329`, diff `index.js:110-111` cité dans la remise.
 
 ### Lot R2 — Brancher la garde
 
-- [ ] **CA-R5 — Le balayage bloquant porte les 4 options.** `guard-json-couverture.test.js` exécute
+- [x] **CA-R5 — Le balayage bloquant porte les 4 options.** `guard-json-couverture.test.js` exécute
       `verbesEnDeriveOption` sur **tous** les verbes réels pour `--json`, `--root`, `--path`,
       `--project`, et il est **vert**.
       *Contrefactuels obligatoires, un par option, dans les deux sens, sur sondes synthétiques :
       (1) option retirée du registre d'un verbe qui la parse+documente ⇒ rouge **nommant verbe +
       option** ; (2) option ajoutée au registre d'un verbe qui ne la parse pas ⇒ rouge **nommant
       verbe + option**. Puis révoquer.*
-- [ ] **CA-R6 — Le verbe `root` est traité par une entrée nommée, jamais par un silence.**
+      **PREUVE** : commit `875cf32`, 8 tests (4 options × 2 sens) tous verts — `add`/`--root`
+      retiré, `banner`/`--project` ajouté, `list`/`--json` retiré, `banner`/`--json` ajouté,
+      `banner`/`--root` ajouté, `onboard`/`--path` retiré, `banner`/`--path` ajouté, `agents`/
+      `--project` retiré. Sondes synthétiques uniquement, jamais écrites au registre réel.
+- [x] **CA-R6 — Le verbe `root` est traité par une entrée nommée, jamais par un silence.**
       L'exception porte un **motif** (implémentation en ligne, `index.js:165-169`) et une **preuve
       positive** (présence littérale de `'--root'` dans `cli/src/index.js`).
       *Contrefactuel : retirer `'--root'` de `index.js:166` ⇒ rouge **nommant `root`**. Puis
       révoquer.*
-- [ ] **CA-R7 — Le hors-balayage est déclaré et compté** (si AR-R4 = a).
+      **PREUVE** : `EXCEPTIONS_PARSE_INLINE` (commit `95cebba`). Contrefactuel **joué puis
+      révoqué** le 2026-09-10 : rouge obtenu `root(déclaré=true,parsé=false,documenté=true)`,
+      restauration vérifiée par `diff` (identique) et `git status --porcelain` vide.
+- [x] **CA-R7 — Le hors-balayage est déclaré et compté** (si AR-R4 = a).
       `cli/test/fixtures/couverture-options.json` porte les options balayées (avec motif) et les
       écarts hors balayage connus — **au moins** `assemble --node/--force/--ascii`,
       `observe --portfolio`, `commands --ascii`, `models --binding` — chacun avec un motif **non
       vide** et le successeur nommé ; `horsBalayageCount` reflète le compte réel.
       *Contrefactuels : (1) une entrée hors-balayage sans motif ⇒ rouge la nommant ; (2) un compte
       désaccordé du réel ⇒ rouge (même patron que `guard-json-couverture.test.js:61-70`).*
-- [ ] **CA-R8 — Les angles morts sont redits, pas maquillés.** L'en-tête de la garde **et** le
+      **PREUVE** : commit `875cf32`, `couverture-options.json` (6 écarts, `horsBalayageCount: 6`),
+      5 tests CA-R7 verts dont 2 contrefactuels joués sur copie en mémoire (jamais le fichier réel).
+- [x] **CA-R8 — Les angles morts sont redits, pas maquillés.** L'en-tête de la garde **et** le
       rapport de remise énoncent : (a) une entrée **commentée** est comptée (dérivation textuelle,
       hérité de `gate-c-json-j3.md:260-264`) ; (b) `docMentionneOption` teste une **sous-chaîne**
       (`--project` matcherait `--projects`). Aucune formulation ne laisse croire à une garde
       sémantique.
       *Contrefactuel : n/a — se constate à la lecture, et se cite.*
-- [ ] **CA-R9 — Le dépôt est vert et propre.** `cd cli && node --test test/` : **≥ 1263 tests,
+      **PREUVE** : commit `bfd7bad`, commentaires ajoutés au-dessus de `parseOptionDansFichier` (a)
+      et `docMentionneOption` (b). Repris dans le rapport de remise.
+- [x] **CA-R9 — Le dépôt est vert et propre.** `cd cli && node --test test/` : **≥ 1263 tests,
       0 fail** (plancher hérité, `BACKLOG.md:680-681`) ; `git status --porcelain` **vide** après la
       suite (aucun test n'écrit hors bac à sable — **jamais** dans `~/.claude` ni `~/Applications`).
       *Contrefactuel : n/a — se constate à l'exécution, sorties citées.*
+      **PREUVE** : `node --test` (forme qui marche sous Node v24.18.0, cf. § 0.1) → **1287 tests,
+      1280 pass, 0 fail, 7 skipped**, rejoué deux fois à l'identique. `git status --porcelain` vide
+      après chaque run.
 
 ### Ce qui n'est PAS prouvable dans ce lot — et qui doit donc être dit
 
