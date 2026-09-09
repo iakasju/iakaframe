@@ -262,6 +262,8 @@ Le repli (`guard-json-couverture.test.js:368`) doit **tomber** — sinon le lot 
 
 ### AR-G4 — Le cliquet remonte-t-il à 10, ou le lot ferme-t-il les dix trous ? — ⚠️ **RÉSERVÉ AU DÉCIDEUR**
 
+> ✅ **TRANCHÉ par le décideur le 2026-09-09 : option (b)** — grain + fermeture des dix trous dans ce lot, cliquet maintenu à 0 et vrai. L'étape 5 est donc **incluse** au périmètre. (Transmis par Aragorn ; étape 0 dispatchée à Gimli le même jour.)
+
 Une fois AR-G6 posé, le compte de `hors-couverture` n'est plus déclaratif : il **tombe** de la
 mesure. Les dix invocations du § 0.5 sont donc, mécaniquement, **dix `hors-couverture` motivés**
 — sauf si le lot les ferme.
