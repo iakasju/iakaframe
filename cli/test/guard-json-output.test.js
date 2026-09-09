@@ -187,9 +187,11 @@ const NOMINAL = [
   // endpoints : hote injoignable en 127.0.0.1:1 + --timeout court (AR-J2(b) precision d'execution,
   // meme patron que `services --hosts 127.0.0.1` ci-dessus) — la SONDE echoue, le RAPPORT reste ok:true.
   ['endpoints', ['endpoints', '--json', '--url', 'http://127.0.0.1:1/x', '--timeout', '1'], 'essais'],
-  // frame verify : rapport a plat { ok, checked, findings } — PAS de cle `count` frere de `findings`
-  // (constate a l'etape 0, hors perimetre de ce lot, cf. rapport de remise) : collKey volontairement null.
-  ['frame verify', ['frame', 'verify', '--json'], null],
+  // frame verify : correction J3 (une ligne, cf. rapport de remise) — le rapport { ok, checked,
+  // count, findings } portait `findings` (pluriel, array) SANS son frere `count` (regle 3 du
+  // contrat, violation constatee a l'etape 0 du lot precedent). `count` ajoute dans frame.js ;
+  // `findings` devient donc un collKey verifie comme les autres collections.
+  ['frame verify', ['frame', 'verify', '--json'], 'findings'],
   ['frame lint --all', ['frame', 'lint', '--all', '--json'], 'findings'],
   ['review show', ['review', 'show', REVIEW_PROPOSAL_ID, '--json', '--home', REVIEW_HOME], null],
   ['produit path', ['produit', 'path', '--json', '--project', PROJ], null],

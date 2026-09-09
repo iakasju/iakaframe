@@ -117,6 +117,7 @@ export async function runFrame(argv) {
   const payload = {
     ok: res.ok,
     checked: res.checked,
+    count: res.findings.length,
     findings: res.findings.map(f => ({ gate: f.gate, file: f.file, line: f.line, token: f.token })),
   };
 
