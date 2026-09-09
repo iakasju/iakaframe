@@ -143,6 +143,104 @@ test('G-J2 (témoin positif) : un verbe cohérent sur les trois sources (list, r
 });
 
 // =================================================================================================
+// G-J2, EXTENSION AU GRAIN OPTION (C-JSON-COUVERTURE-COMPLETE, J3, § 5 point 3 de la mission) —
+// la garde de dérivation ci-dessus était SPÉCIALISÉE `--json`. `attach`/`detach` viennent de montrer
+// (gate-c-json-j2.md, écart signalé par 🏹 Legolas) qu'un AUTRE drapeau peut subir EXACTEMENT le
+// même écart (parsé + documenté, mais absent du registre) sans qu'aucune garde ne le voie. Cette
+// extension généralise le MÊME calcul (déclaré ⟺ parsé ⟺ documenté) à AU MOINS `--json`, `--root`,
+// `--path`, `--project` — les fonctions dédiées `--json` ci-dessus restent INCHANGÉES (elles
+// gardent leurs propres témoins) ; celles-ci les complètent pour les 3 autres drapeaux.
+// =================================================================================================
+
+// Type ATTENDU du parseArgs pour chaque option de grain (`--json` est TOUJOURS booléen, règle 5 du
+// contrat ; `--root`/`--path`/`--project` sont TOUJOURS des chemins, donc des chaînes).
+const TYPE_PAR_OPTION = { '--json': 'boolean', '--root': 'string', '--path': 'string', '--project': 'string' };
+const CLE_PAR_OPTION = { '--json': 'json', '--root': 'root', '--path': 'path', '--project': 'project' };
+
+// « --option » matche `'--option'` (booléen nu) OU `'--option <arg>'` (avec placeholder) — jamais
+// une sous-chaîne fortuite (ex. `--project` ne doit pas matcher un hypothétique `--projection`).
+function optionDeclaree(o, option) { return o === option || o.startsWith(`${option} `); }
+
+function declareOption(v, option) {
+  if (Array.isArray(v.options) && v.options.some((o) => optionDeclaree(o, option))) return true;
+  if (Array.isArray(v.sousVerbes)) return v.sousVerbes.some((sv) => Array.isArray(sv.options) && sv.options.some((o) => optionDeclaree(o, option)));
+  return false;
+}
+
+function parseOptionDansFichier(id, cmdDir, option) {
+  const p = path.join(cmdDir, fichierDeCommande(id));
+  if (!fs.existsSync(p)) return false;
+  const cle = CLE_PAR_OPTION[option];
+  const type = TYPE_PAR_OPTION[option];
+  const re = new RegExp(`${cle}:\\s*\\{\\s*type:\\s*'${type}'`);
+  return re.test(fs.readFileSync(p, 'utf8'));
+}
+
+function docMentionneOption(id, docText, option) {
+  const idEchappe = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const re = new RegExp('^\\|\\s*`' + idEchappe + '(?:[\\s`]|$)');
+  return docText.split('\n').some((ligne) => re.test(ligne) && ligne.includes(option));
+}
+
+// Fonction PURE, générique — le cœur de l'extension au grain option.
+function verbesEnDeriveOption(verbes, { cmdDir, docText, option }) {
+  const out = [];
+  for (const v of verbes) {
+    const declare = declareOption(v, option);
+    const parse = parseOptionDansFichier(v.id, cmdDir, option);
+    const doc = docMentionneOption(v.id, docText, option);
+    if (declare !== parse || declare !== doc) out.push({ id: v.id, option, declare, parse, doc });
+  }
+  return out;
+}
+
+// Balayage STRICT (zero drift exige), verbe par verbe, sur `--json` UNIQUEMENT : c'est la garde
+// PRE-EXISTANTE (J0), revarifiee ici via le mecanisme GENERIQUE pour prouver son uniformite avec
+// la version dediee ci-dessus. `--root`/`--path`/`--project` ne sont PAS balayes en mode strict sur
+// TOUT le registre ICI : la mesure REELLE (jouee a l'ecriture de cette extension, cf. rapport de
+// remise) a trouve, au-dela d'attach/detach (le SUJET de ce lot), une DETTE PRE-EXISTANTE et SANS
+// RAPPORT avec C-JSON — `config`/`go`/`brief`/`recap`/`assemble` parsent `--root` sans le declarer
+// ni le documenter, `switch` le declare sans le documenter, le verbe `root` echappe a l'heuristique
+// de parse (il n'utilise pas parseArgs classique) ; `go`/`brief`/`recap` parsent un alias `--project`
+// non declare/documente, `observe` le documente sans le declarer, `repo` declare+parse `--path` sans
+// le documenter. Balayer ces options en mode BLOQUANT ICI ferait echouer le gate sur une dette qui
+// n'est PAS celle de ce lot (§ 2 : « aucune retouche de confort, aucune harmonisation de champs » —
+// la corriger serait un lot a part entiere). Le MECANISME generique est neanmoins prouve pour LES
+// QUATRE options (contrefactuel dans les deux sens, sondes SYNTHETIQUES, ci-dessous) ET la preuve
+// POSITIVE que ce lot tient sa promesse (attach/detach desormais clean sur --root/--json, temoin
+// positif ci-dessous). Successeur nomme pour le reste : REGISTRE-OPTIONS-ROOT-PATH-PROJET (cf.
+// BACKLOG.md).
+for (const option of ['--json']) {
+  test(`G-J2 (grain option) : derivation registre <-> parse <-> doc tient pour ${option} sur TOUS les verbes REELS`, () => {
+    const docText = fs.readFileSync(DOCS_PATH, 'utf8');
+    const derives = verbesEnDeriveOption(VERBES, { cmdDir: CMD_DIR, docText, option });
+    assert.deepEqual(derives, [], `verbe(s) en dérive ${option} : ${derives.map((d) => `${d.id}(déclaré=${d.declare},parsé=${d.parse},documenté=${d.doc})`).join(', ')}`);
+  });
+}
+
+test('G-J2 (grain option, témoin négatif 1) : `--root` retiré du registre d\'un verbe REELLEMENT parse+documente (add) est détecté, nommant `add`', () => {
+  const docText = fs.readFileSync(DOCS_PATH, 'utf8');
+  const sonde = { id: 'add', options: [], sousVerbes: [] };
+  const derives = verbesEnDeriveOption([sonde], { cmdDir: CMD_DIR, docText, option: '--root' });
+  assert.deepEqual(derives.map((d) => d.id), ['add'], 'un `--root` retiré du registre (add.js le parse et docs/commandes.md le documente) doit être nommé par la garde');
+});
+
+test('G-J2 (grain option, témoin négatif 2) : `--project` ajouté au registre d\'un verbe qui NE LE PARSE PAS (banner) est détecté, nommant `banner`', () => {
+  const docText = fs.readFileSync(DOCS_PATH, 'utf8');
+  const sonde = { id: 'banner', options: ['--project <dir>'], sousVerbes: [] };
+  const derives = verbesEnDeriveOption([sonde], { cmdDir: CMD_DIR, docText, option: '--project' });
+  assert.deepEqual(derives.map((d) => d.id), ['banner'], 'un `--project` déclaré sans parseArgs réel (banner.js ne le porte pas) doit être nommé par la garde');
+});
+
+test('G-J2 (grain option, témoin positif) : `attach`/`detach` (--root, désormais déclarés) ne remontent JAMAIS comme fautifs sur --root/--json', () => {
+  const docText = fs.readFileSync(DOCS_PATH, 'utf8');
+  for (const option of ['--root', '--json']) {
+    const sondes = VERBES.filter((v) => v.id === 'attach' || v.id === 'detach');
+    assert.deepEqual(verbesEnDeriveOption(sondes, { cmdDir: CMD_DIR, docText, option }), [], `attach/detach declares+parses+documentes sur ${option} : la garde ne doit rien signaler`);
+  }
+});
+
+// =================================================================================================
 // Règle 6 (AR-J3, § 2(a)) — ABSTENTION LÉGALE : `ok:false` + exit 0 n'est légal QUE si la charge
 // porte un `status` non vide (« je n'ai rien pu mesurer », jamais « j'ai mesuré et c'est mauvais »).
 // Écrite dans l'en-tête de cli/src/lib/output.js — le CODE du module reste inchangé (§ 4 Inclus 4) :

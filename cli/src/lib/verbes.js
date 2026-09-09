@@ -290,7 +290,7 @@ export const VERBES = [
     id: 'attach',
     arguments: '<skill>',
     resume: 'Attache un skill a un persona : mute skills:[] du persona',
-    options: ['--persona <id>', '--force', '--guide', '--json'],
+    options: ['--persona <id>', '--force', '--guide', '--json', '--root <dir>'],
     sousVerbes: [],
     parametres: [
       { nom: 'skillId', autorite: { symbole: "scan('skills')", module: 'lib/library.js' } },
@@ -303,7 +303,7 @@ export const VERBES = [
     id: 'detach',
     arguments: '<skill>',
     resume: "Detache un skill d'un persona : retire de skills:[] (le - de attach)",
-    options: ['--persona <id>', '--guide', '--json'],
+    options: ['--persona <id>', '--guide', '--json', '--root <dir>'],
     sousVerbes: [],
     parametres: [
       { nom: 'skillId', autorite: { symbole: 'readPersonaSkills', module: 'lib/remove.js' } },
