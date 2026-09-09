@@ -168,6 +168,13 @@ function declareOption(v, option) {
 }
 
 function parseOptionDansFichier(id, cmdDir, option) {
+  // Exception NOMMÉE (AR-R3, CA-R6) : `root` n'a pas de fichier de commande — la preuve de
+  // « parsé » est la présence LITTÉRALE de l'option dans `cli/src/index.js`, jamais une liste
+  // blanche muette qui renverrait `true` sans preuve.
+  const exception = EXCEPTIONS_PARSE_INLINE[id];
+  if (exception && exception.option === option) {
+    return fs.readFileSync(INDEX_PATH, 'utf8').includes(`'${option}'`);
+  }
   const p = path.join(cmdDir, fichierDeCommande(id));
   if (!fs.existsSync(p)) return false;
   const cle = CLE_PAR_OPTION[option];
@@ -194,23 +201,30 @@ function verbesEnDeriveOption(verbes, { cmdDir, docText, option }) {
   return out;
 }
 
-// Balayage STRICT (zero drift exige), verbe par verbe, sur `--json` UNIQUEMENT : c'est la garde
-// PRE-EXISTANTE (J0), revarifiee ici via le mecanisme GENERIQUE pour prouver son uniformite avec
-// la version dediee ci-dessus. `--root`/`--path`/`--project` ne sont PAS balayes en mode strict sur
-// TOUT le registre ICI : la mesure REELLE (jouee a l'ecriture de cette extension, cf. rapport de
-// remise) a trouve, au-dela d'attach/detach (le SUJET de ce lot), une DETTE PRE-EXISTANTE et SANS
-// RAPPORT avec C-JSON — `config`/`go`/`brief`/`recap`/`assemble` parsent `--root` sans le declarer
-// ni le documenter, `switch` le declare sans le documenter, le verbe `root` echappe a l'heuristique
-// de parse (il n'utilise pas parseArgs classique) ; `go`/`brief`/`recap` parsent un alias `--project`
-// non declare/documente, `observe` le documente sans le declarer, `repo` declare+parse `--path` sans
-// le documenter. Balayer ces options en mode BLOQUANT ICI ferait echouer le gate sur une dette qui
-// n'est PAS celle de ce lot (§ 2 : « aucune retouche de confort, aucune harmonisation de champs » —
-// la corriger serait un lot a part entiere). Le MECANISME generique est neanmoins prouve pour LES
-// QUATRE options (contrefactuel dans les deux sens, sondes SYNTHETIQUES, ci-dessous) ET la preuve
-// POSITIVE que ce lot tient sa promesse (attach/detach desormais clean sur --root/--json, temoin
-// positif ci-dessous). Successeur nomme pour le reste : REGISTRE-OPTIONS-ROOT-PATH-PROJET (cf.
-// BACKLOG.md).
-for (const option of ['--json']) {
+// AR-R3 (REGISTRE-OPTIONS-ROOT-PATH-PROJET, § 5 étape 7) — le verbe `root` implémente `--root` EN
+// LIGNE dans `index.js` (`rest.indexOf('--root')`, `index.js:165-169`) : PAS de `parseArgs`
+// classique, PAS de `commands/root.js`. L'heuristique générique de « parse » (lire un fichier de
+// commande) est donc structurellement aveugle à ce verbe. Plutôt qu'une LISTE BLANCHE MUETTE qui
+// l'exclurait silencieusement du balayage, l'exception est NOMMÉE et prouvée par une PREUVE
+// POSITIVE : la présence littérale de `'--root'` dans `cli/src/index.js` (le SEUL fichier qui
+// l'implémente). Si cette ligne disparaît un jour (déplacement de `root` vers `commands/root.js`,
+// refonte de l'inline), la preuve devient fausse et la garde rougit, NOMMANT `root` (CA-R6).
+// Jamais un déplacement de `root` en commands/root.js pour le confort de ce test (§ 4 « Exclu »).
+const INDEX_PATH = path.join(HERE, '..', 'src', 'index.js');
+const EXCEPTIONS_PARSE_INLINE = {
+  root: { option: '--root', motif: "implementation en ligne, index.js:165-169 (rest.indexOf('--root'), pas de commands/root.js)" },
+};
+
+// Balayage STRICT (zéro dérive exigé), verbe par verbe, sur les QUATRE options du contrat de
+// dérivation (`--json`, `--root`, `--path`, `--project` — AR-R3(a) de REGISTRE-OPTIONS-ROOT-PATH-
+// PROJET). La boucle ne portait QUE `--json` (J0-J3) : `config`/`go`/`brief`/`recap`/`assemble`
+// parsaient `--root` sans le déclarer ni le documenter, `switch` le déclarait sans le documenter,
+// `go`/`brief`/`recap` parsaient un alias `--project` non déclaré/documenté, `observe` le
+// documentait sans le déclarer, `repo` déclarait+parsait `--path` sans documenter le verbe — les 8
+// écarts fermés par ce lot (commits déclarant `--root`/`--project` + ligne `repo` neuve). La garde
+// est désormais verte du premier coup sur les 4 options, PARCE QUE ces 8 écarts sont fermés — pas
+// parce que le mécanisme aurait été affaibli.
+for (const option of ['--json', '--root', '--path', '--project']) {
   test(`G-J2 (grain option) : derivation registre <-> parse <-> doc tient pour ${option} sur TOUS les verbes REELS`, () => {
     const docText = fs.readFileSync(DOCS_PATH, 'utf8');
     const derives = verbesEnDeriveOption(VERBES, { cmdDir: CMD_DIR, docText, option });
