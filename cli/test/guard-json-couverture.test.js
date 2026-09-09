@@ -180,3 +180,108 @@ test('CA-J4 (témoin positif) : `ok:true` et tout `ok:false` en exit 1 sont HORS
   assert.equal(respecteRegle6({ ok: true }, 0), true);
   assert.equal(respecteRegle6({ ok: false, error: 'x' }, 1), true, 'un vrai échec (exit 1) n\'a jamais besoin de `status`');
 });
+
+// =================================================================================================
+// G-J1 (C-JSON-COUVERTURE-COMPLETE, § 5 étape 8 / CA-J13) — GARDE DE COMPLÉTUDE : pour TOUTE
+// invocation ATTENDUE (verbe, ou sous-verbe s'il en déclare, portant `--json` dans verbes.js), il
+// existe au moins une entrée `NOMINAL` OU `ERRORS` dans guard-json-output.test.js qui l'exerce.
+// Grain (AR-J1(b), déjà appliqué au § 5 étape 5/6) : SOUS-VERBE quand le verbe a des sous-verbes
+// (ex. `models set`/`models unset`), VERBE sinon (ex. `list`, `show`).
+//
+// DÉRIVÉE PAR LECTURE DU TEXTE de guard-json-output.test.js — JAMAIS par IMPORT de ce fichier :
+// un `import` d'un `.test.js` réexécute AUSSI son bac à sable (mkdtempSync, spawnSync de bootstrap)
+// ET ses `test()` (constaté à l'écriture de cette garde : `node --test
+// test/guard-json-couverture.test.js` seul faisait alors remonter 74 tests au lieu de 11, les 63
+// tests de guard-json-output.test.js réexécutés en silence comme effet de bord). Même patron que
+// G-J2 ci-dessus pour docs/commandes.md et commands/<verbe>.js : la SOUS-CHAÎNE, jamais l'exécution.
+// =================================================================================================
+
+const OUTPUT_TEST_PATH = path.join(HERE, 'guard-json-output.test.js');
+
+// Isole le texte d'un tableau `const <NOM> = [ ... ];` par comptage de crochets équilibrés (jamais
+// une regex multiligne fragile sur la fin du tableau — R-J5 : la garde mesure la FORME, pas la prose).
+function extraireTableau(source, nomVariable) {
+  const marqueur = `const ${nomVariable} = [`;
+  const debut = source.indexOf(marqueur);
+  if (debut === -1) throw new Error(`tableau ${nomVariable} introuvable dans guard-json-output.test.js`);
+  let i = debut + marqueur.length - 1; // positionne sur le '[' d'ouverture
+  let profondeur = 0;
+  for (; i < source.length; i++) {
+    if (source[i] === '[') profondeur++;
+    else if (source[i] === ']') { profondeur--; if (profondeur === 0) { i++; break; } }
+  }
+  return source.slice(debut, i);
+}
+
+// Pour chaque entrée `['<nom-affiche>', ['<verbe>'[, '<second>', ...]], ...]`, extrait (verbe,
+// second|null). `second` n'est retenu QUE s'il ne commence pas par `-` (sinon c'est une OPTION,
+// jamais un sous-verbe/positional — même heuristique que le CLI réel : le premier token non-option
+// après le verbe).
+function verbesEtSecondsDuTableau(texteTableau) {
+  const re = /,\s*\[\s*'([a-zA-Z][\w-]*)'(?:\s*,\s*'([^']*)')?/g;
+  const out = [];
+  let m;
+  while ((m = re.exec(texteTableau))) {
+    const verbe = m[1];
+    const second = m[2] !== undefined && !m[2].startsWith('-') ? m[2] : null;
+    out.push({ verbe, second });
+  }
+  return out;
+}
+
+function invocationsCouvertesReelles() {
+  const source = fs.readFileSync(OUTPUT_TEST_PATH, 'utf8');
+  const entrees = [
+    ...verbesEtSecondsDuTableau(extraireTableau(source, 'NOMINAL')),
+    ...verbesEtSecondsDuTableau(extraireTableau(source, 'ERRORS')),
+  ];
+  const couvertes = new Set();
+  for (const { verbe, second } of entrees) {
+    couvertes.add(verbe);
+    if (second) couvertes.add(`${verbe} ${second}`);
+  }
+  return couvertes;
+}
+
+// Dérive, à partir de VERBES, les invocations ATTENDUES (AR-J1(b)).
+function invocationsAttendues(verbes) {
+  const attendues = [];
+  for (const v of verbes) {
+    if (Array.isArray(v.sousVerbes) && v.sousVerbes.length > 0) {
+      for (const sv of v.sousVerbes) {
+        if (Array.isArray(sv.options) && sv.options.includes('--json')) {
+          attendues.push({ id: `${v.id} ${sv.id}`, verbId: v.id });
+        }
+      }
+    } else if (Array.isArray(v.options) && v.options.includes('--json')) {
+      attendues.push({ id: v.id, verbId: v.id });
+    }
+  }
+  return attendues;
+}
+
+test('CA-J13 : toute invocation attendue (verbe/sous-verbe déclarant --json) a au moins une entrée NOMINAL ou ERRORS', () => {
+  const couvertes = invocationsCouvertesReelles();
+  const attendues = invocationsAttendues(VERBES);
+  // Un verbe dont la forme BARE est couverte (ex. `skills`, `models`) satisfait AUSSI la sous-attente
+  // de son sous-verbe implicite/par-defaut — la garde ne sur-exige jamais une invocation SEPAREE
+  // qui n'existe pas dans le CLI reel (ex. `skills deploy` n'est jamais invoque tel quel : `skills`
+  // bare EST le sous-verbe `deploy`).
+  const manquantes = attendues.filter((a) => !couvertes.has(a.id) && !couvertes.has(a.verbId));
+  assert.deepEqual(manquantes.map((m) => m.id), [], `invocation(s) attendue(s) SANS NOMINAL ni ERRORS : ${manquantes.map((m) => m.id).join(', ')}`);
+});
+
+test('CA-J13 (contrefactuel) : un verbe fictif portant --json SANS entrée NOMINAL/ERRORS est détecté, nommant son id', () => {
+  const couvertes = invocationsCouvertesReelles();
+  const sonde = [...VERBES, { id: 'verbe-fictif-cjson-j3', options: ['--json'], sousVerbes: [] }];
+  const attendues = invocationsAttendues(sonde);
+  const manquantes = attendues.filter((a) => !couvertes.has(a.id) && !couvertes.has(a.verbId));
+  assert.deepEqual(manquantes.map((m) => m.id), ['verbe-fictif-cjson-j3'], 'le verbe fictif doit être nommé par la garde');
+});
+
+test('CA-J13 (témoin positif) : `list` (verbe reel, grain verbe) et `models set`/`models unset` (grain sous-verbe) ne remontent JAMAIS comme manquants', () => {
+  const couvertes = invocationsCouvertesReelles();
+  assert.ok(couvertes.has('list'), '`list` doit etre couvert (invocation bare)');
+  assert.ok(couvertes.has('models set'), '`models set` doit etre couvert');
+  assert.ok(couvertes.has('models unset'), '`models unset` doit etre couvert');
+});

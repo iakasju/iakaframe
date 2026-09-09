@@ -155,6 +155,31 @@ const CONSOLIDATE_SRC = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-consol
 const RANGE_ROOT = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-range-'));
 fs.mkdirSync(path.join(RANGE_ROOT, 'demo-projet-j2', '.git'), { recursive: true });
 
+// --- bibliotheque jetable (--root) : dediee a `frame new` (Lot 3, G-J1) — un pool MINIMAL
+// (role+persona+workflow, meme patron que cli/test/frame-scaffold.test.js:makeReservoir) suffit a
+// ossaturer un frame lint-clean (ARB-3). Ni la vraie library/ du depot ni ADD_LIB (deja dedie a
+// `add`) ne sont reutilises : chaque ecrivain garde SON bac a sable independant. ------------------
+const FRAME_NEW_LIB = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-frame-new-'));
+{
+  const L = (rel) => path.join(FRAME_NEW_LIB, rel);
+  fs.mkdirSync(path.dirname(L('library/roles/coordination.md')), { recursive: true });
+  fs.writeFileSync(L('library/roles/coordination.md'), '---\nid: coordination\nlabel: Coordination\n---\n# coordination\n');
+  fs.mkdirSync(path.dirname(L('library/personas/chef-j3.md')), { recursive: true });
+  fs.writeFileSync(L('library/personas/chef-j3.md'), '---\nid: chef-j3\nname: ChefJ3\nroleKey: coordination\nskills: []\nguardrails: []\n---\n# ChefJ3\n');
+  fs.mkdirSync(path.dirname(L('library/workflows/wf-j3.md')), { recursive: true });
+  fs.writeFileSync(L('library/workflows/wf-j3.md'), '---\nid: wf-j3\nname: WFJ3\nphases:\n  - { id: p1, label: P1, agentsRoleKeys: [coordination] }\n---\n# wf-j3\n');
+  for (const d of ['methods', 'teams', 'bindings', 'kits', 'frames']) fs.mkdirSync(L(d), { recursive: true });
+}
+
+// --- `frame use` (Lot 3, G-J1) : ECRIT UNIQUEMENT le pointeur projet (iakaframe.json cle `frame`) —
+// la BIBLIOTHEQUE reste la VRAIE du depot (REPO, lue seule, `frame` existe dans frames/), meme
+// patron deja en place pour `switch`/`skills`/`agents status` plus haut. -----------------------
+const FRAME_USE_PROJ = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-frame-use-'));
+
+// NON EXPORTES : la garde de completude G-J1 (guard-json-couverture.test.js) LIT ce fichier PAR LE
+// TEXTE (meme patron que G-J2 pour docs/commandes.md/commands/<verbe>.js), jamais par IMPORT — un
+// `import` d'un `.test.js` re-executerait AUSSI son bac a sable et ses `test()` (constate a
+// l'ecriture de cette garde : cf. rapport de remise).
 // (nom, args, cle de collection attendue | null pour une ressource/rapport a plat, env supplementaire)
 const NOMINAL = [
   ['list', ['list', '--json'], 'collections'],
@@ -215,6 +240,12 @@ const NOMINAL = [
   ['switch', ['switch', 'iakaframe', 'iakaframe-8', '--path', SWITCH_PROJ, '--json'], null],
   ['consolidate', ['consolidate', '--home', CONSOLIDATE_HOME, '--source', CONSOLIDATE_SRC, '--json'], null],
   ['range --list', ['range', '--list', '--root', RANGE_ROOT, '--json'], 'projets'],
+  // --- J3 (C-JSON-COUVERTURE-COMPLETE, § 5 etape 8 / G-J1) : `frame new`/`frame use` — trous
+  // reels trouves par la garde de completude (ni l'un ni l'autre n'avait d'entree NOMINAL/ERRORS
+  // avant ce lot, malgre § 5 etape 6 de l'instruction qui les nommait). Fermes ici, meme bac a
+  // sable (bibliotheque jetable) que les autres ecrivains. ------------------------------------
+  ['frame new', ['frame', 'new', 'demo-frame-j3', '--root', FRAME_NEW_LIB, '--json'], null],
+  ['frame use', ['frame', 'use', 'iakaframe', '--path', FRAME_USE_PROJ, '--json'], null],
 ];
 
 for (const [name, args, collKey, extraEnv] of NOMINAL) {
@@ -286,6 +317,18 @@ test('C-JSON empreinte (J2) : consolidate a produit l\'apercu sous CONSOLIDATE_H
   assert.ok(fs.existsSync(path.join(CONSOLIDATE_HOME, 'consolidation', 'RAPPORT.md')), 'RAPPORT.md absent du staging de consolidation');
 });
 
+test('C-JSON empreinte (J3) : frame new a ossature les 5 fichiers SOUS FRAME_NEW_LIB (jamais dans la vraie library/)', () => {
+  for (const rel of ['frames/demo-frame-j3.md', 'methods/demo-frame-j3.md', 'teams/demo-frame-j3-team.md', 'bindings/demo-frame-j3-default.md', 'kits/demo-frame-j3-claude.md']) {
+    assert.ok(fs.existsSync(path.join(FRAME_NEW_LIB, rel)), `${rel} absent du bac a sable`);
+  }
+  assert.ok(!fs.existsSync(path.join(REPO, 'frames', 'demo-frame-j3.md')), 'FUITE : frame new a ecrit dans la VRAIE bibliotheque du depot');
+});
+
+test('C-JSON empreinte (J3) : frame use a pose le pointeur "frame" SOUS FRAME_USE_PROJ (bibliotheque reelle jamais mutee)', () => {
+  const conf = JSON.parse(fs.readFileSync(path.join(FRAME_USE_PROJ, 'iakaframe.json'), 'utf8'));
+  assert.equal(conf.frame, 'iakaframe', 'pointeur frame absent ou incorrect sous FRAME_USE_PROJ');
+});
+
 // --- (2bis) CONTRAT DE SORTIE : discipline d'erreur machine (regle 4) -----------------------------
 
 const ERRORS = [
@@ -337,6 +380,6 @@ test.after(() => {
   for (const d of [
     HOME, OBS, EMPTY, PROJ, GITD, BARE, INSTALL_CLAUDE, INSTALL_APPS, INSTALL_BACKUPS, REVIEW_HOME,
     ADD_LIB, REMOVE_LIB, ATTACH_LIB, SKILLS_PROJ, MODELS_PROJ, SWITCH_PROJ,
-    CONSOLIDATE_HOME, CONSOLIDATE_SRC, RANGE_ROOT,
+    CONSOLIDATE_HOME, CONSOLIDATE_SRC, RANGE_ROOT, FRAME_NEW_LIB, FRAME_USE_PROJ,
   ]) fs.rmSync(d, { recursive: true, force: true });
 });
