@@ -17,7 +17,7 @@ import {
   findReferrers, makeTrash, moveToTrash, writeTrashManifest,
   readPersonaSkills, setPersonaSkills,
 } from '../lib/remove.js';
-import { peutDemander } from '../lib/interactif.js';
+import { peutDemander, refuserJsonEtGuide } from '../lib/interactif.js';
 import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail } from '../lib/output.js';
 
@@ -78,6 +78,9 @@ export async function runRemove(argv) {
   });
   if (values.help) { console.log(USAGE); return; }
   const json = values.json;
+
+  // AR-J4(c) : refus explicite si l'appelant a TAPE les deux drapeaux — AVANT peutDemander().
+  if (refuserJsonEtGuide(values)) return;
 
   if (values.guide && peutDemander({ json, guide: true })) {
     await runRemoveGuide({ values });

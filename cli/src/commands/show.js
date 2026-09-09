@@ -3,7 +3,7 @@
 import { parseArgs } from 'node:util';
 import { renderValue } from '../lib/frontmatter.js';
 import { COLLECTION_TYPES, collectionOf, libraryRoot, readEntry, resolveId, scan } from '../lib/library.js';
-import { peutDemander } from '../lib/interactif.js';
+import { peutDemander, refuserJsonEtGuide } from '../lib/interactif.js';
 import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail, ok } from '../lib/output.js';
 
@@ -63,6 +63,9 @@ export async function runShow(argv) {
   const json = values.json;
 
   const root = libraryRoot(values.root);
+
+  // AR-J4(c) : refus explicite si l'appelant a TAPE les deux drapeaux — AVANT peutDemander().
+  if (refuserJsonEtGuide(values)) return;
 
   if (values.guide && peutDemander({ json, guide: true })) {
     await runShowGuide({ root, values });

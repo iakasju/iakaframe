@@ -7,7 +7,7 @@ import { parseArgs } from 'node:util';
 import { parseFrontmatter } from '../lib/frontmatter.js';
 import { ADD_DIR, checkRefs, checkSchema, libraryRoot } from '../lib/library.js';
 import { scaffoldPoolAtom, POOL_KINDS } from '../lib/scaffold.js';
-import { peutDemander } from '../lib/interactif.js';
+import { peutDemander, refuserJsonEtGuide } from '../lib/interactif.js';
 import { selectionner, demanderTexte, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail } from '../lib/output.js';
 
@@ -67,6 +67,9 @@ export async function runAdd(argv) {
   });
   if (values.help) { console.log(USAGE); return; }
   const json = values.json;
+
+  // AR-J4(c) : refus explicite si l'appelant a TAPE les deux drapeaux — AVANT peutDemander().
+  if (refuserJsonEtGuide(values)) return;
 
   if (values.guide && peutDemander({ json, guide: true })) {
     await runAddGuide({ values });

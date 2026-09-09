@@ -44,11 +44,18 @@ const CIBLES = [
   ['switch', ['switch']],
 ];
 
-// Quatre variantes : non-TTY (baseline, TOUJOURS vrai sous spawnSync), --json, CI=1,
-// IAKA_NON_INTERACTIF=1 — exercees UNE PAR UNE (jamais cumulees), § Preuve/G1.
+// TROIS variantes : non-TTY (baseline, TOUJOURS vrai sous spawnSync), CI=1, IAKA_NON_INTERACTIF=1
+// — exercees UNE PAR UNE (jamais cumulees), § Preuve/G1. La variante `--json` en a ete RETIREE par
+// AR-J4(c) (lot C-JSON-COUVERTURE-COMPLETE, J3, specs/instructions/c-json-couverture-complete.md
+// § 3) : AVANT ce lot, `--guide --json` retombait EN SILENCE sur exactement le meme resultat que
+// `--json` seul (peutDemander() refusait deja, condition 5), donc l'egalite tenait — mais c'etait
+// precisement l'« accepte-et-ignore » que le § 2(a) de l'instruction proscrit (un drapeau TAPE
+// explicitement, ignore sans un mot). AR-J4(c) fait DELIBEREMENT diverger --guide+--json (refus
+// explicite, cf. boucle DEDIEE plus bas) : la conserver dans CETTE boucle d'egalite aurait fige
+// le defaut que le lot corrige. G1 continue de prouver, pour les TROIS autres variantes, que
+// --guide reste TOTALEMENT INERTE en execution non-interactive — invariant INCHANGE par ce lot.
 const VARIANTES = [
   ['non-TTY (baseline)', { extra: [], env: {} }],
-  ['--json', { extra: ['--json'], env: {} }],
   ['CI=1', { extra: [], env: { CI: '1' } }],
   ['IAKA_NON_INTERACTIF=1', { extra: [], env: { IAKA_NON_INTERACTIF: '1' } }],
 ];
@@ -63,6 +70,25 @@ for (const [nom, base] of CIBLES) {
       assert.equal(avecGuide.status, sansGuide.status, `exit code doit rester IDENTIQUE (${nom}, ${nomVariante})`);
     });
   }
+}
+
+// --- AR-J4(c) (lot C-JSON-COUVERTURE-COMPLETE, J3, CA-J12) : --guide + --json DOIT DIVERGER de
+// --json seul — refus explicite { ok:false, error } nommant les DEUX drapeaux, sur stdout, exit 1,
+// stderr VIDE (regle 4 du contrat, cli/src/lib/output.js). C'est le CONTRAIRE de la boucle G1
+// ci-dessus, et c'est voulu : le silence d'avant ce lot est exactement le defaut corrige. --------
+for (const [nom, base] of CIBLES) {
+  test(`AR-J4(c) : ${nom} — --guide + --json refuse EXPLICITEMENT (diverge de --json seul), exit 1, stderr vide`, () => {
+    const sansGuide = cli([...base, '--json']);
+    const avecGuide = cli([...base, '--guide', '--json']);
+    assert.equal(avecGuide.status, 1, `--guide+--json doit refuser (exit 1) pour ${nom}`);
+    assert.equal(avecGuide.stderr, '', `aucun texte humain sur stderr en mode --json (${nom})`);
+    let payload;
+    assert.doesNotThrow(() => { payload = JSON.parse(avecGuide.stdout); }, `stdout non JSON pour ${nom} : ${avecGuide.stdout.slice(0, 200)}`);
+    assert.equal(payload.ok, false);
+    assert.match(payload.error, /--json/, `le message doit nommer --json (${nom})`);
+    assert.match(payload.error, /--guide/, `le message doit nommer --guide (${nom})`);
+    assert.notEqual(avecGuide.stdout, sansGuide.stdout, `--guide+--json doit DIVERGER de --json seul (${nom}) — sinon le refus est retombe en silence`);
+  });
 }
 
 // --- G2 (contrôle POSITIF n°1, complementaire a guidage.test.js/guard-guidage-autorite.test.js) :

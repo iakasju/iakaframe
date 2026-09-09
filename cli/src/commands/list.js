@@ -6,7 +6,7 @@
 import { parseArgs } from 'node:util';
 import { table } from '../lib/table.js';
 import { COLLECTION_TYPES, collectionOf, inventory, libraryRoot, scan } from '../lib/library.js';
-import { peutDemander } from '../lib/interactif.js';
+import { peutDemander, refuserJsonEtGuide } from '../lib/interactif.js';
 import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { collection, emit, fail } from '../lib/output.js';
 
@@ -56,6 +56,10 @@ export async function runList(argv) {
     },
   });
   if (values.help) { console.log(USAGE); return; }
+
+  // AR-J4(c) : refus explicite si l'appelant a TAPE les deux drapeaux — AVANT peutDemander(),
+  // sinon sa condition 5 (json===true) avale le cas et le refus n'est jamais atteint.
+  if (refuserJsonEtGuide(values)) return;
 
   if (values.guide && peutDemander({ json: values.json, guide: true })) {
     await runListGuide({ values });

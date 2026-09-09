@@ -6,7 +6,7 @@
 import { parseArgs } from 'node:util';
 import { libraryRoot, readEntry, scan } from '../lib/library.js';
 import { readPersonaSkills, setPersonaSkills } from '../lib/remove.js';
-import { peutDemander } from '../lib/interactif.js';
+import { peutDemander, refuserJsonEtGuide } from '../lib/interactif.js';
 import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail } from '../lib/output.js';
 
@@ -99,6 +99,10 @@ async function run(mode, argv) {
   const { values, positionals } = parse(argv);
   if (values.help) { console.log(usage(mode)); return; }
   const json = values.json;
+
+  // AR-J4(c) : refus explicite si l'appelant a TAPE les deux drapeaux — AVANT peutDemander().
+  // Site partage par `attach` ET `detach` (mode variable) : le refus couvre les DEUX cibles.
+  if (refuserJsonEtGuide(values)) return;
 
   if (values.guide && peutDemander({ json, guide: true })) {
     await runGuide(mode, values);

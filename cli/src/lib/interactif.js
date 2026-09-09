@@ -26,6 +26,7 @@
 // Zero dependance runtime. `env`/`stdin`/`stdout` sont INJECTES (defaut = les objets `process.*`
 // reels) — c'est ce qui rend la regle testable condition par condition sans TTY (G4).
 import readline from 'node:readline';
+import { fail } from './output.js';
 
 // « absent/neutre » = non defini, chaine vide, '0' ou 'false' — certains runners exportent
 // litteralement `CI=false` (une variable presente mais FAUSSE ne doit pas activer le refus).
@@ -47,6 +48,35 @@ export function peutDemander({
   if (json === true) return false;
   if (guide !== true) return false;
   return true;
+}
+
+// --- Refus explicite --json + --guide (AR-J4(c), lot C-JSON-COUVERTURE-COMPLETE, J3, § 5 etape 7)
+// -------------------------------------------------------------------------------------------------
+// AVANT ce lot, `peutDemander()` rendait deja `false` des que `json === true` (condition 5) : un
+// appelant qui TAPE les DEUX drapeaux voyait `--guide` s'eteindre SANS UN MOT (« accepte-et-ignore »,
+// exactement ce que le § 2(a) de l'instruction proscrit). Ce point unique corrige CE SEUL cas :
+// l'appelant a explicitement demande les deux — jamais les flux interactifs PAR CONSTRUCTION
+// (`models` bare, `install`, `onboard --from-update`) qui passent `guide:true` INCONDITIONNELLEMENT
+// (cf. entete du fichier) : ceux-la n'appellent JAMAIS cette fonction (ils n'ont pas de `values.guide`
+// tape par un appelant), donc restent INCHANGES par construction.
+//
+// Appele aux 9 sites `values.guide && peutDemander(...)` de `commands/`, TOUJOURS AVANT l'appel a
+// `peutDemander()` — sinon sa condition 5 avale le cas et ce refus n'est jamais atteint. Rend `true`
+// si le refus a ete emis (l'appelant DOIT alors `return` immediatement, rien d'autre ne s'execute) ;
+// `false` sinon — auquel cas le comportement (`--json` seul, `--guide` seul, aucun des deux) reste
+// EXACTEMENT celui d'avant ce lot, octet pour octet (CA-J8, cli/test/temoins-prose.test.js).
+export function refuserJsonEtGuide(values) {
+  if (values && values.guide === true && values.json === true) {
+    fail(
+      true,
+      "--json et --guide s'excluent : --guide suppose une session interactive (paliers 0-2), "
+      + "--json une sortie machine non interactive — la precedence va a --json, --guide est "
+      + 'refuse explicitement plutot que silencieusement ignore.',
+      { flags: ['--json', '--guide'] },
+    );
+    return true;
+  }
+  return false;
 }
 
 // Confirmation o/N a lecture unique — SOURCE UNIQUE du prompt readline (G3b, cli/test/
