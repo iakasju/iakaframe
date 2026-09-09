@@ -214,6 +214,16 @@ absent/neutre **ET** `IAKA_NON_INTERACTIF` absent/neutre **ET** `--json` absent 
 (variable d'échappement, `1`/`true` pour forcer le mode non interactif) fonctionne sur toutes les
 cibles. « Neutre » = non défini, vide, `0` ou `false` (certains runners exportent `CI=false`).
 
+**Précédence `--json` / `--guide` (`C-JSON-COUVERTURE-COMPLETE`, J3, AR-J4c)** — si les DEUX
+drapeaux sont **tapés** sur une des 10 cibles ci-dessus, la commande **refuse explicitement** :
+`{ ok:false, error }` nommant `--json` et `--guide` et la précédence, sur stdout, exit 1, stderr
+vide — rien d'autre ne s'exécute. **`--json` seul** et **`--guide` seul** restent inchangés
+(`peutDemander()` continue de refuser l'interactivité dès `json === true`, condition 5 ci-dessus) :
+seule la **combinaison explicite** des deux drapeaux devient un refus **nommé**, plutôt qu'une
+précédence silencieuse. Les flux interactifs **par construction** (`models` sans sous-verbe,
+`install`, `onboard --from-update`) passent `guide:true` **inconditionnellement**, hors site de
+refus : ils sont **inchangés**, ce ne sont pas des cibles guidées au sens de ce paragraphe.
+
 **Refus loquaces (palier 0, filet du lot)** — indépendant de `--guide` : chaque refus sur un
 vocabulaire fermé, sur ces mêmes 10 cibles, liste désormais les valeurs **dérivées** de l'autorité
 réelle (jamais une liste recopiée à la main) — ex. `models set <persona introuvable>` liste les

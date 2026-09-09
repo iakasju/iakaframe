@@ -1,0 +1,17 @@
+╔════════════╦════╦════════════════════════════════════════════════════════════════════════════════════════════════════╗
+║ Collection ║ Nb ║ Aperçu d'ids                                                                                       ║
+╠════════════╬════╬════════════════════════════════════════════════════════════════════════════════════════════════════╣
+║ personas   ║ 35 ║ aragorn, brown, caquot, carter, …                                                                  ║
+║ skills     ║ 55 ║ dt-facilitation, dt-ideation, dt-prototyping, dt-testing, …                                        ║
+║ principles ║ 69 ║ cadrage-avant-code, canon-avant-citation, commits-versionnement, confirmation-actes-destructifs, … ║
+║ rituals    ║ 46 ║ dt-define, dt-design-cycle, dt-empathize, dt-ideate, …                                             ║
+║ guardrails ║ 30 ║ definition-of-done, delegation, dt-evidence-from-users, dt-problem-before-solution, …              ║
+║ roles      ║ 40 ║ cadrage, coordination, deploiement, design, …                                                      ║
+║ workflows  ║ 8  ║ dt-double-diamond, gtd-flow, iakaframe-3phases, kanban-flow, …                                     ║
+║ scaffolds  ║ 10 ║ design-thinking-artifacts, gtd-lists, kanban-board, leanstartup-artifacts, …                       ║
+║ teams      ║ 8  ║ design-thinking-team, gtd-solo, iakaframe-8, kanban-team, …                                        ║
+║ methods    ║ 8  ║ design-thinking, gtd, iakaframe, kanban, …                                                         ║
+║ bindings   ║ 9  ║ design-thinking-default, gtd-default, iakaframe-claude-default, iakaframe-ollama-default, …        ║
+║ kits       ║ 12 ║ design-thinking-claude, gtd-claude, iakaframe-anythingllm, iakaframe-claude, …                     ║
+║ frames     ║ 8  ║ design-thinking, gtd, iakaframe, kanban, …                                                         ║
+╚════════════╩════╩════════════════════════════════════════════════════════════════════════════════════════════════════╝

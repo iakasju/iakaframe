@@ -22,7 +22,7 @@ import path from 'node:path';
 import os from 'node:os';
 import readline from 'node:readline/promises';
 import { getJson, sendJson } from '../lib/http.js';
-import { peutDemander } from '../lib/interactif.js';
+import { peutDemander, refuserJsonEtGuide } from '../lib/interactif.js';
 import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, ok, fail } from '../lib/output.js';
 import { libraryRoot, readEntry, scan } from '../lib/library.js';
@@ -838,6 +838,9 @@ async function runModelsSet(argv) {
   });
   if (values.help) { console.log(SET_HELP); return; }
 
+  // AR-J4(c) : refus explicite si l'appelant a TAPE les deux drapeaux — AVANT peutDemander().
+  if (refuserJsonEtGuide(values)) return;
+
   // --guide (A2/A5) : SEULEMENT si peutDemander() l'autorise (CA-3 — sinon --guide ne change RIEN,
   // le flux retombe EXACTEMENT sur le comportement non guide, octet pour octet).
   if (values.guide && peutDemander({ json: values.json, guide: true })) {
@@ -974,6 +977,10 @@ async function runModelsUnset(argv) {
     },
   });
   if (values.help) { console.log(UNSET_HELP); return; }
+
+  // AR-J4(c) : refus explicite si l'appelant a TAPE les deux drapeaux — AVANT peutDemander(),
+  // et INDEPENDANT de --all (le refus porte sur --json/--guide, pas sur le sous-mode).
+  if (refuserJsonEtGuide(values)) return;
 
   if (values.guide && !values.all && peutDemander({ json: values.json, guide: true })) {
     const projectDir = path.resolve(values.path || process.cwd());

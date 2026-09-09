@@ -173,3 +173,52 @@ test('CA-J8 : range --list (prose) inchangée, hors chemin du chapeau jetable', 
   fs.mkdirSync(path.join(ROOT, 'demo-projet-temoin', '.git'), { recursive: true });
   comparer('range-list', normaliser(run(['range', '--list', '--root', ROOT]), [[ROOT, '<ROOT>']]));
 });
+
+// =================================================================================================
+// J3 (C-JSON-COUVERTURE-COMPLETE, § 5 étape 1 / CA-J8) — témoins des 4 CIBLES GUIDÉES non encore
+// témoignées par J0-J2 (show, list, models unset, frame use — les 6 autres cibles guidées, add/
+// remove/attach/detach/switch/models-set, ont déjà leur témoin ci-dessus). Enregistrés AVANT toute
+// ligne de production du refus explicite --json/--guide (AR-J4(c), § 5 étape 7) : ce sont eux qui
+// PROUVENT, après coup, que le refus ajouté ne touche NI la prose humaine NI `--guide` seul (sans
+// --json) de ces 4 cibles. Invocations SANS ARGUMENT (comme guidage-non-interactif.test.js:CIBLES) :
+// déterministes, sans effet de bord, rejouables à volonté.
+//
+// `--guide` SEUL (non-TTY, sans --json) reproduit ICI le MÊME témoin, octet pour octet : la preuve
+// que le mode guide (paliers 0-2) reste intact pour ces 4 cibles quand --json est absent. Pour les
+// 6 cibles déjà témoignées ci-dessus (des ÉCRIVAINS, rejouer `--guide` les mute une seconde fois),
+// cette même invariance est déjà établie par G1 (cli/test/guidage-non-interactif.test.js, comparaison
+// dynamique avecGuide/sansGuide sur les 10 cibles, variante "non-TTY baseline") — ne pas la
+// dupliquer ici en fixture évite un second bac à sable écrivain pour une preuve déjà tenue.
+// =================================================================================================
+
+test('CA-J8 : show (prose d\'erreur, stderr) inchangée', () => {
+  comparer('show', runErr(['show']));
+});
+
+test('CA-J8 : show --guide (non-TTY, sans --json) — identique au témoin sans --guide', () => {
+  comparer('show', runErr(['show', '--guide']));
+});
+
+test('CA-J8 : list (prose) inchangée', () => {
+  comparer('list', run(['list']));
+});
+
+test('CA-J8 : list --guide (non-TTY, sans --json) — identique au témoin sans --guide', () => {
+  comparer('list', run(['list', '--guide']));
+});
+
+test('CA-J8 : models unset (prose d\'erreur, stderr) inchangée', () => {
+  comparer('models-unset', runErr(['models', 'unset']));
+});
+
+test('CA-J8 : models unset --guide (non-TTY, sans --json) — identique au témoin sans --guide', () => {
+  comparer('models-unset', runErr(['models', 'unset', '--guide']));
+});
+
+test('CA-J8 : frame use (prose d\'erreur, stderr) inchangée', () => {
+  comparer('frame-use', runErr(['frame', 'use']));
+});
+
+test('CA-J8 : frame use --guide (non-TTY, sans --json) — identique au témoin sans --guide', () => {
+  comparer('frame-use', runErr(['frame', 'use', '--guide']));
+});

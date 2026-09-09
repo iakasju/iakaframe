@@ -13,7 +13,7 @@ import { libraryRoot, scan } from '../lib/library.js';
 import { lintFrame, lintAllFrames } from '../lib/frame-lint.js';
 import { scaffoldFrameNew } from '../lib/scaffold.js';
 import { frameDescriptor, writeActiveFramePointer } from '../lib/frame-active.js';
-import { peutDemander } from '../lib/interactif.js';
+import { peutDemander, refuserJsonEtGuide } from '../lib/interactif.js';
 import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail, ok } from '../lib/output.js';
 
@@ -117,6 +117,7 @@ export async function runFrame(argv) {
   const payload = {
     ok: res.ok,
     checked: res.checked,
+    count: res.findings.length,
     findings: res.findings.map(f => ({ gate: f.gate, file: f.file, line: f.line, token: f.token })),
   };
 
@@ -233,6 +234,9 @@ async function runUseGuide(values) {
 
 async function runUse(values, positionals) {
   if (values.help) { console.log(USE_HELP); return; }
+
+  // AR-J4(c) : refus explicite si l'appelant a TAPE les deux drapeaux — AVANT peutDemander().
+  if (refuserJsonEtGuide(values)) return;
 
   if (values.guide && peutDemander({ json: values.json, guide: true })) {
     await runUseGuide(values);

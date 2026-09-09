@@ -653,20 +653,44 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
       d'autre ») et l'a remontée au lieu de la garder : geste juste des deux côtés, l'omission
       était la mienne.
 
-- [ ] **C-JSON-COUVERTURE-COMPLETE — J3 restant (interactifs & verrou).** Cadrage
-      `specs/instructions/c-json-couverture-complete.md`. **J0+J1 gatés PASS** (`docs/qualite/gate-c-json-j0-j1.md`,
-      cliquet 14 → 9) ; **J2 fermé par ⚒️ Gimli le 2026-09-08** (branche `feat/c-json-j2`, non encore
-      gaté) : les 9 derniers verbes du registre (`skills`, `models`, `add`, `remove`, `attach`,
-      `detach`, `switch`, `consolidate`, `range`) sont mesurés en bac à sable (drapeaux de
-      redirection existants, AR-J2(b) — zéro `--dry-run` inventé, zéro ligne de production hors
-      2 lignes de doc `--root` manquantes sur `add`/`attach`/`detach`), `couverture-json.json` :
-      `horsCouvertureCount` **9 → 0**. Suite complète 1244/1243/0/1.
-      **Reste (J3)** : le refus explicite `--json`/`--guide` (AR-J4(c), 9 sites de production /
-      10 cibles guidées) et la **garde de complétude G-J1** (qui rend l'échappatoire
-      `hors-couverture` impossible plutôt que seulement vide à l'instant T) — cf. § 5 étapes 7-8 et
-      § 8 CA-J12/CA-J13 du cadrage. **Attend le gate Legolas de J2** avant d'être engagé.
 
 ## Fait
+
+### Soldé le 2026-09-09 (lot `feat/c-json-j3`, cadrage `c-json-couverture-complete.md`) — dernier lot, C-JSON-COUVERTURE-COMPLETE ENTIÈREMENT livré
+
+- [x] **`C-JSON-COUVERTURE-COMPLETE` — les 4 lots (J0, J1, J2, J3) sont tous fermés.** J0+J1 gatés
+      PASS (`docs/qualite/gate-c-json-j0-j1.md`, cliquet 14 → 9) ; J2 gaté PASS
+      (`docs/qualite/gate-c-json-j2.md`, cliquet 9 → 0) ; **J3 remis par ⚒️ Gimli le 2026-09-09**
+      (branche `feat/c-json-j3`, en attente du gate 🏹 Legolas) :
+      - **AR-J4(c)** — refus explicite `{ok:false,error}` (exit 1, stderr vide) quand `--json` ET
+        `--guide` sont **tapés ensemble** sur une des 10 cibles guidées (9 sites de production dans
+        `commands/{list,show,add,remove,attach,switch,frame,models}.js`, un helper unique
+        `refuserJsonEtGuide()` dans `lib/interactif.js`) ; `--json` seul et `--guide` seul restent
+        inchangés octet pour octet (témoins de prose CA-J8).
+      - **G-J1**, garde de complétude (`guard-json-couverture.test.js`) : toute invocation attendue
+        (verbe/sous-verbe déclarant `--json`) a une entrée `NOMINAL`/`ERRORS` — dérivée PAR LECTURE
+        DU TEXTE de `guard-json-output.test.js` (jamais par import, qui réexécuterait aussi son bac
+        à sable). Écrite, elle a trouvé un trou réel sans rapport avec `--json`/`--guide` :
+        `frame new`/`frame use` n'avaient aucune invocation depuis J2 — fermé dans le même lot.
+      - **`--root` déclaré** sur `attach`/`detach` dans `verbes.js` (écart signalé par Legolas au
+        gate J2) ; G-J2 étendue au grain option (au moins `--json`/`--root`/`--path`/`--project`),
+        contrefactuel dans les deux sens sur des sondes synthétiques.
+      - **`frame verify` corrigé** (une ligne) : portait `findings` (collection) sans son frère
+        `count` — violation de la règle 3 du contrat, constatée à l'étape 0 du lot précédent.
+      - `horsCouvertureCount` verrouillé à **0**. Suite complète : **1263 tests, 1262 pass, 0 fail,
+        1 skipped**.
+      **Successeurs nommés** (hors périmètre de ce lot, non traités « tant qu'on y est ») :
+      - `REGISTRE-GRAIN-SOUS-VERBE` — faire porter `couverture-json.json` le grain sous-verbe au lieu
+        du grain verbe (arbitrage gelé `verbes.js:349-357`, AR-J1 § du cadrage).
+      - `REGISTRE-OPTIONS-ROOT-PATH-PROJET` — dette pré-existante trouvée en écrivant l'extension
+        G-J2 : `config`/`go`/`brief`/`recap`/`assemble` parsent `--root` sans le déclarer ni le
+        documenter, `switch` le déclare sans le documenter ; `go`/`brief`/`recap` parsent un alias
+        `--project` non déclaré/documenté, `observe` le documente sans le déclarer, `repo` déclare+
+        parse `--path` sans le documenter. Sans rapport avec C-JSON, non corrigé ici (§ 2 du
+        cadrage : « aucune retouche de confort »).
+      - `C-JSON-EXTENSION` / `C-JSON-VOCABULAIRE` — déjà nommés au § 4 « Exclu » du cadrage (donner
+        `--json` à un verbe qui ne le déclare pas ; harmoniser le vocabulaire des champs entre
+        verbes) : inchangés, toujours hors périmètre.
 
 ### Soldé le 2026-09-08 (lot `fix/ci-release-latest`, cadrage `ci-release-latest-non-maitrise.md`)
 

@@ -9,7 +9,7 @@ import { assemble, libraryRoot, readEntry, scan, toArray } from '../lib/library.
 import { frameCoherence } from '../lib/frame-active.js';
 import { generateAgent, loadDefaultBinding } from '../lib/generate-agents.js';
 import { resolveSkills } from '../lib/resolve-skills.js';
-import { peutDemander } from '../lib/interactif.js';
+import { peutDemander, refuserJsonEtGuide } from '../lib/interactif.js';
 import { selectionner, assemblerArgv, ligneEquivalente } from '../lib/guidage.js';
 import { emit, fail, ok } from '../lib/output.js';
 
@@ -87,6 +87,10 @@ export async function runSwitch(argv) {
   if (values.help) { console.log(USAGE); return; }
   const projectDir = path.resolve(values.path || process.cwd());
   const root = libraryRoot(values.root);
+
+  // AR-J4(c) : refus explicite si l'appelant a TAPE les deux drapeaux — AVANT peutDemander(),
+  // et INDEPENDANT de --rollback (le refus porte sur --json/--guide, pas sur le sous-mode).
+  if (refuserJsonEtGuide(values)) return;
 
   // --guide (A2/A5) : SANS EFFET si --rollback est demande (A4.3 : jamais propose comme entree de
   // menu, et --rollback reste un geste EXPLICITE, jamais devine).
