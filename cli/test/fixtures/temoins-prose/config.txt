@@ -1,0 +1,2 @@
+Diagnostic runners : claude=true  codex=false  iakaIDE=false  aider=false
+OK - <PROJ>/iakaframe.json  (runner=claude-code, node=claude)

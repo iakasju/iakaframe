@@ -10,6 +10,41 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### REGISTRE-OPTIONS-ROOT-PATH-PROJET — livré, en attente du gate 🏹 Legolas (2026-09-10)
+
+Cadrage : `specs/instructions/registre-options-root-path-projet.md`. Successeur nommé au lot
+`C-JSON-COUVERTURE-COMPLETE` J3 (`BACKLOG.md`, entrée « Soldé » du 2026-09-08). Branche
+`feat/registre-options`, worktree isolé.
+
+**Livré, PAS soldé** — le verdict appartient au gate qualité, pas à ⚒️ Gimli qui remet :
+
+- R1 (aligner) : `--root` déclaré sur `config`/`go`/`brief`/`recap`/`assemble`, `--project`
+  déclaré sur `go`/`brief`/`recap`/`observe`, ligne `repo` neuve en doc (5 options), avertissement
+  `--root` d'`index.js:110-111` complété. Mesure d'exécution étape 0 :
+  `docs/qualite/mesures-etape-0-registre-options.md`.
+- R2 (garder) : boucle de `guard-json-couverture.test.js` ouverte aux 4 options
+  (`--json`/`--root`/`--path`/`--project`), verbe `root` traité par exception nommée+prouvée
+  (jamais une liste blanche muette), 8 contrefactuels (4 options × 2 sens), registre
+  `couverture-options.json` + cliquet `horsBalayageCount` (6 écarts adjacents connus, motivés,
+  successeur `REGISTRE-OPTIONS-BALAYAGE-COMPLET`), angles morts (a) entrée commentée et (b)
+  `includes` nu redits dans l'en-tête de la garde (CA-R8, jamais levés — successeur
+  `GARDES-DERIVATION-PAR-AST`).
+- Suite : **1287 tests, 1280 pass, 0 fail, 7 skipped** (plancher hérité 1263/1262/0/1 dépassé ;
+  le compte de `skipped` diffère du plancher car ce worktree isolé n'a pas le dépôt frère
+  `iakaFrameGUI` à son emplacement habituel — fait d'environnement, pas une régression, cf. le
+  fichier de mesures ci-dessus). `git status --porcelain` vide après la suite.
+- Commits atomiques : `6e9ff25` (témoins de prose), `c0da329` (déclaration `--root`), `89ad496`
+  (déclaration `--project` + doc `repo`), `c6305a9` (mesures étape 0), `95cebba` (boucle de
+  balayage + exception `root`), `875cf32` (contrefactuels + registre hors-balayage), `bfd7bad`
+  (angles morts CA-R8).
+
+**Successeurs nommés, non traités ici** (§ 4 du cadrage, exclus par décision) :
+`CLI-SEMANTIQUE-PROJECT-ET-ROOT` (unifier `--project` `<nom>`/`<dir>` et `--root` chapeau/
+bibliothèque), `REGISTRE-OPTIONS-BALAYAGE-COMPLET` (balayer `--node`/`--force`/`--ascii`/
+`--binding`/`--portfolio`/`--help`/`--target`…), `GARDES-DERIVATION-PAR-AST` (lever l'angle mort
+de la dérivation textuelle), `RANGEMENT-GARDES-REGISTRE` (déplacer la garde de dérivation vers
+`guard-verbes-registre.test.js`), `REGISTRE-GRAIN-SOUS-VERBE` (déjà nommé, inchangé).
+
 ### CI-RELEASE-LATEST-NON-MAITRISE — le `make_latest` du workflow n'est PAS inerte : il est CALCULE A `false` (2026-09-05, titre corrige le 2026-09-08)
 
 > ⚠️ **Titre corrige le 2026-09-08** (cadrage `specs/instructions/ci-release-latest-non-maitrise.md`).
