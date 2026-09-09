@@ -168,6 +168,12 @@ function declareOption(v, option) {
   return false;
 }
 
+// ANGLE MORT (a), CA-R8, hérité de `gate-c-json-j3.md:260-264` et REDIT ici, jamais maquillé : la
+// dérivation est TEXTUELLE (`fs.readFileSync` + regex), pas un parsing AST. Une ligne `parseArgs`
+// NEUTRALISÉE par `//` compte encore comme « parsée » ; une ligne de tableau `docs/commandes.md`
+// située dans un bloc de code (```) compterait encore comme « documentée ». Cette garde ne PEUT
+// PAS distinguer du code mort de du code vivant : elle lit des octets, pas un arbre syntaxique.
+// Successeur nommé pour lever cet angle mort : `GARDES-DERIVATION-PAR-AST`.
 function parseOptionDansFichier(id, cmdDir, option) {
   // Exception NOMMÉE (AR-R3, CA-R6) : `root` n'a pas de fichier de commande — la preuve de
   // « parsé » est la présence LITTÉRALE de l'option dans `cli/src/index.js`, jamais une liste
@@ -184,6 +190,13 @@ function parseOptionDansFichier(id, cmdDir, option) {
   return re.test(fs.readFileSync(p, 'utf8'));
 }
 
+// ANGLE MORT (b), CA-R8, redit ici (côté « option » de la dérivation ; le côté `--json` porte le
+// même défaut depuis J0-J3, non ré-explicité à chaque fonction) : `ligne.includes(option)` est un
+// `includes` NU sur SOUS-CHAÎNE — `--project` matcherait une ligne qui ne mentionne QUE
+// `--projects` (un drapeau hypothétique différent). Le côté « déclaré » de cette garde est propre
+// (`optionDeclaree` plus haut exige l'égalité stricte ou un espace suivant) ; le côté « doc » ne
+// l'est pas. Aucune formulation de ce fichier ni du rapport de remise ne doit laisser croire à une
+// garde sémantique : c'est un `includes` textuel, jamais un parseur de tableau Markdown.
 function docMentionneOption(id, docText, option) {
   const idEchappe = id.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   const re = new RegExp('^\\|\\s*`' + idEchappe + '(?:[\\s`]|$)');
