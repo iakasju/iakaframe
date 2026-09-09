@@ -998,5 +998,15 @@
     "dirty": false,
     "files": 1240,
     "note": "C-JSON J2 livre et fusionne (gate PASS, 1245 tests) : les 9 ecrivains/interactifs prouves en bac a sable strict (grain sous-verbe, drapeaux existants), garde d empreinte disque du depot reel, cliquet 9 -> 0. Ecart pour J3 : verbes.js ne declare pas --root sur attach/detach (parse + documente). J3 = refus explicite --json/--guide (AR-J4c, 9 sites) + garde de completude G-J1 + --root declare. Successeur : frame verify sans count."
+  },
+  {
+    "date": "2026-09-09 23:29",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "0084b61 merge: C-JSON J3 — refus explicite --json+--guide, G-J1 complétude, --root attach/detach (gate PASS)",
+    "dirty": false,
+    "files": 1245,
+    "note": "C-JSON-COUVERTURE-COMPLETE entierement livre : J3 fusionne (gate PASS, refus explicite --json+--guide, G-J1 complete, --root attach/detach), cliquet a 0 verrouille, 1263 tests. Successeurs : REGISTRE-GRAIN-SOUS-VERBE, REGISTRE-OPTIONS-ROOT-PATH-PROJET, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, G-J1 aveugle au code commente."
   }
 ]
