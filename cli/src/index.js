@@ -107,8 +107,9 @@ Sortie machine (--json) : partout un BOOLEEN ; emet un objet JSON 2-indente sur 
   erreur = { ok:false, error } sur stdout (exit 1, rien d'humain sur stderr). services
   ecrit desormais son fichier via --out <fichier> (l'ancien --json <fichier> est retire).
 
-⚠ --root a DEUX sens selon la commande : dossier chapeau ~/work (portfolio, observe) vs
-  racine de bibliotheque (list, show, add, assemble, switch). Voir IAKAFRAME_ROOT / IAKAFRAME_HOME.
+⚠ --root a DEUX sens selon la commande : dossier chapeau ~/work (portfolio, observe, config, go,
+  brief, recap) vs racine de bibliotheque (list, show, add, assemble, switch). Voir IAKAFRAME_ROOT /
+  IAKAFRAME_HOME.
 
 Chaque verbe porte sa PROPRE aide detaillee : iakaframe <verbe> --help. L'inventaire machine de
 ce bloc (verbes, sous-verbes, options) est disponible en JSON : iakaframe commands --json.
