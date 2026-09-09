@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-09 23:29 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-10 00:49 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | 0084b61 merge: C-JSON J3 — refus explicite --json+--guide, G-J1 complétude, --root attach/detach (gate PASS) |
-| Arbre | propre |
-| Fichiers (suivis + non ignores) | 1245 |
-| Note | C-JSON-COUVERTURE-COMPLETE entierement livre : J3 fusionne (gate PASS, refus explicite --json+--guide, G-J1 complete, --root attach/detach), cliquet a 0 verrouille, 1263 tests. Successeurs : REGISTRE-GRAIN-SOUS-VERBE, REGISTRE-OPTIONS-ROOT-PATH-PROJET, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, G-J1 aveugle au code commente. |
+| Dernier commit | 28ccd7f merge: REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 — options --root/--project déclarées et documentées, garde ouverte aux 4 options (gate PASS) |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (suivis + non ignores) | 1260 |
+| Note | REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 livre (gate PASS sans ecart) : --root declare sur config/go/brief/recap/assemble, --project <nom> sur go/brief/recap/observe, ligne doc repo complete, boucle verbesEnDeriveOption ouverte aux 4 options + entree motivee root, registre couverture-options.json (6 ecarts motives) + cliquet. Suite 1287/1286/0/1. Successeurs : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET ; REGISTRE-GRAIN-SOUS-VERBE en cours dans une session parallele (worktree .wt/). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `0084b61` | 2026-09-09 | merge: C-JSON J3 — refus explicite --json+--guide, G-J1 complétude, --root attach/detach (gate PASS) |
-| `7268fe0` | 2026-09-09 | docs(qualite): gate C-JSON J3 — PASS |
-| `ee23630` | 2026-09-09 | chore(backlog): C-JSON-COUVERTURE-COMPLETE entierement livre, successeurs nommes |
-| `c1b8417` | 2026-09-09 | docs(commandes): precedence --json/--guide (AR-J4c) |
-| `1678e92` | 2026-09-09 | fix(registre): --root declare sur attach/detach + G-J2 au grain option |
-| `7221989` | 2026-09-09 | test(json): garde de completude G-J1 (+ couverture frame new/use manquante) |
-| `335cb78` | 2026-09-09 | fix(json): frame verify porte count, frere de findings (regle 3) |
-| `347deb5` | 2026-09-09 | feat(json): refus explicite --json + --guide sur les 9 sites de guidage (AR-J4c) |
-| `30a5629` | 2026-09-09 | test(json): temoins prose + --guide non-TTY des 4 dernieres cibles guidees (J3) |
-| `20dd430` | 2026-09-08 | chore(iakaframe): update etat des lieux + commit global (pause) |
+| `28ccd7f` | 2026-09-10 | merge: REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 — options --root/--project déclarées et documentées, garde ouverte aux 4 options (gate PASS) |
+| `6442255` | 2026-09-10 | docs(qualite): gate REGISTRE-OPTIONS R1+R2 — PASS |
+| `8cabc94` | 2026-09-10 | docs(qualite): remise Gimli -> Legolas REGISTRE-OPTIONS-ROOT-PATH-PROJET |
+| `8857872` | 2026-09-10 | docs(instructions): coche CA-R1..CA-R10 avec preuve en regard |
+| `15487c7` | 2026-09-10 | chore(backlog): REGISTRE-OPTIONS-ROOT-PATH-PROJET livre, en attente du gate Legolas |
+| `bfd7bad` | 2026-09-10 | docs(cli): redit les deux angles morts de la derivation par option (CA-R8) |
+| `875cf32` | 2026-09-10 | test(cli): contrefactuels 2 sens x 4 options + registre hors-balayage (AR-R4) |
+| `95cebba` | 2026-09-10 | test(cli): ouvre le balayage de derivation aux 4 options (AR-R3/CA-R5/CA-R6) |
+| `c6305a9` | 2026-09-10 | docs(qualite): mesures d'execution etape 0 REGISTRE-OPTIONS-ROOT-PATH-PROJET |
+| `89ad496` | 2026-09-10 | feat(cli): declare --project sur go/brief/recap/observe + doc repo (AR-R1/AR-R2) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -210,6 +210,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-10 00:49 | pause | v0.41.0 | main | REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 livre (gate PASS sans ecart) : --root declare sur config/go/brief/recap/assemble, --project <nom> sur go/brief/recap/observe, ligne doc repo complete, boucle verbesEnDeriveOption ouverte aux 4 options + entree motivee root, registre couverture-options.json (6 ecarts motives) + cliquet. Suite 1287/1286/0/1. Successeurs : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET ; REGISTRE-GRAIN-SOUS-VERBE en cours dans une session parallele (worktree .wt/). |
 | 2026-09-09 23:29 | pause | v0.41.0 | main | C-JSON-COUVERTURE-COMPLETE entierement livre : J3 fusionne (gate PASS, refus explicite --json+--guide, G-J1 complete, --root attach/detach), cliquet a 0 verrouille, 1263 tests. Successeurs : REGISTRE-GRAIN-SOUS-VERBE, REGISTRE-OPTIONS-ROOT-PATH-PROJET, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, G-J1 aveugle au code commente. |
 | 2026-09-08 11:30 | pause | v0.41.0 | main | C-JSON J2 livre et fusionne (gate PASS, 1245 tests) : les 9 ecrivains/interactifs prouves en bac a sable strict (grain sous-verbe, drapeaux existants), garde d empreinte disque du depot reel, cliquet 9 -> 0. Ecart pour J3 : verbes.js ne declare pas --root sur attach/detach (parse + documente). J3 = refus explicite --json/--guide (AR-J4c, 9 sites) + garde de completude G-J1 + --root declare. Successeur : frame verify sans count. |
 | 2026-09-08 10:52 | pause | v0.41.0 | main | C-JSON J0+J1 livres et fusionnes (gate PASS, 1214 tests) : inconnue n1 levee par execution (aucun verbe accepte-et-ignore, lot de PREUVE), config declare, regle 6 du contrat, garde de derivation declare<->parse<->documente, 9 lecteurs purs en NOMINAL, cliquet 14 -> 9, temoins de prose. J2 engage (ecrivains en bac a sable, cliquet 9 -> 0) sur recommandation du gate. Successeurs : frame verify sans count, J3 (AR-J4 + garde de completude). |
