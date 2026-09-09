@@ -146,6 +146,11 @@ export const VERBES = [
       { id: 'fullteam', resume: "Affecte toute l'equipe au projet", options: ['--project <dir>', '--force'] },
       { id: 'status', resume: 'Statut de deploiement des personas', options: ['--json'] },
     ],
+    // AR-G3(b) (mesure 0.c 2026-09-10) : la forme NUE de `agents` DISPATCHE vers `list` (sortie
+    // octet pour octet identique). Non-porteuse pour la couverture aujourd'hui (`agents list` a sa
+    // propre entree NOMINAL) : declaree quand meme pour ne pas laisser une exclusion silencieuse si
+    // cette entree venait a disparaitre (R-G6, CA-G3 contrefactuel n°2).
+    sousVerbeParDefaut: 'list',
     parametres: [],
     ecriture: true,
     guideClaudeCode: { generer: true },
@@ -157,6 +162,11 @@ export const VERBES = [
     sousVerbes: [
       { id: 'deploy', resume: 'Deploie/verifie les skills resolues de la team active', options: ['--project <dir>', '--global', '--check', '--json'] },
     ],
+    // AR-G3(b) (REGISTRE-GRAIN-SOUS-VERBE, mesure 0.c 2026-09-10, execution byte-a-byte) : la forme
+    // NUE de `skills` DISPATCHE vers `deploy` (sortie identique a `skills deploy --check`). Propriete
+    // de FORME du CLI, declaree ici (donnee), jamais supposee par une garde de test — cf.
+    // cli/test/guard-json-couverture.test.js (garde structurelle + derivation de la couverture).
+    sousVerbeParDefaut: 'deploy',
     parametres: [],
     ecriture: true,
     guideClaudeCode: { generer: true },
@@ -345,6 +355,11 @@ export const VERBES = [
       { id: 'use', resume: 'Pose la frame active du projet : ecrit iakaframe.json cle "frame"', options: ['--path <projet>', '--guide', '--json', '--root <dir>'],
         parametres: [{ nom: 'frameId', autorite: { symbole: "scan('frames')", module: 'lib/library.js' } }] },
     ],
+    // AR-G3(b) (mesure 0.c 2026-09-10) : la forme NUE de `frame` DISPATCHE vers `verify` (sortie
+    // octet pour octet identique). Non-porteuse pour la couverture aujourd'hui (`frame verify` a sa
+    // propre entree NOMINAL) : declaree quand meme, meme motif que `agents` ci-dessus (R-G6, CA-G3
+    // contrefactuel n°2).
+    sousVerbeParDefaut: 'verify',
     parametres: [],
     // ARBITRAGE DE GRAIN, nomme explicitement (constat du gate qualite, lot fix/lotB) : `frame`
     // est exclu EN BLOC alors que 3 de ses 4 sous-verbes (verify/lint/new) sont des outils de
@@ -354,7 +369,13 @@ export const VERBES = [
     // exclu comme un TOUT, ce qui sur-exclut verify/lint/new et sous-exclut `use` par rapport a
     // `switch`. Ce n'est pas une mesure : c'est un arbitrage de granularite, defendable mais
     // jusqu'ici non nomme comme tel — corrige ici.
-    guideClaudeCode: { generer: false, motif: "arbitrage de GRAIN (le registre ne granularise pas par sous-verbe : `frame` est exclu en bloc alors que verify/lint/new sont des outils de garde CI et que `use` mute le pointeur de frame comme `switch`, generer:true, mute methode/team) — recommandation Lot B — chute le jour ou le registre porte une granularite par sous-verbe (alors verify/lint/new pourraient generer independamment de `use`)" },
+    // DESAMBIGUISE (AR-G5(b), REGISTRE-GRAIN-SOUS-VERBE, 2026-09-10) : « le registre » ci-dessous
+    // designe UNIQUEMENT `guideClaudeCode` (couverture du kit Claude Code, cli/scripts/
+    // gen-iaka-commands.mjs) — PAS `cli/test/fixtures/couverture-json.json`, qui porte desormais le
+    // grain sous-verbe depuis ce lot (deux registres, deux consommateurs, deux jeux de gardes ; le
+    // cadrage parent avait conflate les deux, cf. instruction § 0.6). La condition de chute reste
+    // donc VRAIE et non remplie : elle porte sur guideClaudeCode, que ce lot ne touche pas.
+    guideClaudeCode: { generer: false, motif: "arbitrage de GRAIN du registre GUIDECLAUDECODE (kit Claude Code — PAS le registre de couverture C-JSON, qui porte le grain sous-verbe depuis REGISTRE-GRAIN-SOUS-VERBE) : guideClaudeCode ne granularise pas par sous-verbe, `frame` est exclu en bloc alors que verify/lint/new sont des outils de garde CI et que `use` mute le pointeur de frame comme `switch`, generer:true, mute methode/team) — recommandation Lot B — chute le jour ou guideClaudeCode porte une granularite par sous-verbe (alors verify/lint/new pourraient generer independamment de `use`)" },
   },
   {
     id: 'switch',
