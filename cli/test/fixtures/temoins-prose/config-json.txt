@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "path": "<PROJ>/iakaframe.json",
+  "runner": "claude-code",
+  "node": "claude",
+  "diagnostics": {
+    "claude": true,
+    "codex": false,
+    "iakaide": false,
+    "aider": false
+  },
+  "warnings": []
+}

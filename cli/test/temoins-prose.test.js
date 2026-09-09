@@ -47,6 +47,15 @@ const REPO = path.join(HERE, '..', '..');
 const FIX = path.join(HERE, 'fixtures', 'temoins-prose');
 
 function tmp(prefix) { return fs.mkdtempSync(path.join(os.tmpdir(), prefix)); }
+// Sous-dossier a NOM FIXE dans un parent jetable : requis pour brief/recap/go, qui impriment
+// path.basename(dir) EN CLAIR (banner ASCII ou cellule de tableau) — un nom issu de mkdtempSync
+// (suffixe aleatoire) rendrait le temoin non reproductible d'un run a l'autre.
+function tmpFixed(prefix, name) {
+  const parent = tmp(prefix);
+  const dir = path.join(parent, name);
+  fs.mkdirSync(dir);
+  return dir;
+}
 
 function run(args, extraEnv = {}) {
   const r = spawnSync(process.execPath, [CLI, ...args], { cwd: REPO, encoding: 'utf8', env: { ...process.env, ...extraEnv } });
@@ -221,4 +230,60 @@ test('CA-J8 : frame use (prose d\'erreur, stderr) inchangée', () => {
 
 test('CA-J8 : frame use --guide (non-TTY, sans --json) — identique au témoin sans --guide', () => {
   comparer('frame-use', runErr(['frame', 'use', '--guide']));
+});
+
+// =================================================================================================
+// REGISTRE-OPTIONS-ROOT-PATH-PROJET (§ 5 étape 1) — témoins des 7 verbes touchés par l'ajout
+// d'entrées `options` au registre (`config`, `go`, `brief`, `recap`, `assemble`, `observe`) et par
+// la ligne de doc neuve (`repo`). Aucune ligne de `cli/src/commands/*.js` n'est modifiée par ce lot
+// (§ 2(a) : seuls `verbes.js`, `docs/commandes.md`, `index.js:110-111` bougent) — ces témoins
+// prouvent, après coup, que la prose humaine ET la sortie `--json` de ces verbes n'ont pas bougé
+// d'un octet (CA-R4). `switch` a déjà son témoin ci-dessus (ligne 160) : seule sa ligne de doc
+// change, son registre est inchangé.
+//
+// Enregistrés AVANT toute modification de production (étape 1, bloquant).
+// =================================================================================================
+
+test('CA-R4 : config (prose) inchangée, hors chemin du projet jetable', () => {
+  const PROJ = tmp('iaka-prose-config-');
+  comparer('config', normaliser(run(['config', '--path', PROJ]), [[PROJ, '<PROJ>']]));
+});
+
+test('CA-R4 : config --json inchangé, hors chemin du projet jetable', () => {
+  const PROJ = tmp('iaka-prose-config-json-');
+  comparer('config-json', normaliser(run(['config', '--path', PROJ, '--json']), [[PROJ, '<PROJ>']]));
+});
+
+test('CA-R4 : go (prose d\'erreur, stderr) inchangée, hors chemin du chapeau jetable', () => {
+  const ROOT = tmp('iaka-prose-go-root-');
+  comparer('go', normaliser(runErr(['go', '--project', 'inexistant', '--root', ROOT]), [[ROOT, '<ROOT>']]));
+});
+
+test('CA-R4 : brief (prose) inchangée, hors chemin du projet jetable (basename FIXE)', () => {
+  const PROJ = tmpFixed('iaka-prose-brief-', 'PROJETTEMOIN');
+  comparer('brief', normaliser(run(['brief', '--path', PROJ]), [[PROJ, '<PROJ>']]));
+});
+
+test('CA-R4 : recap (prose) inchangée, hors chemin du projet jetable (basename FIXE)', () => {
+  const PROJ = tmpFixed('iaka-prose-recap-', 'PROJETTEMOIN');
+  comparer('recap', normaliser(run(['recap', '--path', PROJ]), [[PROJ, '<PROJ>']]));
+});
+
+test('CA-R4 : assemble --json (prose) inchangée (iakaframe/iakaframe-8, deterministe)', () => {
+  comparer('assemble', run(['assemble', 'iakaframe', 'iakaframe-8', '--json']));
+});
+
+test('CA-R4 : observe list (prose) inchangée, hors chemin du store jetable', () => {
+  const HOME = tmp('iaka-prose-observe-');
+  comparer('observe', normaliser(run(['observe', 'list', '--home', HOME]), [[HOME, '<HOME>']]));
+});
+
+test('CA-R4 : observe list --json inchangé, hors chemin du store jetable', () => {
+  const HOME = tmp('iaka-prose-observe-json-');
+  comparer('observe-json', normaliser(run(['observe', 'list', '--home', HOME, '--json']), [[HOME, '<HOME>']]));
+});
+
+test('CA-R4 : repo (prose d\'erreur, stderr) inchangée, hors chemin du dossier jetable (pas un depot git)', () => {
+  const PROJ = tmp('iaka-prose-repo-');
+  comparer('repo', normaliser(runErr(['repo', '--path', PROJ]), [[PROJ, '<PROJ>']]));
 });
