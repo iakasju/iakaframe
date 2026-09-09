@@ -8,10 +8,32 @@
 > **Ce lot est ce lot-là.**
 >
 > Cadré par 🔵 Gandalf le 2026-09-09. **Instruction — aucun code n'a été écrit ni exécuté ici.**
+>
+> **Lieu du lot** : worktree `/Users/sjupin/work/.wt/iakaframe-registre-grain-sous-verbe`, branche
+> `feat/registre-grain-sous-verbe`. On lit et on écrit **là**, jamais dans l'arbre racine
+> `/Users/sjupin/work/iakaframe` (tenu par une autre session).
+>
+> ## ⚠️ AMENDEMENT du 2026-09-10 — l'étape 0 est MESURÉE, et elle m'a corrigé
+>
+> ⚒️ Gimli a exécuté l'étape 0 : `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md`
+> (commit `7c826b3`). **Ce rapport remplace le § 0 ci-dessous comme AUTORITÉ** — là où les deux
+> divergent, l'exécution gagne, et la divergence est nommée en place.
+>
+> - **0.a CONFIRMÉ** (`fail 0`), **0.b CONFIRMÉ exactement** (21 | 29 | 8), **0.d CONFIRMÉ**,
+>   **0.e CONFIRMÉ exactement** (`[]` avec le repli, **11** sans). **Le fait central du § 0.3 tient
+>   à la lettre** : aucune règle d'arrêt déclenchée, le lot s'exécute.
+> - **0.c INFIRMÉ sur 3 des 8 formes nues** : `agents` nu est un **alias** de `agents list` et
+>   `frame` nu un **alias** de `frame verify` (sorties byte-identiques) — pas des erreurs d'usage ;
+>   **`observe` nu est une erreur d'usage et N'ÉCRIT PAS le store** — c'est ma lecture de
+>   `verbes.js:461-466` qui était fausse, et l'avertissement que j'avais mis à l'étape 0.c avec.
+> - **Conséquences portées ci-dessous** : `sousVerbeParDefaut` sur **trois** verbes (AR-G3, étape 2,
+>   CA-G3, R-G6) ; AR-G2 **re-justifié sur le fait mesuré** (`models` est la **seule** forme nue
+>   propre) ; compte d'entrées attendu **51** (§ 0.4, étape 3) ; § 9 **resserré**, trois inconnues
+>   levées. **Aucun arbitrage rouvert, aucun périmètre élargi.**
 
 ---
 
-## 0. Ce qui a été mesuré le 2026-09-09
+## 0. Ce qui a été mesuré le 2026-09-09 — puis CORRIGÉ PAR L'EXÉCUTION le 2026-09-10
 
 ### 0.1 — Instruments, et leur limite déclarée
 
@@ -43,6 +65,16 @@ laisser supposer.
 
 Je cite ces mesures **comme mesures d'autrui**, datées et attribuées ; je ne les rejoue pas.
 
+> **Amendement 2026-09-10 — la ligne de base du WORKTREE n'est pas celle du gate J3.** Mesure 0.a :
+> `tests 1263, pass 1256, fail 0, skipped 7`. L'écart de 6 skips face au gate J3 (`pass 1262,
+> skipped 1`) est **entièrement expliqué et sans rapport avec ce lot** : six gardes de **parité**
+> avec le dépôt frère `iakaFrameGUI`, **absent du worktree**, plus un test conditionné à la présence
+> de `rg`. Chacun **s'auto-déclare** avec son motif. C'est **cette** ligne de base — `1263 / 1256 /
+> fail 0 / skipped 7` — que CA-G11 confronte, **pas** celle du gate J3.
+> *(Signalé aussi par Gimli : une assertion transitoire rouge sur `install-contrat-machine.test.js:370`
+> en suite complète, non reproductible en 3 rejeux isolés ni au second passage complet — flakiness
+> d'exécution parallèle, nommée et non tue, hors périmètre.)*
+
 ### 0.3 — Le fait central : le grain sous-verbe de G-J1 est aujourd'hui une FICTION
 
 C'est le constat qui commande tout le lot, et il n'était pas dans la commande.
@@ -65,6 +97,16 @@ Ce repli a une raison légitime et écrite (l.364-367) : la forme **nue** de `sk
 sous-verbe `deploy` — la garde ne devait pas exiger une invocation `skills deploy` qui n'existe
 pas au CLI. Mais **le remède couvre bien plus que sa cause** : posé pour un cas d'alias, il
 désarme le grain sur les **huit** verbes à sous-verbes.
+
+> **Amendement 2026-09-10 — mesuré, et le fait tient à la lettre.** Mesure 0.e :
+> **`[]` avec le repli, 11 sans** — les dix trous du § 0.5 **plus** `skills deploy`. L'exécution
+> ajoute une précision : les formes nues **alias** ne sont pas une (`skills`) mais **trois**
+> (`skills`→`deploy`, `agents`→`list`, `frame`→`verify`, mesure 0.c). **Une seule reste
+> porteuse** pour le repli — `skills deploy`, la seule dont le sous-verbe n'ait pas d'entrée
+> `NOMINAL` propre ; `agents list` et `frame verify` en ont une. Cela ne change **rien** au constat
+> ci-dessus : le repli couvre toujours bien plus que sa cause. Cela change la **forme de sa
+> succession** (AR-G3 : trois déclarations, dont une seule est aujourd'hui porteuse — dit, pas
+> maquillé, cf. CA-G3).
 
 **Conséquence directe pour ce lot** : `horsCouvertureCount: 0` est vrai **au grain verbe** et
 **faux au grain sous-verbe**. Ce lot ne « change pas une unité de compte » — il **cesse de faire
@@ -93,10 +135,28 @@ Les **29** entrées actuelles du registre se décomposent en **21** verbes **san
 exclusive : **21 + 29 = 50 entrées** (et **58** si les 8 formes **nues** comptent chacune pour une
 entrée de plus — c'est l'objet d'**AR-G2**).
 
+> **Amendement 2026-09-10 — décompte CONFIRMÉ, formes nues TRANCHÉES par la mesure.**
+> Mesure 0.b : **21 | 29 | 8**, exactement. Mesure 0.c, classement des 8 formes nues **par
+> exécution** (stdout cité au rapport) :
+>
+> | Forme nue | Classement **mesuré** | Entrée au registre ? |
+> |---|---|---|
+> | `models` | **comportement propre** (`ok:true`, `count:10`, `targets`/`roles`/`suggestions` — distinct de `set`/`unset`) | **oui** |
+> | `skills` | **alias** de `deploy` (identique à `skills deploy --check`) | non — **déclaré** (AR-G3) |
+> | `agents` | **alias** de `list` (byte-identique) | non — **déclaré** (AR-G3) |
+> | `frame` | **alias** de `verify` (byte-identique) | non — **déclaré** (AR-G3) |
+> | `memory`, `produit`, `review`, `observe` | **erreur d'usage** (`ok:false`, exit 1) | non |
+>
+> **Compte d'entrées attendu à l'étape 3 : 21 + 29 + 1 = 51.** Une seule forme nue entre au
+> registre (`models`), pas deux ni huit. Ce chiffre est un **résultat de mesure**, pas une
+> convention — et il **reste dérivé** de `verbes.js` + `sousVerbeParDefaut` par le test, jamais
+> écrit en dur dans la fixture (§ 2(b)).
+
 ### 0.5 — Les trous que ce grain rend visibles
 
-En confrontant les **50** invocations attendues aux tableaux `NOMINAL` (l.184-249) et `ERRORS`
-(l.334-361) de `guard-json-output.test.js`, **sans** le repli `verbId` :
+En confrontant les invocations attendues (**50** au grain sous-verbe exclusif, **51** avec la forme
+nue `models` retenue par la mesure 0.c) aux tableaux `NOMINAL` (l.184-249) et `ERRORS` (l.334-361)
+de `guard-json-output.test.js`, **sans** le repli `verbId` :
 
 | Invocation attendue | Entrée `NOMINAL`/`ERRORS` ? | Nature |
 |---|---|---|
@@ -111,6 +171,15 @@ En confrontant les **50** invocations attendues aux tableaux `NOMINAL` (l.184-24
 | **`produit init`**, **`produit add`**, **`produit replace`**, **`produit remove`** | **non** | écrivains du canon projet |
 | **`review apply`**, **`review reject`**, **`review auto`** | **non** | écrivains du réservoir |
 | `skills deploy` | **non** — mais `skills` **nu** EST `deploy` | **alias**, pas un trou |
+
+> **Amendement 2026-09-10 — table CONFIRMÉE par la mesure 0.d/0.e, avec deux précisions.**
+> (1) Les **dix** trous sont confirmés absents (grep + lecture complète d'`ERRORS`), puis
+> **exécutés propres** en bac à sable : racine objet, `ok` en 1ʳᵉ clé, `stderr` vide, exit 0, aucune
+> fuite (`git status --porcelain` vide). (2) Les lignes « `agents list`, `agents status` » et
+> « `frame verify`, … » restent **oui** — et l'on sait maintenant **pourquoi la forme nue ne crée
+> pas de trou de plus** : `agents` nu et `frame` nu sont des **alias** de sous-verbes **déjà
+> couverts** (mesure 0.c), au même titre que `skills`. Trois alias, **un seul** (`skills deploy`)
+> sans entrée propre — c'est exactement ce que la mesure 0.e rend : **11 manquantes** sans le repli.
 
 **Dix trous réels**, un cas d'alias. Ces dix invocations sont **précisément** celles que le § 5
 étape 6 du cadrage parent **nommait** (`c-json-couverture-complete.md:445-447` : « `memory
@@ -224,41 +293,57 @@ Six arbitrages. Chacun porte ses options, son coût et ma **recommandation**. De
 Les **8** verbes à sous-verbes portent tous `--json` dans leur `options` de premier niveau. Leur
 forme **nue** (`iakaframe memory --json`, sans action) est-elle une surface de contrat ?
 
-Les faits connus divergent d'un verbe à l'autre : `models` **nu** a une entrée `NOMINAL`
-(`guard-json-output.test.js:231`) et un comportement propre **mesuré** à l'étape 0 du lot parent
-(`docs/qualite/mesures-etape-0-lot-C-JSON.md:30`) ; `skills` **nu** **est** le sous-verbe `deploy`
-(`guard-json-couverture.test.js:364-367`) ; `observe` **nu** **écrit le store** (`verbes.js:461-466`)
-et n'est mesuré par rien ; pour `agents`, `frame`, `memory`, `produit`, `review`, ma lecture
-suppose une erreur d'usage — **et une supposition n'est pas une mesure**.
+Les faits **mesurés** (0.c, § 0.4) divergent d'un verbe à l'autre : `models` **nu** rend un rapport
+**propre** (`ok:true`, `count:10`, `targets`/`roles`/`suggestions`) et a déjà une entrée `NOMINAL`
+(`guard-json-output.test.js:231`) ; `skills`, `agents` et `frame` **nus** sont des **alias** de
+`deploy`, `list` et `verify` (sorties byte-identiques) ; `memory`, `produit`, `review` et `observe`
+**nus** sont des **erreurs d'usage** (`ok:false`, exit 1, **rien d'écrit**).
 
 | Option | Ce que ça donne | Coût / risque |
 |---|---|---|
-| (a) Toujours — 58 entrées | exhaustif, uniforme | crée jusqu'à 6 entrées pour des invocations qui ne sont **que** des erreurs d'usage : on met sous contrat un message d'erreur |
-| **(b) Seulement si l'étape 0 mesure un comportement PROPRE** (ni erreur d'usage, ni alias d'un sous-verbe) | le compte est **dérivé d'une mesure**, pas d'une convention ; `observe` nu (écrivain réel, non mesuré) **entre** ; `skills` nu est déclaré **alias** (AR-G3) ; les erreurs d'usage n'entrent pas | il faut mesurer les 8 avant d'écrire la fixture — c'est **le cœur de l'étape 0** |
-| (c) Jamais — 50 entrées, grain sous-verbe exclusif | le plus simple | **fait disparaître `observe` nu du registre** alors qu'il écrit et déclare `--json` : la refonte **créerait** un trou. Exactement ce que le § 2(c) proscrit |
+| (a) Toujours — 58 entrées | exhaustif, uniforme | crée **7** entrées pour des invocations qui ne sont pas des surfaces de contrat : **4** erreurs d'usage (on met un message d'erreur sous contrat) et **3** alias (on compte deux fois la même surface) |
+| **(b) Seulement si la mesure établit un comportement PROPRE** (ni erreur d'usage, ni alias d'un sous-verbe) | le compte est **dérivé d'une mesure**, pas d'une convention ; `models` nu **entre** ; `skills`/`agents`/`frame` nus sont déclarés **alias** (AR-G3) ; les erreurs d'usage n'entrent pas | il faut mesurer les 8 avant d'écrire la fixture — c'était **le cœur de l'étape 0**, et c'est fait |
+| (c) Jamais — 50 entrées, grain sous-verbe exclusif | le plus simple | **fait disparaître `models` nu du registre** alors qu'il déclare `--json`, rend une charge qui lui est propre **et est déjà mesuré** : la refonte **créerait** un trou. Exactement ce que le § 2(c) proscrit |
 
-> **Recommandation : (b).** C'est la seule option où le compte final (**50, 51, 52…**) est un
-> **résultat** et non une convention — et la seule qui ne perde pas `observe` nu en route. Ma
-> prédiction de lecture, **à infirmer** : comportement propre pour `models` et `observe` ; alias
-> pour `skills` ; erreur d'usage pour `agents`, `frame`, `memory`, `produit`, `review` → **52
-> entrées**. Si l'étape 0 dit autre chose, **l'étape 0 gagne** et le chiffre change sans que ce
-> cadrage soit rouvert.
+> **Recommandation : (b) — tenue, et désormais adossée à une mesure et non à une prédiction.**
+> **⚠️ Amendement 2026-09-10** : la justification d'origine (« la seule qui ne perde pas `observe`
+> nu, qui écrit ») était **fausse** — `observe` nu **n'écrit pas**, c'est une erreur d'usage
+> (mesure 0.c). L'arbitrage ne change pas, **son motif change** : ce que (c) ferait perdre, c'est
+> **`models` nu**, seule forme nue au comportement propre. Compte final **51**, et c'est un
+> **résultat de mesure** — exactement ce que cette option promettait (« si l'étape 0 dit autre
+> chose, l'étape 0 gagne et le chiffre change sans que ce cadrage soit rouvert »). C'est le cas :
+> **prédit 52, mesuré 51.**
 
 ### AR-G3 — Comment remplacer le repli `verbId`, qui rend le grain fictif ?
 
 Le repli (`guard-json-couverture.test.js:368`) doit **tomber** — sinon le lot ne change rien
 (§ 0.3). Mais sa **cause légitime** (`skills` nu **est** `deploy`) doit être servie autrement.
 
+> **Amendement 2026-09-10 — la cause est TRIPLE, pas simple.** Mesure 0.c : **trois** verbes ont
+> une forme nue qui **dispatche** vers un sous-verbe — `skills`→`deploy`, `agents`→`list`,
+> `frame`→`verify` (sorties byte-identiques). `sousVerbeParDefaut` porte donc sur **trois** verbes.
+> Précision d'honnêteté, à ne pas maquiller : **une seule** de ces déclarations est aujourd'hui
+> **porteuse** pour la couverture (`skills`, dont `deploy` n'a pas d'entrée `NOMINAL` propre) ;
+> `agents list` et `frame verify` en ont une, leur déclaration ne « sauve » donc rien **pour
+> l'instant**. Elle reste **due** pour deux raisons : (1) sans elle, l'absence de `agents`/`frame`
+> nus au registre serait une **exclusion silencieuse** — le défaut que R-M8 et tout ce dépôt
+> interdisent ; (2) le jour où `agents list` perdrait son entrée, l'alias non déclaré rouvrirait le
+> trou en silence. Le contrefactuel de CA-G3 **dit** laquelle des trois rougit et lesquelles ne
+> rougissent pas — un contrefactuel qui ne tire pas se nomme, il ne se suppose pas.
+
 | Option | Ce que ça donne | Coût / risque |
 |---|---|---|
 | (a) Garder le repli | zéro travail | **annule le lot** : le grain resterait une fiction |
-| **(b) Déclarer l'alias dans `verbes.js`** : `sousVerbeParDefaut: 'deploy'` sur le verbe concerné ; la garde **dérive** l'exception au lieu de la supposer | le fait « la forme nue dispatche vers X » est une **propriété de forme du CLI** — sa place est au registre de forme ; une fois déclaré, il est **dérivé**, jamais réécrit dans un test | ajoute un champ **de données** à `verbes.js` (aucune fonction, aucun comportement) ; ce champ n'est lu que par les gardes — sa **véracité** repose sur la mesure de l'étape 0, pas sur une garde d'exécution (**déclaré comme tel**, § 8 CA-G7) |
+| **(b) Déclarer l'alias dans `verbes.js`** : `sousVerbeParDefaut: '<id>'` sur les **trois** verbes concernés (`skills`→`deploy`, `agents`→`list`, `frame`→`verify`, mesure 0.c) ; la garde **dérive** l'exception au lieu de la supposer | le fait « la forme nue dispatche vers X » est une **propriété de forme du CLI** — sa place est au registre de forme ; une fois déclaré, il est **dérivé**, jamais réécrit dans un test | ajoute un champ **de données** à `verbes.js` (aucune fonction, aucun comportement) ; ce champ n'est lu que par les gardes — sa **véracité** repose sur la mesure de l'étape 0, pas sur une garde d'exécution (**déclaré comme tel**, § 8 CA-G7) |
 | (c) Liste d'alias motivée dans le fichier de test | ne touche pas à `cli/src/` | ré-institue une liste écrite à la main **à côté** de sa source — le défaut nommé au § 2(b) |
 
 > **Recommandation : (b).** C'est la doctrine du dépôt appliquée à la lettre : l'autorité de forme
 > du CLI est `verbes.js`, pas un test. **Repli acceptable : (c)**, si le décideur refuse toute
-> écriture dans `cli/src/` — à condition que la liste porte **un motif écrit par entrée** et un
-> **témoin négatif** (retirer l'alias ⇒ `skills deploy` remonte comme non couvert).
+> écriture dans `cli/src/` — à condition que la liste porte **un motif écrit par entrée** (les
+> **trois**) et un **témoin négatif** : retirer l'alias `skills` ⇒ `skills deploy` remonte comme non
+> couvert. *(Amendement 2026-09-10 : retirer les alias `agents`/`frame` ne rougit **pas**
+> aujourd'hui — leurs sous-verbes ont une entrée propre. Cette asymétrie est **déclarée**, pas
+> contournée : cf. CA-G3.)*
 
 ### AR-G4 — Le cliquet remonte-t-il à 10, ou le lot ferme-t-il les dix trous ? — ⚠️ **RÉSERVÉ AU DÉCIDEUR**
 
@@ -316,7 +401,7 @@ canal exact par lequel la refonte pourrait masquer un trou.
 
 | Option | Ce que ça donne | Coût / risque |
 |---|---|---|
-| (a) Statu quo (écrit à la main) | zéro travail | **le mensonge reste possible**, et la surface passe de 29 à ~52 lignes : on multiplie les occasions |
+| (a) Statu quo (écrit à la main) | zéro travail | **le mensonge reste possible**, et la surface passe de 29 à **51** lignes : on multiplie les occasions |
 | (b) Entièrement **dérivé** : la fixture ne porte plus que les `hors-couverture` motivés + le cliquet | le plus pur | le registre cesse d'être **lisible** comme inventaire ; on perd l'artefact que le décideur ouvre pour voir l'état, au profit d'un calcul |
 | **(c) Écrit à la main, mais GARDÉ** : un test exige `couverture ∋ "c-json"/"c-json-erreur"` **⟺** présence réelle dans `NOMINAL`/`ERRORS` | la liste reste lisible **et** le mensonge devient impossible ; le cliquet cesse d'être une déclaration pour devenir un **constat** | une garde de plus, avec ses deux témoins |
 
@@ -332,23 +417,25 @@ canal exact par lequel la refonte pourrait masquer un trou.
 
 ### Inclus
 
-1. **La mesure d'exécution de l'étape 0** (§ 5), consignée dans
-   `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md` — c'est **elle** qui fait autorité,
-   pas le § 0 de ce cadrage.
+1. **La mesure d'exécution de l'étape 0** (§ 5) — **FAITE le 2026-09-10**, consignée dans
+   `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md` (commit `7c826b3`) : c'est **elle**
+   qui fait autorité, pas le § 0 de ce cadrage.
 2. **`cli/test/fixtures/couverture-json.json`** — passage au grain sous-verbe (AR-G1(a) : ids
-   plats `"<verbe> <sousVerbe>"`), `_lisezMoi` **réécrit** (il grave aujourd'hui AR-J1(b), qui
-   **cesse d'être vrai**), `horsCouvertureCount` recalculé selon AR-G4.
+   plats `"<verbe> <sousVerbe>"`), **51 entrées attendues** (§ 0.4), `_lisezMoi` **réécrit** (il
+   grave aujourd'hui AR-J1(b), qui **cesse d'être vrai**), `horsCouvertureCount` recalculé selon
+   AR-G4 — tranché **(b)**, donc **0**.
 3. **`cli/test/guard-json-couverture.test.js`** — **une seule** fonction de dérivation, utilisée
    par le test de fidélité du registre **et** par G-J1 ; retrait du repli `verbId` (AR-G3) ; garde
    `couverture ⟺ mesure` (AR-G6(c)) ; contrefactuels du § 8. **Les gardes G-J2 (verbe et grain
    option, l.72-241) et la garde de la règle 6 (l.243-280) restent INCHANGÉES** : elles dérivent
    de `verbes.js`, jamais de la fixture.
-4. **`cli/src/lib/verbes.js`** — **données seules** : `sousVerbeParDefaut` (AR-G3(b)) et le
-   `motif` de `frame.guideClaudeCode` désambiguïsé (AR-G5(b)). **Aucune fonction, aucune sortie,
-   aucun format.**
-5. **`cli/test/guard-json-output.test.js`** — **uniquement si AR-G4 = (b)** : ~10 invocations
-   ajoutées à `NOMINAL`/`ERRORS`, sur les bacs à sable **existants**. Les invocations
-   préexistantes restent **intactes, octet pour octet**.
+4. **`cli/src/lib/verbes.js`** — **données seules** : `sousVerbeParDefaut` sur **trois** verbes
+   (`skills`→`deploy`, `agents`→`list`, `frame`→`verify` — AR-G3(b), mesure 0.c) et le `motif` de
+   `frame.guideClaudeCode` désambiguïsé (AR-G5(b)). **Aucune fonction, aucune sortie, aucun
+   format.**
+5. **`cli/test/guard-json-output.test.js`** — AR-G4 tranché **(b)** : les **10** invocations
+   ajoutées à `NOMINAL`, sur les bacs à sable **existants**. Les invocations préexistantes restent
+   **intactes, octet pour octet**.
 6. **`specs/instructions/registre-grain-sous-verbe.md`** — la présente instruction : un lot
    contient sa propre instruction, et toute correction apportée en cours de route s'y écrit.
 7. **`BACKLOG.md`** — récit de fin de lot et successeurs, écrits **après** réception du gate PASS,
@@ -362,6 +449,7 @@ canal exact par lequel la refonte pourrait masquer un trou.
 | **La dette `--root`/`--path`/`--project`** (`config`, `go`, `brief`, `recap`, `assemble`, `switch`, `observe`, `repo` déclarent/parsent/documentent en désaccord) | Sans rapport avec le grain ; dette pré-existante confirmée au gate J3 (`gate-c-json-j3.md:198-205`) | **`REGISTRE-OPTIONS-ROOT-PATH-PROJET`** |
 | **Donner `--json` à un verbe qui ne le déclare pas** | Ce lot **mesure** une promesse existante, il n'en fait pas de nouvelle | **`C-JSON-EXTENSION`** |
 | **Harmoniser les noms de champs entre verbes** (`projets`/`projects`, `essais`/`services`…) | Toute renomination casse un consommateur | **`C-JSON-VOCABULAIRE`** |
+| **Corriger la forme irrégulière de `review` nu** — *constat neuf de la mesure 0.c* : `review --json` sans action rend `{ok:false, error:true}`, où `error` est un **booléen** et non la chaîne que rendent toutes les autres erreurs d'usage (`memory`, `produit`, `observe`) | C'est un écart de **vocabulaire de charge**, pas de grain. Le corriger changerait une **sortie machine observable** — interdit par le § 2(a). **Relevé, daté, non corrigé** : il ne doit pas se perdre entre deux lots | **`C-JSON-VOCABULAIRE`** |
 | **Fermer l'angle mort de G-J1 sur une entrée neutralisée par `//`** | Constaté et déclaré non bloquant au gate J3 (`gate-c-json-j3.md:145-163, 260-264`). Le fermer suppose un parsing JS (AST) au lieu d'une lecture de texte : autre nature de garde | **`G-J1-ENTREE-NEUTRALISEE`** — et cf. **R-G5**, ce lot **augmente l'exposition** sans changer la nature du risque |
 | **Toute modification de sortie, machine ou humaine** | Aucune n'est requise ; les 23 témoins de `temoins-prose.test.js` restent verts et **non retouchés** | — |
 | **Toute écriture dans `iakaInstall` / `IakaCockpit`** | Autres dépôts ; aucun ne consomme la fixture ni `--json` (§ 0.5 du lot parent) | — |
@@ -373,20 +461,26 @@ canal exact par lequel la refonte pourrait masquer un trou.
 
 ### Étape 0 — Mesurer, AVANT d'écrire une ligne (⚒️ Gimli, obligatoire et bloquante)
 
-**Je n'ai pas de shell (§ 0.1).** Ces mesures sont **dues**, et leurs sorties **citées** dans le
-rapport de remise et dans `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md`.
+> ✅ **FAITE le 2026-09-10 par ⚒️ Gimli** — `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md`
+> (commit `7c826b3`). Verdicts : **0.a CONFIRMÉ** (`fail 0` ; ligne de base worktree, cf. § 0.2),
+> **0.b CONFIRMÉ exactement**, **0.c PARTIEL** (5/8, trois classements infirmés), **0.d CONFIRMÉ**,
+> **0.e CONFIRMÉ exactement**. **Règle d'arrêt non déclenchée.** Les commandes restent écrites
+> ci-dessous **pour être rejouables**, avec l'attendu remplacé par le **résultat mesuré**.
 
 **0.a — Le dépôt est vert AVANT toute modification** (le point de comparaison).
 
 ```bash
-cd /Users/sjupin/work/iakaframe/cli && node --test test/
-# attendu (gate J3) : tests 1263, pass 1262, fail 0, skipped 1
+cd /Users/sjupin/work/.wt/iakaframe-registre-grain-sous-verbe/cli && node --test test/
+# MESURÉ 2026-09-10 (ligne de base du WORKTREE, cf. § 0.2) :
+#   tests 1263, pass 1256, fail 0, skipped 7
+# (les 6 skips de plus qu'au gate J3 = gardes de parité avec iakaFrameGUI, dépôt frère absent
+#  du worktree, + 1 test conditionné à `rg` — auto-déclarés, sans rapport avec ce lot)
 ```
 
 **0.b — Le décompte du grain, DÉRIVÉ de `verbes.js` (jamais compté à la main).**
 
 ```bash
-cd /Users/sjupin/work/iakaframe/cli && node -e "
+cd /Users/sjupin/work/.wt/iakaframe-registre-grain-sous-verbe/cli && node -e "
 import('./src/lib/verbes.js').then(({ VERBES }) => {
   const d = (o) => Array.isArray(o.options) && o.options.includes('--json');
   const sans  = VERBES.filter((v) => !(v.sousVerbes||[]).length && d(v)).map((v) => v.id);
@@ -395,7 +489,7 @@ import('./src/lib/verbes.js').then(({ VERBES }) => {
   console.log('sans sous-verbes :', sans.length, '| sous-verbes declarants :', sv.length, '| formes nues a arbitrer :', nus.length);
   console.log(JSON.stringify({ sans, sv, nus }, null, 1));
 });"
-# attendu (ma LECTURE, § 0.4 — a infirmer) : 21 | 29 | 8
+# MESURÉ 2026-09-10 : 21 | 29 | 8 — CONFIRMÉ EXACTEMENT (ma lecture du § 0.4 tenait)
 ```
 
 **0.c — Les 8 formes NUES, classées PAR EXÉCUTION (AR-G2(b)).** Pour chacun de `agents`,
@@ -408,9 +502,25 @@ en **une** des trois cases :
   l'alias se **déclare** via `sousVerbeParDefaut` (AR-G3(b)) ;
 - **erreur d'usage** (`{ok:false,error}`, exit 1) → **pas d'entrée**.
 
-Prédiction de lecture à infirmer : propre pour `models` et `observe` ; alias pour `skills` ;
-erreur d'usage pour les cinq autres.
-⚠️ `observe` **nu écrit le store** : bac à sable `--home <tmp>` **obligatoire**.
+**RÉSULTAT MESURÉ le 2026-09-10** (stdout cité au rapport, § 0.c) — ma prédiction de lecture
+(« propre pour `models` et `observe` ; alias pour `skills` ; erreur d'usage pour les cinq autres »)
+**ne tient que sur 5 des 8** :
+
+| Forme nue | Classement mesuré | Ma prédiction |
+|---|---|---|
+| `models` | **comportement propre** → **entrée au registre** | confirmée |
+| `skills` | **alias** de `deploy` → `sousVerbeParDefaut` | confirmée |
+| `agents` | **alias** de `list` (byte-identique) → `sousVerbeParDefaut` | **INFIRMÉE** (je disais erreur d'usage) |
+| `frame` | **alias** de `verify` (byte-identique) → `sousVerbeParDefaut` | **INFIRMÉE** (je disais erreur d'usage) |
+| `memory`, `produit`, `review` | **erreur d'usage** → pas d'entrée | confirmées |
+| `observe` | **erreur d'usage**, **n'écrit rien** → pas d'entrée | **INFIRMÉE sur les deux points** |
+
+⚠️ **L'avertissement que je portais ici — « `observe` nu écrit le store, bac à sable obligatoire » —
+était FAUX et il est RETIRÉ.** L'exécution montre que le CLI **refuse avant d'écrire** quand aucun
+texte n'est fourni (`ls` du `--home` jetable vide après coup). Ma lecture de `verbes.js:461-466`
+avait pris la capacité d'écriture du verbe pour le comportement de sa **forme nue** : c'est
+exactement le genre de saut qu'une mesure existe pour attraper. *(Le bac à sable reste, lui, une
+bonne pratique inconditionnelle — il n'a simplement pas la justification que je lui donnais.)*
 
 **0.d — Les dix trous, confirmés ou infirmés (§ 0.5).** Pour chacun de `memory add/replace/remove`,
 `produit init/add/replace/remove`, `review apply/reject/auto` : confirmer l'**absence** de toute
@@ -424,6 +534,8 @@ listes.
 **Attendu par ma lecture : `[]` avec le repli, 10 entrées + `skills deploy` sans.** Si l'écart
 mesuré n'est pas celui-là, **ARRÊTER et remonter à 🔵 Gandalf** : le § 0.3 est le fait sur lequel
 tout ce cadrage repose.
+**MESURÉ 2026-09-10 : `[]` avec le repli (0), **11** sans — les 10 trous nommés + `skills deploy`.
+CONFIRMÉ EXACTEMENT ; aucun arrêt.**
 
 > **Règle d'arrêt, non négociable.** Toute mesure qui contredit le § 0 ⇒ **ARRÊT** et retour à
 > 🔵 Gandalf. Une instruction assise sur un fait faux se **re-cadre**, elle ne s'exécute pas.
@@ -439,10 +551,17 @@ fonction — `surfacesAttendues(VERBES)` — rendant la liste des identifiants p
 
 ### Étape 2 — Déclarer les alias de forme nue (AR-G3(b))
 
-Ajouter `sousVerbeParDefaut: '<id>'` dans `verbes.js` aux verbes classés **alias** en 0.c
-(attendu : `skills` → `'deploy'`). La dérivation de l'étape 1 le **consomme** ; le repli
+Ajouter `sousVerbeParDefaut: '<id>'` dans `verbes.js` aux verbes classés **alias** en 0.c —
+**mesuré 2026-09-10 : TROIS verbes**, `skills` → `'deploy'`, `agents` → `'list'`,
+`frame` → `'verify'` (et **aucun autre** : les cinq restants sont soit un comportement propre
+(`models`), soit une erreur d'usage). La dérivation de l'étape 1 le **consomme** ; le repli
 `!couvertes.has(a.verbId)` **disparaît**. Vérifier que `guard-verbes-registre.test.js` (18 tests)
 reste vert : il n'inspecte pas ce champ, mais il **balaie** le registre.
+
+**Garde minimale du champ** (elle évite la faute de frappe sans prétendre garder le dispatch,
+R-G6) : la valeur de `sousVerbeParDefaut` doit être l'`id` d'un **sous-verbe réel du même verbe**,
+vérifié **par dérivation** de `verbes.js`. *Contrefactuel : `sousVerbeParDefaut: 'deployy'` ⇒ rouge
+nommant le verbe.*
 
 ### Étape 3 — Refondre la fixture
 
@@ -450,6 +569,12 @@ Réécrire `couverture-json.json` au grain sous-verbe. `_lisezMoi` **réécrit**
 aujourd'hui « grain VERBE tenu par arbitrage AR-J1(b) » — **faux après ce lot**. Il doit dire le
 grain neuf, le séparateur canonique, la règle « `couverture` ⟺ mesure » (AR-G6), et **rappeler
 que le compte est dérivé de `verbes.js` par le test, jamais écrit en dur ici**.
+
+**Compte attendu : 51 entrées** = 21 (verbes sans sous-verbes) + 29 (sous-verbes déclarant
+`--json`) + 1 (`models` nu, seule forme nue au comportement propre — mesure 0.c). Ce chiffre est
+un **repère de contrôle**, pas une constante à écrire : si la dérivation de l'étape 1 en rend un
+autre, c'est **la dérivation qui a raison** et l'écart se **remonte à 🔵 Gandalf** avant d'écrire
+la fixture.
 
 ### Étape 4 — Poser la garde `couverture ⟺ mesure` (AR-G6(c))
 
@@ -459,7 +584,15 @@ Un test qui, pour **chaque** entrée du registre : `couverture` contient `c-json
 (`guard-json-couverture.test.js:61-70`) devient dès lors un **constat** et non plus une
 déclaration.
 
-### Étape 5 (si AR-G4 = (b)) — Fermer les dix trous, en bac à sable
+### Étape 5 (AR-G4 = (b), tranché) — Fermer les dix trous, en bac à sable
+
+> ✅ **Faisabilité MESURÉE le 2026-09-10 (0.d)** : les dix invocations ont été **exécutées** selon
+> exactement les patrons ci-dessous — racine objet, `ok` en 1ʳᵉ clé, `stderr` vide, exit 0,
+> `git status --porcelain` **vide** après coup. Les deux points d'attention ci-dessous sont
+> **confirmés praticables** : `produit init` n'a écrit que sous le projet jetable, et les trois
+> `review …` ont bien été jouées sur **trois propositions distinctes** (`alpha`/`beta`/`gamma`,
+> produites par `close`) **sans couplage d'ordre**. R-G7 est donc **levé en tant qu'inconnue** ;
+> il reste une consigne d'exécution.
 
 Étendre `NOMINAL`/`ERRORS` sur les bacs à sable **existants** — aucun bac neuf n'est requis :
 
@@ -499,8 +632,8 @@ citées, l'écart mesuré du repli (0.e), et le compte final d'entrées **avec s
 | `specs/instructions/registre-grain-sous-verbe.md` | **la présente instruction** — toute correction de cadrage en cours de lot s'y écrit |
 | `cli/test/fixtures/couverture-json.json` | grain sous-verbe (ids plats), `_lisezMoi` **réécrit** (il grave AR-J1(b), caduc), `horsCouvertureCount` recalculé selon AR-G4 |
 | `cli/test/guard-json-couverture.test.js` | dérivation **unique** (étape 1) ; repli `verbId` **retiré** (l.368) ; garde `couverture ⟺ mesure` (AR-G6) ; contrefactuels. **G-J2 (l.72-241) et règle 6 (l.243-280) INCHANGÉES** |
-| `cli/src/lib/verbes.js` | **données seules** : `sousVerbeParDefaut` (AR-G3(b)) + `motif` de `frame.guideClaudeCode` (l.357) **désambiguïsé**, forme « chute si … » conservée. **Aucune fonction, aucune sortie** |
-| `cli/test/guard-json-output.test.js` | **si AR-G4 = (b)** : ~10 invocations ajoutées sur les bacs à sable existants ; `test.after()` étendu. **Invocations préexistantes intactes** |
+| `cli/src/lib/verbes.js` | **données seules** : `sousVerbeParDefaut` sur **3 verbes** (`skills`→`deploy`, `agents`→`list`, `frame`→`verify`, AR-G3(b) / mesure 0.c) + `motif` de `frame.guideClaudeCode` (l.357) **désambiguïsé**, forme « chute si … » conservée. **Aucune fonction, aucune sortie** |
+| `cli/test/guard-json-output.test.js` | AR-G4 = **(b)** : les **10** invocations ajoutées sur les bacs à sable existants ; `test.after()` étendu. **Invocations préexistantes intactes** |
 | `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md` | **neuf** — la mesure d'exécution qui **remplace** le § 0 de ce cadrage comme autorité |
 | `BACKLOG.md` | récit de fin de lot + successeurs — **après** le gate PASS, jamais avant |
 
@@ -514,15 +647,15 @@ fixtures, `cli/test/guard-verbes-registre.test.js`.
 
 | # | Risque | Mitigation |
 |---|---|---|
-| **R-G1** | **Le § 0 est une lecture, pas une mesure.** Si le repli `verbId` ne masque pas dix trous mais deux, ou vingt, l'estimation et AR-G4 changent de nature | **Étape 0 bloquante**, 0.e en particulier : toute contradiction ⇒ **ARRÊT** et retour à 🔵 Gandalf. Provision chiffrée au § 9 |
+| **R-G1** | ~~**Le § 0 est une lecture, pas une mesure.**~~ **LEVÉ le 2026-09-10** : mesure 0.e, `[]` avec le repli / **11** sans — dix trous **exactement** ceux nommés, plus l'alias. Reste vrai en revanche pour le § 0.c, **partiellement infirmé** (3 formes nues sur 8) — divergence **absorbée en place** (§ 0.4, AR-G2, AR-G3), sans réouverture d'arbitrage | Étape 0 **faite** ; l'autorité est désormais `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md`. La règle d'arrêt reste armée pour tout **nouvel** écart découvert en cours d'exécution |
 | **R-G2** | **Une invocation neuve écrit hors bac à sable.** `review apply` **matérialise** dans une bibliothèque ; un `--library` oublié corrompt la vraie `library/` du dépôt | `--library <tmp>` **obligatoire** ; `git status --porcelain` **vide** après la suite (CA-G8) ; `test.after()` étendu. Contrefactuel à jouer **sur une copie jetable du dépôt**, jamais sur le dépôt réel |
-| **R-G3** | **La refonte masque un trou** : 29 → ~52 entrées en gardant `0` sans rien mesurer de plus | **AR-G6(c)** rend le mensonge impossible par construction : `couverture` **⟺** présence réelle. Plus CA-G4, son contrefactuel dédié |
+| **R-G3** | **La refonte masque un trou** : 29 → **51** entrées en gardant `0` sans rien mesurer de plus | **AR-G6(c)** rend le mensonge impossible par construction : `couverture` **⟺** présence réelle. Plus CA-G4, son contrefactuel dédié |
 | **R-G4** | **Le cliquet remonte et devient un précédent** — « on remonte le cliquet quand ça arrange » | Une remontée n'est légale **qu'accompagnée d'un changement de grain écrit dans le `_lisezMoi` du même commit**, avec un motif par entrée. À écrire comme **règle** dans `_lisezMoi`, pas seulement à faire |
-| **R-G5** | **L'angle mort de G-J1 (entrée neutralisée par `//`) porte désormais sur ~52 lignes au lieu de 29** — le risque ne change pas de **nature**, il change d'**exposition** | Déclaré, non fermé (§ 4, Exclu, `G-J1-ENTREE-NEUTRALISEE`). **Si le décideur veut le fermer : +0,25 j** et une garde d'une autre nature (parsing JS/AST au lieu d'une lecture de texte) — un choix, pas un « tant qu'on y est » |
-| **R-G6** | **`sousVerbeParDefaut` est une DÉCLARATION que rien n'exécute.** Si `skills` nu cessait un jour de dispatcher vers `deploy`, le champ mentirait en silence | **Nommé, pas prétendu résolu** (CA-G7). Sa véracité repose sur la mesure 0.c, datée et citée. Une garde d'exécution serait une garde **de dispatch**, hors périmètre — à nommer si le décideur la veut |
-| **R-G7** | **`review apply/reject/auto` se couplent entre eux** : les trois mutent le statut d'une proposition ; joués sur la même, l'ordre décide du résultat | Trois propositions (ou trois canons) **distinctes**, montées au préambule — patron `models set`/`unset` (`guard-json-output.test.js:135-141`), déjà éprouvé |
+| **R-G5** | **L'angle mort de G-J1 (entrée neutralisée par `//`) porte désormais sur 51 lignes au lieu de 29** — le risque ne change pas de **nature**, il change d'**exposition** | Déclaré, non fermé (§ 4, Exclu, `G-J1-ENTREE-NEUTRALISEE`). **Si le décideur veut le fermer : +0,25 j** et une garde d'une autre nature (parsing JS/AST au lieu d'une lecture de texte) — un choix, pas un « tant qu'on y est » |
+| **R-G6** | **`sousVerbeParDefaut` est une DÉCLARATION que rien n'exécute — et elles sont TROIS** (`skills`, `agents`, `frame`, mesure 0.c). Si l'une cessait un jour de dispatcher vers son sous-verbe, le champ mentirait en silence. **Aggravé par l'asymétrie mesurée** : **une seule** des trois (`skills`) est porteuse pour la couverture aujourd'hui — les deux autres ne feraient rougir aucune garde si on les retirait, donc rien ne les éprouve | **Nommé, pas prétendu résolu** (CA-G3, CA-G7). Deux mitigations **partielles** et déclarées comme telles : (1) une garde **structurelle** — la valeur doit être l'`id` d'un sous-verbe réel du même verbe, dérivée de `verbes.js` (étape 2) ; (2) la mesure 0.c, **datée et citée**, qui établit les trois dispatches par exécution byte-à-byte. Une garde du **dispatch réel** serait une garde d'exécution du CLI : **hors périmètre**, à nommer si le décideur la veut |
+| **R-G7** | ~~**`review apply/reject/auto` se couplent entre eux**~~ **LEVÉ en tant qu'inconnue le 2026-09-10** (mesure 0.d) : trois propositions distinctes (`alpha`/`beta`/`gamma`, produites par `close`) ⇒ aucun couplage d'ordre constaté | Reste une **consigne d'exécution** : trois propositions distinctes, montées au préambule — patron `models set`/`unset` (`guard-json-output.test.js:135-141`), désormais éprouvé **sur `review` lui-même** |
 | **R-G8** | **La reformulation du `motif` de `frame` casse la garde `GC`**, qui exige la forme « chute si … » (`guard-verbes-registre.test.js:190, 198-217`) | La reformulation **conserve** la forme conditionnelle et ne change que **l'objet** de la condition. `guard-verbes-registre.test.js` rejoué (18/18) dans le **même commit** |
-| **R-G9** | **Un `id` à espace casse un consommateur de la fixture** | La fixture n'est lue que par `guard-json-couverture.test.js` (grep du dépôt : aucun autre consommateur, seulement des mentions en doc et en instruction). **À reconfirmer par grep à l'étape 0** |
+| **R-G9** | ~~**Un `id` à espace casse un consommateur de la fixture**~~ **LEVÉ le 2026-09-10** (mesure 0.e § Bonus) | Grep confirmé : la fixture n'est consommée **en code** que par `guard-json-couverture.test.js` ; tout le reste est mention en doc/instruction. AR-G1(a) est sans risque de ce côté |
 
 ---
 
@@ -532,11 +665,13 @@ Chaque critère est **testable par commande et code de sortie**, et porte son **
 la manipulation qui doit le faire **rougir**, jouée puis **révoquée**, et **citée** au rapport de
 remise. *Un verdict qui ne cite pas ses commandes est inopposable.*
 
-- [ ] **CA-G1 — La mesure existe et fait autorité.**
-      `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md` porte : la sortie de 0.a ; le
-      décompte dérivé de 0.b ; le **classement des 8 formes nues** de 0.c (avec stdout cité) ; la
-      forme mesurée des dix invocations de 0.d ; et **les deux listes** de 0.e (avec et sans le
-      repli). Toute ligne divergeant du § 0 est **signalée comme telle**.
+- [x] **CA-G1 — La mesure existe et fait autorité.** ✅ **SATISFAIT le 2026-09-10**
+      (`docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md`, commit `7c826b3`) : sortie de
+      0.a (+ écart de ligne de base worktree **expliqué**) ; décompte dérivé de 0.b ; **classement
+      des 8 formes nues** de 0.c avec stdout cité ; forme mesurée des dix invocations de 0.d ; **les
+      deux listes** de 0.e. Les **trois** lignes divergeant du § 0 (`agents`, `frame`, `observe`)
+      sont **signalées comme telles** dans le rapport **et** absorbées en place dans la présente
+      instruction (§ 0.4, AR-G2, AR-G3, étapes 0.c/2/3).
       *Contrefactuel : n/a — artefact de mesure ; sa preuve est d'exister, d'être daté et d'être
       cité.*
 
@@ -548,12 +683,24 @@ remise. *Un verdict qui ne cite pas ses commandes est inopposable.*
       réel ⇒ **deux rouges distincts** — la fidélité du registre (id manquant) **et** G-J1
       (invocation sans `NOMINAL`) — chacun **nommant** `"<verbe> <sousVerbe>"`. Puis révoquer.*
 
-- [ ] **CA-G3 — Le repli `verbId` est mort, et sa cause est déclarée.** `!couvertes.has(a.verbId)`
-      n'existe plus dans le fichier. La forme nue qui **est** un sous-verbe est déclarée par
-      `sousVerbeParDefaut` dans `verbes.js` (AR-G3(b)) — ou, si AR-G3 = (c), par une liste **avec
-      motif par entrée**.
-      *Contrefactuel : retirer `sousVerbeParDefaut` du verbe concerné ⇒ rouge nommant
+- [ ] **CA-G3 — Le repli `verbId` est mort, et ses TROIS causes sont déclarées.**
+      `!couvertes.has(a.verbId)` n'existe plus dans le fichier. Les **trois** formes nues qui
+      **sont** un sous-verbe (`skills`→`deploy`, `agents`→`list`, `frame`→`verify`, mesure 0.c) sont
+      déclarées par `sousVerbeParDefaut` dans `verbes.js` (AR-G3(b)) — ou, si AR-G3 = (c), par une
+      liste **avec motif par entrée**. La valeur déclarée est l'`id` d'un **sous-verbe réel du même
+      verbe**, vérifié par dérivation (étape 2).
+      *Contrefactuel nº 1 (il tire) : retirer `sousVerbeParDefaut` de `skills` ⇒ rouge nommant
       `skills deploy` comme non couvert. Puis révoquer.*
+      *Contrefactuel nº 2 (il NE tire PAS — et c'est le résultat à écrire, pas à cacher) : retirer
+      `sousVerbeParDefaut` d'`agents` ou de `frame` ⇒ **aucun rouge**, parce que `agents list` et
+      `frame verify` ont chacun leur propre entrée `NOMINAL`. **Ce non-déclenchement est mesuré et
+      consigné au rapport de remise** : ces deux déclarations ne sont pas éprouvées par la
+      couverture, elles existent pour ne pas laisser une exclusion silencieuse (§ AR-G3) et
+      basculeront en porteuses le jour où l'entrée du sous-verbe disparaîtra. Un contrefactuel qui
+      ne tire pas **se nomme** ; le déclarer « joué » sans dire qu'il est resté vert serait un faux
+      vert.*
+      *Contrefactuel nº 3 (garde structurelle) : `sousVerbeParDefaut: 'deployy'` ⇒ rouge nommant le
+      verbe. Puis révoquer.*
 
 - [ ] **CA-G4 — Le registre ne peut plus mentir sur sa couverture** (AR-G6(c)). Pour chaque entrée :
       `couverture ∋ c-json|c-json-erreur` **⟺** identifiant présent dans les invocations dérivées
@@ -578,11 +725,12 @@ remise. *Un verdict qui ne cite pas ses commandes est inopposable.*
 - [ ] **CA-G7 — Le cliquet ne ment plus, et sa variation est un geste écrit.**
       `horsCouvertureCount` **égale** le compte réel d'entrées `hors-couverture` (test préexistant,
       l.61-70, **inchangé**), et chaque `hors-couverture` porte **un motif non vide** (l.53-59,
-      **inchangé**). Si AR-G4 = (a), les **dix** motifs **nomment le successeur**. Si AR-G4 = (b),
-      `horsCouvertureCount: 0` et **plus aucune** entrée `hors-couverture`. Dans les deux cas, le
-      **`_lisezMoi` du même commit** énonce le changement de grain et la règle de R-G4.
-      **Déclaré, non prétendu résolu** : `sousVerbeParDefaut` est une **déclaration** que rien
-      n'exécute (R-G6) ; sa véracité tient à la mesure 0.c, datée et citée.
+      **inchangé**). **AR-G4 tranché (b)** : `horsCouvertureCount: 0` et **plus aucune** entrée
+      `hors-couverture`, sur **51** entrées. Le **`_lisezMoi` du même commit** énonce le changement
+      de grain et la règle de R-G4.
+      **Déclaré, non prétendu résolu** : les **trois** `sousVerbeParDefaut` sont des
+      **déclarations** que rien n'exécute (R-G6) ; leur véracité tient à la mesure 0.c, datée et
+      citée — et **une seule des trois** est éprouvée par la couverture (CA-G3, contrefactuel nº 2).
 
 - [ ] **CA-G8 — Aucun test n'écrit hors d'un `mkdtempSync`.** Après `cd cli && node --test test/`,
       `git status --porcelain` du dépôt est **vide**.
@@ -605,13 +753,18 @@ remise. *Un verdict qui ne cite pas ses commandes est inopposable.*
       *Contrefactuel : n/a — se constate au diff.*
 
 - [ ] **CA-G11 — Le dépôt est vert.** `cd cli && node --test test/` : **0 échec**, compte de tests
-      **cité** et confronté aux 1263 du gate J3 (l'écart s'explique par les tests **ajoutés**, et
-      par eux seuls).
+      **cité** et confronté à la **ligne de base du worktree** mesurée en 0.a — `tests 1263,
+      pass 1256, fail 0, skipped 7` (§ 0.2), **et non** aux `1263/1262/1` du gate J3, qui valent
+      pour l'arbre racine avec son dépôt frère présent. L'écart de **`pass`** s'explique par les
+      tests **ajoutés** et par eux seuls ; l'écart de **`skipped`** doit rester à **7** — tout skip
+      supplémentaire est un fait neuf **à nommer**, jamais à absorber dans le total.
 
 ### Ce qui n'est PAS prouvable dans ce lot — et qui doit donc être dit
 
-- **Que la déclaration `sousVerbeParDefaut` reste vraie.** Elle décrit un dispatch qu'aucune garde
-  n'exécute (R-G6). Le lot la rend **explicite et datée** ; il ne la rend pas **auto-vérifiée**.
+- **Que les trois déclarations `sousVerbeParDefaut` restent vraies.** Elles décrivent un dispatch
+  qu'aucune garde n'exécute (R-G6) ; deux d'entre elles ne sont même pas éprouvées par la
+  couverture (CA-G3, contrefactuel nº 2). Le lot les rend **explicites, datées et
+  structurellement valides** ; il ne les rend pas **auto-vérifiées**.
 - **Qu'une entrée `NOMINAL` neutralisée par `//` soit détectée** : angle mort hérité et **exclu**
   (§ 4). Le lot n'améliore ni n'aggrave sa **nature** — seulement son **exposition** (R-G5).
 - **Que les invocations soient conformes sur tous leurs chemins.** Une garde nominale mesure **un**
@@ -626,36 +779,47 @@ remise. *Un verdict qui ne cite pas ses commandes est inopposable.*
 
 | Étape | Équivalent jour-homme | Complexité / risque |
 |---|---|---|
-| Étape 0 — mesure (0.a→0.e) | **0,25 j** | Faible, mais **bloquante** : c'est elle qui valide ou casse le cadrage |
-| Étapes 1-2 — dérivation unique + retrait du repli + `sousVerbeParDefaut` | **0,5 j** | **Moyenne** — le geste structurant du lot |
-| Étapes 3-4 — refonte de la fixture + garde `couverture ⟺ mesure` | **0,5 j** | Faible-moyenne ; mécanique une fois la dérivation posée |
-| Étape 5 — fermeture des dix trous (**si AR-G4 = (b)**) | **0,75 j** | **Moyenne-haute** : les trois canons de `review` sont la seule vraie inconnue d'ingénierie |
+| Étape 0 — mesure (0.a→0.e) | **0,25 j** — ✅ **FAITE le 2026-09-10** | Faible, mais **bloquante** : elle a validé le cadrage (et corrigé 0.c) |
+| Étapes 1-2 — dérivation unique + retrait du repli + `sousVerbeParDefaut` (**×3**) | **0,5 j** | **Moyenne** — le geste structurant du lot, et **la seule inconnue résiduelle** |
+| Étapes 3-4 — refonte de la fixture (**51 entrées**) + garde `couverture ⟺ mesure` | **0,5 j** | Faible-moyenne ; mécanique une fois la dérivation posée |
+| Étape 5 — fermeture des dix trous (**AR-G4 = (b)**, tranché) | **0,5 à 0,75 j** | **Moyenne** — revue à la baisse : la faisabilité des dix invocations et l'indépendance des trois `review` sont **mesurées** (0.d) |
 | Étapes 6-7 — contrefactuels, non-régression, remise | **0,25 j** | Faible |
-| **Total AR-G4 = (b)** | **2 à 2,5 j-h** | **Moyenne** |
-| **Total AR-G4 = (a)** — grain seul, cliquet 0 → 10 | **1,25 à 1,5 j-h** | Faible-moyenne |
+| **Total AR-G4 = (b)** — retenu | **1,75 à 2,25 j-h** *(révisé à la baisse après mesure ; 2 à 2,5 au cadrage)* | **Moyenne** |
+| ~~Total AR-G4 = (a)~~ — grain seul, cliquet 0 → 10 | *(non retenu — tranché (b) le 2026-09-09)* | — |
 
-**Découpage possible** (si le décideur veut un gate intermédiaire) : **G1 = étapes 0→4 + 6-7**
-(le grain, cliquet à 10, gatable et livrable seul, dépôt vert) ; **G2 = étape 5** (fermeture des
-dix, cliquet à 0). C'est exactement la forme d'AR-G4 : (a) = livrer G1 et s'arrêter là ;
-(b) = livrer G1 puis G2 dans le même lot.
+**Découpage possible** (si le décideur veut malgré tout un gate intermédiaire) :
+**G1 = étapes 0→4 + 6-7** (le grain, cliquet à 10, gatable et livrable seul, dépôt vert) ;
+**G2 = étape 5** (fermeture des dix, cliquet à 0). AR-G4 étant tranché **(b)**, les deux sont
+livrés dans le **même lot** — le découpage ne subsiste que comme **point de reprise** si le lot
+devait être interrompu.
 
-**Inconnues, nommées :**
+**Inconnues, nommées — et TROIS SUR QUATRE LEVÉES le 2026-09-10 par la mesure :**
 
-1. **La plus lourde — l'étape 0 peut invalider le § 0.3.** Le repli `verbId` masque-t-il bien
-   **dix** trous ? Tout le lot (et le choix d'AR-G4) en dépend. **Provision : +0,5 j** si l'écart
-   mesuré diffère sensiblement.
-2. **Le classement des 8 formes nues (0.c).** Il décide du compte final d'entrées (50 / 52 / 58) et
-   de la présence de `sousVerbeParDefaut`. C'est une mesure de 15 minutes qui commande une
-   décision de forme. **Provision : +0,25 j** si plusieurs formes nues ont un comportement propre
-   non trivial.
-3. **Le coût réel des trois canons de `review`** (R-G7). Je n'ai pas pu mesurer combien de
-   propositions distinctes il faut monter pour que `apply`/`reject`/`auto` soient indépendants de
-   l'ordre. Seule inconnue d'**ingénierie** du lot. **Provision : +0,25 j.**
-4. **AR-G4** — écart de **0,75 j** entre (a) et (b), et surtout un écart de **nature** : (b) tient
-   la promesse, (a) la reporte d'un lot en la disant.
+1. ~~**La plus lourde — l'étape 0 peut invalider le § 0.3.**~~ **LEVÉE** (0.e : `[]` / **11**,
+   exactement les dix trous nommés + l'alias). Provision **+0,5 j annulée**.
+2. ~~**Le classement des 8 formes nues (0.c).**~~ **LEVÉE, avec correction** : 3 classements sur 8
+   infirmés, compte final **51** (et non 52), `sousVerbeParDefaut` sur **trois** verbes (et non un).
+   Le surcoût réel est de **deux déclarations de données + un contrefactuel qui ne tire pas à
+   documenter** : **≈ +0,1 j**, absorbé dans l'étape 2.
+3. ~~**Le coût réel des trois canons de `review`**~~ **LEVÉE** (0.d) : trois propositions distinctes
+   produites par `close`, aucun couplage d'ordre, patron déjà éprouvé **sur `review`**. Provision
+   **+0,25 j annulée**.
+4. ~~**AR-G4**~~ **TRANCHÉ (b) par le décideur le 2026-09-09.** L'écart de 0,75 j n'est plus une
+   inconnue, c'est un engagement pris.
 
-**Recommandation d'engagement.** Engager **AR-G4 = (b)** (≈ **2 à 2,5 j**) : le dépôt a déjà payé
-deux fois cette dette (14 → 9 → 0, et maintenant 0 → 10), les trois bacs à sable existent, et un
-cliquet qui remonte pour redescendre plus tard est le motif exact que ce lot corrige. **Si le
-décideur veut un lot court, (a) est honorable** — à condition que les dix motifs **nomment leur
-successeur** et que le `_lisezMoi` **écrive** la règle de remontée (R-G4).
+**Inconnue résiduelle, la seule :** la **réécriture de la dérivation** (étapes 1-2) est le geste
+que rien n'a encore éprouvé — l'étape 0 a mesuré le **monde**, pas le **remède**. C'est là, et
+seulement là, que le lot peut encore coûter plus cher que prévu. **Provision : +0,25 j.**
+
+**Estimation resserrée après mesure : 1,75 à 2,25 j-h** (au lieu de 2 à 2,5), dont **≈ 0,25 j
+déjà consommés** par l'étape 0. **Reste à faire : ≈ 1,5 à 2 j-h.**
+
+**Recommandation d'engagement.** ✅ **Suivie** : **AR-G4 = (b)**, tranché par le décideur le
+2026-09-09. Le motif tient et s'est renforcé à la mesure : le dépôt a déjà payé deux fois cette
+dette (14 → 9 → 0, et maintenant 0 → 10), les trois bacs à sable existent — et **la faisabilité des
+dix invocations est désormais mesurée, pas supposée** (0.d). Un cliquet qui remonte pour redescendre
+plus tard est le motif exact que ce lot corrige.
+
+> **Rappel de méthode pour la clôture** : cette estimation (**1,75 à 2,25 j-h**, révisée après
+> mesure depuis 2 à 2,5) est **confrontée au temps réel** au jalon de fin de lot. L'écart instruit
+> les estimations suivantes — c'est le seul usage qu'on en fait.
