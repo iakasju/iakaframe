@@ -315,3 +315,130 @@ extra in fixture []
 `FAIL` : n/a. **`PASS`** — le récepteur du jalon est l'étape suivante (stage), gate franchi sans
 humain (gate qualité automatique, profondeur complète car version mineure/feature). La Revue
 Qualité de Version et la bascule production restent des gestes humains distincts.
+
+---
+
+# Re-gate après intégration de main (`3481323`)
+
+Vérificateur : 🏹 Legolas. Date : 2026-09-10. Déclencheur : commit de merge `3481323`
+(intégration par 🧭 Aragorn de `origin/main` = `ba336ee`, lot `REGISTRE-OPTIONS-ROOT-PATH-PROJET`
+R1+R2, dans `feat/registre-grain-sous-verbe` — merge textuel automatique, aucun conflit,
+aucune résolution manuelle, sur `cli/src/lib/verbes.js` et `cli/test/guard-json-couverture.test.js`).
+Ce re-gate est **court** : il ne rejoue pas les CA-G1..CA-G11 en entier (déjà PASS au gate
+principal ci-dessus, sur `40755ba`) — il vérifie **l'interaction sémantique** des deux lots que le
+merge textuel automatique ne prouve pas de lui-même. Lieu : le même worktree,
+`/Users/sjupin/work/.wt/iakaframe-registre-grain-sous-verbe`.
+
+## Verdict : **PASS**
+
+Suite complète verte après merge (`1306/1299/0/7`, deux runs identiques, `= 1287 + 19` comme
+annoncé), aucun test perdu d'aucun des deux lots (diff des titres à trois branches : ours,
+theirs, mergé), les deux gardes de grain (fidélité/complétude sous-verbe côté nous, balayage
+4-options côté eux) **coexistent sans se neutraliser** — un contrefactuel de chaque lot rejoué
+en direct sur le fichier fusionné, chacun nommant sa cible sans faire rougir l'autre garde, révoqué,
+`porcelain` vide. Périmètre de production `ba336ee..3481323` toujours strictement les 22 lignes
+de données de notre lot (`sousVerbeParDefaut` ×3 + motif `frame`) ; les déclarations `--root`/
+`--project` de leur lot présentes et intactes. `docs/commandes.md` non touché par le merge.
+
+## Mesures
+
+| Commande | Code de sortie | Résumé cité |
+|---|---|---|
+| `cd cli && node --test` (run 1, post-merge) | `0` | `tests 1306, pass 1299, fail 0, cancelled 0, skipped 7, todo 0` |
+| `cd cli && node --test` (run 2, post-merge) | `0` | `tests 1306, pass 1299, fail 0, cancelled 0, skipped 7, todo 0` — identique au run 1 ; `git status --porcelain` vide après chaque run |
+| `cd cli && node --test test/guard-json-couverture.test.js` | `0` | `tests 42, pass 42, fail 0` (27 côté notre lot + 15 côté leur lot) |
+| `cd cli && node --test test/guard-json-output.test.js` | `0` | `tests 73, pass 73, fail 0` — inchangé depuis le gate principal |
+| `cd cli && node --test test/guard-verbes-registre.test.js` | `0` | `tests 18, pass 18, fail 0` — inchangé |
+| `cd cli && node --test test/temoins-prose.test.js` | `0` | `tests 32, pass 32, fail 0` — `23 → 32` (+9, entièrement dû au lot `REGISTRE-OPTIONS`, déjà dans `ba336ee`, non retouché par le merge) |
+| `cd cli && node --test test/guide-doc-a-jour.test.js` | `0` | `tests 6, pass 6, fail 0` — inchangé |
+
+## 1. Diff des titres de tests — `40755ba` (nous) vs `ba336ee` (eux) vs `3481323` (mergé)
+
+TAP (`node --test --test-reporter=tap`), trois exécutions (worktree branche, worktree jetable
+`ba336ee`, worktree branche post-merge), comparées par `comm` :
+
+- **Perdus depuis `40755ba` (nos tests)** : `comm -23 tap-branche-avant-merge.txt
+  tap-apres-merge.txt` → **vide**. Rien des 1282 titres de notre lot ne manque après merge.
+- **Perdus depuis `ba336ee` (leurs tests)** : `comm -23 tap-ba336ee.txt tap-apres-merge.txt` →
+  exactement les **deux mêmes** titres déjà identifiés et expliqués au gate principal comme
+  **renommages** de notre lot (`CA-J13 : toute invocation attendue…` → `CA-J13 : toute surface
+  attendue…` ; `CA-M16 : la liste des verbes du registre…` → `CA-M16 : les identifiants du
+  registre…`) : ce sont les titres AVANT notre rewrite de dérivation, présents dans `ba336ee` (qui
+  n'a pas notre lot) et absents après merge (qui l'a) — même test, même emplacement, dérivation
+  réécrite. **Aucune perte réelle.**
+- **Titres présents après merge mais absents de l'union des deux parents** : **vide**, à un
+  artefact de comptage près (`GARDE : la fausse forge ecoute bien sur 127.0.0.1`, titre **dupliqué
+  à l'identique** entre `test/repo-guard.test.js:107` et `test/switch-flags-guard.test.js:117`,
+  préexistant aux deux lots, sans rapport avec l'un ou l'autre — `sort -u` sur l'union des deux
+  parents le fusionne en une ligne, la sortie mergée le compte deux fois ; expliqué, pas un écart).
+- **Compte** : `1282` (nous) + `1286` (eux, worktree jetable `ba336ee`, `tests 1287, pass 1280,
+  fail 0, skipped 7`) − recouvrement (tests communs aux deux, ni touchés par l'un ni par l'autre) =
+  `1306`, exactement la mesure post-merge. Cohérent avec l'annonce d'Aragorn (`1287 + 19 = 1306`,
+  où `1287` compte les tests côté `ba336ee` avec `skipped=7` dans CE worktree — l'écart avec le
+  `1287/1286/0/1` cité par Aragorn, mesuré sur l'arbre racine avec le dépôt frère `iakaFrameGUI`
+  présent, est le même écart de `skipped` (1 vs 7) déjà documenté au gate principal, sans rapport
+  avec le merge).
+
+## 2. `guard-json-couverture.test.js` fusionné — les deux gardes coexistent, contrefactuels croisés
+
+Lecture du fichier fusionné (675 lignes) : la boucle `verbesEnDeriveOption` (grain **option**,
+leur lot, lignes ~274-437) et `surfacesAttendues`/`AR-G6(c)` (grain **sous-verbe** + couverture ⟺
+mesure, notre lot, lignes ~34-260 et ~528-675) occupent des **plages disjointes**, aucune fonction
+partagée renommée en collision, `42/42` verts.
+
+- **Contrefactuel du lot NOTRE (fantôme dans `couverture-json.json`)**, joué en direct sur le
+  fichier réel : ajout de `{ "id": "fantome-legolas-regate", "couverture": ["c-json"] }` →
+  ```
+  not ok 1 - CA-M16 : les identifiants du registre correspondent EXACTEMENT aux surfaces attendues …
+  not ok 40 - AR-G6(c) : couverture ⟺ mesure — le registre ne peut plus déclarer ce qu'il ne mesure pas
+  ```
+  **Deux rouges, uniquement les nôtres** — les 15 tests `G-J2 (grain option)` restent verts (pas de
+  contamination croisée). Révoqué (`git checkout -- cli/test/fixtures/couverture-json.json`),
+  `git status --porcelain` vide, `42/42`.
+- **Contrefactuel du lot LEUR (`--root` retiré d'un verbe qui le déclare+parse+documente)**, joué
+  en direct sur `cli/src/lib/verbes.js` : retrait de `'--root <dir>'` des `options` de `add` →
+  ```
+  not ok 13 - G-J2 (grain option) : derivation registre <-> parse <-> doc tient pour --root sur TOUS les verbes REELS
+  error: verbe(s) en dérive --root : add(déclaré=false,parsé=true,documenté=true)
+  ```
+  **Un seul rouge, uniquement le leur** — `CA-M16`/`AR-G6(c)` (nos gardes) restent vertes : retirer
+  une option de forme n'affecte ni la liste des surfaces `--json` ni la couverture mesurée. Révoqué
+  (`git checkout -- cli/src/lib/verbes.js`), `git status --porcelain` vide, `42/42`.
+
+**Aucune garde n'en neutralise une autre** : chaque contrefactuel nomme sa cible dans son propre
+périmètre, sans faire taire ni sur-déclencher l'autre lot.
+
+## 3. `verbes.js` fusionné — les deux jeux de déclarations intacts
+
+`git diff ba336ee..3481323 --stat -- cli/src/` :
+```
+cli/src/lib/verbes.js | 23 ++++++++++++++++++++++-
+1 file changed, 22 insertions(+), 1 deletion(-)
+```
+**Identique, ligne pour ligne, au diff `18bcec0..HEAD` du gate principal** — le merge n'a fait
+qu'appliquer notre patch tel quel par-dessus `ba336ee` (déjà porteur de leur lot), sans en changer
+une virgule. Vérifié : les trois `sousVerbeParDefaut` (`agents→list`, `skills→deploy`,
+`frame→verify`, lignes 153/169/362) et le motif `frame.guideClaudeCode` désambiguïsé (ligne 378)
+sont présents et byte-identiques à ce qu'a gaté le rapport principal. Les déclarations de leur lot
+— `--root <chapeau>` sur `config`/`go`/`brief`/`recap`, `--root <dir>` sur `assemble`, `--project
+<nom>` sur `observe` — relues directement dans le fichier fusionné : **toutes présentes**,
+aucune n'a été écrasée par notre patch (attendu : les deux lots touchent des **plages différentes**
+du même fichier, le merge textuel automatique n'a eu aucune zone de recouvrement à arbitrer).
+
+## 4. `docs/commandes.md`
+
+`git diff ba336ee..3481323 --stat -- docs/commandes.md` : **sortie vide** — rien de notre lot n'y
+était dû (confirmé au gate principal), et le merge ne l'a pas touché non plus. `guide-doc-a-jour.test.js`
+(`6/6`, garde de cohérence doc↔registre) reste vert après merge.
+
+## Écarts
+
+Aucun écart nouveau. Les écarts non bloquants nº 1-2 du gate principal (portée du contrefactuel
+CA-G8 ; ligne `REVIEW_PROPOSAL_ID` altérée) restent valables tels quels, inchangés par le merge
+(fichiers concernés non touchés par `ba336ee..3481323` côté `guard-json-output.test.js` au-delà de
+ce qui était déjà gaté). L'écart nº 3 (« `main` a avancé pendant le gate ») est **soldé** par ce
+re-gate : la branche est désormais à jour avec `main` (`ba336ee`), intégrée par Aragorn.
+
+## Jalon
+
+`FAIL` : n/a. **`PASS`** — le récepteur est l'étape suivante (stage). Gate franchi sans humain.
