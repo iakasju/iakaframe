@@ -88,10 +88,26 @@ fs.mkdirSync(path.join(REVIEW_HOME, 'transcripts'), { recursive: true });
 fs.writeFileSync(
   path.join(REVIEW_HOME, 'transcripts', 'seed.md'),
   '@correction(registre) c-json :: la garde de sortie machine se mesure en execution\n'
-  + '@correction(registre) c-json :: la garde de sortie machine se mesure en execution\n',
+  + '@correction(registre) c-json :: la garde de sortie machine se mesure en execution\n'
+  // REGISTRE-GRAIN-SOUS-VERBE, etape 5 (AR-G4=(b), mesure 0.d) : TROIS propositions DISTINCTES
+  // (alpha/beta/gamma), pour que `review apply`/`review reject`/`review auto` s'exercent chacune
+  // sur SA PROPRE proposition, sans coupler leur ordre (meme patron que models set/unset).
+  + '@correction(registre) alpha :: premiere proposition, dediee a review apply\n'
+  + '@correction(registre) alpha :: premiere proposition, dediee a review apply\n'
+  + '@correction(registre) beta :: deuxieme proposition, dediee a review reject\n'
+  + '@correction(registre) beta :: deuxieme proposition, dediee a review reject\n'
+  + '@correction(registre) gamma :: troisieme proposition, dediee a review auto\n'
+  + '@correction(registre) gamma :: troisieme proposition, dediee a review auto\n',
 );
 close(REVIEW_HOME, { now: new Date('2026-09-08T00:00:00Z') });
-const REVIEW_PROPOSAL_ID = listProposals(REVIEW_HOME)[0]?.id;
+const REVIEW_PROPOSAL_ID = listProposals(REVIEW_HOME).find((p) => p.slug === 'c-json')?.id;
+const REVIEW_ALPHA_ID = listProposals(REVIEW_HOME).find((p) => p.slug === 'alpha')?.id;
+const REVIEW_BETA_ID = listProposals(REVIEW_HOME).find((p) => p.slug === 'beta')?.id;
+const REVIEW_GAMMA_ID = listProposals(REVIEW_HOME).find((p) => p.slug === 'gamma')?.id;
+// `review apply` MATERIALISE dans une bibliotheque (R-G2) : --library OBLIGATOIRE, meme si la
+// proposition mesuree est de type memory/registre (n'ecrit rien dans la bibliotheque) — le
+// bac a sable protege contre TOUT type, jamais suppose du type de la proposition.
+const REVIEW_LIBRARY = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-review-lib-'));
 
 // =================================================================================================
 // J2 (C-JSON-COUVERTURE-COMPLETE, § 5 etape 6) : les 9 ECRIVAINS/interactifs restants, mesures en
@@ -140,6 +156,36 @@ const MODELS_PROJ = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-models-'))
   if (r.status !== 0) throw new Error(`bootstrap models set (legolas) a echoue : ${r.stdout}${r.stderr}`);
 }
 const SWITCH_PROJ = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-cjson-switch-'));
+
+// =================================================================================================
+// REGISTRE-GRAIN-SOUS-VERBE, etape 5 (AR-G4=(b), mesure 0.d) : les DIX invocations manquantes,
+// sur les bacs a sable EXISTANTS (HOME pour memory, PROJ pour produit, REVIEW_HOME pour review) —
+// aucun bac neuf, sauf REVIEW_LIBRARY ci-dessus (--library, R-G2). Chaque ecrivain cible SA PROPRE
+// entree, jamais la meme (patron models set/unset), pour que l'ordre des tests ne les couple pas.
+// =================================================================================================
+
+// Pre-seed HOME (registre du canon global) avec DEUX entrees dediees a `memory replace`/`memory
+// remove` — `memory add` (NOMINAL, ci-dessous) cree SA PROPRE entree, distincte des deux.
+{
+  const seedMemory = (texte) => {
+    const r = spawnSync('node', [CLI, 'memory', 'add', 'registre', texte, '--home', HOME, '--json'], { cwd: REPO, encoding: 'utf8' });
+    if (r.status !== 0) throw new Error(`bootstrap memory add (${texte}) a echoue : ${r.stdout}${r.stderr}`);
+  };
+  seedMemory('entree registre pour replace j5');
+  seedMemory('entree registre pour remove j5');
+}
+
+// Pre-seed PROJ (canon produit) avec DEUX entrees dediees a `produit replace`/`produit remove` —
+// `produit init`/`produit add` (NOMINAL, ci-dessous) restent independants : init est idempotent,
+// add cree SA PROPRE entree.
+{
+  const seedProduit = (texte) => {
+    const r = spawnSync('node', [CLI, 'produit', 'add', texte, '--project', PROJ, '--json'], { cwd: REPO, encoding: 'utf8' });
+    if (r.status !== 0) throw new Error(`bootstrap produit add (${texte}) a echoue : ${r.stdout}${r.stderr}`);
+  };
+  seedProduit('entree produit pour replace j5');
+  seedProduit('entree produit pour remove j5');
+}
 
 // --- canon jetable (--home/--source) : dedie a `consolidate`. Source VIDE : `fiches:0` est un etat
 // nominal legitime (le rapport reste ok:true), et evite toute dependance au contenu REEL du
@@ -194,6 +240,11 @@ const NOMINAL = [
   ['memory path', ['memory', 'path', '--json', '--home', HOME], null],
   ['memory config', ['memory', 'config', '--json', '--home', HOME], null],
   ['memory list', ['memory', 'list', 'profil', '--json', '--home', HOME], 'entries'],
+  // --- REGISTRE-GRAIN-SOUS-VERBE, etape 5 (AR-G4=(b)) : les 3 ecrivains manquants de `memory`,
+  // chacun sur SA PROPRE entree (pre-seedee ci-dessus pour replace/remove) — jamais la meme. -----
+  ['memory add', ['memory', 'add', 'registre', 'entree registre ajoutee j5', '--home', HOME, '--json'], null],
+  ['memory replace', ['memory', 'replace', 'registre', 'entree registre pour replace j5', 'entree registre revisee j5', '--home', HOME, '--json'], null],
+  ['memory remove', ['memory', 'remove', 'registre', 'entree registre pour remove j5', '--home', HOME, '--json'], null],
   ['open', ['open', '--json', '--home', HOME], null],
   ['recall', ['recall', 'requete-absente', '--json', '--home', HOME], 'results'],
   ['observe list', ['observe', 'list', '--json', '--home', OBS], 'files'],
@@ -219,9 +270,22 @@ const NOMINAL = [
   ['frame verify', ['frame', 'verify', '--json'], 'findings'],
   ['frame lint --all', ['frame', 'lint', '--all', '--json'], 'findings'],
   ['review show', ['review', 'show', REVIEW_PROPOSAL_ID, '--json', '--home', REVIEW_HOME], null],
+  // --- REGISTRE-GRAIN-SOUS-VERBE, etape 5 (AR-G4=(b)) : les 3 ecrivains manquants de `review`,
+  // chacun sur SA PROPRE proposition (alpha/beta/gamma, distinctes, produites par `close` en
+  // preambule) — ORDRE OBLIGATOIRE : apply(alpha) et reject(beta) AVANT auto(gamma), pour que
+  // `review auto` (write_approval:auto par defaut, § 0.d) n'ait plus QUE gamma en attente. --------
+  ['review apply', ['review', 'apply', REVIEW_ALPHA_ID, '--library', REVIEW_LIBRARY, '--json', '--home', REVIEW_HOME], null],
+  ['review reject', ['review', 'reject', REVIEW_BETA_ID, '--json', '--home', REVIEW_HOME], null],
+  ['review auto', ['review', 'auto', '--library', REVIEW_LIBRARY, '--json', '--home', REVIEW_HOME], null],
+  ['produit init', ['produit', 'init', '--json', '--project', PROJ], 'created'],
   ['produit path', ['produit', 'path', '--json', '--project', PROJ], null],
   ['produit config', ['produit', 'config', '--json', '--project', PROJ], null],
   ['produit list', ['produit', 'list', '--json', '--project', PROJ], 'entries'],
+  // --- REGISTRE-GRAIN-SOUS-VERBE, etape 5 (AR-G4=(b)) : les 3 ecrivains manquants de `produit`,
+  // chacun sur SA PROPRE entree (pre-seedee ci-dessus pour replace/remove) — jamais la meme. -----
+  ['produit add', ['produit', 'add', 'entree produit ajoutee j5', '--project', PROJ, '--json'], null],
+  ['produit replace', ['produit', 'replace', 'entree produit pour replace j5', 'entree produit revisee j5', '--project', PROJ, '--json'], null],
+  ['produit remove', ['produit', 'remove', 'entree produit pour remove j5', '--project', PROJ, '--json'], null],
   // --- J2 (C-JSON-COUVERTURE-COMPLETE) : les 9 ecrivains/interactifs restants, grain SOUS-VERBE
   // (AR-J1(b)), bac a sable par les drapeaux EXISTANTS (AR-J2(b)) — cliquet 9 -> 0. ------------
   ['skills', ['skills', '--json', '--project', SKILLS_PROJ], 'skills'],
@@ -379,7 +443,7 @@ test('C-JSON empreinte (J2) : range --dry-run (mot de passe injoignable) n\'a ri
 test.after(() => {
   for (const d of [
     HOME, OBS, EMPTY, PROJ, GITD, BARE, INSTALL_CLAUDE, INSTALL_APPS, INSTALL_BACKUPS, REVIEW_HOME,
-    ADD_LIB, REMOVE_LIB, ATTACH_LIB, SKILLS_PROJ, MODELS_PROJ, SWITCH_PROJ,
+    REVIEW_LIBRARY, ADD_LIB, REMOVE_LIB, ATTACH_LIB, SKILLS_PROJ, MODELS_PROJ, SWITCH_PROJ,
     CONSOLIDATE_HOME, CONSOLIDATE_SRC, RANGE_ROOT, FRAME_NEW_LIB, FRAME_USE_PROJ,
   ]) fs.rmSync(d, { recursive: true, force: true });
 });

@@ -27,20 +27,60 @@ function chargerFixture() {
 
 // AUTORITE (M-10) : un verbe "declare --json" si son PROPRE `options` le porte, OU si au moins un
 // de ses `sousVerbes` le porte — jamais une liste reecrite ici, toujours DERIVEE de verbes.js.
+// Reste utilisee par G-J2 (grain VERBE, l.72-241 environ, INCHANGEE par REGISTRE-GRAIN-SOUS-VERBE).
 function declareJson(v) {
   if (Array.isArray(v.options) && v.options.includes('--json')) return true;
   if (Array.isArray(v.sousVerbes)) return v.sousVerbes.some((sv) => Array.isArray(sv.options) && sv.options.includes('--json'));
   return false;
 }
 
-test('CA-M16 : la liste des verbes du registre correspond EXACTEMENT aux verbes déclarant --json dans verbes.js (aucun oubli, aucun fantôme)', () => {
+// =================================================================================================
+// REGISTRE-GRAIN-SOUS-VERBE, étape 1 — LA DÉRIVATION UNIQUE (AR-G1(a)/AR-G2(b)). Remplace les deux
+// dérivations qui coexistaient (declareJson + ids du registre, ci-dessus ; invocationsAttendues,
+// plus bas dans G-J1) par UNE fonction, utilisée aux DEUX endroits — la fidélité du registre
+// (CA-M16, test suivant) ET la garde de complétude G-J1 (CA-J13, plus bas). C'est cette unicité qui
+// interdit désormais au registre et à la garde de diverger (CA-G2).
+// =================================================================================================
+
+function declareJsonOptions(o) {
+  return Array.isArray(o.options) && o.options.includes('--json');
+}
+
+// Verbes dont la forme NUE est un comportement PROPRE — ni une erreur d'usage (memory/produit/
+// review/observe), ni un alias d'un sous-verbe (sousVerbeParDefaut, skills/agents/frame, AR-G3(b)
+// ci-dessous). C'est un FAIT MESURÉ (exécution byte-à-byte, PAS une dérivation structurelle de
+// verbes.js : rien dans sa FORME ne distingue aujourd'hui ce cas des quatre erreurs d'usage) —
+// docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md § 0.c, 2026-09-10. Déclaré ICI,
+// explicitement, plutôt que supposé : seul `models` nu rend un rapport C-JSON qui LUI est propre
+// (ok:true, count:10, targets/roles/suggestions — distinct de `set`/`unset`).
+const FORMES_NUES_PROPRES = ['models'];
+
+// surfacesAttendues(VERBES) -> identifiants PLATS "<verbe>" | "<verbe> <sousVerbe>" (AR-G1(a)),
+// grain SOUS-VERBE pour tout verbe qui en porte, plus la forme nue SEULEMENT pour les verbes de
+// FORMES_NUES_PROPRES (AR-G2(b)). Fonction PURE, seule autorité pour CA-M16 et CA-J13.
+function surfacesAttendues(verbes) {
+  const out = [];
+  for (const v of verbes) {
+    if (Array.isArray(v.sousVerbes) && v.sousVerbes.length > 0) {
+      for (const sv of v.sousVerbes) {
+        if (declareJsonOptions(sv)) out.push(`${v.id} ${sv.id}`);
+      }
+      if (FORMES_NUES_PROPRES.includes(v.id) && declareJsonOptions(v)) out.push(v.id);
+    } else if (declareJsonOptions(v)) {
+      out.push(v.id);
+    }
+  }
+  return out;
+}
+
+test('CA-M16 : les identifiants du registre correspondent EXACTEMENT aux surfaces attendues au grain sous-verbe (aucun oubli, aucun fantôme)', () => {
   const fixture = chargerFixture();
-  const idsAutorite = VERBES.filter(declareJson).map((v) => v.id).sort();
+  const idsAutorite = surfacesAttendues(VERBES).sort();
   const idsFixture = fixture.verbes.map((v) => v.id).sort();
-  assert.deepEqual(idsFixture, idsAutorite, 'le registre de couverture doit porter EXACTEMENT les verbes qui déclarent --json (ni de plus, ni de moins)');
-  // CONTREFACTUEL (joué et révoqué, cf. rapport de remise) : retirer une entrée du tableau
-  // `verbes` de la fixture SANS retirer le verbe correspondant de verbes.js -> `idsFixture` et
-  // `idsAutorite` divergent -> rouge, nommant l'id manquant (assert.deepEqual affiche le diff).
+  assert.deepEqual(idsFixture, idsAutorite, 'le registre de couverture doit porter EXACTEMENT les identifiants attendus au grain sous-verbe (AR-G1(a)/AR-G2(b)) — ni de plus, ni de moins');
+  // CONTREFACTUEL (CA-G2, joué et révoqué, cf. rapport de remise) : ajouter (en mémoire, jamais au
+  // fichier réel) un sous-verbe fictif portant --json sur un verbe réel -> ce test ET CA-J13 (G-J1,
+  // plus bas) rougissent SÉPARÉMENT, chacun nommant "<verbe> <sousVerbe>" — cf. tests dédiés plus bas.
 });
 
 test('CA-M16 : `install` est couvert à la fois par c-json ET evenements (les deux rendus du même émetteur)', () => {
@@ -68,6 +108,33 @@ test('CA-M16 : le CLIQUET (`horsCouvertureCount`) reflète le compte RÉEL — t
   //   2. retirer un verbe présent dans verbes.js du registre -> LE PREMIER test de ce fichier
   //      rougit (idsFixture !== idsAutorite), nommant l'id manquant.
   //   Deux rouges DISTINCTS, chacun nommant son entrée — exactement ce que R-M8 exige de fermer.
+});
+
+// =================================================================================================
+// AR-G3(b) — garde STRUCTURELLE MINIMALE de `sousVerbeParDefaut` (étape 2, R-G6). Le champ est une
+// DÉCLARATION que rien n'exécute (R-G6) : cette garde n'éprouve PAS le dispatch réel du CLI (hors
+// périmètre), elle vérifie seulement que la valeur déclarée est l'id d'un sous-verbe RÉEL du même
+// verbe — évite la faute de frappe, rien de plus.
+// =================================================================================================
+
+test('sousVerbeParDefaut (si présent) désigne l\'id d\'un sous-verbe RÉEL du même verbe (garde structurelle, R-G6)', () => {
+  const fautifs = VERBES.filter((v) => v.sousVerbeParDefaut !== undefined
+    && !(v.sousVerbes || []).some((sv) => sv.id === v.sousVerbeParDefaut));
+  assert.deepEqual(fautifs.map((v) => v.id), [], `sousVerbeParDefaut ne désigne pas un sous-verbe réel : ${fautifs.map((v) => v.id).join(', ')}`);
+  // CONTREFACTUEL (CA-G3 n°3, joué en mémoire jamais sur verbes.js) : une copie de `skills` avec
+  // sousVerbeParDefaut:'deployy' (faute de frappe) -> rouge nommant `skills`.
+});
+
+test('sousVerbeParDefaut (contrefactuel, CA-G3 n°3) : une valeur qui ne désigne AUCUN sous-verbe réel est détectée, nommant le verbe fautif', () => {
+  const sonde = VERBES.map((v) => (v.id === 'skills' ? { ...v, sousVerbeParDefaut: 'deployy' } : v));
+  const fautifs = sonde.filter((v) => v.sousVerbeParDefaut !== undefined
+    && !(v.sousVerbes || []).some((sv) => sv.id === v.sousVerbeParDefaut));
+  assert.deepEqual(fautifs.map((v) => v.id), ['skills'], 'la faute de frappe doit être nommée par la garde');
+});
+
+test('sousVerbeParDefaut : exactement les TROIS alias mesurés (skills→deploy, agents→list, frame→verify), aucun autre (mesure 0.c, 2026-09-10)', () => {
+  const declares = Object.fromEntries(VERBES.filter((v) => v.sousVerbeParDefaut !== undefined).map((v) => [v.id, v.sousVerbeParDefaut]));
+  assert.deepEqual(declares, { skills: 'deploy', agents: 'list', frame: 'verify' }, 'mesure 0.c : exactement trois alias de forme nue déclarés — ni plus, ni moins');
 });
 
 // =================================================================================================
@@ -458,12 +525,11 @@ function verbesEtSecondsDuTableau(texteTableau) {
   return out;
 }
 
-function invocationsCouvertesReelles() {
+// Isole les invocations d'UN SEUL tableau (NOMINAL ou ERRORS) — nécessaire à AR-G6(c), qui doit
+// distinguer 'c-json' (NOMINAL) de 'c-json-erreur' (ERRORS), jamais fusionner les deux d'emblée.
+function invocationsDuTableau(nomVariable) {
   const source = fs.readFileSync(OUTPUT_TEST_PATH, 'utf8');
-  const entrees = [
-    ...verbesEtSecondsDuTableau(extraireTableau(source, 'NOMINAL')),
-    ...verbesEtSecondsDuTableau(extraireTableau(source, 'ERRORS')),
-  ];
+  const entrees = verbesEtSecondsDuTableau(extraireTableau(source, nomVariable));
   const couvertes = new Set();
   for (const { verbe, second } of entrees) {
     couvertes.add(verbe);
@@ -472,40 +538,43 @@ function invocationsCouvertesReelles() {
   return couvertes;
 }
 
-// Dérive, à partir de VERBES, les invocations ATTENDUES (AR-J1(b)).
-function invocationsAttendues(verbes) {
-  const attendues = [];
-  for (const v of verbes) {
-    if (Array.isArray(v.sousVerbes) && v.sousVerbes.length > 0) {
-      for (const sv of v.sousVerbes) {
-        if (Array.isArray(sv.options) && sv.options.includes('--json')) {
-          attendues.push({ id: `${v.id} ${sv.id}`, verbId: v.id });
-        }
-      }
-    } else if (Array.isArray(v.options) && v.options.includes('--json')) {
-      attendues.push({ id: v.id, verbId: v.id });
-    }
-  }
-  return attendues;
+// Union NOMINAL+ERRORS — utilisée par G-J1 (CA-J13), qui ne distingue pas la NATURE de la mesure,
+// seulement sa PRÉSENCE.
+function invocationsCouvertesReelles() {
+  const nominal = invocationsDuTableau('NOMINAL');
+  const erreur = invocationsDuTableau('ERRORS');
+  return new Set([...nominal, ...erreur]);
 }
 
-test('CA-J13 : toute invocation attendue (verbe/sous-verbe déclarant --json) a au moins une entrée NOMINAL ou ERRORS', () => {
+// AR-G3(b) — le repli `!couvertes.has(a.verbId)` est MORT (§ 0.3 de l'instruction : il masquait bien
+// plus que sa cause légitime). Sa cause (une forme nue qui DISPATCHE vers un sous-verbe) est
+// désormais DÉCLARÉE dans verbes.js (`sousVerbeParDefaut`, étape 2) et DÉRIVÉE ici, jamais supposée :
+// un sous-verbe n'est réputé couvert par sa forme nue QUE si verbes.js le déclare ET que cette forme
+// nue est réellement mesurée dans le jeu `couvertes` fourni (NOMINAL, ERRORS, ou leur union selon
+// l'appelant).
+function estSatisfaiteParAlias(id, verbes, couvertes) {
+  const espace = id.indexOf(' ');
+  if (espace === -1) return false;
+  const verbeId = id.slice(0, espace);
+  const sousVerbeId = id.slice(espace + 1);
+  const v = verbes.find((x) => x.id === verbeId);
+  if (!v || v.sousVerbeParDefaut !== sousVerbeId) return false;
+  return couvertes.has(verbeId);
+}
+
+test('CA-J13 : toute surface attendue (grain sous-verbe, AR-G1(a)/AR-G2(b)) a au moins une entrée NOMINAL ou ERRORS — ou un alias déclaré ET mesuré', () => {
   const couvertes = invocationsCouvertesReelles();
-  const attendues = invocationsAttendues(VERBES);
-  // Un verbe dont la forme BARE est couverte (ex. `skills`, `models`) satisfait AUSSI la sous-attente
-  // de son sous-verbe implicite/par-defaut — la garde ne sur-exige jamais une invocation SEPAREE
-  // qui n'existe pas dans le CLI reel (ex. `skills deploy` n'est jamais invoque tel quel : `skills`
-  // bare EST le sous-verbe `deploy`).
-  const manquantes = attendues.filter((a) => !couvertes.has(a.id) && !couvertes.has(a.verbId));
-  assert.deepEqual(manquantes.map((m) => m.id), [], `invocation(s) attendue(s) SANS NOMINAL ni ERRORS : ${manquantes.map((m) => m.id).join(', ')}`);
+  const attendues = surfacesAttendues(VERBES);
+  const manquantes = attendues.filter((id) => !couvertes.has(id) && !estSatisfaiteParAlias(id, VERBES, couvertes));
+  assert.deepEqual(manquantes, [], `invocation(s) attendue(s) SANS NOMINAL, ERRORS, ni alias déclaré : ${manquantes.join(', ')}`);
 });
 
 test('CA-J13 (contrefactuel) : un verbe fictif portant --json SANS entrée NOMINAL/ERRORS est détecté, nommant son id', () => {
   const couvertes = invocationsCouvertesReelles();
   const sonde = [...VERBES, { id: 'verbe-fictif-cjson-j3', options: ['--json'], sousVerbes: [] }];
-  const attendues = invocationsAttendues(sonde);
-  const manquantes = attendues.filter((a) => !couvertes.has(a.id) && !couvertes.has(a.verbId));
-  assert.deepEqual(manquantes.map((m) => m.id), ['verbe-fictif-cjson-j3'], 'le verbe fictif doit être nommé par la garde');
+  const attendues = surfacesAttendues(sonde);
+  const manquantes = attendues.filter((id) => !couvertes.has(id) && !estSatisfaiteParAlias(id, sonde, couvertes));
+  assert.deepEqual(manquantes, ['verbe-fictif-cjson-j3'], 'le verbe fictif doit être nommé par la garde');
 });
 
 test('CA-J13 (témoin positif) : `list` (verbe reel, grain verbe) et `models set`/`models unset` (grain sous-verbe) ne remontent JAMAIS comme manquants', () => {
@@ -513,4 +582,94 @@ test('CA-J13 (témoin positif) : `list` (verbe reel, grain verbe) et `models set
   assert.ok(couvertes.has('list'), '`list` doit etre couvert (invocation bare)');
   assert.ok(couvertes.has('models set'), '`models set` doit etre couvert');
   assert.ok(couvertes.has('models unset'), '`models unset` doit etre couvert');
+});
+
+// =================================================================================================
+// CA-G2 / CA-G5 — le cœur du lot, prouvé au grain SOUS-VERBE : un sous-verbe fictif AJOUTÉ À UN
+// VERBE RÉEL (jamais un nouveau verbe entier) doit être attrapé, séparément, par la fidélité du
+// registre ET par G-J1. Sonde EN MÉMOIRE uniquement — verbes.js réel jamais modifié par ces tests.
+// =================================================================================================
+
+test('CA-G2 (contrefactuel, il tire deux fois) : un sous-verbe fictif ajouté à un verbe réel (agents) fait rougir la fidélité du registre ET G-J1, séparément', () => {
+  const sonde = VERBES.map((v) => (v.id === 'agents'
+    ? { ...v, sousVerbes: [...v.sousVerbes, { id: 'sous-verbe-fictif-cjson-j3', options: ['--json'] }] }
+    : v));
+  const attenduesSonde = surfacesAttendues(sonde);
+  assert.ok(attenduesSonde.includes('agents sous-verbe-fictif-cjson-j3'), 'la dérivation doit produire le sous-verbe fictif');
+  // (a) fidélité du registre (CA-M16) : le fantôme n'est jamais écrit dans la fixture réelle.
+  const idsFixture = new Set(chargerFixture().verbes.map((v) => v.id));
+  assert.ok(!idsFixture.has('agents sous-verbe-fictif-cjson-j3'), 'le registre réel ne le porte pas (jamais de fantôme écrit à la main)');
+  // (b) G-J1 (CA-J13) : aucune entrée NOMINAL/ERRORS ni alias ne le couvre.
+  const couvertes = invocationsCouvertesReelles();
+  const manquantes = attenduesSonde.filter((id) => !couvertes.has(id) && !estSatisfaiteParAlias(id, sonde, couvertes));
+  assert.deepEqual(manquantes, ['agents sous-verbe-fictif-cjson-j3'], 'G-J1 doit nommer le sous-verbe fictif comme manquant');
+});
+
+test('CA-G3 (contrefactuel n°1, il tire) : retirer sousVerbeParDefaut de `skills` fait rougir `skills deploy` comme non couvert', () => {
+  const couvertes = invocationsCouvertesReelles();
+  const sonde = VERBES.map((v) => (v.id === 'skills' ? { ...v, sousVerbeParDefaut: undefined } : v));
+  const attendues = surfacesAttendues(sonde);
+  const manquantes = attendues.filter((id) => !couvertes.has(id) && !estSatisfaiteParAlias(id, sonde, couvertes));
+  assert.deepEqual(manquantes, ['skills deploy'], 'sans sousVerbeParDefaut, `skills deploy` doit être nommé manquant — seule des trois alias porteuse aujourd\'hui (mesure 0.c)');
+});
+
+test('CA-G3 (contrefactuel n°2, il NE tire PAS — résultat mesuré, pas caché) : retirer sousVerbeParDefaut d\'`agents` ou de `frame` ne fait rougir aucune garde', () => {
+  const couvertes = invocationsCouvertesReelles();
+  for (const id of ['agents', 'frame']) {
+    const sonde = VERBES.map((v) => (v.id === id ? { ...v, sousVerbeParDefaut: undefined } : v));
+    const attendues = surfacesAttendues(sonde);
+    const manquantes = attendues.filter((a) => !couvertes.has(a) && !estSatisfaiteParAlias(a, sonde, couvertes));
+    assert.deepEqual(manquantes, [], `${id} : retirer l'alias ne doit rien faire rougir — son sous-verbe par défaut a déjà sa propre entrée NOMINAL (asymétrie mesurée, cf. rapport de remise)`);
+  }
+});
+
+// =================================================================================================
+// AR-G6(c) — « couverture ⟺ mesure » (§ 2(c), étape 4). Le registre reste ÉCRIT À LA MAIN (lisible),
+// mais ne peut plus MENTIR : pour chaque entrée, 'c-json' ⟺ mesurée en NOMINAL (directement ou via
+// alias déclaré+mesuré), 'c-json-erreur' ⟺ mesurée en ERRORS (idem), 'hors-couverture' ⟺ ni l'un ni
+// l'autre. Le cliquet horsCouvertureCount cesse d'être une DÉCLARATION pour devenir un CONSTAT.
+// =================================================================================================
+
+function estMesureeDans(id, verbes, couvertes) {
+  return couvertes.has(id) || estSatisfaiteParAlias(id, verbes, couvertes);
+}
+
+// Fonction PURE, testée directement (registre réel + sondes synthétiques) — le cœur d'AR-G6(c).
+function ecartsCouvertureMesure(entrees, verbes, nominal, erreur) {
+  const ecarts = [];
+  for (const entree of entrees) {
+    const mesureeNominal = estMesureeDans(entree.id, verbes, nominal);
+    const mesureeErreur = estMesureeDans(entree.id, verbes, erreur);
+    const declareNominal = entree.couverture.includes('c-json');
+    const declareErreur = entree.couverture.includes('c-json-erreur');
+    const declareHors = entree.couverture.includes('hors-couverture');
+    if (declareNominal !== mesureeNominal) ecarts.push({ id: entree.id, champ: 'c-json', declare: declareNominal, mesure: mesureeNominal });
+    if (declareErreur !== mesureeErreur) ecarts.push({ id: entree.id, champ: 'c-json-erreur', declare: declareErreur, mesure: mesureeErreur });
+    if (declareHors !== !(mesureeNominal || mesureeErreur)) ecarts.push({ id: entree.id, champ: 'hors-couverture', declare: declareHors, mesure: !(mesureeNominal || mesureeErreur) });
+  }
+  return ecarts;
+}
+
+test('AR-G6(c) : couverture ⟺ mesure — le registre ne peut plus déclarer ce qu\'il ne mesure pas', () => {
+  const fixture = chargerFixture();
+  const nominal = invocationsDuTableau('NOMINAL');
+  const erreur = invocationsDuTableau('ERRORS');
+  const ecarts = ecartsCouvertureMesure(fixture.verbes, VERBES, nominal, erreur);
+  assert.deepEqual(ecarts, [], `écart(s) couverture <-> mesure : ${ecarts.map((e) => `${e.id}.${e.champ} (déclaré=${e.declare}, mesuré=${e.mesure})`).join(' | ')}`);
+});
+
+test('AR-G6(c) (contrefactuel 1/2, R-G3) : déclarer `c-json` sur une entrée réellement NON mesurée est détecté', () => {
+  const nominal = invocationsDuTableau('NOMINAL');
+  const erreur = invocationsDuTableau('ERRORS');
+  const sonde = [{ id: 'verbe-fictif-mensonge-c-json', couverture: ['c-json'] }];
+  const ecarts = ecartsCouvertureMesure(sonde, VERBES, nominal, erreur);
+  assert.deepEqual(ecarts.map((e) => `${e.id}.${e.champ}`), ['verbe-fictif-mensonge-c-json.c-json', 'verbe-fictif-mensonge-c-json.hors-couverture'], 'un c-json déclaré sans mesure doit être nommé (et le hors-couverture manquant, symétriquement)');
+});
+
+test('AR-G6(c) (contrefactuel 2/2, R-G3) : déclarer `hors-couverture` une entrée réellement mesurée (memory init) est détecté', () => {
+  const nominal = invocationsDuTableau('NOMINAL');
+  const erreur = invocationsDuTableau('ERRORS');
+  const sonde = [{ id: 'memory init', couverture: ['hors-couverture'], motif: 'sonde de test, jamais le registre réel' }];
+  const ecarts = ecartsCouvertureMesure(sonde, VERBES, nominal, erreur);
+  assert.deepEqual(ecarts.map((e) => `${e.id}.${e.champ}`), ['memory init.c-json', 'memory init.hors-couverture'], 'une entrée réellement mesurée marquée hors-couverture doit être nommée');
 });
