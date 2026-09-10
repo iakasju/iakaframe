@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-10 05:32 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-10 09:57 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,15 +9,17 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | 317879b docs(backlog): REGISTRE-GRAIN-SOUS-VERBE soldé — gate PASS + re-gate PASS, successeurs nommés |
+| Dernier commit | bb67400 docs(backlog): REGISTRE-OPTIONS-ROOT-PATH-PROJET soldé par le gate PASS (déplacé Ouverts → Fait) |
 | Arbre | propre |
 | Fichiers (suivis + non ignores) | 1263 |
-| Note | REGISTRE-GRAIN-SOUS-VERBE fusionne (2c4d9bb) : registre de couverture C-JSON au grain sous-verbe, 51 entrees, repli verbId retire (3 alias sousVerbeParDefaut), 10 trous fermes (AR-G4 b), cliquet 0 et vrai, gate PASS + re-gate PASS apres integration de main (lot parallele REGISTRE-OPTIONS). Suite main 1306/1305/0/1. Successeurs : GUIDE-CLAUDE-GRAIN-SOUS-VERBE (decideur), G-J1-ENTREE-NEUTRALISEE, C-JSON-VOCABULAIRE (review error booleen), CA-G8-CONTREFACTUEL-REEL. Regle actee : un worktree par lot sous ~/work/.wt/, jamais l'arbre racine. |
+| Note | PAUSE 2026-09-10. Deux lots fusionnes cette nuit : REGISTRE-OPTIONS-ROOT-PATH-PROJET (session work-35, gate PASS) et REGISTRE-GRAIN-SOUS-VERBE (session parallele, re-gate PASS apres integration). Suite main 1306/1305/0/1. Plus aucun lot en fabrication. Convention : un worktree par lot sous ~/work/.wt/, jamais l arbre racine. Reprise : actes du decideur (tag v0.41.1-rc.1 ne doit pas devenir latest, puis v0.42.0 ; recette reelle Windows/Linux ; secrets Apple/Windows ; paire minisign pour UPDATER-DE-LA-FACADE). Successeurs non cadres : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET, GARDES-DERIVATION-PAR-AST, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, PUBLICATION-VERIFIE-LES-ASSETS, REGISTRE-REPLI-LATEST-DETTE-CROISEE, LANCEUR-DESKTOP-LINUX. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `bb67400` | 2026-09-10 | docs(backlog): REGISTRE-OPTIONS-ROOT-PATH-PROJET soldé par le gate PASS (déplacé Ouverts → Fait) |
+| `238ba5b` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `317879b` | 2026-09-10 | docs(backlog): REGISTRE-GRAIN-SOUS-VERBE soldé — gate PASS + re-gate PASS, successeurs nommés |
 | `2c4d9bb` | 2026-09-10 | merge: REGISTRE-GRAIN-SOUS-VERBE — registre de couverture C-JSON au grain sous-verbe, 51 entrees, cliquet 0 vrai, 10 trous fermes (gate PASS + re-gate PASS) |
 | `a9800de` | 2026-09-10 | docs(qualite): re-gate REGISTRE-GRAIN-SOUS-VERBE après intégration de main — PASS |
@@ -26,8 +28,6 @@
 | `ba336ee` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `28ccd7f` | 2026-09-10 | merge: REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 — options --root/--project déclarées et documentées, garde ouverte aux 4 options (gate PASS) |
 | `6442255` | 2026-09-10 | docs(qualite): gate REGISTRE-OPTIONS R1+R2 — PASS |
-| `e5e8030` | 2026-09-10 | feat(cli): refondre le registre de couverture C-JSON au grain sous-verbe (51 entrees) |
-| `0cf4d2c` | 2026-09-10 | test(cli): fermer les dix trous du grain sous-verbe (memory/produit/review) — AR-G4=(b) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -210,6 +210,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-10 09:57 | pause | v0.41.0 | main | PAUSE 2026-09-10. Deux lots fusionnes cette nuit : REGISTRE-OPTIONS-ROOT-PATH-PROJET (session work-35, gate PASS) et REGISTRE-GRAIN-SOUS-VERBE (session parallele, re-gate PASS apres integration). Suite main 1306/1305/0/1. Plus aucun lot en fabrication. Convention : un worktree par lot sous ~/work/.wt/, jamais l arbre racine. Reprise : actes du decideur (tag v0.41.1-rc.1 ne doit pas devenir latest, puis v0.42.0 ; recette reelle Windows/Linux ; secrets Apple/Windows ; paire minisign pour UPDATER-DE-LA-FACADE). Successeurs non cadres : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET, GARDES-DERIVATION-PAR-AST, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, PUBLICATION-VERIFIE-LES-ASSETS, REGISTRE-REPLI-LATEST-DETTE-CROISEE, LANCEUR-DESKTOP-LINUX. |
 | 2026-09-10 05:32 | pause | v0.41.0 | main | REGISTRE-GRAIN-SOUS-VERBE fusionne (2c4d9bb) : registre de couverture C-JSON au grain sous-verbe, 51 entrees, repli verbId retire (3 alias sousVerbeParDefaut), 10 trous fermes (AR-G4 b), cliquet 0 et vrai, gate PASS + re-gate PASS apres integration de main (lot parallele REGISTRE-OPTIONS). Suite main 1306/1305/0/1. Successeurs : GUIDE-CLAUDE-GRAIN-SOUS-VERBE (decideur), G-J1-ENTREE-NEUTRALISEE, C-JSON-VOCABULAIRE (review error booleen), CA-G8-CONTREFACTUEL-REEL. Regle actee : un worktree par lot sous ~/work/.wt/, jamais l'arbre racine. |
 | 2026-09-10 00:49 | pause | v0.41.0 | main | REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 livre (gate PASS sans ecart) : --root declare sur config/go/brief/recap/assemble, --project <nom> sur go/brief/recap/observe, ligne doc repo complete, boucle verbesEnDeriveOption ouverte aux 4 options + entree motivee root, registre couverture-options.json (6 ecarts motives) + cliquet. Suite 1287/1286/0/1. Successeurs : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET ; REGISTRE-GRAIN-SOUS-VERBE en cours dans une session parallele (worktree .wt/). |
 | 2026-09-09 23:29 | pause | v0.41.0 | main | C-JSON-COUVERTURE-COMPLETE entierement livre : J3 fusionne (gate PASS, refus explicite --json+--guide, G-J1 complete, --root attach/detach), cliquet a 0 verrouille, 1263 tests. Successeurs : REGISTRE-GRAIN-SOUS-VERBE, REGISTRE-OPTIONS-ROOT-PATH-PROJET, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, G-J1 aveugle au code commente. |

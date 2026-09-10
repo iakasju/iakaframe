@@ -1028,5 +1028,15 @@
     "dirty": false,
     "files": 1263,
     "note": "REGISTRE-GRAIN-SOUS-VERBE fusionne (2c4d9bb) : registre de couverture C-JSON au grain sous-verbe, 51 entrees, repli verbId retire (3 alias sousVerbeParDefaut), 10 trous fermes (AR-G4 b), cliquet 0 et vrai, gate PASS + re-gate PASS apres integration de main (lot parallele REGISTRE-OPTIONS). Suite main 1306/1305/0/1. Successeurs : GUIDE-CLAUDE-GRAIN-SOUS-VERBE (decideur), G-J1-ENTREE-NEUTRALISEE, C-JSON-VOCABULAIRE (review error booleen), CA-G8-CONTREFACTUEL-REEL. Regle actee : un worktree par lot sous ~/work/.wt/, jamais l'arbre racine."
+  },
+  {
+    "date": "2026-09-10 09:57",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "bb67400 docs(backlog): REGISTRE-OPTIONS-ROOT-PATH-PROJET soldé par le gate PASS (déplacé Ouverts → Fait)",
+    "dirty": false,
+    "files": 1263,
+    "note": "PAUSE 2026-09-10. Deux lots fusionnes cette nuit : REGISTRE-OPTIONS-ROOT-PATH-PROJET (session work-35, gate PASS) et REGISTRE-GRAIN-SOUS-VERBE (session parallele, re-gate PASS apres integration). Suite main 1306/1305/0/1. Plus aucun lot en fabrication. Convention : un worktree par lot sous ~/work/.wt/, jamais l arbre racine. Reprise : actes du decideur (tag v0.41.1-rc.1 ne doit pas devenir latest, puis v0.42.0 ; recette reelle Windows/Linux ; secrets Apple/Windows ; paire minisign pour UPDATER-DE-LA-FACADE). Successeurs non cadres : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET, GARDES-DERIVATION-PAR-AST, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, PUBLICATION-VERIFIE-LES-ASSETS, REGISTRE-REPLI-LATEST-DETTE-CROISEE, LANCEUR-DESKTOP-LINUX."
   }
 ]
