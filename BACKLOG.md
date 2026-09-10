@@ -691,6 +691,62 @@ Instruction `specs/instructions/role-frame-builder.md` **cadrée (Gandalf) et ga
 
 ## Fait
 
+### Soldé le 2026-09-10 (lot `feat/registre-grain-sous-verbe`, cadrage `registre-grain-sous-verbe.md`) — REGISTRE-GRAIN-SOUS-VERBE livré, gate PASS + re-gate PASS
+
+- [x] **`REGISTRE-GRAIN-SOUS-VERBE` — le registre de couverture C-JSON porte le grain SOUS-VERBE.**
+  Fusionné sur `main` (`2c4d9bb`, `--no-ff`) après **gate 🏹 Legolas PASS** (`40755ba`, base figée
+  `18bcec0`) **et re-gate PASS après intégration de `main`** (`a9800de`, merge `3481323` de
+  `ba336ee` = lot `REGISTRE-OPTIONS-ROOT-PATH-PROJET`, fusion textuelle propre, aucune
+  neutralisation croisée des gardes prouvée par contrefactuels des deux lots). Rapports :
+  `docs/qualite/gate-registre-grain-sous-verbe.md` (+ addendum re-gate),
+  `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md`.
+  - **Le fait central, mesuré puis fermé** : le repli `!couvertes.has(a.verbId)` de G-J1 rendait
+    le grain sous-verbe **fictif** — un seul sous-verbe mesuré absolvait tous les autres ; **dix**
+    invocations déclarant `--json` (`memory add/replace/remove`, `produit init/add/replace/remove`,
+    `review apply/reject/auto`) n'avaient aucune entrée `NOMINAL`/`ERRORS` alors que le cliquet
+    affichait `0`. Arbitrage du décideur **AR-G4 = (b)** : le lot ferme les dix (en bac à sable,
+    patrons HOME/PROJ/REVIEW_HOME existants) ; le cliquet reste à **0 et VRAI**.
+  - Livré : dérivation UNIQUE `surfacesAttendues` partagée registre ↔ G-J1 ; repli `verbId`
+    retiré, remplacé par **3** alias déclarés `sousVerbeParDefaut` (`skills`→`deploy`,
+    `agents`→`list`, `frame`→`verify` — l'étape 0 en a mesuré 3, le cadrage en avait lu 1) avec
+    garde structurelle (valeur = id d'un sous-verbe réel) ; fixture `couverture-json.json` refaite,
+    **51 entrées** plates (`21` sans sous-verbe + `29` sous-verbes + `models` nu, seule forme nue
+    à comportement propre — `observe` nu est une erreur d'usage et n'écrit PAS le store, contrairement
+    à la lecture initiale) ; garde `couverture ⟺ mesure` (AR-G6(c)) ; motif de
+    `frame.guideClaudeCode` **désambiguïsé** (il porte sur le kit Claude Code, pas sur ce registre —
+    conflation du cadrage parent corrigée). Production : **22 lignes de données** dans
+    `cli/src/lib/verbes.js`, aucune fonction, prose humaine intacte (témoins CA-J8 verts).
+  - Suite sur `main` après fusion : **1306 tests, 1305 pass, 0 fail, 1 skipped** (= 1287 de
+    `ba336ee` + 19 du lot ; 1282/1275/0/7 en worktree isolé sans dépôt frère ni `rg`).
+  - Commits : `2a2ee69` `88682c4` `7c826b3` `ad472ed` (cadrage, arbitrage, mesures, amendement),
+    `9dcc0e7` `95b6105` `0cf4d2c` `e5e8030` (fabrication), `40755ba` `3481323` `a9800de`
+    (gate, merge, re-gate).
+  - **Écarts non bloquants consignés au gate** (à tenir, pas à oublier) : (1) le contrefactuel
+    CA-G8 tel que décrit ne tire pas pour les invocations réellement livrées (`review apply`/`auto`
+    de type `memory` ne passent jamais par `materializeSkill`, seul consommateur de `--library`) ;
+    (2) une ligne de setup préexistante `REVIEW_PROPOSAL_ID` modifiée et non seulement ajoutée
+    (3 propositions dans le même bac à sable). (3) L'asymétrie CA-G3 est **prouvée dans un test
+    committé** : retirer `sousVerbeParDefaut` d'`agents`/`frame` ne rougit pas (leurs sous-verbes
+    ont une entrée propre), seul `skills` est porteur — consigné, pas déclaré joué.
+  - **Incident de session, réglé** : deux sessions Aragorn ont commité dans le même arbre racine
+    (mes deux commits de cadrage sont tombés sur la branche du lot parallèle). Règle actée des deux
+    côtés : **un worktree par lot sous `~/work/.wt/`, jamais l'arbre racine** ; celui qui fusionne en
+    second intègre `main` (par merge, pas rebase : la branche est déjà poussée, pas de `push --force`)
+    et rejoue la suite + re-gate.
+  - **Successeurs nommés, non traités ici** (§ 4 Exclu du cadrage) :
+    - `GUIDE-CLAUDE-GRAIN-SOUS-VERBE` — faut-il des entrées de kit `/iaka-*` par sous-verbe
+      (`frame verify/lint/new` indépendamment de `frame use`) ? **Décision de surface produit,
+      réservée au décideur** ; l'arbitrage gelé de `frame.guideClaudeCode` (`verbes.js`) reste
+      `generer:false` et porte désormais un motif exact.
+    - `G-J1-ENTREE-NEUTRALISEE` — la dérivation par lecture de texte est aveugle à une entrée
+      commentée (rejoint `GARDES-DERIVATION-PAR-AST` du lot parallèle).
+    - `C-JSON-VOCABULAIRE` — enrichi : `review --json` nu rend `{ok:false, error:true}`
+      (booléen), forme irrégulière relevée à l'étape 0, non corrigée (hors périmètre).
+    - `C-JSON-EXTENSION` — inchangé (donner `--json` à un verbe qui ne le déclare pas, seulement
+      si un consommateur le demande).
+    - `CA-G8-CONTREFACTUEL-REEL` — reformuler le contrefactuel « fuite `--library` » sur une
+      invocation qui passe réellement par `materializeSkill`, ou le retirer comme non probant.
+
 ### Soldé le 2026-09-09 (lot `feat/c-json-j3`, cadrage `c-json-couverture-complete.md`) — dernier lot, C-JSON-COUVERTURE-COMPLETE ENTIÈREMENT livré
 
 - [x] **`C-JSON-COUVERTURE-COMPLETE` — les 4 lots (J0, J1, J2, J3) sont tous fermés.** J0+J1 gatés
