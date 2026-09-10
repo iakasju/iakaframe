@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-10 09:58 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-10 10:01 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,15 +9,16 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | 6563e1a chore(iakaframe): update etat des lieux + commit global (pause) |
-| Arbre | propre |
+| Dernier commit | c99fe07 chore(iakaframe): update etat des lieux + commit global (pause) |
+| Arbre | MODIFICATIONS NON COMMITEES |
 | Fichiers (suivis + non ignores) | 1263 |
-| Note | Update demande par le decideur apres la pause du 2026-09-10 ; etat inchange depuis 6563e1a (deux lots fusionnes, plus rien en fabrication). |
+| Note | Pause apres fusion des deux successeurs C-JSON (REGISTRE-OPTIONS par work-35, REGISTRE-GRAIN-SOUS-VERBE par cette session). main bb67400 -> ce checkpoint. Recit de reprise complete au 2026-09-10. Rien en fabrication. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `c99fe07` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `6563e1a` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `bb67400` | 2026-09-10 | docs(backlog): REGISTRE-OPTIONS-ROOT-PATH-PROJET soldé par le gate PASS (déplacé Ouverts → Fait) |
 | `238ba5b` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
@@ -27,9 +28,28 @@
 | `3481323` | 2026-09-10 | merge: intégration de main (REGISTRE-OPTIONS R1+R2, ba336ee) dans feat/registre-grain-sous-verbe |
 | `40755ba` | 2026-09-10 | docs(qualite): gate REGISTRE-GRAIN-SOUS-VERBE — PASS |
 | `ba336ee` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `28ccd7f` | 2026-09-10 | merge: REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 — options --root/--project déclarées et documentées, garde ouverte aux 4 options (gate PASS) |
 
 ## Reprise du travail (a completer par Cowork)
+
+- **Ou on en est** (2026-09-10, pause) : **deux successeurs du C-JSON soldes le MEME JOUR par deux sessions
+  Aragorn en parallele**, chacun dans son worktree. (1) `REGISTRE-OPTIONS-ROOT-PATH-PROJET` R1+R2 (session
+  work-35, merge `28ccd7f`, gate PASS `6442255`). (2) `REGISTRE-GRAIN-SOUS-VERBE` (cette session, merge
+  `2c4d9bb`, gate PASS `40755ba` + re-gate PASS `a9800de` apres integration de `main`). **Fait central du lot
+  (2)** : le repli `verbId` de G-J1 rendait le grain sous-verbe fictif — 10 invocations `--json` jamais
+  mesurees sous un cliquet a 0. Arbitrage decideur AR-G4 = (b) : les dix sont fermees, le cliquet reste a
+  **0 et vrai**. Registre `couverture-json.json` a **51 entrees** plates derivees de `verbes.js` ; 3 alias
+  `sousVerbeParDefaut` (skills/agents/frame) ; 22 lignes de donnees en production, prose intacte. Suite `main`
+  **1306 tests, 1305 pass, 0 fail, 1 skip** (= 1287 + 19). Rapports : `docs/qualite/gate-registre-grain-sous-verbe.md`,
+  `docs/qualite/mesures-etape-0-registre-grain-sous-verbe.md`. **Incident regle** : les deux sessions ont
+  d'abord commite dans le meme arbre racine ; regle actee : **un worktree par lot sous `~/work/.wt/`, jamais
+  l'arbre racine ; le second a fusionner integre `main` par merge (pas de rebase sur branche poussee) et
+  re-gate**. **Rien en fabrication.** Successeurs nommes (BACKLOG § Fait 2026-09-10) : `GUIDE-CLAUDE-GRAIN-SOUS-VERBE`
+  (**decision produit reservee au decideur**), `G-J1-ENTREE-NEUTRALISEE` / `GARDES-DERIVATION-PAR-AST`,
+  `C-JSON-VOCABULAIRE` (+ `review --json` nu : `error` booleen), `C-JSON-EXTENSION`, `CA-G8-CONTREFACTUEL-REEL`,
+  `CLI-SEMANTIQUE-PROJECT-ET-ROOT`, `REGISTRE-OPTIONS-BALAYAGE-COMPLET`, `RANGEMENT-GARDES-REGISTRE`.
+  **Actes decideur toujours en attente** : arbitrage `etatAtteint.etapesFaites` en `--dry-run` (avant C.2-b),
+  recette reelle de la chaine d'installation, secrets de signature Cockpit ; **reserve config** : le remote
+  `iakabox` (box morte, token en clair dans `.git/config`) fait attendre 6 s chaque `update`.
 
 - **Ou on en est** (2026-09-05) : **TROISIEME lot en deux jours, `CONTRAT-MACHINE-DU-VERBE-INSTALL`**,
   fusionne (`efe195c`, 7 commits Gimli), **PASS Legolas au premier passage**, 16/16 CA-M. Le verbe `install`
@@ -210,6 +230,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-10 10:01 | pause | v0.41.0 | main | Pause apres fusion des deux successeurs C-JSON (REGISTRE-OPTIONS par work-35, REGISTRE-GRAIN-SOUS-VERBE par cette session). main bb67400 -> ce checkpoint. Recit de reprise complete au 2026-09-10. Rien en fabrication. |
 | 2026-09-10 09:58 | pause | v0.41.0 | main | Update demande par le decideur apres la pause du 2026-09-10 ; etat inchange depuis 6563e1a (deux lots fusionnes, plus rien en fabrication). |
 | 2026-09-10 09:57 | pause | v0.41.0 | main | PAUSE 2026-09-10. Deux lots fusionnes cette nuit : REGISTRE-OPTIONS-ROOT-PATH-PROJET (session work-35, gate PASS) et REGISTRE-GRAIN-SOUS-VERBE (session parallele, re-gate PASS apres integration). Suite main 1306/1305/0/1. Plus aucun lot en fabrication. Convention : un worktree par lot sous ~/work/.wt/, jamais l arbre racine. Reprise : actes du decideur (tag v0.41.1-rc.1 ne doit pas devenir latest, puis v0.42.0 ; recette reelle Windows/Linux ; secrets Apple/Windows ; paire minisign pour UPDATER-DE-LA-FACADE). Successeurs non cadres : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET, GARDES-DERIVATION-PAR-AST, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, PUBLICATION-VERIFIE-LES-ASSETS, REGISTRE-REPLI-LATEST-DETTE-CROISEE, LANCEUR-DESKTOP-LINUX. |
 | 2026-09-10 05:32 | pause | v0.41.0 | main | REGISTRE-GRAIN-SOUS-VERBE fusionne (2c4d9bb) : registre de couverture C-JSON au grain sous-verbe, 51 entrees, repli verbId retire (3 alias sousVerbeParDefaut), 10 trous fermes (AR-G4 b), cliquet 0 et vrai, gate PASS + re-gate PASS apres integration de main (lot parallele REGISTRE-OPTIONS). Suite main 1306/1305/0/1. Successeurs : GUIDE-CLAUDE-GRAIN-SOUS-VERBE (decideur), G-J1-ENTREE-NEUTRALISEE, C-JSON-VOCABULAIRE (review error booleen), CA-G8-CONTREFACTUEL-REEL. Regle actee : un worktree par lot sous ~/work/.wt/, jamais l'arbre racine. |
