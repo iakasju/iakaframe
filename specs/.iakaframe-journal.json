@@ -1018,5 +1018,15 @@
     "dirty": true,
     "files": 1260,
     "note": "REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 livre (gate PASS sans ecart) : --root declare sur config/go/brief/recap/assemble, --project <nom> sur go/brief/recap/observe, ligne doc repo complete, boucle verbesEnDeriveOption ouverte aux 4 options + entree motivee root, registre couverture-options.json (6 ecarts motives) + cliquet. Suite 1287/1286/0/1. Successeurs : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET ; REGISTRE-GRAIN-SOUS-VERBE en cours dans une session parallele (worktree .wt/)."
+  },
+  {
+    "date": "2026-09-10 05:32",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "317879b docs(backlog): REGISTRE-GRAIN-SOUS-VERBE soldé — gate PASS + re-gate PASS, successeurs nommés",
+    "dirty": false,
+    "files": 1263,
+    "note": "REGISTRE-GRAIN-SOUS-VERBE fusionne (2c4d9bb) : registre de couverture C-JSON au grain sous-verbe, 51 entrees, repli verbId retire (3 alias sousVerbeParDefaut), 10 trous fermes (AR-G4 b), cliquet 0 et vrai, gate PASS + re-gate PASS apres integration de main (lot parallele REGISTRE-OPTIONS). Suite main 1306/1305/0/1. Successeurs : GUIDE-CLAUDE-GRAIN-SOUS-VERBE (decideur), G-J1-ENTREE-NEUTRALISEE, C-JSON-VOCABULAIRE (review error booleen), CA-G8-CONTREFACTUEL-REEL. Regle actee : un worktree par lot sous ~/work/.wt/, jamais l'arbre racine."
   }
 ]

@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-10 00:49 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-10 05:32 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | 28ccd7f merge: REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 — options --root/--project déclarées et documentées, garde ouverte aux 4 options (gate PASS) |
-| Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (suivis + non ignores) | 1260 |
-| Note | REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 livre (gate PASS sans ecart) : --root declare sur config/go/brief/recap/assemble, --project <nom> sur go/brief/recap/observe, ligne doc repo complete, boucle verbesEnDeriveOption ouverte aux 4 options + entree motivee root, registre couverture-options.json (6 ecarts motives) + cliquet. Suite 1287/1286/0/1. Successeurs : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET ; REGISTRE-GRAIN-SOUS-VERBE en cours dans une session parallele (worktree .wt/). |
+| Dernier commit | 317879b docs(backlog): REGISTRE-GRAIN-SOUS-VERBE soldé — gate PASS + re-gate PASS, successeurs nommés |
+| Arbre | propre |
+| Fichiers (suivis + non ignores) | 1263 |
+| Note | REGISTRE-GRAIN-SOUS-VERBE fusionne (2c4d9bb) : registre de couverture C-JSON au grain sous-verbe, 51 entrees, repli verbId retire (3 alias sousVerbeParDefaut), 10 trous fermes (AR-G4 b), cliquet 0 et vrai, gate PASS + re-gate PASS apres integration de main (lot parallele REGISTRE-OPTIONS). Suite main 1306/1305/0/1. Successeurs : GUIDE-CLAUDE-GRAIN-SOUS-VERBE (decideur), G-J1-ENTREE-NEUTRALISEE, C-JSON-VOCABULAIRE (review error booleen), CA-G8-CONTREFACTUEL-REEL. Regle actee : un worktree par lot sous ~/work/.wt/, jamais l'arbre racine. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `317879b` | 2026-09-10 | docs(backlog): REGISTRE-GRAIN-SOUS-VERBE soldé — gate PASS + re-gate PASS, successeurs nommés |
+| `2c4d9bb` | 2026-09-10 | merge: REGISTRE-GRAIN-SOUS-VERBE — registre de couverture C-JSON au grain sous-verbe, 51 entrees, cliquet 0 vrai, 10 trous fermes (gate PASS + re-gate PASS) |
+| `a9800de` | 2026-09-10 | docs(qualite): re-gate REGISTRE-GRAIN-SOUS-VERBE après intégration de main — PASS |
+| `3481323` | 2026-09-10 | merge: intégration de main (REGISTRE-OPTIONS R1+R2, ba336ee) dans feat/registre-grain-sous-verbe |
+| `40755ba` | 2026-09-10 | docs(qualite): gate REGISTRE-GRAIN-SOUS-VERBE — PASS |
+| `ba336ee` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `28ccd7f` | 2026-09-10 | merge: REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 — options --root/--project déclarées et documentées, garde ouverte aux 4 options (gate PASS) |
 | `6442255` | 2026-09-10 | docs(qualite): gate REGISTRE-OPTIONS R1+R2 — PASS |
-| `8cabc94` | 2026-09-10 | docs(qualite): remise Gimli -> Legolas REGISTRE-OPTIONS-ROOT-PATH-PROJET |
-| `8857872` | 2026-09-10 | docs(instructions): coche CA-R1..CA-R10 avec preuve en regard |
-| `15487c7` | 2026-09-10 | chore(backlog): REGISTRE-OPTIONS-ROOT-PATH-PROJET livre, en attente du gate Legolas |
-| `bfd7bad` | 2026-09-10 | docs(cli): redit les deux angles morts de la derivation par option (CA-R8) |
-| `875cf32` | 2026-09-10 | test(cli): contrefactuels 2 sens x 4 options + registre hors-balayage (AR-R4) |
-| `95cebba` | 2026-09-10 | test(cli): ouvre le balayage de derivation aux 4 options (AR-R3/CA-R5/CA-R6) |
-| `c6305a9` | 2026-09-10 | docs(qualite): mesures d'execution etape 0 REGISTRE-OPTIONS-ROOT-PATH-PROJET |
-| `89ad496` | 2026-09-10 | feat(cli): declare --project sur go/brief/recap/observe + doc repo (AR-R1/AR-R2) |
+| `e5e8030` | 2026-09-10 | feat(cli): refondre le registre de couverture C-JSON au grain sous-verbe (51 entrees) |
+| `0cf4d2c` | 2026-09-10 | test(cli): fermer les dix trous du grain sous-verbe (memory/produit/review) — AR-G4=(b) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -210,6 +210,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-10 05:32 | pause | v0.41.0 | main | REGISTRE-GRAIN-SOUS-VERBE fusionne (2c4d9bb) : registre de couverture C-JSON au grain sous-verbe, 51 entrees, repli verbId retire (3 alias sousVerbeParDefaut), 10 trous fermes (AR-G4 b), cliquet 0 et vrai, gate PASS + re-gate PASS apres integration de main (lot parallele REGISTRE-OPTIONS). Suite main 1306/1305/0/1. Successeurs : GUIDE-CLAUDE-GRAIN-SOUS-VERBE (decideur), G-J1-ENTREE-NEUTRALISEE, C-JSON-VOCABULAIRE (review error booleen), CA-G8-CONTREFACTUEL-REEL. Regle actee : un worktree par lot sous ~/work/.wt/, jamais l'arbre racine. |
 | 2026-09-10 00:49 | pause | v0.41.0 | main | REGISTRE-OPTIONS-ROOT-PATH-PROJET R1+R2 livre (gate PASS sans ecart) : --root declare sur config/go/brief/recap/assemble, --project <nom> sur go/brief/recap/observe, ligne doc repo complete, boucle verbesEnDeriveOption ouverte aux 4 options + entree motivee root, registre couverture-options.json (6 ecarts motives) + cliquet. Suite 1287/1286/0/1. Successeurs : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET ; REGISTRE-GRAIN-SOUS-VERBE en cours dans une session parallele (worktree .wt/). |
 | 2026-09-09 23:29 | pause | v0.41.0 | main | C-JSON-COUVERTURE-COMPLETE entierement livre : J3 fusionne (gate PASS, refus explicite --json+--guide, G-J1 complete, --root attach/detach), cliquet a 0 verrouille, 1263 tests. Successeurs : REGISTRE-GRAIN-SOUS-VERBE, REGISTRE-OPTIONS-ROOT-PATH-PROJET, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, G-J1 aveugle au code commente. |
 | 2026-09-08 11:30 | pause | v0.41.0 | main | C-JSON J2 livre et fusionne (gate PASS, 1245 tests) : les 9 ecrivains/interactifs prouves en bac a sable strict (grain sous-verbe, drapeaux existants), garde d empreinte disque du depot reel, cliquet 9 -> 0. Ecart pour J3 : verbes.js ne declare pas --root sur attach/detach (parse + documente). J3 = refus explicite --json/--guide (AR-J4c, 9 sites) + garde de completude G-J1 + --root declare. Successeur : frame verify sans count. |
