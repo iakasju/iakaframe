@@ -1038,5 +1038,15 @@
     "dirty": false,
     "files": 1263,
     "note": "PAUSE 2026-09-10. Deux lots fusionnes cette nuit : REGISTRE-OPTIONS-ROOT-PATH-PROJET (session work-35, gate PASS) et REGISTRE-GRAIN-SOUS-VERBE (session parallele, re-gate PASS apres integration). Suite main 1306/1305/0/1. Plus aucun lot en fabrication. Convention : un worktree par lot sous ~/work/.wt/, jamais l arbre racine. Reprise : actes du decideur (tag v0.41.1-rc.1 ne doit pas devenir latest, puis v0.42.0 ; recette reelle Windows/Linux ; secrets Apple/Windows ; paire minisign pour UPDATER-DE-LA-FACADE). Successeurs non cadres : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET, GARDES-DERIVATION-PAR-AST, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, PUBLICATION-VERIFIE-LES-ASSETS, REGISTRE-REPLI-LATEST-DETTE-CROISEE, LANCEUR-DESKTOP-LINUX."
+  },
+  {
+    "date": "2026-09-10 09:58",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "6563e1a chore(iakaframe): update etat des lieux + commit global (pause)",
+    "dirty": false,
+    "files": 1263,
+    "note": "Update demande par le decideur apres la pause du 2026-09-10 ; etat inchange depuis 6563e1a (deux lots fusionnes, plus rien en fabrication)."
   }
 ]
