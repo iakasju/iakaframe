@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-10 10:01 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-13 23:27 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | c99fe07 chore(iakaframe): update etat des lieux + commit global (pause) |
-| Arbre | MODIFICATIONS NON COMMITEES |
+| Dernier commit | 02b83da chore(cli): bit executable sur le point d'entree src/index.js (bin npm, pose par npm install -g depuis le depot) |
+| Arbre | propre |
 | Fichiers (suivis + non ignores) | 1263 |
-| Note | Pause apres fusion des deux successeurs C-JSON (REGISTRE-OPTIONS par work-35, REGISTRE-GRAIN-SOUS-VERBE par cette session). main bb67400 -> ce checkpoint. Recit de reprise complete au 2026-09-10. Rien en fabrication. |
+| Note | Pause 2026-09-13 : workflows de sous-agents actives par defaut (methode + kit) ; Forgejo VPS git.naonedge.com remote par defaut (methode, kit, CLAUDE.md global, lib forgejo.js, skill iakaframe-forgejo, goldens) ; CLI globale reinstallee en lien symbolique depuis le depot (0.41.0). Reste : registre npm @naonedge toujours sur le NAS (decision distincte) ; export FORGEJO_URL du NAS dans le shell de lancement a retirer. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `02b83da` | 2026-09-13 | chore(cli): bit executable sur le point d'entree src/index.js (bin npm, pose par npm install -g depuis le depot) |
+| `4dbcd8d` | 2026-09-13 | feat(forgejo): le VPS git.naonedge.com devient le canal primaire de la CLI et de la skill |
+| `c641b69` | 2026-09-13 | docs(methode,kit-claude): Forgejo VPS git.naonedge.com devient le remote par defaut, iakabox miroir secondaire |
+| `c8bc99b` | 2026-09-13 | docs(kit-claude): workflows de sous-agents actives par defaut dans le CLAUDE.md global |
+| `5cc5667` | 2026-09-13 | docs(methode): workflows de sous-agents actives par defaut (opt-in permanent du decideur) |
+| `c90e9f4` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `c99fe07` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `6563e1a` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
 | `bb67400` | 2026-09-10 | docs(backlog): REGISTRE-OPTIONS-ROOT-PATH-PROJET soldé par le gate PASS (déplacé Ouverts → Fait) |
 | `238ba5b` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `317879b` | 2026-09-10 | docs(backlog): REGISTRE-GRAIN-SOUS-VERBE soldé — gate PASS + re-gate PASS, successeurs nommés |
-| `2c4d9bb` | 2026-09-10 | merge: REGISTRE-GRAIN-SOUS-VERBE — registre de couverture C-JSON au grain sous-verbe, 51 entrees, cliquet 0 vrai, 10 trous fermes (gate PASS + re-gate PASS) |
-| `a9800de` | 2026-09-10 | docs(qualite): re-gate REGISTRE-GRAIN-SOUS-VERBE après intégration de main — PASS |
-| `3481323` | 2026-09-10 | merge: intégration de main (REGISTRE-OPTIONS R1+R2, ba336ee) dans feat/registre-grain-sous-verbe |
-| `40755ba` | 2026-09-10 | docs(qualite): gate REGISTRE-GRAIN-SOUS-VERBE — PASS |
-| `ba336ee` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -230,6 +230,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-13 23:27 | pause | v0.41.0 | main | Pause 2026-09-13 : workflows de sous-agents actives par defaut (methode + kit) ; Forgejo VPS git.naonedge.com remote par defaut (methode, kit, CLAUDE.md global, lib forgejo.js, skill iakaframe-forgejo, goldens) ; CLI globale reinstallee en lien symbolique depuis le depot (0.41.0). Reste : registre npm @naonedge toujours sur le NAS (decision distincte) ; export FORGEJO_URL du NAS dans le shell de lancement a retirer. |
 | 2026-09-10 10:01 | pause | v0.41.0 | main | Pause apres fusion des deux successeurs C-JSON (REGISTRE-OPTIONS par work-35, REGISTRE-GRAIN-SOUS-VERBE par cette session). main bb67400 -> ce checkpoint. Recit de reprise complete au 2026-09-10. Rien en fabrication. |
 | 2026-09-10 09:58 | pause | v0.41.0 | main | Update demande par le decideur apres la pause du 2026-09-10 ; etat inchange depuis 6563e1a (deux lots fusionnes, plus rien en fabrication). |
 | 2026-09-10 09:57 | pause | v0.41.0 | main | PAUSE 2026-09-10. Deux lots fusionnes cette nuit : REGISTRE-OPTIONS-ROOT-PATH-PROJET (session work-35, gate PASS) et REGISTRE-GRAIN-SOUS-VERBE (session parallele, re-gate PASS apres integration). Suite main 1306/1305/0/1. Plus aucun lot en fabrication. Convention : un worktree par lot sous ~/work/.wt/, jamais l arbre racine. Reprise : actes du decideur (tag v0.41.1-rc.1 ne doit pas devenir latest, puis v0.42.0 ; recette reelle Windows/Linux ; secrets Apple/Windows ; paire minisign pour UPDATER-DE-LA-FACADE). Successeurs non cadres : CLI-SEMANTIQUE-PROJECT-ET-ROOT, REGISTRE-OPTIONS-BALAYAGE-COMPLET, GARDES-DERIVATION-PAR-AST, C-JSON-EXTENSION, C-JSON-VOCABULAIRE, PUBLICATION-VERIFIE-LES-ASSETS, REGISTRE-REPLI-LATEST-DETTE-CROISEE, LANCEUR-DESKTOP-LINUX. |

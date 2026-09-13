@@ -1058,5 +1058,15 @@
     "dirty": true,
     "files": 1263,
     "note": "Pause apres fusion des deux successeurs C-JSON (REGISTRE-OPTIONS par work-35, REGISTRE-GRAIN-SOUS-VERBE par cette session). main bb67400 -> ce checkpoint. Recit de reprise complete au 2026-09-10. Rien en fabrication."
+  },
+  {
+    "date": "2026-09-13 23:27",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "02b83da chore(cli): bit executable sur le point d'entree src/index.js (bin npm, pose par npm install -g depuis le depot)",
+    "dirty": false,
+    "files": 1263,
+    "note": "Pause 2026-09-13 : workflows de sous-agents actives par defaut (methode + kit) ; Forgejo VPS git.naonedge.com remote par defaut (methode, kit, CLAUDE.md global, lib forgejo.js, skill iakaframe-forgejo, goldens) ; CLI globale reinstallee en lien symbolique depuis le depot (0.41.0). Reste : registre npm @naonedge toujours sur le NAS (decision distincte) ; export FORGEJO_URL du NAS dans le shell de lancement a retirer."
   }
 ]
