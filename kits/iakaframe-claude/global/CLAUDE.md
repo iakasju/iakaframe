@@ -71,13 +71,17 @@ dispatch — sans en spawner aucun**.
 - Les alias `iakaframe` et `odin` mènent à la **même** skill `iakastart` ; `odin` conserve
   **en plus** sa posture portefeuille via la skill `iakaframe-odin` (inchangée).
 
-## Dépôt git par défaut : Forgejo (iakabox)
+## Dépôt git par défaut : Forgejo VPS (git.naonedge.com)
 
-Remote par défaut de tout projet : **Forgejo sur le LAN iakabox**,
-`http://192.168.2.11:3001/<user>/<repo>.git`, **HTTP + token** (SSH inutilisable).
-Token jamais en dur ni commité : `$env:FORGEJO_TOKEN`, ou intégré dans le `.git/config`
-local. Création de dépôt via l'API (description **ASCII uniquement**). Détails et
-usage : `C:\work\iakaframe\iakabox-usage.html`.
+Remote par défaut de tout projet : **Forgejo sur le VPS NaonEdge**,
+`https://git.naonedge.com/<user>/<repo>.git`, **HTTPS + token**, joignable de partout
+(depuis le 2026-09-13 ; nom de remote conseillé : `vps`). Token jamais en dur ni commité :
+`$env:FORGEJO_TOKEN`, ou intégré dans le `.git/config` local. Création de dépôt via l'API
+`POST /api/v1/user/repos` (description **ASCII uniquement**, dépôt **privé** par défaut).
+
+Le **Forgejo LAN iakabox** (`http://192.168.2.11:3001/<user>/<repo>.git`, HTTP + token,
+SSH inutilisable) reste un **miroir secondaire** quand le LAN est joignable ; on le
+réaligne par `git push iakabox main --tags`. Détails et usage : `C:\work\iakaframe\iakabox-usage.html`.
 
 ## Cycle de documentation (état des lieux)
 

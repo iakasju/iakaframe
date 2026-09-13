@@ -733,14 +733,19 @@ Référence d'implémentation : projet **iakaHub** (`docs/passerelle-discord.md`
 `docs/provisionnement-discord.md`, `specs/instructions/passerelle-discord-agents.md` et
 `specs/instructions/saisie-directe-odin-canal.md`).
 
-## Git par défaut : Forgejo (iakabox)
+## Git par défaut : Forgejo VPS (git.naonedge.com)
 
-Tout projet est versionné sur le **Forgejo auto-hébergé du homelab iakabox** —
-cohérent avec la préférence self-hosted. Pattern :
-`http://192.168.2.11:3001/sjupin/<repo>.git`, **HTTP + token** (le SSH de cette box
-est inutilisable). Le token n'est **jamais** écrit en dur ni commité : variable
-`$env:FORGEJO_TOKEN` ou `.git/config` local. Création de dépôt via l'API Forgejo
-(description **ASCII uniquement**, sinon HTTP 422). Guide complet : `iakabox-usage.html`.
+Tout projet est versionné sur le **Forgejo auto-hébergé du VPS NaonEdge** — cohérent
+avec la préférence self-hosted, et joignable de partout, hors du LAN comme dedans.
+Pattern : `https://git.naonedge.com/sjupin/<repo>.git`, **HTTPS + token**, remote nommé
+`vps`. Le token n'est **jamais** écrit en dur ni commité : variable `$env:FORGEJO_TOKEN`
+ou `.git/config` local. Création de dépôt via l'API Forgejo (`POST /api/v1/user/repos`,
+description **ASCII uniquement** sinon HTTP 422, dépôt **privé** par défaut). Décision du
+2026-09-13 : le LAN iakabox était injoignable, le VPS a pris le relais comme défaut.
+
+Le **Forgejo du homelab iakabox** (`http://192.168.2.11:3001/sjupin/<repo>.git`, HTTP +
+token, SSH inutilisable) reste un **miroir secondaire**, remote `iakabox`, réaligné quand le
+LAN répond : `git push iakabox main --tags`. Guide complet : `iakabox-usage.html`.
 
 ## Cycle de documentation — version & reprise
 
