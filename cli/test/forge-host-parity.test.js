@@ -33,9 +33,15 @@ function fromNpmrc() {
   return hostOf(line.split('=').slice(1).join('=').trim());
 }
 // Depuis le lot 0 (« trois canaux synchrones »), forgejo.js porte une LISTE ordonnee et non
-// plus une adresse unique. La parite s'exerce donc sur le canal PRIMAIRE — celui vers lequel
-// on publie et celui qu'on interroge d'abord ; les suivants sont des SECOURS, qui ont le droit
-// (et le devoir) d'etre d'autres hotes.
+// plus une adresse unique. Les canaux suivants sont des SECOURS, qui ont le droit (et le devoir)
+// d'etre d'autres hotes.
+//
+// Depuis le 2026-09-13, le canal PRIMAIRE de forge (git) est le VPS git.naonedge.com, alors que
+// le registre npm @naonedge reste publie sur le NAS : les deux hotes DIVERGENT legitimement, par
+// decision, pas par oubli. La parite garde donc deux exigences plus fines que « meme hote » :
+//   1. publishConfig et .npmrc designent le MEME registre (une seule cible de publication) ;
+//   2. ce registre vit sur UNE DES FORGES DECLAREES par forgejo.js — un registre qui pointerait
+//      vers un hote absent de DEF_URLS serait exactement la derive non gardee d'origine.
 function canauxForgejoLib() {
   const src = fs.readFileSync(path.join(CLI, 'src', 'lib', 'forgejo.js'), 'utf8');
   const m = src.match(/^const DEF_URLS = \[([^\]]+)\];/m);
@@ -44,14 +50,18 @@ function canauxForgejoLib() {
   assert.ok(urls.length >= 1, 'DEF_URLS ne doit pas etre vide');
   return urls;
 }
-function fromForgejoLib() {
-  return hostOf(canauxForgejoLib()[0]);
-}
 
-test('publishConfig, .npmrc et le canal PRIMAIRE designent le meme hote de forge', () => {
-  const a = fromPackageJson(), b = fromNpmrc(), c = fromForgejoLib();
+test('publishConfig et .npmrc designent le meme registre, porte par une forge declaree', () => {
+  const a = fromPackageJson(), b = fromNpmrc();
   assert.equal(a, b, `publishConfig (${a}) et .npmrc (${b}) divergent`);
-  assert.equal(a, c, `publishConfig (${a}) et le canal primaire de forgejo.js (${c}) divergent`);
+  const forges = canauxForgejoLib().map(hostOf);
+  assert.ok(forges.includes(a), `le registre npm (${a}) n'est porte par aucune forge declaree : ${forges.join(', ')}`);
+});
+
+test('le canal PRIMAIRE de forge est le VPS en HTTPS (decision du 2026-09-13)', () => {
+  const [primaire] = canauxForgejoLib();
+  assert.equal(new URL(primaire).protocol, 'https:', `canal primaire non TLS : ${primaire}`);
+  assert.equal(hostOf(primaire), 'git.naonedge.com');
 });
 
 test('les canaux de secours sont DISTINCTS du primaire (une liste de doublons ne bascule rien)', () => {

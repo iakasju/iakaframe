@@ -737,8 +737,9 @@ Référence d'implémentation : projet **iakaHub** (`docs/passerelle-discord.md`
 
 Tout projet est versionné sur le **Forgejo auto-hébergé du VPS NaonEdge** — cohérent
 avec la préférence self-hosted, et joignable de partout, hors du LAN comme dedans.
-Pattern : `https://git.naonedge.com/sjupin/<repo>.git`, **HTTPS + token**, remote nommé
-`vps`. Le token n'est **jamais** écrit en dur ni commité : variable `$env:FORGEJO_TOKEN`
+Pattern : `https://git.naonedge.com/sjupin/<repo>.git`, **HTTPS + token**, remote `origin`
+sur un projet neuf (`vps` en complément d'un `origin` déjà pris). Le token n'est **jamais**
+écrit en dur ni commité : variable `$env:FORGEJO_TOKEN`
 ou `.git/config` local. Création de dépôt via l'API Forgejo (`POST /api/v1/user/repos`,
 description **ASCII uniquement** sinon HTTP 422, dépôt **privé** par défaut). Décision du
 2026-09-13 : le LAN iakabox était injoignable, le VPS a pris le relais comme défaut.

@@ -13,9 +13,11 @@ import { resolveRoot } from './root.js';
 //
 // Ces valeurs restent un filet de DERNIER recours : l'adresse vit dans <chapeau>/.env
 // (`FORGEJO_URL`), lu par fromEnvFile ci-dessous. Ordre = le plus disponible en tete.
-// La forge a deja demenage une fois (iakabox 192.168.2.11 -> NAS, 2026-08-19) ; l'ancienne
-// box ne repond plus (sonde du 2026-08-25) — elle reste en SECOURS, jamais en tete.
-const DEF_URLS = ['http://192.168.1.139:3001', 'http://192.168.2.11:3001'];
+// La forge a demenage deux fois : iakabox 192.168.2.11 -> NAS 192.168.1.139 (2026-08-19), puis
+// NAS -> VPS git.naonedge.com (2026-09-13 : le LAN entier etait injoignable, le VPS repond de
+// partout ; decision du decideur, cf. methode-de-travail.md § Git par defaut). Le NAS et
+// l'ancienne box restent en SECOURS, dans cet ordre, jamais en tete.
+const DEF_URLS = ['https://git.naonedge.com', 'http://192.168.1.139:3001', 'http://192.168.2.11:3001'];
 const DEF_USER = 'sjupin';
 
 // Un placeholder de template est traite comme absent.
@@ -142,9 +144,12 @@ export async function createRepo(repo, description, isPrivate, opts = {}) {
 }
 
 // URL remote avec token integre (pattern iakabox), token jamais affiche.
+// Le SCHEMA du canal est conserve : le VPS est en HTTPS, les forges LAN en HTTP. Forcer `http://`
+// (ancien comportement) enverrait le token en clair vers un hote qui ne repond qu'en TLS.
 export function remoteUrl(repo, opts = {}) {
   const t = token();
   const { url, user } = cfg(opts);
-  const base = url.replace(/^https?:\/\//, '');
-  return `http://${user}:${t}@${base}/${user}/${repo}.git`;
+  const scheme = /^https:\/\//i.test(url) ? 'https' : 'http';
+  const base = url.replace(/^https?:\/\//i, '');
+  return `${scheme}://${user}:${t}@${base}/${user}/${repo}.git`;
 }

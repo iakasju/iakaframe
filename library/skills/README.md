@@ -45,7 +45,7 @@ skills dans un projet. Chaque skill se déclenche quand le contexte correspond �
 | `iakaframe-retrait` | — | Surface `/retrait` (détacher/retirer un élément matérialisé) | « /retrait », retirer un élément |
 | `iakaframe-gestion-de-source` | capacité | Source-control (agnostique du serveur) | « versionner le projet », « committer », init/update |
 | `iakaframe-git` | famille | Protocole git (nomme git, pas le serveur) | « committer », « brancher le remote », « pousser » |
-| `iakaframe-forgejo` | produit | Git par défaut (iakabox) | « créer le dépôt », « brancher Forgejo », « pousser sur iakabox » |
+| `iakaframe-forgejo` | produit | Git par défaut (VPS git.naonedge.com ; LAN en miroir) | « créer le dépôt », « brancher Forgejo », « pousser sur le VPS » |
 | `iakaframe-conteneurisation` | capacité | Isolation d'environnement (agnostique du moteur) | « isoler la stack », « cloisonner l'environnement », « allouer les ports » |
 | `iakaframe-docker` | produit | Stack isolée par projet | « dockeriser », « docker-compose », « allouer les ports » |
 | `iakaframe-memoire-humaine` | capacité | Mémoire humaine (agnostique du produit) | « publier la mémoire humaine », « documenter le projet hors dépôt » |

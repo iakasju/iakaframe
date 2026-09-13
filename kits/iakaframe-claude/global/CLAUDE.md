@@ -75,7 +75,8 @@ dispatch — sans en spawner aucun**.
 
 Remote par défaut de tout projet : **Forgejo sur le VPS NaonEdge**,
 `https://git.naonedge.com/<user>/<repo>.git`, **HTTPS + token**, joignable de partout
-(depuis le 2026-09-13 ; nom de remote conseillé : `vps`). Token jamais en dur ni commité :
+(depuis le 2026-09-13 ; remote `origin` sur un projet neuf, `vps` en complément d'un
+`origin` déjà pris). Token jamais en dur ni commité :
 `$env:FORGEJO_TOKEN`, ou intégré dans le `.git/config` local. Création de dépôt via l'API
 `POST /api/v1/user/repos` (description **ASCII uniquement**, dépôt **privé** par défaut).
 
