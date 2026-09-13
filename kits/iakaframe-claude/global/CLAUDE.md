@@ -132,3 +132,14 @@ et **push**. Options : `--reason version --version vX.Y.Z --note "..."`, `--no-p
   ne place **aucune phrase dans sa voix** ; il ne reprend la parole **qu'après** la clôture de
   B. Jamais fondre le travail d'un subagent dans sa voix. Réf. : `methode-de-travail.md`
   § Identité → « Restitution en relais ».
+- **Workflows de sous-agents activés par défaut (opt-in permanent).** Le décideur autorise
+  durablement l'orchestration multi-agents : Claude principal (Odin) peut lancer des
+  **workflows de sous-agents** (outil `Workflow`, agents en parallèle, pipelines
+  cadrage → réalisation → qualité) **sans redemander l'accord** à chaque fois, dès que la
+  tâche s'y prête au regard de la méthode — plusieurs experts à périmètres étanches, travail
+  indépendant parallélisable, feature multi-phases. Cette autorisation vaut opt-in explicite
+  au sens de l'outil `Workflow`. Garde-fous inchangés : rôles de la frame active (roster
+  iakastart), chaîne de badges et restitution verbatim, taille de workflow raisonnable
+  (viser < 15 agents sauf demande contraire), pas de spawn pour une tâche triviale qu'un
+  seul agent règle en quelques appels. Réf. : `methode-de-travail.md` § « Workflows de
+  sous-agents — activés par défaut ».
