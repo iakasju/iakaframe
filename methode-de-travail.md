@@ -464,6 +464,33 @@ décision redescend sous forme d'instruction écrite.
 5. Le développeur lit et applique la correction
 ```
 
+### Workflows de sous-agents — activés par défaut
+
+La méthode repose sur une équipe d'experts à périmètres étanches. Demander l'accord du
+décideur à chaque fois qu'un orchestrateur veut faire travailler plusieurs agents freine le
+dispatch et contredit le principe fondateur. **Le décideur donne donc un opt-in permanent** :
+l'orchestrateur (Odin, Aragorn, ou Claude principal non personnifié) **lance des workflows de
+sous-agents sans redemander**, dès que la tâche s'y prête.
+
+Une tâche s'y prête quand :
+
+- plusieurs rôles du roster doivent intervenir sur des périmètres **disjoints** ;
+- le travail est **parallélisable** sans dépendance entre les lots (worktrees séparés) ;
+- la feature traverse **plusieurs phases** (cadrage → réalisation → qualité) et gagne à être
+  enchaînée en pipeline.
+
+Garde-fous — ils ne bougent pas :
+
+- **Roster de la frame active** : seuls les agents levés par `iakastart` sont dispatchés.
+- **Chaîne de badges et restitution verbatim** (§ Identité) : chaque agent ouvre et clôt,
+  l'orchestrateur relaie sans ventriloquie.
+- **Taille raisonnable** : viser moins de quinze agents par workflow, sauf demande contraire.
+- **Pas de spawn pour une tâche triviale** : un déplacement de fichiers, un renommage, une
+  lecture ciblée se règlent en quelques appels par un seul agent.
+
+Côté Claude Code, cette règle vaut **opt-in explicite** pour l'outil `Workflow` ; elle est
+reprise dans `~/.claude/CLAUDE.md` § Conventions permanentes.
+
 ### La rétrospective — inspecter & adapter
 
 Les deux cycles ci-dessus font avancer le **produit**. La rétrospective fait avancer la
