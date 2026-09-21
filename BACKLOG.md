@@ -34,6 +34,11 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
     `accueil.html` / `project.html` / `quality.html`), puis **un onglet par projet** qui
     lit le topic du projet (flux live WSS + historique CouchDB).
   - **Accès** : une tuile/lien dans le portail **Dashy** (`cloud.naonedge.com`).
+  - **Émission depuis tout runner** : les événements partent **du PC Windows, du Mac, ou du
+    VPS lui-même** (Claude Code en session Remote Control) — même publisher, même
+    configuration (`IAKALOG_MQTT_URL` vers l'hôte public `mqtt.naonedge.com`, TLS,
+    identifiants dans Vaultwarden + `.env` local de chaque machine). `iakalog.mjs` doit
+    passer en `mqtts://` (module `tls` natif de Node, toujours zéro dépendance).
 - **Découpage à cadrer** (Gandalf) : (1) publication par la méthode (hooks + `iakalog.mjs` +
   schéma de messages fermé), (2) stockage : CouchDB + pont MQTT → CouchDB sur le VPS
   (reprise d'`iakaboxlogs`), (3) dashboard temps réel (entrée portefeuille + onglets projet,
