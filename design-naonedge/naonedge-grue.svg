@@ -4,7 +4,7 @@
     <linearGradient id="gold" x1="0" y1="0" x2="48" y2="48">
       <stop offset="0" stop-color="#c8a44e"/><stop offset="1" stop-color="#e8c960"/>
     </linearGradient>
-    <linearGradient id="yel" x1="10" y1="12" x2="40" y2="38">
+    <linearGradient id="yel" gradientUnits="userSpaceOnUse" x1="10" y1="12" x2="40" y2="38">
       <stop offset="0" stop-color="#f4c430"/><stop offset="1" stop-color="#e8b21f"/>
     </linearGradient>
   </defs>
