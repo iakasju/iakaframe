@@ -25,10 +25,20 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
   (skill `iakaframe-log-conversation`, Node zéro dépendance) repointé sur le VPS.
 - **Successeur de** la main courante `iakaboxlogs` (MQTT iakabox → CouchDB), morte avec
   l'iakabox le 2026-08-19.
+- **Précisions du décideur (2026-09-21, soir)** :
+  - **Stockage** : une base **NoSQL** reçoit les événements de chaque topic **avant**
+    affichage — successeur direct du pont MQTT → **CouchDB** d'`iakaboxlogs` (dont le
+    `docker-compose.yml`, le `bridge/` et la conf `mosquitto/` sont à réutiliser).
+  - **Dashboard** : look and feel des **logiciels iaka (iakaCockpit)**, charte naonedge via
+    iakagraph. **Page d'entrée = reprise du `naonedge-dashboard`** (portefeuille :
+    `accueil.html` / `project.html` / `quality.html`), puis **un onglet par projet** qui
+    lit le topic du projet (flux live WSS + historique CouchDB).
+  - **Accès** : une tuile/lien dans le portail **Dashy** (`cloud.naonedge.com`).
 - **Découpage à cadrer** (Gandalf) : (1) publication par la méthode (hooks + `iakalog.mjs` +
-  schéma de messages fermé), (2) dashboard temps réel (souscription WSS, vue par projet,
-  agents en cours, chaîne de délégation, durée des runs ; hébergé sur le VPS derrière Caddy).
-  Rien de (2) avant que (1) émette réellement.
+  schéma de messages fermé), (2) stockage : CouchDB + pont MQTT → CouchDB sur le VPS
+  (reprise d'`iakaboxlogs`), (3) dashboard temps réel (entrée portefeuille + onglets projet,
+  souscription WSS + lecture CouchDB ; hébergé sur le VPS derrière Caddy, lien Dashy).
+  Rien de (3) avant que (1) émette réellement et que (2) stocke.
 - **Convertir en instruction avant tout dev.**
 
 ### CI-RELEASE-LATEST-NON-MAITRISE — le `make_latest` du workflow n'est PAS inerte : il est CALCULE A `false` (2026-09-05, titre corrige le 2026-09-08)
