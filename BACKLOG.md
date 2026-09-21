@@ -10,6 +10,27 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### TELEMETRIE-AGENTS-MQTT — la méthode publie les événements d'agents sur MQTT, un topic par projet (décideur, 2026-09-21)
+
+- **Besoin** : un **dashboard temps réel de pilotage des dev par agents IA**. Pour l'alimenter,
+  la méthode doit **publier** ses événements sur le broker MQTT du VPS NaonEdge (cadrage du
+  broker : `naonedge-vps/specs/instructions/mqtt-broker-vps.md`) : **début et fin de run**
+  d'un agent, **délégation** (chaîne de badges A → B), **changement d'état** (phase, jalon
+  ouvert/fermé/validé), **un topic par projet** : `iakaframe/<projet>/<agent>/<evenement>`,
+  messages JSON (`ts`, `project`, `agent`, `event`, `payload`), QoS 1, `retain` sur `state`.
+- **Où ça s'accroche dans la méthode** : les hooks d'identité déjà en place (`Stop`,
+  `SubagentStop`, `UserPromptSubmit`, `PreToolUse`/`PostToolUse` sur `Task`) sont le point
+  d'émission naturel — ils voient chaque ouverture/clôture de badge et chaque délégation ;
+  le verbe `iakaframe jalon` émet le `jalon`. Publisher : réutiliser `iakalog.mjs`
+  (skill `iakaframe-log-conversation`, Node zéro dépendance) repointé sur le VPS.
+- **Successeur de** la main courante `iakaboxlogs` (MQTT iakabox → CouchDB), morte avec
+  l'iakabox le 2026-08-19.
+- **Découpage à cadrer** (Gandalf) : (1) publication par la méthode (hooks + `iakalog.mjs` +
+  schéma de messages fermé), (2) dashboard temps réel (souscription WSS, vue par projet,
+  agents en cours, chaîne de délégation, durée des runs ; hébergé sur le VPS derrière Caddy).
+  Rien de (2) avant que (1) émette réellement.
+- **Convertir en instruction avant tout dev.**
+
 ### CI-RELEASE-LATEST-NON-MAITRISE — le `make_latest` du workflow n'est PAS inerte : il est CALCULE A `false` (2026-09-05, titre corrige le 2026-09-08)
 
 > ⚠️ **Titre corrige le 2026-09-08** (cadrage `specs/instructions/ci-release-latest-non-maitrise.md`).
