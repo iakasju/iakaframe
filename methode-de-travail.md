@@ -748,6 +748,47 @@ Le **Forgejo du homelab iakabox** (`http://192.168.2.11:3001/sjupin/<repo>.git`,
 token, SSH inutilisable) reste un **miroir secondaire**, remote `iakabox`, réaligné quand le
 LAN répond : `git push iakabox main --tags`. Guide complet : `iakabox-usage.html`.
 
+## Secrets par défaut : Vaultwarden VPS (vault.naonedge.com)
+
+Tout secret créé ou manipulé en session (mot de passe d'un compte, jeton d'API, clé) est
+**versé dans le Vaultwarden auto-hébergé du VPS** (`https://vault.naonedge.com`, compte
+`stephane@naonedge.com`) **dans la même séance**, jamais laissé traîner dans un chat, un
+fichier du dépôt ou un commit. Convention posée le 2026-09-21 (versement du jeton Vikunja
+puis du super-admin Odoo).
+
+**Rangement** : un **dossier par projet**, nommé comme le chemin de travail
+(`work/<projet>`, ex. `work/naonedge-vps`) ; un **item de type login par secret**, nommé
+`<projet>/<usage>` (ex. `naonedge-vps/VIKUNJA_TOKEN`, `naonedge-vps/odoo-admin`), avec
+`username`, `uri` du service et une `notes` datée qui dit à quoi il sert et ce qu'il a
+remplacé.
+
+**Le geste** (script de référence : `naonedge-vps/scripts/vault-put-env.sh`, CLI `bw` +
+`jq`) — le secret est lu depuis un **fichier env** (`VAR=valeur`), jamais passé en
+argument ni affiché ; le script est **idempotent** (même valeur → `inchange`, valeur
+différente → `conflit`, rien n'est écrasé) :
+
+```bash
+export BW_SESSION=$(bw unlock --raw)          # ou --passwordenv VAULTWARDEN_PASSWORD
+scripts/vault-put-env.sh <VAR> work/<projet> <projet>/<usage> \
+    --username <login> --uri https://<service> --notes "..." [--env <fichier>]
+bw lock
+```
+
+**Déverrouillage par l'agent** : le coffre CLI est **verrouillé par défaut**. Quand le
+décideur autorise l'agent à l'ouvrir (« ouvre le bw »), l'agent lit le mot de passe maître
+depuis `VAULTWARDEN_PASSWORD` du `.env` **local et non commité** du projet
+`naonedge-vps`, le passe à `bw unlock --passwordenv --raw` **dans une seule commande
+shell** (les variables ne survivent pas d'un appel à l'autre), `unset` aussitôt, verse,
+puis **`bw lock` systématique** et suppression du fichier env temporaire (créé en
+`umask 077` dans le scratchpad de session, jamais dans le dépôt). Aucune valeur n'est
+jamais imprimée : on n'affiche que `cree | inchange | conflit` et l'état `locked` final.
+
+**Modification d'un secret existant** : le script refuse d'écraser (`conflit`). Rotation =
+nouvel item **ou** édition explicite par le décideur dans l'interface web, puis mise à
+jour de la copie locale (`.env`) et révocation de l'ancienne valeur côté service. Un
+secret ayant **transité par une session d'agent est réputé exposé** : à faire tourner
+dès que le service le permet.
+
 ## Cycle de documentation — version & reprise
 
 La doc d'état n'est pas écrite « quand on y pense » : elle est régénérée **à deux
