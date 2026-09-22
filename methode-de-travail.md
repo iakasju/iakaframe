@@ -765,10 +765,12 @@ remplacé.
 **Le geste** (script de référence : `naonedge-vps/scripts/vault-put-env.sh`, CLI `bw` +
 `jq`) — le secret est lu depuis un **fichier env** (`VAR=valeur`), jamais passé en
 argument ni affiché ; le script est **idempotent** (même valeur → `inchange`, valeur
-différente → `conflit`, rien n'est écrasé) :
+différente → `conflit`, rien n'est écrasé). Le CLI `bw` est **épinglé à 2026.8.0** (binaire
+officiel GitHub, SHA-256 vérifié) ; ne pas le mettre à jour avant qu'une release Vaultwarden
+portant la PR #7693 (dani-garcia/vaultwarden) soit déployée :
 
 ```bash
-export BW_SESSION=$(bw unlock --raw)          # ou --passwordenv VAULTWARDEN_PASSWORD
+export BW_SESSION=$(bw unlock --passwordenv VAULTWARDEN_PASSWORD --raw)
 scripts/vault-put-env.sh <VAR> work/<projet> <projet>/<usage> \
     --username <login> --uri https://<service> --notes "..." [--env <fichier>]
 bw lock
