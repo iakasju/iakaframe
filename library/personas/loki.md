@@ -6,7 +6,7 @@ mission: Produit des livrables visuels on-brand, cohérents entre eux, en appliq
 roleKey: design
 royaume: IAKAFRAME
 pastille: "🟠"
-skills: [iakaframe-naonedge]
+skills: [iakaframe-naonedge, anthropic-skills:docs, design:design-critique, design:design-system, design:accessibility-review, design:ux-copy, artifact-design, artifact-diagramming, dataviz]
 guardrails: [identity, perimeter]
 vignette: none
 ---
