@@ -856,6 +856,30 @@ si besoin, puis crée/met à jour espaces et pages via l'API `/api/.../page-view
 
 ---
 
+## Tableau des temps — convention de fin de présentation
+
+**Toute présentation produite pour un client ou un partenaire se termine par un tableau des
+temps**, placé juste avant la slide de remerciements. Convention posée par Stéphane le
+2026-09-24, applicable à **tous les projets**.
+
+Trois lignes, sobres, sans emphase publicitaire — le tableau parle tout seul :
+
+| Qui | Temps |
+|---|---|
+| **Le décideur** | son temps réel, en jours ou demi-journées (chiffre donné par lui, jamais recalculé) |
+| **Claude (l'orchestrateur et son équipe d'agents)** | temps de session, et temps d'agents cumulé si plusieurs ont travaillé en parallèle |
+| **Équivalent en jours-homme** | ce que le même périmètre aurait coûté en développement classique |
+
+**D'où viennent les chiffres.** Le temps de session et le volume produit se lisent dans
+l'historique git (commits, lignes, fichiers, instructions). L'équivalent en jours-homme vient
+des **estimations que le cadrage produit AVANT tout développement** (chaque instruction porte la
+sienne) : ce ne sont pas des chiffres fabriqués après coup pour flatter le résultat — c'est ce
+qui leur donne leur valeur.
+
+**Pourquoi cette convention.** Sans elle, le travail d'une équipe d'agents est invisible : on
+voit le résultat, pas ce qu'il aurait coûté autrement. Le tableau rend lisible ce que la méthode
+produit, et rappelle que le temps du décideur — ses arbitrages — est la ressource rare.
+
 ## Ce que cette méthode n'est pas
 
 - **Pas du « vibe coding ».** Pas de prompt vague suivi d'une acceptation aveugle.

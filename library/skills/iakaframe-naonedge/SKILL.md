@@ -85,6 +85,13 @@ jamais improviser une palette :
 5. **Nommer le fichier** explicitement (ex. `iakaframe-skills.html`) et le poser là où
    l'utilisateur le retrouvera (souvent la racine du projet, à côté des autres supports).
 
+## Tableau des temps (convention, toutes présentations)
+
+Toute présentation destinée à un client ou un partenaire se termine par un **tableau des temps**,
+juste avant les remerciements : temps du décideur (chiffre qu'il donne), temps de Claude et de son
+équipe d'agents, et **équivalent en jours-homme** issu des estimations de cadrage. Sobre, deux
+colonnes, aucune emphase. Réf. : `methode-de-travail.md` § Tableau des temps.
+
 ## Garde-fous
 
 - **Ne jamais diverger de la charte** sans mettre à jour `design-naonedge/` d'abord. La
