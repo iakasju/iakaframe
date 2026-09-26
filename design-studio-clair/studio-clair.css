@@ -1,0 +1,168 @@
+/* ===================================================================
+   Studio clair — feuille de style canonique (label « design Studio clair »)
+   Défaut contextuel : projets de dev logiciel. Voir studio-clair-charte.md.
+   =================================================================== */
+
+:root {
+  --sc-bg: #f7f7f4;
+  --sc-surface: #ffffff;
+  --sc-well: #f0efeb;
+  --sc-border: #e2e0d9;
+  --sc-ink: #1c1c1a;
+  --sc-ink-muted: #6f6d64;
+  --sc-ink-faint: #a3a199;
+  --sc-accent: #3454d1;
+  --sc-accent-2: #0e8a82;
+  --sc-ok: #1a7f5a;
+  --sc-warn: #b5790a;
+  --sc-danger: #c1372c;
+  --sc-info: #2f6fb5;
+  --sc-radius: 8px;
+  --sc-font-display: "Manrope", system-ui, sans-serif;
+  --sc-font-body: "Public Sans", system-ui, sans-serif;
+  --sc-font-mono: "Fira Code", "SF Mono", Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-bg: #14161a;
+    --sc-surface: #1c1f24;
+    --sc-well: #22252b;
+    --sc-border: #2d3138;
+    --sc-ink: #e9e8e4;
+    --sc-ink-muted: #9a9a92;
+    --sc-ink-faint: #63666c;
+    --sc-accent: #7c93f0;
+    --sc-accent-2: #3fd6c8;
+    --sc-ok: #4ad393;
+    --sc-warn: #e0a83f;
+    --sc-danger: #ef6b5e;
+    --sc-info: #7fb2ec;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --sc-bg: #14161a;
+  --sc-surface: #1c1f24;
+  --sc-well: #22252b;
+  --sc-border: #2d3138;
+  --sc-ink: #e9e8e4;
+  --sc-ink-muted: #9a9a92;
+  --sc-ink-faint: #63666c;
+  --sc-accent: #7c93f0;
+  --sc-accent-2: #3fd6c8;
+  --sc-ok: #4ad393;
+  --sc-warn: #e0a83f;
+  --sc-danger: #ef6b5e;
+  --sc-info: #7fb2ec;
+  color-scheme: dark;
+}
+
+body.sc {
+  background: var(--sc-bg);
+  color: var(--sc-ink);
+  font-family: var(--sc-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.sc-hero { display: flex; flex-direction: column; gap: 6px; }
+.sc-hero h1 {
+  font-family: var(--sc-font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.sc-hero .sc-sub { color: var(--sc-ink-muted); font-size: 0.95rem; }
+
+.sc-section-label {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--sc-accent);
+}
+
+.sc-card {
+  background: var(--sc-surface);
+  border: 1px solid var(--sc-border);
+  border-radius: var(--sc-radius);
+}
+
+.sc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--sc-font-mono);
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-border);
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+}
+.sc-badge.b-live { color: var(--sc-accent-2); border-color: var(--sc-accent-2); }
+.sc-badge.b-ok { color: var(--sc-ok); }
+.sc-badge.b-warn { color: var(--sc-warn); }
+.sc-badge.b-danger { color: var(--sc-danger); }
+.sc-badge.b-info { color: var(--sc-info); }
+
+.sc-chip {
+  font-family: var(--sc-font-mono);
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+  border: 1px solid var(--sc-border);
+}
+
+.sc-pastille { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+.sc-note {
+  border-left: 3px solid var(--sc-border);
+  background: var(--sc-well);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-radius: 0 6px 6px 0;
+}
+.sc-note.warn { border-color: var(--sc-warn); }
+.sc-note.tip { border-color: var(--sc-accent-2); }
+.sc-note.info { border-color: var(--sc-info); }
+
+.sc-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--sc-border);
+}
+.sc-tab {
+  font-family: var(--sc-font-mono);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  color: var(--sc-ink-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.sc-tab.active { color: var(--sc-accent); border-bottom-color: var(--sc-accent); }
+.sc-tab:hover { color: var(--sc-ink); }
+
+table.sc-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+table.sc-table th, table.sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 6px 10px;
+  text-align: left;
+}
+table.sc-table th {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--sc-ink-muted);
+}
+table.sc-table tr:hover td { background: var(--sc-well); }
