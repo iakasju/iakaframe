@@ -10,6 +10,7 @@ import {
 } from './library.js';
 import { frameDescriptor } from './frame-active.js';
 import { checkDocSchema, checkStepFields, SOURCE_TO_TYPE } from './frontmatter-schema.js';
+import { RUNNER_KINDS } from './vocab.js';
 
 // Miroir des CLES de WORKFLOW_CATALOG du coeur (@iakaframe/core workflow.ts, WORKFLOW_CATALOG /
 // workflowById). ARB-2 : un `workflowId` connu de ce catalogue partage mais ABSENT du pool est
@@ -144,6 +145,28 @@ export function lintFrame(frameId, root, { strict = false } = {}) {
     }
     for (const s of toArray(p.data.skills)) if (!pools.skills.has(s)) add('blocking', `persona:${p.id}`, 'skills', s, 'missing-ref');
     for (const g of toArray(p.data.guardrails)) if (!pools.guardrails.has(g)) add('blocking', `persona:${p.id}`, 'guardrails', g, 'missing-ref');
+
+    // runnerSkills (skills-propres-au-runner.md) : skills PROPRES A UN RUNNER, hors reservoir,
+    // facultatives, jamais lues par resolveSkills. 3 regles, en AVERTISSEMENT (Q5 = B, 27/09,
+    // jamais bloquant) : cle = runner canonique de RUNNER_KINDS ; valeur = liste de chaines non
+    // vides ; un nom PRESENT dans library/skills/ appartient a `skills:`, pas ici (recouvrement).
+    if (p.data.runnerSkills && typeof p.data.runnerSkills === 'object' && !Array.isArray(p.data.runnerSkills)) {
+      for (const [runner, names] of Object.entries(p.data.runnerSkills)) {
+        if (!RUNNER_KINDS.includes(runner)) {
+          add('warning', `persona:${p.id}`, 'runnerSkills', runner, 'unknown-runner');
+          continue;
+        }
+        const wellTyped = Array.isArray(names) && names.length > 0
+          && names.every(n => typeof n === 'string' && n.trim() !== '');
+        if (!wellTyped) {
+          add('warning', `persona:${p.id}`, 'runnerSkills', runner, 'bad-type');
+          continue;
+        }
+        for (const name of names) {
+          if (pools.skills.has(name)) add('warning', `persona:${p.id}`, 'runnerSkills', name, 'belongs-to-skills');
+        }
+      }
+    }
   }
 
   // Skills reachable = cloture des `skills` des personas castees via `subskills`.
