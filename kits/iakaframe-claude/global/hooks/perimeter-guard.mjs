@@ -46,12 +46,30 @@ const effectiveMode = (modeEnv, tool) => {
 
 // Adaptateur Claude : classe un chemin absolu contre le perimetre, en injectant les reperes du
 // foyer ~/.claude et l'implementation de path. Delegue le verdict pur a guard-core.
-const classifyPath = (absPath, projectDir) => verdictPerimeter(absPath, projectDir, {
-  portfolioDir: CLAUDE_DIR,
-  harnessSettings: HARNESS_SETTINGS,
-  relativeFn: relative,
-  isAbsoluteFn: isAbsolute,
-});
+// Racines EXTRA autorisees par l'humain (~/.claude/iakaframe-perimeter-allow.txt, une par ligne,
+// `#` = commentaire). Fichier absent -> aucune. Le DENY harnais reste prioritaire.
+const ALLOW_FILE = join(CLAUDE_DIR, "iakaframe-perimeter-allow.txt");
+const extraRoots = (() => {
+  try {
+    return readFileSync(ALLOW_FILE, "utf8").split(/\r?\n/)
+      .map((l) => l.trim()).filter((l) => l && !l.startsWith("#")).map((l) => resolve(l));
+  } catch { return []; }
+})();
+
+const classifyPath = (absPath, projectDir) => {
+  const verdict = verdictPerimeter(absPath, projectDir, {
+    portfolioDir: CLAUDE_DIR,
+    harnessSettings: HARNESS_SETTINGS,
+    relativeFn: relative,
+    isAbsoluteFn: isAbsolute,
+  });
+  if (verdict !== "HORS") return verdict;
+  const under = (base) => {
+    const rel = relative(base, absPath);
+    return rel === "" || (!rel.startsWith("..") && !isAbsolute(rel));
+  };
+  return extraRoots.some(under) ? "ALLOW_EXTRA" : verdict;
+};
 
 const isBlocking = (verdict) => isPerimeterBlocking(verdict);
 
