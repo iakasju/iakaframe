@@ -8,6 +8,10 @@
 //
 // PURETE relative : lit le disque (personas + skills) mais ne fait AUCUNE ecriture. Deterministe :
 // ordre de parcours en PROFONDEUR, dedoublonnage a la PREMIERE occurrence (stabilite du golden).
+//
+// runnerSkills (skills-propres-au-runner.md) : ce module ne lit QUE `persona.data.skills` — il
+// IGNORE `runnerSkills` par construction (skills propres a un runner, hors reservoir, jamais
+// resolues ici). Seul `generate-agents.js` (`generateAgent`) les injecte, apres cette resolution.
 import fs from 'node:fs';
 import { readEntry, pathFor, toArray, libraryRoot } from './library.js';
 

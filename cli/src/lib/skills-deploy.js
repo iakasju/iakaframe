@@ -9,6 +9,11 @@
 //   - NON DESTRUCTIF / IDEMPOTENT : n'ecrit un dossier que s'il DIFFERE du canon ;
 //   - ORPHELINES (deployees, hors union) : statut `orphan`, JAMAIS supprimees (pas de --prune MVP) ;
 //   - `--check` : n'ecrit RIEN ; exit non-zero sur `drift`/`absent`, JAMAIS sur `orphan` seul.
+//
+// Portee de l'invariant « contrat deploye => skills deployees » (skills-propres-au-runner.md) :
+// elle vaut pour les skills DU RESERVOIR (resolveSkills). Les skills PROPRES A UN RUNNER
+// (`runnerSkills`) ne sont JAMAIS copiees ici : elles n'existent pas dans `library/skills/`,
+// c'est le runner (Claude Code) qui les fournit lui-meme.
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';

@@ -17,6 +17,7 @@ import { buildDocument, parseFrontmatter } from './frontmatter.js';
 import { scan, pathFor, readEntry, bindingRows, toArray, libraryRoot } from './library.js';
 import { activeTeamId } from './frame-active.js';
 import { resolveSkills } from './resolve-skills.js';
+import { RUNNER_ALIASES } from './vocab.js';
 
 // Id du binding defaut (MVP : un seul binding claude ; cf. bindings/iakaframe-claude-default.md).
 export const DEFAULT_BINDING_ID = 'iakaframe-claude-default';
@@ -108,9 +109,12 @@ function runnerForPersona(binding, personaId) {
 // validateModelValue) : ce garde-fou vit au point d'entree, jamais ici, sous peine de casser la
 // voie binding (Ollama, dont les modeles `qwen3.5:9b` / `gemma4:e4b` ne sont pas des valeurs de
 // frontmatter Claude Code).
-// `skills` = liste RESOLUE (resolveSkills) rendue en flow-list `[a, b]` (une SEULE forme stable,
-// alignee sur guardrails ; l'ordre est verbatim -> tout flottement casse le golden), APRES `model`
-// et AVANT `guardrails`, OMISE si vide (R8 § 5.2, Fait 1 : le runner precharge ce champ).
+// `skills` = liste RESOLUE (resolveSkills) PUIS, si le runner de l'assignment normalise (via
+// RUNNER_ALIASES) vaut `claude`, les skills de `runnerSkills.claude` (persona, skills-propres-
+// au-runner.md) dans l'ordre declare, doublons retires (1re occurrence) — cf. `generateAgent`.
+// Rendue en flow-list `[a, b]` (une SEULE forme stable, alignee sur guardrails ; l'ordre est
+// verbatim -> tout flottement casse le golden), APRES `model` et AVANT `guardrails`, OMISE si
+// vide (R8 § 5.2, Fait 1 : le runner precharge ce champ).
 export function renderAgentContract({ id, description, tools, model, skills, guardrails, body }) {
   const toolsList = toArray(tools);
   const modelValue = model == null ? '' : String(model);
@@ -153,12 +157,22 @@ export function generateAgent(id, { root, binding, overrides = {} } = {}) {
   // ne sont pas des valeurs valides de ce champ) fabriquerait sinon un contrat FAUX mais d'apparence
   // complete. Un champ absent est plus honnete qu'un champ plausible.
   const model = runnerForPersona(binding, id) === 'claude-code' ? effectiveModel({ overrides, binding, personaId: id }) : '';
+  // Skills du runner (skills-propres-au-runner.md, Q1-Q6 validees 27/09) : SEUL point d'injection.
+  // `runnerSkills` n'est JAMAIS lu par resolveSkills (portee du reservoir) ; c'est ICI, et
+  // seulement ici, qu'un runner `claude` (apres normalisation RUNNER_ALIASES, meme regle
+  // d'abstention que le filtre `model` ci-dessus) recoit en plus les skills propres au runner
+  // declarees par la persona, dans l'ordre, doublons retires (1re occurrence).
+  const runnerNorm = RUNNER_ALIASES[runnerForPersona(binding, id)] || '';
+  const resolvedSkills = resolveSkills(id, { root });
+  const runnerSkillsClaude = runnerNorm === 'claude' ? toArray(data.runnerSkills && data.runnerSkills.claude) : [];
+  const skills = [...resolvedSkills];
+  for (const s of runnerSkillsClaude) if (!skills.includes(s)) skills.push(s);
   return renderAgentContract({
     id,
     description: data.description,
     tools: toolsForPersona(binding, id),
     model,
-    skills: resolveSkills(id, { root }),
+    skills,
     guardrails: data.guardrails,
     body: verbatimBody(raw),
   });
