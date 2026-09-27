@@ -1,0 +1,8 @@
+{"v":1,"at":"2026-09-27T10:00:00Z","type":"launch","project_dir":"/work/repoA","key":{"kind":"repo","root":"/work/repoA","name":"repoA"}}
+{"v":1,"at":"2026-09-27T10:01:00Z","type":"declare","key":{"kind":"repo","root":"/work/repoB","name":"repoB"},"by":"user","aragorn":"aragorn@repoB","team_source":"/work/repoB"}
+{"v":1,"at":"2026-09-27T10:02:00Z","type":"declare","key":{"kind":"repo","root":"/work/repoB","name":"repoB"},"by":"user"}
+ceci n'est pas du JSON valide
+{"v":1,"at":"2026-09-27T10:03:00Z","type":"launch","project_dir":"/work/other","key":{"kind":"repo","root":"/work/other","name":"other"}}
+{"v":1,"at":"2026-09-27T10:04:00Z","type":"dispatch","tool_use_id":"tu1","target":"aragorn","key":{"kind":"repo","root":"/work/repoB","name":"repoB"}}
+{"v":1,"at":"2026-09-27T10:05:00Z","type":"bind","agent_id":"s1","agent_type":"aragorn","key":{"kind":"repo","root":"/work/repoB","name":"repoB"},"tool_use_id":"tu1"}
+{"v":1,"at":"2026-09-27T10:06:00Z","type":"bind","agent_id":"s1","agent_type":"aragorn","key":{"kind":"repo","root":"/work/repoA","name":"repoA"},"tool_use_id":null}
