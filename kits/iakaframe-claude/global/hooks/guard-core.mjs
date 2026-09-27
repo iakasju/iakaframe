@@ -159,18 +159,22 @@ export function keySig(key) {
 export const READONLY_BUILTINS = Object.freeze(["Explore", "Plan", "claude-code-guide"]);
 
 // Commandes portefeuille (D-14, Q-B) : liste FERMEE, cf. `classifyShell` pour la reconnaissance
-// (avec arguments variables : `--path`/`--project`) et `verdictChantier` regle 3 pour l'ALLOW.
+// (avec arguments variables : `--path`/`--project`, ou `<repo>` pour `launch`) et
+// `verdictChantier` regle 3 pour l'ALLOW. `iakaframe launch` (Lot 1bis, instruction soeur
+// lancement-session-aragorn.md) : SEUL le littéral compte, jamais la forme par chemin du CLI
+// (D-7, "afin que la regle de permission `ask` du lanceur couvre TOUT lancement autorise").
 export const PORTFOLIO_VERBS = Object.freeze([
   "iakaframe onboard",
   "iakaframe init",
   "iakaframe agents fullteam",
   "iakaframe agents --action fullteam",
+  "iakaframe launch",
 ]);
 
 // Phrases reservees (D-3, detection (b)) : retirees du texte AVANT `detectRepoMentions`, pour que
 // l'usage courant de la methode ("update iakaframe", "iakastart"...) ne nomme jamais un depot.
 // Le motif generique `iakaframe <mot>` couvre en plus tout verbe CLI ("iakaframe onboard/install/
-// show/..."), cf. D-13 remind.
+// show/..."), cf. `chantier-remind.mjs` (detection (b), Lot 3).
 export const RESERVED_PHRASES = Object.freeze(["init iakaframe", "update iakaframe", "iakastart"]);
 const RE_IAKAFRAME_VERB = /\biakaframe\s+\S+/gi;
 
@@ -191,20 +195,24 @@ function parseChantierLine(line) {
 }
 
 // foldChantier(lines) -> etat replie, pur et deterministe :
-//   { active, segments, bindings, dispatches, grants, named }
-//   - active     : { key, segment, since, by, aragorn } | null (segment courant, sans `until`)
-//   - segments   : segments CLOS (avec `until`) dans l'ordre, puis le segment courant en dernier
-//   - bindings   : Map agent_id -> { key, since, toolUseId, agentType }
-//   - dispatches : file des `dispatch` NON consommes, dans l'ordre d'arrivee (FIFO)
-//   - grants     : Set de signatures de `key` accordees (`odin-direct`)
-//   - named      : Set de signatures de `key` nommees par le decideur (mentions/declarations)
+//   { active, segments, grants, named, launch }
+//   - active   : { key, segment, since, by, aragorn } | null (segment courant, sans `until`)
+//   - segments : segments CLOS (avec `until`) dans l'ordre, puis le segment courant en dernier
+//   - grants   : Set de signatures de `key` accordees (`odin-direct`)
+//   - named    : Set de signatures de `key` nommees par le decideur (mentions/declarations)
+//   - launch   : { key, main_role, main_agent_type } du PREMIER `launch` (D-1) — IMMUABLE pour
+//                toute la session (contrairement a `active`, qui evolue au fil des `declare`).
+//                `main_role` = "odin" par defaut si absent du registre (D-1, "cas theorique").
+// Lot 1bis (2e amendement) : la liaison par sous-agent (ex-D-13) est EXCLUE (Q-A revise, "une
+// session par depot"). Les types `dispatch`/`bind` d'un registre HERITE, comme tout type
+// INCONNU, sont desormais IGNORES sans effet sur l'etat (cf. `default` ci-dessous) — jamais une
+// erreur : un registre ecrit par une version anterieure du garde reste lisible.
 export function foldChantier(lines) {
   const arr = Array.isArray(lines) ? lines : String(lines == null ? "" : lines).split("\n");
   let active = null;
   let launched = false;
+  let launch = null;
   const segments = [];
-  const bindings = new Map();
-  const dispatches = [];
   const grants = new Set();
   const named = new Set();
 
@@ -220,6 +228,11 @@ export function foldChantier(lines) {
       case "launch": {
         if (launched) break; // premier launch gagnant
         launched = true;
+        launch = {
+          key: ev.key ?? null,
+          main_role: ev.main_role != null ? ev.main_role : "odin",
+          main_agent_type: ev.main_agent_type ?? null,
+        };
         openSegment(ev.key, ev.at, "launch", ev.aragorn);
         break;
       }
@@ -237,51 +250,13 @@ export function foldChantier(lines) {
         for (const k of ev.keys || []) named.add(keySig(k));
         break;
       }
-      case "dispatch": {
-        dispatches.push({
-          toolUseId: ev.tool_use_id ?? null,
-          target: ev.target ?? null,
-          key: ev.key ?? null,
-          fromAgentId: ev.from_agent_id ?? null,
-          aragorn: ev.aragorn ?? null,
-        });
-        break;
-      }
-      case "bind": {
-        if (!ev.agent_id) break;
-        if (bindings.has(ev.agent_id)) break; // premier bind gagnant
-        const idx = dispatches.findIndex((d) => d.toolUseId != null && d.toolUseId === ev.tool_use_id);
-        if (idx !== -1) dispatches.splice(idx, 1); // dispatch consomme
-        bindings.set(ev.agent_id, {
-          key: ev.key ?? null, since: ev.at, toolUseId: ev.tool_use_id ?? null, agentType: ev.agent_type ?? null,
-        });
-        break;
-      }
       default:
-        break; // `fail_open` et types inconnus : sans effet sur l'etat chantier
+        break; // `fail_open`, anciens `dispatch`/`bind` (Lot 1bis) et types inconnus : sans effet
     }
   }
   if (active) segments.push({ ...active }); // segment courant, sans `until`
 
-  return { active, segments, bindings, dispatches, grants, named };
-}
-
-// pickBinding(dispatches, agentType) -> resultat de la liaison D-13 §2-4 (SANS effet de bord ;
-// l'ecriture de l'evenement `bind` est a la charge de l'adaptateur `chantier-bind.mjs`, Lot 3bis) :
-//   { status: "single", key, toolUseId }  un seul candidat, ou plusieurs de MEME cle -> le plus
-//                                          ancien (FIFO, `dispatches` deja dans l'ordre d'arrivee)
-//   { status: "ambiguous" }               plusieurs candidats de cles DIFFERENTES -> bind{key:null}
-//   { status: "none" }                    aucun candidat -> pas de bind (chantier de session)
-export function pickBinding(dispatches, agentType) {
-  const at = String(agentType == null ? "" : agentType).toLowerCase();
-  const candidates = (dispatches || []).filter((d) => String(d.target == null ? "" : d.target).toLowerCase() === at);
-  if (candidates.length === 0) return { status: "none" };
-  const sigs = new Set(candidates.map((d) => keySig(d.key)));
-  if (sigs.size === 1) {
-    const chosen = candidates[0];
-    return { status: "single", key: chosen.key, toolUseId: chosen.toolUseId };
-  }
-  return { status: "ambiguous" };
+  return { active, segments, grants, named, launch };
 }
 
 // ---------------------------------------------------------------------------
@@ -450,6 +425,28 @@ function classifyGitSegment(tokens) {
   return { read: false, paths };
 }
 
+// D-7/D-9 (Lot 1bis) — reconnaissance elargie.
+const CLAUDE_HEAD_RE = /(^|[\\/])claude(\.exe|\.cmd)?$/i;
+const CLAUDE_WORD_RE = /(?<!\.)\bclaude\b/i;
+const VERSION_ONLY_FLAGS = new Set(["--version", "-v", "--help"]);
+// Lanceurs de processus (D-7, `selfInvoke` elargi) : un segment dont la commande est l'un de
+// ceux-ci ET qui contient le mot `claude` (non precede de `.`) est aussi `selfInvoke`.
+const LAUNCHER_HEADS = new Set(["wt", "wt.exe", "start", "cmd", "start-process", "powershell", "pwsh"]);
+// Forme par chemin du CLI (D-7) : `node <...>/cli/src/index.js` — separateurs `/` OU `\`.
+const CLI_INDEX_RE = /(^|[\\/])cli[\\/]src[\\/]index\.js$/i;
+const READ_VERBS = Object.freeze(["list", "show", "recap", "brief", "banner", "jalon", "vendor-check"]);
+
+// iakaframeEquivalent(tokens) -> tokens COMME SI `iakaframe <verbe> ...` si le segment est
+// `node <...>/cli/src/index.js <verbe> ...` (D-7, "forme par chemin du CLI" — cf. M-17,
+// `iakastart`) ; sinon null. Cette forme est traitee EXACTEMENT comme `iakaframe <verbe>` pour
+// les regles de lecture, `portfolioVerb` et `installerInvoke` — SAUF `launch` (cf. appelant).
+function iakaframeEquivalent(tokens) {
+  if (tokens.length >= 2 && /^node(\.exe)?$/i.test(tokens[0]) && CLI_INDEX_RE.test(stripQuotes(tokens[1]))) {
+    return ["iakaframe", ...tokens.slice(2)];
+  }
+  return null;
+}
+
 // classifyShell(command, dialect) -> { kind: "READ"|"MUTATE", paths, registryRef, selfInvoke,
 //                                      installerInvoke, portfolioVerb, segments }
 export function classifyShell(command, dialect) {
@@ -473,28 +470,54 @@ export function classifyShell(command, dialect) {
     if (tokens.length === 0) { allRead = false; continue; }
     const head = tokens[0];
     const headLower = head.toLowerCase();
+    // Forme par chemin du CLI (D-7) : `effHeadLower`/`effTokens` valent pour lecture,
+    // `portfolioVerb` (hors `launch`) et `installerInvoke` ; `head`/`tokens` bruts restent la
+    // reference pour `selfInvoke` et le littéral `iakaframe launch`.
+    const cliEquiv = iakaframeEquivalent(tokens);
+    const effTokens = cliEquiv || tokens;
+    const effHeadLower = cliEquiv ? "iakaframe" : headLower;
 
-    if (/(^|[\\/])claude(\.exe)?$/i.test(head) &&
-      tokens.some((t) => ["-p", "--print", "-r", "--resume", "-c", "--continue"].includes(t))) {
+    // selfInvoke (D-7/D-9, elargi) : commande `claude`/`claude.exe`/`claude.cmd` (hors
+    // --version/-v/--help) ; OU un lanceur de processus dont un argument contient le mot
+    // `claude` ; OU `iakaframe go` (M-17, lance `claude`). Un simple argument d'une AUTRE
+    // commande ("git commit -m \"fix claude\"") n'est jamais `selfInvoke`.
+    if (CLAUDE_HEAD_RE.test(head)) {
+      const readOnly = tokens.some((t) => VERSION_ONLY_FLAGS.has(t));
+      if (!readOnly) selfInvoke = true;
+    }
+    if (LAUNCHER_HEADS.has(headLower) && tokens.slice(1).some((t) => CLAUDE_WORD_RE.test(stripQuotes(t)))) {
       selfInvoke = true;
     }
-    if (tokens.some((t) => /install\.mjs$/i.test(t))) installerInvoke = true;
-    if (headLower === "iakaframe" && (tokens[1] || "").toLowerCase() === "install") installerInvoke = true;
+    if (effHeadLower === "iakaframe" && (effTokens[1] || "").toLowerCase() === "go") {
+      selfInvoke = true;
+    }
 
-    if (headLower === "iakaframe") {
-      const a1 = (tokens[1] || "").toLowerCase();
-      const a2 = (tokens[2] || "").toLowerCase();
-      const a3 = (tokens[3] || "").toLowerCase();
+    // installerInvoke (Q-C) : invocation directe de `install.mjs`, ou `iakaframe install`
+    // (littéral ou forme par chemin du CLI).
+    if (tokens.some((t) => /install\.mjs$/i.test(t))) installerInvoke = true;
+    if (effHeadLower === "iakaframe" && (effTokens[1] || "").toLowerCase() === "install") installerInvoke = true;
+
+    // portfolioVerb (Q-B/D-14) : `onboard`/`init`/`agents fullteam` suivent la forme par chemin
+    // du CLI ; `launch` (D-9) exige le LITTÉRAL `iakaframe launch` (jamais la forme par chemin,
+    // qui reste MUTATE ordinaire — cf. commentaire de `PORTFOLIO_VERBS`).
+    if (effHeadLower === "iakaframe") {
+      const a1 = (effTokens[1] || "").toLowerCase();
+      const a2 = (effTokens[2] || "").toLowerCase();
+      const a3 = (effTokens[3] || "").toLowerCase();
       if (a1 === "onboard" || a1 === "init") portfolioVerb = true;
       if (a1 === "agents" && a2 === "fullteam") portfolioVerb = true;
       if (a1 === "agents" && a2 === "--action" && a3 === "fullteam") portfolioVerb = true;
       if (portfolioVerb) {
-        for (let i = 1; i < tokens.length; i++) {
-          if ((tokens[i] === "--path" || tokens[i] === "--project") && tokens[i + 1]) {
-            paths.push(stripQuotes(tokens[i + 1]));
+        for (let i = 1; i < effTokens.length; i++) {
+          if ((effTokens[i] === "--path" || effTokens[i] === "--project") && effTokens[i + 1]) {
+            paths.push(stripQuotes(effTokens[i + 1]));
           }
         }
       }
+    }
+    if (headLower === "iakaframe" && (tokens[1] || "").toLowerCase() === "launch") {
+      portfolioVerb = true;
+      if (tokens[2] && !tokens[2].startsWith("-")) paths.push(stripQuotes(tokens[2])); // <repo> du lanceur
     }
 
     if (NEUTRAL_SET.has(headLower)) {
@@ -510,15 +533,23 @@ export function classifyShell(command, dialect) {
       continue;
     }
 
-    if (headLower === "node" || headLower === "npm" || headLower === "python") {
-      if (!tokens.includes("--version")) allRead = false;
+    // `iakaframe <verbe>` (littéral OU forme par chemin du CLI, D-7) : `models` est en LECTURE
+    // sauf `set`/`unset` ; sinon liste fermee `READ_VERBS`.
+    if (effHeadLower === "iakaframe") {
+      const a1 = (effTokens[1] || "").toLowerCase();
+      if (a1 === "models") {
+        const sub = (effTokens[2] || "").toLowerCase();
+        if (sub === "set" || sub === "unset") allRead = false;
+        continue;
+      }
+      if (!READ_VERBS.includes(a1)) allRead = false;
       continue;
     }
 
-    if (headLower === "iakaframe") {
-      const a1 = (tokens[1] || "").toLowerCase();
-      const readVerbs = ["list", "show", "recap", "brief", "banner", "jalon", "vendor-check"];
-      if (!readVerbs.includes(a1)) allRead = false;
+    // `claude|node|npm|python --version` : lecture (D-7). N'est atteint QUE si le segment n'est
+    // ni la forme par chemin du CLI ni `iakaframe` litteral (deja traites ci-dessus).
+    if (headLower === "node" || headLower === "npm" || headLower === "python" || headLower === "claude") {
+      if (!tokens.includes("--version")) allRead = false;
       continue;
     }
 
@@ -550,10 +581,21 @@ export function classifyShell(command, dialect) {
 // D-5 — Verdict des GESTES DIRECTS (Edit/Write/NotebookEdit/Bash/PowerShell). Pur.
 // ---------------------------------------------------------------------------
 
-// Regime Odin (partage D-5 regle 6 / D-6) : le thread principal a DERIVE hors de "chez lui"
-// (son dossier de lancement) sans qu'un grant ne couvre le chantier actif.
-function inOdinRegime(actor, launch, state) {
-  if (actor !== "MAIN") return false;
+// mainRoleOf(agentType) -> "odin" | "team" (D-5, Q-F). Calcule sur le payload qui CREE le
+// registre (le tout premier hook, D-1) : "odin" si `agent_type` est absent/vide OU vaut "odin"
+// (insensible a la casse) ; toute AUTRE valeur ("aragorn", "gimli"...) -> "team", une session
+// lancee avec `--agent X` (X != odin) qui travaille DANS son repertoire de lancement, sans plus.
+export function mainRoleOf(agentType) {
+  if (agentType == null || String(agentType).trim() === "") return "odin";
+  return String(agentType).trim().toLowerCase() === "odin" ? "odin" : "team";
+}
+
+// Regime Odin (partage D-5 regle 7 / D-6 regle 4) : le thread principal, en session de role
+// "odin", a DERIVE hors de "chez lui" (son dossier de lancement) sans qu'un grant ne couvre le
+// chantier actif. En regime Equipe (sessionRole = "team"), jamais de regime Odin — le thread
+// principal (Aragorn) et ses sous-agents restent "chez eux" dans le depot de lancement (D-5).
+function inOdinRegime(actor, sessionRole, launch, state) {
+  if (actor !== "MAIN" || sessionRole !== "odin") return false;
   const home = launch ? keySig(launch) : null;
   const activeKey = state.active ? state.active.key : null;
   const activeSig = activeKey ? keySig(activeKey) : null;
@@ -563,28 +605,19 @@ function inOdinRegime(actor, launch, state) {
   return drifted && !activeIsPortfolio && !grantedActive;
 }
 
-// Chantier EFFECTIF d'un geste (D-1/D-13) : la liaison du sous-agent PRIME sur le chantier de
-// session — mais seulement si elle porte une cle (un `bind{key:null}` ambigu "retombe sur le
-// chantier de session", D-13 §3).
-function effectiveChantierKey(actor, agentId, state) {
-  if (actor === "SUB" && agentId && state.bindings && state.bindings.has(agentId)) {
-    const b = state.bindings.get(agentId);
-    if (b.key) return b.key;
-  }
-  return state.active ? state.active.key : null;
-}
-
-// verdictChantier(input) -> { decision: "ALLOW"|"DENY", code?, key? } — les SEPT regles de D-5,
-// dans l'ordre. `input` :
-//   gesture   : "SHELL_READ" | "SHELL_MUTATE" | "EDIT"
-//   actor     : "MAIN" | "SUB" (selon la seule presence d'agent_id, jamais agent_type)
-//   agentId   : string | null
-//   launch    : `key` du lancement de session (ancrage "chez soi")
-//   state     : { active, grants, bindings } (sortie de `foldChantier`)
-//   keys      : `key[]` DEJA resolues et EXCLUES (D-8) touchees par le geste
+// verdictChantier(input) -> { decision: "ALLOW"|"DENY", code? } — les HUIT regles de D-5
+// (2e amendement), dans l'ordre. `input` :
+//   gesture     : "SHELL_READ" | "SHELL_MUTATE" | "EDIT"
+//   actor       : "MAIN" | "SUB" (selon la seule presence d'agent_id, jamais agent_type)
+//   sessionRole : "odin" | "team" — `launch.main_role` du registre, vaut pour TOUS les acteurs
+//                 de la session (sous-agents compris : leur `agent_type` est celui du
+//                 sous-agent, pas de la session, D-5)
+//   launch      : `key` du lancement de session (ancrage "chez soi")
+//   state       : { active, grants } (sortie de `foldChantier`)
+//   keys        : `key[]` DEJA resolues et EXCLUES (D-8) touchees par le geste
 //   portfolioVerb, segments : drapeaux de `classifyShell` (regle 3, D-14)
 export function verdictChantier(input) {
-  const { gesture, actor, agentId, launch, state, keys, portfolioVerb, segments } = input;
+  const { gesture, actor, sessionRole, launch, state, keys, portfolioVerb, segments } = input;
 
   // 1. Lecture toujours libre.
   if (gesture === "SHELL_READ") return { decision: "ALLOW" };
@@ -593,27 +626,34 @@ export function verdictChantier(input) {
   const ks = keys || [];
   if (ks.length === 0) return { decision: "ALLOW" };
 
-  // 3. Commande portefeuille (D-14, Q-B).
+  // 3. Commande portefeuille (D-14, Q-B) : thread principal, session de role odin, lancee au
+  // portefeuille, un SEUL segment, chaque cle sous la racine (repo/dir).
   if (
-    actor === "MAIN" && launch && launch.kind === "portefeuille" &&
+    actor === "MAIN" && sessionRole === "odin" &&
+    launch && launch.kind === "portefeuille" &&
     portfolioVerb && segments === 1 &&
     ks.every((k) => k.kind === "repo" || k.kind === "dir")
   ) {
     return { decision: "ALLOW", code: "PORTFOLIO_VERB" };
   }
 
-  // 4. Chantier effectif.
-  const effective = effectiveChantierKey(actor, agentId, state);
+  // 4. Session d'equipe hors depot : une session `team` DOIT etre lancee dans un depot/dossier.
+  if (sessionRole === "team" && (!launch || (launch.kind !== "repo" && launch.kind !== "dir"))) {
+    return { decision: "DENY", code: "TEAM_NEEDS_REPO" };
+  }
+
+  // 5. Chantier effectif = actif (en session team, actif = lancement, TOUJOURS).
+  const effective = state.active ? state.active.key : null;
   if (!effective) return { decision: "DENY", code: "NO_CHANTIER" };
 
-  // 5. Une cle touchee != effective (le "@hors" inclus).
+  // 6. Une cle touchee != effective (le "@hors" inclus).
   const effSig = keySig(effective);
   if (ks.some((k) => keySig(k) !== effSig)) return { decision: "DENY", code: "CHANTIER_MISMATCH" };
 
-  // 6. Regime Odin.
-  if (inOdinRegime(actor, launch, state)) return { decision: "DENY", code: "ODIN_DIRECT" };
+  // 7. Regime Odin.
+  if (inOdinRegime(actor, sessionRole, launch, state)) return { decision: "DENY", code: "ODIN_DIRECT" };
 
-  // 7. sinon ALLOW.
+  // 8. sinon ALLOW.
   return { decision: "ALLOW" };
 }
 
@@ -621,42 +661,40 @@ export function verdictChantier(input) {
 // D-6 — Verdict des DELEGATIONS (`Agent`/`Task`, apres le controle de roster existant). Pur.
 // ---------------------------------------------------------------------------
 
-// verdictDispatch(input) -> { decision: "ALLOW"|"DENY", code?, dispatch? }. `input` :
-//   actor, agentId  : idem verdictChantier
-//   target          : `subagent_type` normalise (ou null -> AGENT_UNSET)
-//   requested       : { key, ambiguous } DEJA resolu par l'adaptateur (D-3/D-4) depuis la(les)
-//                      ligne(s) `Chantier: <repo>` du prompt de delegation
-//   state, launch   : idem verdictChantier
+// verdictDispatch(input) -> { decision: "ALLOW"|"DENY", code? } — les SIX regles de D-6
+// (2e amendement : plus d'evenement `dispatch` a ecrire, plus de `NOT_DESIGNATED`). `input` :
+//   actor, sessionRole : idem verdictChantier
+//   target              : `subagent_type` normalise (ou null -> AGENT_UNSET)
+//   requested           : { key, ambiguous } DEJA resolu par l'adaptateur (D-3/D-4) depuis la
+//                          (les) ligne(s) `Chantier: <repo>` du prompt de delegation
+//   state, launch       : idem verdictChantier
 export function verdictDispatch(input) {
-  const { actor, agentId, target, requested, state, launch } = input;
+  const { actor, sessionRole, target, requested, state, launch } = input;
   const tgt = target == null ? AGENT_UNSET : String(target);
   const tgtLower = tgt.toLowerCase();
 
-  // Cibles lecture seule tolerees SANS CONDITION (avant meme de juger la ligne `Chantier:`).
+  // 1. Cibles lecture seule tolerees SANS CONDITION (avant meme de juger la ligne `Chantier:`).
   if (READONLY_BUILTINS.some((b) => b.toLowerCase() === tgtLower)) return { decision: "ALLOW" };
 
+  // 2. Plusieurs lignes `Chantier:` divergentes.
   const req = requested || { key: null, ambiguous: false };
   if (req.ambiguous) return { decision: "DENY", code: "DISPATCH_AMBIGUOUS" };
 
-  const dispatcherKey = effectiveChantierKey(actor, agentId, state);
-  const odinRegime = inOdinRegime(actor, launch, state);
+  // 3. Pas de chantier actif.
+  const active = state.active ? state.active.key : null;
+  if (!active) return { decision: "DENY", code: "NO_CHANTIER" };
 
-  if (odinRegime) {
+  // 4. Regime Odin (Q-D) — memes conditions que D-5 regle 7.
+  if (inOdinRegime(actor, sessionRole, launch, state)) {
     if (tgtLower !== "aragorn") return { decision: "DENY", code: "ODIN_DISPATCH" };
     if (!req.key) return { decision: "DENY", code: "DISPATCH_UNNAMED" };
   }
 
-  if (!req.key) {
-    if (!dispatcherKey) return { decision: "DENY", code: "NO_CHANTIER" };
-    return { decision: "ALLOW", dispatch: { key: dispatcherKey, target: tgt } };
+  // 5. Ligne `Chantier: <repo>` presente et resolue != actif.
+  if (req.key && keySig(req.key) !== keySig(active)) {
+    return { decision: "DENY", code: "CHANTIER_MISMATCH" };
   }
 
-  const reqSig = keySig(req.key);
-  if (dispatcherKey && reqSig === keySig(dispatcherKey)) {
-    return { decision: "ALLOW", dispatch: { key: req.key, target: tgt } };
-  }
-  if (state.named && state.named.has(reqSig)) {
-    return { decision: "ALLOW", dispatch: { key: req.key, target: tgt } };
-  }
-  return { decision: "DENY", code: "NOT_DESIGNATED" };
+  // 6. sinon ALLOW (en regime Equipe, toute cible du roster, avec ou sans ligne).
+  return { decision: "ALLOW" };
 }

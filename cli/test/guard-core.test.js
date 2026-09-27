@@ -10,8 +10,9 @@ import { fileURLToPath } from 'node:url';
 import {
   verdictIdentity, verdictPerimeter, verdictDelegation, isPerimeterBlocking,
   ROSTER, BUILTINS, AGENT_UNSET,
-  keySig, foldChantier, pickBinding, parsePromptDirectives, parseChantierLines,
+  keySig, foldChantier, mainRoleOf, parsePromptDirectives, parseChantierLines,
   detectRepoMentions, classifyShell, verdictChantier, verdictDispatch, READONLY_BUILTINS,
+  PORTFOLIO_VERBS,
 } from '../../kits/iakaframe-claude/global/hooks/guard-core.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -118,16 +119,17 @@ test('CA-19 : charon et helm sont delegables ; feanor reste refuse (ROSTER-FEANO
 });
 
 // =============================================================================================
-// CHANTIER (Lot 1, specs/instructions/declaration-chantier-session.md § « Mecanique retenue »).
+// CHANTIER (specs/instructions/declaration-chantier-session.md, 2e amendement — Lot 1bis).
 // =============================================================================================
 
 // --- CA-1 : foldChantier -----------------------------------------------------
 
-test('CA-1 : foldChantier — launch, declare (segments), ligne corrompue, 2e launch, dispatch+bind', () => {
+test('CA-1 : foldChantier — launch(main_role), declare (segments), ligne corrompue, 2e launch, dispatch/bind ignores', () => {
   const lines = fs.readFileSync(FIX_CHANTIER('fold-ca1.jsonl'), 'utf8').split('\n');
   const state = foldChantier(lines);
 
-  // actif = repoB (declare a ouvert le segment 2), pas repoA (1er launch) ni "other" (2e launch ignore).
+  // actif = repoB (declare a ouvert le segment 2), pas repoA (1er launch) ni "other" (2e launch
+  // ignore : le fixture porte un 2e `launch` sur "other", sans effet, premier gagnant).
   assert.deepEqual(state.active.key, REPO_B);
   assert.equal(state.active.segment, 2);
   assert.equal(state.active.by, 'user');
@@ -140,15 +142,19 @@ test('CA-1 : foldChantier — launch, declare (segments), ligne corrompue, 2e la
   assert.deepEqual(state.segments[1].key, REPO_B);
   assert.equal(state.segments[1].until, undefined);
 
-  // dispatch consomme par le 1er bind ; bindings[s1].key = cle du dispatch (repoB).
-  assert.equal(state.dispatches.length, 0);
-  assert.deepEqual(state.bindings.get('s1').key, REPO_B);
-  assert.equal(state.bindings.get('s1').toolUseId, 'tu1');
+  // `launch` (Lot 1bis) : IMMUABLE pour la session — reste repoA/odin malgre le 2e launch ignore
+  // et malgre le fait que `active` ait glisse vers repoB.
+  assert.deepEqual(state.launch, { key: REPO_A, main_role: 'odin', main_agent_type: null });
+
+  // Lot 1bis : plus de `bindings`/`dispatches` dans l'etat — les lignes `dispatch`/`bind` du
+  // fixture (heritage) sont des types INCONNUS pour le fold, ignorees sans effet ni erreur.
+  assert.equal('bindings' in state, false);
+  assert.equal('dispatches' in state, false);
 });
 
 test('CA-1 : foldChantier — declare repetee sur la cle deja active = sans effet', () => {
   const lines = [
-    JSON.stringify({ v: 1, at: 't1', type: 'launch', key: REPO_A }),
+    JSON.stringify({ v: 1, at: 't1', type: 'launch', key: REPO_A, main_role: 'odin' }),
     JSON.stringify({ v: 1, at: 't2', type: 'declare', key: REPO_A, by: 'user' }),
   ];
   const state = foldChantier(lines);
@@ -156,14 +162,9 @@ test('CA-1 : foldChantier — declare repetee sur la cle deja active = sans effe
   assert.equal(state.segments.length, 1);
 });
 
-test('CA-1 : foldChantier — deux bind pour le meme agent_id -> le premier gagne', () => {
-  const lines = [
-    JSON.stringify({ v: 1, at: 't1', type: 'launch', key: REPO_A }),
-    JSON.stringify({ v: 1, at: 't2', type: 'bind', agent_id: 's1', agent_type: 'aragorn', key: REPO_A, tool_use_id: null }),
-    JSON.stringify({ v: 1, at: 't3', type: 'bind', agent_id: 's1', agent_type: 'aragorn', key: REPO_B, tool_use_id: null }),
-  ];
-  const state = foldChantier(lines);
-  assert.deepEqual(state.bindings.get('s1').key, REPO_A);
+test('CA-1 : foldChantier — pas de launch dans les lignes -> launch:null (repli D-1 "cas theorique" gere par l\'adaptateur)', () => {
+  const state = foldChantier([JSON.stringify({ v: 1, at: 't1', type: 'grant', key: REPO_A, by: 'user' })]);
+  assert.equal(state.launch, null);
 });
 
 test('CA-1 : foldChantier — grant et named alimentent des Set de signatures', () => {
@@ -175,26 +176,6 @@ test('CA-1 : foldChantier — grant et named alimentent des Set de signatures', 
   assert.equal(state.grants.has(keySig(REPO_A)), true);
   assert.equal(state.named.has(keySig(REPO_A)), true);
   assert.equal(state.named.has(keySig(REPO_B)), true);
-});
-
-test('pickBinding (D-13 §2-4) : un seul candidat -> single ; meme cle -> single (FIFO) ; cles differentes -> ambiguous ; aucun -> none', () => {
-  const dOne = [{ toolUseId: 'tu1', target: 'aragorn', key: REPO_A }];
-  assert.deepEqual(pickBinding(dOne, 'aragorn'), { status: 'single', key: REPO_A, toolUseId: 'tu1' });
-
-  const dSame = [
-    { toolUseId: 'tu1', target: 'aragorn', key: REPO_A },
-    { toolUseId: 'tu2', target: 'aragorn', key: REPO_A },
-  ];
-  assert.deepEqual(pickBinding(dSame, 'aragorn'), { status: 'single', key: REPO_A, toolUseId: 'tu1' });
-
-  const dDiff = [
-    { toolUseId: 'tu1', target: 'aragorn', key: REPO_A },
-    { toolUseId: 'tu2', target: 'aragorn', key: REPO_B },
-  ];
-  assert.deepEqual(pickBinding(dDiff, 'aragorn'), { status: 'ambiguous' });
-
-  assert.deepEqual(pickBinding([], 'aragorn'), { status: 'none' });
-  assert.deepEqual(pickBinding(dOne, 'gimli'), { status: 'none' }); // agent_type different
 });
 
 // --- CA-2 : parsePromptDirectives / parseChantierLines -----------------------
@@ -283,100 +264,180 @@ test('CA-4 : classifyShell — cas PowerShell READ (Set-Location ; puis Get-Chil
   assert.equal(r2.kind, 'READ');
 });
 
-// --- CA-5 : verdictChantier (les 7 regles de D-5) ----------------------------
+// --- CA-4 (Lot 1bis) : selfInvoke elargi (D-7/D-9) ---------------------------
+
+test('CA-4 : classifyShell — selfInvoke elargi (D-7/D-9)', () => {
+  assert.equal(classifyShell('claude --resume abc -p "x"', 'bash').selfInvoke, true);
+  assert.equal(classifyShell('claude --agent aragorn "x"', 'bash').selfInvoke, true);
+  assert.equal(classifyShell('claude "x"', 'bash').selfInvoke, true);
+  assert.equal(classifyShell('wt -d C:\\work\\x claude', 'bash').selfInvoke, true);
+  assert.equal(classifyShell('Start-Process claude -ArgumentList x', 'powershell').selfInvoke, true);
+  assert.equal(classifyShell('iakaframe go naonedge --do x', 'bash').selfInvoke, true);
+
+  const version = classifyShell('claude --version', 'bash');
+  assert.equal(version.kind, 'READ');
+  assert.equal(version.selfInvoke, false);
+
+  const gitClaude = classifyShell('git commit -m "fix claude"', 'bash');
+  assert.equal(gitClaude.selfInvoke, false);
+});
+
+// --- CA-4 (Lot 1bis) : forme par chemin du CLI (D-7, "iakastart", M-17) -----
+
+test('CA-4 : classifyShell — forme par chemin du CLI traitee comme `iakaframe <verbe>`', () => {
+  const banner = classifyShell('node C:\\work\\iakaframe\\cli\\src\\index.js banner IAKAFRAME', 'bash');
+  assert.equal(banner.kind, 'READ');
+
+  const modelsRead = classifyShell('iakaframe models --path C:\\work\\x --json', 'bash');
+  assert.equal(modelsRead.kind, 'READ');
+
+  const modelsWrite = classifyShell('iakaframe models set x y', 'bash');
+  assert.equal(modelsWrite.kind, 'MUTATE');
+});
+
+// --- CA-4 (Lot 1bis) : `iakaframe launch` en portfolioVerb (D-14, sauf forme par chemin) ------
+
+test('CA-4 : classifyShell — `iakaframe launch <repo>` portfolioVerb litteral ; forme par chemin exclue', () => {
+  const launch = classifyShell('iakaframe launch naonedge --mission-file f.md', 'bash');
+  assert.equal(launch.portfolioVerb, true);
+  assert.equal(launch.segments, 1);
+  assert.ok(launch.paths.includes('naonedge'));
+
+  const launchByPath = classifyShell('node C:\\work\\iakaframe\\cli\\src\\index.js launch naonedge', 'bash');
+  assert.equal(launchByPath.portfolioVerb, false); // "la forme par chemin reste MUTATE ordinaire" (D-7)
+  assert.equal(launchByPath.kind, 'MUTATE');
+});
+
+// --- Remarque Legolas : PORTFOLIO_VERBS <-> classifyShell, alignement bidirectionnel ---------
+
+test('PORTFOLIO_VERBS <-> classifyShell : chaque verbe de la constante est reconnu portfolioVerb, et inversement', () => {
+  // Chaque entree de PORTFOLIO_VERBS, avec un argument plausible, doit etre reconnue.
+  const sample = {
+    'iakaframe onboard': 'iakaframe onboard --path C:\\work\\neuf',
+    'iakaframe init': 'iakaframe init --path C:\\work\\neuf',
+    'iakaframe agents fullteam': 'iakaframe agents fullteam --project C:\\work\\x',
+    'iakaframe agents --action fullteam': 'iakaframe agents --action fullteam --project C:\\work\\x',
+    'iakaframe launch': 'iakaframe launch naonedge',
+  };
+  assert.deepEqual(Object.keys(sample).sort(), [...PORTFOLIO_VERBS].sort());
+  for (const verb of PORTFOLIO_VERBS) {
+    assert.equal(classifyShell(sample[verb], 'bash').portfolioVerb, true, `verb=${verb}`);
+  }
+  // Inversement : un verbe `iakaframe` HORS de la liste n'est jamais portfolioVerb.
+  for (const cmd of ['iakaframe list', 'iakaframe show', 'iakaframe models --path x', 'iakaframe install']) {
+    assert.equal(classifyShell(cmd, 'bash').portfolioVerb, false, `cmd=${cmd}`);
+  }
+});
+
+// --- CA-5 : verdictChantier (les HUIT regles de D-5, 2e amendement) ----------
 
 test('CA-5 regle 1 : SHELL_READ -> ALLOW', () => {
   assert.deepEqual(
-    verdictChantier({ gesture: 'SHELL_READ', actor: 'MAIN', launch: REPO_A, state: { active: null, grants: new Set(), bindings: new Map() }, keys: [REPO_B] }),
+    verdictChantier({ gesture: 'SHELL_READ', actor: 'MAIN', sessionRole: 'odin', launch: REPO_A, state: { active: null, grants: new Set() }, keys: [REPO_B] }),
     { decision: 'ALLOW' },
   );
 });
 
 test('CA-5 regle 2 : keys vide -> ALLOW', () => {
   assert.deepEqual(
-    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', launch: REPO_A, state: { active: { key: REPO_A }, grants: new Set(), bindings: new Map() }, keys: [] }),
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'odin', launch: REPO_A, state: { active: { key: REPO_A }, grants: new Set() }, keys: [] }),
     { decision: 'ALLOW' },
   );
 });
 
 test('CA-5 regle 3 : commande portefeuille (D-14) -> ALLOW PORTFOLIO_VERB', () => {
-  const state = { active: null, grants: new Set(), bindings: new Map() };
+  const state = { active: null, grants: new Set() };
   assert.deepEqual(
     verdictChantier({
-      gesture: 'SHELL_MUTATE', actor: 'MAIN', launch: PORTEFEUILLE, state,
+      gesture: 'SHELL_MUTATE', actor: 'MAIN', sessionRole: 'odin', launch: PORTEFEUILLE, state,
       keys: [key('dir', '/work/neuf', 'neuf')], portfolioVerb: true, segments: 1,
     }),
     { decision: 'ALLOW', code: 'PORTFOLIO_VERB' },
   );
 });
 
-test('CA-5 regle 4 : pas d\'effectif -> DENY NO_CHANTIER', () => {
-  const state = { active: null, grants: new Set(), bindings: new Map() };
+test('CA-5 regle 4 : session d\'equipe hors depot -> DENY TEAM_NEEDS_REPO', () => {
+  const state = { active: { key: PORTEFEUILLE }, grants: new Set() };
   assert.deepEqual(
-    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', launch: null, state, keys: [REPO_A] }),
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'team', launch: PORTEFEUILLE, state, keys: [REPO_A] }),
+    { decision: 'DENY', code: 'TEAM_NEEDS_REPO' },
+  );
+});
+
+test('CA-5 regle 5 : pas d\'effectif -> DENY NO_CHANTIER', () => {
+  const state = { active: null, grants: new Set() };
+  assert.deepEqual(
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'odin', launch: null, state, keys: [REPO_A] }),
     { decision: 'DENY', code: 'NO_CHANTIER' },
   );
 });
 
-test('CA-5 regle 5 : cle touchee != effective -> DENY CHANTIER_MISMATCH', () => {
-  const state = { active: { key: REPO_A, segment: 1 }, grants: new Set(), bindings: new Map() };
+test('CA-5 regle 6 : cle touchee != effective -> DENY CHANTIER_MISMATCH', () => {
+  const state = { active: { key: REPO_A, segment: 1 }, grants: new Set() };
   assert.deepEqual(
-    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', launch: REPO_A, state, keys: [REPO_B] }),
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'odin', launch: REPO_A, state, keys: [REPO_B] }),
     { decision: 'DENY', code: 'CHANTIER_MISMATCH' },
   );
 });
 
-test('CA-5 regle 6 : regime Odin (session portefeuille ayant derive) -> DENY ODIN_DIRECT', () => {
-  const state = { active: { key: REPO_A, segment: 1 }, grants: new Set(), bindings: new Map() };
+test('CA-5 regle 7 : regime Odin (session portefeuille ayant derive) -> DENY ODIN_DIRECT', () => {
+  const state = { active: { key: REPO_A, segment: 1 }, grants: new Set() };
   assert.deepEqual(
-    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', launch: PORTEFEUILLE, state, keys: [REPO_A] }),
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'odin', launch: PORTEFEUILLE, state, keys: [REPO_A] }),
     { decision: 'DENY', code: 'ODIN_DIRECT' },
   );
 });
 
-test('CA-5 regle 6 bis : meme derive mais avec un grant sur l\'actif -> ALLOW (regle 7)', () => {
+test('CA-5 regle 7 bis : meme derive mais avec un grant sur l\'actif -> ALLOW (regle 8)', () => {
   const grants = new Set([keySig(REPO_A)]);
-  const state = { active: { key: REPO_A, segment: 1 }, grants, bindings: new Map() };
+  const state = { active: { key: REPO_A, segment: 1 }, grants };
   assert.deepEqual(
-    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', launch: PORTEFEUILLE, state, keys: [REPO_A] }),
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'odin', launch: PORTEFEUILLE, state, keys: [REPO_A] }),
     { decision: 'ALLOW' },
   );
 });
 
-test('CA-5 regle 7 : "chez soi" (active == launch) -> ALLOW', () => {
-  const state = { active: { key: REPO_A, segment: 1 }, grants: new Set(), bindings: new Map() };
+test('CA-5 regle 8 : "chez soi" (active == launch) -> ALLOW', () => {
+  const state = { active: { key: REPO_A, segment: 1 }, grants: new Set() };
   assert.deepEqual(
-    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', launch: REPO_A, state, keys: [REPO_A] }),
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'odin', launch: REPO_A, state, keys: [REPO_A] }),
     { decision: 'ALLOW' },
   );
 });
 
-test('CA-5 : sous-agent lie sur B ALLOW alors que le chantier de SESSION est A', () => {
-  const bindings = new Map([['s1', { key: REPO_B }]]);
-  const state = { active: { key: REPO_A, segment: 1 }, grants: new Set(), bindings };
+test('CA-5 : role team, lance dans A — Edit A par le thread principal -> ALLOW (jamais ODIN_DIRECT) ; Edit B -> CHANTIER_MISMATCH', () => {
+  const state = { active: { key: REPO_A, segment: 1 }, grants: new Set() }; // en team, active == launch
   assert.deepEqual(
-    verdictChantier({ gesture: 'EDIT', actor: 'SUB', agentId: 's1', launch: REPO_A, state, keys: [REPO_B] }),
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'team', launch: REPO_A, state, keys: [REPO_A] }),
     { decision: 'ALLOW' },
+  );
+  assert.deepEqual(
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'team', launch: REPO_A, state, keys: [REPO_B] }),
+    { decision: 'DENY', code: 'CHANTIER_MISMATCH' },
   );
 });
 
-// --- CA-6 : verdictDispatch (D-6) ---------------------------------------------
+// --- CA-6 : verdictDispatch (les SIX regles de D-6, 2e amendement) -----------
 
-const emptyState = () => ({ active: null, grants: new Set(), named: new Set(), bindings: new Map() });
+const emptyState = () => ({ active: null, grants: new Set(), named: new Set() });
+// Etat "regime Odin" : session odin lancee au portefeuille, ayant derive vers repoA
+// (declare/odin-direct non accorde) — condition necessaire pour ODIN_DISPATCH/DISPATCH_UNNAMED
+// (D-6 regle 3 exige un chantier actif AVANT de juger le regime Odin, regle 4).
+const odinDriftedState = () => ({ active: { key: REPO_A }, grants: new Set(), named: new Set() });
 
 test('CA-6 : Explore sans chantier -> ALLOW sans dispatch', () => {
   assert.deepEqual(
-    verdictDispatch({ actor: 'MAIN', target: 'Explore', requested: { key: null, ambiguous: false }, state: emptyState(), launch: PORTEFEUILLE }),
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target: 'Explore', requested: { key: null, ambiguous: false }, state: emptyState(), launch: PORTEFEUILLE }),
     { decision: 'ALLOW' },
   );
   assert.ok(READONLY_BUILTINS.includes('Explore'));
 });
 
 test('CA-6 : regime Odin -> gimli / general-purpose / claude / statusline-setup / AGENT_UNSET -> ODIN_DISPATCH', () => {
-  const state = emptyState();
+  const state = odinDriftedState();
   for (const target of ['gimli', 'general-purpose', 'claude', 'statusline-setup', null]) {
     assert.deepEqual(
-      verdictDispatch({ actor: 'MAIN', target, requested: { key: null, ambiguous: false }, state, launch: PORTEFEUILLE }),
+      verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target, requested: { key: null, ambiguous: false }, state, launch: PORTEFEUILLE }),
       { decision: 'DENY', code: 'ODIN_DISPATCH' },
       `target=${target}`,
     );
@@ -385,46 +446,62 @@ test('CA-6 : regime Odin -> gimli / general-purpose / claude / statusline-setup 
 
 test('CA-6 : regime Odin -> aragorn sans ligne Chantier: -> DISPATCH_UNNAMED', () => {
   assert.deepEqual(
-    verdictDispatch({ actor: 'MAIN', target: 'aragorn', requested: { key: null, ambiguous: false }, state: emptyState(), launch: PORTEFEUILLE }),
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target: 'aragorn', requested: { key: null, ambiguous: false }, state: odinDriftedState(), launch: PORTEFEUILLE }),
     { decision: 'DENY', code: 'DISPATCH_UNNAMED' },
   );
 });
 
-test('CA-6 : ligne Chantier: X, X dans named -> ALLOW + dispatch{key:X} ; X hors named -> NOT_DESIGNATED', () => {
-  const state = { active: { key: PORTEFEUILLE }, grants: new Set(), named: new Set([keySig(REPO_A)]), bindings: new Map() };
+test('CA-6 : regime Odin, aragorn — ligne = actif -> ALLOW ; ligne != actif -> CHANTIER_MISMATCH', () => {
+  const state = odinDriftedState(); // active = REPO_A
   assert.deepEqual(
-    verdictDispatch({ actor: 'MAIN', target: 'aragorn', requested: { key: REPO_A, ambiguous: false }, state, launch: PORTEFEUILLE }),
-    { decision: 'ALLOW', dispatch: { key: REPO_A, target: 'aragorn' } },
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target: 'aragorn', requested: { key: REPO_A, ambiguous: false }, state, launch: PORTEFEUILLE }),
+    { decision: 'ALLOW' },
   );
   assert.deepEqual(
-    verdictDispatch({ actor: 'MAIN', target: 'aragorn', requested: { key: REPO_B, ambiguous: false }, state, launch: PORTEFEUILLE }),
-    { decision: 'DENY', code: 'NOT_DESIGNATED' },
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target: 'aragorn', requested: { key: REPO_B, ambiguous: false }, state, launch: PORTEFEUILLE }),
+    { decision: 'DENY', code: 'CHANTIER_MISMATCH' },
   );
 });
 
 test('CA-6 : deux lignes Chantier: divergentes -> DISPATCH_AMBIGUOUS', () => {
   assert.deepEqual(
-    verdictDispatch({ actor: 'MAIN', target: 'aragorn', requested: { key: null, ambiguous: true }, state: emptyState(), launch: PORTEFEUILLE }),
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target: 'aragorn', requested: { key: null, ambiguous: true }, state: emptyState(), launch: PORTEFEUILLE }),
     { decision: 'DENY', code: 'DISPATCH_AMBIGUOUS' },
   );
 });
 
 test('CA-6 : avec un grant sur l\'actif -> gimli ALLOW (hors regime Odin)', () => {
   const grants = new Set([keySig(PORTEFEUILLE)]);
-  const state = { active: { key: PORTEFEUILLE }, grants, named: new Set(), bindings: new Map() };
+  const state = { active: { key: PORTEFEUILLE }, grants, named: new Set() };
   assert.deepEqual(
-    verdictDispatch({ actor: 'MAIN', target: 'gimli', requested: { key: null, ambiguous: false }, state, launch: PORTEFEUILLE }),
-    { decision: 'ALLOW', dispatch: { key: PORTEFEUILLE, target: 'gimli' } },
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target: 'gimli', requested: { key: null, ambiguous: false }, state, launch: PORTEFEUILLE }),
+    { decision: 'ALLOW' },
   );
 });
 
-test('CA-6 : sous-agent aragorn lie a A -> dispatch gimli SANS ligne -> ALLOW + dispatch{key:A}', () => {
-  const bindings = new Map([['s1', { key: REPO_A }]]);
-  const state = { active: { key: REPO_B }, grants: new Set(), named: new Set(), bindings };
+test('CA-6 : role team, thread principal — gimli SANS ligne -> ALLOW ; ligne != lancement -> CHANTIER_MISMATCH', () => {
+  const state = { active: { key: REPO_A }, grants: new Set(), named: new Set() }; // en team, active == launch
   assert.deepEqual(
-    verdictDispatch({ actor: 'SUB', agentId: 's1', target: 'gimli', requested: { key: null, ambiguous: false }, state, launch: REPO_B }),
-    { decision: 'ALLOW', dispatch: { key: REPO_A, target: 'gimli' } },
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'team', target: 'gimli', requested: { key: null, ambiguous: false }, state, launch: REPO_A }),
+    { decision: 'ALLOW' },
   );
+  assert.deepEqual(
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'team', target: 'gimli', requested: { key: REPO_B, ambiguous: false }, state, launch: REPO_A }),
+    { decision: 'DENY', code: 'CHANTIER_MISMATCH' },
+  );
+});
+
+test('CA-6 : aucun chantier actif -> DENY NO_CHANTIER', () => {
+  assert.deepEqual(
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'team', target: 'gimli', requested: { key: null, ambiguous: false }, state: emptyState(), launch: REPO_A }),
+    { decision: 'DENY', code: 'NO_CHANTIER' },
+  );
+});
+
+test('CA-6 : aucun resultat ALLOW/DENY ne porte de champ `dispatch` (aucun evenement a ecrire)', () => {
+  const allow = verdictDispatch({ actor: 'MAIN', sessionRole: 'team', target: 'gimli', requested: { key: null, ambiguous: false }, state: { active: { key: REPO_A }, grants: new Set(), named: new Set() }, launch: REPO_A });
+  assert.equal(allow.decision, 'ALLOW');
+  assert.equal('dispatch' in allow, false);
 });
 
 // --- CA-7 : purete de source (aucune E/S dans guard-core.mjs) -----------------
@@ -439,7 +516,23 @@ test('CA-7 : guard-core.mjs ne contient aucun import fs/os/child_process ni `pro
     .map((l) => l.replace(/\/\/.*$/, ''))
     .join('\n');
   assert.doesNotMatch(codeOnly, /\bprocess\./);
+  // Lot 1bis : la liaison par sous-agent (ex-D-13) est retiree du coeur.
+  assert.doesNotMatch(src, /\bpickBinding\b/);
+  assert.doesNotMatch(src, /\bbindings\b/);
 });
 
 // CA-8 (parite octet-pour-octet kit-claude <-> kit-codex) est verrouille par
 // cli/test/guard-core-parity.test.js — inchange par ce lot (cf. § Fichiers concernes).
+
+// --- CA-9 : mainRoleOf (Q-F) --------------------------------------------------
+
+test('CA-9 : mainRoleOf — absent/odin -> "odin" ; toute autre valeur -> "team"', () => {
+  assert.equal(mainRoleOf(undefined), 'odin');
+  assert.equal(mainRoleOf(null), 'odin');
+  assert.equal(mainRoleOf(''), 'odin');
+  assert.equal(mainRoleOf('odin'), 'odin');
+  assert.equal(mainRoleOf('Odin'), 'odin');
+  assert.equal(mainRoleOf('aragorn'), 'team');
+  assert.equal(mainRoleOf('gimli'), 'team');
+  assert.equal(mainRoleOf('Explore'), 'team');
+});

@@ -1,4 +1,4 @@
-{"v":1,"at":"2026-09-27T10:00:00Z","type":"launch","project_dir":"/work/repoA","key":{"kind":"repo","root":"/work/repoA","name":"repoA"}}
+{"v":1,"at":"2026-09-27T10:00:00Z","type":"launch","project_dir":"/work/repoA","key":{"kind":"repo","root":"/work/repoA","name":"repoA"},"main_role":"odin"}
 {"v":1,"at":"2026-09-27T10:01:00Z","type":"declare","key":{"kind":"repo","root":"/work/repoB","name":"repoB"},"by":"user","aragorn":"aragorn@repoB","team_source":"/work/repoB"}
 {"v":1,"at":"2026-09-27T10:02:00Z","type":"declare","key":{"kind":"repo","root":"/work/repoB","name":"repoB"},"by":"user"}
 ceci n'est pas du JSON valide
