@@ -698,3 +698,49 @@ export function verdictDispatch(input) {
   // 6. sinon ALLOW (en regime Equipe, toute cible du roster, avec ou sans ligne).
   return { decision: "ALLOW" };
 }
+
+// ---------------------------------------------------------------------------
+// Verdict VOIX (specs/instructions/prise-de-parole-odin-aragorn.md, Lot P1). Pur : AUCUNE E/S,
+// AUCUNE resolution de chemin (la `launchKey` est DEJA resolue par l'adaptateur `chantier-state.mjs`
+// via `keyOf`, comme pour le verdict CHANTIER). Determine QUI PARLE (Aragorn dans un depot, Odin au
+// portefeuille/hors), independamment du `sessionRole` du garde (P-2 : les deux notions coexistent
+// sans etre alignees, decision Q-P1 = A — ce module ne touche a AUCUN verdict de garde existant).
+// ---------------------------------------------------------------------------
+
+// isOdinSolicitation(prompt) -> bool (P-3). Sollicitation directe d'Odin dans un depot : la
+// PREMIERE LIGNE NON VIDE du prompt, apres trim(), commence par le mot `odin` (casse ignoree), non
+// suivi d'une lettre, d'un chiffre, de `_` ou de `-` (exclut `odin-direct`, `odinson`). Une mention
+// d'Odin plus loin dans le prompt, ou en dehors de la 1ere ligne non vide, ne compte pas.
+const RE_ODIN_SOLICITATION = /^odin(?![a-z0-9_-])/i;
+
+export function isOdinSolicitation(prompt) {
+  const text = String(prompt == null ? "" : prompt);
+  const lines = text.split("\n").map((l) => l.trim()).filter((l) => l !== "");
+  if (lines.length === 0) return false;
+  return RE_ODIN_SOLICITATION.test(lines[0]);
+}
+
+// voiceOf({ launchKey, agentType, prompt }) -> { voice, royaume, turnVoice } (P-5). `launchKey` =
+// cle DEJA resolue du lieu de lancement de la session (`{ kind, root, name }`, ou null/absente) ;
+// `agentType` = valeur brute du payload (peut etre absente) ; `prompt` = texte du tour courant.
+// Regles DANS L'ORDRE (P-5) :
+//   1. `agentType` non vide et, en minuscules, hors {"odin","aragorn"} -> tout "generic" ;
+//   2. `launchKey` absent -> tout "generic" ;
+//   3. `launchKey.kind` in {"repo","dir"} -> voice:"aragorn", royaume = nom en MAJUSCULE ;
+//      turnVoice = "odin" si isOdinSolicitation(prompt), sinon "aragorn" ;
+//   4. sinon (`portefeuille`, `hors`) -> voice = turnVoice = "odin", royaume:"PORTEFEUILLE".
+export function voiceOf({ launchKey, agentType, prompt } = {}) {
+  const at = agentType == null ? "" : String(agentType).trim().toLowerCase();
+  if (at !== "" && at !== "odin" && at !== "aragorn") {
+    return { voice: "generic", royaume: null, turnVoice: "generic" };
+  }
+  if (!launchKey) {
+    return { voice: "generic", royaume: null, turnVoice: "generic" };
+  }
+  if (launchKey.kind === "repo" || launchKey.kind === "dir") {
+    const royaume = String(launchKey.name == null ? "" : launchKey.name).toUpperCase();
+    const turnVoice = isOdinSolicitation(prompt) ? "odin" : "aragorn";
+    return { voice: "aragorn", royaume, turnVoice };
+  }
+  return { voice: "odin", royaume: "PORTEFEUILLE", turnVoice: "odin" };
+}

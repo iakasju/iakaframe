@@ -12,7 +12,7 @@ import {
   ROSTER, BUILTINS, AGENT_UNSET,
   keySig, foldChantier, mainRoleOf, parsePromptDirectives, parseChantierLines,
   detectRepoMentions, classifyShell, verdictChantier, verdictDispatch, READONLY_BUILTINS,
-  PORTFOLIO_VERBS,
+  PORTFOLIO_VERBS, isOdinSolicitation, voiceOf,
 } from '../../kits/iakaframe-claude/global/hooks/guard-core.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -535,4 +535,83 @@ test('CA-9 : mainRoleOf — absent/odin -> "odin" ; toute autre valeur -> "team"
   assert.equal(mainRoleOf('aragorn'), 'team');
   assert.equal(mainRoleOf('gimli'), 'team');
   assert.equal(mainRoleOf('Explore'), 'team');
+});
+
+// =============================================================================================
+// VOIX (specs/instructions/prise-de-parole-odin-aragorn.md, Lot P1 — cle pure).
+// =============================================================================================
+
+// --- CA-P1 : isOdinSolicitation ------------------------------------------------
+
+test('CA-P1 : isOdinSolicitation — vrai sur la 1ere ligne non vide, mot "odin" isole', () => {
+  assert.equal(isOdinSolicitation('odin, où en sont mes projets ?'), true);
+  assert.equal(isOdinSolicitation('Odin : point'), true);
+  assert.equal(isOdinSolicitation('odin'), true);
+  assert.equal(isOdinSolicitation('\n\n  ODIN, x'), true);
+});
+
+test('CA-P1 : isOdinSolicitation — faux (odin-direct, odinson, mention en phrase ou hors 1ere ligne, vide)', () => {
+  assert.equal(isOdinSolicitation('odin-direct naonedge'), false);
+  assert.equal(isOdinSolicitation('odinson'), false);
+  assert.equal(isOdinSolicitation("je pense qu'odin a raison"), false);
+  assert.equal(isOdinSolicitation('regarde ça\nodin, x'), false); // pas en 1ere ligne non vide
+  assert.equal(isOdinSolicitation(''), false);
+  assert.equal(isOdinSolicitation(null), false);
+});
+
+// --- CA-P2 : voiceOf ------------------------------------------------------------
+
+test('CA-P2 : voiceOf — repo sans agentType -> aragorn, royaume MAJUSCULE, turnVoice aragorn', () => {
+  assert.deepEqual(
+    voiceOf({ launchKey: key('repo', '/work/naonedge', 'naonedge') }),
+    { voice: 'aragorn', royaume: 'NAONEDGE', turnVoice: 'aragorn' },
+  );
+});
+
+test('CA-P2 : voiceOf — repo + prompt "odin, x" -> turnVoice odin (voice reste aragorn)', () => {
+  assert.deepEqual(
+    voiceOf({ launchKey: key('repo', '/work/naonedge', 'naonedge'), prompt: 'odin, x' }),
+    { voice: 'aragorn', royaume: 'NAONEDGE', turnVoice: 'odin' },
+  );
+});
+
+test('CA-P2 : voiceOf — agentType "aragorn" sur repo + prompt "Odin" -> voice aragorn, turnVoice odin', () => {
+  assert.deepEqual(
+    voiceOf({ launchKey: key('repo', '/work/naonedge', 'naonedge'), agentType: 'aragorn', prompt: 'Odin, x' }),
+    { voice: 'aragorn', royaume: 'NAONEDGE', turnVoice: 'odin' },
+  );
+});
+
+test('CA-P2 : voiceOf — agentType hors {odin,aragorn} -> tout generic', () => {
+  assert.deepEqual(
+    voiceOf({ launchKey: key('repo', '/work/naonedge', 'naonedge'), agentType: 'gimli' }),
+    { voice: 'generic', royaume: null, turnVoice: 'generic' },
+  );
+});
+
+test('CA-P2 : voiceOf — kind "dir" -> aragorn, royaume MAJUSCULE', () => {
+  assert.deepEqual(
+    voiceOf({ launchKey: key('dir', '/work/nouveau', 'nouveau') }),
+    { voice: 'aragorn', royaume: 'NOUVEAU', turnVoice: 'aragorn' },
+  );
+});
+
+test('CA-P2 : voiceOf — portefeuille et hors -> odin/PORTEFEUILLE, avec ou sans sollicitation', () => {
+  assert.deepEqual(
+    voiceOf({ launchKey: PORTEFEUILLE }),
+    { voice: 'odin', royaume: 'PORTEFEUILLE', turnVoice: 'odin' },
+  );
+  assert.deepEqual(
+    voiceOf({ launchKey: PORTEFEUILLE, prompt: 'odin, x' }),
+    { voice: 'odin', royaume: 'PORTEFEUILLE', turnVoice: 'odin' },
+  );
+  assert.deepEqual(
+    voiceOf({ launchKey: key('hors', null, null) }),
+    { voice: 'odin', royaume: 'PORTEFEUILLE', turnVoice: 'odin' },
+  );
+});
+
+test('CA-P2 : voiceOf — launchKey absent -> tout generic', () => {
+  assert.deepEqual(voiceOf({ launchKey: null }), { voice: 'generic', royaume: null, turnVoice: 'generic' });
+  assert.deepEqual(voiceOf({}), { voice: 'generic', royaume: null, turnVoice: 'generic' });
 });
