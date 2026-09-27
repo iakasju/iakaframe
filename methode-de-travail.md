@@ -787,6 +787,16 @@ token, SSH inutilisable) reste un **miroir secondaire**, remote `iakabox`, réal
 LAN répond : `git push iakabox main --tags`. Idem pour le Forgejo du NAS
 (`http://192.168.1.139:3001`, remote `nas`) : `git push nas main --tags`. Guide complet : `iakabox-usage.html`.
 
+**GitHub n'est pas un remote de la méthode** (self-hosted d'abord) : le CLI ne pousse par
+défaut que vers les **forges self-hosted** (remote local ou hôte connu — `origin`, `nas`,
+`iakabox`). Seuls les dépôts **vitrine** (opt-in `iakaframe.json` → `pushOptInRemotes`)
+publient sur GitHub, et uniquement par `iakaframe update --publier <vX.Y.Z>`, pour une version
+**majeure ou mineure**, avec l'**accord du décideur** donné au terminal — jamais en session non
+interactive, donc jamais par un agent. Décision du **2026-09-27**, après que le checkpoint de
+naonedge (commit `822548d`, 2026-09-26) a poussé par défaut sur un remote `github` privé des
+transcripts de réunions clients que le `CLAUDE.md` du projet interdisait d'y envoyer : une
+consigne en prose ne protège pas d'un défaut de l'outil, seul un changement du défaut le fait.
+
 ## Secrets par défaut : Vaultwarden VPS (vault.naonedge.com)
 
 Tout secret créé ou manipulé en session (mot de passe d'un compte, jeton d'API, clé) est
@@ -847,7 +857,8 @@ un projet après une pause = lire `etat-des-lieux.md`, pas fouiller sa mémoire.
 
 **Commande « update iakaframe »** — le checkpoint en une fois : `iakaframe update`
 régénère l'état des lieux **puis** fait un **commit global** (`git add -A` + commit) et
-**push**. C'est le geste à faire à chaque changement de version et à chaque pause/reprise
+**push vers les forges self-hosted** (jamais GitHub par défaut, cf. § « Git par défaut »).
+C'est le geste à faire à chaque changement de version et à chaque pause/reprise
 (`--reason version|pause|reprise`), ou comme simple point de sauvegarde.
 
 ### Version mineure — revue complète + doc qualité versionné

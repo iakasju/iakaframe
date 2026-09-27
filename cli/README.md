@@ -40,15 +40,29 @@ iakaframe init --path /chemin/projet --target claude
 iakaframe snapshot --reason version --version v0.2.0 --note "feature X livree"
 iakaframe snapshot --reason reprise
 
-# update : checkpoint (snapshot + commit global + push FAN-OUT sur tous les remotes)
+# update : checkpoint (snapshot + commit global + push FAN-OUT sur les forges self-hosted)
 iakaframe update --reason pause --note "WIP : reprendre par les tests" --no-push
-iakaframe update --remotes origin,github --timeout 10   # cibles et delai explicites
+iakaframe update --remotes origin,nas --timeout 10   # cibles et delai explicites
+
+# publier une release sur la vitrine GitHub (opt-in projet, accord au terminal)
+iakaframe update --publier v0.44.0
 ```
 
-Le push d'`update` (et d'`onboard`) va vers **toutes** les cibles configurees, chacune
-reussissant ou echouant **independamment** et **nommee** dans la sortie. Une cible injoignable
-n'est pas une erreur : c'est un etat. Et rien n'est jamais annonce comme sauvegarde sans dire
-**qui** a recu.
+Le push d'`update` (et d'`onboard`) va vers **toutes les forges self-hosted** configurees
+(remote local ou hote connu, `origin` d'abord), chacune reussissant ou echouant
+**independamment** et **nommee** dans la sortie. Une cible injoignable n'est pas une erreur :
+c'est un etat. Et rien n'est jamais annonce comme sauvegarde sans dire **qui** a recu.
+
+**GitHub n'est pas un remote de la methode** (self-hosted d'abord) : le fan-out d'`update`/
+`onboard`/`canaux` ne le pousse **jamais** par defaut, meme s'il est configure comme remote. Un
+depot peut en faire sa **vitrine** publique en listant son nom dans `iakaframe.json` ->
+`"pushOptInRemotes": ["github"]` ; ce statut ne rend le remote **que** publiable, pas poussé par
+le fan-out. La **seule** ecriture possible dessus est `iakaframe update --publier <vX.Y.Z>` :
+elle exige un tag deja present, une version **majeure ou mineure** (un patch reste possible sur
+demande explicite, avec confirmation renforcee), et l'**accord du decideur au terminal** — jamais
+en session non interactive (un agent ne peut donc jamais publier). Un seul tag part, jamais
+`--tags` : chaque tag GitHub declenche un build de release. Decision du 2026-09-27, apres qu'un
+checkpoint ait pousse par defaut des donnees confidentielles sur un remote `github` prive.
 
 ### Canaux synchrones
 
