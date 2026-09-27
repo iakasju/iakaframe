@@ -124,6 +124,7 @@ body.sc {
   background: var(--sc-well);
   color: var(--sc-ink-muted);
   border: 1px solid var(--sc-border);
+  word-break: break-word;
 }
 
 .sc-pastille { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
@@ -156,6 +157,7 @@ body.sc {
   border-top: none;
   border-left: none;
   border-right: none;
+  white-space: nowrap;
 }
 .sc-tab.active { color: var(--sc-accent); border-bottom-color: var(--sc-accent); }
 .sc-tab:hover { color: var(--sc-ink); }
@@ -182,6 +184,9 @@ html, body { margin: 0; padding: 0; }
 body.sc { padding-block: 28px; }
 .sc-page { max-width: 980px; margin: 0 auto; padding-inline: 20px; display: flex; flex-direction: column; gap: 18px; }
 .page-nav { position: sticky; top: env(safe-area-inset-top, 0px); background: var(--sc-bg); z-index: 5; padding-top: 4px; overflow-x: auto; flex-wrap: nowrap; }
+@media (min-width: 1000px) {
+  .page-nav { flex-wrap: wrap; overflow-x: visible; }
+}
 .page-nav .sc-tab { text-decoration: none; }
 .sc-hero { padding-top: 6px; }
 .sc-hero h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); }
@@ -192,7 +197,20 @@ body.sc { padding-block: 28px; }
 .sc-section-body h3 { font-family: var(--sc-font-display); font-size: 0.92rem; margin: 6px 0 -2px; color: var(--sc-ink); }
 .sc-section-body p { margin: 0; line-height: 1.55; font-size: 0.9rem; }
 .sc-section-body ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; line-height: 1.5; }
-.sc-scroll { overflow-x: auto; border-radius: 6px; }
+.sc-scroll {
+  overflow-x: auto;
+  border-radius: 6px;
+  background-repeat: no-repeat;
+  background-color: var(--sc-surface);
+  background-image:
+    linear-gradient(to right, var(--sc-surface) 30%, rgba(0,0,0,0)),
+    linear-gradient(to left, var(--sc-surface) 30%, rgba(0,0,0,0)),
+    linear-gradient(to right, rgba(0,0,0,.15), rgba(0,0,0,0)),
+    linear-gradient(to left, rgba(0,0,0,.15), rgba(0,0,0,0));
+  background-position: left, right, left, right;
+  background-size: 24px 100%, 24px 100%, 10px 100%, 10px 100%;
+  background-attachment: local, local, scroll, scroll;
+}
 .sc-shot { display: flex; flex-direction: column; gap: 8px; }
 .sc-shot img { width: 100%; border-radius: 6px; border: 1px solid var(--sc-border); display: block; }
 .sc-shot figcaption { font-size: 0.78rem; color: var(--sc-ink-muted); font-family: var(--sc-font-mono); }
@@ -204,7 +222,28 @@ body.sc { padding-block: 28px; }
 .idx-card p { margin: 0; font-size: 0.82rem; color: var(--sc-ink-muted); line-height: 1.4; }
 .sc-pre-card { padding: 16px 18px; }
 .sc-pre-card h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 10px; }
-pre.sc-pre { margin: 0; overflow-x: auto; font-family: var(--sc-font-mono); font-size: 0.66rem; line-height: 1.35; background: var(--sc-well); border: 1px solid var(--sc-border); border-radius: 6px; padding: 12px 14px; color: var(--sc-ink); }
+pre.sc-pre {
+  margin: 0;
+  overflow-x: auto;
+  font-family: var(--sc-font-mono);
+  font-size: 0.66rem;
+  line-height: 1.35;
+  background-color: var(--sc-well);
+  background-repeat: no-repeat;
+  background-image:
+    linear-gradient(to right, var(--sc-well) 30%, rgba(0,0,0,0)),
+    linear-gradient(to left, var(--sc-well) 30%, rgba(0,0,0,0)),
+    linear-gradient(to right, rgba(0,0,0,.18), rgba(0,0,0,0)),
+    linear-gradient(to left, rgba(0,0,0,.18), rgba(0,0,0,0));
+  background-position: left, right, left, right;
+  background-size: 24px 100%, 24px 100%, 10px 100%, 10px 100%;
+  background-attachment: local, local, scroll, scroll;
+  border: 1px solid var(--sc-border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  color: var(--sc-ink);
+}
+.sc-banner { line-height: 1; }
 footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-faint); font-family: var(--sc-font-mono); padding-block: 10px 30px; }
 /* chemins/hash/refs longs sans espace (ex. src-tauri/src/broker.rs:31-37) : jamais de
    débordement horizontal de la page — on les casse plutôt que d'élargir le corps. */
@@ -230,7 +269,124 @@ footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-fai
       <span class="sc-badge b-info">PRÉVU</span> cadré, non livré
     </div>
   </div>
-  
+
+<section class="sc-card sc-section">
+  <h2>Schéma — interactions constatées</h2>
+  <div class="sc-section-body">
+    <figure style="margin:0;">
+      <svg viewBox="0 0 920 470" role="img" aria-label="Schéma des interactions entre iakaTokenCounter/iakahub, IakaAgentsMonitor, iakaboxlogs, IakaCockpit, n8n, iakaHub et le broker VPS, avec distinction entre liens réels et liens prévus/non câblés." style="width:100%;height:auto;font-family:var(--sc-font-mono);">
+        <defs>
+          <marker id="arr-real" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--sc-ink-muted)"></path>
+          </marker>
+          <marker id="arr-prevu" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--sc-info)"></path>
+          </marker>
+          <marker id="arr-off" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="var(--sc-ink-faint)"></path>
+          </marker>
+        </defs>
+        <style>
+          .nd-box { fill: var(--sc-well); stroke: var(--sc-border); stroke-width: 1; rx: 6; }
+          .nd-off { fill: none; stroke: var(--sc-ink-faint); stroke-width: 1; stroke-dasharray: 3 3; rx: 6; }
+          .nd-label { font-size: 11px; fill: var(--sc-ink); }
+          .nd-sub { font-size: 9px; fill: var(--sc-ink-muted); }
+          .zone-label { font-size: 10px; fill: var(--sc-ink-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+          .lk-real { stroke: var(--sc-ink-muted); stroke-width: 1.4; fill: none; marker-end: url(#arr-real); }
+          .lk-prevu { stroke: var(--sc-info); stroke-width: 1.4; fill: none; stroke-dasharray: 5 4; marker-end: url(#arr-prevu); }
+          .lk-off { stroke: var(--sc-ink-faint); stroke-width: 1.2; fill: none; stroke-dasharray: 2 4; marker-end: url(#arr-off); }
+          .lk-label { font-size: 9px; fill: var(--sc-ink-muted); }
+        </style>
+
+        <!-- zone: bus local Mac (iakahub) -->
+        <rect x="12" y="16" width="560" height="150" rx="8" fill="none" stroke="var(--sc-border)" stroke-dasharray="4 3"></rect>
+        <text x="24" y="32" class="zone-label">Bus local — iakahub (Mac, vit tant que la tray tourne)</text>
+
+        <rect x="30" y="52" width="150" height="42" class="nd-box"></rect>
+        <text x="105" y="70" text-anchor="middle" class="nd-label">daemon iakatc</text>
+        <text x="105" y="83" text-anchor="middle" class="nd-sub">iakaTokenCounter</text>
+
+        <rect x="240" y="52" width="120" height="42" class="nd-box"></rect>
+        <text x="300" y="70" text-anchor="middle" class="nd-label">iakahub</text>
+        <text x="300" y="83" text-anchor="middle" class="nd-sub">broker rumqttd :1883</text>
+
+        <rect x="420" y="52" width="130" height="42" class="nd-box"></rect>
+        <text x="485" y="70" text-anchor="middle" class="nd-label">tray</text>
+        <text x="485" y="83" text-anchor="middle" class="nd-sub">iakaTokenCounter</text>
+
+        <line x1="180" y1="73" x2="238" y2="73" class="lk-real"></line>
+        <text x="209" y="65" text-anchor="middle" class="lk-label">retenu, QoS 1</text>
+        <line x1="360" y1="73" x2="418" y2="73" class="lk-real"></line>
+        <text x="389" y="65" text-anchor="middle" class="lk-label">abonné</text>
+
+        <rect x="30" y="122" width="150" height="34" class="nd-box"></rect>
+        <text x="105" y="143" text-anchor="middle" class="nd-label">Monitor (IakaAgentsMonitor)</text>
+        <line x1="105" y1="120" x2="272" y2="96" class="lk-prevu"></line>
+        <text x="112" y="112" text-anchor="start" class="lk-label">⇢ PRÉVU, non livré</text>
+
+        <!-- zone: bus iakabox LAN -->
+        <rect x="12" y="196" width="896" height="150" rx="8" fill="none" stroke="var(--sc-border)" stroke-dasharray="4 3"></rect>
+        <text x="24" y="212" class="zone-label">Bus iakabox (LAN) — iakaboxlogs hors service depuis le 19/08</text>
+
+        <rect x="30" y="232" width="170" height="42" class="nd-box"></rect>
+        <text x="115" y="250" text-anchor="middle" class="nd-label">hooks</text>
+        <text x="115" y="263" text-anchor="middle" class="nd-sub">iakaframe / iakaFrameGUI</text>
+
+        <rect x="250" y="232" width="130" height="42" class="nd-box"></rect>
+        <text x="315" y="250" text-anchor="middle" class="nd-label">iakaboxlogs</text>
+        <text x="315" y="263" text-anchor="middle" class="nd-sub">broker mosquitto</text>
+
+        <rect x="430" y="232" width="100" height="42" class="nd-box"></rect>
+        <text x="480" y="250" text-anchor="middle" class="nd-label">pont</text>
+        <text x="480" y="263" text-anchor="middle" class="nd-sub">n8n / bridge.js</text>
+
+        <rect x="580" y="232" width="110" height="42" class="nd-box"></rect>
+        <text x="635" y="250" text-anchor="middle" class="nd-label">CouchDB</text>
+        <text x="635" y="263" text-anchor="middle" class="nd-sub">conversations</text>
+
+        <rect x="740" y="232" width="150" height="42" class="nd-box"></rect>
+        <text x="815" y="250" text-anchor="middle" class="nd-label">IakaCockpit</text>
+        <text x="815" y="263" text-anchor="middle" class="nd-sub">main courante (lecture)</text>
+
+        <line x1="200" y1="253" x2="248" y2="253" class="lk-real"></line>
+        <text x="224" y="245" text-anchor="middle" class="lk-label">publie QoS 0</text>
+        <line x1="380" y1="253" x2="428" y2="253" class="lk-real"></line>
+        <text x="404" y="245" text-anchor="middle" class="lk-label">iakaboxlogs/#</text>
+        <line x1="530" y1="253" x2="578" y2="253" class="lk-real"></line>
+        <text x="554" y="245" text-anchor="middle" class="lk-label">POST</text>
+        <line x1="690" y1="253" x2="738" y2="253" class="lk-real"></line>
+        <text x="714" y="245" text-anchor="middle" class="lk-label">_find</text>
+
+        <rect x="740" y="304" width="150" height="38" class="nd-off"></rect>
+        <text x="815" y="327" text-anchor="middle" class="nd-sub">n8n — nœud MQTT</text>
+        <path d="M815,304 L815,276" class="lk-off"></path>
+        <text x="815" y="292" text-anchor="middle" class="lk-label">non câblé (placeholder)</text>
+
+        <!-- VPS row -->
+        <rect x="30" y="396" width="150" height="40" class="nd-box"></rect>
+        <text x="105" y="415" text-anchor="middle" class="nd-label">clients (agents)</text>
+        <text x="105" y="428" text-anchor="middle" class="nd-sub">Mac / Windows / VPS</text>
+
+        <rect x="260" y="396" width="230" height="40" class="nd-off"></rect>
+        <text x="375" y="415" text-anchor="middle" class="nd-sub">VPS naonedge-vps :8883</text>
+        <text x="375" y="428" text-anchor="middle" class="lk-label">iakaframe/_logs</text>
+        <line x1="180" y1="416" x2="258" y2="416" class="lk-off"></line>
+        <text x="219" y="408" text-anchor="middle" class="lk-label">non branché</text>
+
+        <!-- iakaHub, isolé -->
+        <rect x="580" y="396" width="200" height="40" class="nd-off"></rect>
+        <text x="680" y="412" text-anchor="middle" class="nd-label">iakaHub (Discord)</text>
+        <text x="680" y="425" text-anchor="middle" class="nd-sub">démon Node — sans lien MQTT</text>
+      </svg>
+      <figcaption class="sc-legend" style="margin-top:6px;">
+        <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke="var(--sc-ink-muted)" stroke-width="2"></line></svg> réel, livré</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke="var(--sc-info)" stroke-width="2" stroke-dasharray="4 3"></line></svg> PRÉVU, non livré</span>
+        <span style="display:inline-flex;align-items:center;gap:4px;"><svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke="var(--sc-ink-faint)" stroke-width="2" stroke-dasharray="2 3"></line></svg> non câblé / non branché</span>
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
 <section class="idx-grid"><a class="sc-card idx-card" href="iakaagentsmonitor.html">
       <h3>IakaAgentsMonitor</h3>
       <p>Moniteur de barre de menus macOS — qui travaille, pour quel projet, sur quel runner, combien de temps reste-t-il.</p>
@@ -254,7 +410,7 @@ footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-fai
       <p>Moniteur de consommation IA multi-comptes — jauges de quota par compte, bus MQTT embarqué (iakahub/rumqttd).</p>
     </a><a class="sc-card idx-card" href="mqtt.html">
       <h3>MQTT — inventaire transverse</h3>
-      <p>Inventaire transverse des 4 brokers de la famille et de leurs topics — état réel constaté le 27/09, aucun broker actif.</p>
+      <p>Inventaire transverse des 4 brokers de la famille et de leurs topics — aucun broker local actif sur le Mac le 27/09 ; broker VPS réputé actif (non vérifié).</p>
     </a><a class="sc-card idx-card" href="naonedge-vps.html">
       <h3>naonedge-vps — broker VPS</h3>
       <p>Broker Mosquitto du VPS NaonEdge — successeur chiffré (TLS 8883) et authentifié du broker LAN iakabox, schéma réservé.</p>
@@ -262,18 +418,17 @@ footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-fai
 
 <section class="sc-card sc-pre-card">
   <h2>Bannière CLI — <code class="sc-chip">iakaframe banner</code></h2>
-  <pre class="sc-pre">██╗ █████╗ ██╗  ██╗ █████╗ ███████╗██████╗  █████╗ ███╗   ███╗███████╗
+  <pre class="sc-pre sc-banner">██╗ █████╗ ██╗  ██╗ █████╗ ███████╗██████╗  █████╗ ███╗   ███╗███████╗
 ██║██╔══██╗██║ ██╔╝██╔══██╗██╔════╝██╔══██╗██╔══██╗████╗ ████║██╔════╝
 ██║███████║█████╔╝ ███████║█████╗  ██████╔╝███████║██╔████╔██║█████╗  
 ██║██╔══██║██╔═██╗ ██╔══██║██╔══╝  ██╔══██╗██╔══██║██║╚██╔╝██║██╔══╝  
 ██║██║  ██║██║  ██╗██║  ██║██║     ██║  ██║██║  ██║██║ ╚═╝ ██║███████╗
-╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝
-                                                                      
-</pre>
+╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝     ╚═╝╚══════╝</pre>
 </section>
 
 <section class="sc-card sc-pre-card">
   <h2>Portefeuille — <code class="sc-chip">iakaframe portfolio</code></h2>
+  <p class="sc-sub" style="margin:0 0 8px;">Instantané figé au 27/09/2026 (commit <code class="sc-chip">5a647ff</code>), non régénéré depuis — versions et HEAD listés ci-dessous peuvent être dépassés ; se référer aux pages dédiées pour l'état courant de chaque dépôt.</p>
   <pre class="sc-pre">Portefeuille (/Users/sjupin/work) — 52 projet(s) :
 
 ╔═════════════════════════╦═════════════════════════════════════════════════════════════════════════════════════════════════╦══════════════════╦════════════════════════════════════════════════════════════════════════════════╦═══════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════╦════════╗
@@ -285,18 +440,18 @@ footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-fai
 ║ DND                     ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ -                ║ propre                                                                         ║ 01684f8 chore: init iakaframe (structure + index, PDF ignores)                                                                                                            ║ 1      ║
 ║ gaultfest               ║ &gt; Espace de cadrage (réflexion). Document de vision et de specs.                                ║ -                ║ propre                                                                         ║ 94817da refactor: chaque vitrine deplacee dans son sous-repertoire d'activite                                                                                             ║ 5      ║
 ║ IAKA                    ║ —                                                                                               ║ —                ║ propre                                                                         ║ 7d1e3b5 docs(doc): page projet generee par docgen                                                                                                                         ║ —      ║
-║ iaka-demo               ║ Dossier de démonstration de la chaîne **IakaCockpit L2→L6** (grille/PTY, moteur                 ║ —                ║ propre                                                                         ║ d92fe91 docs(specs): regenere l'etat des lieux                                                                                                                            ║ —      ║
+║ iaka-demo               ║ Dossier de démonstration de la chaîne IakaCockpit L2→L6 (grille/PTY, moteur                 ║ —                ║ propre                                                                         ║ d92fe91 docs(specs): regenere l'etat des lieux                                                                                                                            ║ —      ║
 ║ IakaAgentsMonitor       ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ v0.1.0           ║ propre                                                                         ║ 6460f95 chore: init iakaframe (structure + methode de travail)                                                                                                            ║ 5      ║
 ║ iakaArtists             ║ —                                                                                               ║ —                ║ modifs                                                                         ║ 92606a4 chore: desindexe .DS_Store (bruit macOS)                                                                                                                          ║ —      ║
 ║ iakabox                 ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ —                ║ propre                                                                         ║ 49dd397 docs(specs): regenere l'etat des lieux                                                                                                                            ║ 8      ║
 ║ iakaboxlogs             ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ —                ║ propre                                                                         ║ f5210df docs(specs): regenere l'etat des lieux + maj CLAUDE.md et PROJET.md                                                                                               ║ 4      ║
 ║ iakacharte              ║ —                                                                                               ║ —                ║ propre                                                                         ║ ce31aea chore: mise sous git de la charte cinabre                                                                                                                         ║ —      ║
 ║ iakaCMyPix              ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ —                ║ propre                                                                         ║ 9f04f7d docs(specs): ajoute l'etat des lieux                                                                                                                              ║ 1      ║
-║ IakaCockpit             ║ &gt; Doc **DAYONE fondatrice** de l'écosystème iakaProject. Espace Cowork (réflexion) :            ║ v0.32.2          ║ propre                                                                         ║ 5338001 merge: CONVERGENCE-RELEASE-YML-ALIGNEMENT — deps Linux sorties dans .github/deps-linux.txt, release.yml byte-identique au registre (gate Legolas PASS transverse) ║ 48     ║
-║ iakacontext             ║ **Une fabrique de contextes de connaissances, tournée vers l'utilisateur final.**               ║ —                ║ propre                                                                         ║ 85ce9de docs(specs): regenere l'etat des lieux                                                                                                                            ║ 11     ║
+║ IakaCockpit             ║ &gt; Doc DAYONE fondatrice de l'écosystème iakaProject. Espace Cowork (réflexion) :            ║ v0.32.2          ║ propre                                                                         ║ 5338001 merge: CONVERGENCE-RELEASE-YML-ALIGNEMENT — deps Linux sorties dans .github/deps-linux.txt, release.yml byte-identique au registre (gate Legolas PASS transverse) ║ 48     ║
+║ iakacontext             ║ Une fabrique de contextes de connaissances, tournée vers l'utilisateur final.               ║ —                ║ propre                                                                         ║ 85ce9de docs(specs): regenere l'etat des lieux                                                                                                                            ║ 11     ║
 ║ iakadocs                ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ -                ║ MODIFICATIONS NON COMMITEES                                                    ║ 33213e7 docs(spike): verdict lot 0 ecrivant AppFlowy (S1-S7 tranchees par la mesure)                                                                                      ║ 4      ║
 ║ iakaframe               ║ &gt; Ligne de définition (source de vérité cockpit) :                                              ║ v0.41.0          ║ propre                                                                         ║ 02b83da chore(cli): bit executable sur le point d'entree src/index.js (bin npm, pose par npm install -g depuis le depot)                                                  ║ 107    ║
-║ iakaFrameGUI            ║ &gt; **VERSION VALIDÉE — jalon du 2026-07-05 (décideur).** Vision gravée + 9 décisions actées.     ║ v0.1.8           ║ propre                                                                         ║ 1f12dfb merge: CONVERGENCE-RELEASE-YML-ALIGNEMENT — deps Linux sorties dans .github/deps-linux.txt, release.yml byte-identique au registre (gate Legolas PASS transverse) ║ 30     ║
+║ iakaFrameGUI            ║ &gt; VERSION VALIDÉE — jalon du 2026-07-05 (décideur). Vision gravée + 9 décisions actées.     ║ v0.1.8           ║ propre                                                                         ║ 1f12dfb merge: CONVERGENCE-RELEASE-YML-ALIGNEMENT — deps Linux sorties dans .github/deps-linux.txt, release.yml byte-identique au registre (gate Legolas PASS transverse) ║ 30     ║
 ║ iakaFreeVision          ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ -                ║ propre                                                                         ║ 3861dc8 docs(doc): page projet generee par docgen                                                                                                                         ║ 6      ║
 ║ iakaGABE                ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ v1.0.0           ║ MODIFICATIONS NON COMMITEES                                                    ║ 38e0974 docs: recit de reprise dans l'etat des lieux                                                                                                                      ║ 1      ║
 ║ iakagraph               ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ -                ║ propre                                                                         ║ c4e4943 feat(theme/naonedge): grue jaune versee au reservoir (icone app + favicon)                                                                                        ║ 3      ║
@@ -306,7 +461,7 @@ footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-fai
 ║ iakaInstall             ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ v0.1.2           ║ propre                                                                         ║ 6921e08 merge: deps Linux locales (5 paquets, sans cpal/whisper) + jambe d execution etendue byte-identique aux soeurs, registre 7 -&gt; 9 (gate Legolas PASS)               ║ 6      ║
 ║ iakaJarvis              ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ v0.1.0           ║ propre                                                                         ║ 2052471 chore: init iakaframe (structure + methode de travail)                                                                                                            ║ 1      ║
 ║ iakaminecraft           ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ —                ║ propre                                                                         ║ a0dec79 docs(doc): page projet generee par docgen                                                                                                                         ║ 1      ║
-║ iakaos                  ║ &gt; **Version 2, datée du 11 septembre 2026.** Elle remplace la version du 10 septembre, dont une ║ -                ║ propre                                                                         ║ 5d3438a docs(pilotage): bascule vers l'IdeaPad (machine KVM), branche 6.6 poussee                                                                                         ║ 15     ║
+║ iakaos                  ║ &gt; Version 2, datée du 11 septembre 2026. Elle remplace la version du 10 septembre, dont une ║ -                ║ propre                                                                         ║ 5d3438a docs(pilotage): bascule vers l'IdeaPad (machine KVM), branche 6.6 poussee                                                                                         ║ 15     ║
 ║ iakapage                ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ -                ║ MODIFICATIONS NON COMMITEES                                                    ║ ce42964 chore: renomme le projet iakastart -&gt; iakapage                                                                                                                    ║ 3      ║
 ║ IakaPcl                 ║ &gt; Document de vision (le « pourquoi » et le « quoi »). Le « comment » détaillé vit dans         ║ —                ║ propre                                                                         ║ 3fda71a docs(doc): page projet generee par docgen                                                                                                                         ║ 13     ║
 ║ IakaProject             ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ v0.3.0           ║ propre apres commit (hors .DS_Store et doc/ non suivis, volontairement exclus) ║ chore: add 5 child submodules (iakaTokenCounter, iakabox, iakacockpit, iakaFrameGUI, iakaHub)                                                                             ║ 3      ║
@@ -315,7 +470,7 @@ footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-fai
 ║ iakaspotify             ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ v0.1.0           ║ propre                                                                         ║ 8222277 chore: init iakaframe (structure + methode de travail)                                                                                                            ║ 2      ║
 ║ iakaTokenCounter        ║ &gt; Espace de réflexion (cadrage). Document de vision et de specs.                                ║ v0.1.0           ║ MODIFICATIONS NON COMMITEES                                                    ║ 2c5005f feat(measure): fold quotidien (jour, projet, agent) pour Travail et Volume total                                                                                  ║ 15     ║
 ║ iakatrain               ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ v0.1.0           ║ propre                                                                         ║ 2681d89 chore: init iakaframe (structure + methode de travail)                                                                                                            ║ 1      ║
-║ iakaVintageStory        ║ Proof of concept de mods pour le jeu **Vintage Story**, sur le thème du Seigneur des            ║ v0.1.0           ║ propre                                                                         ║ eee865d4 chore: init iakaframe (structure + methode de travail)                                                                                                           ║ —      ║
+║ iakaVintageStory        ║ Proof of concept de mods pour le jeu Vintage Story, sur le thème du Seigneur des            ║ v0.1.0           ║ propre                                                                         ║ eee865d4 chore: init iakaframe (structure + methode de travail)                                                                                                           ║ —      ║
 ║ iakavod                 ║ IAKA Vod est une application native multi-plateforme (Tauri 2.0 — React/Vite +                  ║ v0.2.23          ║ propre                                                                         ║ 966102b docs(doc): page projet generee par docgen                                                                                                                         ║ —      ║
 ║ iakavox                 ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ v0.1.0           ║ propre                                                                         ║ 6142a09 docs: etat des lieux initial v0.1.0 + recit de reprise                                                                                                            ║ 2      ║
 ║ IakaVtt                 ║ &gt; Espace Cowork (réflexion). Document de vision et de specs.                                    ║ —                ║ propre                                                                         ║ ad9569a docs(doc): page projet generee par docgen                                                                                                                         ║ 4      ║
