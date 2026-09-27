@@ -2,6 +2,7 @@
 
 > Cadrage : Gandalf, 27/09/2026. Décision de Stéphane du 27/09 : « go option 1 ».
 > Statut : **à valider** (questions fermées Q1-Q6 en fin de document, avec recommandation).
+> **VALIDÉE (Stéphane, 27/09/2026, question par question)** : Q1 = runnerSkills · Q2 = claude · Q3 = oui (outils Artifact et Claude Docs ajoutés au binding Claude) · Q4 = oui (côté iakaFrameGUI dans ce lot si son dépôt est propre) · **Q5 = avertissements, NON bloquants** (frame lint signale moteur inconnu, mauvais type, skill du réservoir mal rangée, sans échouer) · Q6 = oui (guillemets YAML acceptés).
 
 ## Problème
 
