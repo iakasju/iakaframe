@@ -318,10 +318,13 @@ function isDevNullLike(p) {
 // hors-limite D-9 (qui restent geres par `hardDeny`, jamais silencieusement exclus), racines
 // `ALLOW_EXTRA`, et les alias de "null" (`/dev/null`, `NUL`, `$null`).
 //
-// Garde D-9 UNCONDITIONNELLE, en tete (jamais seulement dans la branche `~/.claude`) : D-9 est
+// Garde D-9 UNCONDITIONNELLE (jamais seulement dans la branche `~/.claude`) : D-9 est
 // "hors-limite ABSOLU ... avant tout autre verdict" — un chemin hors-limite n'est JAMAIS traite
 // comme "exclu" (silencieux), meme s'il tombe AUSSI sous `os.tmpdir()`/une racine `ALLOW_EXTRA`
 // (cas degenere mais possible : un `$HOME` lui-meme niche sous le dossier temporaire de l'OS).
+// Precede seulement par `isDevNullLike` (alias de "null", D-8) : les deux verifications sont
+// disjointes en pratique (un alias "null" ne tombe jamais dans la zone D-9), l'ordre n'a donc
+// aucun effet observable — mais D-9 reste verifie AVANT tout retour "exclu" ci-dessous.
 export function isExcluded(abs, payload) {
   if (isDevNullLike(abs)) return true;
   if (hardDeny(abs).denied) return false;
