@@ -85,6 +85,20 @@ export function cfgList(opts = {}) {
   return urls.map((url, i) => ({ index: i, url, user: pick(users, i), token: tokenFor(i) }));
 }
 
+// Hotes de forge CONNUS (self-hosted) : union des hotes par DEFAUT (DEF_URLS) et des hotes
+// REELLEMENT resolus par cfgList() (donc FORGEJO_URL shell ou <chapeau>/.env) — la garde qui
+// evite qu'un miroir legitime (ex. `nas`) se retrouve classe hors-forge simplement parce que
+// FORGEJO_URL ne liste que le canal VPS (specs/instructions/update-remotes-github-opt-in.md
+// § Risques). Comparaison partout en hostname MINUSCULES (le port est ignore). URL non
+// parsable -> ignoree (jamais de jet). Aucun token lu, aucun appel reseau.
+export function hotesForge() {
+  const hotes = new Set();
+  for (const url of [...DEF_URLS, ...cfgList().map(c => c.url)]) {
+    try { hotes.add(new URL(url).hostname.toLowerCase()); } catch { /* URL illisible : ignoree */ }
+  }
+  return hotes;
+}
+
 // URL : env shell, sinon <chapeau>/.env, sinon defaut. SYMETRIQUE de token() —
 // c'est l'asymetrie inverse (token replie sur fichier, URL non) qui faisait viser
 // l'ancienne box a tout contexte non interactif.
