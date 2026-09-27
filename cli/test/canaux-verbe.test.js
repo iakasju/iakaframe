@@ -222,10 +222,13 @@ test('CLI : hors depot git -> erreur C-JSON { ok:false, error } sur stdout, exit
 });
 
 test('CLI : depot git SANS remote -> refus explicite (aucun canal a mesurer)', () => {
+  // Message ajuste par update-remotes-github-opt-in.md (§ 7) : `canaux` ne mesure plus
+  // « tous les remotes configures », mais les cibles ELIGIBLES (forge self-hosted + vitrine
+  // opt-in) — un depot sans aucun remote n'en a, par construction, aucune.
   const dir = depot();
   const r = cli(['canaux', '--path', dir, '--json'], dir);
   assert.equal(r.status, 1);
-  assert.match(JSON.parse(r.stdout).error, /aucun remote configure/);
+  assert.match(JSON.parse(r.stdout).error, /aucun remote eligible.*forge self-hosted/);
 });
 
 test.after(() => { for (const d of jetables) fs.rmSync(d, { recursive: true, force: true }); });
