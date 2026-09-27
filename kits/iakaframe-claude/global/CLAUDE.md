@@ -148,3 +148,10 @@ et **push**. Options : `--reason version --version vX.Y.Z --note "..."`, `--no-p
   (viser < 15 agents sauf demande contraire), pas de spawn pour une tâche triviale qu'un
   seul agent règle en quelques appels. Réf. : `methode-de-travail.md` § « Workflows de
   sous-agents — activés par défaut ».
+- **Durée estimée de toute délégation.** Toute consigne passée à un sous-agent (outil Agent,
+  agents d'un workflow) commence par la ligne `Durée estimée : ~<valeur>` — `~10 min`,
+  fourchette `~10-15 min` ; entiers, unités `s`/`min`/`h`, de 10 s à 12 h, rien après la
+  valeur. Quand l'outil offre le champ `description`, il se termine par le même suffixe entre
+  parenthèses, tilde compris : `Cadrer barre de temps (~10 min)`. Ordre de grandeur honnête,
+  arrondi ; sans aucune idée, omettre les deux plutôt qu'inventer. Réf. :
+  `methode-de-travail.md` § « Toute délégation annonce sa durée estimée ».

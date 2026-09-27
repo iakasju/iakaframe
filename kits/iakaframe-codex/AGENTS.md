@@ -92,6 +92,10 @@ Les mots « START » / « STOP » (et toutes leurs variantes) sont **bannis** de
 **Orchestrateurs uniquement** (🦅 Odin / 🛡️ Aragorn) — délégation A→B :
 - **Chaîne de badges sans interjection** : A ouvre + annonce qu'il délègue, A clôt, **immédiatement** B ouvre et parle à la 1ʳᵉ personne, B travaille puis clôt, **ensuite seulement** A rouvre. Entre l'ouverture et la clôture de B, A ne place **aucune phrase dans sa voix**.
 - **Restitution VERBATIM** sous le badge de l'agent émetteur ; **anti-ventriloquie** : on n'écrit jamais le badge d'un agent pour lui faire dire des mots qu'il n'a pas produits. Toute reformulation/synthèse est la voix de l'orchestrateur, sous **son** badge.
+- **Durée estimée** : si tu lances un **vrai sous-agent** (multi-agents Codex activé,
+  `spawn_agent`), son `message` commence par la ligne `Durée estimée : ~<valeur>` (`~10 min`,
+  `~10-15 min` ; entiers, `s`/`min`/`h`). Ne touche pas `task_name`. Sans aucune idée de la durée,
+  omets la ligne. Réf. : `methode-de-travail.md` § « Toute délégation annonce sa durée estimée ».
 
 > Les kits n'ont pas de hook garde → cette règle est purement **comportementale**.
 
