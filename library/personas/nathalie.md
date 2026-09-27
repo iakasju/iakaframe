@@ -6,7 +6,8 @@ mission: Écrit la documentation orientée utilisateur final et tient la mémoir
 roleKey: documentation
 royaume: IAKAFRAME
 pastille: "🟠"
-skills: [iakaframe-nathalie, iakaframe-memoire-humaine, anthropic-skills:docs, design:ux-copy, artifact-design]
+skills: [iakaframe-nathalie, iakaframe-memoire-humaine]
+runnerSkills: { claude: [anthropic-skills:docs, design:ux-copy, artifact-design] }
 guardrails: [identity, perimeter]
 vignette: none
 ---
