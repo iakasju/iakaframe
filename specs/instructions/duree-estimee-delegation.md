@@ -2,6 +2,7 @@
 
 > Rédigé par le cadrage (P1, Gandalf) le 2026-09-26. Consommé par Gimli (P2) après validation.
 > Statut : **PROPOSITION**, en attente d'arbitrage de Stéphane (Q1 à Q5).
+> **VALIDÉE (27/09/2026, « continue » de Stéphane sur la recommandation d'Odin)** : Q1 à Q5 = A. Révisable en une phrase. Le déploiement dans `~/.claude/` reste le geste de Stéphane.
 > Origine : convention **validée par Stéphane le 26/09/2026** dans
 > `~/work/IakaAgentsMonitor/specs/instructions/temps-restant.md` (Q1 à Q7 = A), section « Lot
 > méthode ». Cette instruction **n'en change pas la grammaire** : elle l'écrit dans la méthode.
