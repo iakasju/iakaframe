@@ -1088,5 +1088,25 @@
     "dirty": true,
     "files": 1295,
     "note": "Pause 2026-09-27 pendant chantier declaration-chantier-session : instructions mere + soeur lancement-session-aragorn validees (da0bde4). Lots 0-1 commites (PASS Legolas). Session Aragorn --agent lancee puis arretee : merge origin/main (42bea0f), Lot 1bis NON commite. 4 fichiers non suivis herites (chantier-state/remind/bind, guard-chantier.test) a trier. Reprise : relancer Aragorn en session --agent avec .claude/missions/mission-aragorn-chantier.md."
+  },
+  {
+    "date": "2026-09-27 21:29",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "28c4723 refactor(guard-core): correctif Lot 1bis — session-role, plus de liaison sous-agent (D-5/D-6/D-7/D-14)",
+    "dirty": true,
+    "files": 1295,
+    "note": "Pause : Lot 1bis commite (28c4723), gate Legolas en cours ; Lot 2 (chantier-state) en attente du PASS. Fichiers herites non suivis conserves (chantier-bind a ecarter)."
+  },
+  {
+    "date": "2026-09-27 21:36",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "28c4723 refactor(guard-core): correctif Lot 1bis — session-role, plus de liaison sous-agent (D-5/D-6/D-7/D-14)",
+    "dirty": true,
+    "files": 1295,
+    "note": "Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire)."
   }
 ]

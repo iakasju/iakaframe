@@ -24,17 +24,19 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-09-27 15:59 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-09-27 21:36 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
   <div class="k">Version</div><div>v0.41.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>42bea0f chore: merge origin/main (docs paralleles) avant Lot 1bis guard-core</code></div>
+  <div class="k">Dernier commit</div><div><code>28c4723 refactor(guard-core): correctif Lot 1bis — session-role, plus de liaison sous-agent (D-5/D-6/D-7/D-14)</code></div>
   <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
   <div class="k">Fichiers</div><div>1295 (suivis + non ignores)</div>
-  <div class='k'>Note</div><div>Pause 2026-09-27 pendant chantier declaration-chantier-session : instructions mere + soeur lancement-session-aragorn validees (da0bde4). Lots 0-1 commites (PASS Legolas). Session Aragorn --agent lancee puis arretee : merge origin/main (42bea0f), Lot 1bis NON commite. 4 fichiers non suivis herites (chantier-state/remind/bind, guard-chantier.test) a trier. Reprise : relancer Aragorn en session --agent avec .claude/missions/mission-aragorn-chantier.md.</div>
+  <div class='k'>Note</div><div>Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire).</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>42bea0f</code></td><td>2026-09-27</td><td>chore: merge origin/main (docs paralleles) avant Lot 1bis guard-core</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>28c4723</code></td><td>2026-09-27</td><td>refactor(guard-core): correctif Lot 1bis — session-role, plus de liaison sous-agent (D-5/D-6/D-7/D-14)</td></tr>
+<tr><td><code>e0011fa</code></td><td>2026-09-27</td><td>chore(iakaframe): etat des lieux (pause) chantier declaration-chantier-session</td></tr>
+<tr><td><code>42bea0f</code></td><td>2026-09-27</td><td>chore: merge origin/main (docs paralleles) avant Lot 1bis guard-core</td></tr>
 <tr><td><code>da0bde4</code></td><td>2026-09-27</td><td>docs(specs): session par depot (--agent aragorn) + instruction lancement-session-aragorn validees</td></tr>
 <tr><td><code>19d66b9</code></td><td>2026-09-27</td><td>docs(specs): amende update-remotes-github-opt-in avec les arbitrages du 2026-09-27</td></tr>
 <tr><td><code>8b5f014</code></td><td>2026-09-27</td><td>feat(guard-core): coeur pur chantier (D-1, D-3, D-5, D-6, D-7, D-13, D-14)</td></tr>
@@ -42,11 +44,11 @@ footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#55
 <tr><td><code>68da136</code></td><td>2026-09-27</td><td>fix(hooks): reintegrate ALLOW_EXTRA roots into kit perimeter-guard source</td></tr>
 <tr><td><code>577f81e</code></td><td>2026-09-27</td><td>docs(specs): instruction declaration-chantier-session validee (chantier par session/sous-agent)</td></tr>
 <tr><td><code>d9c8fce</code></td><td>2026-09-27</td><td>fix(docs/architecture): retire la bascule systeme, aligne 2 HEAD, corrige la colonne Ou</td></tr>
-<tr><td><code>16858eb</code></td><td>2026-09-27</td><td>docs(architecture): annotations de capture, schemas de flux, MAINTENANCE.md</td></tr>
-<tr><td><code>8c12e94</code></td><td>2026-09-27</td><td>docs(methode): origin = Forgejo VPS sur tous les projets, ex-origin NAS en remote nas</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-09-27 21:36</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire).</td></tr>
+<tr><td>2026-09-27 21:29</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>Pause : Lot 1bis commite (28c4723), gate Legolas en cours ; Lot 2 (chantier-state) en attente du PASS. Fichiers herites non suivis conserves (chantier-bind a ecarter).</td></tr>
 <tr><td>2026-09-27 15:59</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>Pause 2026-09-27 pendant chantier declaration-chantier-session : instructions mere + soeur lancement-session-aragorn validees (da0bde4). Lots 0-1 commites (PASS Legolas). Session Aragorn --agent lancee puis arretee : merge origin/main (42bea0f), Lot 1bis NON commite. 4 fichiers non suivis herites (chantier-state/remind/bind, guard-chantier.test) a trier. Reprise : relancer Aragorn en session --agent avec .claude/missions/mission-aragorn-chantier.md.</td></tr>
 <tr><td>2026-09-27 15:51</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>Pause pendant chantier declaration-chantier-session : Lot 1bis dispatche a Gimli (en cours), gate Legolas a suivre ; puis Lots 2-6 et instruction soeur lancement-session-aragorn</td></tr>
 <tr><td>2026-09-13 23:27</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>Pause 2026-09-13 : workflows de sous-agents actives par defaut (methode + kit) ; Forgejo VPS git.naonedge.com remote par defaut (methode, kit, CLAUDE.md global, lib forgejo.js, skill iakaframe-forgejo, goldens) ; CLI globale reinstallee en lien symbolique depuis le depot (0.41.0). Reste : registre npm @naonedge toujours sur le NAS (decision distincte) ; export FORGEJO_URL du NAS dans le shell de lancement a retirer.</td></tr>

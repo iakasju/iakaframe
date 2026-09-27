@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-27 15:59 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-27 21:36 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,15 +9,17 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | 42bea0f chore: merge origin/main (docs paralleles) avant Lot 1bis guard-core |
+| Dernier commit | 28c4723 refactor(guard-core): correctif Lot 1bis — session-role, plus de liaison sous-agent (D-5/D-6/D-7/D-14) |
 | Arbre | MODIFICATIONS NON COMMITEES |
 | Fichiers (suivis + non ignores) | 1295 |
-| Note | Pause 2026-09-27 pendant chantier declaration-chantier-session : instructions mere + soeur lancement-session-aragorn validees (da0bde4). Lots 0-1 commites (PASS Legolas). Session Aragorn --agent lancee puis arretee : merge origin/main (42bea0f), Lot 1bis NON commite. 4 fichiers non suivis herites (chantier-state/remind/bind, guard-chantier.test) a trier. Reprise : relancer Aragorn en session --agent avec .claude/missions/mission-aragorn-chantier.md. |
+| Note | Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `28c4723` | 2026-09-27 | refactor(guard-core): correctif Lot 1bis — session-role, plus de liaison sous-agent (D-5/D-6/D-7/D-14) |
+| `e0011fa` | 2026-09-27 | chore(iakaframe): etat des lieux (pause) chantier declaration-chantier-session |
 | `42bea0f` | 2026-09-27 | chore: merge origin/main (docs paralleles) avant Lot 1bis guard-core |
 | `da0bde4` | 2026-09-27 | docs(specs): session par depot (--agent aragorn) + instruction lancement-session-aragorn validees |
 | `19d66b9` | 2026-09-27 | docs(specs): amende update-remotes-github-opt-in avec les arbitrages du 2026-09-27 |
@@ -26,8 +28,6 @@
 | `68da136` | 2026-09-27 | fix(hooks): reintegrate ALLOW_EXTRA roots into kit perimeter-guard source |
 | `577f81e` | 2026-09-27 | docs(specs): instruction declaration-chantier-session validee (chantier par session/sous-agent) |
 | `d9c8fce` | 2026-09-27 | fix(docs/architecture): retire la bascule systeme, aligne 2 HEAD, corrige la colonne Ou |
-| `16858eb` | 2026-09-27 | docs(architecture): annotations de capture, schemas de flux, MAINTENANCE.md |
-| `8c12e94` | 2026-09-27 | docs(methode): origin = Forgejo VPS sur tous les projets, ex-origin NAS en remote nas |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -230,6 +230,8 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-27 21:36 | pause | v0.41.0 | main | Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire). |
+| 2026-09-27 21:29 | pause | v0.41.0 | main | Pause : Lot 1bis commite (28c4723), gate Legolas en cours ; Lot 2 (chantier-state) en attente du PASS. Fichiers herites non suivis conserves (chantier-bind a ecarter). |
 | 2026-09-27 15:59 | pause | v0.41.0 | main | Pause 2026-09-27 pendant chantier declaration-chantier-session : instructions mere + soeur lancement-session-aragorn validees (da0bde4). Lots 0-1 commites (PASS Legolas). Session Aragorn --agent lancee puis arretee : merge origin/main (42bea0f), Lot 1bis NON commite. 4 fichiers non suivis herites (chantier-state/remind/bind, guard-chantier.test) a trier. Reprise : relancer Aragorn en session --agent avec .claude/missions/mission-aragorn-chantier.md. |
 | 2026-09-27 15:51 | pause | v0.41.0 | main | Pause pendant chantier declaration-chantier-session : Lot 1bis dispatche a Gimli (en cours), gate Legolas a suivre ; puis Lots 2-6 et instruction soeur lancement-session-aragorn |
 | 2026-09-13 23:27 | pause | v0.41.0 | main | Pause 2026-09-13 : workflows de sous-agents actives par defaut (methode + kit) ; Forgejo VPS git.naonedge.com remote par defaut (methode, kit, CLAUDE.md global, lib forgejo.js, skill iakaframe-forgejo, goldens) ; CLI globale reinstallee en lien symbolique depuis le depot (0.41.0). Reste : registre npm @naonedge toujours sur le NAS (decision distincte) ; export FORGEJO_URL du NAS dans le shell de lancement a retirer. |
