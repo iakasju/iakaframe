@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-13 23:27 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-27 15:59 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | 02b83da chore(cli): bit executable sur le point d'entree src/index.js (bin npm, pose par npm install -g depuis le depot) |
-| Arbre | propre |
-| Fichiers (suivis + non ignores) | 1263 |
-| Note | Pause 2026-09-13 : workflows de sous-agents actives par defaut (methode + kit) ; Forgejo VPS git.naonedge.com remote par defaut (methode, kit, CLAUDE.md global, lib forgejo.js, skill iakaframe-forgejo, goldens) ; CLI globale reinstallee en lien symbolique depuis le depot (0.41.0). Reste : registre npm @naonedge toujours sur le NAS (decision distincte) ; export FORGEJO_URL du NAS dans le shell de lancement a retirer. |
+| Dernier commit | 42bea0f chore: merge origin/main (docs paralleles) avant Lot 1bis guard-core |
+| Arbre | MODIFICATIONS NON COMMITEES |
+| Fichiers (suivis + non ignores) | 1295 |
+| Note | Pause 2026-09-27 pendant chantier declaration-chantier-session : instructions mere + soeur lancement-session-aragorn validees (da0bde4). Lots 0-1 commites (PASS Legolas). Session Aragorn --agent lancee puis arretee : merge origin/main (42bea0f), Lot 1bis NON commite. 4 fichiers non suivis herites (chantier-state/remind/bind, guard-chantier.test) a trier. Reprise : relancer Aragorn en session --agent avec .claude/missions/mission-aragorn-chantier.md. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `02b83da` | 2026-09-13 | chore(cli): bit executable sur le point d'entree src/index.js (bin npm, pose par npm install -g depuis le depot) |
-| `4dbcd8d` | 2026-09-13 | feat(forgejo): le VPS git.naonedge.com devient le canal primaire de la CLI et de la skill |
-| `c641b69` | 2026-09-13 | docs(methode,kit-claude): Forgejo VPS git.naonedge.com devient le remote par defaut, iakabox miroir secondaire |
-| `c8bc99b` | 2026-09-13 | docs(kit-claude): workflows de sous-agents actives par defaut dans le CLAUDE.md global |
-| `5cc5667` | 2026-09-13 | docs(methode): workflows de sous-agents actives par defaut (opt-in permanent du decideur) |
-| `c90e9f4` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `c99fe07` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `6563e1a` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
-| `bb67400` | 2026-09-10 | docs(backlog): REGISTRE-OPTIONS-ROOT-PATH-PROJET soldé par le gate PASS (déplacé Ouverts → Fait) |
-| `238ba5b` | 2026-09-10 | chore(iakaframe): update etat des lieux + commit global (pause) |
+| `42bea0f` | 2026-09-27 | chore: merge origin/main (docs paralleles) avant Lot 1bis guard-core |
+| `da0bde4` | 2026-09-27 | docs(specs): session par depot (--agent aragorn) + instruction lancement-session-aragorn validees |
+| `19d66b9` | 2026-09-27 | docs(specs): amende update-remotes-github-opt-in avec les arbitrages du 2026-09-27 |
+| `8b5f014` | 2026-09-27 | feat(guard-core): coeur pur chantier (D-1, D-3, D-5, D-6, D-7, D-13, D-14) |
+| `5a8087e` | 2026-09-27 | docs(specs): instruction update-remotes-github-opt-in (push hors forge en opt-in par projet) |
+| `68da136` | 2026-09-27 | fix(hooks): reintegrate ALLOW_EXTRA roots into kit perimeter-guard source |
+| `577f81e` | 2026-09-27 | docs(specs): instruction declaration-chantier-session validee (chantier par session/sous-agent) |
+| `d9c8fce` | 2026-09-27 | fix(docs/architecture): retire la bascule systeme, aligne 2 HEAD, corrige la colonne Ou |
+| `16858eb` | 2026-09-27 | docs(architecture): annotations de capture, schemas de flux, MAINTENANCE.md |
+| `8c12e94` | 2026-09-27 | docs(methode): origin = Forgejo VPS sur tous les projets, ex-origin NAS en remote nas |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -230,6 +230,8 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-27 15:59 | pause | v0.41.0 | main | Pause 2026-09-27 pendant chantier declaration-chantier-session : instructions mere + soeur lancement-session-aragorn validees (da0bde4). Lots 0-1 commites (PASS Legolas). Session Aragorn --agent lancee puis arretee : merge origin/main (42bea0f), Lot 1bis NON commite. 4 fichiers non suivis herites (chantier-state/remind/bind, guard-chantier.test) a trier. Reprise : relancer Aragorn en session --agent avec .claude/missions/mission-aragorn-chantier.md. |
+| 2026-09-27 15:51 | pause | v0.41.0 | main | Pause pendant chantier declaration-chantier-session : Lot 1bis dispatche a Gimli (en cours), gate Legolas a suivre ; puis Lots 2-6 et instruction soeur lancement-session-aragorn |
 | 2026-09-13 23:27 | pause | v0.41.0 | main | Pause 2026-09-13 : workflows de sous-agents actives par defaut (methode + kit) ; Forgejo VPS git.naonedge.com remote par defaut (methode, kit, CLAUDE.md global, lib forgejo.js, skill iakaframe-forgejo, goldens) ; CLI globale reinstallee en lien symbolique depuis le depot (0.41.0). Reste : registre npm @naonedge toujours sur le NAS (decision distincte) ; export FORGEJO_URL du NAS dans le shell de lancement a retirer. |
 | 2026-09-10 10:01 | pause | v0.41.0 | main | Pause apres fusion des deux successeurs C-JSON (REGISTRE-OPTIONS par work-35, REGISTRE-GRAIN-SOUS-VERBE par cette session). main bb67400 -> ce checkpoint. Recit de reprise complete au 2026-09-10. Rien en fabrication. |
 | 2026-09-10 09:58 | pause | v0.41.0 | main | Update demande par le decideur apres la pause du 2026-09-10 ; etat inchange depuis 6563e1a (deux lots fusionnes, plus rien en fabrication). |
