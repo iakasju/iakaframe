@@ -17,7 +17,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.join(HERE, '..', '..');
 const SOURCE = path.join(REPO, 'library', '_schema', 'frontmatter.json');
 
-const VALID_TYPES = new Set(['scalar', 'bool', 'list', 'map-list']);
+const VALID_TYPES = new Set(['scalar', 'bool', 'list', 'map-list', 'map']);
 const POOL_AND_ASSEMBLY = [
   'personas', 'skills', 'principles', 'rituals', 'guardrails', 'roles', 'workflows', 'scaffolds',
   'methods', 'teams', 'bindings', 'frames',

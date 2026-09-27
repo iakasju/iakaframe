@@ -58,7 +58,7 @@ export function loadSchema() {
 // Reinitialise le cache (tests uniquement).
 export function _resetSchemaCache() { _schema = null; }
 
-// --- Vocabulaire de type : 'scalar' | 'bool' | 'list' | 'map-list' | { enum:[...] } -------------
+// --- Vocabulaire de type : 'scalar' | 'bool' | 'list' | 'map-list' | 'map' | { enum:[...] } -----
 function typeName(desc) {
   if (typeof desc === 'string') return desc;
   if (desc && typeof desc === 'object' && Array.isArray(desc.enum)) return 'enum';
@@ -79,6 +79,8 @@ function matchesType(v, desc) {
     case 'list': return Array.isArray(v);
     case 'map-list':
       return Array.isArray(v) && v.every(e => e && typeof e === 'object' && !Array.isArray(e));
+    case 'map':
+      return v != null && typeof v === 'object' && !Array.isArray(v);
     case 'enum': return isScalar(v) && desc.enum.includes(v);
     default: return true;
   }
