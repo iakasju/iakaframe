@@ -13,7 +13,7 @@
     },
     {
       "id": "iakaframe-aragorn",
-      "sha256": "071370d73038f83d1e49edfe8b262bcf82d28aba37f6381b30d2ca9879e772fd",
+      "sha256": "fd2496e830eea3383518784cb30c02d75e7626cfc12ad1c322d08d45ad446e6b",
       "subskills": [
         "iakaframe-jalon"
       ],
@@ -144,7 +144,7 @@
     },
     {
       "id": "iakaframe-naonedge",
-      "sha256": "bd88611d20e97e5bcb363442490d36c5f9c7d330cac69b36810ac2714940c5ab",
+      "sha256": "94760272e2f0bb8c13395267f7991d403938d9aa996f3a4991a3179e176d1bfa",
       "subskills": [],
       "layer": "product"
     },
@@ -156,7 +156,7 @@
     },
     {
       "id": "iakaframe-odin",
-      "sha256": "af20a99116dcc825da82ed26b5b41d3e16083e24fe07b2e33f1d2fbc88e5324e",
+      "sha256": "7a4a4bf7bba776ca765fb34ede6f9cbb9632c4dc671bffe8372c9815a0edfc51",
       "subskills": [
         "iakastart"
       ],
