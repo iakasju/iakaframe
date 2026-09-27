@@ -491,6 +491,43 @@ Garde-fous — ils ne bougent pas :
 Côté Claude Code, cette règle vaut **opt-in explicite** pour l'outil `Workflow` ; elle est
 reprise dans `~/.claude/CLAUDE.md` § Conventions permanentes.
 
+#### Toute délégation annonce sa durée estimée
+
+Quand un agent en fait travailler un autre (sous-agent, agent d'un workflow), la **première ligne
+de la consigne** qu'il lui transmet annonce la durée prévue du travail :
+
+    Durée estimée : ~10 min
+
+Cette ligne sert trois lecteurs : le décideur, qui voit si un agent est à mi-course ou en retard ;
+les outils d'observation (la barre « Reste » d'IakaAgentsMonitor, puis la fiche publiée sur le
+bus) ; et le sous-agent lui-même, qui connaît son budget. Elle est **neutre** : tout runner
+transmet une consigne texte, la règle ne dépend d'aucun champ propre à un outil. Un runner qui
+offre en plus un libellé court de délégation peut y reprendre la valeur : c'est son kit qui le dit.
+
+**Forme exacte** (grammaire fermée ; tout écart rend la ligne illisible pour les outils) :
+
+- l'étiquette `Durée estimée :` ouvre la consigne, suivie de la valeur, **rien après** ;
+- valeur : `~`, un entier de 1 à 3 chiffres, une unité `s`, `min` ou `h` en minuscules —
+  `~45 s`, `~10 min`, `~2 h`. Pas de décimale (`~90 min`, pas `~1.5 h`), pas d'autre unité
+  (`mn`, `mins`, `heure` sont refusés) ;
+- fourchette : `~10-15 min` — deux entiers, le premier plus petit, **une seule unité**, à la fin ;
+- bornes : de 10 s à 12 h (borne haute de la fourchette).
+
+**Comment estimer.**
+
+- On estime le **temps d'horloge** du sous-agent, du lancement à la remise, sans l'attente d'une
+  réponse humaine. Ce n'est pas la charge en jours-homme, qui reste l'affaire de l'estimation du
+  jalon de cadrage.
+- **Ordre de grandeur honnête**, arrondi à une valeur ronde (30 s, 1, 2, 3, 5, 10, 15, 20, 30,
+  45 min, 1 h, 2 h…) : `~7 min 30 s` serait une précision fictive — et hors grammaire.
+- Hésitation bornée → **fourchette** plutôt qu'une valeur au milieu (`~10-20 min`). Au-delà d'un
+  facteur 3 entre les bornes, elle n'informe plus : prendre la borne haute plausible.
+- **Aucune idée** → **omettre la ligne** plutôt qu'inventer. Les outils affichent alors un tiret ;
+  un chiffre inventé fabrique une fausse alerte. Jamais de texte à la place de la valeur
+  (`Durée estimée : inconnue` est hors grammaire).
+- Un dépassement n'est pas une faute : la barre le rend visible, c'est son rôle. On ne corrige pas
+  l'estimation en cours de route ; une relance porte sa propre ligne.
+
 ### La rétrospective — inspecter & adapter
 
 Les deux cycles ci-dessus font avancer le **produit**. La rétrospective fait avancer la
