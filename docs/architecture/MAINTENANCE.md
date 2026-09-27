@@ -103,8 +103,16 @@ après modification (boucle ci-dessous).
 Chrome headless est utilisé pour rendre et lire chaque page modifiée, clair et
 sombre, avant tout commit. Le thème sombre ne se déclenche pas de façon fiable avec
 les flags `--force-prefers-color-scheme`/`--blink-settings=preferredColorScheme` sur
-ce Mac (testé le 27/09/2026, sans effet) : le moyen qui fonctionne est de basculer le
-**mode sombre système** le temps du rendu :
+ce Mac (testé le 27/09/2026, sans effet).
+
+⚠️ **Ne jamais basculer le mode sombre du système** (`osascript … appearance
+preferences … dark mode`) pour ce rendu — Stéphane l'interdit : ça change l'apparence
+de toute la session (tous les logiciels ouverts), pas seulement de Chrome. Le moyen
+qui fonctionne sans toucher au système : **injecter `data-theme="dark"` sur
+`<html>`** dans une copie temporaire de la page avant de la rendre. Chaque page porte
+déjà les jetons `:root[data-theme="dark"]` de la charte Studio clair (attribut lu
+explicitement par le CSS, indépendant de `prefers-color-scheme` — vérifié
+fonctionnel) :
 
 ```sh
 CHROME="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
@@ -115,11 +123,13 @@ OUT=/tmp/archi-shots   # ou le scratchpad de session
 "$CHROME" --headless=new --disable-gpu --force-color-profile=srgb \
   --window-size=1200,1400 --screenshot="$OUT/page-light.png" "file://$D/page.html"
 
-# sombre (bascule système le temps du rendu)
-osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to true'
+# sombre (copie temporaire avec data-theme="dark" sur <html>, rien touché sur le système) —
+# la copie temporaire DOIT rester dans $D (à côté de img/) : une copie ailleurs casse les
+# chemins d'image relatifs (img/*.png) des 4 pages avec capture.
+sed 's/<html lang="fr">/<html lang="fr" data-theme="dark">/' "$D/page.html" > "$D/.tmp-dark.html"
 "$CHROME" --headless=new --disable-gpu --force-color-profile=srgb \
-  --window-size=1200,1400 --screenshot="$OUT/page-dark.png" "file://$D/page.html"
-osascript -e 'tell application "System Events" to tell appearance preferences to set dark mode to false'
+  --window-size=1200,1400 --screenshot="$OUT/page-dark.png" "file://$D/.tmp-dark.html"
+rm "$D/.tmp-dark.html"
 ```
 
 Puis lire les deux PNG (outil `Read` / prévisualisation) et juger : repères bien
