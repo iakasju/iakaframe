@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IakaAgentsMonitor — architecture iakaframe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Public+Sans:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   Studio clair — feuille de style canonique (label « design Studio clair »)
+   Défaut contextuel : projets de dev logiciel. Voir studio-clair-charte.md.
+   =================================================================== */
+
+:root {
+  --sc-bg: #f7f7f4;
+  --sc-surface: #ffffff;
+  --sc-well: #f0efeb;
+  --sc-border: #e2e0d9;
+  --sc-ink: #1c1c1a;
+  --sc-ink-muted: #6f6d64;
+  --sc-ink-faint: #a3a199;
+  --sc-accent: #3454d1;
+  --sc-accent-2: #0e8a82;
+  --sc-ok: #1a7f5a;
+  --sc-warn: #b5790a;
+  --sc-danger: #c1372c;
+  --sc-info: #2f6fb5;
+  --sc-radius: 8px;
+  --sc-font-display: "Manrope", system-ui, sans-serif;
+  --sc-font-body: "Public Sans", system-ui, sans-serif;
+  --sc-font-mono: "Fira Code", "SF Mono", Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-bg: #14161a;
+    --sc-surface: #1c1f24;
+    --sc-well: #22252b;
+    --sc-border: #2d3138;
+    --sc-ink: #e9e8e4;
+    --sc-ink-muted: #9a9a92;
+    --sc-ink-faint: #63666c;
+    --sc-accent: #7c93f0;
+    --sc-accent-2: #3fd6c8;
+    --sc-ok: #4ad393;
+    --sc-warn: #e0a83f;
+    --sc-danger: #ef6b5e;
+    --sc-info: #7fb2ec;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --sc-bg: #14161a;
+  --sc-surface: #1c1f24;
+  --sc-well: #22252b;
+  --sc-border: #2d3138;
+  --sc-ink: #e9e8e4;
+  --sc-ink-muted: #9a9a92;
+  --sc-ink-faint: #63666c;
+  --sc-accent: #7c93f0;
+  --sc-accent-2: #3fd6c8;
+  --sc-ok: #4ad393;
+  --sc-warn: #e0a83f;
+  --sc-danger: #ef6b5e;
+  --sc-info: #7fb2ec;
+  color-scheme: dark;
+}
+
+body.sc {
+  background: var(--sc-bg);
+  color: var(--sc-ink);
+  font-family: var(--sc-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.sc-hero { display: flex; flex-direction: column; gap: 6px; }
+.sc-hero h1 {
+  font-family: var(--sc-font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.sc-hero .sc-sub { color: var(--sc-ink-muted); font-size: 0.95rem; }
+
+.sc-section-label {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--sc-accent);
+}
+
+.sc-card {
+  background: var(--sc-surface);
+  border: 1px solid var(--sc-border);
+  border-radius: var(--sc-radius);
+}
+
+.sc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--sc-font-mono);
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-border);
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+}
+.sc-badge.b-live { color: var(--sc-accent-2); border-color: var(--sc-accent-2); }
+.sc-badge.b-ok { color: var(--sc-ok); }
+.sc-badge.b-warn { color: var(--sc-warn); }
+.sc-badge.b-danger { color: var(--sc-danger); }
+.sc-badge.b-info { color: var(--sc-info); }
+
+.sc-chip {
+  font-family: var(--sc-font-mono);
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+  border: 1px solid var(--sc-border);
+}
+
+.sc-pastille { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+.sc-note {
+  border-left: 3px solid var(--sc-border);
+  background: var(--sc-well);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-radius: 0 6px 6px 0;
+}
+.sc-note.warn { border-color: var(--sc-warn); }
+.sc-note.tip { border-color: var(--sc-accent-2); }
+.sc-note.info { border-color: var(--sc-info); }
+
+.sc-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--sc-border);
+}
+.sc-tab {
+  font-family: var(--sc-font-mono);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  color: var(--sc-ink-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.sc-tab.active { color: var(--sc-accent); border-bottom-color: var(--sc-accent); }
+.sc-tab:hover { color: var(--sc-ink); }
+
+table.sc-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+table.sc-table th, table.sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 6px 10px;
+  text-align: left;
+}
+table.sc-table th {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--sc-ink-muted);
+}
+table.sc-table tr:hover td { background: var(--sc-well); }
+
+
+/* ---- gabarit page architecture (extension locale, mêmes jetons --sc-*) ---- */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body.sc { padding-block: 28px; }
+.sc-page { max-width: 980px; margin: 0 auto; padding-inline: 20px; display: flex; flex-direction: column; gap: 18px; }
+.page-nav { position: sticky; top: env(safe-area-inset-top, 0px); background: var(--sc-bg); z-index: 5; padding-top: 4px; overflow-x: auto; flex-wrap: nowrap; }
+.page-nav .sc-tab { text-decoration: none; }
+.sc-hero { padding-top: 6px; }
+.sc-hero h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); }
+.sc-hero .sc-sub { max-width: 70ch; line-height: 1.5; }
+.sc-section { padding: 18px 22px; display: flex; flex-direction: column; gap: 10px; }
+.sc-section h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 2px; letter-spacing: -0.005em; }
+.sc-section-body { display: flex; flex-direction: column; gap: 10px; }
+.sc-section-body h3 { font-family: var(--sc-font-display); font-size: 0.92rem; margin: 6px 0 -2px; color: var(--sc-ink); }
+.sc-section-body p { margin: 0; line-height: 1.55; font-size: 0.9rem; }
+.sc-section-body ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; line-height: 1.5; }
+.sc-scroll { overflow-x: auto; border-radius: 6px; }
+.sc-shot { display: flex; flex-direction: column; gap: 8px; }
+.sc-shot img { width: 100%; border-radius: 6px; border: 1px solid var(--sc-border); display: block; }
+.sc-shot figcaption { font-size: 0.78rem; color: var(--sc-ink-muted); font-family: var(--sc-font-mono); }
+.sc-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--sc-ink-muted); align-items: center; }
+.idx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.idx-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; transition: border-color .15s; }
+.idx-card:hover { border-color: var(--sc-accent); }
+.idx-card h3 { margin: 0; font-family: var(--sc-font-display); font-size: 1rem; color: var(--sc-ink); }
+.idx-card p { margin: 0; font-size: 0.82rem; color: var(--sc-ink-muted); line-height: 1.4; }
+.sc-pre-card { padding: 16px 18px; }
+.sc-pre-card h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 10px; }
+pre.sc-pre { margin: 0; overflow-x: auto; font-family: var(--sc-font-mono); font-size: 0.66rem; line-height: 1.35; background: var(--sc-well); border: 1px solid var(--sc-border); border-radius: 6px; padding: 12px 14px; color: var(--sc-ink); }
+footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-faint); font-family: var(--sc-font-mono); padding-block: 10px 30px; }
+/* chemins/hash/refs longs sans espace (ex. src-tauri/src/broker.rs:31-37) : jamais de
+   débordement horizontal de la page — on les casse plutôt que d'élargir le corps. */
+.sc-page p, .sc-page li, .sc-page .sc-note, .sc-page td, .sc-page th,
+.sc-page code, .sc-page .sc-chip, .sc-page .sc-sub, .sc-page .idx-card p {
+  overflow-wrap: break-word;
+}
+@media (max-width: 640px) {
+  .sc-section { padding: 14px 16px; }
+}
+</style>
+</head>
+<body class="sc">
+<div class="sc-page">
+  <nav class="sc-tabs page-nav"><a class="sc-tab" href="index.html">Vue d'ensemble</a><a class="sc-tab active" href="iakaagentsmonitor.html">IakaAgentsMonitor</a><a class="sc-tab" href="iakaboxlogs.html">iakaboxlogs</a><a class="sc-tab" href="iakacockpit.html">IakaCockpit</a><a class="sc-tab" href="iakaframe.html">iakaframe</a><a class="sc-tab" href="iakaframegui.html">iakaFrameGUI</a><a class="sc-tab" href="iakahub.html">iakaHub</a><a class="sc-tab" href="iakatokencounter.html">iakaTokenCounter</a><a class="sc-tab" href="mqtt.html">MQTT (transverse)</a><a class="sc-tab" href="naonedge-vps.html">naonedge-vps</a></nav>
+  <div class="sc-hero">
+    <span class="sc-section-label">IAKAFRAME · ARCHITECTURE</span>
+    <h1>IakaAgentsMonitor</h1>
+    <p class="sc-sub">Dépôt : <code class="sc-chip">~/work/IakaAgentsMonitor</code>, branche <code class="sc-chip">main</code>, HEAD <code class="sc-chip">dc244c0</code> (lu en lecture seule).</p>
+    <div class="sc-legend">
+      <span class="sc-badge b-ok">V / VÉRIFIÉ</span> lu dans le code ou la config
+      <span class="sc-badge b-warn">S / SUPPOSÉ</span> déduit, non prouvé
+      <span class="sc-badge b-info">PRÉVU</span> cadré, non livré
+    </div>
+  </div>
+  <figure class="sc-card sc-shot" style="padding:14px;">
+      <img src="img/IakaAgentsMonitor.png" alt="Capture IakaAgentsMonitor" loading="lazy">
+      <figcaption>Popover — bandeau, tableau d'agents (arbre de délégation), pied « tick 5 s / seuil 90 s ».</figcaption>
+    </figure><p>Dépôt : <code class="sc-chip">~/work/IakaAgentsMonitor</code>, branche <code class="sc-chip">main</code>, HEAD <code class="sc-chip">dc244c0</code> (lu en lecture seule). Légende : <b>VÉRIFIÉ</b> = lu dans le code/les fichiers ; <b>SUPPOSÉ</b> = déduit, non prouvé ; <b><span class="sc-badge b-info">PRÉVU</span></b> = écrit dans une instruction, pas dans le code.</p><section class="sc-card sc-section"><h2>Rôle</h2><div class="sc-section-body"><p>Moniteur de barre de menus macOS qui répond à « qui travaille en ce moment, et pour qui ? » : agents Claude Code en cours, persona, projet, tâche, délégation, activité et temps restant (VÉRIFIÉ <code class="sc-chip">specs/PROJET.md:10-17</code>, <code class="sc-chip">CLAUDE.md:22-27</code>). Aujourd'hui autonome et en lecture seule sur <code class="sc-chip">~/.claude/projects</code> ; il doit devenir agnostique du runner en s'abonnant au bus MQTT local (<span class="sc-badge b-info">PRÉVU</span> <code class="sc-chip">specs/instructions/agnostique-mqtt.md:8-12</code>).</p></div></section><section class="sc-card sc-section"><h2>Stack et composants</h2><div class="sc-section-body"><div class="sc-scroll"><table class="sc-table"><thead><tr><th>Élément</th><th>Détail</th><th>Statut</th></tr></thead><tbody><tr><td>App Tauri 2 (Rust)</td><td>crate <code class="sc-chip">iakaagentsmonitor</code>, v0.1.0, deps <code class="sc-chip">tauri</code> (feature <code class="sc-chip">tray-icon</code>), <code class="sc-chip">serde</code>, <code class="sc-chip">serde_json</code> — <b>aucun client MQTT</b></td><td>VÉRIFIÉ <code class="sc-chip">src-tauri/Cargo.toml:1-22</code></td></tr><tr><td>Front TS/Vite</td><td><code class="sc-chip">@tauri-apps/api</code> 2, Vite 6, TS 5.6</td><td>VÉRIFIÉ <code class="sc-chip">package.json:14-21</code></td></tr><tr><td>Processus</td><td>un seul binaire <code class="sc-chip">iakaagentsmonitor</code> (bundle <code class="sc-chip">.app</code>), tray-only (<code class="sc-chip">ActivationPolicy::Accessory</code>, pas de Dock)</td><td>VÉRIFIÉ <code class="sc-chip">src-tauri/src/lib.rs:26-27</code> ; en cours d'exécution (pgrep : <code class="sc-chip">…/target/release/bundle/macos/IakaAgentsMonitor.app</code>)</td></tr><tr><td>Thread watcher</td><td>thread détaché, tick 5 s</td><td>VÉRIFIÉ <code class="sc-chip">src-tauri/src/agents.rs:33</code>, <code class="sc-chip">:1001-1019</code></td></tr><tr><td>Ports</td><td><b>aucun port en écoute</b> ; dev Vite sur <code class="sc-chip">localhost:5180</code> (5173 réservé à iakaTokenCounter)</td><td>VÉRIFIÉ <code class="sc-chip">src-tauri/tauri.conf.json:8</code>, <code class="sc-chip">CLAUDE.md:34-35</code> ; capacités <code class="sc-chip">core:default</code> seules, « aucun réseau » <code class="sc-chip">src-tauri/capabilities/default.json:4-6</code></td></tr><tr><td>Fenêtre</td><td>label <code class="sc-chip">popover</code>, 520×360, sans décoration, cachée au départ, <code class="sc-chip">alwaysOnTop</code></td><td>VÉRIFIÉ <code class="sc-chip">src-tauri/tauri.conf.json:13-26</code></td></tr><tr><td>Identifiant</td><td><code class="sc-chip">com.iakaframe.iakaagentsmonitor</code></td><td>VÉRIFIÉ <code class="sc-chip">src-tauri/tauri.conf.json:5</code></td></tr><tr><td>Modules Rust</td><td><code class="sc-chip">agents.rs</code> (1799 l., lecture transcripts + arbre), <code class="sc-chip">claude_paths.rs</code>, <code class="sc-chip">estimate.rs</code> (cœur neutre « temps restant »), <code class="sc-chip">state.rs</code>, <code class="sc-chip">tray.rs</code></td><td>VÉRIFIÉ <code class="sc-chip">src-tauri/src/lib.rs:5-9</code></td></tr><tr><td>Provenance</td><td><code class="sc-chip">agents.rs</code> et <code class="sc-chip">tray.rs</code> recopiés d'iakaTokenCounter (branche <code class="sc-chip">worktree-agent-a73ae73650ed5e328</code>, commit <code class="sc-chip">1c9fd0e</code>)</td><td>VÉRIFIÉ <code class="sc-chip">src-tauri/src/agents.rs:6-16</code>, <code class="sc-chip">src-tauri/src/tray.rs:9-11</code></td></tr></tbody></table></div></div></section><section class="sc-card sc-section"><h2>Fonctionnement (flux principal, livré)</h2><div class="sc-section-body"><ul><li><code class="sc-chip">run()</code> gère <code class="sc-chip">AppState</code>, construit le tray, lance le watcher (VÉRIFIÉ <code class="sc-chip">lib.rs:14-36</code>).</li><li>Toutes les 5 s, <code class="sc-chip">current_snapshot()</code> lit <code class="sc-chip">$HOME/.claude/projects</code> (VÉRIFIÉ <code class="sc-chip">claude_paths.rs:51-53</code>,</li></ul><p>   <code class="sc-chip">agents.rs:976-983</code>), groupe les transcripts : <code class="sc-chip">&lt;sid&gt;.jsonl</code> = coordinateur,    <code class="sc-chip">&lt;sid&gt;/subagents/agent-&lt;id&gt;.jsonl</code> = sous-agent (VÉRIFIÉ <code class="sc-chip">agents.rs:505-507</code>, <code class="sc-chip">:480-491</code>). 3. Par sous-agent : compagnon <code class="sc-chip">agent-&lt;id&gt;.meta.json</code> (<code class="sc-chip">agentType</code>, <code class="sc-chip">description</code>, <code class="sc-chip">parentAgentId</code>,    <code class="sc-chip">spawnDepth</code>) (VÉRIFIÉ <code class="sc-chip">agents.rs:152-199</code>) ; liveness = mtime du transcript ≤ seuil    <code class="sc-chip">IAKAAM_LIVENESS_SECS</code> (défaut 90 s) (VÉRIFIÉ <code class="sc-chip">agents.rs:48-49</code>, <code class="sc-chip">:619-624</code>) ; tête du transcript    lue au plus 1 Mio pour <code class="sc-chip">cwd</code>, modèle et consigne (VÉRIFIÉ <code class="sc-chip">agents.rs:45</code>, <code class="sc-chip">:627-633</code>). 4. Arbre de délégation par <code class="sc-chip">parentAgentId</code>, bornes 6 sessions / 8 enfants + marqueur « +N »    (VÉRIFIÉ <code class="sc-chip">agents.rs:36-37</code>, <code class="sc-chip">:765-790</code>, <code class="sc-chip">:940-971</code>). 5. Estimation « Reste » : <code class="sc-chip">estimate::resolve</code> (ligne <code class="sc-chip">Durée estimée :</code> dans les 5 premières lignes    de la consigne, sinon suffixe <code class="sc-chip">(~…)</code> du libellé), puis <code class="sc-chip">estimate_view</code> → paliers ok (&lt;75 % ou &lt;    borne basse) / warn / over (&gt; borne haute) (VÉRIFIÉ <code class="sc-chip">estimate.rs:159</code>, <code class="sc-chip">:252-263</code>, <code class="sc-chip">:339-350</code>,    <code class="sc-chip">agents.rs:636-642</code>, <code class="sc-chip">:753-763</code>). 6. Instantané écrit dans <code class="sc-chip">AppState</code> ; si changé : événement <code class="sc-chip">tray://agents</code> + titre du tray =    effectif (VÉRIFIÉ <code class="sc-chip">agents.rs:1005-1019</code>, <code class="sc-chip">tray.rs:73-84</code>). 7. Webview : instantané initial par <code class="sc-chip">invoke("get_running_agents")</code>, puis écoute <code class="sc-chip">tray://agents</code> ;    aucun calcul métier (VÉRIFIÉ <code class="sc-chip">src/main.ts:11-23</code>).</p></div></section><section class="sc-card sc-section"><h2>API / interfaces</h2><div class="sc-section-body"><ul><li><b>Commandes IPC Tauri</b> : <code class="sc-chip">get_running_agents()</code> → <code class="sc-chip">AgentsSnapshot</code> (VÉRIFIÉ <code class="sc-chip">agents.rs:994-997</code>) ;</li></ul><p>  <code class="sc-chip">set_window_mode(compact: bool)</code> → 520×360 ou 1000×420 + réancrage sous l'icône (VÉRIFIÉ   <code class="sc-chip">tray.rs:21-24</code>, <code class="sc-chip">:168-181</code>). Déclarées <code class="sc-chip">lib.rs:19-22</code>.</p><ul><li><b>Événement</b> : <code class="sc-chip">tray://agents</code> (payload <code class="sc-chip">AgentsSnapshot</code>, camelCase) (VÉRIFIÉ <code class="sc-chip">agents.rs:30</code>,</li></ul><p>  types miroirs <code class="sc-chip">src/types.ts:21-64</code>).</p><ul><li><b>Commande PRÉVUE (A1)</b> : <code class="sc-chip">set_agent_control(runner, sessionId, agentId, cmd)</code> (<code class="sc-chip">pause</code>,</li></ul><p>  <code class="sc-chip">resume</code>, <code class="sc-chip">stop</code>) (<span class="sc-badge b-info">PRÉVU</span> <code class="sc-chip">agnostique-mqtt.md:530-532</code>).</p><ul><li><b>Fichiers lus</b> : <code class="sc-chip">~/.claude/projects/**/*.jsonl</code> et <code class="sc-chip">*.meta.json</code> (VÉRIFIÉ ci-dessus).</li></ul><p>  Aucun fichier écrit par le backend (SUPPOSÉ d'après la lecture des modules, aucun <code class="sc-chip">write</code> hors tests).</p><ul><li><b>Fichiers écrits (webview)</b> : <code class="sc-chip">localStorage</code> clés <code class="sc-chip">iakaam-compact</code>, <code class="sc-chip">iakaam-theme</code> (VÉRIFIÉ</li></ul><p>  <code class="sc-chip">src/main.ts:29</code>, <code class="sc-chip">:75</code>, <code class="sc-chip">index.html:13</code>).</p><ul><li><b>Variables d'env</b> : <code class="sc-chip">IAKAAM_LIVENESS_SECS</code> (VÉRIFIÉ <code class="sc-chip">agents.rs:48</code>) ; <span class="sc-badge b-info">PRÉVU</span> <code class="sc-chip">IAKAAM_MQTT_PORT</code></li></ul><p>  (<code class="sc-chip">agnostique-mqtt.md:240-242</code>).</p><ul><li><b>CLI</b> : aucune ; commandes de dev <code class="sc-chip">npm run tauri dev|build</code>, <code class="sc-chip">cargo test</code> (VÉRIFIÉ <code class="sc-chip">CLAUDE.md:32-44</code>).</li><li><b>Menu tray</b> : clic gauche = bascule fenêtre ; clic droit = « Afficher » / « Quitter »</li></ul><p>  (VÉRIFIÉ <code class="sc-chip">tray.rs:30-55</code>).</p></div></section><section class="sc-card sc-section"><h2>MQTT</h2><div class="sc-section-body"><p><b>Livré : aucun.</b> Pas de crate MQTT, pas de connexion (VÉRIFIÉ <code class="sc-chip">Cargo.toml:19-22</code> ; <code class="sc-chip">grep mqtt|rumqtt|1883</code> vide dans <code class="sc-chip">src/</code> et <code class="sc-chip">src-tauri/src/</code>). Instruction « VALIDÉE (Q1–Q9 = A), pas encore réalisée » (VÉRIFIÉ <code class="sc-chip">agnostique-mqtt.md:4</code>).</p><p><b>Prévu — lot de base (<code class="sc-chip">agnostique-mqtt.md</code>)</b> :</p><ul><li>Broker : <b>iakahub</b> d'iakaTokenCounter, <code class="sc-chip">127.0.0.1:1883</code>, rumqttd 0.19, MQTT v4 (3.1.1),</li></ul><p>  anonyme, en mémoire, vit tant que la tray iakaTokenCounter tourne (constat du cadrage,   <code class="sc-chip">agnostique-mqtt.md:33-34</code>, choix Q1-A <code class="sc-chip">:159-165</code>).</p><ul><li>Topic publié par les runners : <code class="sc-chip">iaka/agents/out/&lt;runner&gt;/&lt;sessionId&gt;/&lt;agentId&gt;</code> — fiche JSON</li></ul><p>  <b>retenue</b>, <b>QoS 1</b> ; payload vide retenu = fin de l'agent ; coordinateur <code class="sc-chip">agentId = "main"</code>   (<code class="sc-chip">agnostique-mqtt.md:86-94</code>).</p><ul><li>Abonnement de l'app : <code class="sc-chip">iaka/agents/out/+/+/+</code>, QoS 1 (<code class="sc-chip">:97</code>). Client <code class="sc-chip">rumqttc</code> 0.24, hôte forcé</li></ul><p>  <code class="sc-chip">127.0.0.1</code>, id <code class="sc-chip">iakaagentsmonitor-&lt;pid&gt;</code>, reconnexion bornée 30 s (<code class="sc-chip">:238-242</code>).</p><ul><li>Fiche v1 (≤ 4 096 o) : `v, runner, runnerVersion, model, persona, agentId, parentId, sessionId,</li></ul><p>  project, cwd, task, estimate, startedAt, lastSeenAt, state<code class="sc-chip"> (</code>running|idle<code class="sc-chip">) (</code>:99-137`).</p><ul><li>Péremption logique côté app : <code class="sc-chip">now - lastSeenAt &gt; 90 s</code> ⇒ masquée ; pas de LWT en v1 (<code class="sc-chip">:143-155</code>).</li><li>Publieur Claude Code : <code class="sc-chip">publishers/claude-code/iaka-agents-publish.mjs</code> (Node, <code class="sc-chip">node:net</code>),</li></ul><p>  hooks <code class="sc-chip">SessionStart/End</code>, <code class="sc-chip">UserPromptSubmit</code>, <code class="sc-chip">Stop</code>, <code class="sc-chip">SubagentStart/Stop</code>, <code class="sc-chip">PostToolUse</code>   (battement ≤ 1/20 s) (<code class="sc-chip">:171-174</code>, <code class="sc-chip">:315-321</code>). Repli strict sur la lecture de fichiers si broker   injoignable (Q3-A <code class="sc-chip">:180-184</code>).</p><ul><li>Arbre <code class="sc-chip">iaka/…</code> disjoint de <code class="sc-chip">iakatokencounter/#</code> (<code class="sc-chip">:92-93</code>, <code class="sc-chip">:37</code>).</li></ul><p><b>Prévu — amendement A1 (PROPOSÉ, en attente d'arbitrage QC1–QC9)</b> (<code class="sc-chip">agnostique-mqtt.md:442-448</code>) :</p><ul><li>Topic publié <b>par l'app</b> : <code class="sc-chip">iaka/agents/in/&lt;runner&gt;/&lt;sessionId&gt;/&lt;agentId&gt;</code>, <b>retenu, QoS 1</b> ;</li></ul><p>  payload <code class="sc-chip">{v:1, cmd:"pause"|"stop", issuedAt, nonce, sig}</code> ≤ 512 o ; <b>reprise = payload vide   retenu</b> (pas une commande sur le fil) (<code class="sc-chip">:462-477</code>).</p><ul><li>Signature <b>HMAC-SHA256</b> hex de <code class="sc-chip">topic\ncmd\nissuedAt\nnonce</code>, clé 32 o</li></ul><p>  <code class="sc-chip">~/.config/iaka-agents/control.key</code> (0600, créée par l'app) ; anti-rejeu par <code class="sc-chip">issuedAt</code>   (<code class="sc-chip">:473-476</code>, <code class="sc-chip">:489-492</code>).</p><ul><li>Contrôleur côté runner : hook <code class="sc-chip">PreToolUse</code> tous outils, synchrone, budget 250 ms, qui lit le</li></ul><p>  retenu de son topic exact ; pause = attente, republication <code class="sc-chip">state:"paused"</code> toutes les 20 s ;   stop = <code class="sc-chip">continue:false</code> (<code class="sc-chip">:481-500</code>). <code class="sc-chip">state</code> gagne <code class="sc-chip">paused</code>, <code class="sc-chip">stopping</code> (<code class="sc-chip">:456-457</code>).</p><ul><li>L'app ne publie <b>jamais</b> sous <code class="sc-chip">iaka/agents/out/</code> (<code class="sc-chip">:454-455</code>).</li></ul></div></section><section class="sc-card sc-section"><h2>Interactions avec les autres logiciels</h2><div class="sc-section-body"><div class="sc-scroll"><table class="sc-table"><thead><tr><th>Logiciel</th><th>Interaction</th><th>Statut</th></tr></thead><tbody><tr><td>Claude Code</td><td>lecture de ses transcripts <code class="sc-chip">~/.claude/projects</code></td><td>VÉRIFIÉ, livré</td></tr><tr><td>iakaTokenCounter</td><td>code recopié (agents/tray) ; port 5173 évité ; son sidecar <b>iakahub</b> = futur broker ; deux apps complémentaires (conso vs activité)</td><td>VÉRIFIÉ (provenance, <code class="sc-chip">CLAUDE.md:25-26</code>) ; broker <span class="sc-badge b-info">PRÉVU</span></td></tr><tr><td>iakaframe</td><td>persona/pastille : roster <b>codé en dur</b> aujourd'hui (9 personas, sans <code class="sc-chip">charon</code>) ; prévu : lecture <code class="sc-chip">&lt;cwd&gt;/.iakaframe</code> → <code class="sc-chip">frames/</code> → <code class="sc-chip">teams/</code> → <code class="sc-chip">library/personas/</code> (Q7-A) ; <code class="sc-chip">global/hooks/*.mjs</code> = copies du kit iakaframe</td><td>VÉRIFIÉ <code class="sc-chip">agents.rs:88-98</code> ; <span class="sc-badge b-info">PRÉVU</span> <code class="sc-chip">agnostique-mqtt.md:214-220</code> ; VÉRIFIÉ <code class="sc-chip">global/README.md:1-12</code></td></tr><tr><td>iakaboxlogs</td><td>aucune dans l'app. Les hooks du kit (<code class="sc-chip">global/hooks/delegation-guard.mjs:249-262</code>, <code class="sc-chip">plan-courante.mjs:128-137</code>) publient sur <code class="sc-chip">IAKALOG_PREFIX/&lt;royaume&gt;/&lt;agent&gt;/&lt;conv&gt;</code> (défaut <code class="sc-chip">logs</code>) vers <code class="sc-chip">IAKALOG_BROKER_URL</code> — patron réutilisé par le publieur prévu</td><td>VÉRIFIÉ (hooks) ; lien iakaboxlogs SUPPOSÉ</td></tr><tr><td>iakaHub (Node, Discord)</td><td><b>aucune</b> ; le cadrage signale l'homonyme <code class="sc-chip">com.naonedge.iakahub.plist</code> ≠ broker</td><td>constat du cadrage <code class="sc-chip">agnostique-mqtt.md:35</code></td></tr><tr><td>IakaCockpit</td><td>héritage de la convention <code class="sc-chip">iaka/&lt;domaine&gt;/{in,out}</code></td><td>constat <code class="sc-chip">agnostique-mqtt.md:92</code> ; pas d'échange direct</td></tr><tr><td>iakaFrameGUI, VPS</td><td>aucune trouvée</td><td>VÉRIFIÉ par absence (grep) ; plusieurs machines hors périmètre <code class="sc-chip">agnostique-mqtt.md:276-277</code></td></tr></tbody></table></div></div></section><section class="sc-card sc-section"><h2>Ergonomie (pour annotations de capture)</h2><div class="sc-section-body"><ul><li><b>Barre de menus</b> : icône monochrome « template » + titre = nombre d'agents (<code class="sc-chip">0</code> compris), infobulle</li></ul><p>  « N agents en cours » (VÉRIFIÉ <code class="sc-chip">tray.rs:62-84</code>).</p><ul><li><b>Fenêtre</b> ancrée sous l'icône (bord droit aligné) (VÉRIFIÉ <code class="sc-chip">tray.rs:101-105</code>) :</li><li>bandeau haut : « IakaAgentsMonitor », compteur, bouton ⤢/⤡ (agrandir), bouton ☾/☀ (thème)</li></ul><p>    (VÉRIFIÉ <code class="sc-chip">index.html:24-38</code>) ;</p><ul><li>tableau : compact 5 colonnes <b>Agent · Projet · Runner · Actif · Reste</b> ; complet 8 colonnes</li></ul><p>    Agent · Projet · Runner · Modèle · Tâche · Démarré il y a · Actif il y a · Reste     (VÉRIFIÉ <code class="sc-chip">src/render.ts:220-229</code>) ;</p><ul><li>colonne Agent : guides <code class="sc-chip">├─ └─ │</code> + carré-lettre à la couleur de pastille + nom (VÉRIFIÉ <code class="sc-chip">render.ts:264-277</code>) ;</li><li>chips Runner (« Claude Code », constante) et Modèle (VÉRIFIÉ <code class="sc-chip">render.ts:282-287</code>) ;</li><li>barre « Reste » : vert/orange/rouge, repère de dépassement, tiret si pas d'estimation (VÉRIFIÉ <code class="sc-chip">render.ts:67-105</code>) ;</li><li>en-têtes triables ▲/▼ (Runner non triable) (VÉRIFIÉ <code class="sc-chip">render.ts:236-252</code>) ;</li><li>pied : « tick 5 s · seuil 90 s » (VÉRIFIÉ <code class="sc-chip">index.html:40-43</code>).</li><li><b>Amendement A6 (celui que Stéphane demande à voir)</b> : maquette <b>validée « A6 ok »</b>, commit</li></ul><p>  <code class="sc-chip">b614f5b</code> (maquette seule, 1 fichier) ; cadrage <code class="sc-chip">5d7c2e1</code> + <code class="sc-chip">dc244c0</code> (VÉRIFIÉ <code class="sc-chip">git log</code>,   <code class="sc-chip">specs/instructions/liste-des-agents.md:10</code>). Contenu : (1) largeur ajustée au contenu 480–1200 px,   Tâche seule en ellipse ; (2) groupement par dépôt (ligne de séparation au nom du projet, colonne   Projet retirée) ; (3) colonne <b>État</b> : pastille-bouton running/paused, <code class="sc-chip">stopping</code> non cliquable,   bouton ■ avec confirmation inline ; <b>boutons désactivés</b>, infobulle « commande disponible avec   le bus MQTT » tant que MQTT + A1 ne sont pas livrés. À voir dans   <code class="sc-chip">docs/maquettes/visu-agents-5-versions.html</code> onglet V4 (VÉRIFIÉ l. 194-204, 617-663, 737-745,   767, 788). <b>Non implémenté dans l'app</b> : <code class="sc-chip">render.ts</code> a encore la colonne Projet et pas d'État   (VÉRIFIÉ <code class="sc-chip">render.ts:220-229</code>).</p></div></section><section class="sc-card sc-section"><h2>Points ouverts</h2><div class="sc-section-body"><ul><li>Lot MQTT validé mais <b>non réalisé</b> ; A1 (commandes pause/stop, HMAC) <b>en attente d'arbitrage</b></li></ul><p>   QC1–QC9 (<code class="sc-chip">controle-agents-etude.md:4</code>). 2. A6 validé en maquette, <b>non codé</b> dans l'app. 3. Broker iakahub non permanent (vit avec la tray iakaTokenCounter) — risque R1 ; écoute 1883 non    constatée au moment de la lecture (<code class="sc-chip">lsof</code> vide ce 27/09) (VÉRIFIÉ). 4. Roster codé en dur (sans <code class="sc-chip">charon</code>) ; runner « Claude Code » constant dans <code class="sc-chip">render.ts:283</code>. 5. Incohérence documentaire : <code class="sc-chip">agnostique-mqtt.md:13-14</code> dit <code class="sc-chip">estimate.rs</code> inexistant, or il est    livré (VÉRIFIÉ <code class="sc-chip">src-tauri/src/estimate.rs</code>) ; <code class="sc-chip">CLAUDE.md:74-75</code> pointe l'ancien Forgejo    <code class="sc-chip">192.168.2.11</code> ; <code class="sc-chip">specs/etat-des-lieux.md</code> figé à l'onboarding (26/09, commit <code class="sc-chip">6460f95</code>). 6. Sécurité : bus anonyme en clair (R7) ; la clé HMAC de A1 est lisible par tout processus du même    compte (RC5). 7. Réconciliation d'identifiants hook <code class="sc-chip">agent_id</code> vs fichiers <code class="sc-chip">agent-&lt;id&gt;</code> non prouvée (R2,    <code class="sc-chip">agnostique-mqtt.md:357-360</code>).</p></div></section>
+  <footer class="sc-foot">iakaframe · docs/architecture · généré le 27/09/2026 · charte Studio clair</footer>
+</div>
+</body>
+</html>

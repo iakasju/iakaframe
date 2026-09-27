@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>iakaHub — architecture iakaframe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Public+Sans:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   Studio clair — feuille de style canonique (label « design Studio clair »)
+   Défaut contextuel : projets de dev logiciel. Voir studio-clair-charte.md.
+   =================================================================== */
+
+:root {
+  --sc-bg: #f7f7f4;
+  --sc-surface: #ffffff;
+  --sc-well: #f0efeb;
+  --sc-border: #e2e0d9;
+  --sc-ink: #1c1c1a;
+  --sc-ink-muted: #6f6d64;
+  --sc-ink-faint: #a3a199;
+  --sc-accent: #3454d1;
+  --sc-accent-2: #0e8a82;
+  --sc-ok: #1a7f5a;
+  --sc-warn: #b5790a;
+  --sc-danger: #c1372c;
+  --sc-info: #2f6fb5;
+  --sc-radius: 8px;
+  --sc-font-display: "Manrope", system-ui, sans-serif;
+  --sc-font-body: "Public Sans", system-ui, sans-serif;
+  --sc-font-mono: "Fira Code", "SF Mono", Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-bg: #14161a;
+    --sc-surface: #1c1f24;
+    --sc-well: #22252b;
+    --sc-border: #2d3138;
+    --sc-ink: #e9e8e4;
+    --sc-ink-muted: #9a9a92;
+    --sc-ink-faint: #63666c;
+    --sc-accent: #7c93f0;
+    --sc-accent-2: #3fd6c8;
+    --sc-ok: #4ad393;
+    --sc-warn: #e0a83f;
+    --sc-danger: #ef6b5e;
+    --sc-info: #7fb2ec;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --sc-bg: #14161a;
+  --sc-surface: #1c1f24;
+  --sc-well: #22252b;
+  --sc-border: #2d3138;
+  --sc-ink: #e9e8e4;
+  --sc-ink-muted: #9a9a92;
+  --sc-ink-faint: #63666c;
+  --sc-accent: #7c93f0;
+  --sc-accent-2: #3fd6c8;
+  --sc-ok: #4ad393;
+  --sc-warn: #e0a83f;
+  --sc-danger: #ef6b5e;
+  --sc-info: #7fb2ec;
+  color-scheme: dark;
+}
+
+body.sc {
+  background: var(--sc-bg);
+  color: var(--sc-ink);
+  font-family: var(--sc-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.sc-hero { display: flex; flex-direction: column; gap: 6px; }
+.sc-hero h1 {
+  font-family: var(--sc-font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.sc-hero .sc-sub { color: var(--sc-ink-muted); font-size: 0.95rem; }
+
+.sc-section-label {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--sc-accent);
+}
+
+.sc-card {
+  background: var(--sc-surface);
+  border: 1px solid var(--sc-border);
+  border-radius: var(--sc-radius);
+}
+
+.sc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--sc-font-mono);
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-border);
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+}
+.sc-badge.b-live { color: var(--sc-accent-2); border-color: var(--sc-accent-2); }
+.sc-badge.b-ok { color: var(--sc-ok); }
+.sc-badge.b-warn { color: var(--sc-warn); }
+.sc-badge.b-danger { color: var(--sc-danger); }
+.sc-badge.b-info { color: var(--sc-info); }
+
+.sc-chip {
+  font-family: var(--sc-font-mono);
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+  border: 1px solid var(--sc-border);
+}
+
+.sc-pastille { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+.sc-note {
+  border-left: 3px solid var(--sc-border);
+  background: var(--sc-well);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-radius: 0 6px 6px 0;
+}
+.sc-note.warn { border-color: var(--sc-warn); }
+.sc-note.tip { border-color: var(--sc-accent-2); }
+.sc-note.info { border-color: var(--sc-info); }
+
+.sc-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--sc-border);
+}
+.sc-tab {
+  font-family: var(--sc-font-mono);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  color: var(--sc-ink-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.sc-tab.active { color: var(--sc-accent); border-bottom-color: var(--sc-accent); }
+.sc-tab:hover { color: var(--sc-ink); }
+
+table.sc-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+table.sc-table th, table.sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 6px 10px;
+  text-align: left;
+}
+table.sc-table th {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--sc-ink-muted);
+}
+table.sc-table tr:hover td { background: var(--sc-well); }
+
+
+/* ---- gabarit page architecture (extension locale, mêmes jetons --sc-*) ---- */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body.sc { padding-block: 28px; }
+.sc-page { max-width: 980px; margin: 0 auto; padding-inline: 20px; display: flex; flex-direction: column; gap: 18px; }
+.page-nav { position: sticky; top: env(safe-area-inset-top, 0px); background: var(--sc-bg); z-index: 5; padding-top: 4px; overflow-x: auto; flex-wrap: nowrap; }
+.page-nav .sc-tab { text-decoration: none; }
+.sc-hero { padding-top: 6px; }
+.sc-hero h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); }
+.sc-hero .sc-sub { max-width: 70ch; line-height: 1.5; }
+.sc-section { padding: 18px 22px; display: flex; flex-direction: column; gap: 10px; }
+.sc-section h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 2px; letter-spacing: -0.005em; }
+.sc-section-body { display: flex; flex-direction: column; gap: 10px; }
+.sc-section-body h3 { font-family: var(--sc-font-display); font-size: 0.92rem; margin: 6px 0 -2px; color: var(--sc-ink); }
+.sc-section-body p { margin: 0; line-height: 1.55; font-size: 0.9rem; }
+.sc-section-body ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; line-height: 1.5; }
+.sc-scroll { overflow-x: auto; border-radius: 6px; }
+.sc-shot { display: flex; flex-direction: column; gap: 8px; }
+.sc-shot img { width: 100%; border-radius: 6px; border: 1px solid var(--sc-border); display: block; }
+.sc-shot figcaption { font-size: 0.78rem; color: var(--sc-ink-muted); font-family: var(--sc-font-mono); }
+.sc-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--sc-ink-muted); align-items: center; }
+.idx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.idx-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; transition: border-color .15s; }
+.idx-card:hover { border-color: var(--sc-accent); }
+.idx-card h3 { margin: 0; font-family: var(--sc-font-display); font-size: 1rem; color: var(--sc-ink); }
+.idx-card p { margin: 0; font-size: 0.82rem; color: var(--sc-ink-muted); line-height: 1.4; }
+.sc-pre-card { padding: 16px 18px; }
+.sc-pre-card h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 10px; }
+pre.sc-pre { margin: 0; overflow-x: auto; font-family: var(--sc-font-mono); font-size: 0.66rem; line-height: 1.35; background: var(--sc-well); border: 1px solid var(--sc-border); border-radius: 6px; padding: 12px 14px; color: var(--sc-ink); }
+footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-faint); font-family: var(--sc-font-mono); padding-block: 10px 30px; }
+/* chemins/hash/refs longs sans espace (ex. src-tauri/src/broker.rs:31-37) : jamais de
+   débordement horizontal de la page — on les casse plutôt que d'élargir le corps. */
+.sc-page p, .sc-page li, .sc-page .sc-note, .sc-page td, .sc-page th,
+.sc-page code, .sc-page .sc-chip, .sc-page .sc-sub, .sc-page .idx-card p {
+  overflow-wrap: break-word;
+}
+@media (max-width: 640px) {
+  .sc-section { padding: 14px 16px; }
+}
+</style>
+</head>
+<body class="sc">
+<div class="sc-page">
+  <nav class="sc-tabs page-nav"><a class="sc-tab" href="index.html">Vue d'ensemble</a><a class="sc-tab" href="iakaagentsmonitor.html">IakaAgentsMonitor</a><a class="sc-tab" href="iakaboxlogs.html">iakaboxlogs</a><a class="sc-tab" href="iakacockpit.html">IakaCockpit</a><a class="sc-tab" href="iakaframe.html">iakaframe</a><a class="sc-tab" href="iakaframegui.html">iakaFrameGUI</a><a class="sc-tab active" href="iakahub.html">iakaHub</a><a class="sc-tab" href="iakatokencounter.html">iakaTokenCounter</a><a class="sc-tab" href="mqtt.html">MQTT (transverse)</a><a class="sc-tab" href="naonedge-vps.html">naonedge-vps</a></nav>
+  <div class="sc-hero">
+    <span class="sc-section-label">IAKAFRAME · ARCHITECTURE</span>
+    <h1>iakaHub</h1>
+    <p class="sc-sub">Légende : <span class="sc-badge b-ok">V</span> = VÉRIFIÉ (lu dans le code / observé en exécution) · <span class="sc-badge b-warn">S</span> = SUPPOSÉ.</p>
+    <div class="sc-legend">
+      <span class="sc-badge b-ok">V / VÉRIFIÉ</span> lu dans le code ou la config
+      <span class="sc-badge b-warn">S / SUPPOSÉ</span> déduit, non prouvé
+      <span class="sc-badge b-info">PRÉVU</span> cadré, non livré
+    </div>
+  </div>
+  <p>Légende : <span class="sc-badge b-ok">V</span> = VÉRIFIÉ (lu dans le code / observé en exécution) · <span class="sc-badge b-warn">S</span> = SUPPOSÉ. Chemins relatifs à <code class="sc-chip">~/work/iakaHub</code> sauf mention. <code class="sc-chip">main @ 5a418d1</code> (2026-08-10).</p><div class="sc-note info">⚠️ <b>Homonyme</b> : <code class="sc-chip">iakaHub</code> (ce dépôt, démon Node, passerelle Discord) ≠ <code class="sc-chip">iakahub</code> = binaire Rust d'iakaTokenCounter qui <b>embarque le broker MQTT local</b> (rumqttd, 127.0.0.1, anonyme) et supervise <code class="sc-chip">iatc-daemon</code> (<code class="sc-chip">~/work/iakaTokenCounter/iakahub/README.md:3-20</code>) <span class="sc-badge b-ok">V</span>. Le seul « pont » entre les deux est le mot « iakaHub » ; aucun code partagé [V, grep].</div><section class="sc-card sc-section"><h2>Rôle</h2><div class="sc-section-body"><p>Démon local du portefeuille qui sert de <b>passerelle « mode absence »</b> humain↔agents : quand Stéphane est absent, un agent pose sa question sur le canal Discord du projet (sous son persona) et la réponse de Stéphane repart vers l'agent qui attendait (<code class="sc-chip">CLAUDE.md:24-28</code>) <span class="sc-badge b-ok">V</span>. Il sert aussi de <b>saisie directe d'Odin</b> via le canal <code class="sc-chip">#odin</code> (lance une session Claude Code headless en lecture seule) et, sur une branche non fusionnée, de <b>veilleur</b> (horloge + sondes HTTP + alertes).</p></div></section><section class="sc-card sc-section"><h2>Stack et composants</h2><div class="sc-section-body"><ul><li>Node ≥ 20, ESM ; deps : <code class="sc-chip">discord.js ^14.16.3</code>, <code class="sc-chip">yaml ^2.6.1</code> (<code class="sc-chip">package.json:7-20</code>) <span class="sc-badge b-ok">V</span>. Tests <code class="sc-chip">node --test</code> (<code class="sc-chip">package.json:13</code>).</li><li><b>Processus unique</b> <code class="sc-chip">node src/index.js</code> (<code class="sc-chip">package.json:12</code>), supervisé :</li><li>macOS : LaunchAgent <code class="sc-chip">com.naonedge.iakahub</code>, RunAtLoad + KeepAlive, ThrottleInterval 10 s, logs <code class="sc-chip">logs/iakahub.{out,err}.log</code> (<code class="sc-chip">deploy/launchd/com.naonedge.iakahub.plist:20-54</code>) <span class="sc-badge b-ok">V</span>. <b>Chargé et actif</b> (PID 1123, <code class="sc-chip">launchctl list</code>) [V observé].</li><li>Linux : service systemd user, <code class="sc-chip">Restart=on-failure</code> (<code class="sc-chip">deploy/systemd/iakahub.service:26-38</code>) <span class="sc-badge b-ok">V</span> ; Windows : <code class="sc-chip">deploy/windows/Install-IakaHub.ps1</code> [V existence].</li><li><b>Ports</b> : <code class="sc-chip">127.0.0.1:3041</code> admin/health (<code class="sc-chip">src/index.js:112-117</code>, <code class="sc-chip">.env.example:26</code>) [V, en écoute observée] ; <code class="sc-chip">:3040</code> = « télémétrie iakaHub, autre chantier » (sondes Rust→HTTP) <b>non implémenté ici</b> (<code class="sc-chip">specs/instructions/passerelle-discord-agents.md:107</code>, <code class="sc-chip">docs/passerelle-discord.md:46</code>) [V : rien n'écoute sur 3040].</li><li>Discord : client Gateway (WebSocket <b>sortante</b>, aucun port entrant) + webhooks par canal (<code class="sc-chip">src/adapters/discordAdapter.js:8-13,37-43</code>) <span class="sc-badge b-ok">V</span>. Intent privilégié MESSAGE_CONTENT (<code class="sc-chip">:41</code>).</li><li>Modules : <code class="sc-chip">core/router.js</code> (projet↔canal), <code class="sc-chip">core/registry.js</code> (attentes, TTL 24 h, <code class="sc-chip">:30</code>), <code class="sc-chip">core/ask.js</code> (geste agent), <code class="sc-chip">core/presence.js</code>, <code class="sc-chip">hub/hubGateway.js</code>, <code class="sc-chip">hub/odinDirect.js</code>, <code class="sc-chip">hub/odinArchive.js</code>, <code class="sc-chip">runner/odinRunner.js</code>, <code class="sc-chip">adapters/mattermostAdapter.js</code> (<b>contrat seul, lève « non implémenté »</b>, <code class="sc-chip">:23-31</code>) <span class="sc-badge b-ok">V</span>.</li><li>Hooks globaux Claude versionnés dans <code class="sc-chip">global/hooks/</code> (identity-guard, perimeter-guard) — artefacts kit, pas le démon (<code class="sc-chip">global/README.md:1-16</code>) <span class="sc-badge b-ok">V</span>.</li></ul></div></section><section class="sc-card sc-section"><h2>Fonctionnement (flux principal)</h2><div class="sc-section-body"><ul><li><b>Gate amont côté agent</b> : <code class="sc-chip">ask()</code> lit l'état de présence ; PRESENT → question au terminal, iakaHub <b>jamais contacté</b> ; ABSENT → <code class="sc-chip">hub.ask()</code> ; erreur/injoignable → repli terminal (<code class="sc-chip">src/core/ask.js:67-88</code>) <span class="sc-badge b-ok">V</span>.</li><li>Présence = fichier <code class="sc-chip">~/work/.iaka-presence.json</code> <code class="sc-chip">{state, updatedAt}</code> (ou <code class="sc-chip">$IAKA_PRESENCE_FILE</code>), défaut PRESENT si absent/illisible (<code class="sc-chip">src/core/presence.js:27-48</code>) [V ; fichier présent sur disque].</li><li><code class="sc-chip">HubClient.ask</code> → <code class="sc-chip">POST http://127.0.0.1:3041/ask</code> long-poll bloquant (<code class="sc-chip">src/core/hubClient.js:18-39</code>) <span class="sc-badge b-ok">V</span>.</li><li><code class="sc-chip">HubGateway.ask</code> : résout projet→canal, <b>enregistre l'attente avant envoi</b>, poste via webhook sous le persona de l'agent, ouvre un thread, rattache <code class="sc-chip">thread_id</code>, miroir best-effort, attend (<code class="sc-chip">src/hub/hubGateway.js:74-105</code>) <span class="sc-badge b-ok">V</span>.</li><li>Réponse humaine dans le thread → <code class="sc-chip">messageCreate</code> → <code class="sc-chip">InboundReply</code> → <code class="sc-chip">registry.resolveByThread</code> → la promesse <code class="sc-chip">/ask</code> se résout (<code class="sc-chip">src/adapters/discordAdapter.js:128-150</code>, <code class="sc-chip">src/hub/hubGateway.js:39-49</code>) <span class="sc-badge b-ok">V</span>. Bots/webhooks ignorés (anti-boucle, <code class="sc-chip">discordAdapter.js:130-131</code>).</li><li><b>#odin</b> : message humain dans le canal parent → <code class="sc-chip">OdinDirectGateway</code> → <code class="sc-chip">claude -p … --output-format json --max-turns 12 --disallowedTools Bash,Edit,Write,NotebookEdit,MultiEdit --allowedTools Read,Glob,Grep</code> (cwd <code class="sc-chip">~/work</code>), réponse postée en thread sous persona Odin ; message dans ce thread → <code class="sc-chip">--resume &lt;session_id&gt;</code> ; file globale 1 run à la fois ; timeout 180 s (<code class="sc-chip">src/hub/odinDirect.js:64-120</code>, <code class="sc-chip">src/runner/odinRunner.js:26-51,35</code>) <span class="sc-badge b-ok">V</span>. Map thread→session <b>en mémoire</b> (perdue au redémarrage) (<code class="sc-chip">odinDirect.js:47-48</code>) <span class="sc-badge b-ok">V</span>.</li><li>Découpage des messages &gt; 2000 car., envoi séquentiel par chunk (<code class="sc-chip">src/adapters/discordAdapter.js:89-119</code>, <code class="sc-chip">src/core/splitMessage.js</code>) <span class="sc-badge b-ok">V</span>.</li></ul></div></section><section class="sc-card sc-section"><h2>API / interfaces</h2><div class="sc-section-body"><ul><li><b>HTTP (127.0.0.1:3041)</b> (<code class="sc-chip">src/hub/adminServer.js:18-52</code>) <span class="sc-badge b-ok">V</span> :</li><li><code class="sc-chip">GET /health</code> → <code class="sc-chip">{status, presence_reflet, pending, projects, odin_direct:{channel_id}|null}</code> (observé : <code class="sc-chip">{"status":"ok","presence_reflet":"present","pending":0,"projects":7,"odin_direct":{"channel_id":"1527231622917918730"}}</code>).</li><li><code class="sc-chip">POST /ask</code> corps <code class="sc-chip">{projet, agent, texte, correlation_id, thread_id?}</code> → 200 <code class="sc-chip">{text}</code> (bloquant) / 500 <code class="sc-chip">{error}</code>.</li><li>Branche <code class="sc-chip">feat/hub-veille</code> en plus : <code class="sc-chip">POST /notify</code> <code class="sc-chip">{projet, texte, agent?, niveau?}</code> → 200 <code class="sc-chip">{delivered:true, thread_id, correlation_id}</code> / 400 / 404 <code class="sc-chip">PROJET_INCONNU</code> / 502 ; <code class="sc-chip">/health</code> gagne une clé <code class="sc-chip">surveillance</code> toujours présente (<code class="sc-chip">~/work/iakaHub-wt-hub-veille/src/hub/adminServer.js:36-110</code>) <span class="sc-badge b-ok">V</span>.</li><li><b>CLI</b> : <code class="sc-chip">node src/cli/presence-cli.js &lt;absent|pars|away|present|rentre|back|status&gt;</code> (bin <code class="sc-chip">iakahub-presence</code>) écrit le fichier de présence (<code class="sc-chip">src/cli/presence-cli.js:16-37</code>, <code class="sc-chip">package.json:9-11</code>) <span class="sc-badge b-ok">V</span>. Branche veille : <code class="sc-chip">src/cli/veille-cli.js</code> (<code class="sc-chip">check</code>…) [V existence ; D11 de l'instruction].</li><li><b>Fichiers lus</b> : <code class="sc-chip">.env</code> (secrets : <code class="sc-chip">DISCORD_BOT_TOKEN</code>, <code class="sc-chip">DISCORD_WEBHOOK_&lt;ALIAS&gt;</code>, <code class="sc-chip">IAKAHUB_ADMIN_PORT</code>, <code class="sc-chip">IAKA_MIRROR_WEBHOOK_URL</code>, <code class="sc-chip">IAKA_PRESENCE_FILE</code>) (<code class="sc-chip">.env.example</code>, <code class="sc-chip">src/config.js:12-30</code>) ; <code class="sc-chip">config/routing.yaml</code> (7 projets + <code class="sc-chip">odin_direct</code>, alias webhook sans secret) ; <code class="sc-chip">~/work/.iaka-presence.json</code> <span class="sc-badge b-ok">V</span>.</li><li><b>Fichiers écrits</b> : <code class="sc-chip">state/routing.json</code> (reflet de présence, non autoritaire, <code class="sc-chip">src/index.js:48-60</code>) ; archive <code class="sc-chip">#odin</code> en Markdown par jour <code class="sc-chip">$IAKA_MEMORY_HOME|~/.iaka/memory/transcripts/odin/&lt;AAAA-MM-JJ&gt;.md</code>, entrées <code class="sc-chip">## &lt;ISO&gt; — stephane|odin</code> (<code class="sc-chip">src/hub/odinArchive.js:42-91</code>) ; logs <code class="sc-chip">logs/*.log</code> <span class="sc-badge b-ok">V</span>. Branche veille : <code class="sc-chip">state/surveillance.json</code> [V <code class="sc-chip">src/index.js:143</code> du worktree].</li><li><b>Sortant HTTP</b> : webhooks Discord ; miroir optionnel <code class="sc-chip">POST $IAKA_MIRROR_WEBHOOK_URL</code> (n8n/box), timeout 1,5 s, erreurs avalées (<code class="sc-chip">src/index.js:27-46</code>) <span class="sc-badge b-ok">V</span>. Subprocess <code class="sc-chip">claude</code> (runner Odin).</li><li>Pas d'IPC Tauri (pas d'UI) <span class="sc-badge b-ok">V</span>.</li></ul></div></section><section class="sc-card sc-section"><h2>MQTT</h2><div class="sc-section-body"><p><b>Aucun.</b> Zéro occurrence de <code class="sc-chip">mqtt</code> / <code class="sc-chip">iaka/</code> / <code class="sc-chip">1883</code> dans <code class="sc-chip">src/</code>, <code class="sc-chip">config/</code>, <code class="sc-chip">deploy/</code>, ni dans la branche <code class="sc-chip">feat/hub-veille</code> [V, grep]. iakaHub ne publie ni ne s'abonne au broker local ; ses canaux sont HTTP local + Discord. <span class="sc-badge b-warn">S</span> Le broker MQTT « local » que la doc d'architecture évoque est celui de l'<b>homonyme</b> iakahub (iakaTokenCounter) — à ne pas attribuer à ce dépôt.</p></div></section><section class="sc-card sc-section"><h2>Interactions avec les autres logiciels</h2><div class="sc-section-body"><ul><li><b>iakaframe</b> : dépôt instrumenté par la méthode (<code class="sc-chip">.iakaframe</code> : <code class="sc-chip">iakaframe=v0.1.0</code>) <span class="sc-badge b-ok">V</span> ; personas = les 8 agents du roster (+ <code class="sc-chip">charon</code> sur la branche veille) (<code class="sc-chip">src/core/personas.js:13-22</code>) <span class="sc-badge b-ok">V</span> ; l'archive <code class="sc-chip">#odin</code> alimente le canon mémoire miné par le geste <code class="sc-chip">close</code> de la CLI iakaframe (<code class="sc-chip">src/hub/odinArchive.js:8-13</code>) [V pour l'intention, S pour la consommation effective] ; canal Discord <code class="sc-chip">iakaframe</code> routé (<code class="sc-chip">config/routing.yaml:42-45</code>). Lot amont « scission squad prod Charon/Helm » dans <code class="sc-chip">~/work/iakaframe/specs/instructions/</code> (instruction veille l.34-36) [V référence].</li><li><b>iakaTokenCounter</b> : seulement un <b>canal Discord routé</b> (<code class="sc-chip">config/routing.yaml:54-57</code>) <span class="sc-badge b-ok">V</span> + homonymie. Pas d'échange de données [V grep].</li><li><b>IakaCockpit</b>, <b>iakaFrameGUI</b>, <b>iakagraph</b>, <b>naonedge</b> : canaux Discord routés (<code class="sc-chip">config/routing.yaml:30-53</code>) ; aucun appel direct <span class="sc-badge b-ok">V</span>.</li><li><b>IakaAgentsMonitor</b> : aucune référence dans le code [V grep]. (Il tourne aussi en LaunchAgent sur le Mac, observé, sans lien.)</li><li><b>iakaboxlogs / CouchDB / n8n</b> : seul lien = miroir <b>optionnel</b> vers un webhook n8n/box (<code class="sc-chip">src/index.js:27-46</code>, <code class="sc-chip">.env.example:28-30</code>) ; non requis (« box éteinte OK ») <span class="sc-badge b-ok">V</span>. <span class="sc-badge b-warn">S</span> Valeur de <code class="sc-chip">IAKA_MIRROR_WEBHOOK_URL</code> dans <code class="sc-chip">.env</code> non lue (secret, non ouvert).</li><li><b>Appelants de <code class="sc-chip">/ask</code></b> : aucun dépôt hors iakaHub n'appelle <code class="sc-chip">:3041</code> (grep <code class="sc-chip">~/work</code>, seuls <code class="sc-chip">BACKLOG.md</code> et le worktree veille mentionnent) <span class="sc-badge b-ok">V</span> → le geste <code class="sc-chip">ask()</code> n'est <b>pas encore branché</b> dans les agents [S : probablement via skill/hook à venir].</li><li><b>Veille</b> (branche) : sonde déclarée <code class="sc-chip">iakahub-health</code> → <code class="sc-chip">http://127.0.0.1:3041/health</code> ; exemples commentés visant <code class="sc-chip">192.168.2.11:8100</code> (robby-immo) (<code class="sc-chip">~/work/iakaHub-wt-hub-veille/config/surveillance.yaml:46-71</code>) ; alertes sous persona Helm sur le canal <code class="sc-chip">iakaHub</code> (<code class="sc-chip">watchGateway.js:124</code>) <span class="sc-badge b-ok">V</span>.</li><li><b>VPS</b> : aucune dépendance ; le démon tourne sur le poste. Remote git : <code class="sc-chip">CLAUDE.md:62-66</code> indique encore le Forgejo LAN 192.168.2.11 (obsolète selon mémoire) [V texte].</li></ul></div></section><section class="sc-card sc-section"><h2>Ergonomie (pour annotations)</h2><div class="sc-section-body"><p>Pas d'écran propre. Surfaces visibles : 1. <b>Serveur Discord « iaka-portefeuille »</b> (guild <code class="sc-chip">1527052405366198352</code>, <code class="sc-chip">config/routing.yaml:11</code>) : un canal par projet ; message racine posté par webhook sous le <b>nom du persona</b> (Aragorn, Gandalf…), <b>thread</b> ouvert dessus (titre = 80 premiers caractères de la question, <code class="sc-chip">discordAdapter.js:122-125</code>) ; la réponse de Stéphane <b>dans le thread</b> débloque l'agent. Zones à annoter : nom du persona (émetteur), thread (corrélation), réponse humaine. 2. <b>Canal <code class="sc-chip">#odin</code></b> : Stéphane écrit dans le canal parent → Odin répond dans un thread ; continuation dans le thread = même session. 3. <b>Terminal</b> : <code class="sc-chip">presence-cli status</code> / <code class="sc-chip">absent</code> / <code class="sc-chip">present</code> ; <code class="sc-chip">curl 127.0.0.1:3041/health</code> (JSON ci-dessus). 4. (Branche veille) message quotidien de synthèse Helm + alertes sur transitions ok↔dégradé.</p></div></section><section class="sc-card sc-section"><h2>Points ouverts</h2><div class="sc-section-body"><ul><li><b>HUB-VEILLE non fusionné</b> : branche <code class="sc-chip">feat/hub-veille</code> (HEAD <code class="sc-chip">8a53c8f</code>, 2026-08-10, poussée sur origin/github/iakabox), « remis au gate » ; <code class="sc-chip">main</code> n'a ni scheduler ni <code class="sc-chip">/notify</code> <span class="sc-badge b-ok">V</span>. Le démon actif tourne sur <code class="sc-chip">main</code> [S : WorkingDirectory du plist non vérifié, gabarit à placeholders].</li><li><code class="sc-chip">:3040</code> télémétrie : annoncée, inexistante <span class="sc-badge b-ok">V</span>.</li><li>Map thread→session Odin en mémoire : perdue au redémarrage (KeepAlive le relance) <span class="sc-badge b-ok">V</span>.</li><li>Mattermost : contrat seul <span class="sc-badge b-ok">V</span>.</li><li>Warning de dépréciation discord.js <code class="sc-chip">ready</code>→<code class="sc-chip">clientReady</code> dans <code class="sc-chip">logs/iakahub.err.log</code> <span class="sc-badge b-ok">V</span>, écouteur double <code class="sc-chip">discordAdapter.js:53-54</code>.</li><li><code class="sc-chip">ask()</code> pas encore consommé par les agents réels [S, cf. grep].</li><li>CLAUDE.md projet : remote/commandes PowerShell Windows périmés (<code class="sc-chip">CLAUDE.md:62-80</code>) <span class="sc-badge b-ok">V</span>.</li></ul></div></section>
+  <footer class="sc-foot">iakaframe · docs/architecture · généré le 27/09/2026 · charte Studio clair</footer>
+</div>
+</body>
+</html>

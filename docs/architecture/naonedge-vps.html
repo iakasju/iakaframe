@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>naonedge-vps — broker VPS — architecture iakaframe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Public+Sans:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   Studio clair — feuille de style canonique (label « design Studio clair »)
+   Défaut contextuel : projets de dev logiciel. Voir studio-clair-charte.md.
+   =================================================================== */
+
+:root {
+  --sc-bg: #f7f7f4;
+  --sc-surface: #ffffff;
+  --sc-well: #f0efeb;
+  --sc-border: #e2e0d9;
+  --sc-ink: #1c1c1a;
+  --sc-ink-muted: #6f6d64;
+  --sc-ink-faint: #a3a199;
+  --sc-accent: #3454d1;
+  --sc-accent-2: #0e8a82;
+  --sc-ok: #1a7f5a;
+  --sc-warn: #b5790a;
+  --sc-danger: #c1372c;
+  --sc-info: #2f6fb5;
+  --sc-radius: 8px;
+  --sc-font-display: "Manrope", system-ui, sans-serif;
+  --sc-font-body: "Public Sans", system-ui, sans-serif;
+  --sc-font-mono: "Fira Code", "SF Mono", Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-bg: #14161a;
+    --sc-surface: #1c1f24;
+    --sc-well: #22252b;
+    --sc-border: #2d3138;
+    --sc-ink: #e9e8e4;
+    --sc-ink-muted: #9a9a92;
+    --sc-ink-faint: #63666c;
+    --sc-accent: #7c93f0;
+    --sc-accent-2: #3fd6c8;
+    --sc-ok: #4ad393;
+    --sc-warn: #e0a83f;
+    --sc-danger: #ef6b5e;
+    --sc-info: #7fb2ec;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --sc-bg: #14161a;
+  --sc-surface: #1c1f24;
+  --sc-well: #22252b;
+  --sc-border: #2d3138;
+  --sc-ink: #e9e8e4;
+  --sc-ink-muted: #9a9a92;
+  --sc-ink-faint: #63666c;
+  --sc-accent: #7c93f0;
+  --sc-accent-2: #3fd6c8;
+  --sc-ok: #4ad393;
+  --sc-warn: #e0a83f;
+  --sc-danger: #ef6b5e;
+  --sc-info: #7fb2ec;
+  color-scheme: dark;
+}
+
+body.sc {
+  background: var(--sc-bg);
+  color: var(--sc-ink);
+  font-family: var(--sc-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.sc-hero { display: flex; flex-direction: column; gap: 6px; }
+.sc-hero h1 {
+  font-family: var(--sc-font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.sc-hero .sc-sub { color: var(--sc-ink-muted); font-size: 0.95rem; }
+
+.sc-section-label {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--sc-accent);
+}
+
+.sc-card {
+  background: var(--sc-surface);
+  border: 1px solid var(--sc-border);
+  border-radius: var(--sc-radius);
+}
+
+.sc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--sc-font-mono);
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-border);
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+}
+.sc-badge.b-live { color: var(--sc-accent-2); border-color: var(--sc-accent-2); }
+.sc-badge.b-ok { color: var(--sc-ok); }
+.sc-badge.b-warn { color: var(--sc-warn); }
+.sc-badge.b-danger { color: var(--sc-danger); }
+.sc-badge.b-info { color: var(--sc-info); }
+
+.sc-chip {
+  font-family: var(--sc-font-mono);
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+  border: 1px solid var(--sc-border);
+}
+
+.sc-pastille { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+.sc-note {
+  border-left: 3px solid var(--sc-border);
+  background: var(--sc-well);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-radius: 0 6px 6px 0;
+}
+.sc-note.warn { border-color: var(--sc-warn); }
+.sc-note.tip { border-color: var(--sc-accent-2); }
+.sc-note.info { border-color: var(--sc-info); }
+
+.sc-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--sc-border);
+}
+.sc-tab {
+  font-family: var(--sc-font-mono);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  color: var(--sc-ink-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.sc-tab.active { color: var(--sc-accent); border-bottom-color: var(--sc-accent); }
+.sc-tab:hover { color: var(--sc-ink); }
+
+table.sc-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+table.sc-table th, table.sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 6px 10px;
+  text-align: left;
+}
+table.sc-table th {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--sc-ink-muted);
+}
+table.sc-table tr:hover td { background: var(--sc-well); }
+
+
+/* ---- gabarit page architecture (extension locale, mêmes jetons --sc-*) ---- */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body.sc { padding-block: 28px; }
+.sc-page { max-width: 980px; margin: 0 auto; padding-inline: 20px; display: flex; flex-direction: column; gap: 18px; }
+.page-nav { position: sticky; top: env(safe-area-inset-top, 0px); background: var(--sc-bg); z-index: 5; padding-top: 4px; overflow-x: auto; flex-wrap: nowrap; }
+.page-nav .sc-tab { text-decoration: none; }
+.sc-hero { padding-top: 6px; }
+.sc-hero h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); }
+.sc-hero .sc-sub { max-width: 70ch; line-height: 1.5; }
+.sc-section { padding: 18px 22px; display: flex; flex-direction: column; gap: 10px; }
+.sc-section h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 2px; letter-spacing: -0.005em; }
+.sc-section-body { display: flex; flex-direction: column; gap: 10px; }
+.sc-section-body h3 { font-family: var(--sc-font-display); font-size: 0.92rem; margin: 6px 0 -2px; color: var(--sc-ink); }
+.sc-section-body p { margin: 0; line-height: 1.55; font-size: 0.9rem; }
+.sc-section-body ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; line-height: 1.5; }
+.sc-scroll { overflow-x: auto; border-radius: 6px; }
+.sc-shot { display: flex; flex-direction: column; gap: 8px; }
+.sc-shot img { width: 100%; border-radius: 6px; border: 1px solid var(--sc-border); display: block; }
+.sc-shot figcaption { font-size: 0.78rem; color: var(--sc-ink-muted); font-family: var(--sc-font-mono); }
+.sc-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--sc-ink-muted); align-items: center; }
+.idx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.idx-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; transition: border-color .15s; }
+.idx-card:hover { border-color: var(--sc-accent); }
+.idx-card h3 { margin: 0; font-family: var(--sc-font-display); font-size: 1rem; color: var(--sc-ink); }
+.idx-card p { margin: 0; font-size: 0.82rem; color: var(--sc-ink-muted); line-height: 1.4; }
+.sc-pre-card { padding: 16px 18px; }
+.sc-pre-card h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 10px; }
+pre.sc-pre { margin: 0; overflow-x: auto; font-family: var(--sc-font-mono); font-size: 0.66rem; line-height: 1.35; background: var(--sc-well); border: 1px solid var(--sc-border); border-radius: 6px; padding: 12px 14px; color: var(--sc-ink); }
+footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-faint); font-family: var(--sc-font-mono); padding-block: 10px 30px; }
+/* chemins/hash/refs longs sans espace (ex. src-tauri/src/broker.rs:31-37) : jamais de
+   débordement horizontal de la page — on les casse plutôt que d'élargir le corps. */
+.sc-page p, .sc-page li, .sc-page .sc-note, .sc-page td, .sc-page th,
+.sc-page code, .sc-page .sc-chip, .sc-page .sc-sub, .sc-page .idx-card p {
+  overflow-wrap: break-word;
+}
+@media (max-width: 640px) {
+  .sc-section { padding: 14px 16px; }
+}
+</style>
+</head>
+<body class="sc">
+<div class="sc-page">
+  <nav class="sc-tabs page-nav"><a class="sc-tab" href="index.html">Vue d'ensemble</a><a class="sc-tab" href="iakaagentsmonitor.html">IakaAgentsMonitor</a><a class="sc-tab" href="iakaboxlogs.html">iakaboxlogs</a><a class="sc-tab" href="iakacockpit.html">IakaCockpit</a><a class="sc-tab" href="iakaframe.html">iakaframe</a><a class="sc-tab" href="iakaframegui.html">iakaFrameGUI</a><a class="sc-tab" href="iakahub.html">iakaHub</a><a class="sc-tab" href="iakatokencounter.html">iakaTokenCounter</a><a class="sc-tab" href="mqtt.html">MQTT (transverse)</a><a class="sc-tab active" href="naonedge-vps.html">naonedge-vps</a></nav>
+  <div class="sc-hero">
+    <span class="sc-section-label">IAKAFRAME · ARCHITECTURE</span>
+    <h1>naonedge-vps — broker VPS</h1>
+    <p class="sc-sub">Dépôt : <code class="sc-chip">~/work/naonedge-vps</code> (HEAD <code class="sc-chip">5a0a3e5</code>). Chemins relatifs à ce dépôt.</p>
+    <div class="sc-legend">
+      <span class="sc-badge b-ok">V / VÉRIFIÉ</span> lu dans le code ou la config
+      <span class="sc-badge b-warn">S / SUPPOSÉ</span> déduit, non prouvé
+      <span class="sc-badge b-info">PRÉVU</span> cadré, non livré
+    </div>
+  </div>
+  <p>Dépôt : <code class="sc-chip">~/work/naonedge-vps</code> (HEAD <code class="sc-chip">5a0a3e5</code>). Chemins relatifs à ce dépôt. Légende : <b>VÉRIFIÉ</b> = lu dans le code ou la conf ; <b>SUPPOSÉ</b> = déduit, non prouvé dans le dépôt.</p><section class="sc-card sc-section"><h2>Rôle</h2><div class="sc-section-body"><p>Mosquitto 2.1 tourne dans le socle Docker du VPS NaonEdge. C'est le « bus d'événements iakaframe », joignable depuis Internet, chiffré et authentifié (VÉRIFIÉ, <code class="sc-chip">stack/mosquitto/mosquitto.conf:1</code>, <code class="sc-chip">stack/compose.yml:222-226</code>). Il est le <b>successeur</b> du broker local de l'iakabox (<code class="sc-chip">~/work/iakaboxlogs</code>), qui n'était joignable que sur le LAN et qui est en panne depuis le 2026-08-19. Il ne le relaie pas : aucun pont entre les deux brokers (VÉRIFIÉ, <code class="sc-chip">specs/instructions/mqtt-broker-vps.md:13-21</code>, ponts inter-brokers écartés <code class="sc-chip">:555</code>).</p></div></section><section class="sc-card sc-section"><h2>Stack et composants</h2><div class="sc-section-body"><div class="sc-scroll"><table class="sc-table"><thead><tr><th>Élément</th><th>Valeur</th><th>Source</th></tr></thead><tbody><tr><td>Image</td><td><code class="sc-chip">eclipse-mosquitto:2.1.2-alpine</code></td><td>VÉRIFIÉ <code class="sc-chip">stack/compose.yml:231</code></td></tr><tr><td>Conteneur / service</td><td><code class="sc-chip">naonedge-vps-mqtt</code> / <code class="sc-chip">mqtt</code>, <code class="sc-chip">restart: unless-stopped</code></td><td>VÉRIFIÉ <code class="sc-chip">stack/compose.yml:230-233</code></td></tr><tr><td>Réseaux</td><td><code class="sc-chip">net</code> + <code class="sc-chip">proxy</code> (<code class="sc-chip">naonedge-proxy</code>)</td><td>VÉRIFIÉ <code class="sc-chip">stack/compose.yml:236</code></td></tr><tr><td>Port hôte</td><td><b>8883</b> seulement (MQTT sur TLS)</td><td>VÉRIFIÉ <code class="sc-chip">stack/compose.yml:237-238</code></td></tr><tr><td>Listener 1883</td><td>MQTT en clair, réseau Docker seulement, pas de port hôte</td><td>VÉRIFIÉ <code class="sc-chip">mosquitto.conf:19-21</code></td></tr><tr><td>Listener 9001</td><td>websockets en clair, derrière Caddy (TLS sur 443)</td><td>VÉRIFIÉ <code class="sc-chip">mosquitto.conf:23-27</code>, <code class="sc-chip">stack/Caddyfile:84-95</code></td></tr><tr><td>Listener 8883</td><td>MQTTS, cert <code class="sc-chip">/mosquitto/certs/server.{crt,key}</code> ; livré <code class="sc-chip">.pending</code> dans le dépôt, <b>actif sur le VPS depuis le 2026-09-21</b></td><td>VÉRIFIÉ <code class="sc-chip">stack/mosquitto/conf.d/8883-tls.conf.pending:5-8</code>, <code class="sc-chip">stack/mosquitto/README.md:7-12</code></td></tr><tr><td>Auth</td><td><code class="sc-chip">allow_anonymous false</code>, <code class="sc-chip">password_file</code>, <code class="sc-chip">acl_file</code></td><td>VÉRIFIÉ <code class="sc-chip">mosquitto.conf:15-17</code></td></tr><tr><td>Persistance</td><td><code class="sc-chip">persistence true</code>, volume <code class="sc-chip">mqtt-data</code> (<code class="sc-chip">naonedge-vps-mqtt-data</code>), <b>exclu de restic</b></td><td>VÉRIFIÉ <code class="sc-chip">mosquitto.conf:10-11</code>, <code class="sc-chip">compose.yml:245</code>, <code class="sc-chip">scripts/backup.sh:127-131</code></td></tr><tr><td>Sauvegardé</td><td><code class="sc-chip">$STACK_DIR/mosquitto</code> (conf, ACL, passwd, certs)</td><td>VÉRIFIÉ <code class="sc-chip">scripts/backup.sh:146</code></td></tr><tr><td>Certificats</td><td>Caddy obtient le cert Let's Encrypt de <code class="sc-chip">mqtt.naonedge.com</code> ; <code class="sc-chip">scripts/mqtt-certs.sh</code> le copie vers Mosquitto</td><td>VÉRIFIÉ <code class="sc-chip">stack/Caddyfile:77-81</code>, <code class="sc-chip">scripts/mqtt-certs.sh:1-4</code></td></tr><tr><td>Minuterie</td><td><code class="sc-chip">naonedge-mqtt-certs.timer</code> tous les jours à 04:10 (+5 min aléatoires) → service oneshot</td><td>VÉRIFIÉ <code class="sc-chip">systemd/naonedge-mqtt-certs.timer:5-6</code>, <code class="sc-chip">.service:7-8</code></td></tr><tr><td>Pare-feu</td><td>ports UFW ouverts : 22, 80, 443, 2222, 8883</td><td>VÉRIFIÉ (doc) <code class="sc-chip">CLAUDE.md:47</code></td></tr><tr><td>Domaine</td><td><code class="sc-chip">MQTT_DOMAIN=mqtt.naonedge.com</code> (défaut inerte <code class="sc-chip">mqtt.invalid</code>)</td><td>VÉRIFIÉ <code class="sc-chip">stack/.env.example:28-32</code>, <code class="sc-chip">README.md:31-34</code></td></tr></tbody></table></div></div></section><section class="sc-card sc-section"><h2>Fonctionnement (flux principal)</h2><div class="sc-section-body"><ul><li>Un publisher (agent sur le Mac, le PC Windows ou le VPS) ouvre <code class="sc-chip">mqtts://mqtt.naonedge.com:8883</code> avec le compte <code class="sc-chip">iakaframe-publisher</code>. Mosquitto termine lui-même le TLS (VÉRIFIÉ, <code class="sc-chip">specs/instructions/mqtt-broker-vps.md:112-116</code>).</li><li>Il publie sous <code class="sc-chip">iakaframe/#</code>, seul espace qu'autorise l'ACL (VÉRIFIÉ, <code class="sc-chip">stack/mosquitto/acl:2-3</code>).</li><li>Les abonnés lisent : un navigateur passe par <code class="sc-chip">wss://mqtt.naonedge.com</code> (Caddy → <code class="sc-chip">naonedge-vps-mqtt:9001</code>, compte <code class="sc-chip">dashboard</code>), un futur pont passe par <code class="sc-chip">naonedge-vps-mqtt:1883</code> sur <code class="sc-chip">naonedge-proxy</code> (compte <code class="sc-chip">bridge</code>) (VÉRIFIÉ, <code class="sc-chip">stack/Caddyfile:84-91</code>, <code class="sc-chip">acl:5-10</code>).</li><li>Le certificat se renouvelle ainsi : Caddy renouvelle, puis <code class="sc-chip">mqtt-certs.sh</code> compare les empreintes sha256, copie si besoin et envoie un <code class="sc-chip">SIGHUP</code>. À la première copie, le script renomme <code class="sc-chip">.pending</code> en <code class="sc-chip">.conf</code> puis lance <code class="sc-chip">docker compose restart mqtt</code> (VÉRIFIÉ, <code class="sc-chip">scripts/mqtt-certs.sh:64-122</code>).</li><li>Aucun consommateur n'est déployé : pas de CouchDB, pas de pont, pas de dashboard (VÉRIFIÉ, backlog <code class="sc-chip">CLAUDE.md:163-173</code>).</li></ul></div></section><section class="sc-card sc-section"><h2>API / interfaces</h2><div class="sc-section-body"><ul><li><b>Points d'entrée réseau</b> : <code class="sc-chip">mqtts://mqtt.naonedge.com:8883</code>, <code class="sc-chip">wss://mqtt.naonedge.com</code> (443), <code class="sc-chip">naonedge-vps-mqtt:1883</code> en interne (VÉRIFIÉ, <code class="sc-chip">specs/instructions/mqtt-broker-vps.md:112-116</code>).</li><li><b>HTTP</b> : <code class="sc-chip">https://mqtt.naonedge.com</code> sans en-tête <code class="sc-chip">Upgrade</code> répond <code class="sc-chip">200 "naonedge mqtt broker"</code>, ce qui sert de sonde de santé (VÉRIFIÉ, <code class="sc-chip">stack/Caddyfile:92-94</code>).</li><li><b>CLI d'exploitation</b> : <code class="sc-chip">scripts/mqtt-certs.sh [--force]</code>, où <code class="sc-chip">--force</code> recopie et relance même si le cert n'a pas changé (VÉRIFIÉ, <code class="sc-chip">scripts/mqtt-certs.sh:18-21</code>). Les comptes se créent avec <code class="sc-chip">mosquitto_passwd</code> en mode interactif, jamais avec <code class="sc-chip">-b</code> (VÉRIFIÉ, <code class="sc-chip">README.md:56-57</code>).</li><li><b>Fichiers lus par le script</b> : <code class="sc-chip">/opt/naonedge-vps/.env</code> (<code class="sc-chip">MQTT_DOMAIN</code>) et <code class="sc-chip">/var/lib/docker/volumes/naonedge-vps-caddy-data/_data/caddy/certificates/*/&lt;domaine&gt;/&lt;domaine&gt;.{crt,key}</code> (VÉRIFIÉ, <code class="sc-chip">scripts/mqtt-certs.sh:25-29,42,49-50</code>).</li><li><b>Fichiers écrits par le script</b> : <code class="sc-chip">mosquitto/certs/server.crt</code> (644) et <code class="sc-chip">server.key</code> (640), uid:gid 1883, ainsi que le renommage de <code class="sc-chip">conf.d/8883-tls.conf.pending</code> (VÉRIFIÉ, <code class="sc-chip">:77-100</code>).</li><li><b>Fichiers montés en lecture seule</b> : <code class="sc-chip">mosquitto.conf</code>, <code class="sc-chip">conf.d/</code>, <code class="sc-chip">passwd</code>, <code class="sc-chip">acl</code>, <code class="sc-chip">certs/</code> (VÉRIFIÉ, <code class="sc-chip">compose.yml:239-244</code>). Ne sont pas commités : <code class="sc-chip">passwd</code>, <code class="sc-chip">certs/</code>, <code class="sc-chip">conf.d/8883-tls.conf</code> (VÉRIFIÉ, <code class="sc-chip">.gitignore:8-11</code>).</li></ul></div></section><section class="sc-card sc-section"><h2>MQTT</h2><div class="sc-section-body"><p><b>Comptes et ACL</b> (VÉRIFIÉ, <code class="sc-chip">stack/mosquitto/acl:1-10</code>). Aucune règle globale : ce qui n'est pas listé est refusé.</p><div class="sc-scroll"><table class="sc-table"><thead><tr><th>Compte</th><th>Droits</th><th>Usage</th></tr></thead><tbody><tr><td><code class="sc-chip">iakaframe-publisher</code></td><td>write <code class="sc-chip">iakaframe/#</code></td><td>agents (Mac, Windows, VPS)</td></tr><tr><td><code class="sc-chip">bridge</code></td><td>read <code class="sc-chip">iakaframe/#</code></td><td>futur pont MQTT → CouchDB</td></tr><tr><td><code class="sc-chip">dashboard</code></td><td>read <code class="sc-chip">iakaframe/#</code>, read <code class="sc-chip">$SYS/broker/#</code></td><td>futur dashboard WSS</td></tr></tbody></table></div><p><b>Schéma de topics</b> : il est <b>réservé</b> mais pas encore implémenté (VÉRIFIÉ, <code class="sc-chip">specs/instructions/mqtt-broker-vps.md:173-191</code>).</p><ul><li>La forme est <code class="sc-chip">iakaframe/&lt;projet&gt;/&lt;agent&gt;/&lt;evenement&gt;</code>, avec <code class="sc-chip">&lt;evenement&gt;</code> ∈ <code class="sc-chip">run/start</code>, <code class="sc-chip">run/end</code>, <code class="sc-chip">delegation</code>, <code class="sc-chip">state</code>, <code class="sc-chip">jalon</code>.</li><li>Le payload est en JSON : <code class="sc-chip">{ "ts", "project", "agent", "event", "payload" }</code>, avec <code class="sc-chip">ts</code> en ISO 8601 UTC.</li><li>Convention visée : QoS 1, et <code class="sc-chip">retain</code> <b>sur <code class="sc-chip">state</code> uniquement</b>. Le broker n'impose rien de tout cela (<code class="sc-chip">:189-191</code>).</li><li>Main courante historique : <code class="sc-chip">iakaframe/_logs/&lt;royaume&gt;/&lt;agent&gt;/&lt;conv&gt;</code> avec <code class="sc-chip">IAKALOG_PREFIX=iakaframe/_logs</code> (VÉRIFIÉ, <code class="sc-chip">:193-196</code>).</li></ul><p><b>Émetteurs présents dans ce dépôt</b>, sous <code class="sc-chip">global/hooks/</code> (VÉRIFIÉ) :</p><ul><li><code class="sc-chip">delegation-guard.mjs:252-277</code> construit un CONNECT MQTT 3.1.1 avec user/pass (<code class="sc-chip">0xC2</code>) puis un PUBLISH <code class="sc-chip">0x30</code>, c'est-à-dire <b>QoS 0 sans retain</b>. Topic : <code class="sc-chip">${IAKALOG_PREFIX||"logs"}/&lt;royaume&gt;/&lt;agent&gt;/&lt;conv&gt;</code>, URL tirée de <code class="sc-chip">IAKALOG_BROKER_URL</code>, port 1883 par défaut. Transport <code class="sc-chip">node:net</code> (<code class="sc-chip">:32,277</code>), donc <b>pas de TLS</b>.</li><li><code class="sc-chip">plan-courante.mjs:130-145</code> ouvre une socket TCP puis la ferme <b>sans rien publier</b> (commentaire <code class="sc-chip">:141-142</code> : « Publication broker minimale non implémentée »).</li></ul><p><b>Client de référence</b> : <code class="sc-chip">~/.claude/skills/iakaframe-log-conversation/iakalog.mjs</code> n'accepte que <code class="sc-chip">mqtt://</code>, ne publie qu'en QoS 0 et ne sait pas faire de TLS (VÉRIFIÉ par l'instruction, <code class="sc-chip">mqtt-broker-vps.md:50-58</code>). Je n'ai pas relu ce fichier, qui est hors du dépôt.</p></div></section><section class="sc-card sc-section"><h2>Interactions avec les autres logiciels</h2><div class="sc-section-body"><ul><li><b>iakaboxlogs (broker local iakabox)</b> : prédécesseur, repris pour la conf (listeners 1883/9001, uid 1883) (VÉRIFIÉ, <code class="sc-chip">mqtt-broker-vps.md:47-49</code>). Pas de pont VPS↔iakabox et pas de migration des données (VÉRIFIÉ, <code class="sc-chip">:550-555</code>). Le futur stockage reprend sa stack (CouchDB + <code class="sc-chip">bridge/</code>) (VÉRIFIÉ, <code class="sc-chip">CLAUDE.md:163-165</code>).</li><li><b>iakaframe</b> : producteur visé, via <code class="sc-chip">iakalog.mjs</code> et les hooks (<code class="sc-chip">TELEMETRIE-AGENTS-MQTT</code>). Le patch <code class="sc-chip">mqtts://</code> reste à faire (VÉRIFIÉ, <code class="sc-chip">CLAUDE.md:159-162</code>, <code class="sc-chip">specs/etat-des-lieux.md:92-96</code>).</li><li><b>Runners</b> : ils doivent tous porter <code class="sc-chip">IAKALOG_MQTT_URL=mqtts://mqtt.naonedge.com:8883</code> avec l'utilisateur <code class="sc-chip">iakaframe-publisher</code> (Mac <code class="sc-chip">~/work/.env</code>, Windows profil <code class="sc-chip">$env:</code>, VPS <code class="sc-chip">.env</code> d'<code class="sc-chip">iakagent</code>) (VÉRIFIÉ, <code class="sc-chip">mqtt-broker-vps.md:417-423</code>). Le PC Windows et <code class="sc-chip">iakagent</code> ne sont pas encore configurés, et CA-12 reste ouvert (VÉRIFIÉ, <code class="sc-chip">CLAUDE.md:159-160</code>).</li><li><b>IakaCockpit</b> : il sert de modèle visuel (look and feel) pour le futur dashboard temps réel, avec un onglet par projet = <code class="sc-chip">iakaframe/&lt;projet&gt;/...</code>, en WSS + CouchDB, lié depuis Dashy (VÉRIFIÉ, <code class="sc-chip">CLAUDE.md:167-173</code>). Qu'IakaCockpit s'abonne lui-même à ce broker : <b>non vu</b> dans ce dépôt.</li><li><b>iakaTokenCounter, IakaAgentsMonitor, iakaFrameGUI, iakaHub</b> : <b>aucune mention</b> dans ce dépôt (grep <code class="sc-chip">mqtt|mosquitto</code> négatif pour ces noms). SUPPOSÉ : ce seraient des abonnés potentiels via le compte <code class="sc-chip">dashboard</code> (WSS).</li><li><b>Caddy / Dashy (même VPS)</b> : Caddy fait le proxy WSS et obtient le cert ACME. Dashy ne présente aucune tuile MQTT pour l'instant (VÉRIFIÉ : aucune occurrence dans <code class="sc-chip">stack/dashy/conf.yml</code>).</li></ul></div></section><section class="sc-card sc-section"><h2>Ergonomie</h2><div class="sc-section-body"><p>Le broker n'a <b>aucun écran</b>. Les seules surfaces visibles sont les suivantes :</p><ul><li>la réponse texte <code class="sc-chip">naonedge mqtt broker</code> sur <code class="sc-chip">https://mqtt.naonedge.com</code> (VÉRIFIÉ, <code class="sc-chip">Caddyfile:93</code>) ;</li><li>les journaux <code class="sc-chip">docker logs naonedge-vps-mqtt</code> (<code class="sc-chip">log_dest stdout</code>, <code class="sc-chip">mosquitto.conf:12</code>) et la sortie horodatée de <code class="sc-chip">mqtt-certs.sh</code> (<code class="sc-chip">log()</code>, <code class="sc-chip">:39</code>) ;</li><li>la vue abonné <code class="sc-chip">mosquitto_sub -h mqtt.naonedge.com -p 8883 --capath /etc/ssl/certs -t 'iakaframe/#' -v</code> (VÉRIFIÉ, <code class="sc-chip">mqtt-broker-vps.md:474</code>).</li></ul><p>Pour une annotation, le mieux est un <b>schéma de flux</b> plutôt qu'une capture : trois voies d'entrée (8883, 443 WSS, 1883 interne), puis trois comptes et une ACL.</p></div></section><section class="sc-card sc-section"><h2>Points ouverts</h2><div class="sc-section-body"><ul><li><b>Écart de nom de variable.</b> Les hooks lisent <code class="sc-chip">IAKALOG_BROKER_URL</code> (<code class="sc-chip">delegation-guard.mjs:258</code>, <code class="sc-chip">plan-courante.mjs:131</code>), alors que l'instruction et les runners posent <code class="sc-chip">IAKALOG_MQTT_URL</code> (<code class="sc-chip">mqtt-broker-vps.md:418</code>). SUPPOSÉ : les hooks ne joignent pas le broker VPS tel que les runners sont configurés.</li><li><b>Hooks sans TLS.</b> Ils passent par <code class="sc-chip">node:net</code> sur un port par défaut de 1883, qui n'est pas exposé sur l'hôte. Ils ne peuvent donc pas atteindre <code class="sc-chip">:8883</code> (VÉRIFIÉ pour le transport ; échec SUPPOSÉ).</li><li><b>Préfixe par défaut hors ACL.</b> Le préfixe par défaut <code class="sc-chip">logs</code> des hooks sort de l'ACL (<code class="sc-chip">iakaframe/#</code>), si bien que la publication est refusée si <code class="sc-chip">IAKALOG_PREFIX</code> n'est pas posé (VÉRIFIÉ pour le code et l'ACL ; effet SUPPOSÉ).</li><li><b><code class="sc-chip">plan-courante.mjs</code> ne publie rien en transport broker</b> (VÉRIFIÉ, <code class="sc-chip">:140-145</code>).</li><li><b>Divergence dépôt / VPS.</b> Le dépôt livre 8883 en <code class="sc-chip">.pending</code>, alors qu'il est actif sur le VPS (VÉRIFIÉ, <code class="sc-chip">README.md:13-16</code>). La configuration réelle du VPS n'a pas été relue.</li><li><b>CA-12 non fait.</b> Il manque le test depuis le PC Windows et <code class="sc-chip">IAKALOG_*</code> sur le PC et <code class="sc-chip">iakagent</code> (VÉRIFIÉ, <code class="sc-chip">CLAUDE.md:159-160</code>).</li><li><b>Durcissements au backlog</b> : <code class="sc-chip">websockets_origin</code>, fail2ban, un compte par runner (VÉRIFIÉ, <code class="sc-chip">mqtt-broker-vps.md:556-558</code>).</li></ul></div></section>
+  <footer class="sc-foot">iakaframe · docs/architecture · généré le 27/09/2026 · charte Studio clair</footer>
+</div>
+</body>
+</html>

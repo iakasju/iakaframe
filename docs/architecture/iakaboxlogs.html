@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>iakaboxlogs — architecture iakaframe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Public+Sans:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   Studio clair — feuille de style canonique (label « design Studio clair »)
+   Défaut contextuel : projets de dev logiciel. Voir studio-clair-charte.md.
+   =================================================================== */
+
+:root {
+  --sc-bg: #f7f7f4;
+  --sc-surface: #ffffff;
+  --sc-well: #f0efeb;
+  --sc-border: #e2e0d9;
+  --sc-ink: #1c1c1a;
+  --sc-ink-muted: #6f6d64;
+  --sc-ink-faint: #a3a199;
+  --sc-accent: #3454d1;
+  --sc-accent-2: #0e8a82;
+  --sc-ok: #1a7f5a;
+  --sc-warn: #b5790a;
+  --sc-danger: #c1372c;
+  --sc-info: #2f6fb5;
+  --sc-radius: 8px;
+  --sc-font-display: "Manrope", system-ui, sans-serif;
+  --sc-font-body: "Public Sans", system-ui, sans-serif;
+  --sc-font-mono: "Fira Code", "SF Mono", Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-bg: #14161a;
+    --sc-surface: #1c1f24;
+    --sc-well: #22252b;
+    --sc-border: #2d3138;
+    --sc-ink: #e9e8e4;
+    --sc-ink-muted: #9a9a92;
+    --sc-ink-faint: #63666c;
+    --sc-accent: #7c93f0;
+    --sc-accent-2: #3fd6c8;
+    --sc-ok: #4ad393;
+    --sc-warn: #e0a83f;
+    --sc-danger: #ef6b5e;
+    --sc-info: #7fb2ec;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --sc-bg: #14161a;
+  --sc-surface: #1c1f24;
+  --sc-well: #22252b;
+  --sc-border: #2d3138;
+  --sc-ink: #e9e8e4;
+  --sc-ink-muted: #9a9a92;
+  --sc-ink-faint: #63666c;
+  --sc-accent: #7c93f0;
+  --sc-accent-2: #3fd6c8;
+  --sc-ok: #4ad393;
+  --sc-warn: #e0a83f;
+  --sc-danger: #ef6b5e;
+  --sc-info: #7fb2ec;
+  color-scheme: dark;
+}
+
+body.sc {
+  background: var(--sc-bg);
+  color: var(--sc-ink);
+  font-family: var(--sc-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.sc-hero { display: flex; flex-direction: column; gap: 6px; }
+.sc-hero h1 {
+  font-family: var(--sc-font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.sc-hero .sc-sub { color: var(--sc-ink-muted); font-size: 0.95rem; }
+
+.sc-section-label {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--sc-accent);
+}
+
+.sc-card {
+  background: var(--sc-surface);
+  border: 1px solid var(--sc-border);
+  border-radius: var(--sc-radius);
+}
+
+.sc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--sc-font-mono);
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-border);
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+}
+.sc-badge.b-live { color: var(--sc-accent-2); border-color: var(--sc-accent-2); }
+.sc-badge.b-ok { color: var(--sc-ok); }
+.sc-badge.b-warn { color: var(--sc-warn); }
+.sc-badge.b-danger { color: var(--sc-danger); }
+.sc-badge.b-info { color: var(--sc-info); }
+
+.sc-chip {
+  font-family: var(--sc-font-mono);
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+  border: 1px solid var(--sc-border);
+}
+
+.sc-pastille { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+.sc-note {
+  border-left: 3px solid var(--sc-border);
+  background: var(--sc-well);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-radius: 0 6px 6px 0;
+}
+.sc-note.warn { border-color: var(--sc-warn); }
+.sc-note.tip { border-color: var(--sc-accent-2); }
+.sc-note.info { border-color: var(--sc-info); }
+
+.sc-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--sc-border);
+}
+.sc-tab {
+  font-family: var(--sc-font-mono);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  color: var(--sc-ink-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.sc-tab.active { color: var(--sc-accent); border-bottom-color: var(--sc-accent); }
+.sc-tab:hover { color: var(--sc-ink); }
+
+table.sc-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+table.sc-table th, table.sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 6px 10px;
+  text-align: left;
+}
+table.sc-table th {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--sc-ink-muted);
+}
+table.sc-table tr:hover td { background: var(--sc-well); }
+
+
+/* ---- gabarit page architecture (extension locale, mêmes jetons --sc-*) ---- */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body.sc { padding-block: 28px; }
+.sc-page { max-width: 980px; margin: 0 auto; padding-inline: 20px; display: flex; flex-direction: column; gap: 18px; }
+.page-nav { position: sticky; top: env(safe-area-inset-top, 0px); background: var(--sc-bg); z-index: 5; padding-top: 4px; overflow-x: auto; flex-wrap: nowrap; }
+.page-nav .sc-tab { text-decoration: none; }
+.sc-hero { padding-top: 6px; }
+.sc-hero h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); }
+.sc-hero .sc-sub { max-width: 70ch; line-height: 1.5; }
+.sc-section { padding: 18px 22px; display: flex; flex-direction: column; gap: 10px; }
+.sc-section h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 2px; letter-spacing: -0.005em; }
+.sc-section-body { display: flex; flex-direction: column; gap: 10px; }
+.sc-section-body h3 { font-family: var(--sc-font-display); font-size: 0.92rem; margin: 6px 0 -2px; color: var(--sc-ink); }
+.sc-section-body p { margin: 0; line-height: 1.55; font-size: 0.9rem; }
+.sc-section-body ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; line-height: 1.5; }
+.sc-scroll { overflow-x: auto; border-radius: 6px; }
+.sc-shot { display: flex; flex-direction: column; gap: 8px; }
+.sc-shot img { width: 100%; border-radius: 6px; border: 1px solid var(--sc-border); display: block; }
+.sc-shot figcaption { font-size: 0.78rem; color: var(--sc-ink-muted); font-family: var(--sc-font-mono); }
+.sc-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--sc-ink-muted); align-items: center; }
+.idx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.idx-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; transition: border-color .15s; }
+.idx-card:hover { border-color: var(--sc-accent); }
+.idx-card h3 { margin: 0; font-family: var(--sc-font-display); font-size: 1rem; color: var(--sc-ink); }
+.idx-card p { margin: 0; font-size: 0.82rem; color: var(--sc-ink-muted); line-height: 1.4; }
+.sc-pre-card { padding: 16px 18px; }
+.sc-pre-card h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 10px; }
+pre.sc-pre { margin: 0; overflow-x: auto; font-family: var(--sc-font-mono); font-size: 0.66rem; line-height: 1.35; background: var(--sc-well); border: 1px solid var(--sc-border); border-radius: 6px; padding: 12px 14px; color: var(--sc-ink); }
+footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-faint); font-family: var(--sc-font-mono); padding-block: 10px 30px; }
+/* chemins/hash/refs longs sans espace (ex. src-tauri/src/broker.rs:31-37) : jamais de
+   débordement horizontal de la page — on les casse plutôt que d'élargir le corps. */
+.sc-page p, .sc-page li, .sc-page .sc-note, .sc-page td, .sc-page th,
+.sc-page code, .sc-page .sc-chip, .sc-page .sc-sub, .sc-page .idx-card p {
+  overflow-wrap: break-word;
+}
+@media (max-width: 640px) {
+  .sc-section { padding: 14px 16px; }
+}
+</style>
+</head>
+<body class="sc">
+<div class="sc-page">
+  <nav class="sc-tabs page-nav"><a class="sc-tab" href="index.html">Vue d'ensemble</a><a class="sc-tab" href="iakaagentsmonitor.html">IakaAgentsMonitor</a><a class="sc-tab active" href="iakaboxlogs.html">iakaboxlogs</a><a class="sc-tab" href="iakacockpit.html">IakaCockpit</a><a class="sc-tab" href="iakaframe.html">iakaframe</a><a class="sc-tab" href="iakaframegui.html">iakaFrameGUI</a><a class="sc-tab" href="iakahub.html">iakaHub</a><a class="sc-tab" href="iakatokencounter.html">iakaTokenCounter</a><a class="sc-tab" href="mqtt.html">MQTT (transverse)</a><a class="sc-tab" href="naonedge-vps.html">naonedge-vps</a></nav>
+  <div class="sc-hero">
+    <span class="sc-section-label">IAKAFRAME · ARCHITECTURE</span>
+    <h1>iakaboxlogs</h1>
+    <p class="sc-sub">Dépôt : <code class="sc-chip">~/work/iakaboxlogs</code> (HEAD <code class="sc-chip">f5210df</code>). Légende : <span class="sc-badge b-ok">V</span> = VÉRIFIÉ (lu dans le code/config), <span class="sc-badge b-warn">S</span> = SUPPOSÉ / déclaré dans une doc sans preuve code.</p>
+    <div class="sc-legend">
+      <span class="sc-badge b-ok">V / VÉRIFIÉ</span> lu dans le code ou la config
+      <span class="sc-badge b-warn">S / SUPPOSÉ</span> déduit, non prouvé
+      <span class="sc-badge b-info">PRÉVU</span> cadré, non livré
+    </div>
+  </div>
+  <p>Dépôt : <code class="sc-chip">~/work/iakaboxlogs</code> (HEAD <code class="sc-chip">f5210df</code>). Légende : <span class="sc-badge b-ok">V</span> = VÉRIFIÉ (lu dans le code/config), <span class="sc-badge b-warn">S</span> = SUPPOSÉ / déclaré dans une doc sans preuve code.</p><section class="sc-card sc-section"><h2>Rôle</h2><div class="sc-section-body"><p>Main courante centralisée des conversations des agents IA de l'écosystème iakaframe : les agents publient chaque message sur un broker MQTT, un pont le persiste dans CouchDB, et on consulte via Fauxton (et le flux live via MQTTX Web) <span class="sc-badge b-ok">V</span> <code class="sc-chip">CLAUDE.md:20-26</code>, <code class="sc-chip">README.md:3-5</code>. Hébergée sur l'iakabox (VM2 <code class="sc-chip">192.168.2.11</code>), <b>hors service depuis la panne de l'iakabox du 2026-08-19</b> ; son successeur (broker VPS <code class="sc-chip">mqtt.naonedge.com</code> + CouchDB) est en cadrage [V doc] <code class="sc-chip">naonedge-vps/specs/instructions/mqtt-broker-vps.md:14-21</code>, <code class="sc-chip">iakaframe/BACKLOG.md:26-27</code>.</p></div></section><section class="sc-card sc-section"><h2>Stack et composants</h2><div class="sc-section-body"><p>Stack Docker Compose <code class="sc-chip">name: iakaboxlogs</code>, réseau <code class="sc-chip">iakaboxlogs-net</code>, volumes <code class="sc-chip">iakaboxlogs-couchdb-data</code>, <code class="sc-chip">iakaboxlogs-mosquitto-data</code> <span class="sc-badge b-ok">V</span> <code class="sc-chip">docker-compose.yml:4,43-51</code>.</p><div class="sc-scroll"><table class="sc-table"><thead><tr><th>Composant</th><th>Image / binaire</th><th>Conteneur</th><th>Ports hôte</th><th>Source</th></tr></thead><tbody><tr><td>Broker MQTT</td><td><code class="sc-chip">eclipse-mosquitto:2</code></td><td><code class="sc-chip">iakaboxlogs-mqtt</code></td><td>1883 (TCP), 9883→9001 (WebSocket)</td><td><span class="sc-badge b-ok">V</span> <code class="sc-chip">docker-compose.yml:7-18</code></td></tr><tr><td>Base document</td><td><code class="sc-chip">couchdb:3</code> (+ Fauxton <code class="sc-chip">/_utils</code>)</td><td><code class="sc-chip">iakaboxlogs-couchdb</code></td><td>5984</td><td><span class="sc-badge b-ok">V</span> <code class="sc-chip">docker-compose.yml:20-32</code></td></tr><tr><td>GUI MQTT live</td><td><code class="sc-chip">emqx/mqttx-web:latest</code></td><td><code class="sc-chip">iakaboxlogs-mqttx</code></td><td>8090→80</td><td><span class="sc-badge b-ok">V</span> <code class="sc-chip">docker-compose.yml:34-41</code></td></tr><tr><td>Pont principal</td><td>n8n <b>préexistant sur la box</b> (workflow importé)</td><td>—</td><td>5678</td><td><span class="sc-badge b-ok">V</span> <code class="sc-chip">n8n/workflow-bridge.json</code>, <code class="sc-chip">README.md:16,55-60</code></td></tr><tr><td>Pont de repli</td><td>Node 20 alpine + lib <code class="sc-chip">mqtt ^5.10.1</code></td><td><code class="sc-chip">iakaboxlogs-bridge</code></td><td>aucun</td><td><span class="sc-badge b-ok">V</span> <code class="sc-chip">docker-compose.bridge.yml:7-23</code>, <code class="sc-chip">bridge/Dockerfile:1-6</code>, <code class="sc-chip">bridge/package.json:11-13</code></td></tr><tr><td>Publisher <code class="sc-chip">iakalog</code></td><td><code class="sc-chip">bin/iakalog.mjs</code>, Node pur, zéro dépendance, v0.2.0</td><td>— (CLI côté agent)</td><td>client → 1883</td><td><span class="sc-badge b-ok">V</span> <code class="sc-chip">bin/iakalog.mjs:1-4</code>, <code class="sc-chip">bin/package.json:3,7</code></td></tr><tr><td>Init base</td><td><code class="sc-chip">scripts/init-couchdb.sh</code> (curl)</td><td>—</td><td>—</td><td><span class="sc-badge b-ok">V</span> <code class="sc-chip">scripts/init-couchdb.sh:1-26</code></td></tr></tbody></table></div><p>Mosquitto : persistance activée, listeners 1883 (<code class="sc-chip">mqtt</code>) et 9001 (<code class="sc-chip">websockets</code>), <code class="sc-chip">allow_anonymous false</code>, <code class="sc-chip">password_file /mosquitto/config/passwd</code> <span class="sc-badge b-ok">V</span> <code class="sc-chip">mosquitto/mosquitto.conf:4-18</code>. Pas de TLS, pas d'ACL <span class="sc-badge b-ok">V</span> (absence dans <code class="sc-chip">mosquitto.conf</code>). Le broker tourne en uid 1883 : <code class="sc-chip">passwd</code> doit lui appartenir sinon crash loop [V doc] <code class="sc-chip">README.md:36-37</code>.</p></div></section><section class="sc-card sc-section"><h2>Fonctionnement (flux principal)</h2><div class="sc-section-body"><ul><li>Un agent (skill <code class="sc-chip">log-conversation</code> / <code class="sc-chip">iakaframe-log-conversation</code>) lance <code class="sc-chip">node iakalog.mjs --role … --content …</code> <span class="sc-badge b-ok">V</span> <code class="sc-chip">skills/log-conversation/SKILL.md:23-27</code>.</li><li><code class="sc-chip">iakalog.mjs</code> construit le topic <code class="sc-chip">${prefix}/${royaume}/${agent}/${conv}</code> et le payload <code class="sc-chip">{role, content, ts, tokens, meta[, _id]}</code> <span class="sc-badge b-ok">V</span> <code class="sc-chip">bin/iakalog.mjs:58-61</code>, ouvre une socket TCP brute, envoie CONNECT MQTT 3.1.1 (user/pass, keepalive 30 s, clean session) puis, au CONNACK=0, un PUBLISH QoS 0 non retenu (octet <code class="sc-chip">0x30</code>) et ferme <span class="sc-badge b-ok">V</span> <code class="sc-chip">bin/iakalog.mjs:66-86</code>. Timeout 7 s, sortie code 1 en cas d'échec <span class="sc-badge b-ok">V</span> <code class="sc-chip">bin/iakalog.mjs:25,76,82,85</code>.</li><li>Le pont (n8n : MQTT Trigger <code class="sc-chip">iakaboxlogs/#</code> → Code « Build Doc » → HTTP POST <code class="sc-chip">http://couchdb:5984/conversations</code> en Basic auth <span class="sc-badge b-ok">V</span> <code class="sc-chip">n8n/workflow-bridge.json:8,22,31-47</code> ; ou repli <code class="sc-chip">bridge/index.js</code> : subscribe <code class="sc-chip">iakaboxlogs/#</code> puis <code class="sc-chip">POST ${COUCHDB_URL}/${COUCHDB_DB}</code> <span class="sc-badge b-ok">V</span> <code class="sc-chip">bridge/index.js:20,45-49</code>) découpe le topic en <code class="sc-chip">royaume/agent/conv_id</code>, parse le JSON (sinon <code class="sc-chip">content = payload brut</code>) et crée un document <span class="sc-badge b-ok">V</span> <code class="sc-chip">bridge/index.js:28-42</code>.</li><li>Consultation : Fauxton <code class="sc-chip">http://192.168.2.11:5984/_utils</code>, base <code class="sc-chip">conversations</code>, index Mango <code class="sc-chip">idx-maincourante</code> sur <code class="sc-chip">ts, royaume, agent, conv_id</code> <span class="sc-badge b-ok">V</span> <code class="sc-chip">scripts/init-couchdb.sh:17-23</code> ; flux live via MQTTX Web (8090, WS 9883) [V doc] <code class="sc-chip">CLAUDE.md:45-51</code>.</li></ul><p>Le workflow n8n est livré <code class="sc-chip">"active": false</code> avec des credentials à remplacer (<code class="sc-chip">REPLACE_MQTT_CRED</code>, <code class="sc-chip">REPLACE_COUCHDB_CRED</code>) <span class="sc-badge b-ok">V</span> <code class="sc-chip">n8n/workflow-bridge.json:3,17,47</code> ; lequel des deux ponts tournait réellement en prod : <span class="sc-badge b-warn">S</span> n8n selon <code class="sc-chip">CLAUDE.md:110</code> (« bout-en-bout validé »).</p></div></section><section class="sc-card sc-section"><h2>API / interfaces</h2><div class="sc-section-body"><ul><li><b>CLI <code class="sc-chip">iakalog</code></b> <span class="sc-badge b-ok">V</span> <code class="sc-chip">bin/iakalog.mjs:6-18</code> : <code class="sc-chip">--role</code> (requis), <code class="sc-chip">--content</code> (requis), <code class="sc-chip">--conv</code>, <code class="sc-chip">--royaume</code>, <code class="sc-chip">--agent</code>, <code class="sc-chip">--tokens N</code>, <code class="sc-chip">--meta '&lt;json objet&gt;'</code> (JSON invalide → <code class="sc-chip">{}</code> + stderr, <code class="sc-chip">:38-47</code>), <code class="sc-chip">--canal &lt;v&gt;</code> (→ <code class="sc-chip">meta.canal</code>, <code class="sc-chip">:48-49</code>), <code class="sc-chip">--id &lt;_id&gt;</code> (<code class="sc-chip">:50,60</code>). Env : <code class="sc-chip">IAKALOG_MQTT_URL</code> (déf. <code class="sc-chip">mqtt://192.168.2.11:1883</code>, schéma <code class="sc-chip">mqtt://</code> seul, <code class="sc-chip">:27,52-53</code>), <code class="sc-chip">IAKALOG_USER</code>, <code class="sc-chip">IAKALOG_PASS</code> (requis, <code class="sc-chip">:54</code>), <code class="sc-chip">IAKALOG_ROYAUME</code>, <code class="sc-chip">IAKALOG_AGENT</code>, <code class="sc-chip">IAKALOG_CONV</code>, <code class="sc-chip">IAKALOG_PREFIX</code> (déf. <code class="sc-chip">iakaboxlogs</code>, <code class="sc-chip">:30</code>). Stdout : <code class="sc-chip">iakalog: publie sur &lt;topic&gt;</code> (<code class="sc-chip">:83</code>).</li><li><b>HTTP CouchDB</b> : <code class="sc-chip">POST /conversations</code> (écriture par le pont), <code class="sc-chip">PUT /conversations</code>, <code class="sc-chip">POST /conversations/_index</code>, <code class="sc-chip">POST /_cluster_setup</code> (init) <span class="sc-badge b-ok">V</span> <code class="sc-chip">scripts/init-couchdb.sh:13-23</code> ; lecture par tiers via <code class="sc-chip">POST /conversations/_find</code> [V doc] <code class="sc-chip">IakaCockpit/specs/instructions/L4-mains-courantes.md:81-86</code>.</li><li><b>Fichiers</b> : lit <code class="sc-chip">.env</code> (secrets, non commité, <code class="sc-chip">.env.example:1-20</code>), <code class="sc-chip">mosquitto/passwd</code> (généré, non commité, <code class="sc-chip">README.md:30-37</code>). Pas d'IPC Tauri, pas d'endpoint HTTP propre au projet <span class="sc-badge b-ok">V</span> (aucun serveur dans le dépôt).</li><li><b>Copie distribuée</b> : <code class="sc-chip">~/.claude/skills/iakaframe-log-conversation/iakalog.mjs</code> est identique à <code class="sc-chip">bin/iakalog.mjs</code> <span class="sc-badge b-ok">V</span> (diff vide, lecture seule).</li></ul></div></section><section class="sc-card sc-section"><h2>MQTT</h2><div class="sc-section-body"><div class="sc-scroll"><table class="sc-table"><thead><tr><th>Sens</th><th>Topic</th><th>Retenu</th><th>QoS</th><th>Format</th><th>Source</th></tr></thead><tbody><tr><td>Publié par <code class="sc-chip">iakalog.mjs</code> (et hooks iakaframe)</td><td><code class="sc-chip">iakaboxlogs/&lt;royaume&gt;/&lt;agent&gt;/&lt;conv_id&gt;</code></td><td>non (<code class="sc-chip">0x30</code>)</td><td>0</td><td>JSON <code class="sc-chip">{role, content, ts ISO, tokens, meta{}, _id?}</code></td><td><span class="sc-badge b-ok">V</span> <code class="sc-chip">bin/iakalog.mjs:58-61,72</code></td></tr><tr><td>Abonné par le pont (n8n ou bridge)</td><td><code class="sc-chip">iakaboxlogs/#</code></td><td>—</td><td>défaut lib (QoS 0) <span class="sc-badge b-warn">S</span></td><td>idem ; non-JSON toléré</td><td><span class="sc-badge b-ok">V</span> <code class="sc-chip">bridge/index.js:20</code>, <code class="sc-chip">n8n/workflow-bridge.json:8</code></td></tr><tr><td>Lu par MQTTX Web</td><td>au choix de l'utilisateur (WS 9883)</td><td>—</td><td>—</td><td>—</td><td>[V doc] <code class="sc-chip">CLAUDE.md:49,51</code></td></tr></tbody></table></div><p>Document CouchDB produit : <code class="sc-chip">{ts, royaume, agent, conv_id, role, content, tokens, meta}</code> + <code class="sc-chip">_id</code> UUID généré par CouchDB <span class="sc-badge b-ok">V</span> <code class="sc-chip">bridge/index.js:33-42</code>. Valeurs <code class="sc-chip">meta</code> connues : <code class="sc-chip">meta.canal:"geste"</code>, <code class="sc-chip">event: delegation|delegation_refused</code>, <code class="sc-chip">from</code>, <code class="sc-chip">to</code>, <code class="sc-chip">verdict</code>, <code class="sc-chip">refused</code> (hook delegation-guard, commit <code class="sc-chip">09e8693</code> « porte meta arbitraire (canal geste) pour L5 ») <span class="sc-badge b-ok">V</span> <code class="sc-chip">IakaAgentsMonitor/global/hooks/delegation-guard.mjs:202-207</code>. Aucune commande MQTT (pas de topic <code class="sc-chip">/in</code>, pas de requête/réponse) <span class="sc-badge b-ok">V</span>.</p></div></section><section class="sc-card sc-section"><h2>Interactions avec les autres logiciels</h2><div class="sc-section-body"><ul><li><b>iakaframe</b> : skill <code class="sc-chip">iakaframe-log-conversation</code> embarque <code class="sc-chip">iakalog.mjs</code> [V doc] <code class="sc-chip">iakaframe/methode-de-travail.html:3578-3625</code> ; hooks du kit <code class="sc-chip">delegation-guard.mjs</code> et <code class="sc-chip">plan-courante.mjs</code> publient au format « calque iakalog » (broker) ou POST direct CouchDB (<code class="sc-chip">IAKALOG_TRANSPORT=docdb</code>, <code class="sc-chip">DOCDB_URL/DB/USER/PASSWORD</code>) <span class="sc-badge b-ok">V</span> <code class="sc-chip">iakaframe/kits/iakaframe-claude/global/hooks/delegation-guard.mjs:249</code> ; <code class="sc-chip">IakaAgentsMonitor/global/hooks/delegation-guard.mjs:190,210-214,219-296</code>. Instruction 03 (auto-capture via hooks <code class="sc-chip">UserPromptSubmit</code>/<code class="sc-chip">Stop</code>) rédigée, <b>non implémentée</b> <span class="sc-badge b-ok">V</span> <code class="sc-chip">specs/instructions/03-auto-capture-iakaframe.md:22-23</code>, <code class="sc-chip">specs/etat-des-lieux.md</code> (« auto-capture 03 a implementer »).</li><li><b>IakaCockpit</b> : L4 lit la base <code class="sc-chip">conversations</code> en lecture seule (<code class="sc-chip">_find</code>, Basic auth) ; L5 = trace machine des délégations vers iakaboxlogs ; son <code class="sc-chip">docker/init-couchdb.sh</code> reproduit le schéma (base + <code class="sc-chip">idx-maincourante</code>) pour un CouchDB local 5984 <span class="sc-badge b-ok">V</span> <code class="sc-chip">IakaCockpit/docker/init-couchdb.sh:3,27-31</code>, <code class="sc-chip">IakaCockpit/docker/docker-compose.yml:50</code>, <code class="sc-chip">IakaCockpit/CLAUDE.md:905-916</code> ; L18 réutilise le transport L5 [V doc] <code class="sc-chip">IakaCockpit/specs/instructions/L18-main-courante-par-hook.md:37,50</code>.</li><li><b>iakaTokenCounter</b> : <code class="sc-chip">iakatc-daemon</code> publie ses métriques <b>retenues QoS 1</b> sur <b>le même broker</b>, sous la racine dédiée <code class="sc-chip">iakatokencounter/</code> pour ne pas être captées par le pont <code class="sc-chip">iakaboxlogs/#</code> ; pas de persistance CouchDB [V doc] <code class="sc-chip">iakaTokenCounter/iakatc-daemon/README.md:3-9</code>, <code class="sc-chip">iakaTokenCounter/specs/contrat-mqtt-conso.md:18-41</code>.</li><li><b>IakaAgentsMonitor</b> : porte des copies des hooks <code class="sc-chip">delegation-guard.mjs</code> / <code class="sc-chip">plan-courante.mjs</code> émetteurs <span class="sc-badge b-ok">V</span> (fichiers cités ci-dessus) ; consommation de la main courante : <span class="sc-badge b-warn">S</span> non trouvée.</li><li><b>VPS (naonedge-vps)</b> : instruction broker VPS = successeur du broker iakabox, préfixe cible <code class="sc-chip">IAKALOG_PREFIX=iakaframe/_logs</code>, <code class="sc-chip">mqtts://mqtt.naonedge.com:8883</code> ; <code class="sc-chip">iakalog.mjs</code> <b>refuse</b> <code class="sc-chip">mqtts://</code> tant que non patché TLS [V doc] <code class="sc-chip">naonedge-vps/specs/instructions/mqtt-broker-vps.md:50,194,414-421,464</code> ; reprise de <code class="sc-chip">docker-compose.yml</code>, <code class="sc-chip">bridge/</code>, <code class="sc-chip">mosquitto/</code> prévue [V doc] <code class="sc-chip">iakaframe/BACKLOG.md:29-31</code>.</li><li><b>iakaHub</b> : bascule optionnelle de la publication via iakaHub au backlog, non rédigée <span class="sc-badge b-ok">V</span> <code class="sc-chip">CLAUDE.md:115</code> ; aucune référence dans <code class="sc-chip">~/work/iakaHub</code> [V grep].</li><li><b>iakaFrameGUI</b> : aucune référence trouvée [V grep].</li></ul></div></section><section class="sc-card sc-section"><h2>Ergonomie</h2><div class="sc-section-body"><p>Aucune UI propre : on consomme des UIs tierces <span class="sc-badge b-ok">V</span>.</p><ul><li><b>Fauxton</b> (<code class="sc-chip">:5984/_utils</code>) : zones clés pour annotation — liste des bases (→ <code class="sc-chip">conversations</code>), vue « All Documents » (un doc par message), éditeur JSON d'un doc (champs <code class="sc-chip">royaume</code>, <code class="sc-chip">agent</code>, <code class="sc-chip">conv_id</code>, <code class="sc-chip">role</code>, <code class="sc-chip">content</code>, <code class="sc-chip">meta.canal</code>), onglet « Run A Query with Mango » (index <code class="sc-chip">idx-maincourante</code>) [S, UI standard CouchDB].</li><li><b>MQTTX Web</b> (<code class="sc-chip">:8090</code>) : panneau connexions (host <code class="sc-chip">192.168.2.11</code>, port WS 9883, user/pass), zone abonnement <code class="sc-chip">iakaboxlogs/#</code>, fil des messages avec topic + payload JSON [S, UI standard MQTTX].</li><li>Page projet générée par docgen : <code class="sc-chip">doc/index.html</code> [V existence].</li><li>Captures : impossibles actuellement (iakabox hors service) [V doc].</li></ul></div></section><section class="sc-card sc-section"><h2>Points ouverts</h2><div class="sc-section-body"><ul><li><b><code class="sc-chip">_id</code> ignoré par les ponts</b> : <code class="sc-chip">iakalog.mjs:14</code> et <code class="sc-chip">delegation-guard.mjs:250</code> affirment que « le bridge l'honore », mais <code class="sc-chip">bridge/index.js:33-42</code> et le « Build Doc » n8n ne recopient pas <code class="sc-chip">_id</code> → pas d'idempotence via le broker (seul le transport <code class="sc-chip">docdb</code> l'a, 409). <span class="sc-badge b-ok">V</span></li><li><b>Variables incohérentes</b> : <code class="sc-chip">iakalog.mjs</code> lit <code class="sc-chip">IAKALOG_MQTT_URL</code> et préfixe déf. <code class="sc-chip">iakaboxlogs</code> ; les hooks lisent <code class="sc-chip">IAKALOG_BROKER_URL</code> et préfixe déf. <code class="sc-chip">logs</code> (<code class="sc-chip">delegation-guard.mjs:257,262</code>) → sans <code class="sc-chip">IAKALOG_PREFIX=iakaboxlogs</code>, les hooks publient hors du <code class="sc-chip">iakaboxlogs/#</code> du pont. <span class="sc-badge b-ok">V</span></li><li>SKILL.md demande <code class="sc-chip">cd bin &amp;&amp; npm install</code> (<code class="sc-chip">skills/log-conversation/SKILL.md:14</code>) alors que le publisher est zéro dépendance ; README « À venir » liste encore la skill de push déjà livrée (<code class="sc-chip">README.md:102</code>). <span class="sc-badge b-ok">V</span></li><li>Schémas cibles divergents pour le successeur : <code class="sc-chip">iakaboxlogs/&lt;royaume&gt;/&lt;agent&gt;/&lt;conv&gt;</code> vs <code class="sc-chip">iakaframe/&lt;projet&gt;/&lt;agent&gt;/&lt;evenement&gt;</code> QoS 1 + retain (<code class="sc-chip">iakaframe/BACKLOG.md:20-21</code>) vs <code class="sc-chip">iakaframe/_logs</code> (VPS). [V doc]</li><li>Pas de TLS, QoS 0 fire-and-forget (perte silencieuse si le pont est down, sauf persistance Mosquitto non applicable au QoS 0) ; rétention 1 an et dashboards Grafana non faits (<code class="sc-chip">CLAUDE.md:112-113</code>). <span class="sc-badge b-ok">V</span></li><li>Adresse <code class="sc-chip">192.168.2.11</code> codée en défaut ; la mémoire projet iakaos signale l'iakabox en <code class="sc-chip">192.168.1.139</code> — de toute façon hors service depuis le 19/08. [V doc]</li><li><code class="sc-chip">specs/etat-des-lieux.md</code> note un arbre modifié non commité au moment du snapshot ; l'arbre actuel n'a pas été vérifié (lecture seule). <span class="sc-badge b-warn">S</span></li></ul></div></section>
+  <footer class="sc-foot">iakaframe · docs/architecture · généré le 27/09/2026 · charte Studio clair</footer>
+</div>
+</body>
+</html>

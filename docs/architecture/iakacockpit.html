@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>IakaCockpit — architecture iakaframe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Public+Sans:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ===================================================================
+   Studio clair — feuille de style canonique (label « design Studio clair »)
+   Défaut contextuel : projets de dev logiciel. Voir studio-clair-charte.md.
+   =================================================================== */
+
+:root {
+  --sc-bg: #f7f7f4;
+  --sc-surface: #ffffff;
+  --sc-well: #f0efeb;
+  --sc-border: #e2e0d9;
+  --sc-ink: #1c1c1a;
+  --sc-ink-muted: #6f6d64;
+  --sc-ink-faint: #a3a199;
+  --sc-accent: #3454d1;
+  --sc-accent-2: #0e8a82;
+  --sc-ok: #1a7f5a;
+  --sc-warn: #b5790a;
+  --sc-danger: #c1372c;
+  --sc-info: #2f6fb5;
+  --sc-radius: 8px;
+  --sc-font-display: "Manrope", system-ui, sans-serif;
+  --sc-font-body: "Public Sans", system-ui, sans-serif;
+  --sc-font-mono: "Fira Code", "SF Mono", Consolas, monospace;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --sc-bg: #14161a;
+    --sc-surface: #1c1f24;
+    --sc-well: #22252b;
+    --sc-border: #2d3138;
+    --sc-ink: #e9e8e4;
+    --sc-ink-muted: #9a9a92;
+    --sc-ink-faint: #63666c;
+    --sc-accent: #7c93f0;
+    --sc-accent-2: #3fd6c8;
+    --sc-ok: #4ad393;
+    --sc-warn: #e0a83f;
+    --sc-danger: #ef6b5e;
+    --sc-info: #7fb2ec;
+    color-scheme: dark;
+  }
+}
+
+:root[data-theme="dark"] {
+  --sc-bg: #14161a;
+  --sc-surface: #1c1f24;
+  --sc-well: #22252b;
+  --sc-border: #2d3138;
+  --sc-ink: #e9e8e4;
+  --sc-ink-muted: #9a9a92;
+  --sc-ink-faint: #63666c;
+  --sc-accent: #7c93f0;
+  --sc-accent-2: #3fd6c8;
+  --sc-ok: #4ad393;
+  --sc-warn: #e0a83f;
+  --sc-danger: #ef6b5e;
+  --sc-info: #7fb2ec;
+  color-scheme: dark;
+}
+
+body.sc {
+  background: var(--sc-bg);
+  color: var(--sc-ink);
+  font-family: var(--sc-font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+.sc-hero { display: flex; flex-direction: column; gap: 6px; }
+.sc-hero h1 {
+  font-family: var(--sc-font-display);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+.sc-hero .sc-sub { color: var(--sc-ink-muted); font-size: 0.95rem; }
+
+.sc-section-label {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  color: var(--sc-accent);
+}
+
+.sc-card {
+  background: var(--sc-surface);
+  border: 1px solid var(--sc-border);
+  border-radius: var(--sc-radius);
+}
+
+.sc-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--sc-font-mono);
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--sc-border);
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+}
+.sc-badge.b-live { color: var(--sc-accent-2); border-color: var(--sc-accent-2); }
+.sc-badge.b-ok { color: var(--sc-ok); }
+.sc-badge.b-warn { color: var(--sc-warn); }
+.sc-badge.b-danger { color: var(--sc-danger); }
+.sc-badge.b-info { color: var(--sc-info); }
+
+.sc-chip {
+  font-family: var(--sc-font-mono);
+  font-size: 0.68rem;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--sc-well);
+  color: var(--sc-ink-muted);
+  border: 1px solid var(--sc-border);
+}
+
+.sc-pastille { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+
+.sc-note {
+  border-left: 3px solid var(--sc-border);
+  background: var(--sc-well);
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  border-radius: 0 6px 6px 0;
+}
+.sc-note.warn { border-color: var(--sc-warn); }
+.sc-note.tip { border-color: var(--sc-accent-2); }
+.sc-note.info { border-color: var(--sc-info); }
+
+.sc-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--sc-border);
+}
+.sc-tab {
+  font-family: var(--sc-font-mono);
+  font-size: 0.75rem;
+  padding: 8px 12px;
+  color: var(--sc-ink-muted);
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+}
+.sc-tab.active { color: var(--sc-accent); border-bottom-color: var(--sc-accent); }
+.sc-tab:hover { color: var(--sc-ink); }
+
+table.sc-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+table.sc-table th, table.sc-table td {
+  border-bottom: 1px solid var(--sc-border);
+  padding: 6px 10px;
+  text-align: left;
+}
+table.sc-table th {
+  font-family: var(--sc-font-mono);
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  color: var(--sc-ink-muted);
+}
+table.sc-table tr:hover td { background: var(--sc-well); }
+
+
+/* ---- gabarit page architecture (extension locale, mêmes jetons --sc-*) ---- */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body.sc { padding-block: 28px; }
+.sc-page { max-width: 980px; margin: 0 auto; padding-inline: 20px; display: flex; flex-direction: column; gap: 18px; }
+.page-nav { position: sticky; top: env(safe-area-inset-top, 0px); background: var(--sc-bg); z-index: 5; padding-top: 4px; overflow-x: auto; flex-wrap: nowrap; }
+.page-nav .sc-tab { text-decoration: none; }
+.sc-hero { padding-top: 6px; }
+.sc-hero h1 { font-size: clamp(1.5rem, 1.1rem + 1.6vw, 2.1rem); }
+.sc-hero .sc-sub { max-width: 70ch; line-height: 1.5; }
+.sc-section { padding: 18px 22px; display: flex; flex-direction: column; gap: 10px; }
+.sc-section h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 2px; letter-spacing: -0.005em; }
+.sc-section-body { display: flex; flex-direction: column; gap: 10px; }
+.sc-section-body h3 { font-family: var(--sc-font-display); font-size: 0.92rem; margin: 6px 0 -2px; color: var(--sc-ink); }
+.sc-section-body p { margin: 0; line-height: 1.55; font-size: 0.9rem; }
+.sc-section-body ul { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 4px; font-size: 0.9rem; line-height: 1.5; }
+.sc-scroll { overflow-x: auto; border-radius: 6px; }
+.sc-shot { display: flex; flex-direction: column; gap: 8px; }
+.sc-shot img { width: 100%; border-radius: 6px; border: 1px solid var(--sc-border); display: block; }
+.sc-shot figcaption { font-size: 0.78rem; color: var(--sc-ink-muted); font-family: var(--sc-font-mono); }
+.sc-legend { display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.78rem; color: var(--sc-ink-muted); align-items: center; }
+.idx-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.idx-card { padding: 16px 18px; display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; transition: border-color .15s; }
+.idx-card:hover { border-color: var(--sc-accent); }
+.idx-card h3 { margin: 0; font-family: var(--sc-font-display); font-size: 1rem; color: var(--sc-ink); }
+.idx-card p { margin: 0; font-size: 0.82rem; color: var(--sc-ink-muted); line-height: 1.4; }
+.sc-pre-card { padding: 16px 18px; }
+.sc-pre-card h2 { font-family: var(--sc-font-display); font-size: 1.05rem; margin: 0 0 10px; }
+pre.sc-pre { margin: 0; overflow-x: auto; font-family: var(--sc-font-mono); font-size: 0.66rem; line-height: 1.35; background: var(--sc-well); border: 1px solid var(--sc-border); border-radius: 6px; padding: 12px 14px; color: var(--sc-ink); }
+footer.sc-foot { text-align: center; font-size: 0.72rem; color: var(--sc-ink-faint); font-family: var(--sc-font-mono); padding-block: 10px 30px; }
+/* chemins/hash/refs longs sans espace (ex. src-tauri/src/broker.rs:31-37) : jamais de
+   débordement horizontal de la page — on les casse plutôt que d'élargir le corps. */
+.sc-page p, .sc-page li, .sc-page .sc-note, .sc-page td, .sc-page th,
+.sc-page code, .sc-page .sc-chip, .sc-page .sc-sub, .sc-page .idx-card p {
+  overflow-wrap: break-word;
+}
+@media (max-width: 640px) {
+  .sc-section { padding: 14px 16px; }
+}
+</style>
+</head>
+<body class="sc">
+<div class="sc-page">
+  <nav class="sc-tabs page-nav"><a class="sc-tab" href="index.html">Vue d'ensemble</a><a class="sc-tab" href="iakaagentsmonitor.html">IakaAgentsMonitor</a><a class="sc-tab" href="iakaboxlogs.html">iakaboxlogs</a><a class="sc-tab active" href="iakacockpit.html">IakaCockpit</a><a class="sc-tab" href="iakaframe.html">iakaframe</a><a class="sc-tab" href="iakaframegui.html">iakaFrameGUI</a><a class="sc-tab" href="iakahub.html">iakaHub</a><a class="sc-tab" href="iakatokencounter.html">iakaTokenCounter</a><a class="sc-tab" href="mqtt.html">MQTT (transverse)</a><a class="sc-tab" href="naonedge-vps.html">naonedge-vps</a></nav>
+  <div class="sc-hero">
+    <span class="sc-section-label">IAKAFRAME · ARCHITECTURE</span>
+    <h1>IakaCockpit</h1>
+    <p class="sc-sub">Dépôt : <code class="sc-chip">~/work/IakaCockpit</code> (HEAD <code class="sc-chip">2ed1690</code>, v0.33.0). Chemins relatifs au dépôt.</p>
+    <div class="sc-legend">
+      <span class="sc-badge b-ok">V / VÉRIFIÉ</span> lu dans le code ou la config
+      <span class="sc-badge b-warn">S / SUPPOSÉ</span> déduit, non prouvé
+      <span class="sc-badge b-info">PRÉVU</span> cadré, non livré
+    </div>
+  </div>
+  <figure class="sc-card sc-shot" style="padding:14px;">
+      <img src="img/IakaCockpit.png" alt="Capture IakaCockpit" loading="lazy">
+      <figcaption>Étagère du portefeuille — bandeau d'indicateurs, graphique « Tokens par jour et par projet ».</figcaption>
+    </figure><p>Dépôt : <code class="sc-chip">~/work/IakaCockpit</code> (HEAD <code class="sc-chip">2ed1690</code>, v0.33.0). Chemins relatifs au dépôt. Légende : <span class="sc-badge b-ok">V</span> = VÉRIFIÉ dans le code/config ; <span class="sc-badge b-warn">S</span> = SUPPOSÉ / déduit de la doc.</p><section class="sc-card sc-section"><h2>Rôle</h2><div class="sc-section-body"><ul><li><span class="sc-badge b-ok">V</span> Application de bureau placée au-dessus du portefeuille de projets du « chapeau » (<code class="sc-chip">~/work</code>) : vue d'ensemble des dépôts, une session de travail par projet, pilotage de l'équipe d'agents ; le terminal reste la source de vérité, le chat n'est qu'une vue filtrée (<code class="sc-chip">README.md:3-10</code>).</li><li><span class="sc-badge b-ok">V</span> Frontière avec iakaFrameGUI : la forge fabrique et livre les équipes, le cockpit les réceptionne, les lie et les exécute (<code class="sc-chip">README.md:12-13</code>, <code class="sc-chip">src-tauri/src/handoff.rs:1-5</code>).</li></ul></div></section><section class="sc-card sc-section"><h2>Stack et composants</h2><div class="sc-section-body"><ul><li><span class="sc-badge b-ok">V</span> Front React 18.3 + TypeScript 5.5 + Vite 6 (<code class="sc-chip">src/</code>), backend Tauri 2 / Rust (<code class="sc-chip">src-tauri/</code>), SQLite <code class="sc-chip">rusqlite</code> bundled, secrets au keychain natif <code class="sc-chip">keyring</code> ; app id <code class="sc-chip">com.iakateam.iakacockpit</code> (<code class="sc-chip">CLAUDE.md</code> § « Ce qu'est ce projet » ; <code class="sc-chip">src-tauri/tauri.conf.json:3-5</code> ; <code class="sc-chip">src-tauri/Cargo.toml:1-4,28,36</code>).</li><li><span class="sc-badge b-ok">V</span> Un seul processus desktop (binaire Tauri <code class="sc-chip">iakacockpit</code>, lib <code class="sc-chip">app_lib</code>) (<code class="sc-chip">src-tauri/Cargo.toml:2,12</code>). Serveur de dev Vite sur <code class="sc-chip">localhost:3020</code> (<code class="sc-chip">src-tauri/tauri.conf.json:8</code>).</li><li><span class="sc-badge b-ok">V</span> Point unique d'<code class="sc-chip">invoke</code> front → Rust : <code class="sc-chip">src/api/backend.ts</code> (<code class="sc-chip">CLAUDE.md</code> § architecture front D7).</li><li><span class="sc-badge b-ok">V</span> Base locale <code class="sc-chip">iakacockpit.sqlite</code> sous <code class="sc-chip">app_data_dir</code> (<code class="sc-chip">src-tauri/src/db.rs:4,14</code>). Clés de config : <code class="sc-chip">root</code>, <code class="sc-chip">theme</code>, <code class="sc-chip">litellm_endpoint</code>, <code class="sc-chip">extra_projects</code>, <code class="sc-chip">pricing_url</code>, <code class="sc-chip">workset</code>, <code class="sc-chip">teams</code>, <code class="sc-chip">default_team</code>, <code class="sc-chip">project_team:*</code>, <code class="sc-chip">chef_runner_kind</code> (<code class="sc-chip">src-tauri/src/config.rs:19-69</code>).</li><li><span class="sc-badge b-ok">V</span> Processus enfants : PTY interactifs (shell par OS, ou vrai <code class="sc-chip">claude</code> / <code class="sc-chip">codex</code> en TUI native) via <code class="sc-chip">portable-pty</code> (<code class="sc-chip">src-tauri/src/terminal.rs</code> en-tête ; <code class="sc-chip">src-tauri/src/codex.rs:1-8</code> ; <code class="sc-chip">Cargo.toml:31</code>).</li><li><span class="sc-badge b-ok">V</span> Pilotage vocal local : <code class="sc-chip">cpal</code> + <code class="sc-chip">whisper-rs</code>, modèle <code class="sc-chip">ggml-base.bin</code> téléchargé au 1er run (<code class="sc-chip">src-tauri/src/voice.rs:1-12</code> ; <code class="sc-chip">Cargo.toml</code> deps).</li><li><span class="sc-badge b-ok">V</span> Stack Docker de dev <code class="sc-chip">iakacockpit</code> (réseau <code class="sc-chip">iakacockpit-dev-net</code>) : Ollama <code class="sc-chip">127.0.0.1:11435→11434</code>, LiteLLM 1.94.0 <code class="sc-chip">127.0.0.1:4020→4000</code>, CouchDB 3 <code class="sc-chip">127.0.0.1:5984</code>, n8n <code class="sc-chip">127.0.0.1:5678</code> (<code class="sc-chip">docker/docker-compose.yml:1-80</code>).</li><li><span class="sc-badge b-ok">V</span> Auto-update signé (plugin updater) : endpoints <code class="sc-chip">http://192.168.1.139:3001/sjupin/iakacockpit/raw/branch/main/updater/latest.json</code> puis <code class="sc-chip">raw.githubusercontent.com/iakasju/IakaCockpit/main/updater/latest.json</code> (<code class="sc-chip">src-tauri/tauri.conf.json:42-44</code>) ; publication par <code class="sc-chip">scripts/publish-update.mjs</code> (<code class="sc-chip">CLAUDE.md</code> § commandes).</li><li><span class="sc-badge b-ok">V</span> CSP stricte : <code class="sc-chip">connect-src 'self' ipc: http://ipc.localhost http://localhost:4000</code> (<code class="sc-chip">src-tauri/tauri.conf.json:23</code>) — tout le réseau passe par Rust.</li></ul></div></section><section class="sc-card sc-section"><h2>Fonctionnement (flux principal)</h2><div class="sc-section-body"><ul><li><span class="sc-badge b-ok">V</span> Résolution du chapeau : <code class="sc-chip">IAKAFRAME_ROOT</code> sinon <code class="sc-chip">&lt;home&gt;/work</code> (<code class="sc-chip">src-tauri/src/paths.rs:1-16</code>).</li><li><span class="sc-badge b-ok">V</span> <code class="sc-chip">scan_portfolio</code> énumère les sous-dossiers et lit l'état git via le binaire <code class="sc-chip">git</code> (<code class="sc-chip">src-tauri/src/portfolio.rs:1-8</code>).</li><li><span class="sc-badge b-ok">V</span> L'utilisateur ouvre un projet → PTY <code class="sc-chip">pty_runner_open</code> lance le chef-runner (<code class="sc-chip">claude</code> ou <code class="sc-chip">codex</code>) dans le cwd, borné au chapeau (<code class="sc-chip">src-tauri/src/terminal.rs</code> en-tête).</li><li><span class="sc-badge b-ok">V</span> En parallèle, Rust *tail* le transcript JSONL (<code class="sc-chip">~/.claude/projects/&lt;escaped&gt;/&lt;sid&gt;.jsonl</code>, ou rollout <code class="sc-chip">~/.codex/sessions/...</code>) et émet des <code class="sc-chip">RunnerEvent</code> homogènes sur <code class="sc-chip">runner://event/{session_id}</code> → vues chat/gestes/délégations (<code class="sc-chip">src-tauri/src/transcript.rs:1-12</code> ; <code class="sc-chip">src-tauri/src/codex.rs:1-8</code>).</li><li><span class="sc-badge b-ok">V</span> Agrégats tokens/coûts par projet depuis les mêmes JSONL (<code class="sc-chip">src-tauri/src/economy.rs:1-7</code>).</li></ul></div></section><section class="sc-card sc-section"><h2>API / interfaces</h2><div class="sc-section-body"><ul><li><span class="sc-badge b-ok">V</span> Commandes IPC Tauri (<code class="sc-chip">src-tauri/src/lib.rs:81-132</code>) : <code class="sc-chip">ping</code> ; portefeuille <code class="sc-chip">scan_portfolio</code>, <code class="sc-chip">add_project</code>, <code class="sc-chip">list_extra_projects</code> ; économie <code class="sc-chip">portfolio_economy</code>, <code class="sc-chip">portfolio_activity</code>, <code class="sc-chip">analytics_cost</code>, <code class="sc-chip">delegations_by_agent</code>, <code class="sc-chip">agent_attribution</code>, <code class="sc-chip">delegation_edges</code>, <code class="sc-chip">analytics_index_status</code>, <code class="sc-chip">analytics_refresh</code>, <code class="sc-chip">pricing_table</code> ; <code class="sc-chip">read_reservoir</code> ; <code class="sc-chip">check_services</code> ; config <code class="sc-chip">get_root</code>, <code class="sc-chip">set_root</code>, <code class="sc-chip">config_get/set/all</code> ; PTY <code class="sc-chip">pty_open/write/resize/close</code>, <code class="sc-chip">pty_runner_open</code>, <code class="sc-chip">latest_transcript</code>, <code class="sc-chip">set_fullscreen</code> ; <code class="sc-chip">transcript_tail_start/stop</code>, <code class="sc-chip">codex_tail_start</code> ; IA <code class="sc-chip">next_step</code>, <code class="sc-chip">chat</code>, <code class="sc-chip">frame_author</code>, <code class="sc-chip">ai_set_key</code>, <code class="sc-chip">ai_has_key</code> ; main courante <code class="sc-chip">fetch_main_courante</code>, <code class="sc-chip">couch_set_credentials</code>, <code class="sc-chip">couch_has_credentials</code> ; <code class="sc-chip">notify_user</code>, <code class="sc-chip">n8n_set_token</code>, <code class="sc-chip">n8n_has_token</code> ; <code class="sc-chip">seed_demo</code> ; <code class="sc-chip">prepare_resume</code> ; <code class="sc-chip">voice_listen</code> ; <code class="sc-chip">frame_load/save/export</code> ; <code class="sc-chip">handoff_read</code>, <code class="sc-chip">handoff_list</code>, <code class="sc-chip">now_millis</code>.</li><li><span class="sc-badge b-ok">V</span> Événements Tauri : <code class="sc-chip">pty://output/{id}</code>, <code class="sc-chip">pty://closed/{id}</code> (<code class="sc-chip">src-tauri/src/terminal.rs</code> en-tête), <code class="sc-chip">runner://event/{session_id}</code> (<code class="sc-chip">src-tauri/src/transcript.rs:11-12</code>).</li><li><span class="sc-badge b-ok">V</span> HTTP sortant (via <code class="sc-chip">ureq</code>) :</li><li>LLM OpenAI-compat <code class="sc-chip">POST {litellm_endpoint}/chat/completions</code> (<code class="sc-chip">src-tauri/src/ai.rs:407-416</code>), modèle défaut <code class="sc-chip">llama3.1:8b</code> (<code class="sc-chip">ai.rs:50</code>) ; mock si endpoint vide ou <code class="sc-chip">IAKACOCKPIT_*_MOCK=1</code> (<code class="sc-chip">ai.rs:343-351</code>).</li><li>CouchDB iakaboxlogs <code class="sc-chip">POST {couchdb_url}/{base}/_find</code>, défaut <code class="sc-chip">http://192.168.2.11:5984</code>, base <code class="sc-chip">conversations</code>, 200 docs, lecture seule (<code class="sc-chip">src-tauri/src/maincourante.rs:3-8,35-38,53</code>).</li><li>Webhook n8n <code class="sc-chip">POST {n8n_webhook_url}</code> en-tête <code class="sc-chip">X-API-Key</code> optionnel ; payload <code class="sc-chip">{canal:"adresse", support, cible?, message, meta}</code> (<code class="sc-chip">src-tauri/src/notify.rs:3-4,36-49,78-91</code>).</li><li>Sondes TCP 1,5 s : Forgejo <code class="sc-chip">192.168.2.11:3001</code>, Ollama/ComfyUI/Obot <code class="sc-chip">192.168.2.12:11434/8188/3009</code>, AppFlowy <code class="sc-chip">192.168.2.14:3008</code>, CouchDB <code class="sc-chip">192.168.2.11:5984</code> (<code class="sc-chip">src-tauri/src/services.rs:23-44</code>).</li><li><span class="sc-badge b-ok">V</span> Fichiers lus : transcripts <code class="sc-chip">~/.claude/projects/<b>.jsonl</code> et <code class="sc-chip">~/.codex/sessions/</b></code> ; réservoir iakaframe (<code class="sc-chip">IAKAFRAME_HOME</code> ou <code class="sc-chip">&lt;hat&gt;/iakaframe</code>, reconnu par <code class="sc-chip">library/personas</code> + <code class="sc-chip">teams/</code>) (<code class="sc-chip">src-tauri/src/reservoir.rs:1-13,27,62-87</code>) ; canal de handoff <code class="sc-chip">&lt;hat&gt;/iaka-handoff/&lt;team_id&gt;/{team.json,handoff.json}</code> ou <code class="sc-chip">IAKA_HANDOFF_ROOT</code> (<code class="sc-chip">src-tauri/src/handoff.rs:3-7,20-21</code> ; <code class="sc-chip">paths.rs:18-24</code>).</li><li><span class="sc-badge b-ok">V</span> Fichiers écrits : <code class="sc-chip">&lt;hat&gt;/.iakacockpit/frames/&lt;team&gt;.json</code> (écriture atomique) (<code class="sc-chip">src-tauri/src/frame.rs:3-4,16</code>) ; SQLite applicative ; keychain service <code class="sc-chip">iakacockpit</code> (comptes <code class="sc-chip">ai_api_key</code>, <code class="sc-chip">couchdb_user</code>, <code class="sc-chip">couchdb_password</code>, <code class="sc-chip">n8n_webhook_token</code>) (<code class="sc-chip">ai.rs:41-44</code>, <code class="sc-chip">maincourante.rs:41-45</code>, <code class="sc-chip">notify.rs:44-46</code>).</li></ul></div></section><section class="sc-card sc-section"><h2>MQTT</h2><div class="sc-section-body"><ul><li><span class="sc-badge b-ok">V</span> <b>Aucun client MQTT dans le cockpit</b> : pas de crate MQTT dans <code class="sc-chip">src-tauri/Cargo.toml</code>, aucune occurrence de souscription/publication dans <code class="sc-chip">src-tauri/src</code> ni <code class="sc-chip">src/</code>. <code class="sc-chip">maincourante.rs:5-8</code> le dit explicitement : « on ne réimplémente NI le bus MQTT, NI le pont n8n/bridge… jamais de souscription temps réel ».</li><li><span class="sc-badge b-ok">V</span> MQTT n'apparaît qu'indirectement, de deux façons :</li><li><b>Lecture (aval du bus)</b> : la main courante est lue dans CouchDB, alimentée par iakaboxlogs (agents → Mosquitto → pont → CouchDB) (<code class="sc-chip">specs/PROJET.md:250,307,400</code>).</li><li><b>Émission (via n8n)</b> : <code class="sc-chip">notify_user</code> envoie au webhook n8n une valeur <code class="sc-chip">support</code> ∈ {slack, discord, mqtt} (<code class="sc-chip">src/api/backend.ts:141</code> ; <code class="sc-chip">src-tauri/src/notify.rs:298</code> ; choix UI <code class="sc-chip">src/views/SettingsView.tsx:68</code>). n8n route ; le nœud <code class="sc-chip">n8n-nodes-base.mqtt</code> « MQTT (a completer) » est un <b>placeholder désactivé</b>, topic = <code class="sc-chip">body.cible</code>, credential broker iakabox à créer en UI (<code class="sc-chip">docker/n8n/canal-adresse.workflow.json:28,74-79</code> ; <code class="sc-chip">docker/n8n/README.md:27,45</code>).</li><li><span class="sc-badge b-ok">V</span> Topics, QoS, retain : <b>non définis côté cockpit</b> ; le topic serait la chaîne opaque <code class="sc-chip">cible</code> (<code class="sc-chip">src/api/backend.ts:569</code>). QoS/retain dépendraient du nœud n8n, non configuré.</li><li><span class="sc-badge b-warn">S</span> Aucun lien avec le broker local d'iakaOS (<code class="sc-chip">iaka/&lt;domaine&gt;/{in,out}</code>) : rien dans le code ne publie sur ces topics.</li></ul></div></section><section class="sc-card sc-section"><h2>Interactions avec les autres logiciels</h2><div class="sc-section-body"><ul><li><b>iakaframe</b> <span class="sc-badge b-ok">V</span> : réservoir lu comme source de vérité des équipes/personas (<code class="sc-chip">reservoir.rs:1-13</code>) ; team par défaut <code class="sc-chip">iakaframe</code> (<code class="sc-chip">config.rs:57</code>) ; cadre stocké dans <code class="sc-chip">.iakacockpit/frames</code> (<code class="sc-chip">frame.rs</code>).</li><li><b>iakaFrameGUI</b> <span class="sc-badge b-ok">V</span> : la forge écrit <code class="sc-chip">team.json</code> + <code class="sc-chip">handoff.json</code> dans <code class="sc-chip">&lt;hat&gt;/iaka-handoff/</code>, le cockpit lit sans jamais écrire (<code class="sc-chip">handoff.rs:1-10</code>). Release.yml aligné sur iakaFrameGUI (commit <code class="sc-chip">1a9b45e</code>).</li><li><b>iakaboxlogs</b> <span class="sc-badge b-ok">V</span> : CouchDB <code class="sc-chip">conversations</code> lue en HTTP (<code class="sc-chip">maincourante.rs</code>) ; sondé dans <code class="sc-chip">check_services</code> (<code class="sc-chip">services.rs:35-41</code>). Adresse <code class="sc-chip">192.168.2.11</code> <span class="sc-badge b-warn">S</span> obsolète (la mémoire projet iakaOS place l'iakabox en <code class="sc-chip">192.168.1.139</code>, et l'updater du cockpit utilise déjà <code class="sc-chip">.1.139</code>, <code class="sc-chip">tauri.conf.json:43</code>).</li><li><b>iakaTokenCounter, IakaAgentsMonitor, iakaHub</b> <span class="sc-badge b-ok">V</span> : aucune référence dans <code class="sc-chip">src/</code>, <code class="sc-chip">src-tauri/src/</code> ni <code class="sc-chip">specs/PROJET.md</code> (grep). <span class="sc-badge b-warn">S</span> recouvrement fonctionnel possible avec <code class="sc-chip">economy.rs</code> (tokens) et les vues délégations/swimlanes, mais sans échange direct.</li><li><b>VPS NaonEdge</b> <span class="sc-badge b-ok">V</span> : pas d'appel réseau vers <code class="sc-chip">naonedge.com</code> ; seule trace = thème par défaut <code class="sc-chip">naonedge-dark</code> (<code class="sc-chip">src/main.tsx:7-9</code>). L'updater pointe le NAS et GitHub, pas le VPS (<code class="sc-chip">tauri.conf.json:42-44</code>).</li><li><b>Forgejo NAS</b> <span class="sc-badge b-ok">V</span> : endpoint updater n°1 et cible de <code class="sc-chip">publish-update.mjs</code> ; sondé par <code class="sc-chip">check_services</code>.</li><li><b>LiteLLM/Ollama</b> <span class="sc-badge b-ok">V</span> : moteur IA « prochaine étape », chat, auteur de cadre (<code class="sc-chip">ai.rs</code>).</li></ul></div></section><section class="sc-card sc-section"><h2>Ergonomie (pour annotations de capture)</h2><div class="sc-section-body"><ul><li><span class="sc-badge b-ok">V</span> Rail de navigation gauche : Portefeuille, Travail (working), Analytics, Teams, Réglages (<code class="sc-chip">src/App.tsx:827-874</code>). Vues Journal (main courante) et Cadre <b>débranchées-gardées</b> (code présent, bouton retiré) (<code class="sc-chip">src/App.tsx:846,866</code>).</li><li><span class="sc-badge b-ok">V</span> Vues : <code class="sc-chip">src/views/{PortfolioView,WorkingView,AnalyticsView,TeamsView,SettingsView,JournalView,CadreView}.tsx</code>.</li><li><span class="sc-badge b-ok">V</span> Zones clés (composants <code class="sc-chip">src/components/</code>) : cartes projet + treemap économie (<code class="sc-chip">ProjectCard</code>, <code class="sc-chip">EconomyPanel</code>, <code class="sc-chip">treemapColor</code>), onglets projet (<code class="sc-chip">ProjectTabs</code>), terminal PTY (<code class="sc-chip">PtyTerminal</code>), chat filtré (<code class="sc-chip">Chat</code>), roster d'agents (<code class="sc-chip">Roster</code>), arbre de délégations (<code class="sc-chip">DelegationTree</code>), swimlanes (<code class="sc-chip">AgentSwimlanes</code>), Gantt/plan (<code class="sc-chip">GanttPanel</code>, <code class="sc-chip">PlanPanel</code>), prochaine étape (<code class="sc-chip">NextStepPanel</code>), jauge mémoire (<code class="sc-chip">MemoryGauge</code>), réception handoff (<code class="sc-chip">HandoffReception</code>), micro (<code class="sc-chip">VoiceMic</code>), éditeur de teams (<code class="sc-chip">TeamsEditor</code>).</li><li><span class="sc-badge b-ok">V</span> Réglages : choix du support de notification slack/discord/mqtt (<code class="sc-chip">src/views/SettingsView.tsx:68</code>).</li></ul></div></section><section class="sc-card sc-section"><h2>Points ouverts</h2><div class="sc-section-body"><ul><li>Adresses LAN <code class="sc-chip">192.168.2.x</code> codées en dur (<code class="sc-chip">services.rs:23-41</code>, <code class="sc-chip">maincourante.rs:35</code>) vs <code class="sc-chip">192.168.1.139</code> ailleurs : à confirmer.</li><li>Branche MQTT de n8n non câblée (placeholder) : aucun message cockpit n'atteint réellement un broker aujourd'hui.</li><li>Canal entrant (MQTT/Slack → cockpit) différé (<code class="sc-chip">docker/n8n/README.md:81</code>).</li><li>CSP autorise <code class="sc-chip">localhost:4000</code> alors que LiteLLM de dev est exposé en <code class="sc-chip">4020</code> (<code class="sc-chip">tauri.conf.json:23</code> vs <code class="sc-chip">docker-compose.yml:41</code>) ; sans effet pratique puisque les appels passent par Rust <span class="sc-badge b-warn">S</span>.</li><li>Canal <code class="sc-chip">geste</code> de la main courante uniquement via <code class="sc-chip">meta.canal</code> (<code class="sc-chip">maincourante.rs:14-18</code>).</li></ul></div></section>
+  <footer class="sc-foot">iakaframe · docs/architecture · généré le 27/09/2026 · charte Studio clair</footer>
+</div>
+</body>
+</html>
