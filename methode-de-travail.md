@@ -775,7 +775,8 @@ Référence d'implémentation : projet **iakaHub** (`docs/passerelle-discord.md`
 Tout projet est versionné sur le **Forgejo auto-hébergé du VPS NaonEdge** — cohérent
 avec la préférence self-hosted, et joignable de partout, hors du LAN comme dedans.
 Pattern : `https://git.naonedge.com/sjupin/<repo>.git`, **HTTPS + token**, remote `origin`
-sur un projet neuf (`vps` en complément d'un `origin` déjà pris). Le token n'est **jamais**
+sur **tous** les projets (bascule générale du 2026-09-27 : l'ancien `origin` NAS devient `nas`,
+il n'y a plus de remote `vps`). Le token n'est **jamais**
 écrit en dur ni commité : variable `$env:FORGEJO_TOKEN`
 ou `.git/config` local. Création de dépôt via l'API Forgejo (`POST /api/v1/user/repos`,
 description **ASCII uniquement** sinon HTTP 422, dépôt **privé** par défaut). Décision du
@@ -783,7 +784,8 @@ description **ASCII uniquement** sinon HTTP 422, dépôt **privé** par défaut)
 
 Le **Forgejo du homelab iakabox** (`http://192.168.2.11:3001/sjupin/<repo>.git`, HTTP +
 token, SSH inutilisable) reste un **miroir secondaire**, remote `iakabox`, réaligné quand le
-LAN répond : `git push iakabox main --tags`. Guide complet : `iakabox-usage.html`.
+LAN répond : `git push iakabox main --tags`. Idem pour le Forgejo du NAS
+(`http://192.168.1.139:3001`, remote `nas`) : `git push nas main --tags`. Guide complet : `iakabox-usage.html`.
 
 ## Secrets par défaut : Vaultwarden VPS (vault.naonedge.com)
 

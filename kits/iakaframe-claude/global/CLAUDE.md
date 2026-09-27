@@ -75,14 +75,15 @@ dispatch — sans en spawner aucun**.
 
 Remote par défaut de tout projet : **Forgejo sur le VPS NaonEdge**,
 `https://git.naonedge.com/<user>/<repo>.git`, **HTTPS + token**, joignable de partout
-(depuis le 2026-09-13 ; remote `origin` sur un projet neuf, `vps` en complément d'un
-`origin` déjà pris). Token jamais en dur ni commité :
+(depuis le 2026-09-13), en remote **`origin` sur tous les projets** (bascule générale du
+2026-09-27 : l'ancien `origin` NAS est conservé sous le nom `nas`, il n'y a plus de remote `vps`). Token jamais en dur ni commité :
 `$env:FORGEJO_TOKEN`, ou intégré dans le `.git/config` local. Création de dépôt via l'API
 `POST /api/v1/user/repos` (description **ASCII uniquement**, dépôt **privé** par défaut).
 
 Le **Forgejo LAN iakabox** (`http://192.168.2.11:3001/<user>/<repo>.git`, HTTP + token,
 SSH inutilisable) reste un **miroir secondaire** quand le LAN est joignable ; on le
-réaligne par `git push iakabox main --tags`. Détails et usage : `C:\work\iakaframe\iakabox-usage.html`.
+réaligne par `git push iakabox main --tags`. Même statut pour le
+**Forgejo du NAS** (`http://192.168.1.139:3001`, remote `nas`) : `git push nas main --tags`. Détails et usage : `C:\work\iakaframe\iakabox-usage.html`.
 
 ## Cycle de documentation (état des lieux)
 
