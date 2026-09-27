@@ -478,12 +478,26 @@ Un lot = un commit atomique (conventional commits), tests verts avant chaque com
 **Lot 2 — Adaptateur d'état** (`feat(hooks)`)
 5. Créer `chantier-state.mjs` : `registryPath(sid)`, `loadState(sid)` (lecture + fold ; `ENOENT`
    → `null`), `appendEvent(sid, ev)`, `ensureLaunch(payload)` (avec `main_role`/`main_agent_type`,
-   D-1), `normalize(abs)` (M-12), `keyOf(absPath)` (D-4), `knownRepos()`, `resolveRepoArg(arg)`
-   (nom ou chemin → clé, pour `Chantier:` et `iakaframe launch`), `isExcluded(abs, payload)` (D-8),
+   D-1), `normalize(abs)` (M-12), `keyOf(absPath)` (D-4), `knownRepos(state)`
+   (`state` facultatif : union des dépôts scannés et des clés de l'état replié, D-4 §3),
+   `resolveRepoArg(token, opts)` (nom ou chemin → clé, pour `Chantier:` et `iakaframe launch` ;
+   `opts.requireExisting` exige un dossier existant — `odin-direct`, D-3 ; `opts.state` = état replié
+   servant à détecter un nom ambigu — D-4/M-10/CA-22), `isExcluded(abs, payload)` (D-8),
    `hardDeny(abs)` (D-9, forme brute **et** normalisée), `failOpen(hook, err)` (D-10),
    `sessionShellHint(root, role)`.
 6. Tests avec `HOME`/`USERPROFILE` et `IAKAFRAME_ROOT` redirigés vers un tmpdir, dépôts fixtures
    = dossiers portant un `.git` (dossier, et fichier `gitdir:` de worktree), lien symbolique (POSIX).
+
+> **Note de réalisation (2026-09-27, Lot 2, `08ebd02`)** — Écart de signature tracé a posteriori :
+> le récapitulatif annonçait `resolveRepoArg(arg)` ; le livré est `resolveRepoArg(token, opts)`
+> (`kits/iakaframe-claude/global/hooks/chantier-state.mjs:257-265`). Justification : `opts.requireExisting`
+> distingue la **création** de projet (dossier absent admis) de la directive **`odin-direct`** qui exige
+> un dossier existant (D-3) ; `opts.state` permet de repérer un **nom homonyme** sous des racines
+> différentes et de rendre `{ ambiguous: true }` (D-4, M-10, CA-22). Écart relevé au gate 🏹 Legolas
+> (Lot 2 PASS), jugé **fonctionnellement conforme** ; le récapitulatif ci-dessus est aligné sur le livré.
+> Même nature d'écart pour `knownRepos()` → livré `knownRepos(state)` (`chantier-state.mjs:240`) :
+> `state` facultatif ajoute aux dépôts scannés sous la racine les clés déjà présentes dans l'état replié
+> de la session, dont le dépôt de lancement (D-4 §3) ; aligné sur demande d'Aragorn le 2026-09-27.
 
 **Lot 3 — Prompt** (`feat(hooks)`)
 7. Créer `chantier-remind.mjs` (détection b, directives en session `odin` seulement, rappel en
