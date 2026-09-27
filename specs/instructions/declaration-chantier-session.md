@@ -1,5 +1,13 @@
 # Déclaration de chantier par session — attribution au dépôt réel + blocage direct
 
+> **Amendée par `specs/instructions/prise-de-parole-odin-aragorn.md` (validé le 2026-09-27 — voir son
+> § 4 « Lectures amendées »).** Lire cette instruction avec : **L-3** (décision 4 : le secours
+> « sous-agent `aragorn` » est retiré du contrat ; garde D-6 règle 4 inchangé, Q-P1 = A) ; **L-4**
+> (Lot 6 étapes 11-12 : `odin.md` propose une session Aragorn, `aragorn.md` répond du dépôt de
+> lancement de sa session) ; **L-5** (§ Messages et rappel `chantier-remind` : option 2 « faire
+> designer le depot… puis deleguer a aragorn » retirée) ; **L-6** (Exclu `identity-remind.mjs` levé,
+> traité par l'amendement). Le corps ci-dessous n'est pas réécrit.
+
 > Émetteur : 🧙 Gandalf (cadrage, P1). Récepteur : ⚒️ Gimli (dev, P2), gate 🏹 Legolas.
 > Cible : dépôt `iakaframe` — gardes du kit Claude (`kits/iakaframe-claude/global/hooks/`),
 > cœur pur `guard-core.mjs`, contrats `odin.md` / `aragorn.md`, skills `iakaframe-odin` /

@@ -1,5 +1,13 @@
 # Lancement d'une session Aragorn par Odin — une session Claude par dépôt
 
+> **Amendée par `specs/instructions/prise-de-parole-odin-aragorn.md` (validé le 2026-09-27 — voir son
+> § 4 « Lectures amendées »).** Lire cette instruction avec : **L-1** (D-L9 : après le lancement, Odin
+> cède la place ; restitution d'un point d'Aragorn seulement sur demande explicite, verbatim, Q-P2) ;
+> **L-2** (D-L10, étape 8 : la condition devient « session lancée dans un dépôt » ; section `iakastart`
+> « 0. Déterminer la voix » ; « odin, … » ouvre un tour d'Odin en lecture seule, `odin` n'y déclenche
+> pas `iakastart`) ; CA-L13 : premier tour sous `🟠 [NAONEDGE][Aragorn]`. Les lectures L-3 à L-6
+> visent l'instruction mère. Le corps ci-dessous n'est pas réécrit.
+
 > Émetteur : 🧙 Gandalf (cadrage, P1). Récepteur : ⚒️ Gimli (dev, P2), gate 🏹 Legolas.
 > Cible : dépôt `iakaframe` — CLI (`cli/src/`), skills `iakaframe-odin`, `iakaframe-aragorn`,
 > `iakastart`, persona `odin.md`, kit global Claude (`settings.example.json`, README).
