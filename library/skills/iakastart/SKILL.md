@@ -1,7 +1,7 @@
 ---
 id: iakastart
 name: iakastart
-description: Bootstrap de la team iakaframe — point d'entrée nommé qui lève l'équipe au début ou en cours de session. Utiliser cette skill chaque fois que l'utilisateur dit "iakastart", "iakaframe" ou "odin", ou demande de "lancer la team", "démarrer la team iakaframe", "bootstrap équipe", "réveiller l'équipe", "qui compose la team". Elle affiche le banner ASCII IAKAFRAME (via le CLI existant) + le ROSTER de la FRAME ACTIVE du projet (lu depuis le pointeur .iakaframe ; repli sur la frame default hors projet), et rend les agents prêts à dispatch — SANS jamais les spawner (aucun sous-agent lancé). Les alias "iakaframe" et "odin" mènent ici ; "odin" conserve en plus sa posture portefeuille (skill iakaframe-odin).
+description: Bootstrap de la team iakaframe — point d'entrée nommé qui lève l'équipe au début ou en cours de session. Utiliser cette skill chaque fois que l'utilisateur dit "iakastart" ou "iakaframe" (partout), ou "odin" AU PORTEFEUILLE (dans un dépôt, "odin, ..." interpelle Odin pour un tour sans bootstrap — voir le persona Aragorn), ou demande de "lancer la team", "démarrer la team iakaframe", "bootstrap équipe", "réveiller l'équipe", "qui compose la team". Elle affiche le banner ASCII IAKAFRAME (via le CLI existant) + le ROSTER de la FRAME ACTIVE du projet (lu depuis le pointeur .iakaframe ; repli sur la frame default hors projet), sous le badge dont la voix suit le LIEU de lancement (Aragorn dans un dépôt, Odin au portefeuille), et rend les agents prêts à dispatch — SANS jamais les spawner (aucun sous-agent lancé). L'alias "iakaframe" mène ici partout ; "odin" y mène au portefeuille et conserve en plus sa posture portefeuille (skill iakaframe-odin).
 ---
 
 # iakaframe — Bootstrap de la team (iakastart)
@@ -18,11 +18,30 @@ Ce n'est **qu'un bootstrap d'affichage + mise à disposition** — tu **ne lance
 
 ## Déclencheurs
 
-`iakastart`, `iakaframe`, `odin`, ou toute formulation du type « lancer la team »,
+`iakastart` et `iakaframe` déclenchent cette skill **partout** (dépôt ou portefeuille) ; `odin`
+la déclenche **au portefeuille seulement** (dans un dépôt, « odin, … » ouvre un tour d'Odin en
+lecture seule — pas de bootstrap, cf. étape 0). Ou toute formulation du type « lancer la team »,
 « démarrer la team iakaframe », « bootstrap équipe », « réveiller l'équipe », « qui compose
 la team » — en **début** comme en **cours** de session.
 
 ## Étapes (à exécuter dans l'ordre)
+
+### 0. Déterminer la voix
+
+Avant tout affichage, détermine **qui** parle, à partir du **lieu de lancement** de la session
+(`CLAUDE_PROJECT_DIR`, à défaut le `cwd`) :
+
+- lancement dans un **dépôt** ou un **dossier de projet** (`kind` `repo`/`dir`) → la voix est
+  **Aragorn** : le bootstrap s'affiche sous `🟠 [<DÉPÔT>][Aragorn]`, y compris quand le
+  déclencheur est le mot `iakastart`/`iakaframe` (pas `odin` : dans un dépôt, `odin` seul ou
+  « odin, … » relève du persona Aragorn — un tour d'Odin en lecture seule, **pas** ce bootstrap) ;
+- lancement au **portefeuille** (`C:\work`) ou **hors** dépôt → la voix est **Odin** : le
+  bootstrap s'affiche sous `🟡 [PORTEFEUILLE][Odin]` (comportement actuel, inchangé).
+
+**Session d'équipe** (lancée avec `--agent aragorn`, ou plus généralement `--agent X` avec
+`X ≠ odin`) : la voix est Aragorn quel que soit le déclencheur, dans le dépôt de lancement ; un
+lancement `--agent aragorn` **hors** dépôt n'est pas pris en charge par cette skill (le garde de
+chantier le refuse par ailleurs, `TEAM_NEEDS_REPO`).
 
 ### 1. Afficher le banner
 
@@ -113,8 +132,10 @@ de **rendre les agents prêts** ; tu n'en lances aucun.
 
 ### 5. Note alias
 
-`iakaframe` et `odin` mènent à **cette même skill** (`iakastart`). En plus de ce bootstrap,
-`odin` conserve sa **posture portefeuille** définie par la skill `iakaframe-odin` (inchangée).
+`iakastart` et `iakaframe` mènent à **cette même skill**, **partout** (P-4). `odin` y mène
+**seulement au portefeuille** ; dans un dépôt, `odin` seul ou « odin, … » relève de la voix
+Aragorn (étape 0), pas de ce bootstrap. En plus de ce bootstrap au portefeuille, `odin`
+conserve sa **posture portefeuille** définie par la skill `iakaframe-odin` (inchangée).
 
 ## Garde-fou (non négociable)
 
