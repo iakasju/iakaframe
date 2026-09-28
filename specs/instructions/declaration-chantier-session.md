@@ -8,11 +8,20 @@
 > designer le depot… puis deleguer a aragorn » retirée) ; **L-6** (Exclu `identity-remind.mjs` levé,
 > traité par l'amendement). Le corps ci-dessous n'est pas réécrit.
 
+> **3ᵉ amendement (2026-09-28, option a′ décidée par Stéphane) — voir § 2 « 3ᵉ amendement ».** Un
+> dossier hors racine et hors dépôt n'est plus « aucun chantier » : il est **ancré sur son propre
+> chemin** et forme un **chantier distinct** (son sous-arbre), étanche aux autres dossiers hors, aux
+> dépôts et au portefeuille. Lire D-3, D-4 §3, D-5 règles 5-6, D-6 règle 3, décision 3, D-10 et D-12
+> avec les lectures **A3-1 à A3-9** ; CA-17 réécrit, CA-26 précisé, **CA-34 à CA-41** ajoutés ;
+> réalisation = **Lot 1ter**. Les passages du corps touchés portent un renvoi « → A3-x ».
+
 > Émetteur : 🧙 Gandalf (cadrage, P1). Récepteur : ⚒️ Gimli (dev, P2), gate 🏹 Legolas.
 > Cible : dépôt `iakaframe` — gardes du kit Claude (`kits/iakaframe-claude/global/hooks/`),
 > cœur pur `guard-core.mjs`, contrats `odin.md` / `aragorn.md`, skills `iakaframe-odin` /
 > `iakaframe-aragorn`, `methode-de-travail.md`.
-> Statut : **amendée (2ᵉ amendement, 2026-09-27) — validée par Stéphane le 2026-09-27 (Q-L1 accepté, Q-L2 oui).**
+> Statut : **amendée (3ᵉ amendement, 2026-09-28) — amendement décidé par Stéphane le 2026-09-28
+> (option a′) ; rédaction à relire** (questions Q-H1, Q-H2 au § « Questions ouvertes »). 2ᵉ amendement
+> validé par Stéphane le 2026-09-27 (Q-L1 accepté, Q-L2 oui).
 > Historique : validée le 2026-09-27 (arbitrages Q1–Q7, Q-A–Q-E) ; **repasse « amendée »** suite au
 > nouvel arbitrage du décideur (Q-A révisé : **une session Claude par dépôt**, Aragorn en agent
 > principal ; régime du thread principal selon `agent_type` ; lancement de session Aragorn par Odin).
@@ -104,6 +113,119 @@
 
 ---
 
+## 2. 3ᵉ amendement (2026-09-28) — un dossier hors dépôt = un chantier (option a′)
+
+> Décidé par Stéphane le 2026-09-28 (option a′) ; **rédaction à relire**. Émetteur 🧙 Gandalf ;
+> réalisation ⚒️ Gimli (Lot 1ter) ; gate 🏹 Legolas. Le corps n'est pas réécrit : les lectures
+> A3-x ci-dessous **priment** sur les passages qu'elles citent (renvois « → A3-x » dans le corps).
+
+### Faille (gate Legolas du Lot 4 : FAIL, commit `f414d2f`)
+
+| # | Fait mesuré (sur `f972d5c`, lecture seule) | Où |
+|---|---|---|
+| M-18 | `keyOf` rend pour **tout** chemin hors racine et hors dépôt la même clé `{kind:"hors", root:null, name:"@hors"}` ; `keySig` vaut donc `"hors\|"` pour chacun. Une session lancée dans `horsA` écrit dans `horsB` : la clé touchée a la **même** signature que l'effective, les règles 6 et 7 de `verdictChantier` ne se déclenchent pas → **ALLOW**. | `kits/iakaframe-claude/global/hooks/chantier-state.mjs:219-220`, `guard-core.mjs:152-155`, `:649-654` |
+| M-19 | La couche chantier **n'est pas déployée** : aucun `chantier-*.mjs` dans `~/.claude/hooks/` (Lot 7 non fait). Un registre portant une clé `hors` sans `root` n'existe que dans les tests ou un essai local. | `Glob ~/.claude/hooks/chantier-*.mjs` → vide (2026-09-28) |
+| M-20 | Un chemin sous `os.tmpdir()` est **exclu** (D-8) : un dossier hors de test créé sous le tmp rend toujours `keys` vide → ALLOW, et masquerait la faille. Les fixtures actuelles de CA-17 sont sous `os.tmpdir()`. | `chantier-state.mjs:341`, `cli/test/guard-chantier-perimeter.test.js:324`, `:344` |
+| M-21 | `path.win32.relative` compare **sans tenir compte de la casse** (minuscules des deux côtés) et `realpathSync.native` rend la casse canonique : `isUnder` après `normalize` est fiable sous Windows (M-12). | `guard-core.mjs:86-90` ; sources Node en fin de document |
+| M-22 | Le secours de `perimeter-guard` pour un `<repo>` de `iakaframe launch` non résolu fabrique une clé `{kind:"hors", root:null}`. | `perimeter-guard.mjs:323` |
+
+### Lectures amendées
+
+**A3-1 — D-3, voie « Lancement », colonne « Garde-fou »** (remplace « Hors racine et hors dépôt →
+`kind:"hors"` → **aucun chantier** ») : `key` du répertoire de lancement. Hors racine et hors dépôt →
+`kind:"hors"` **ancrée** sur ce répertoire → **un chantier** : le répertoire de lancement **et tout
+son sous-arbre**, distinct de tout autre dossier hors, de tout dépôt et du portefeuille. Seule
+exception : ancre trop large (A3-9, Q-H1) → clé **non ancrée** → aucun chantier.
+- **Répertoire de lancement** = `payload.cwd` du payload qui crée le registre (D-1, **inchangé** :
+  c'est le 1ᵉʳ `UserPromptSubmit`, dont le `cwd` est le répertoire de lancement ;
+  `CLAUDE_PROJECT_DIR` n'est pas relu). `root` = `normalize(cwd)`, écrit **normalisé** dans le
+  `launch` du registre.
+- **Sous-dossier** : `horsA\sub\…` appartient au chantier `horsA`. Le **parent** de `horsA` et ses
+  **frères** sont des chantiers distincts.
+- **Dépôt niché** sous l'ancre (`horsA\proj\.git`) : chantier `repo` **distinct** (D-4 §1 prime,
+  inchangé) — une session lancée dans `horsA` n'y écrit pas.
+- **Session d'équipe** (`--agent X`, X ≠ odin) lancée hors dépôt : **toujours `TEAM_NEEDS_REPO`**
+  (D-5 règle 4 inchangée : l'ancre ne fait pas d'un dossier hors un dépôt).
+
+**A3-2 — D-4 §3** (remplace « sinon → `kind:"hors"`, `name:"@hors"` ») : sinon → `kind:"hors"`,
+résolu ainsi, sur le chemin **normalisé** (`norm`) :
+- (a) **ancres de la session** = les clés `kind:"hors"` à `root` **non nul** parmi `state.launch.key`
+  et `state.active.key` (`opts.state` ; absent → aucune ancre). Si `norm` est **sous** une ancre
+  (`isUnder(normalize(ancre.root), norm)`, égalité comprise) → la clé rendue **est** cette ancre
+  (copie de `{kind, root, name}`) ; plusieurs ancres contiennent `norm` → celle au `root` **le plus
+  long** ;
+- (b) sinon → clé hors **propre** : `root` = `norm` s'il est un **dossier existant**, sinon
+  `dirname(norm)` ; `name` = `"@hors:" + (basename(root) || root)` (ex. `@hors:scripts` ; racine de
+  volume → `@hors:C:\`).
+- **Invariant de sûreté** (à écrire en commentaire du code) : en (b), `norm` n'est sous aucune ancre,
+  donc son `root` (`norm` ou son parent) n'est **jamais égal** à une ancre — une clé propre ne peut
+  pas porter la signature du chantier effectif.
+- Ordre de D-4 **inchangé** : dépôt (§1) > racine (§2) > hors (§3). La résolution dépend de l'état de
+  session uniquement pour le §3 ; `ensureLaunch` appelle `keyOf(cwd)` **sans** état (règle (b) : le
+  `cwd` existe → `root = norm`).
+- `knownRepos` exclut toujours `kind:"hors"` (`chantier-state.mjs:258`, inchangé) : un **nom** ne se
+  résout jamais vers un dossier hors (seul un chemin absolu, A3-8).
+
+**A3-3 — Clé hors non ancrée** (`kind:"hors"`, `root` nul) : forme **héritée** (registre écrit avant
+le Lot 1ter) ou **ancre refusée** (A3-9). Elle n'identifie **aucun** chantier :
+- comme **effective** → `NO_CHANTIER` (A3-4) ; comme **touchée** → jamais égale à une clé ancrée →
+  `CHANTIER_MISMATCH` (règle 6, formule `keySig` inchangée) ;
+- **repli des registres existants** : **fermé** — gestes mutateurs refusés `NO_CHANTIER`, lecture
+  libre, exclusions D-8 et hors-limite D-9 inchangés. **Aucune migration** du registre (append-only,
+  D-1 ; les gardes n'écrivent que `launch`/`fail_open`, CA-20). Sortie : `/clear` ou nouvelle
+  session → registre neuf, ancré (D-10). Justification : M-19 (couche jamais déployée, coût nul en
+  usage réel) ; ré-ancrer depuis `launch.project_dir` ajouterait du code pour un cas qui n'existe pas.
+
+**A3-4 — D-5 règles 5 et 6, D-6 règle 3** :
+- règle 5 : « Pas d'`effective` **ou `effective` de `kind:"hors"` sans `root`** → **DENY
+  `NO_CHANTIER`** » ;
+- règle 6 : « (`@hors` compris) » se lit « **toute clé hors d'un autre `root` que l'effective, ou non
+  ancrée, comprise** » — horsA → horsB = `CHANTIER_MISMATCH`, comme entre deux dépôts ;
+- D-6 règle 3 : « Pas de chantier actif **ou actif hors non ancré** → **DENY `NO_CHANTIER`** » (la
+  règle 1, cibles lecture seule, reste avant) ;
+- règles 3, 4 et 7 **inchangées**. Conséquences : une session `odin` lancée dans `horsA` est « chez
+  soi » dans `horsA` (règle 7 ne s'applique pas, comme un lancement dans un dépôt) ; elle n'a **pas**
+  de commandes portefeuille (règle 3 exige un lancement au portefeuille) ; `iakaframe onboard --path
+  <hors>` depuis le portefeuille reste refusé (règle 3 exige des clés `repo`/`dir`).
+
+**A3-5 — Décision 3** : « sans chantier » ne couvre plus un lancement hors (qui **ouvre** un chantier) ;
+il ne reste que l'effective absente ou non ancrée (A3-3). Le blocage direct est inchangé.
+
+**A3-6 — D-10** : l'état fermé « aucun chantier » = effective absente **ou hors non ancrée** ; un
+changement de `session_id` crée un registre neuf **ancré** (Q1).
+
+**A3-7 — D-12 et `sessionShellHint`** :
+- le journal porte `chantier.root` **non nul** pour une session hors ; `royaume` **inchangé** (clé
+  `hors` → valeur de l'env) ; `conv_id` de `plan-courante` (Lot 5) = `@hors:<nom>` ;
+- `sessionShellHint(root, role, kind)` (3ᵉ paramètre **facultatif**) : `kind = "hors"` →
+  `Set-Location <root> ; claude` (win32) / `cd <root> && claude`, **sans `--agent`** (une session
+  d'équipe hors dépôt serait `TEAM_NEEDS_REPO`) et **quel que soit le rôle** (Odin ne lance pas de
+  session hors : `iakaframe launch` exige un dépôt, D-14). Autres `kind` : comportement inchangé ;
+- `perimeter-guard` : `targetOf` rend aussi `kind` et le passe au hint.
+
+**A3-8 — D-3, voies « Mot-clé décideur » et « Grant » vers un dossier hors** (recommandation Q-H2,
+écrite ici **sous réserve**) : `chantier <chemin absolu hors>` et `odin-direct <chemin absolu hors>`
+(session `odin`, ligne seule) sont **acceptés** si le chemin est un **dossier existant** ; la clé
+déclarée est ancrée sur ce dossier normalisé (`aragorn:null`). Chemin inexistant ou fichier → refus
+(rappel existant « dépôt inconnu (chemin absolu requis) »). Ancre trop large → refus (A3-9). Une
+session `team` ignore toujours les directives (inchangé). Porté par `resolveRepoArg`, branche chemin
+absolu. **Variante si Q-H2 = refus** : `resolveRepoArg` reçoit `opts.directive` et rend
+`{ unknown: true, hors: true }` pour toute clé hors ; `chantier-remind.mjs` affiche « un dossier hors
+dépôt ne se designe pas : lance une session dans ce dossier » ; CA-40 s'inverse (aucun `declare`).
+
+**A3-9 — Ancre trop large** (recommandation Q-H1, écrite ici **sous réserve**) : une ancre hors dont le
+`root` normalisé est une **racine de volume** (`dirname(root) === root`) ou `normalize(homedir())`
+n'est **pas** posée : `ensureLaunch` écrit `{kind:"hors", root:null, name:"@hors"}` (A3-3) et
+`resolveRepoArg` refuse la déclaration. **Variante si Q-H1 = non** : supprimer cette règle et CA-38.
+
+### Ce qui ne change pas
+D-8 et D-9 (toujours jugés **avant** la clé ; ordre `hardDeny` → `isExcluded` → `keyOf` de
+`perimeter-guard`), D-7, D-14, `voiceOf` et `identity-remind.mjs` (ne lisent que `kind`), `foldChantier`
+(un `launch` hors ouvre le segment 1, comme aujourd'hui), la formule de `keySig`, le **nombre** de
+règles de D-5/D-6.
+
+---
+
 ## Problème
 
 Une session Claude Code est rattachée à `$CLAUDE_PROJECT_DIR`, immuable. Quand la conversation
@@ -122,7 +244,7 @@ en répond.
 2. Déclaration de chantier **obligatoire**, registre par session, historique en append ; tout
    travail sur un dépôt est lié à l'Aragorn de ce dépôt.
 3. **Blocage direct** (pas de période warn) : sans chantier, ou geste mutateur sur un dépôt ≠
-   déclaré → **DENY (exit 2)** avec message actionnable. **Lecture toujours libre.**
+   déclaré → **DENY (exit 2)** avec message actionnable. **Lecture toujours libre.** (→ A3-5)
 4. **Mode principal : une session Claude par dépôt**, lancée **dans** le dépôt avec **Aragorn en
    agent principal** (`claude --agent aragorn`) ; le chantier est fixé au lancement. Odin (thread
    principal au portefeuille) ne travaille pas dans un dépôt : il **propose** puis, sur
@@ -201,7 +323,7 @@ n'existe : le chantier **est** le lancement pour toute la session.
 
 | Voie | Geste | Qui | Sessions | Garde-fou |
 |---|---|---|---|---|
-| **Lancement** (implicite, Q1) — **mode principal** | ouverture de session dans un répertoire, avec ou sans `--agent` (la session Aragorn lancée par Odin est ce cas) | décideur (choix du répertoire, ou confirmation du lancement, instruction sœur) | toutes | `key` du répertoire de lancement. Hors racine et hors dépôt → `kind:"hors"` → **aucun chantier**. |
+| **Lancement** (implicite, Q1) — **mode principal** | ouverture de session dans un répertoire, avec ou sans `--agent` (la session Aragorn lancée par Odin est ce cas) | décideur (choix du répertoire, ou confirmation du lancement, instruction sœur) | toutes | `key` du répertoire de lancement. ~~Hors racine et hors dépôt → `kind:"hors"` → **aucun chantier**.~~ → **A3-1** : hors racine et hors dépôt → chantier `hors` **ancré** sur le répertoire de lancement. |
 | **Mot-clé décideur** — **secours** | une **ligne seule** du prompt : `chantier <repo>` | décideur | `odin` seulement | `UserPromptSubmit` → `declare(by:"user")` ; **ignorée** en session `team` (rappel explicatif) |
 | **Grant** | une **ligne seule** : `odin-direct <repo>` | décideur | `odin` seulement | `declare(by:"odin-direct")` + `grant` ; **ignorée** en session `team` |
 
@@ -229,7 +351,7 @@ racine est accepté (`kind:"dir"`, création de projet) ; `odin-direct` exige un
 2. sinon, sous la racine (`IAKAFRAME_ROOT` → `C:\work` / `~/work`, même règle que `root.js`) :
    fichier **directement** dans la racine ou dossier `.xxx` de 1ᵉʳ niveau → `kind:"portefeuille"`,
    `name:"@portefeuille"` ; sinon 1ᵉʳ segment → `kind:"dir"` ;
-3. sinon → `kind:"hors"`, `name:"@hors"`.
+3. sinon → `kind:"hors"`, ~~`name:"@hors"`~~ → **A3-2** (ancre de session, sinon clé propre `root` = dossier, `name:"@hors:<nom>"`).
 **Dépôts connus** (détection dans les prompts, résolution des noms) = dossiers de 1ᵉʳ niveau de la
 racine portant `.git` ∪ dépôt de lancement ∪ clés déjà présentes au registre. Cache par invocation.
 
@@ -252,8 +374,9 @@ hors-limite D-9 est jugé **avant** cette fonction. Règles, dans l'ordre :
 4. **Session d'équipe hors dépôt** : `sessionRole = team` **et** `launch.kind` ∉ {`repo`, `dir`} →
    **DENY `TEAM_NEEDS_REPO`** (« une session d'équipe se lance dans un dépôt »).
 5. `effective` = `active` (dans une session `team`, `active` = lancement, toujours). Pas
-   d'`effective` → **DENY `NO_CHANTIER`**.
-6. une `key` ≠ `effective` → **DENY `CHANTIER_MISMATCH`** (`@hors` compris).
+   d'`effective` → **DENY `NO_CHANTIER`**. (→ **A3-4** : ou `effective` hors non ancrée.)
+6. une `key` ≠ `effective` → **DENY `CHANTIER_MISMATCH`** (`@hors` compris). (→ **A3-4** : toute
+   clé hors d'un autre `root`, ou non ancrée.)
 7. **Régime Odin** — `actor = MAIN` **et** `sessionRole = odin` **et** (`launch.kind =
    "portefeuille"` **ou** `active ≠ launch`) **et** `active.kind ≠ "portefeuille"` **et**
    `active ∉ grants` → **DENY `ODIN_DIRECT`** (« le thread principal n'exécute pas hors de chez lui :
@@ -271,7 +394,7 @@ l'adaptateur), état replié, `launch`. **Aucune écriture au registre.** Règle
 1. Cible **lecture seule** (`Explore`, `Plan`, `claude-code-guide` ; **pas** `statusline-setup`, qui
    écrit `settings.json`) → **ALLOW**.
 2. Plusieurs lignes `Chantier:` divergentes → **DENY `DISPATCH_AMBIGUOUS`**.
-3. Pas de chantier actif → **DENY `NO_CHANTIER`**.
+3. Pas de chantier actif → **DENY `NO_CHANTIER`**. (→ **A3-4** : ou actif hors non ancré.)
 4. **Régime Odin** (mêmes conditions que D-5 règle 7) — Q-D : cible ≠ `aragorn` **et**
    `active ∉ grants` → **DENY `ODIN_DISPATCH`** (vaut **explicitement** pour `general-purpose`,
    `claude`, `statusline-setup`, un **fork**, `AGENT_UNSET`) ; cible `aragorn` **sans** ligne
@@ -348,7 +471,7 @@ autre verdict**). Comparaison sur le chemin **brut résolu ET** sur le chemin **
 
 **D-10 — Pannes vs états.**
 - **État** (registre lu, aucun chantier, clé ≠ effective, session d'équipe hors dépôt) → **fermé** :
-  DENY (décision 3).
+  DENY (décision 3). (→ **A3-6** : « aucun chantier » = effective absente ou hors non ancrée.)
 - **Panne interne** (exception, payload illisible, erreur d'E/S autre que `ENOENT`) → **ouvert
   mais visible** (Q6) : exit 0 + `{"systemMessage":"[chantier-guard] FAIL-OPEN : <hook> — <erreur>"}`
   + évènement `fail_open` au registre (si écrivable) + ligne `FAIL_OPEN` au journal ; le prochain
@@ -380,7 +503,7 @@ ne gouverne plus que la couche historique. L'en-tête de `perimeter-guard.mjs` d
 **Stats natives** : non déplaçables. Chaque refus `NO_CHANTIER` / `CHANTIER_MISMATCH` / `ODIN_DIRECT`
 / `TEAM_NEEDS_REPO` et chaque rappel **propose** en tête : en session `odin`, « demander à Odin de
 lancer une session Aragorn dans <root> » ; sinon `Set-Location <root> ; claude --agent aragorn`
-(win32) / `cd <root> && claude --agent aragorn`.
+(win32) / `cd <root> && claude --agent aragorn`. (→ **A3-7** : cible `hors` → `claude` sans `--agent`.)
 
 **D-14 — Commandes portefeuille d'Odin (Q-B).** Liste fermée, constante `PORTFOLIO_VERBS` dans
 `guard-core` : `iakaframe onboard`, `iakaframe init`, `iakaframe agents fullteam` (et
@@ -538,6 +661,43 @@ Un lot = un commit atomique (conventional commits), tests verts avant chaque com
 >    `kind:"hors"` → **aucun chantier** ») et la décision 3 (« sans chantier → DENY ») fondent
 >    `NO_CHANTIER` ; l'écart vient de `foldChantier`, qui ouvre un segment actif pour un `launch`
 >    `@hors` (`guard-core.mjs:228-237`). Constat remis à Aragorn pour décision de Stéphane.
+>    **→ Fermé le 2026-09-28 (3ᵉ amendement, option a′)** : un lancement hors ouvre un chantier ancré
+>    (A3-1) ; CA-17 est réécrit et attend `CHANTIER_MISMATCH` — le livré est conforme **sur ce cas**.
+>    La faille révélée par ce cas (M-18 : `horsA` → `horsB` ALLOW) est corrigée par le **Lot 1ter** ;
+>    le commentaire « ECART DECLARE (CA-17) » de `guard-chantier-perimeter.test.js:12-20` y est retiré.
+
+**Lot 1ter — Ancrage des dossiers hors dépôt** (3ᵉ amendement ; `fix(hooks)`, un commit ; **à faire
+avant le Lot 5**, qui hérite de `keyOf`/`resolveRepoArg`)
+- 1ter-1. `git pull origin main` ; relancer la suite CLI, noter la baseline en tête de PR ;
+  re-vérifier les références de M-18 à M-22 (divergence sur un fichier listé → remonter à Gandalf).
+- 1ter-2. `kits/iakaframe-claude/global/hooks/guard-core.mjs` : ajouter `isAnchoredKey(key)` (pur,
+  exporté : `!!key && (key.kind !== "hors" || !!key.root)`) ; `verdictChantier` règle 5 : `!effective
+  || !isAnchoredKey(effective)` → `NO_CHANTIER` ; `verdictDispatch` règle 3 : même condition sur
+  l'actif. Mettre à jour les commentaires « @hors compris » (A3-4). `keySig`, `foldChantier`,
+  `inOdinRegime`, `voiceOf` **inchangés**. Aucune E/S (CA-7).
+- 1ter-3. Copier le fichier **octet pour octet** dans `kits/iakaframe-codex/global/hooks/guard-core.mjs`
+  (CA-8).
+- 1ter-4. `kits/iakaframe-claude/global/hooks/chantier-state.mjs` :
+  - `keyOf(absPath, opts)` : branche hors selon A3-2 (`opts.state` → ancres ; sinon clé propre) ;
+    commentaire d'invariant de sûreté ;
+  - `ensureLaunch` : si la clé de lancement est hors et que son `root` est trop large (A3-9) → écrire
+    `{kind:"hors", root:null, name:"@hors"}` ;
+  - `resolveRepoArg` branche chemin absolu : `keyOf(token, { state: o.state })` ; si la clé est hors →
+    exiger un **dossier existant** et une ancre non trop large, sinon `{ unknown: true }` (A3-8) ;
+  - `sessionShellHint(root, role, kind)` (A3-7).
+- 1ter-5. `kits/iakaframe-claude/global/hooks/perimeter-guard.mjs` (adaptateur, **nécessaire** : sans
+  l'état, `keyOf` ne connaît pas l'ancre) : `keyOf(abs, { fileTarget: true, state })` (`:287`) et
+  `keyOf(abs, { state })` (`:328`) ; `targetOf` rend `kind`, passé à `sessionShellHint` (`:150-177`).
+  Le secours `:323` (M-22) reste tel quel : clé non ancrée → refus (A3-3).
+- 1ter-6. Tests du cœur, `cli/test/guard-core.test.js` : CA-34, CA-35.
+- 1ter-7. Tests de l'adaptateur, `cli/test/guard-chantier-state.test.js` : CA-36 ; réaligner
+  `:226-230` (nom `@hors:<nom>`, `root` = dossier normalisé).
+- 1ter-8. Tests de bout en bout, `cli/test/guard-chantier-perimeter.test.js` : réécrire les deux tests
+  CA-17 (`:321-350`) selon CA-17 réécrit (dossiers hors **hors `os.tmpdir()`**, via `nonTmpDir`,
+  M-20) et retirer l'en-tête « ECART DECLARE (CA-17) » (`:12-20`) ; CA-26 : ajouter
+  `assert.match(res.stderr, /CHANTIER_MISMATCH/)` (`:534-541`) ; ajouter CA-37 à CA-39 et CA-41.
+  `cli/test/guard-chantier-remind.test.js` : CA-40.
+- 1ter-9. Suite CLI complète : baseline + nouveaux tests, **0 fail** (CA-28) ; puis gate 🏹 Legolas.
 
 **Lot 5 — Délégation et plan** (`feat(hooks)`)
 9. `delegation-guard.mjs` PreToolUse : après le roster, `verdictDispatch` (aucune écriture au
@@ -649,6 +809,13 @@ Un lot = un commit atomique (conventional commits), tests verts avant chaque com
 - `cli/test/guard-perimeter-regression.test.js`, `cli/test/guard-core-parity.test.js`,
   `cli/test/guard-codex-complet.test.js`, `cli/test/guard-identity-regression.test.js`,
   `cli/baselines/guard/*` — **inchangés** (doivent passer tels quels).
+- **Lot 1ter (3ᵉ amendement)** : `guard-core.mjs` (Claude + copie Codex octet pour octet) —
+  `isAnchoredKey`, règle 5 D-5, règle 3 D-6 ; `chantier-state.mjs` — `keyOf` (A3-2), `ensureLaunch`
+  (A3-9), `resolveRepoArg` (A3-8), `sessionShellHint` (A3-7) ; `perimeter-guard.mjs` — passage de
+  l'état à `keyOf`, `kind` au hint ; tests `guard-core.test.js`, `guard-chantier-state.test.js`,
+  `guard-chantier-perimeter.test.js`, `guard-chantier-remind.test.js`. **Non touchés** :
+  `chantier-remind.mjs` (sauf variante Q-H2 = refus), `identity-remind.mjs`, `delegation-guard.mjs`,
+  `plan-courante.mjs` (Lot 5, héritent du nouveau `keyOf`).
 
 ## Risques
 
@@ -684,6 +851,16 @@ Un lot = un commit atomique (conventional commits), tests verts avant chaque com
 - **Code du Lot 1 à défaire** (`8b5f014`) → Lot 1bis dédié, commit séparé, tests adaptés.
 - **Dette cross-repo** (M-11) → consignée, traitée dans une session `iakaframegui`.
 - **Déploiement humain obligatoire** pour `~/.claude/hooks/` et l'installeur (D-9) → documenté.
+- **3ᵉ amendement — registres portant une clé `hors` sans `root`** (antérieurs au Lot 1ter) → repli
+  **fermé** `NO_CHANTIER` (A3-3), lecture libre ; impact réel nul (M-19) ; sortie par `/clear` ou
+  nouvelle session. CA-37.
+- **3ᵉ amendement — ancre non normalisée** (8.3, casse) → une écriture dans son propre dossier serait
+  refusée à tort : ancre normalisée à l'écriture du `launch`, comparaison `isUnder` après
+  `normalize` (M-21) ; CA-36 couvre casse et 8.3 sous win32.
+- **3ᵉ amendement — ancre trop large** (`C:\`, `~`) rouvrirait la faille sur tout le volume / profil →
+  A3-9 (Q-H1).
+- **3ᵉ amendement — faux vert des tests** (dossier hors sous `os.tmpdir()` exclu par D-8, M-20) →
+  fixtures hors **obligatoirement** hors du tmp (`nonTmpDir`).
 
 ## Critères d'acceptation
 
@@ -759,10 +936,12 @@ leur comportement actuel).
 - [ ] **CA-16** Session lancée dans `repoA` sans `--agent` : `Edit` repoA → exit 0 ; `Edit` repoB →
       exit 2 ; `Bash` `git commit -am x` avec `cwd` = repoB → exit 2 ; même commande `cwd` = repoA →
       exit 0.
-- [ ] **CA-17** Lecture libre : sans chantier (session lancée dans un dossier `@hors`), `Bash`
+- [ ] **CA-17** (réécrit au 3ᵉ amendement) Lecture libre : session lancée dans un dossier hors dépôt
+      `H` **hors de `os.tmpdir()`** (M-20) — chantier `@hors:<nom de H>` ancré sur `H` (A3-1) ; `Bash`
       `git -C <repoB> log`, `Bash` `cd <repoB> && git status`, `PowerShell` `Get-Content <repoB>\x`,
       `Bash node <racine>/iakaframe/cli/src/index.js banner X` → exit 0 ; `Bash npm test` (cwd repoB)
-      → exit 2 `NO_CHANTIER`.
+      → exit 2 `CHANTIER_MISMATCH` (plus `NO_CHANTIER` : un lancement hors ouvre un chantier ;
+      `NO_CHANTIER` → CA-37, CA-38).
 - [ ] **CA-18** Exclusions : `Write` dans `payload.scratchpad_dir` et dans `os.tmpdir()` → exit 0
       même sans chantier, **aucune** clé attribuée ; idem en **forme courte 8.3** (win32) contre forme
       longue, ou l'inverse (M-12) ; payload **sans** `scratchpad_dir` → pas d'erreur.
@@ -796,7 +975,8 @@ leur comportement actuel).
       `Bash iakaframe onboard --path <racine>/neuf` et `Bash iakaframe launch repoA --mission-file
       <tmp>/m.md` → exit 0, journal `PORTFOLIO_VERB` ; la même suivie de `&& git commit -am x` →
       exit 2 ; depuis un sous-agent → exit 2 ; dans une session lancée dans `repoA` → règles normales ;
-      `iakaframe onboard --path C:\Windows\x` (`@hors`) → exit 2.
+      `iakaframe onboard --path C:\Windows\x` (clé hors ancrée sur `C:\Windows`, A3-2 b) → exit 2
+      `CHANTIER_MISMATCH`.
 - [ ] **CA-27** Attribution : documents émis par `delegation-guard` et `plan-courante` (transport
       `docdb` vers un serveur HTTP local de test) portent `meta.repo`, `meta.segment`, `meta.aragorn`,
       `meta.main_role` ; `plan-courante` traite `tool_name:"Agent"` ; chaque ligne du journal de
@@ -807,6 +987,56 @@ leur comportement actuel).
       `parite-generateurs.test.js` (après régénération des goldens) passent ; les quatre premiers
       **sans modification** ; suite CLI = baseline de reprise + nouveaux tests, **0 fail** (hors
       `vendor-check`, dérive consignée).
+
+**3ᵉ amendement — dossiers hors dépôt (Lot 1ter)**. Dans les tests de bout en bout, tout dossier hors
+(`horsA`, `horsB`, `H`) est créé **hors de `os.tmpdir()`** et hors de `IAKAFRAME_ROOT` (`nonTmpDir`,
+M-20) ; clés de fixture du cœur : `hA = {kind:"hors", root:"/x/horsA", name:"@hors:horsA"}`,
+`hB = {kind:"hors", root:"/x/horsB", name:"@hors:horsB"}`, `h0 = {kind:"hors", root:null, name:"@hors"}`.
+- [ ] **CA-34** (cœur, `guard-core.test.js`) `verdictChantier`, `launch` = actif = `hA` : rôle `odin`,
+      `MAIN`, `EDIT` sur `[hA]` → ALLOW ; sur `[hB]` → DENY `CHANTIER_MISMATCH` ; sur `[h0]`, sur
+      `[repoA]`, sur `[@portefeuille]` → DENY `CHANTIER_MISMATCH` ; mêmes verdicts en `SUB` et en
+      `SHELL_MUTATE` ; `SHELL_READ` sur `[hB]` → ALLOW ; rôle `team` avec `launch` = `hA` → DENY
+      `TEAM_NEEDS_REPO`. `isAnchoredKey` : `hA` → vrai, `h0` → faux, `repoA` → vrai, `null` → faux.
+- [ ] **CA-35** (cœur) Clé non ancrée : `launch` = actif = `h0` → `EDIT` sur `[hA]` ou `[h0]` → DENY
+      `NO_CHANTIER` ; `verdictDispatch` : `Explore` → ALLOW, `gimli` → DENY `NO_CHANTIER`. Avec
+      `launch` = actif = `hA` : `verdictDispatch` thread principal → `gimli` → ALLOW (chez soi, pas
+      de régime Odin). `guard-core-parity.test.js` passe sans modification (CA-8).
+- [ ] **CA-36** (adaptateur, `guard-chantier-state.test.js`) `keyOf(horsA)` → `kind:"hors"`,
+      `root` = `normalize(horsA)`, `name` = `"@hors:" + basename(horsA)` ; avec
+      `state = {launch:{key:kA}, active:{key:kA}}` (kA = cette clé) : `keyOf(horsA\sub\f.txt,
+      {state})` (sous-dossier existant) et `keyOf(horsA\neuf\g.txt, {state, fileTarget:true})`
+      (parent inexistant) → **deepEqual kA** ; `keyOf(horsB\f.txt, {state})` → `root` =
+      `normalize(horsB)` ≠ kA.root ; `horsA\proj` portant `.git` → `kind:"repo"` ; ancres imbriquées
+      (`launch` = horsA, `active` = horsA\sub) : `horsA\sub\x` → clé `horsA\sub`, `horsA\y` → clé
+      horsA ; **win32** : `keyOf(horsA en MAJUSCULES\f)` et, si le chemin a une forme 8.3
+      (`UTILIS~1`), cette forme → deepEqual kA. `ensureLaunch` d'un payload `cwd = horsA` → `launch.key.root`
+      non nul et normalisé.
+- [ ] **CA-37** (bout en bout, `guard-chantier-perimeter.test.js`) **Faille M-18 fermée** : session
+      `odin` lancée dans `horsA` (1ᵉʳ hook `cwd = horsA`) : `Write horsA\f.txt` → exit 0 ;
+      `Edit horsA\sub\deep\g.txt` → exit 0 ; `Bash npm test` cwd `horsA\sub` → exit 0 ; **`Write
+      horsB\f.txt` → exit 2 `CHANTIER_MISMATCH`** ; **`Edit horsB\f.txt` → exit 2** ; **`Bash echo x
+      > <horsB>/f.txt` (cwd horsA) → exit 2** ; **`PowerShell Set-Content <horsB>\f.txt x` → exit 2** ;
+      `Bash npm test` cwd `horsB` → exit 2 ; `Write <racine>\notes.md` → exit 2 ; `Write repoA\x.js`
+      → exit 2 ; sous-agent (`agent_id:"s1"`) : `Write horsA\f2.txt` → exit 0, `Write horsB\f.txt` →
+      exit 2. Le stderr d'un refus vers `horsB` contient `horsB` et `claude`, **pas** `--agent aragorn`
+      (A3-7). Registre hérité : fichier `<sid>.jsonl` pré-écrit avec un `launch`
+      `{kind:"hors", root:null, name:"@hors"}` → `Write horsA\f.txt` → exit 2 `NO_CHANTIER` ; `Bash
+      git status` → exit 0 ; `Write` sous `os.tmpdir()` → exit 0 (D-8).
+- [ ] **CA-38** (bout en bout, **sous réserve Q-H1**) Session lancée dans le `HOME` du bac à sable
+      (créé hors tmp) : le registre porte `launch.key.root = null` ; `Write <HOME>\x.txt` → exit 2
+      `NO_CHANTIER`. Idem en unité (`guard-chantier-state.test.js`) pour `ensureLaunch` d'un `cwd` =
+      racine de volume (`path.parse(x).root`).
+- [ ] **CA-39** (bout en bout) Session d'équipe (`agent_type:"aragorn"`, sans `agent_id`) lancée dans
+      `horsA` : `Write horsA\f.txt` → exit 2 `TEAM_NEEDS_REPO` (inchangé, A3-1).
+- [ ] **CA-40** (bout en bout, `guard-chantier-remind.test.js` + `perimeter-guard`, **sous réserve
+      Q-H2**) Session `odin` au portefeuille : prompt `chantier <horsB>` (dossier existant) → `declare`
+      d'une clé hors ancrée sur `horsB` ; `Write horsB\sub\f.txt` par le thread principal → exit 2
+      `ODIN_DIRECT`, par un sous-agent → exit 0 ; `Write horsC\f.txt` par le sous-agent → exit 2 ;
+      prompt `chantier <horsB>\absent` (inexistant) → **aucun** `declare`, rappel de refus ; prompt
+      `odin-direct <horsB>` → `grant`, `Write horsB\f.txt` par le thread principal → exit 0.
+- [ ] **CA-41** (bout en bout) Stdout de `chantier-remind` dans une session lancée dans `horsA` :
+      `Chantier actif : @hors:<nom> (<horsA normalisé>)` ; journal de périmètre : `chantier.root`
+      non nul.
 
 **Recette réelle (Lot 7, décideur)**
 - [ ] **CA-29** Session lancée dans `C:\work` : demander une modification de `naonedge` → le rappel
@@ -833,6 +1063,7 @@ leur comportement actuel).
 | Lot 2 — adaptateur d'état | 0,75 | moyenne (worktrees, Windows, 8.3, D-9) | à faire |
 | Lot 3 — `UserPromptSubmit` | 0,5 | faible | à faire |
 | Lot 4 — gestes directs | 1,0 | **élevée** (garde bloquant sur chaque geste) | à faire |
+| Lot 1ter — ancrage hors dépôt (3ᵉ amendement) | 0,75 | moyenne ; **risque élevé** (garde bloquant, chemins Windows) | à faire, avant le Lot 5 |
 | Lot 5 — délégation + plan | 0,5 | moyenne (plus d'écriture au registre) | à faire |
 | Lot 6 — contrats, skills, goldens, méthode | 0,75 | faible | à faire |
 | **Total** | **≈ 5,75 j-h** (reste à faire **≈ 4 j-h**) + 0,25 recette humaine | **élevée** globalement | |
@@ -849,12 +1080,28 @@ Le lot 3bis (liaison par sous-agent, 1 j-h) est **supprimé**. Avec l'instructio
 3. **Messages inter-sessions et `UserPromptSubmit`** (CA-33) : si un message peut porter une
    directive, Q7 revient dans le lot — **+0,5 j-h**.
 4. **Friction de la liste de lecture** (D-7) — **+0,25 j-h** d'ajustements.
+5. **Lot 1ter (3ᵉ amendement)**, détail des 0,75 j-h : cœur + copie Codex 0,1 ; `chantier-state`
+   0,25 ; `perimeter-guard` 0,1 ; tests (4 fichiers, CA-34 à CA-41, CA-17, CA-26) 0,3. Inconnues :
+   formes 8.3 / casse de l'ancre sous Windows (+0,1) ; réponse Q-H2 = refus (touche
+   `chantier-remind.mjs`, +0,1) ; réponse Q-H1 = non (−0,05).
 
 ## Questions ouvertes au décideur
 
-Aucune question structurante propre à cette instruction : Q1–Q7, Q-A (révisé), Q-B–Q-G sont
-arbitrées ou tranchées par le cadrage à la demande du décideur (Q-F, sort de l'ex-D-13). Reste la
-**validation** du présent amendement. Les questions du lanceur sont dans l'instruction sœur.
+Q1–Q7, Q-A (révisé), Q-B–Q-G sont arbitrées ou tranchées par le cadrage à la demande du décideur
+(Q-F, sort de l'ex-D-13). Les questions du lanceur sont dans l'instruction sœur.
+
+**3ᵉ amendement (option a′ décidée le 2026-09-28)** — deux questions touchent la sécurité ; le texte
+(A3-8, A3-9, CA-38, CA-40) porte la **recommandation**, à confirmer ou inverser :
+
+| # | Question | Options | Recommandation |
+|---|---|---|---|
+| Q-H1 | Une **ancre trop large** (racine de volume `C:\`, ou le dossier personnel `~`) ouvre-t-elle un chantier ? | (a) **non** : clé non ancrée → `NO_CHANTIER`, seuls tmp/scratchpad restent inscriptibles (D-8) ; (b) oui : ancre = `C:\` ou `~` | **(a)**. Sinon lancer `claude` dans `~` ou `C:\` rouvre la faille M-18 à l'échelle du profil ou du volume. Coût : une session lancée dans `~` ne peut plus écrire (hors tmp) — on la lance dans un sous-dossier. |
+| Q-H2 | En session `odin`, `chantier <chemin hors>` / `odin-direct <chemin hors>` (ligne seule tapée par le décideur) sont-ils acceptés ? | (a) **oui** si dossier existant, ancre = ce dossier ; (b) non : un chantier hors naît **seulement** d'un lancement | **(a)**. La ligne vient du décideur (la seule autorité de D-3), le périmètre est borné au dossier nommé, et le code est déjà presque là (`resolveRepoArg` branche chemin absolu). (b) est plus strict et coûte +0,1 j-h. |
+
+Tranché par le cadrage, dans le cadre déjà arbitré (à contester si besoin) : **sous-dossier = même
+chantier** ; **dépôt niché sous l'ancre = chantier distinct** (D-4 §1 prime) ; **session d'équipe hors
+dépôt = `TEAM_NEEDS_REPO`** (D-5 règle 4, Q-F) ; **registres hérités = repli fermé `NO_CHANTIER`**
+(A3-3, M-19) ; `name` affiché = `@hors:<nom du dossier>`.
 
 ## Sources
 
@@ -876,3 +1123,7 @@ arbitrées ou tranchées par le cadrage à la demande du décideur (Q-F, sort de
   déclenchés dans les sous-agents en v2.1.76 — historique, CA-31)
 - [anthropics/claude-code#47018](https://github.com/anthropics/claude-code/issues/47018) (pas de
   `session_id` garanti dans l'environnement de l'outil `Bash`)
+- [nodejs/node#53993](https://github.com/nodejs/node/pull/53993) et
+  [denoland/std#7336](https://github.com/denoland/std/issues/7336) (3ᵉ amendement, M-21 :
+  `path.win32.relative` compare en minuscules ; correctif des caractères dont la minuscule change de
+  longueur)
