@@ -25,12 +25,27 @@
 //   (fallback recette offline, POST {DOCDB_URL}/{db} Basic auth, calque sur bridge/index.js).
 //   _id deterministe (idempotence ; 409 = succes). Sous-agents natifs -> AUCUNE emission.
 //   Borne iakaframe : identite de log (IAKALOG_* / DOCDB_*) absente -> aucune emission, exit 0.
+//
+// Lot 5 (specs/instructions/declaration-chantier-session.md § D-6, D-12) — COUCHE CHANTIER :
+//   Apres le controle de roster CI-DESSUS (inchange), et SEULEMENT s'il n'a pas refuse, on
+//   applique `verdictDispatch` (guard-core.mjs, pur) : DENY (exit 2) si la delegation sort du
+//   chantier de la session (D-6). AUCUNE ecriture au registre (D-2 : seul `chantier-remind.mjs`
+//   ecrit `declare`/`grant`) — ce garde ne fait que LIRE l'etat replie (`loadState`, read-only).
+//   Attribution (D-12) : chaque ligne de journal (ALLER/RETOUR) et chaque document EMIS portent
+//   `chantier: {repo, repo_root, segment, aragorn, main_role, agent_id?}` quand un chantier actif
+//   existe ; le `royaume` du document emis suit la meme regle que `plan-courante.mjs` (nom du
+//   depot en MAJUSCULE, `PORTEFEUILLE`, sinon l'env IAKALOG_ROYAUME inchange).
+//   Couche IGNOREE (comportement HISTORIQUE, M-9) si `IAKAFRAME_CHANTIER_MODE=off`, ou si
+//   `session_id` est absent/hors forme, ou si aucun registre n'existe encore pour cette session
+//   (ENOENT) : dans tous ces cas `loadChantier` rend `null` et ce garde ne fait QUE le controle de
+//   roster preexistant, sans verdict de chantier.
 
 import { appendFileSync, readFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
 import net from "node:net";
-import { verdictDelegation, ROSTER, BUILTINS, AGENT_UNSET } from "./guard-core.mjs";
+import { verdictDelegation, verdictDispatch, parseChantierLines, ROSTER, BUILTINS, AGENT_UNSET } from "./guard-core.mjs";
+import { loadState, resolveRepoArg, sessionShellHint } from "./chantier-state.mjs";
 
 const LOG = join(homedir(), ".claude", "iakaframe-delegations.log");
 
@@ -46,6 +61,107 @@ const write = (rec) => {
   try { appendFileSync(LOG, JSON.stringify(rec) + "\n", "utf8"); } catch { /* fail-open */ }
 };
 
+// ---------------------------------------------------------------------------
+// Lot 5 — COUCHE CHANTIER (lecture seule) : verdict de la delegation (D-6) + attribution (D-12).
+// ---------------------------------------------------------------------------
+
+const chantierModeRaw = () => String(process.env.IAKAFRAME_CHANTIER_MODE || "").trim().toLowerCase();
+
+// loadChantier(sid) -> etat replie ou null (interrupteur "off", sid invalide, registre absent :
+// M-9, meme convention que perimeter-guard.mjs/chantier-remind.mjs). Read-only (D-2) : ce garde
+// n'appelle JAMAIS `ensureLaunch`/`appendEvent` — aucune ecriture au registre.
+function loadChantier(sid) {
+  if (chantierModeRaw() === "off") return null;
+  try { return loadState(sid); } catch { return null; }
+}
+
+// resolveDispatchRequest(promptText, state) -> { key, ambiguous } (D-3/D-4, adaptateur de D-6).
+// Plusieurs lignes `Chantier:` DIVERGENTES (parseChantierLines) -> ambiguous:true. Une ligne
+// UNIQUE qui ne resout a AUCUNE cle connue (nom ambigu entre deux racines, ou depot inconnu) est
+// traitee comme une absence de ligne (key:null) : ni ALLOW ni MISMATCH ne doivent reposer sur un
+// token qui ne designe rien de verifiable (regime Odin : `DISPATCH_UNNAMED` s'applique alors,
+// jamais un ALLOW silencieux — cf. note de realisation du Lot 5).
+function resolveDispatchRequest(promptText, state) {
+  const { repo, ambiguous } = parseChantierLines(promptText || "");
+  if (ambiguous) return { key: null, ambiguous: true };
+  if (!repo) return { key: null, ambiguous: false };
+  let res = null;
+  try { res = resolveRepoArg(repo, { requireExisting: false, state }); } catch { res = null; }
+  return { key: res && res.key ? res.key : null, ambiguous: false };
+}
+
+// chantierAttribution(p, state) -> { repo, repo_root, segment, aragorn, main_role, agent_id? } |
+// null (D-12). `null` quand aucun chantier actif n'est connu (couche ignoree, ou segment jamais
+// ouvert — cas degenere d'un registre illisible).
+function chantierAttribution(p, state) {
+  const active = state && state.active ? state.active : null;
+  if (!active) return null;
+  const launch = state.launch || null;
+  const meta = {
+    repo: active.key.name,
+    repo_root: active.key.root,
+    segment: active.segment,
+    aragorn: active.aragorn || null,
+    main_role: launch ? launch.main_role : null,
+  };
+  if (p && p.agent_id) meta.agent_id = p.agent_id;
+  return meta;
+}
+
+// royaumeFor(state, fallback) -> D-12 : nom du depot/dossier en MAJUSCULE si kind repo|dir,
+// PORTEFEUILLE si @portefeuille, sinon `fallback` (l'env IAKALOG_ROYAUME, INCHANGE).
+function royaumeFor(state, fallback) {
+  const active = state && state.active ? state.active.key : null;
+  if (active && (active.kind === "repo" || active.kind === "dir")) {
+    return String(active.name == null ? "" : active.name).toUpperCase();
+  }
+  if (active && active.kind === "portefeuille") return "PORTEFEUILLE";
+  return fallback;
+}
+
+const shortSid = (sid) => String(sid || "").slice(0, 8);
+
+function roleLabel(launch) {
+  if (!launch || launch.main_role !== "team") return "odin";
+  return `team:${launch.main_agent_type || "?"}`;
+}
+
+function activeLabel(state) {
+  return state && state.active ? state.active.key.name : "aucun";
+}
+
+// dispatchDenyMessage(code, ...) : adaptation du modele "Messages" de l'instruction (§ "Messages")
+// a une DELEGATION (pas un chemin) — la delegation vise un AGENT, pas un fichier/repertoire, le
+// modele litteral ("<Outil> vise <nom> (<root>)") ne s'y applique donc pas mot pour mot. 2e
+// amendement (L-5) : jamais le secours "designer le depot... puis deleguer a aragorn" — seule la
+// proposition d'une session Aragorn reste (Q-P1 = A).
+function dispatchDenyMessage(code, { agent, state, session }) {
+  const launch = state && state.launch;
+  const lines = [
+    `[chantier-guard] REFUSE (${code}) : delegation vers '${agent}' refusee.`,
+    `  Chantier actif : ${activeLabel(state)} (role ${roleLabel(launch)}) — session ${shortSid(session)}.`,
+  ];
+  if (code === "DISPATCH_AMBIGUOUS") {
+    lines.push("  Pour continuer : plusieurs lignes `Chantier: <repo>` divergentes dans l'ordre de mission ; n'en garder qu'une.");
+  } else if (code === "NO_CHANTIER") {
+    lines.push("  Pour continuer : aucun chantier actif pour cette session (session Aragorn dans le bon depot, ou `chantier <repo>`).");
+  } else if (code === "ODIN_DISPATCH") {
+    lines.push(
+      "  Pour continuer :",
+      "   1. (recommande) une session Aragorn dans le depot : demande a Odin de la lancer",
+      "   2. sinon, delegue a `aragorn` avec la ligne `Chantier: <nom>` (2e ligne de l'ordre de mission)",
+    );
+  } else if (code === "DISPATCH_UNNAMED") {
+    lines.push("  Pour continuer : ajoute la ligne `Chantier: <repo>` (2e ligne de l'ordre de mission).");
+  } else if (code === "CHANTIER_MISMATCH") {
+    const active = state && state.active ? state.active.key : null;
+    const hint = active && active.root ? sessionShellHint(active.root, roleLabel(launch), active.kind) : null;
+    lines.push(`  Pour continuer : ${hint || "declare le bon chantier (session Aragorn dans le depot vise)"}.`);
+  }
+  lines.push("  L'exception `odin-direct <nom>` ne peut etre tapee QUE par le decideur. La lecture reste libre.");
+  return lines.join("\n") + "\n";
+}
+
 await main();
 
 async function main() {
@@ -60,11 +176,15 @@ async function main() {
   if (event === "PreToolUse") {
     const ti = p.tool_input || {};
     const agent = ti.subagent_type || ti.subagentType || AGENT_UNSET;
+    const state = loadChantier(session);
+    const chantierMeta = chantierAttribution(p, state);
+    const royaume = royaumeFor(state, process.env.IAKALOG_ROYAUME || "unknown");
     write({
       at: ts(), event: "ALLER", session,
       agent,
       description: ti.description || null,
       prompt: ti.prompt ?? null, // verbatim, jamais reformule
+      ...(chantierMeta ? { chantier: chantierMeta } : {}),
     });
     const { refused } = verdictDelegation(agent);
     if (refused) {
@@ -80,6 +200,8 @@ async function main() {
         response: null,
         atAller: ts(),
         refused: true,
+        chantierMeta,
+        royaumeOverride: royaume,
       });
       process.stderr.write(
         "[delegation-guard] Delegation REFUSEE : agent cible hors roster iakaframe : '" + agent +
@@ -88,6 +210,26 @@ async function main() {
       );
       process.exit(2);
     }
+
+    // Lot 5 (D-6) — verdict CHANTIER de la delegation, APRES le controle de roster ci-dessus.
+    // `state` absent (couche ignoree, M-9) -> comportement HISTORIQUE (aucun verdict de chantier).
+    if (state) {
+      const launch = state.launch;
+      const sessionRole = launch ? launch.main_role : "odin";
+      const actor = p.agent_id ? "SUB" : "MAIN";
+      const requested = resolveDispatchRequest(ti.prompt, state);
+      const verdict = verdictDispatch({
+        actor, sessionRole, target: agent, requested, state, launch: launch ? launch.key : null,
+      });
+      if (verdict.decision === "DENY") {
+        write({
+          at: ts(), event: "DISPATCH_REFUS", session, agent, code: verdict.code,
+          ...(chantierMeta ? { chantier: chantierMeta } : {}),
+        });
+        process.stderr.write(dispatchDenyMessage(verdict.code, { agent, state, session }));
+        process.exit(2);
+      }
+    }
     allow();
   }
 
@@ -95,10 +237,14 @@ async function main() {
     const ti = p.tool_input || {};
     const agent = (ti.subagent_type || ti.subagentType) || null;
     const response = extractText(p.tool_response); // verbatim
+    const state = loadChantier(session);
+    const chantierMeta = chantierAttribution(p, state);
+    const royaume = royaumeFor(state, process.env.IAKALOG_ROYAUME || "unknown");
     write({
       at: ts(), event: "RETOUR", session,
       agent,
       response,
+      ...(chantierMeta ? { chantier: chantierMeta } : {}),
     });
     // L5 : RETOUR = moment d'emission de reference (delegation complete : cible + resultat).
     // Best-effort non bloquant ; n'emet QUE pour le roster iakaframe (anti-bruit D5).
@@ -110,6 +256,8 @@ async function main() {
       response,
       atAller: ts(),
       refused: false,
+      chantierMeta,
+      royaumeOverride: royaume,
     });
     allow();
   }
@@ -172,7 +320,10 @@ function withTimeout(promise, ms) {
 
 // AWAITED + bornee + fail-open. main() doit AWAIT cet appel AVANT process.exit, sinon
 // l'emission ne part jamais (le defaut bloquant corrige en L5 : 0 doc en base).
-async function emitDelegation({ session, agent, description, response, atAller, refused }) {
+// Lot 5 (D-12) : `chantierMeta` ({repo, repo_root, segment, aragorn, main_role, agent_id?}, ou
+// null) et `royaumeOverride` (deja calcule par l'appelant via `royaumeFor`) portent l'attribution
+// du document emis au chantier de la session, quand un chantier actif est connu.
+async function emitDelegation({ session, agent, description, response, atAller, refused, chantierMeta, royaumeOverride }) {
   try {
     const to = agent == null ? null : String(agent);
     // D5 anti-bruit : on n'emet QUE pour le roster iakaframe. Les sous-agents natifs
@@ -184,7 +335,7 @@ async function emitDelegation({ session, agent, description, response, atAller, 
     }
 
     const from = process.env.IAKALOG_AGENT || "unknown";
-    const royaume = process.env.IAKALOG_ROYAUME || "unknown";
+    const royaume = royaumeOverride || process.env.IAKALOG_ROYAUME || "unknown";
 
     // D6 — Borne iakaframe : sans identite de log (IAKALOG_* / DOCDB_*) configuree, AUCUNE emission.
     const transport = (process.env.IAKALOG_TRANSPORT || "broker").toLowerCase();
@@ -202,6 +353,15 @@ async function emitDelegation({ session, agent, description, response, atAller, 
     const meta = { canal: "geste", event: eventName, from, to: to || null };
     if (verdict) meta.verdict = verdict;
     if (refused) meta.refused = true;
+    // D-12 : attribution au chantier de la session, quand un chantier actif est connu.
+    if (chantierMeta) {
+      meta.repo = chantierMeta.repo;
+      meta.repo_root = chantierMeta.repo_root;
+      meta.segment = chantierMeta.segment;
+      meta.aragorn = chantierMeta.aragorn;
+      meta.main_role = chantierMeta.main_role;
+      if (chantierMeta.agent_id !== undefined) meta.agent_id = chantierMeta.agent_id;
+    }
     const _id = makeDocId(session, to, atAller, refused);
 
     const doc = { _id, role: "system", content, ts: atAller, tokens: 0, meta, royaume, agent: from, conv_id: conv };

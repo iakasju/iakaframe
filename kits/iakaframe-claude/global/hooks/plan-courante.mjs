@@ -1,17 +1,29 @@
 // plan-courante.mjs — Émetteur de PLAN VIVANT sur la main courante (L18, tranche 1).
 //
 // Généralise le hook L5 (delegation-guard) : ici on instrumente le PLAN de l'agent.
-// Câblé sur PostToolUse, matcher "TodoWrite" (et "Task"). À chaque écriture de todos,
-// on ÉMET un snapshot COMPLET (non tronqué) du plan vers la base de documents / le broker (IAKALOG_* / DOCDB_*,
-// même schéma que L4/L5). Le cockpit lit la main courante et affiche la checklist
-// (dernier snapshot = plan courant).
+// Câblé sur PostToolUse, matcher "TodoWrite" (et "Task"/"Agent" — M-6, Lot 5). À chaque écriture
+// de todos, on ÉMET un snapshot COMPLET (non tronqué) du plan vers la base de documents / le
+// broker (IAKALOG_* / DOCDB_*, même schéma que L4/L5). Le cockpit lit la main courante et affiche
+// la checklist (dernier snapshot = plan courant).
 //
 // JAMAIS bloquant (ce n'est pas un garde) : fail-open, borné, exit 0 toujours.
 // Transport : IAKALOG_TRANSPORT = "broker" (défaut) | "docdb". Scopé par session/cwd.
+//
+// Lot 5 (specs/instructions/declaration-chantier-session.md § D-12, M-6) :
+//   - accepte `tool_name:"Agent"` EN PLUS de `"Task"` (renommage v2.1.63, le matcher "Task" reste
+//     honore dans settings.json — le payload observe porte desormais "Agent") ;
+//   - attribution : `conv_id` = nom du chantier ACTIF de la session (repli : `basename(cwd)`,
+//     comportement HISTORIQUE si aucun chantier actif n'est connu) ; `meta.repo`, `meta.repo_root`,
+//     `meta.segment`, `meta.aragorn`, `meta.main_role`, `meta.agent_id?` ; `royaume` suit la MEME
+//     regle que `delegation-guard.mjs` (nom du depot/dossier en MAJUSCULE, `PORTEFEUILLE`, sinon
+//     l'env `IAKALOG_ROYAUME` INCHANGE). Lecture SEULE du registre (`loadState`) : cet emetteur
+//     n'ecrit JAMAIS au registre de chantier (D-2). Couche ignoree (M-9, comportement HISTORIQUE
+//     intact) si `IAKAFRAME_CHANTIER_MODE=off`, `session_id` absent/hors forme, ou registre absent.
 import { homedir } from "node:os";
 import { join, basename } from "node:path";
 import { readFileSync } from "node:fs";
 import net from "node:net";
+import { loadState } from "./chantier-state.mjs";
 
 const EMIT_TIMEOUT_MS = 1500;
 const ts = () => new Date().toISOString();
@@ -24,6 +36,12 @@ function readAll() {
     return "";
   }
 }
+
+// Lot 5 — COUCHE CHANTIER (lecture seule, D-12) : DOIT etre defini AVANT `await main()` (le
+// premier `await` au niveau module suspend l'evaluation du reste du fichier ; une `const` fleche
+// referencee par une fonction hoisee mais appelee DURANT ce premier `await` resterait en zone
+// morte temporelle — ReferenceError constate a l'implementation, cf. note de realisation Lot 5).
+const chantierModeRaw = () => String(process.env.IAKAFRAME_CHANTIER_MODE || "").trim().toLowerCase();
 
 await main();
 
@@ -39,7 +57,7 @@ async function main() {
       return;
     }
     const tool = p.tool_name || p.toolName || "";
-    if (tool !== "TodoWrite" && tool !== "Task") {
+    if (tool !== "TodoWrite" && tool !== "Task" && tool !== "Agent") {
       done();
       return;
     }
@@ -56,7 +74,7 @@ async function main() {
   done();
 }
 
-// Normalise le payload en items {content, status} (TodoWrite = liste ; Task = 1 item).
+// Normalise le payload en items {content, status} (TodoWrite = liste ; Task/Agent = 1 item, M-6).
 function normalizeItems(tool, ti) {
   if (tool === "TodoWrite" && Array.isArray(ti.todos)) {
     return ti.todos
@@ -66,11 +84,33 @@ function normalizeItems(tool, ti) {
       }))
       .filter((t) => t.content.length > 0);
   }
-  if (tool === "Task") {
+  if (tool === "Task" || tool === "Agent") {
     const c = String(ti.description ?? ti.subagent_type ?? "").trim();
     return c ? [{ content: c, status: "in_progress" }] : [];
   }
   return [];
+}
+
+// ---------------------------------------------------------------------------
+// Lot 5 — COUCHE CHANTIER (lecture seule) : attribution (D-12). `chantierModeRaw` est definie
+// plus haut (avant `await main()`, cf. commentaire a cet endroit).
+// ---------------------------------------------------------------------------
+
+// loadChantier(sid) -> etat replie ou null (interrupteur "off", sid invalide, registre absent :
+// M-9). Read-only (D-2) : jamais d'ecriture au registre depuis cet emetteur.
+function loadChantier(sid) {
+  if (chantierModeRaw() === "off") return null;
+  try { return loadState(sid); } catch { return null; }
+}
+
+// royaumeFor(state, fallback) -> MEME regle que delegation-guard.mjs (D-12).
+function royaumeFor(state, fallback) {
+  const active = state && state.active ? state.active.key : null;
+  if (active && (active.kind === "repo" || active.kind === "dir")) {
+    return String(active.name == null ? "" : active.name).toUpperCase();
+  }
+  if (active && active.kind === "portefeuille") return "PORTEFEUILLE";
+  return fallback;
 }
 
 function summarize(items) {
@@ -82,11 +122,23 @@ function summarize(items) {
 async function emitPlan(p, items) {
   const session = p.session_id || null;
   const cwd = p.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
-  const conv = basename(cwd || "") || session || "default";
+  const state = loadChantier(session);
+  const active = state && state.active ? state.active : null;
+  const launch = state && state.launch ? state.launch : null;
+  // D-12 : conv_id = nom du chantier ACTIF (repli HISTORIQUE : basename(cwd), M-9/M-6).
+  const conv = active ? active.key.name : (basename(cwd || "") || session || "default");
   const agent = process.env.IAKALOG_AGENT || "coordinateur";
-  const royaume = process.env.IAKALOG_ROYAUME || "unknown";
+  const royaume = royaumeFor(state, process.env.IAKALOG_ROYAUME || "unknown");
   const at = ts();
   const meta = { canal: "geste", event: "plan", tool: p.tool_name, items, cwd };
+  if (active) {
+    meta.repo = active.key.name;
+    meta.repo_root = active.key.root;
+    meta.segment = active.segment;
+    meta.aragorn = active.aragorn || null;
+    meta.main_role = launch ? launch.main_role : null;
+    if (p.agent_id) meta.agent_id = p.agent_id;
+  }
   const _id = `plan-${session || conv}-${at}`;
   const doc = {
     _id,
