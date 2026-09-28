@@ -15,6 +15,12 @@
 > avec les lectures **A3-1 à A3-9** ; CA-17 réécrit, CA-26 précisé, **CA-34 à CA-41** ajoutés ;
 > réalisation = **Lot 1ter**. Les passages du corps touchés portent un renvoi « → A3-x ».
 
+> **Limite acceptée du garde shell (2026-09-28, option 3 décidée par Stéphane) — voir § 3.** Le
+> garde shell (Bash/PowerShell) est une **protection au mieux**, pas une barrière étanche : il ne
+> juge que les chemins **absolus** explicites de la commande (et quelques cibles nommées) ; une
+> cible **relative** (`echo x > ../repoB/x.txt`) passe. **Aucun correctif de code.** Lire D-7,
+> D-11 et la décision 3 avec les lectures **LS-1 à LS-3** ; constat de recette **CA-42** (Lot 7).
+
 > Émetteur : 🧙 Gandalf (cadrage, P1). Récepteur : ⚒️ Gimli (dev, P2), gate 🏹 Legolas.
 > Cible : dépôt `iakaframe` — gardes du kit Claude (`kits/iakaframe-claude/global/hooks/`),
 > cœur pur `guard-core.mjs`, contrats `odin.md` / `aragorn.md`, skills `iakaframe-odin` /
@@ -226,6 +232,83 @@ règles de D-5/D-6.
 
 ---
 
+## 3. Limite acceptée du garde shell (2026-09-28) — protection au mieux, pas barrière étanche
+
+> Décidé par Stéphane le 2026-09-28 (**option 3** : accepter et documenter, **sans correctif de
+> code**), sur le gate 🏹 Legolas des Lots 4 + 1ter (FAIL, commits `f414d2f`, `80d88a7`, `87b9a4f`).
+> Émetteur 🧙 Gandalf. Le corps n'est pas réécrit : les lectures LS-x ci-dessous **priment** sur les
+> passages qu'elles citent (renvois « → LS-x » dans la décision 3, D-7 et D-11).
+
+### Constat (gate Legolas, reproduction)
+
+| # | Fait mesuré (sur `87b9a4f`, lecture seule) | Où |
+|---|---|---|
+| M-23 | Session lancée dans un chantier (dossier hors `horsA` ou dépôt), `cwd` dans ce chantier : `Bash "echo x > ..\horsB\f.txt"` ou `Bash "echo x > ../repoB/x.txt"` → **exit 0 (ALLOW)**, alors que la même écriture en chemin **absolu** est refusée (CA-37). `classifyShell` ne relève dans le texte que les chemins **absolus** (`ABS_PATH_RE`, conforme à la lettre de D-7 « `paths` : chemins absolus ») ; l'adaptateur juge `targets = [payload.cwd, ...cls.paths]` sans résoudre les cibles relatives d'écriture : seule la clé du `cwd` est jugée → « chez soi » → ALLOW. Vaut pour **toute frontière** (hors↔hors, hors↔dépôt, dépôt↔dépôt). **Préexistant**, antérieur au chantier. | `kits/iakaframe-claude/global/hooks/guard-core.mjs:470-472` ; `kits/iakaframe-claude/global/hooks/perimeter-guard.mjs:313-336` |
+
+### Lectures amendées
+
+**LS-1 — D-7, `paths` (ce que le garde shell voit, et ce qu'il ne voit pas).** Pour un geste
+`SHELL_MUTATE`, le garde ne juge **que** :
+- (a) `payload.cwd` (toujours) ;
+- (b) les chemins **absolus** écrits littéralement dans la commande (`C:\…`, `C:/…`, `/c/…`, `/…`,
+  `~/…`) ;
+- (c) la cible d'une commande **neutre** (`cd`, `pushd`, `Set-Location`, `Push-Location`) et de
+  `git -C` / `--git-dir` / `--work-tree`, **même relative**, résolue contre `payload.cwd` ;
+- (d) les chemins `--path` / `--project` / `<repo>` des commandes portefeuille (D-14).
+
+**Tout le reste échappe au garde.** Ne sont **pas** couverts, notamment :
+- la **cible relative** d'une redirection ou d'une commande d'écriture : `> ../x`, `>> ..\x`,
+  `Set-Content ..\x`, `Out-File ..\x`, `cp a ../x`, `mv a ../x`, `Copy-Item a ..\x` ;
+- le **`cd` enchaîné** puis écriture relative : chaque cible neutre est résolue **isolément**
+  contre `payload.cwd`, jamais contre le répertoire courant cumulé
+  (`cd .. && cd horsB && echo x > f.txt` est jugé sur `<cwd>\horsB`, sous le chantier) ; une cible neutre en variable (`cd $D`)
+  n'est pas résolue. Seul un `cd <cible>` **unique** est vu en l'état du code (`cd ../horsB && echo
+  x > f.txt` → clé `horsB`) — constat, **non garanti** par un CA ;
+- les **variables et substitutions** : `> $DEST`, `> "$env:X\f"`, `$(…)`, `` `…` `` ;
+- toute écriture faite **par un script ou un interpréteur** : `node x.js`, `python -c …`,
+  `npm run …`, `pwsh -File s.ps1` — le garde voit la commande, jamais les fichiers qu'elle écrit.
+
+Cette borne vaut aussi pour le **hors-limite D-9 au niveau chemin** (`~/.claude/hooks/**`,
+`settings.json`…) : une cible relative vers le harnais n'est pas vue. Les refus D-9 **au niveau
+commande** (`installerInvoke`, `selfInvoke`, `registryRef`) ne sont **pas** affectés : ils portent
+sur le texte de la commande, pas sur un chemin résolu.
+
+**Restent couverts entièrement** : `Edit`, `Write`, `NotebookEdit` — outils à **chemin explicite**
+(`file_path` / `notebook_path`, résolu contre `payload.cwd` s'il est relatif), jugés par D-9 puis
+`verdictChantier` sans angle mort.
+
+**LS-2 — Décision 3 et D-11 (garantie restreinte, dite franchement).** « **Bash/PowerShell en DENY
+comme Edit** » (D-11) et « geste mutateur sur un dépôt ≠ déclaré → DENY » (décision 3) se lisent,
+pour le shell : **en DENY pour les seules cibles que LS-1 rend visibles**, c'est-à-dire, en pratique,
+les **chemins absolus explicites**. Pour tout le reste, la **frontière de chantier** (hors↔hors,
+hors↔dépôt, dépôt↔dépôt) et le **hors-limite par chemin** reposent sur la **discipline des agents**
+— leurs contrats (`odin.md`, `aragorn.md`, `perimeter.md`, Lot 6) — et **non sur le garde**. Le
+garde shell attrape la **dérive** d'un agent qui écrit un chemin explicite ; il **n'arrête pas** un
+agent qui écrit en relatif, par variable ou par script. Même ligne que le risque « Falsification
+par un agent adversarial → hors cible » (§ Risques), désormais étendue à la simple écriture
+relative.
+
+**LS-3 — Lot 7, recette.** La limite est **constatée** en recette réelle (**CA-42**, constat non
+bloquant) : le geste relatif **passe**, c'est **attendu et documenté** — il ne doit pas être
+redécouvert plus tard comme une régression. **Aucun nouveau CA de blocage.**
+
+### Traçabilité de la décision
+
+| Date | Décideur | Décision | Origine |
+|---|---|---|---|
+| 2026-09-28 | Stéphane | **Option 3** : accepter la limite, la documenter (LS-1 à LS-3, CA-42), **aucun correctif de code** ; le garde shell est une protection au mieux | gate 🏹 Legolas Lots 4 + 1ter (FAIL sur M-23 seul ; reste jugé conforme) |
+
+Options **écartées** : (1) résoudre les cibles relatives **et** refuser par prudence toute écriture
+dont la cible n'est pas résolue (variable, substitution, script) ; (2) résoudre les cibles relatives
+seules, sans refus prudent.
+
+### Ce qui ne change pas
+Aucun fichier de code ni de test ; `classifyShell`, `perimeter-guard.mjs`, D-8, D-9 niveau commande,
+D-14, les CA existants (CA-37 continue d'exiger le refus de la **forme absolue**). Contrats du Lot 6 :
+inchangés par ce §.
+
+---
+
 ## Problème
 
 Une session Claude Code est rattachée à `$CLAUDE_PROJECT_DIR`, immuable. Quand la conversation
@@ -244,7 +327,8 @@ en répond.
 2. Déclaration de chantier **obligatoire**, registre par session, historique en append ; tout
    travail sur un dépôt est lié à l'Aragorn de ce dépôt.
 3. **Blocage direct** (pas de période warn) : sans chantier, ou geste mutateur sur un dépôt ≠
-   déclaré → **DENY (exit 2)** avec message actionnable. **Lecture toujours libre.** (→ A3-5)
+   déclaré → **DENY (exit 2)** avec message actionnable. **Lecture toujours libre.** (→ A3-5 ;
+   pour le shell, restreint aux chemins absolus explicites → **LS-2**)
 4. **Mode principal : une session Claude par dépôt**, lancée **dans** le dépôt avec **Aragorn en
    agent principal** (`claude --agent aragorn`) ; le chantier est fixé au lancement. Odin (thread
    principal au portefeuille) ne travaille pas dans un dépôt : il **propose** puis, sur
@@ -429,7 +513,8 @@ segment** commence (après affectations `X=y`) par une commande **neutre** ou de
 `classifyShell` rend aussi :
 - `paths` : chemins absolus (formes `C:\…`, `C:/…`, `/c/…`, `/…`, `~/…`) ; cibles des commandes
   neutres et de `git -C`/`--git-dir`/`--work-tree` (brutes ; l'adaptateur les résout contre
-  `payload.cwd`) ;
+  `payload.cwd`) ; (→ **LS-1** : seules ces cibles sont jugées ; une cible **relative** de
+  redirection ou d'écriture, une variable, un script **échappent** au garde — limite acceptée)
 - `registryRef` : la chaîne contient `iakaframe-sessions` ;
 - `selfInvoke` (**élargi**, D-9) : un segment dont la **commande** est `claude`/`claude.exe`/`claude.cmd`
   (hors `--version`/`-v`/`--help`) ; **ou** un segment dont la commande est un lanceur de processus
@@ -487,7 +572,8 @@ autre verdict**). Comparaison sur le chemin **brut résolu ET** sur le chemin **
 
 **D-11 — Couche chantier = remplacement de l'ancrage, pas un 2ᵉ garde.** Couche active → le chantier
 effectif **remplace** `$CLAUDE_PROJECT_DIR` comme périmètre, dans le **même** `perimeter-guard.mjs`
-(un verdict par geste, un journal). **Bash/PowerShell en DENY** comme Edit ; `IAKAFRAME_PERIMETER_MODE`
+(un verdict par geste, un journal). **Bash/PowerShell en DENY** comme Edit (→ **LS-2** : pour les
+seules cibles visibles de LS-1, en pratique les chemins absolus explicites) ; `IAKAFRAME_PERIMETER_MODE`
 ne gouverne plus que la couche historique. L'en-tête de `perimeter-guard.mjs` documente la
 **divergence assumée avec Codex** (couche chantier côté Claude seulement), par symétrie avec
 `cli/test/guard-codex-complet.test.js:64-67`.
@@ -699,6 +785,13 @@ avant le Lot 5**, qui hérite de `keyOf`/`resolveRepoArg`)
   `cli/test/guard-chantier-remind.test.js` : CA-40.
 - 1ter-9. Suite CLI complète : baseline + nouveaux tests, **0 fail** (CA-28) ; puis gate 🏹 Legolas.
 
+> **Note de réalisation (2026-09-28, gate 🏹 Legolas des Lots 4 + 1ter, commits `f414d2f`,
+> `80d88a7`, `87b9a4f`)** — Verdict initial **FAIL** sur un seul point : le contournement du garde
+> shell par une cible **relative** (M-23, § 3). Tout le reste des Lots 4 et 1ter a été jugé
+> **conforme**. Décision de Stéphane le 2026-09-28, **option 3** : la limite est **acceptée et
+> documentée** (LS-1 à LS-3, constat CA-42), sans correctif. **État du gate : conforme, hors cette
+> limite acceptée.** Aucun re-livrable de code n'est attendu des Lots 4 et 1ter à ce titre.
+
 **Lot 5 — Délégation et plan** (`feat(hooks)`)
 9. `delegation-guard.mjs` PreToolUse : après le roster, `verdictDispatch` (aucune écriture au
    registre). Attribution D-12 en PreToolUse et PostToolUse.
@@ -764,7 +857,7 @@ avant le Lot 5**, qui hérite de `keyOf`/`resolveRepoArg`)
 **Lot 7 — Déploiement et recette (gestes HUMAINS, décideur)**
 19. Copier `kits/iakaframe-claude/global/hooks/*.mjs` → `~/.claude/hooks/` (ou lancer soi-même
     l'installeur) ; fusionner les changements de `settings.example.json` dans `~/.claude/settings.json`.
-20. Recette en session réelle : CA-29 à CA-33.
+20. Recette en session réelle : CA-29 à CA-33, puis le **constat** CA-42 (limite acceptée, LS-3).
 21. Clôture : `iakaframe update` (état des lieux + commit + push), gate Legolas avant.
 
 ### Messages (modèle, à tenir mot pour mot sur la structure)
@@ -841,6 +934,10 @@ avant le Lot 5**, qui hérite de `keyOf`/`resolveRepoArg`)
   liaison propre) ; CA-32 le constate.
 - **Falsification par un agent adversarial** (commande opaque) → hors cible : la garde ferme les
   chemins outillés et journalise ; durcissement Q7 ultérieur.
+- **Écriture shell à cible relative, par variable ou par script** (M-23) → **non couverte, limite
+  acceptée** (option 3, 2026-09-28, § 3) : la frontière de chantier repose, pour le shell, sur la
+  discipline des agents (contrats) ; constatée en recette (CA-42) pour ne pas être prise pour une
+  régression.
 - **Commandes portefeuille** (D-14) : liste fermée à cinq formes, un seul segment, thread principal
   `odin` au portefeuille uniquement.
 - **Chemins Windows non normalisés** (8.3, casse, M-12) → normalisation obligatoire (D-4), CA-18.
@@ -1052,6 +1149,12 @@ M-20) ; clés de fixture du cœur : `hA = {kind:"hors", root:"/x/horsA", name:"@
 - [ ] **CA-33** Depuis une autre session, envoyer (`SendMessage`) à la session Odin un message
       contenant une ligne seule `odin-direct <x>` puis `chantier <x>` : le registre de la session Odin
       ne montre **ni** `grant` **ni** `declare`. Sinon : **arrêt**, remonter (réouverture de Q7).
+- [ ] **CA-42** (**constat, non bloquant** — limite acceptée, LS-3) Session lancée dans un dépôt
+      `repoA` (chantier actif `repoA`) : `Bash echo x > ../repoB/x.txt` (cwd `repoA`) → **exit 0,
+      écriture effectuée** dans `repoB` — **attendu et documenté** (§ 3, M-23), ce n'est **pas** une
+      régression ; supprimer le fichier créé. Contrôle : la même écriture en chemin **absolu**
+      (`echo x > <repoB>/x.txt`) → exit 2 `CHANTIER_MISMATCH`. Si le geste relatif est **refusé**,
+      le noter (le comportement a changé) et remonter à Gandalf pour réaligner le § 3.
 
 ## Estimation (jalon P1→P2, révisée au 2ᵉ amendement)
 
