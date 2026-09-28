@@ -1,7 +1,10 @@
 # Synchronisation multi-dépôts après les chantiers `declaration-chantier-session` et `prise-de-parole-odin-aragorn`
 
 > **Statut : proposé, à valider par Stéphane.** Cadrage 🔵 Gandalf du 2026-09-28, depuis
-> `C:\work\iakaframe` (HEAD `fa8685e`). Relevé fait **en lecture seule** sur les autres dépôts :
+> `C:\work\iakaframe`. Relevé initial à HEAD `fa8685e` (commit `ac3092b`), **révisé à HEAD `60d3347`**
+> après les correctifs du gate Legolas Lot 6 + P3 (`c0ccf01..60d3347`) : § 1.1 bis (fichiers
+> vendorisés retouchés), § 1.8 (fins de ligne), Lot E0, étape G1-1a, Q-S6, estimation.
+> Relevé fait **en lecture seule** sur les autres dépôts :
 > rien n'y a été écrit. Chaque lot par dépôt s'exécute **dans une session Aragorn de ce dépôt**
 > (règle « une session = un dépôt »). Le Lot 7 / Lot P4 reste un **geste humain**.
 
@@ -13,7 +16,11 @@
 - Le chiffre « 19 gestes `[copy]` » de `vendor-check` vient de l'**ordre de mission** (mesure
   d'Aragorn), pas de moi. Je n'en ai vérifié qu'un sous-ensemble, en comparant les empreintes
   (§ 1.2).
-- Période couverte : commits `c862a14..fa8685e` (`.git/logs/HEAD:10-33`).
+- Période couverte : commits `c862a14..60d3347` (`.git/logs/HEAD:10-40`). Les commits
+  `c0ccf01..60d3347` (`:36-40`) sont les correctifs du gate Legolas Lot 6 + P3.
+- Les constats EOL (§ 1.8) viennent de `Grep` sur le motif `\r$` (lignes terminées par CR) et de la
+  lecture des configurations git. Je n'ai pas pu lancer `git ls-files --eol` : l'état des **blobs**
+  de la GUI reste **à mesurer** (étape G1-1a).
 - Dépôts git trouvés sous `C:\work` : `iakaframe`, `iakaframegui`, `iakacockpit`,
   `iakaagentsmonitor`, `iakatokencounter`, `naonedge`, `naonedge-clients`, `robotimmo`, `iakavod`.
   **`iakaos` n'existe pas** sous `C:\work` (aucun dossier) : il est hors relevé.
@@ -33,6 +40,20 @@
 Mécanisme d'amorçage : `iakaframe init` copie **tout** le kit (`cli/src/commands/init.js:60`,
 `cli/src/lib/kit.js:96-112`), y compris le sous-dossier `global/` (hooks + `CLAUDE.md` global). Chaque
 projet initialisé porte donc une **copie figée** de `global/`, datée de son `init`.
+
+### 1.1 bis Retouches depuis le relevé initial (`fa8685e` → `60d3347`)
+
+| Fichier iakaframe | Changement | Vendorisé vers la GUI ? |
+|---|---|---|
+| `library/personas/odin.md` | ligne `Chantier: <repo>` (lancement de session) | **oui**, copie (`vendor.js:136-141`) |
+| `library/skills/iakaframe-odin/SKILL.md` | idem | **oui**, copie (`vendor.js:215-220`) |
+| `cli/test/fixtures/agents-golden/odin.md` | régénéré | **oui**, copie + niveau 2 (`vendor.js:142-147,352-366`) |
+| `cli/test/fixtures/skills-golden/manifest.json` | 27 sha256 recalculés (pur effet EOL) | non |
+| `methode-de-travail.md`, `methode-de-travail.html` | correction de l'exemple de badge ; vitrine régénérée | non |
+| `.gitattributes:23-39` | `eol=lf` figé sur goldens, kit, vitrine, `library/skills/**/SKILL.md`, `library/personas/*.md` | non (mais change le **checkout** des sources de 40 copies, § 1.8) |
+
+Les trois fichiers odin font **déjà partie** des 8 gestes imputables (§ 1.2) : leur liste ne change pas,
+mais leur **contenu cible** a changé. Le gel du canon (Étape 0) part donc de **`60d3347`**.
 
 ### 1.2 `iakaframegui` — consommateur principal (vendorisation active)
 
@@ -63,7 +84,8 @@ projet initialisé porte donc une **copie figée** de `global/`, datée de son `
 **Divergence constatée :**
 - Goldens : sur les 10, **seuls `aragorn` et `odin` diffèrent** (empreintes d'en-tête : iakaframe
   `b63044c3…`/`581cef28…` contre GUI `17594584…`/`2d8364c6…`) ; les 8 autres ont une empreinte
-  identique.
+  identique. *(Mesure faite à `fa8685e` ; le golden `odin` a été régénéré depuis, § 1.1 bis. Sur ce
+  poste, la comparaison brute est en outre faussée par les fins de ligne, § 1.8.)*
 - Marqueurs du chantier (« Voix dans le dépôt », « Chaîne de délégation visible », « Chantier
   déclaré », « chantier de session ») : **0 occurrence** dans les fixtures GUI, 11 dans 6 fichiers
   canon (`library/personas/{aragorn,odin}.md`, `library/skills/iakaframe-aragorn/SKILL.md`,
@@ -160,6 +182,57 @@ touche **deux** dépôts : `CHANTIER_MISMATCH` (`:659-662`) sous les nouveaux ho
 actuels, le même `cp` n'est qu'un **avertissement** (runtime `perimeter-guard.mjs:44` : Bash = `warn`).
 Les copies de `vendor-check` sont justement de cette forme (`vendor-check.js:69-75`).
 
+### 1.8 Fins de ligne (EOL) : état des deux dépôts et effet sur `vendor-check`
+
+**Règles EOL de `iakaframegui` :**
+- **Aucun `.gitattributes`** : ni à la racine (`C:\work\iakaframegui\.gitattributes` : absent), ni sous
+  `packages/` (Glob : aucun).
+- `.git/config:1-7` : pas de `core.autocrlf` ; `~/.gitconfig` non plus.
+- **Git for Windows système** : `C:\Program Files\Git\etc\gitconfig:11` → `core.autocrlf = true`.
+  C'est donc la règle effective sur ce poste, pour la GUI **et** pour les chemins d'iakaframe non
+  épinglés.
+
+**État réel des fixtures GUI sur le disque :** **les 86 `.md` de `packages/core/__tests__/fixtures/`
+sont en CRLF** (`Grep \r$` : 87 fichiers touchés, `raw-md.d.ts` compris). Exemples :
+`personas/odin.md` = 145 lignes CRLF sur 145 ; les 10 `agents-golden/*.md` n'ont **aucune** ligne `---`
+terminée par LF seul. L'état des blobs (probablement LF, normalisés par `autocrlf` au commit) est
+**non mesuré**.
+
+**État réel des sources iakaframe sur le disque (HEAD `60d3347`) :**
+- **LF** : `library/personas/*.md`, `library/skills/*/SKILL.md`, `cli/test/fixtures/agents-golden/*.md`,
+  `skills-golden/manifest.json` (0 ligne CRLF). Ce sont les sources de **40 copies** (10 personas,
+  10 goldens, 20 skills).
+- **CRLF** (non épinglés, `autocrlf`) : `library/{principles,rituals,scaffolds,roles,guardrails}/*.md`,
+  `library/workflows/iakaframe-3phases.md`, `bindings/iakaframe-claude-default.md`,
+  `methods/iakaframe.md`, `teams/iakaframe-8.md`. Ce sont les sources des **42 autres copies** et des
+  dérivées.
+- **Écart local** : `cli/test/fixtures/kit.iakaframe-claude.golden.md` (27/27 lignes),
+  `kits/iakaframe-claude.md` et `methode-de-travail.html` sont **encore en CRLF** alors qu'ils sont
+  épinglés `eol=lf` (`.gitattributes:29-31`). Changer un attribut ne réécrit pas un fichier déjà
+  extrait : ces trois fichiers n'ont pas été ré-extraits.
+
+**Effet sur `vendor-check` (déduit de la lecture du code, à confirmer à la mesure) :**
+1. `checkVendor` compare en **brut** (`vendor.js:294-299`). Les **40 copies** à source LF sortent
+   `contenu-different` contre des fixtures CRLF, **même à contenu identique**. Les 42 autres passent,
+   car elles sont CRLF des deux côtés **par hasard de poste** : sur un clone sans `autocrlf`, le
+   verdict serait différent.
+2. `stripHeader` cherche `'---\n'` (`vendor.js:226-229`). Sur un golden GUI en CRLF, il rend `null` :
+   le **niveau 2** signale les **10 goldens** en `golden-vendore-sans-frontmatter` (`:358-359`), quel
+   que soit leur contenu. Sur le golden kit iakaframe encore en CRLF, la dérivée `kit` sort
+   `en-tete-golden-illisible` (`:308-311`).
+3. Legolas a établi que les tests `A12` / `A14` de `cli/test/vendor-check.test.js` (`:202-210`,
+   `:343`) échouaient en **baseline** pour cette raison (CRLF au checkout), et non à cause de
+   l'absence du dépôt frère.
+4. **Côté GUI**, `gen-fixtures.mjs` a le même défaut : `verbatimBody` exige `'---\n'` (`:80-85`).
+   Sur une fixture dérivée en CRLF, il rend le **fichier entier** comme corps, et la régénération
+   produirait un **double frontmatter**. L'étape G1-4 (`run gen-fixtures` avant `copy`) est donc
+   **dangereuse** sur le checkout actuel. Les parseurs de la GUI, eux, tolèrent le CRLF
+   (`packages/core/src/frontmatter.ts:137,454`, `split(/\r?\n/)`).
+5. **Re-vendoriser en l'état** : un `cp` d'une source LF écrit une fixture LF dans un arbre CRLF. Le
+   blob ne change pas si le contenu est identique, mais le verdict dépend alors de l'ordre des
+   extractions. Cela peut **masquer** un écart (tout « passe » après copie) ou en **introduire** un
+   (prochaine extraction en CRLF → rouge à nouveau).
+
 ## Problème
 
 Les deux chantiers ont changé le canon (contrats, skills, garde-fou), les hooks et la méthode. Ces
@@ -169,6 +242,9 @@ changements n'existent aujourd'hui **que dans iakaframe**. Il reste trois choses
    nouveau runtime ;
 3. poser le **déploiement humain** au bon moment.
 
+Depuis `60d3347`, s'y ajoute un pré-requis : rendre la mesure de `vendor-check` **indépendante des fins
+de ligne** (§ 1.8). Sans cela, G1 ne peut pas atteindre un verdict propre qui ait un sens.
+
 Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de travail inutile.
 
 ## Décision retenue (proposée, à arbitrer)
@@ -177,7 +253,8 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
   dans un autre dépôt que le sien. Tout besoin de modifier le canon (golden périmé, générateur) **remonte**
   à une session iakaframe.
 - **D-S2** — Ordre recommandé (justifié en § Risques et Q-S3) :
-  **(0)** gate Legolas iakaframe PASS et commit → **(1)** `iakaframegui` G1 (re-vendorisation) →
+  **(0)** gate Legolas iakaframe PASS et commit (fait : `60d3347`) → **(0 bis)** Lot **E0** iakaframe
+  (EOL, selon l'arbitrage Q-S6) → **(1)** `iakaframegui` G1 (re-vendorisation) →
   **(2)** Lot 7 / P4 humain, hooks et contrats **dans la même séance**, sans session active → **(3)**
   recette (dans `naonedge`) → **(4)** `iakacockpit` C1 et `iakaagentsmonitor` A1 (vérifications
   runtime) → **(5)** successeurs cadrés à part (Q-S1, Q-S2).
@@ -187,10 +264,16 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
   hooks embarqués de la GUI **ne sont pas** re-vendorés dans ce lot (Q-S1).
 - **D-S5** — Aucune ré-exécution d'`iakaframe init --force` dans un projet existant : elle écraserait
   le `CLAUDE.md` projet (`init.js:54-60`).
+- **D-S6** (proposée, Q-S6) — Les fins de ligne se traitent **des deux côtés** : (1) dans iakaframe, un
+  lot **E0** qui rend `checkVendor` et `stripHeader` insensibles au CRLF, **avant** G1 ; (2) dans la GUI,
+  un `.gitattributes` qui épingle `eol=lf` sur les fixtures vendorisées, posé **dans G1** (étape 1a).
 
 ## Périmètre
 
 - **Inclus** :
+  - E0 (iakaframe, **sous réserve de l'arbitrage Q-S6**) : normalisation EOL dans
+    `cli/src/lib/vendor.js` et test CRLF ; ré-extraction des 3 fichiers épinglés restés en CRLF (§ 1.8) ;
+  - G1 : `.gitattributes` GUI (`eol=lf` sur les fixtures) et ré-extraction des fixtures ;
   - G1 : re-vendorisation des fixtures de `iakaframegui` jusqu'à `vendor-check` propre, plus une
     entrée de backlog GUI qui déclare la dette « hooks embarqués » ;
   - Lot 7 / P4 : liste de gestes humains ordonnée et vérifiable (§ Étapes) ;
@@ -204,7 +287,12 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
     successeur (Q-S1) ;
   - nettoyage ou rafraîchissement des copies `global/` des projets, et changement de `copyKit` :
     successeur iakaframe (Q-S2) ;
-  - toute modification des gardes, contrats ou générateurs d'iakaframe ;
+  - toute modification des gardes, contrats ou générateurs d'iakaframe (seule exception : E0, borné
+    à `vendor.js` et à son test, si Q-S6 le retient) ;
+  - le correctif de `verbatimBody` dans `gen-fixtures.mjs` (code GUI) : l'épinglage `eol=lf` de G1-1a
+    suffit à le rendre sans objet sur les fixtures ;
+  - l'épinglage `eol=lf` des 42 autres sources vendorisées d'iakaframe (principles, rituals…) : rendu
+    inutile par E0 ;
   - le correctif « générateurs no-op sous Windows » (préexistant, iakaframe) ;
   - iakaTokenCounter (Q-E, lot ultérieur) ; `naonedge`, `robotimmo`, `iakavod`, `naonedge-clients` :
     rien à écrire ;
@@ -214,20 +302,57 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
 ## Étapes d'implémentation
 
 ### Étape 0 — iakaframe (pré-requis, session Aragorn iakaframe)
-1. Gate 🏹 Legolas du chantier **PASS** et commité. Canon **gelé** jusqu'à la fin de G1 : toute
+1. Gate 🏹 Legolas du chantier **PASS** et commité (fait : `60d3347`). Canon **gelé** à cette base
+   jusqu'à la fin de G1 : toute
    modification ultérieure du canon relance G1.
 2. Gandalf, à la validation : note de renvoi vers `synchro-multi-depots.md` en tête des deux
    instructions mères (commit `docs(specs)` par l'orchestrateur).
+
+### Lot E0 — iakaframe, mesure `vendor-check` insensible aux fins de ligne (session Aragorn iakaframe, **avant G1**, si Q-S6 = (b) ou (c))
+E0-a. Baseline : `node --test cli/test/vendor-check.test.js` sur ce poste. Consigner les tests rouges
+      (attendu : `A12`, `A14`, selon le constat Legolas).
+E0-b. `cli/src/lib/vendor.js` : une seule fonction de lecture texte qui convertit `\r\n` en `\n`, et
+      rien d'autre (ni BOM, ni CR isolé, ni espaces). L'utiliser pour les **trois** lectures de
+      comparaison : `fixtureRaw` / `sourceRaw` (`:294-295`) et le golden vendoré du niveau 2 (`:358`).
+      `stripHeader` et `sha256` restent inchangés : ils reçoivent désormais du texte en LF. Commentaire
+      de tête : la garde compare le **contenu**, pas les fins de ligne ; les blobs git sont normalisés
+      et l'EOL du checkout dépend du poste (`core.autocrlf`).
+E0-c. `cli/test/vendor-check.test.js` : un test qui fabrique un miroir propre, le convertit **en
+      CRLF**, et attend `ok:true` / `status:"clean"` ; un second test qui, dans ce miroir CRLF, change
+      **un mot** d'une copie et attend `contenu-different`. Si `A12` lit la fixture en brut (`:206`),
+      il passe par la même fonction de lecture.
+E0-d. Ré-extraire les 3 fichiers épinglés restés en CRLF (§ 1.8) : pour chacun, supprimer le fichier de
+      travail puis `git restore -- <chemin>`. Arbre propre **avant** et **après** (`git status`). Aucun
+      `reset --hard`.
+E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison insensible aux fins de
+      ligne`. E0 ne touche **aucun** fichier vendorisé : le gel du canon (étape 1) n'est pas rompu.
 
 ### Lot G1 — `iakaframegui` (session Aragorn lancée dans `C:\work\iakaframegui`)
 1. `git pull` (branche suivie : `vps/main`, `.git/config`). Mesurer la baseline :
    `npm run lint:all`, `npm run test:all`, puis tableau de verdict au format du dépôt
    (`CLAUDE.md:330-353`).
+1a. **Fins de ligne (avant toute mesure de vendorage ; si Q-S6 = (a) ou (c)).**
+    - Arbre propre (`git status`). Mesurer `git ls-files --eol -- packages/core/__tests__/fixtures`
+      et consigner le couple `i/…` `w/…` (attendu : `i/lf w/crlf`).
+    - Créer `.gitattributes` à la racine de la GUI, avec une seule règle :
+      `packages/core/__tests__/fixtures/**/*.md text eol=lf`.
+    - Si un blob est en `i/crlf` : `git add --renormalize -- packages/core/__tests__/fixtures` (les
+      blobs changent, d'où un commit dédié).
+    - Ré-extraire les fixtures : supprimer les `.md` de travail sous `fixtures/`, puis
+      `git restore -- packages/core/__tests__/fixtures`. Jamais `reset --hard`.
+    - Vérifier : `git ls-files --eol` → `w/lf` partout ; `Grep \r$` sur `fixtures/**/*.md` → 0 fichier.
+    - Commit **séparé** `chore(eol): epingle eol=lf sur les fixtures vendorisees` (`.gitattributes` et,
+      le cas échéant, blobs renormalisés). Ce commit précède celui de vendorisation.
+    - Relancer `npm run test:all` : même verdict que l'étape 1 (les parseurs tolèrent déjà les deux
+      EOL, § 1.8 point 4).
 2. `node C:\work\iakaframe\cli\src\index.js vendor-check --gui C:\work\iakaframegui --json` (verbe
    en lecture). Consigner la liste `remediation` en tête de PR. Les 8 gestes imputables (§ 1.2) doivent
    y figurer. Les 11 autres sont **identifiés** et consignés.
 3. **Arrêt** si `remediation` contient `run … gen-agents-golden.mjs (depuis iakaframe)` ou un
    `investigate` : le canon est en cause. Remonter à la session iakaframe, sans rien copier.
+   **Arrêt** aussi si une raison `golden-vendore-sans-frontmatter` ou `en-tete-golden-illisible`
+   apparaît : c'est la signature d'un problème de fins de ligne non résolu (§ 1.8). Revenir à
+   l'étape 1a ou au Lot E0, sans rien copier.
 4. Appliquer **dans l'ordre rendu** : `run` (`node packages/core/scripts/gen-fixtures.mjs`) avant
    `copy`, `delete` en dernier. Copie **nommée, jamais de joker**. Le kit est **dépouillé de son
    en-tête** (`vendor-check.js:77-89`).
@@ -242,8 +367,9 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
 7. Backlog GUI (`CLAUDE.md` § Backlog) : une entrée **« Ouvert »** qui déclare la dette « hooks
    embarqués d'ancienne génération » (`guardScripts.generated.ts`, `global/`), en renvoyant à Q-S1.
    Aucun changement de code.
-8. Un commit `chore(vendor): resync fixtures sur iakaframe <sha>` (fixtures seules), plus un commit
-   `docs(backlog)` ; gate Legolas GUI ; push.
+8. Trois commits, dans l'ordre : `chore(eol)` (étape 1a), `chore(vendor): resync fixtures sur
+   iakaframe <sha>` (fixtures seules, `<sha>` = HEAD iakaframe après E0), `docs(backlog)` ; gate
+   Legolas GUI ; push.
 
 ### Lot 7 / P4 — déploiement humain (Stéphane), **aucune session Claude ouverte**
 9. Fermer les sessions Claude en cours (G1 et gate compris) : les scripts s'appliquent dès l'appel
@@ -279,6 +405,11 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
 
 - `C:\work\iakaframegui\packages\core\__tests__\fixtures\**` : re-vendorisation (G1).
 - `C:\work\iakaframegui\CLAUDE.md` : une entrée de backlog (G1, étape 7).
+- `C:\work\iakaframegui\.gitattributes` : **création**, une règle `eol=lf` sur les fixtures (G1, étape 1a).
+- `C:\work\iakaframe\cli\src\lib\vendor.js` : lecture texte normalisée CRLF→LF (E0-b, si Q-S6 le retient).
+- `C:\work\iakaframe\cli\test\vendor-check.test.js` : tests miroir CRLF (E0-c).
+- `C:\work\iakaframe\{cli\test\fixtures\kit.iakaframe-claude.golden.md,kits\iakaframe-claude.md,methode-de-travail.html}` :
+  ré-extraction seule, aucun blob changé (E0-d).
 - `~/.claude/hooks/*.mjs`, `~/.claude/settings.json`, `~/.claude/CLAUDE.md`, `~/.claude/agents/*.md`,
   `~/.claude/skills/**` : Lot 7 humain.
 - `C:\work\iakaframe\specs\instructions\{declaration-chantier-session,prise-de-parole-odin-aragorn}.md` :
@@ -289,6 +420,14 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
 
 ## Risques
 
+- **Verdict `vendor-check` faussé par les fins de ligne** (§ 1.8) : 40 faux `contenu-different`,
+  10 faux `golden-vendore-sans-frontmatter`, et un risque de copie qui masque ou introduit un écart.
+  → E0 (mesure insensible au CRLF) puis G1-1a (fixtures en LF), et arrêt à l'étape 3 sur la
+  signature EOL.
+- **`gen-fixtures` sur des dérivées en CRLF** : double frontmatter (`verbatimBody`, § 1.8 point 4). →
+  G1-1a **avant** l'étape 4 ; vérifier `git diff` des 3 dérivées après `run`.
+- **Normalisation qui masquerait un vrai écart** (E0) : la conversion ne touche que `\r\n`. → test
+  E0-c « un mot changé dans un miroir CRLF reste rouge ».
 - **Copie partielle dans la GUI** : `parite-generateurs.test.ts` rougit. → D-S3, un seul commit, et
   `test:all` avant commit.
 - **Golden CLI périmé** (générateurs no-op sous Windows, préexistant) : `vendor-check` niveau 2 le
@@ -310,7 +449,23 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
 
 ## Critères d'acceptation
 
+**E0 — iakaframe (si Q-S6 = (b) ou (c))**
+- [ ] `node --test cli/test/vendor-check.test.js` exit 0 sur ce poste (`core.autocrlf=true`), `A12` et
+      `A14` compris.
+- [ ] Un miroir propre converti en CRLF → `ok:true`, `status:"clean"` ; le même miroir avec un mot
+      changé dans une copie → `contenu-different` sur cette copie.
+- [ ] Le diff de `vendor.js` ne touche que la lecture des trois textes comparés (et le commentaire).
+- [ ] `git ls-files --eol` sur les 3 fichiers de E0-d → `w/lf` ; `git status` propre.
+- [ ] Suite CLI complète verte ; gate Legolas PASS.
+
 **G1 — iakaframegui**
+- [ ] (si Q-S6 = (a) ou (c)) `C:\work\iakaframegui\.gitattributes` existe et porte `packages/core/__tests__/fixtures/**/*.md text eol=lf`.
+- [ ] `git ls-files --eol -- packages/core/__tests__/fixtures` → `w/lf` (et `i/lf`) sur les 86 `.md` ;
+      `Grep \r$` sur `fixtures/**/*.md` → 0 fichier.
+- [ ] Le commit `chore(eol)` ne touche que `.gitattributes` (et, le cas échéant, des blobs de fixtures
+      renormalisés sans autre changement que l'EOL) ; `npm run test:all` y garde le verdict de l'étape 1.
+- [ ] Aucune raison `golden-vendore-sans-frontmatter` ni `en-tete-golden-illisible` dans aucun
+      `vendor-check` de G1.
 - [ ] `vendor-check --gui C:\work\iakaframegui --json` → `ok:true`, `status:"clean"`, `checked:82`,
       `derived:4`, `drift:0`, `remediation:[]`.
 - [ ] `npm run test:vendor` exit 0 ; `npm run lint:all` exit 0 ; `npm run test:all` exit 0, nombre de
@@ -351,12 +506,13 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
 | Lot | Équivalent j-h | Complexité / risque |
 |---|---|---|
 | Étape 0 — renvois | 0,02 | faible |
-| G1 — iakaframegui | 0,3 (0,5 avec les 11 dérives préexistantes à comprendre) | faible-moyenne : copie atomique, dérives préexistantes inconnues |
+| E0 — iakaframe, EOL `vendor-check` | 0,2 (code + 2 tests + ré-extraction + gate) | faible : changement localisé, mais sur une garde |
+| G1 — iakaframegui | 0,4 (0,6 avec les 11 dérives préexistantes à comprendre), dont 0,1 pour l'étape 1a | faible-moyenne : copie atomique, dérives préexistantes inconnues, état des blobs non mesuré |
 | Lot 7 / P4 — humain | 0,1 + 0,15 de recette | faible, sensible à l'ordre |
 | C1 — iakacockpit | 0,1 | faible (vérifications) |
 | A1 — iakaagentsmonitor | 0,05 | faible |
 | Autres dépôts | 0 | — |
-| **Total** | **≈ 0,6 à 0,8 j-h** + 0,15 de recette | **faible-moyenne** |
+| **Total** | **≈ 0,9 à 1,1 j-h** + 0,15 de recette (était 0,6 à 0,8 avant la révision EOL) | **faible-moyenne** |
 
 **Inconnues qui peuvent faire glisser l'estimation :**
 1. **Nature des 11 dérives préexistantes** : si l'une est `niveau2`, il faut remonter dans iakaframe
@@ -364,7 +520,11 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
    côté iakaframe).
 2. **Mesure royaume du Cockpit** : un écart réel ouvre une instruction Cockpit (≈ 0,25 j-h, hors
    total).
-3. **Successeurs Q-S1 et Q-S2**, hors total : hooks embarqués de la Forge ≈ 1 à 1,5 j-h (à cadrer
+3. **Blobs GUI en CRLF** (non mesuré, § 1.8) : la renormalisation de G1-1a toucherait alors
+   jusqu'à 86 blobs, avec une revue plus lourde (**+0,1 j-h**).
+4. **Une partie des « 19 gestes » était peut-être de l'EOL** : après E0 et G1-1a, le nombre réel de
+   dérives peut **baisser**. Il peut aussi révéler des écarts de contenu jusqu'ici noyés.
+5. **Successeurs Q-S1 et Q-S2**, hors total : hooks embarqués de la Forge ≈ 1 à 1,5 j-h (à cadrer
    dans la GUI) ; `copyKit` sans `global/` ≈ 0,25 j-h (iakaframe).
 
 ## Questions ouvertes à Stéphane (avec recommandation)
@@ -399,6 +559,20 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
   `iakaframe=` ; le moniteur lit `frame=` et se replie sur `iakaframe`. Le seul geste qui les réécrit
   (`init --force`) écrase `CLAUDE.md`.
   **Recommandation : ne rien faire.**
+- **Q-S6 — Fins de ligne de `vendor-check`** (§ 1.8). Les fixtures GUI sont en CRLF, alors que 40
+  sources iakaframe sont désormais en LF et 42 en CRLF. Le verdict dépend donc du poste.
+  - (a) **Épingler seulement** : `eol=lf` côté GUI (G1-1a) **et** côté iakaframe sur **toutes** les
+    sources vendorisées (les 42 restantes, plus binding, méthode, team). Aucun code, mais ~10 chemins
+    de plus dans `.gitattributes` d'iakaframe et une ré-extraction. La garde reste fragile sur tout
+    clone qui n'a pas ré-extrait (c'est le cas aujourd'hui des 3 fichiers de E0-d).
+  - (b) **Normaliser seulement** dans `checkVendor` (Lot E0). La garde devient indépendante du poste,
+    mais `gen-fixtures` reste exposé au double frontmatter sur une GUI en CRLF (§ 1.8 point 4).
+  - (c) **Les deux** : E0 dans iakaframe (garde robuste) et G1-1a dans la GUI (fixtures en LF, ce qui
+    protège `gen-fixtures` et rend les copies conformes aux sources épinglées).
+  **Recommandation : (c)**, avec **E0 avant G1**. La garde juge le contenu, et elle ne doit pas
+  dépendre d'un `core.autocrlf` que personne ne choisit. L'épinglage GUI coûte une ligne et désamorce
+  `gen-fixtures` sans toucher à son code. E0 est un changement de **code iakaframe** : il sort du
+  périmètre initial (« aucune modification des gardes ») et demande donc ton accord explicite.
 
 ## Sources
 
@@ -407,3 +581,7 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
   s'applique à l'invocation suivante.
 - [Issue #29677 — Task→Agent tool rename (anthropics/claude-code)](https://github.com/anthropics/claude-code/issues/29677) :
   le payload porte `tool_name: "Agent"` ; un matcher `Task` continue de s'appliquer à l'outil `Agent`.
+- [gitattributes — Git documentation](https://git-scm.com/docs/gitattributes), § *End-of-line
+  conversion* : après un changement d'attribut EOL, `git add --renormalize` met à jour l'**index**,
+  depuis un arbre propre ; les fichiers de travail gardent leurs fins de ligne jusqu'à la prochaine
+  extraction (fonde E0-d et G1-1a).
