@@ -12,7 +12,7 @@ import {
   ROSTER, BUILTINS, AGENT_UNSET,
   keySig, foldChantier, mainRoleOf, parsePromptDirectives, parseChantierLines,
   detectRepoMentions, classifyShell, verdictChantier, verdictDispatch, READONLY_BUILTINS,
-  PORTFOLIO_VERBS, isOdinSolicitation, voiceOf,
+  PORTFOLIO_VERBS, isOdinSolicitation, voiceOf, isAnchoredKey,
 } from '../../kits/iakaframe-claude/global/hooks/guard-core.mjs';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -536,6 +536,107 @@ test('CA-9 : mainRoleOf — absent/odin -> "odin" ; toute autre valeur -> "team"
   assert.equal(mainRoleOf('gimli'), 'team');
   assert.equal(mainRoleOf('Explore'), 'team');
 });
+
+// =============================================================================================
+// 3e amendement (declaration-chantier-session.md § 2, Lot 1ter) — ancrage des dossiers hors
+// depot. Fixtures du § "3e amendement — dossiers hors depot" de l'instruction.
+// =============================================================================================
+
+const HORS_A = key('hors', '/x/horsA', '@hors:horsA');
+const HORS_B = key('hors', '/x/horsB', '@hors:horsB');
+const HORS_0 = key('hors', null, '@hors'); // non ancree (heritee, ou ancre refusee A3-9)
+
+// --- CA-34 : verdictChantier, launch = actif = hA -----------------------------
+
+test('CA-34 : launch=actif=hA, role odin, MAIN, EDIT sur [hA] -> ALLOW', () => {
+  const state = { active: { key: HORS_A, segment: 1 }, grants: new Set() };
+  assert.deepEqual(
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'odin', launch: HORS_A, state, keys: [HORS_A] }),
+    { decision: 'ALLOW' },
+  );
+});
+
+test('CA-34 : launch=actif=hA, EDIT sur [hB]/[h0]/[repoA]/[@portefeuille] -> DENY CHANTIER_MISMATCH', () => {
+  const state = { active: { key: HORS_A, segment: 1 }, grants: new Set() };
+  for (const touched of [HORS_B, HORS_0, REPO_A, PORTEFEUILLE]) {
+    assert.deepEqual(
+      verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'odin', launch: HORS_A, state, keys: [touched] }),
+      { decision: 'DENY', code: 'CHANTIER_MISMATCH' },
+      `touched=${JSON.stringify(touched)}`,
+    );
+  }
+});
+
+test('CA-34 : memes verdicts en SUB et en SHELL_MUTATE', () => {
+  const state = { active: { key: HORS_A, segment: 1 }, grants: new Set() };
+  assert.deepEqual(
+    verdictChantier({ gesture: 'SHELL_MUTATE', actor: 'SUB', sessionRole: 'odin', launch: HORS_A, state, keys: [HORS_A] }),
+    { decision: 'ALLOW' },
+  );
+  assert.deepEqual(
+    verdictChantier({ gesture: 'SHELL_MUTATE', actor: 'SUB', sessionRole: 'odin', launch: HORS_A, state, keys: [HORS_B] }),
+    { decision: 'DENY', code: 'CHANTIER_MISMATCH' },
+  );
+});
+
+test('CA-34 : SHELL_READ sur [hB] -> ALLOW (lecture toujours libre)', () => {
+  const state = { active: { key: HORS_A, segment: 1 }, grants: new Set() };
+  assert.deepEqual(
+    verdictChantier({ gesture: 'SHELL_READ', actor: 'MAIN', sessionRole: 'odin', launch: HORS_A, state, keys: [HORS_B] }),
+    { decision: 'ALLOW' },
+  );
+});
+
+test('CA-34 : role team avec launch=hA -> DENY TEAM_NEEDS_REPO', () => {
+  const state = { active: { key: HORS_A, segment: 1 }, grants: new Set() };
+  assert.deepEqual(
+    verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'team', launch: HORS_A, state, keys: [HORS_A] }),
+    { decision: 'DENY', code: 'TEAM_NEEDS_REPO' },
+  );
+});
+
+test('CA-34 : isAnchoredKey', () => {
+  assert.equal(isAnchoredKey(HORS_A), true);
+  assert.equal(isAnchoredKey(HORS_0), false);
+  assert.equal(isAnchoredKey(REPO_A), true);
+  assert.equal(isAnchoredKey(null), false);
+});
+
+// --- CA-35 : cle non ancree ----------------------------------------------------
+
+test('CA-35 : launch=actif=h0 -> EDIT sur [hA] ou [h0] -> DENY NO_CHANTIER', () => {
+  const state = { active: { key: HORS_0, segment: 1 }, grants: new Set() };
+  for (const touched of [HORS_A, HORS_0]) {
+    assert.deepEqual(
+      verdictChantier({ gesture: 'EDIT', actor: 'MAIN', sessionRole: 'odin', launch: HORS_0, state, keys: [touched] }),
+      { decision: 'DENY', code: 'NO_CHANTIER' },
+      `touched=${JSON.stringify(touched)}`,
+    );
+  }
+});
+
+test('CA-35 : verdictDispatch — launch=actif=h0 : Explore -> ALLOW, gimli -> DENY NO_CHANTIER', () => {
+  const state = { active: { key: HORS_0 }, grants: new Set(), named: new Set() };
+  assert.deepEqual(
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target: 'Explore', requested: { key: null, ambiguous: false }, state, launch: HORS_0 }),
+    { decision: 'ALLOW' },
+  );
+  assert.deepEqual(
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target: 'gimli', requested: { key: null, ambiguous: false }, state, launch: HORS_0 }),
+    { decision: 'DENY', code: 'NO_CHANTIER' },
+  );
+});
+
+test('CA-35 : verdictDispatch — launch=actif=hA, thread principal -> gimli -> ALLOW (chez soi, pas de regime Odin)', () => {
+  const state = { active: { key: HORS_A }, grants: new Set(), named: new Set() };
+  assert.deepEqual(
+    verdictDispatch({ actor: 'MAIN', sessionRole: 'odin', target: 'gimli', requested: { key: null, ambiguous: false }, state, launch: HORS_A }),
+    { decision: 'ALLOW' },
+  );
+});
+
+// CA-8 (parite octet-pour-octet) est verrouille par guard-core-parity.test.js, verifie
+// SANS MODIFICATION par ce lot (le fichier est copie a l'identique cote Codex).
 
 // =============================================================================================
 // VOIX (specs/instructions/prise-de-parole-odin-aragorn.md, Lot P1 — cle pure).

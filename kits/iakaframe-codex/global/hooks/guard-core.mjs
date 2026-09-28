@@ -154,6 +154,14 @@ export function keySig(key) {
   return `${key.kind}|${key.root || ""}`;
 }
 
+// isAnchoredKey(key) -> bool (3e amendement, A3-3/A3-4). Une `key` identifie un chantier REEL
+// sauf si elle est `kind:"hors"` SANS `root` : forme HERITEE d'un registre ecrit avant le Lot
+// 1ter, ou ancre refusee car trop large (A3-9, Q-H1). Une telle cle ne peut jamais servir de
+// chantier effectif (verdictChantier regle 5) ni d'actif de dispatch (verdictDispatch regle 3).
+export function isAnchoredKey(key) {
+  return !!key && (key.kind !== "hors" || !!key.root);
+}
+
 // Sous-agents natifs lecture-seule TOLERES sans condition en dispatch (D-6). Distinct de BUILTINS
 // (roster) : `statusline-setup` en est explicitement absent (il ECRIT settings.json).
 export const READONLY_BUILTINS = Object.freeze(["Explore", "Plan", "claude-code-guide"]);
@@ -642,11 +650,14 @@ export function verdictChantier(input) {
     return { decision: "DENY", code: "TEAM_NEEDS_REPO" };
   }
 
-  // 5. Chantier effectif = actif (en session team, actif = lancement, TOUJOURS).
+  // 5. Chantier effectif = actif (en session team, actif = lancement, TOUJOURS). Pas d'effectif,
+  // OU effectif hors NON ANCRE (3e amendement, A3-4/A3-3 : forme heritee ou ancre refusee) ->
+  // NO_CHANTIER.
   const effective = state.active ? state.active.key : null;
-  if (!effective) return { decision: "DENY", code: "NO_CHANTIER" };
+  if (!effective || !isAnchoredKey(effective)) return { decision: "DENY", code: "NO_CHANTIER" };
 
-  // 6. Une cle touchee != effective (le "@hors" inclus).
+  // 6. Une cle touchee != effective : toute cle hors d'un AUTRE root que l'effective, ou NON
+  // ANCREE, compte comme un mismatch (3e amendement, A3-4 ; "@hors compris" avant le 3e amendement).
   const effSig = keySig(effective);
   if (ks.some((k) => keySig(k) !== effSig)) return { decision: "DENY", code: "CHANTIER_MISMATCH" };
 
@@ -680,9 +691,9 @@ export function verdictDispatch(input) {
   const req = requested || { key: null, ambiguous: false };
   if (req.ambiguous) return { decision: "DENY", code: "DISPATCH_AMBIGUOUS" };
 
-  // 3. Pas de chantier actif.
+  // 3. Pas de chantier actif, OU actif hors NON ANCRE (3e amendement, A3-4).
   const active = state.active ? state.active.key : null;
-  if (!active) return { decision: "DENY", code: "NO_CHANTIER" };
+  if (!active || !isAnchoredKey(active)) return { decision: "DENY", code: "NO_CHANTIER" };
 
   // 4. Regime Odin (Q-D) — memes conditions que D-5 regle 7.
   if (inOdinRegime(actor, sessionRole, launch, state)) {
