@@ -30,6 +30,14 @@ cli/test/fixtures/kit.iakaframe-claude.golden.md eol=lf
 kits/iakaframe-claude.md                     eol=lf
 methode-de-travail.html                      eol=lf
 
+# Sources CANON embarquees VERBATIM (sans normalisation) dans un golden : le bloc skills/ de la
+# vitrine (gen-methode-vitrine.mjs:79, fs.readFileSync brut) lit ces fichiers TELS QUELS, a la
+# difference du bloc agents/ (passe par generateAll, deja normalise) — sans ce eol=lf, la vitrine
+# n'est reproductible QUE sur la machine qui les a checkout-es en LF (meme bug de fond que ci-dessus).
+# library/personas/*.md est pinned par la meme prudence : ce sont les SOURCES des contrats rendus.
+library/skills/**/SKILL.md eol=lf
+library/personas/*.md      eol=lf
+
 # Binaires (pas de conversion)
 *.png  binary
 *.jpg  binary
