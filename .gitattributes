@@ -20,6 +20,16 @@
 *.yml  text
 *.yaml text
 
+# Goldens compares octet-pour-octet ou haches (sha256) : LF FIGE, jamais reconverti au checkout.
+# Sans ceci, un clone frais avec core.autocrlf=true reconvertit ces fichiers en CRLF alors que le
+# contenu genere en memoire (gen-agents-golden.mjs, gen-skills-golden.mjs, gen-methode-vitrine.mjs)
+# reste en LF : assert.equal()/sha256 echouent de facon non reproductible (gate Legolas Lot 6/P3).
+cli/test/fixtures/agents-golden/*.md         eol=lf
+cli/test/fixtures/skills-golden/manifest.json eol=lf
+cli/test/fixtures/kit.iakaframe-claude.golden.md eol=lf
+kits/iakaframe-claude.md                     eol=lf
+methode-de-travail.html                      eol=lf
+
 # Binaires (pas de conversion)
 *.png  binary
 *.jpg  binary

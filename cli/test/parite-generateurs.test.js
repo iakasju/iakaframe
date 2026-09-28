@@ -23,8 +23,16 @@ const IDS = ['aragorn', 'charon', 'feanor', 'gandalf', 'gimli', 'helm', 'legolas
 
 // Un golden = en-tete de provenance `<!-- ... -->` PUIS le contrat (`---\n...`). Le contenu utile
 // commence au 1er `---\n` (le header n'en contient jamais). L'en-tete declare `sha256 : <hex>`.
+//
+// Tolerance CRLF (gate Legolas Lot 6/P3) : le fichier est fige en LF par `.gitattributes`
+// (`eol=lf`) pour rester reproductible sur un clone frais, mais on normalise QUAND MEME ici en
+// defense en profondeur (meme convention que `banner.test.js`) : un environnement qui ignorerait
+// `.gitattributes` (vieux client git, checkout partiel...) ne doit pas rendre ce test non
+// reproductible. La normalisation porte sur les DEUX faces de chaque comparaison (golden ET rendu
+// CLI restent LF), donc n'affaiblit pas la garde sha256 : une alteration reelle du contenu reste
+// detectee, seule la representation de fin de ligne est neutralisee.
 function loadGolden(id) {
-  const raw = fs.readFileSync(path.join(GOLDEN_DIR, `${id}.md`), 'utf8');
+  const raw = fs.readFileSync(path.join(GOLDEN_DIR, `${id}.md`), 'utf8').replace(/\r\n/g, '\n');
   const i = raw.indexOf('---\n');
   assert.ok(i > 0, `${id}: delimiteur de frontmatter introuvable`);
   const useful = raw.slice(i);

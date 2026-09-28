@@ -13,7 +13,10 @@ const REPO = path.join(HERE, '..', '..');
 const GOLDEN = path.join(HERE, 'fixtures', 'skills-golden', 'manifest.json');
 
 test('C20 manifeste regenere == golden fige (byte-a-byte)', () => {
-  const golden = fs.readFileSync(GOLDEN, 'utf8');
+  // Tolerance CRLF (gate Legolas Lot 6/P3) : `.gitattributes` fige ce golden en LF (checkout
+  // reproductible) ; la normalisation ici est une defense en profondeur, sans affaiblir la
+  // comparaison (les deux faces restent LF, une alteration reelle reste detectee).
+  const golden = fs.readFileSync(GOLDEN, 'utf8').replace(/\r\n/g, '\n');
   const live = serializeManifest(buildManifest(REPO));
   assert.equal(live, golden,
     'derive skills non regeneree : lancer `node cli/scripts/gen-skills-golden.mjs`');

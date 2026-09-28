@@ -18,7 +18,11 @@ const REPO = path.join(HERE, '..', '..');
 const VITRINE = path.join(REPO, 'methode-de-travail.html');
 
 test('A7 zone regeneree == zone sur disque (la zone EST le golden)', () => {
-  const html = fs.readFileSync(VITRINE, 'utf8');
+  // Tolerance CRLF (gate Legolas Lot 6/P3) : `.gitattributes` fige methode-de-travail.html en LF
+  // (checkout reproductible) ; la normalisation ici est une defense en profondeur (meme
+  // convention que banner.test.js), sans affaiblir la comparaison : les deux faces restent LF, une
+  // vraie derive de contenu reste detectee.
+  const html = fs.readFileSync(VITRINE, 'utf8').replace(/\r\n/g, '\n');
   const onDisk = extractZone(html);
   const live = buildZone({ root: REPO });
   assert.equal(live, onDisk,

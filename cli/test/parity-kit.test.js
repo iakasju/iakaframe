@@ -17,8 +17,11 @@ const GOLDEN = path.join(HERE, 'fixtures', 'kit.iakaframe-claude.golden.md');
 const KIT_CANON = path.join(REPO, 'kits', 'iakaframe-claude.md');
 
 // Retire l'en-tete de documentation du golden (tout ce qui precede la 1re ligne `---`).
+// Tolerance CRLF (gate Legolas Lot 6/P3) : `.gitattributes` fige golden ET canon en LF (checkout
+// reproductible) ; la normalisation ici est une defense en profondeur, sans affaiblir la
+// comparaison (une vraie derive de contenu reste detectee).
 function expectedFromGolden() {
-  const raw = fs.readFileSync(GOLDEN, 'utf8');
+  const raw = fs.readFileSync(GOLDEN, 'utf8').replace(/\r\n/g, '\n');
   const i = raw.indexOf('---\n');
   assert.ok(i >= 0, 'golden : delimiteur de frontmatter introuvable');
   return raw.slice(i);
@@ -30,7 +33,7 @@ test('parite core<->CLI : assemble iakaframe/iakaframe-8 == golden (byte-a-byte)
   // Le corps est THREADE depuis le canon (miroir de kitMd.test.ts:37-41 du coeur, qui injecte le
   // corps parse de la fixture) : serializeKit ne genere plus un stub, il fait traverser le corps
   // authored de kits/iakaframe-claude.md. Le golden = ce corps ; l'egalite byte reste verrouillee.
-  const body = parseFrontmatter(fs.readFileSync(KIT_CANON, 'utf8')).body;
+  const body = parseFrontmatter(fs.readFileSync(KIT_CANON, 'utf8').replace(/\r\n/g, '\n')).body;
   const out = serializeKit(res.descriptor, body);
   assert.equal(out, expectedFromGolden());
 });
