@@ -76,11 +76,17 @@ function loadChantier(sid) {
 }
 
 // resolveDispatchRequest(promptText, state) -> { key, ambiguous } (D-3/D-4, adaptateur de D-6).
-// Plusieurs lignes `Chantier:` DIVERGENTES (parseChantierLines) -> ambiguous:true. Une ligne
-// UNIQUE qui ne resout a AUCUNE cle connue (nom ambigu entre deux racines, ou depot inconnu) est
-// traitee comme une absence de ligne (key:null) : ni ALLOW ni MISMATCH ne doivent reposer sur un
-// token qui ne designe rien de verifiable (regime Odin : `DISPATCH_UNNAMED` s'applique alors,
-// jamais un ALLOW silencieux — cf. note de realisation du Lot 5).
+// Plusieurs lignes `Chantier:` DIVERGENTES (parseChantierLines) -> ambiguous:true (regle 2, D-6).
+// Une ligne UNIQUE dont le NOM est AMBIGU (deux depots connus de meme nom sous des racines
+// differentes, `resolveRepoArg` -> `{ambiguous:true}`, M-10) est traitee comme une absence de
+// ligne (key:null) : regime Odin -> `DISPATCH_UNNAMED` (jamais un ALLOW silencieux sur un token
+// qui ne designe rien de verifiable). ATTENTION, distinct d'un nom INCONNU (aucun candidat) : la
+// meme regle D-3 qui accepte `chantier <nom-inexistant>` (creation de projet) s'applique ici —
+// `resolveRepoArg` fabrique alors une cle `{kind:"dir", root:<racine>/<nom>}` REELLE, jamais
+// `key:null` (constat corrige au gate Legolas du Lot 5 : la version precedente de ce commentaire
+// disait a tort que "depot inconnu" donnait aussi `key:null`). Cette cle "dir" fabriquee ne
+// correspond jamais a un chantier deja actif -> `CHANTIER_MISMATCH` (regle 5, D-6), teste dans
+// guard-chantier-delegation.test.js (les deux regimes).
 function resolveDispatchRequest(promptText, state) {
   const { repo, ambiguous } = parseChantierLines(promptText || "");
   if (ambiguous) return { key: null, ambiguous: true };
@@ -146,11 +152,13 @@ function dispatchDenyMessage(code, { agent, state, session }) {
   } else if (code === "NO_CHANTIER") {
     lines.push("  Pour continuer : aucun chantier actif pour cette session (session Aragorn dans le bon depot, ou `chantier <repo>`).");
   } else if (code === "ODIN_DISPATCH") {
-    lines.push(
-      "  Pour continuer :",
-      "   1. (recommande) une session Aragorn dans le depot : demande a Odin de la lancer",
-      "   2. sinon, delegue a `aragorn` avec la ligne `Chantier: <nom>` (2e ligne de l'ordre de mission)",
-    );
+    // 2e amendement (L-5/P-6, Q-P1 = A) : le garde (D-6 regle 4) reste inchange, mais le
+    // CONTRAT ne propose plus le secours "delegue a aragorn avec la ligne Chantier: <nom>" —
+    // seule reste la proposition d'une session Aragorn (meme forme que perimeter-guard.mjs,
+    // ODIN_DIRECT : `sessionShellHint` sur le chantier actif, role "odin").
+    const active = state && state.active ? state.active.key : null;
+    const hint = active && active.root ? sessionShellHint(active.root, "odin", active.kind) : null;
+    lines.push(`  Pour continuer : ${hint || "demande a Odin de lancer une session Aragorn dans le bon depot"}.`);
   } else if (code === "DISPATCH_UNNAMED") {
     lines.push("  Pour continuer : ajoute la ligne `Chantier: <repo>` (2e ligne de l'ordre de mission).");
   } else if (code === "CHANTIER_MISMATCH") {

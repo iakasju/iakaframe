@@ -158,6 +158,17 @@ function startCaptureServer() {
   });
 }
 
+// assertNoSecoursText(stderr) : 2e amendement (L-5/P-6, Q-P1 = A) — aucun message de refus de
+// delegation-guard.mjs ne doit plus proposer le secours retire du contrat ("delegue a `aragorn`
+// avec la ligne Chantier: ...", "designer le depot... puis deleguer a aragorn"). Applique a
+// CHAQUE test qui verifie un stderr de refus (gate Legolas du Lot 5, point 2).
+function assertNoSecoursText(stderr) {
+  const s = stderr.toLowerCase();
+  assert.doesNotMatch(s, /delegue a `?aragorn/, 'secours retire (L-5) : "delegue a aragorn..." ne doit plus apparaitre');
+  assert.doesNotMatch(s, /deleguer a aragorn/, 'secours retire (L-5) : "deleguer a aragorn" ne doit plus apparaitre');
+  assert.doesNotMatch(s, /designer le depot/, 'secours retire (L-5) : "designer le depot..." ne doit plus apparaitre');
+}
+
 // ===========================================================================
 // M-9 — non-regression : sans session_id exploitable, la couche chantier est IGNOREE (roster seul).
 // ===========================================================================
@@ -169,6 +180,7 @@ test('M-9 : sans session_id, la couche chantier est ignoree — le roster seul d
   const ko = runDeleg(deleg(undefined, 'hacker', null), env);
   assert.equal(ko.status, 2);
   assert.match(ko.stderr, /roster iakaframe/);
+  assertNoSecoursText(ko.stderr);
 });
 
 // ===========================================================================
@@ -220,9 +232,11 @@ test('NO_CHANTIER : registre HERITE (launch hors non ancre) -> DENY quelle que s
   const koGimli = runDeleg(deleg(sid, 'gimli', null), env);
   assert.equal(koGimli.status, 2);
   assert.match(koGimli.stderr, /NO_CHANTIER/);
+  assertNoSecoursText(koGimli.stderr);
   const koAragorn = runDeleg(deleg(sid, 'aragorn', 'Durée estimée : ~10 min\nChantier: repoA\n…'), env);
   assert.equal(koAragorn.status, 2);
   assert.match(koAragorn.stderr, /NO_CHANTIER/);
+  assertNoSecoursText(koAragorn.stderr);
   const okExplore = runDeleg(deleg(sid, 'Explore', null), env);
   assert.equal(okExplore.status, 0, 'lecture seule reste ALLOW meme sans chantier (regle 1 avant regle 3)');
 });
@@ -256,9 +270,10 @@ test('CA-12 : dispatch aragorn avec "Chantier: repoB" (!= actif repoA) -> exit 2
   const res = runDeleg(deleg(sid, 'aragorn', 'Durée estimée : ~10 min\nChantier: repoB\n…'), env);
   assert.equal(res.status, 2);
   assert.match(res.stderr, /CHANTIER_MISMATCH/);
+  assertNoSecoursText(res.stderr);
 });
 
-test('CA-12 : dispatch gimli SANS ligne, par le thread principal, en regime Odin -> exit 2 ODIN_DISPATCH', () => {
+test('CA-12 : dispatch gimli SANS ligne, par le thread principal, en regime Odin -> exit 2 ODIN_DISPATCH, SANS le secours retire (L-5/P-6)', () => {
   const { env, root } = makeSandbox();
   makeRepo(root, 'repoA');
   const sid = nextSid();
@@ -268,6 +283,8 @@ test('CA-12 : dispatch gimli SANS ligne, par le thread principal, en regime Odin
   const res = runDeleg(deleg(sid, 'gimli', null), env);
   assert.equal(res.status, 2);
   assert.match(res.stderr, /ODIN_DISPATCH/);
+  assert.match(res.stderr, /session Aragorn/, 'seule la proposition de session Aragorn reste (L-5)');
+  assertNoSecoursText(res.stderr);
 });
 
 test('contournement : dispatch aragorn SANS aucune ligne "Chantier:" en regime Odin -> exit 2 DISPATCH_UNNAMED', () => {
@@ -280,6 +297,7 @@ test('contournement : dispatch aragorn SANS aucune ligne "Chantier:" en regime O
   const res = runDeleg(deleg(sid, 'aragorn', 'Durée estimée : ~10 min\nsans directive ici'), env);
   assert.equal(res.status, 2);
   assert.match(res.stderr, /DISPATCH_UNNAMED/);
+  assertNoSecoursText(res.stderr);
 });
 
 test('contournement : une ligne "chantier repoB" (syntaxe PROMPT DECIDEUR, pas "Chantier:") dans l\'ordre de mission n\'est PAS reconnue -> DISPATCH_UNNAMED (pas d\'ALLOW furtif)', () => {
@@ -293,6 +311,7 @@ test('contournement : une ligne "chantier repoB" (syntaxe PROMPT DECIDEUR, pas "
   const res = runDeleg(deleg(sid, 'aragorn', 'Durée estimée : ~10 min\nchantier repoB\n…'), env);
   assert.equal(res.status, 2);
   assert.match(res.stderr, /DISPATCH_UNNAMED/, 'la ligne "chantier X" (sans deux-points) n\'est jamais une ligne "Chantier: X" valide');
+  assertNoSecoursText(res.stderr);
 });
 
 test('contournement : cible gimli avec une ligne "Chantier: repoA" VALIDE (identique a l\'actif) en regime Odin -> toujours ODIN_DISPATCH (la ligne ne sauve pas une cible != aragorn)', () => {
@@ -305,6 +324,7 @@ test('contournement : cible gimli avec une ligne "Chantier: repoA" VALIDE (ident
   const res = runDeleg(deleg(sid, 'gimli', 'Durée estimée : ~10 min\nChantier: repoA\n…'), env);
   assert.equal(res.status, 2);
   assert.match(res.stderr, /ODIN_DISPATCH/);
+  assertNoSecoursText(res.stderr);
 });
 
 test('contournement : deux lignes "Chantier:" DIVERGENTES -> exit 2 DISPATCH_AMBIGUOUS, quel que soit le regime', () => {
@@ -318,6 +338,38 @@ test('contournement : deux lignes "Chantier:" DIVERGENTES -> exit 2 DISPATCH_AMB
   const res = runDeleg(deleg(sid, 'aragorn', 'Durée estimée : ~10 min\nChantier: repoA\nChantier: repoB\n…'), env);
   assert.equal(res.status, 2);
   assert.match(res.stderr, /DISPATCH_AMBIGUOUS/);
+  assertNoSecoursText(res.stderr);
+});
+
+test('dépôt INCONNU dans "Chantier: <repo>" (nom sous la racine, jamais cree) -> exit 2 CHANTIER_MISMATCH, en regime Odin', () => {
+  // Constat de Legolas (gate Lot 5) : `resolveRepoArg` en mode `requireExisting:false` fabrique
+  // une cle `{kind:"dir", root:<racine>/<nom>}` pour un nom INCONNU sous la racine (comportement
+  // D-3 : "chantier <nom> sur un dossier INEXISTANT sous la racine est accepte, cas de creation de
+  // projet") — ce n'est PAS un `key:null` (contrairement a un nom AMBIGU entre deux racines
+  // connues, seul cas qui rend `key:null` dans `resolveDispatchRequest`). La cle "dir" fabriquee
+  // ne correspond JAMAIS a l'actif (repoA) -> CHANTIER_MISMATCH, pas DISPATCH_UNNAMED.
+  const { env, root } = makeSandbox();
+  makeRepo(root, 'repoA');
+  const sid = nextSid();
+  bootstrapOdinPortefeuille(env, sid, root);
+  runRemind(prompt(sid, root, 'chantier repoA'), env);
+
+  const res = runDeleg(deleg(sid, 'aragorn', 'Durée estimée : ~10 min\nChantier: repoInconnu\n…'), env);
+  assert.equal(res.status, 2);
+  assert.match(res.stderr, /CHANTIER_MISMATCH/);
+  assertNoSecoursText(res.stderr);
+});
+
+test('dépôt INCONNU dans "Chantier: <repo>" -> exit 2 CHANTIER_MISMATCH, en regime Equipe (session lancee dans repoA)', () => {
+  const { env, root } = makeSandbox();
+  const repoA = makeRepo(root, 'repoA');
+  const sid = nextSid();
+  bootstrapTeamRepo(env, sid, repoA);
+
+  const res = runDeleg(deleg(sid, 'gimli', 'Chantier: repoInconnu'), env);
+  assert.equal(res.status, 2);
+  assert.match(res.stderr, /CHANTIER_MISMATCH/);
+  assertNoSecoursText(res.stderr);
 });
 
 // ===========================================================================
@@ -365,6 +417,7 @@ test('CA-14 (contournement) : session d\'equipe lancee dans repoA : dispatch gim
   const res = runDeleg(deleg(sid, 'gimli', 'Chantier: repoB'), env);
   assert.equal(res.status, 2);
   assert.match(res.stderr, /CHANTIER_MISMATCH/, 'une ligne Chantier: qui pointe ailleurs que le depot de lancement reste un mismatch, meme en regime Equipe');
+  assertNoSecoursText(res.stderr);
 });
 
 // ===========================================================================
