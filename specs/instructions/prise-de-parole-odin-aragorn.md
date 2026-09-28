@@ -7,6 +7,8 @@
 > Statut : **validé le 2026-09-27 par Stéphane** (créé le 2026-09-27) — questions tranchées :
 > **Q-P1 = A** (contrat seul, garde inchangé), **Q-P2 = oui** (restitution sur demande explicite,
 > verbatim), **Q-P3 = Odin par défaut** au portefeuille et hors dépôt (§ « Décisions du décideur »).
+> **Complétée le 2026-09-28** par la décision **P-9** (chaîne de délégation visible d'Aragorn),
+> **décidée par Stéphane le 2026-09-27** : étape 13 bis du Lot P3, CA-P15, estimation +0,1 j-h.
 > **Nature : amendement** de deux instructions validées :
 > - `specs/instructions/lancement-session-aragorn.md` (instruction sœur) — D-L9, D-L10, étape 8 ;
 > - `specs/instructions/declaration-chantier-session.md` (instruction mère) — décision 4 (« secours »),
@@ -216,6 +218,29 @@ se définit par l'autre. `odin.md` et `iakaframe-odin` **nomment** Aragorn comme
 `aragorn.md` et `iakaframe-aragorn` **nomment** Odin comme la voix du portefeuille, interpellable par
 « odin, … ». Invariant binaire vérifié par CA-P9.
 
+**P-9 — Chaîne de délégation visible d'Aragorn** (décidée par Stéphane le 2026-09-27). Mots du
+décideur : « je ne vois pas les délégations logiques : aragorn missionne gandalf, explique le rendu,
+aragorn missionne gimli, gimli start, gimli stop, legolas start, legolas stop en expliquant fail ou
+pass, aragorn rend compte résumé. Bref aragorn doit se comporter comme odin le faisait avant. »
+C'est l'**héritage** de la posture d'orchestrateur visible qu'avait Odin (conventions globales
+« chaîne de badges » et « restitution en relais », `kits/iakaframe-claude/global/CLAUDE.md` § Identité)
+**transposé à Aragorn**, puisque dans un dépôt c'est lui le thread principal (R5). Dans un dépôt,
+Aragorn rend **chaque** délégation visible, **en séquence** :
+1. **Mission** — j'ouvre (`🟠 [<DÉPÔT>][Aragorn] — …`), j'annonce « je missionne <Agent> pour
+   <objet> » (mission en 1 à 3 lignes) et je clos (`… [<DÉPÔT>][Aragorn] 🟠`).
+2. **Bloc de l'agent** — cité **VERBATIM** sous **son** badge (son ouverture … sa clôture), sans
+   **aucune** interjection de ma part entre les deux.
+3. **Relais entre agents enchaînés** (ex. Gimli → Legolas) — j'ouvre, je dis en **une ligne** ce que
+   je retiens du rendu précédent et la mission suivante, je clos ; puis étape 2 pour l'agent suivant
+   (pour Legolas : son verdict **pass/fail** expliqué, dans son bloc).
+4. **Rendu final** — je rouvre en dernier : j'explique le rendu et je **résume** (fait, verdict,
+   décisions attendues du décideur, suite), je clos.
+**Trois interdits** : (a) lancer un agent **en silence** (sans bloc de mission) ; (b) relayer un
+rendu **après coup** sans le bloc de mission qui le précède ; (c) livrer un rendu **sans** le résumé
+final. P-9 **précise** R6/P-7 (1ʳᵉ personne pour mes blocs, verbatim pour ceux des autres) et la
+ligne « Aragorn continue de déléguer… » des règles du décideur ; elle ne change **ni** le gabarit
+d'ordre de mission d'`iakaframe-aragorn`, **ni** le garde (contrat seul, comme Q-P1 = A).
+
 ## Périmètre
 
 - **Inclus** :
@@ -303,6 +328,23 @@ des deux lots qui passe en second réconcilie le texte (aucune section en double
     portefeuille) ; convention Identité (`:119-130`) → remplacer « Claude principal (Odin) » par
     « Claude principal (Aragorn dans un dépôt, Odin au portefeuille) » + une puce **« Voix par lieu »**
     (R1-R6, P-3, P-6).
+13 bis. **Chaîne de délégation visible (P-9)** — ajoutée le 2026-09-28. Si les étapes 7-13 sont déjà
+    commitées, P-9 fait l'objet d'un commit `docs` complémentaire (même lot, réconcilier sans doublon).
+    Écrire la séquence en 4 temps **et** les trois interdits de P-9, dans la voix de chaque texte :
+    - `library/personas/aragorn.md` : sous-section **« Chaîne de délégation visible »** dans § Identité,
+      **juste avant** « Restitution en relais (deux invariants) » (`:189`), à la 1ʳᵉ personne ; renvoi
+      à la règle de relais existante, sans la réécrire ;
+    - `library/skills/iakaframe-aragorn/SKILL.md` : même sous-section dans § Identité, avant
+      « Restitution en relais » (`:122`) ; une ligne dans § Dispatch à la demande (`:48`) : « chaque
+      dispatch suit la chaîne de délégation visible (§ Identité) » ;
+    - `methode-de-travail.md` § Identité : un paragraphe **« Chaîne de délégation visible (Aragorn dans
+      un dépôt) »** juste après « Restitution en relais » (`:287`), avec un exemple de rendu Aragorn →
+      Gimli → Legolas → résumé (chaque agent sous sa pastille de phase telle que la table des pastilles
+      existante la définit — ne pas en inventer) ;
+    - `kits/iakaframe-claude/global/CLAUDE.md` : dans la puce « Voix par lieu » (étape 13), une phrase :
+      « dans un dépôt, Aragorn tient la chaîne de délégation visible (mission → bloc verbatim de
+      l'agent → relais d'une ligne → résumé final) : jamais d'agent lancé en silence, jamais de relais
+      sans mission, jamais de rendu sans résumé ».
 14. Régénérations (jamais d'édition à la main) : `node cli/scripts/gen-agents-golden.mjs`,
     `node cli/scripts/gen-skills-golden.mjs`, `node cli/scripts/gen-methode-vitrine.mjs`, puis
     `iakaframe agents --action generate` et `--check` ; dérive `vendor-check` vers `iakaframegui`
@@ -349,11 +391,11 @@ des deux lots qui passe en second réconcilie le texte (aucune section en double
 - `kits/iakaframe-claude/global/README.md` — une ligne.
 - `cli/test/guard-core.test.js` — CA-P1, CA-P2.
 - `cli/test/identity-remind.test.js` — **créé** (CA-P3 à CA-P5).
-- `library/personas/aragorn.md`, `library/personas/odin.md` — étapes 7-8.
+- `library/personas/aragorn.md`, `library/personas/odin.md` — étapes 7-8 (+ 13 bis pour `aragorn.md`).
 - `library/skills/iakastart/SKILL.md`, `library/skills/iakaframe-odin/SKILL.md`,
-  `library/skills/iakaframe-aragorn/SKILL.md` — étapes 9-11.
-- `methode-de-travail.md` — § Identité (étape 12).
-- `kits/iakaframe-claude/global/CLAUDE.md` — étape 13.
+  `library/skills/iakaframe-aragorn/SKILL.md` — étapes 9-11 (+ 13 bis pour `iakaframe-aragorn`).
+- `methode-de-travail.md` — § Identité (étapes 12 et 13 bis).
+- `kits/iakaframe-claude/global/CLAUDE.md` — étapes 13 et 13 bis.
 - `specs/instructions/lancement-session-aragorn.md`, `specs/instructions/declaration-chantier-session.md`
   — note de renvoi (Lot P0, Gandalf).
 - Régénérés, jamais édités à la main : `cli/test/fixtures/agents-golden/{odin,aragorn}.md`, goldens de
@@ -428,6 +470,19 @@ des deux lots qui passe en second réconcilie le texte (aucune section en double
 - [ ] **CA-P10 (non-régression)** `npm test` dans `cli/` : 100 % vert après régénérations ;
       `iakaframe agents --action generate --check` propre ; tests inchangés listés au § Fichiers
       passent sans modification.
+- [ ] **CA-P15 (P-9, chaîne de délégation visible)** `grep -c "Chaîne de délégation visible"` = 1
+      dans chacun de `library/personas/aragorn.md`, `library/skills/iakaframe-aragorn/SKILL.md`,
+      `methode-de-travail.md` ; dans `aragorn.md` et `iakaframe-aragorn/SKILL.md`, cette section
+      contient les **4 temps** (« je missionne », bloc « VERBATIM » sous le badge de l'agent, relais
+      d'« une ligne » entre agents enchaînés, résumé final « fait, verdict, décisions attendues,
+      suite ») **et** les **3 interdits** (« en silence », relais « après coup » sans mission, rendu
+      « sans le résumé ») ; `kits/iakaframe-claude/global/CLAUDE.md` contient « chaîne de délégation
+      visible » ; golden `cli/test/fixtures/agents-golden/aragorn.md` et golden de skill
+      `iakaframe-aragorn` **régénérés** (jamais édités à la main) et contenant la section ; `npm test`
+      vert (CA-P10). Recette (Lot P4, avec CA-P11) : dans `C:\work\naonedge`, une demande qui fait
+      intervenir Gimli puis Legolas s'affiche en mission Aragorn → bloc Gimli → relais Aragorn d'une
+      ligne → bloc Legolas (pass/fail expliqué) → résumé Aragorn ; aucun agent lancé sans bloc de
+      mission.
 
 **Recette réelle (décideur, Lot P4)**
 - [ ] **CA-P11** Session `claude` (sans `--agent`) lancée dans `C:\work\naonedge`, prompt « où en est
@@ -452,7 +507,8 @@ des deux lots qui passe en second réconcilie le texte (aucune section en double
 | Lot P1 — cœur pur + tests + copie Codex | 0,2 | faible |
 | Lot P2 — hook contextuel + tests bout-en-bout | 0,3 | faible-moyenne (import dynamique, fixtures worktree) |
 | Lot P3 — 7 contrats/docs + régénérations | 0,5 | faible (volume, réconciliation avec mère L6 / sœur L3) |
-| **Total dev** | **≈ 1,0 j-h** + 0,15 recette humaine | **faible-moyenne** |
+| Lot P3, étape 13 bis — P-9 (4 textes + régénérations) | 0,1 | faible (texte seul ; commit complémentaire si P3 déjà commité) |
+| **Total dev** | **≈ 1,1 j-h** + 0,15 recette humaine | **faible-moyenne** |
 
 **Inconnues susceptibles de faire glisser :**
 1. **Ordre avec le Lot 6 de la mère et le Lot L3 de la sœur** (mêmes fichiers) — **+0,15 j-h** de
@@ -463,7 +519,8 @@ des deux lots qui passe en second réconcilie le texte (aucune section en double
 Effet des décisions sur l'estimation : **Q-P1 = A** retire l'inconnue « alignement du garde »
 (+0,5 j-h, 3ᵉ amendement de la mère) — elle n'existe plus ; **Q-P2 = oui** et **Q-P3 = Odin par
 défaut** sont les options déjà chiffrées (quelques lignes de contrat en étapes 8-9, un volet de
-recette CA-P14) : **total inchangé ≈ 1,0 j-h** + 0,15 recette.
+recette CA-P14) : **total inchangé ≈ 1,0 j-h** + 0,15 recette. **P-9** (2026-09-28) ajoute
+**+0,1 j-h** (texte seul, aucune inconnue nouvelle) : **total ≈ 1,1 j-h** + 0,15 recette.
 
 ## Questions au décideur — tranchées le 2026-09-27
 
