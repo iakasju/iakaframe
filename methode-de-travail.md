@@ -377,7 +377,7 @@ rendu **sans le résumé** final.
 Exemple — Aragorn missionne Gimli puis Legolas :
 
 > 🟠 `[NAONEDGE][Aragorn]` — je missionne Gimli pour implémenter la feature X.
-> [PORTEFEUILLE][Aragorn] 🟠 *(clôture)*
+> `[NAONEDGE][Aragorn]` 🟠 *(clôture)*
 >
 > 🔴 `[NAONEDGE][Gimli]` … {travail de Gimli, verbatim} … `[NAONEDGE][Gimli]` 🔴
 >
