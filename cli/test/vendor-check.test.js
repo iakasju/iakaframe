@@ -78,7 +78,13 @@ function makeCleanMirror() {
       path.join(fx, 'skills', id, 'SKILL.md'));
   }
 
-  const methodRaw = fs.readFileSync(path.join(REPO, 'methods', 'iakaframe.md'), 'utf8');
+  // Normalisation EOL AVANT rewrapFlowLists (E0, ecart declare) : `methods/iakaframe.md` fait
+  // partie des sources NON epinglees eol=lf (§ 1.8) ; sur un poste ou elle est CRLF, un split
+  // brut sur '\n' laisse un '\r' en fin de chaque element (ex. "---\r" != "---"), ce qui casse
+  // la detection du frontmatter dans rewrapFlowLists (indexOf('---', 1) ne trouve plus rien) et
+  // produit un fixture illisible en frontmatter. L'instruction ne le nomme pas explicitement :
+  // necessaire pour qu'un miroir reste VERT independamment de l'EOL local du poste.
+  const methodRaw = fs.readFileSync(path.join(REPO, 'methods', 'iakaframe.md'), 'utf8').replace(/\r\n/g, '\n');
   fs.writeFileSync(path.join(fx, 'method.iakaframe.md'), methodRaw);
   // La derivee « wrapped » : MEME frontmatter, wrapping different -> doit rester VERTE.
   fs.writeFileSync(path.join(fx, 'method.iakaframe-wrapped.md'), rewrapFlowLists(methodRaw));
@@ -116,6 +122,48 @@ function fingerprintFixtures(guiRoot) {
   walk(dir, '');
   return out;
 }
+
+// Convertit TOUS les .md d'un miroir en CRLF (E0-c, garde-vendor-check-cross-repo § Lot E0-b/c) :
+// simule un checkout `core.autocrlf=true` quel que soit l'EOL reel du poste qui fait tourner la
+// suite. `\r\n` -> `\n` d'abord (idempotence si une ligne etait deja CRLF), puis `\n` -> `\r\n`.
+function convertMirrorToCrlf(fx) {
+  const walk = (cur) => {
+    for (const e of fs.readdirSync(cur, { withFileTypes: true })) {
+      const p = path.join(cur, e.name);
+      if (e.isDirectory()) { walk(p); continue; }
+      if (!e.name.endsWith('.md')) continue;
+      const text = fs.readFileSync(p, 'utf8').replace(/\r\n/g, '\n').replace(/\n/g, '\r\n');
+      fs.writeFileSync(p, text);
+    }
+  };
+  walk(fx);
+}
+
+test('E0-c : miroir propre converti en CRLF -> ok:true, status:clean (garde insensible aux fins de ligne)', () => {
+  const m = makeCleanMirror();
+  convertMirrorToCrlf(m.fx);
+  const res = run(m);
+  assert.equal(res.ok, true, 'un miroir CRLF a contenu identique doit rester vert : ' + JSON.stringify(res.files, null, 2));
+  assert.equal(res.status, 'clean');
+  assert.equal(res.checked, 82);
+  assert.equal(res.derived, 4);
+  assert.equal(res.drift, 0);
+});
+
+test('E0-c : miroir CRLF avec un mot change dans une copie -> contenu-different sur cette copie (la garde reste mordante)', () => {
+  const m = makeCleanMirror();
+  convertMirrorToCrlf(m.fx);
+  const p = fixturePath(m, path.join('personas', 'gimli.md'));
+  const withOneWordChanged = fs.readFileSync(p, 'utf8').replace('Gimli', 'Ximli');
+  assert.notEqual(withOneWordChanged, fs.readFileSync(p, 'utf8'), 'le mot cible doit exister dans la fixture');
+  fs.writeFileSync(p, withOneWordChanged);
+  const res = run(m);
+  assert.equal(res.ok, false, 'un ecart de contenu reel doit rester rouge, meme sous CRLF');
+  const entry = res.files.find((f) => f.fixture.endsWith(path.join('personas', 'gimli.md')));
+  assert.ok(entry, 'la persona alteree doit etre signalee');
+  assert.ok(entry.reasons.some((r) => r.reason === 'contenu-different'),
+    'un mot change doit rester `contenu-different`, jamais masque par la normalisation EOL');
+});
 
 test('A2 : miroir conforme -> ok, checked == 82 et derived == 4 (attendu EXACT)', () => {
   const m = makeCleanMirror();

@@ -94,6 +94,16 @@ export function sha256(text) {
   return crypto.createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
+// Lecture texte pour comparaison (E0-b, Q-S6) : la garde juge le CONTENU, pas les fins de ligne du
+// checkout — l'EOL depend de core.autocrlf, que personne ne choisit poste par poste, alors que les
+// blobs git sont normalises. Seule conversion appliquee : `\r\n` -> `\n`, et RIEN D'AUTRE (ni BOM,
+// ni CR isole, ni espaces) : un ecart de CONTENU reel (mot change, ligne ajoutee/retiree...) reste
+// detecte quelle que soit la fin de ligne des deux cotes. `stripHeader` et `sha256` recoivent donc
+// deja du texte normalise en LF ; ils restent eux-memes inchanges.
+export function readTextForComparison(filePath) {
+  return fs.readFileSync(filePath, 'utf8').replace(/\r\n/g, '\n');
+}
+
 // --- Resolution du depot frere (§ 4.1) --------------------------------------------------------
 // Calquee sur cli/test/vocab-parity.test.js : override d'environnement, puis depots voisins sous
 // le meme dossier chapeau, casse alternative comprise. Un candidat n'est retenu que si son
@@ -291,8 +301,8 @@ export function checkVendor({ root, guiRoot = undefined, env = process.env } = {
     if (!hasFixture) { record(row, 'fixture-manquante'); continue; }
     if (!hasSource) { record(row, 'source-introuvable'); continue; }
 
-    const fixtureRaw = fs.readFileSync(fixturePath, 'utf8');
-    const sourceRaw = fs.readFileSync(sourcePath, 'utf8');
+    const fixtureRaw = readTextForComparison(fixturePath);
+    const sourceRaw = readTextForComparison(sourcePath);
 
     if (row.kind === 'copy') {
       checked++;
@@ -355,7 +365,7 @@ export function checkVendor({ root, guiRoot = undefined, env = process.env } = {
       const row = rows.find((r) => r.family === 'goldens' && r.id === id);
       const fixturePath = path.join(fixturesDir, row.fixture);
       if (!fs.existsSync(fixturePath)) continue; // deja signale au niveau 1
-      const useful = stripHeader(fs.readFileSync(fixturePath, 'utf8'));
+      const useful = stripHeader(readTextForComparison(fixturePath));
       if (useful == null) { record(row, 'golden-vendore-sans-frontmatter'); continue; }
       const live = generateAgent(id, { root, binding });
       if (sha256(useful) !== sha256(live)) {
