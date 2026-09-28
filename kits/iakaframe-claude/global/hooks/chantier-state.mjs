@@ -152,13 +152,18 @@ function worktreeMainRoot(gitPath) {
   return wt ? resolve(wt[1]) : null;
 }
 
-// keyOf(absPath) -> `key` D-4 : { kind: "repo"|"dir"|"portefeuille"|"hors", root, name }.
-// Chemin d'abord NORMALISE (M-12). Limite CONNUE (documentee, a affiner au Lot 4 quand
-// perimeter-guard saura si le chemin resolu est un fichier-cible (Edit/Write) ou un
-// dossier-cible (cwd/`--path`) : un chemin INEXISTANT a un seul segment sous la racine est
-// suppose etre un DOSSIER de projet (`kind:"dir"`, cas explicite de creation de projet, D-3),
-// jamais un fichier a creer directement dans la racine.
-export function keyOf(absPath) {
+// keyOf(absPath, opts?) -> `key` D-4 : { kind: "repo"|"dir"|"portefeuille"|"hors", root, name }.
+// Chemin d'abord NORMALISE (M-12). `opts.fileTarget` (AFFINE au Lot 4, cf. limite CONNUE ci-avant
+// dans l'historique du fichier) : quand l'appelant SAIT que le chemin resout un geste Edit/Write/
+// NotebookEdit (un FICHIER, toujours), un chemin INEXISTANT a un seul segment sous la racine est
+// traite comme un fichier place DIRECTEMENT dans la racine (`kind:"portefeuille"`), au lieu d'etre
+// suppose etre un DOSSIER de projet — l'ambiguite ne se pose QUE pour un chemin qui n'existe pas
+// encore (un chemin EXISTANT est deja tranche par `statSync`, hint ignore). Par defaut
+// (`fileTarget` absent/false, comportement du Lot 2 INCHANGE pour tout appelant existant —
+// `chantier-remind.mjs`/`resolveRepoArg` ne passent jamais ce hint) : un chemin inexistant a un
+// segment reste suppose etre un DOSSIER de projet (cas de creation de projet, D-3).
+export function keyOf(absPath, opts) {
+  const fileTarget = !!(opts && opts.fileTarget);
   const norm = normalize(resolve(String(absPath)));
 
   // 1. Remonter jusqu'a un `.git` (dossier ou racine elle-meme si c'est un depot).
@@ -197,13 +202,14 @@ export function keyOf(absPath) {
     const segs = rel.split(/[\\/]/).filter(Boolean);
     const first = segs[0];
     if (first.startsWith(".")) return { kind: "portefeuille", root, name: "@portefeuille" };
-    // Un FICHIER (existant) directement dans la racine (un seul segment) -> portefeuille.
+    // Un FICHIER (existant, OU cible connue d'un geste Edit/Write via `fileTarget`) directement
+    // dans la racine (un seul segment) -> portefeuille.
     if (segs.length === 1) {
       let isFile = false;
       try {
         isFile = statSync(norm).isFile();
       } catch {
-        isFile = false; // inexistant : suppose "dossier de projet" (cf. limite documentee ci-dessus)
+        isFile = fileTarget; // inexistant : "dossier de projet" (D-3) sauf hint fileTarget explicite
       }
       if (isFile) return { kind: "portefeuille", root, name: "@portefeuille" };
     }
