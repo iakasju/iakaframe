@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-27 21:36 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-28 14:20 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,27 +9,63 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | 28c4723 refactor(guard-core): correctif Lot 1bis — session-role, plus de liaison sous-agent (D-5/D-6/D-7/D-14) |
+| Dernier commit | b139230 docs(specs): synchro multi-depots revisee a 60d3347 (audit EOL GUI, lot E0, G1-1a, Q-S6) |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (suivis + non ignores) | 1295 |
-| Note | Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire). |
+| Fichiers (suivis + non ignores) | 1301 |
+| Note | Recit de reprise complete (Aragorn). |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
-| `28c4723` | 2026-09-27 | refactor(guard-core): correctif Lot 1bis — session-role, plus de liaison sous-agent (D-5/D-6/D-7/D-14) |
-| `e0011fa` | 2026-09-27 | chore(iakaframe): etat des lieux (pause) chantier declaration-chantier-session |
-| `42bea0f` | 2026-09-27 | chore: merge origin/main (docs paralleles) avant Lot 1bis guard-core |
-| `da0bde4` | 2026-09-27 | docs(specs): session par depot (--agent aragorn) + instruction lancement-session-aragorn validees |
-| `19d66b9` | 2026-09-27 | docs(specs): amende update-remotes-github-opt-in avec les arbitrages du 2026-09-27 |
-| `8b5f014` | 2026-09-27 | feat(guard-core): coeur pur chantier (D-1, D-3, D-5, D-6, D-7, D-13, D-14) |
-| `5a8087e` | 2026-09-27 | docs(specs): instruction update-remotes-github-opt-in (push hors forge en opt-in par projet) |
-| `68da136` | 2026-09-27 | fix(hooks): reintegrate ALLOW_EXTRA roots into kit perimeter-guard source |
-| `577f81e` | 2026-09-27 | docs(specs): instruction declaration-chantier-session validee (chantier par session/sous-agent) |
-| `d9c8fce` | 2026-09-27 | fix(docs/architecture): retire la bascule systeme, aligne 2 HEAD, corrige la colonne Ou |
+| `b139230` | 2026-09-28 | docs(specs): synchro multi-depots revisee a 60d3347 (audit EOL GUI, lot E0, G1-1a, Q-S6) |
+| `60d3347` | 2026-09-28 | fix(tests): pin eol=lf sur les sources SKILL.md/personas embarquees verbatim dans la vitrine |
+| `6294105` | 2026-09-28 | chore(goldens): regenere odin, manifest skills et vitrine (correctifs gate Legolas) |
+| `2d45f56` | 2026-09-28 | docs(methode): corrige le badge de cloture dans l'exemple chaine de delegation visible |
+| `ffdd5af` | 2026-09-28 | docs(contracts): ligne Chantier: <repo> dans l'ordre de mission du lancement de session (odin) |
+| `c0ccf01` | 2026-09-28 | fix(tests): reproductibilite CRLF des goldens compares octet-pour-octet (gate Legolas Lot 6/P3) |
+| `ac3092b` | 2026-09-28 | docs(specs): releve d'impact synchro multi-depots (propose, Q-S1..Q-S5 ouvertes) |
+| `fa8685e` | 2026-09-28 | chore(goldens): regenere agents-golden, skills-golden et vitrine methode (Lot 6 + Lot P3) |
+| `52f25c0` | 2026-09-28 | docs(kit-claude): chantier declare et voix par lieu dans le kit global |
+| `a18a61b` | 2026-09-28 | docs(methode): qui parle - le lieu designe la voix, chaine de delegation visible, chantier declare |
 
 ## Reprise du travail (a completer par Cowork)
+
+- **Ou on en est** (2026-09-28, pause — session Aragorn dans le depot, lancee sans `--agent`) : **deux
+  instructions bouclees cote code, toutes gatees PASS par Legolas**, rien deploye.
+  (1) `declaration-chantier-session` : Lots 0, 1, 1bis, 2 (`08ebd02`), 3 (`dd79b44`, `5630c07`), 4 (`f414d2f`)
+  + **Lot 1ter** (`80d88a7`, `87b9a4f` — faille @hors : un lancement hors depot ecrivait dans tout autre
+  dossier hors depot ; **3e amendement** option a′ valide : chaque dossier hors depot = son chantier, ancre
+  trop large `C:\`/`~` → `NO_CHANTIER` (Q-H1 non), `chantier`/`odin-direct` vers dossier hors existant OK
+  (Q-H2 oui)), 5 (`13cbac5`, `741d086`), 6 (avec P3). **Limite acceptee par le decideur (option 3)** : le
+  garde shell ne voit que les chemins ABSOLUS (redirections relatives, `cd` enchaines, variables,
+  interpreteurs non couverts) — § 3 LS-1..LS-3 de l'instruction, constat de recette CA-42 ; Edit/Write
+  restent couverts entierement. (2) `prise-de-parole-odin-aragorn` (valide Q-P1 A / Q-P2 oui / Q-P3 Odin
+  par defaut) : P0, P1 (`9622f22` `isOdinSolicitation`/`voiceOf`), P2 (`5162589` `identity-remind.mjs`
+  contextuel), P3 + Lot 6 (`89ba36a`..`fa8685e` puis correctifs `c0ccf01`..`60d3347`) ; **P-9 « chaine de
+  delegation visible d'Aragorn »** ajoutee (decision Stephane 2026-09-27). Regles decideur du 2026-09-27 :
+  dans un depot c'est **Aragorn qui parle, a la premiere personne** ; Odin seulement au portefeuille ou sur
+  « odin, … », il **cede sa place** (ne delegue pas). **Mesure de reference = clone frais** (`git clone
+  --local` hors `C:\work\`) : `60d3347` = 1516 tests / 98 fail, 0 regression par noms vs `803c28d` ;
+  `eol=lf` fige sur goldens et sources (`.gitattributes`). Flakes d'environnement connus :
+  `canaux-verbe.test.js` (`init.defaultBranch=master` dans le gitconfig systeme), `canaux-fanout.test.js`
+  (EPERM au nettoyage). Generateurs `gen-methode-vitrine.mjs`/`gen-skills-golden.mjs` **no-op silencieux
+  sous Windows** (garde `import.meta.url === file://argv[1]`) — contournement : appeler les fonctions
+  exportees. **Fichier `chantier-bind.mjs` ecarte** (ex-D-13 Exclu) dans `stash@{0}`.
+- **Ce qui reste — au decideur** : (a) valider `specs/instructions/synchro-multi-depots.md` et trancher
+  Q-S1..Q-S6 (recommandations Gandalf : Q-S6 = (c) `eol=lf` des deux cotes + normalisation dans
+  `checkVendor`, Lot E0 dans iakaframe AVANT G1) ; (b) **Lot 7 / Lot P4 = deploiement humain**, sans
+  session Claude ouverte : copier les 8 hooks d'un seul geste (`delegation-guard.mjs` importe
+  `chantier-state.mjs` au chargement), **fusionner** `settings.json` (ne pas ecraser : le publieur
+  `iaka-agents-publish.mjs` n'est pas dans l'exemple), reporter `kits/iakaframe-claude/global/CLAUDE.md`
+  dans `~/.claude/CLAUDE.md`, `agents --action generate --global` + `skills deploy --global` (`--check`),
+  puis recette dans naonedge (CA-29..33, CA-42, CA-P11..P15).
+- **Prochaine etape concrete** : selon les reponses Q-S* → Lot E0 (iakaframe) puis G1 dans `iakaframegui`
+  (session Aragorn **de ce depot** ; re-vendorisation atomique, 19 gestes `[copy]` dont 8 imputables aux
+  chantiers ; G1 AVANT le deploiement, sinon le nouveau garde refusera la copie `CHANTIER_MISMATCH`). Apres
+  deploiement : verifications C1 (Cockpit : filtre royaume en MAJUSCULE, `maincourante.rs:262-263`) et A1.
+  Dettes notees : doc `library/guardrails/perimeter.md` promet plus que le garde shell ; Forge GUI deploie
+  4 anciens hooks non surveilles par `vendor-check` (Q-S1).
 
 - **Ou on en est** (2026-09-10, pause) : **deux successeurs du C-JSON soldes le MEME JOUR par deux sessions
   Aragorn en parallele**, chacun dans son worktree. (1) `REGISTRE-OPTIONS-ROOT-PATH-PROJET` R1+R2 (session
@@ -230,6 +266,8 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-28 14:20 | pause | v0.41.0 | main | Chantiers declaration-chantier-session (Lots 0-6, 1bis, 1ter) et prise-de-parole-odin-aragorn (P0-P3, P-9) : code livre et gate PASS Legolas. Reste : Lot 7/P4 (deploiement humain ~/.claude + recette), synchro multi-depots (a valider, Q-S1..Q-S6). |
+| 2026-09-28 14:20 | pause | v0.41.0 | main | Recit de reprise complete (Aragorn). |
 | 2026-09-27 21:36 | pause | v0.41.0 | main | Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire). |
 | 2026-09-27 21:29 | pause | v0.41.0 | main | Pause : Lot 1bis commite (28c4723), gate Legolas en cours ; Lot 2 (chantier-state) en attente du PASS. Fichiers herites non suivis conserves (chantier-bind a ecarter). |
 | 2026-09-27 15:59 | pause | v0.41.0 | main | Pause 2026-09-27 pendant chantier declaration-chantier-session : instructions mere + soeur lancement-session-aragorn validees (da0bde4). Lots 0-1 commites (PASS Legolas). Session Aragorn --agent lancee puis arretee : merge origin/main (42bea0f), Lot 1bis NON commite. 4 fichiers non suivis herites (chantier-state/remind/bind, guard-chantier.test) a trier. Reprise : relancer Aragorn en session --agent avec .claude/missions/mission-aragorn-chantier.md. |

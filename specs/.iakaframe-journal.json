@@ -1108,5 +1108,25 @@
     "dirty": true,
     "files": 1295,
     "note": "Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire)."
+  },
+  {
+    "date": "2026-09-28 14:20",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "b139230 docs(specs): synchro multi-depots revisee a 60d3347 (audit EOL GUI, lot E0, G1-1a, Q-S6)",
+    "dirty": false,
+    "files": 1301,
+    "note": "Chantiers declaration-chantier-session (Lots 0-6, 1bis, 1ter) et prise-de-parole-odin-aragorn (P0-P3, P-9) : code livre et gate PASS Legolas. Reste : Lot 7/P4 (deploiement humain ~/.claude + recette), synchro multi-depots (a valider, Q-S1..Q-S6)."
+  },
+  {
+    "date": "2026-09-28 14:20",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "b139230 docs(specs): synchro multi-depots revisee a 60d3347 (audit EOL GUI, lot E0, G1-1a, Q-S6)",
+    "dirty": true,
+    "files": 1301,
+    "note": "Recit de reprise complete (Aragorn)."
   }
 ]
