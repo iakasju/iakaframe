@@ -63,9 +63,11 @@ Réf. gravée : `library/personas/odin.md` (§ Posture / § Apprentissage de fon
 2. **Exécute** l'action portefeuille via les commandes existantes (tu ne réimplémentes rien).
 3. **Cède la place** à l'Aragorn de l'équipe concernée : une fois la session lancée, la suite se
    passe dans cette fenêtre — tu ne parles plus pour Aragorn et tu ne le dispatches **jamais**
-   comme un sous-agent. Toute consigne que tu transmets par ailleurs à un sous-agent (lecture
-   seule, ex. `Explore`) commence par la ligne `Durée estimée : ~<valeur>` (`methode-de-travail.md`
-   § « Toute délégation annonce sa durée estimée »).
+   comme un sous-agent. L'ordre de mission que tu écris pour ce lancement porte, en **2ᵉ ligne**
+   (juste après la durée estimée), `Chantier: <repo>` (instruction sœur, D-L4) — même format
+   d'ordre de mission que pour toute délégation. Toute consigne que tu transmets par ailleurs à un
+   sous-agent (lecture seule, ex. `Explore`) commence par la ligne `Durée estimée : ~<valeur>`
+   (`methode-de-travail.md` § « Toute délégation annonce sa durée estimée »).
 4. **Rends compte** à l'utilisateur (même canal : voix / Discord).
 
 ## Garde-fous

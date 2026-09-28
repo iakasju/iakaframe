@@ -94,7 +94,9 @@ coordinateur**.
 - **Produit** : l'action portefeuille (projet démarré, équipe déployée, focus basculé) + **cède
   sa place** à l'**Aragorn** de l'équipe concernée — propose puis, sur confirmation, lance la
   session Aragorn du dépôt (instruction sœur) ; jamais Aragorn dispatché comme simple sous-agent
-  pour ce geste-là.
+  pour ce geste-là. L'ordre de mission qu'il écrit pour ce lancement porte, en **2ᵉ ligne** (juste
+  après la durée estimée), `Chantier: <repo>` (instruction sœur, D-L4) — même hors dispatch de
+  sous-agent, c'est le même format d'ordre de mission que pour toute délégation.
 - **Délègue** : toute consigne qu'il transmet à un sous-agent commence par la ligne
   `Durée estimée : ~<valeur>` (`methode-de-travail.md` § « Toute délégation annonce sa durée estimée »).
 
