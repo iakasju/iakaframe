@@ -4374,7 +4374,9 @@ version et à chaque pause/reprise.
    iakaframe update --reason version --version v0.4.0 --note "..."
    ```
    Options : `--reason version|pause|reprise|manual`, `--version vX.Y.Z`, `--note "..."`,
-   `--no-push`.
+   `--no-push`, `--remotes &lt;a,b,c&gt;` (cibles, **parmi les forges self-hosted uniquement** —
+   GitHub et tout hôte hors forge en sont exclus, opt-in ou pas), `--publier &lt;vX.Y.Z&gt;`
+   (publication vitrine explicite, cf. § Garde-fous).
 2. **Si la commande n'est pas disponible**, reproduire sa séquence à la main :
    ```bash
    # a) régénérer l'état des lieux (faits git)
@@ -4382,8 +4384,8 @@ version et à chaque pause/reprise.
    # b) commit global atomique
    git add -A
    git commit -m "chore(&lt;projet&gt;): update etat des lieux + commit global (version v0.4.0)"
-   # c) push (sauf --no-push)
-   git push
+   # c) push EXPLICITE vers le remote de la forge (jamais un `git push` nu)
+   git push origin main
    ```
 3. **Compléter le récit de reprise** dans `specs/etat-des-lieux.md` (rôle Cowork) si la
    raison est `pause`/`reprise` : ce qui vient d'être fait, ce qui reste, la prochaine
@@ -4401,6 +4403,14 @@ version et à chaque pause/reprise.
   `iakaframe-gestion-de-source` (le serveur concret est le produit sélectionné à l'install).
 - `update` sur un projet pas encore versionné sur son dépôt distant **bascule en `init`**
   (auto-détection).
+- **Jamais de push hors forge self-hosted** : GitHub n'est pas un remote de la méthode — le
+  fan-out par défaut ne l'atteint jamais, même configuré comme remote, opt-in ou pas.
+- **Un agent ne lance jamais `--publier`** : c'est un acte du décideur, réservé au terminal
+  interactif (refusé automatiquement hors TTY, en CI, ou avec `IAKA_NON_INTERACTIF`) — un agent
+  n'a pas de TTY, il ne peut donc jamais faire aboutir cette confirmation.
+- **Ne jamais contourner par `git push github` à la main** : si un dépôt est opt-in vitrine
+  (`iakaframe.json` → `pushOptInRemotes`), la seule voie d'écriture reste
+  `iakaframe update --publier &lt;vX.Y.Z&gt;`, avec l'accord du décideur.
 
 ## Place dans le cycle
 
