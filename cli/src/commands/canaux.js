@@ -17,7 +17,7 @@ import { isRepo, currentBranch } from '../lib/git.js';
 import { emit, fail, collection } from '../lib/output.js';
 import { splitCanaux } from '../lib/forgejo.js';
 import {
-  listerRemotes, mesurerCanaux, accord, rattraper, DELAI_DEFAUT_S,
+  resoudreCibles, formaterEcarts, mesurerCanaux, accord, rattraper, DELAI_DEFAUT_S,
 } from '../lib/canaux.js';
 
 const USAGE = `Usage : iakaframe canaux [options]
@@ -28,7 +28,7 @@ et REFUSE tout le reste en le disant (jamais de --force).
 
 Options :
   --path <dir>       Racine du depot (defaut : dossier courant)
-  --remotes <a,b,c>  Cibles a mesurer (defaut : TOUS les remotes configures, origin d'abord)
+  --remotes <a,b,c>  Cibles, parmi les remotes des forges self-hosted (defaut : toutes, origin d'abord ; vitrine opt-in : mesuree, jamais rattrapee ; GitHub sans opt-in : jamais)
   --branch <nom>     Branche mesuree (defaut : la branche courante)
   --rattraper        Pousse les cibles EN RETARD (avance rapide seulement)
   --timeout <sec>    Delai par cible (defaut : ${DELAI_DEFAUT_S})
@@ -71,16 +71,31 @@ export function runCanaux(argv) {
     fail(values.json, `pas un depot git : ${root}`, { path: root });
     return;
   }
-  const remotes = values.remotes ? splitCanaux(values.remotes) : listerRemotes(root);
-  if (!remotes.length) {
-    fail(values.json, `aucun remote configure dans ${root} : il n y a aucun canal a mesurer`, { path: root });
+
+  // SELECTION (§ 7, update-remotes-github-opt-in.md) : `canaux` MESURE les `forge` ET les
+  // `vitrine` (lecture seule, utile pour voir le retard de la vitrine) ; `--rattraper` n'agit QUE
+  // sur les `forge` ; les `hors-forge` sont listes, jamais mesures.
+  const demandes = values.remotes ? splitCanaux(values.remotes) : null;
+  const selection = resoudreCibles(root, demandes);
+  const vitrineNoms = new Set(selection.vitrines.map((v) => v.nom));
+  const ciblesMesure = [...selection.retenues, ...selection.vitrines.map((v) => v.nom)];
+  if (!ciblesMesure.length) {
+    fail(values.json, `aucun remote eligible dans ${root} (forge self-hosted) : il n y a aucun canal a mesurer`, { path: root });
     return;
   }
   const timeoutMs = Math.max(2, parseInt(values.timeout, 10) || DELAI_DEFAUT_S) * 1000;
   const branch = values.branch || currentBranch(root);
 
-  const mesure = mesurerCanaux(root, remotes, branch, { timeoutMs });
-  const actions = values.rattraper ? rattraper(root, mesure, { timeoutMs }) : [];
+  const mesure = mesurerCanaux(root, ciblesMesure, branch, { timeoutMs });
+  let actions = [];
+  if (values.rattraper) {
+    // Rattrapage : jamais une vitrine (§ 7) — elle recoit `hors-rattrapage`, jamais un push.
+    const mesureForge = { ...mesure, canaux: mesure.canaux.filter((c) => !vitrineNoms.has(c.remote)) };
+    actions = rattraper(root, mesureForge, { timeoutMs });
+    for (const v of selection.vitrines) {
+      actions.push({ remote: v.nom, action: 'hors-rattrapage', motif: 'vitrine : publication via iakaframe update --publier' });
+    }
+  }
   const dAccord = accord(mesure.canaux);
 
   const payload = collection('canaux', mesure.canaux, {
@@ -91,14 +106,19 @@ export function runCanaux(argv) {
     mesureLe: mesure.mesureLe,
     accord: dAccord,
     rattrapage: values.rattraper ? actions : null,
+    vitrines: selection.vitrines,
+    ecartees: selection.ecartees,
+    refusees: selection.refusees,
   });
 
   emit(values.json, payload, () => {
+    for (const l of formaterEcarts(selection)) console.log(l);
     console.log(`\n=== iakaframe canaux : ${path.basename(root)} (branche ${mesure.branche}) ===`);
     console.log(`mesure EN DIRECT le ${mesure.mesureLe}  |  local ${mesure.local.slice(0, 7) || '(branche absente)'}`);
     for (const c of mesure.canaux) {
       const sha = c.distant ? ` ${c.distant.slice(0, 7)}` : '';
-      console.log(`  ${MARQUE[c.etat]} ${c.remote.padEnd(10)} ${libelle(c)}${sha}`);
+      const marque = vitrineNoms.has(c.remote) ? '  [vitrine]' : '';
+      console.log(`  ${MARQUE[c.etat]} ${c.remote.padEnd(10)} ${libelle(c)}${sha}${marque}`);
       if (c.detail) console.log(`       ${c.detail}`);
       // Le SOUVENIR, jamais confondu avec la mesure : il est indente, nomme, et date a part.
       if (c.dernierConnu) {
@@ -118,6 +138,7 @@ export function runCanaux(argv) {
     }
     console.log('');
   });
+  if (selection.refusees.length > 0) process.exitCode = 1;
   return payload;
 }
 

@@ -73,7 +73,7 @@ export const VERBES = [
   {
     id: 'update',
     resume: 'Checkpoint : snapshot + commit global + push',
-    options: ['--path <dir>', '--repo <nom>', '--reason', '--version', '--note', '--message', '--no-push', '--home'],
+    options: ['--path <dir>', '--repo <nom>', '--reason', '--version', '--note', '--message', '--no-push', '--publier <vX.Y.Z>', '--home'],
     sousVerbes: [],
     parametres: [],
     guideClaudeCode: { generer: false, motif: 'reseau (push) — exclu explicitement du Lot B ; deja couvert par /iaka-update (skill iakaframe-update) — chute si --no-push devient le defaut ET si /iaka-update est retire du kit' },

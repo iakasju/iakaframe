@@ -11,6 +11,12 @@
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+// Exception ASSUMEE au « zero dependance » ci-dessus (lot GitHub-vitrine-opt-in,
+// specs/instructions/update-remotes-github-opt-in.md § 2) : la SELECTION des cibles a besoin de
+// connaitre les hotes de forge connus (forgejo.js) et l'opt-in projet (frame-active.js, domicile
+// canonique de la conf projet). Deux imports, zero appel reseau ajoute par eux-memes.
+import { hotesForge } from './forgejo.js';
+import { parseJsonFile, PROJECT_CONF } from './frame-active.js';
 
 // Delai par cible, en secondes. Un checkpoint qui pend sur une forge morte est un checkpoint
 // qu'on desactive : la borne est ce qui rend le fan-out utilisable quand DEUX cibles sur trois
@@ -53,6 +59,143 @@ export function listerRemotes(cwd) {
   const r = gitBorne(cwd, ['remote'], { timeoutMs: 5000 });
   if (!r.ok) return [];
   return ordonnerRemotes(r.out.split(/\r?\n/).map(s => s.trim()));
+}
+
+// =================================================================================================
+// SELECTION DES CIBLES — GitHub (vitrine) en opt-in projet, jamais un effet de bord par defaut.
+// specs/instructions/update-remotes-github-opt-in.md § 1-4.
+//
+// PRINCIPE : l'ELIGIBILITE d'un remote se lit sur sa DESTINATION REELLE (ses URL de PUSH), jamais
+// sur son nom — un `origin` qui pointerait sur GitHub est hors forge, un `nas` renomme reste
+// forge (§ 1). Tout ce qui n'est ni un chemin local ni un hote de forge self-hosted CONNU
+// (`hotesForge()`) est HORS FORGE, par defaut (fail-safe, § 1).
+// =================================================================================================
+
+// Hote d'UNE url de remote. Rend { local: true } pour un chemin local (absolu/relatif, `file:`,
+// lettre de lecteur Windows), sinon { local: false, hote } (hostname MINUSCULES, credentials
+// JAMAIS conserves — `new URL().hostname` les exclut par construction). `hote` vide si l'URL est
+// illisible. PURE.
+export function hoteDeUrl(url) {
+  const u = String(url == null ? '' : url);
+  if (/^[A-Za-z]:[\\/]/.test(u)) return { local: true };                 // C:\... ou C:/...
+  if (/^[a-z][a-z0-9+.-]*:\/\//i.test(u)) {
+    try {
+      const parsed = new URL(u);
+      if (parsed.protocol === 'file:') return { local: true };
+      return { local: false, hote: parsed.hostname.toLowerCase() };
+    } catch { return { local: false, hote: '' }; }                       // URL illisible
+  }
+  const scp = u.match(/^(?:[^@/]+@)?([^:/]+):/);                         // forme scp git@hote:chemin
+  if (scp) return { local: false, hote: scp[1].toLowerCase() };
+  return { local: true };                                                // chemin local (absolu/relatif)
+}
+
+// Hote « principal » d'un remote a PLUSIEURS URL de push : le premier hote NON local rencontre
+// (sert a l'affichage ecartees/refusees/vitrines — un remote purement local n'a pas de hote a
+// nommer). PURE.
+function hotePrincipalDe(urls) {
+  for (const u of urls) {
+    const h = hoteDeUrl(u);
+    if (!h.local && h.hote) return h.hote;
+  }
+  return '';
+}
+
+// Classe UN remote a partir de TOUTES ses URL de push effectives : `forge` si chaque URL est
+// locale ou d'un hote CONNU (`hotes`, Set de hostnames minuscules), sinon `hors-forge`. Liste
+// vide (get-url en echec, remote sans URL de push) -> `hors-forge` (fail-safe, § 1). PURE.
+export function classerRemote(urls, hotes) {
+  if (!urls || urls.length === 0) return 'hors-forge';
+  return urls.every((u) => {
+    const h = hoteDeUrl(u);
+    return h.local || hotes.has(h.hote);
+  }) ? 'forge' : 'hors-forge';
+}
+
+// TOUTES les URL de PUSH effectives d'un remote (`--push --all`, applique `insteadOf`/
+// `pushInsteadOf`/`pushurl` — anti-contournement, § 1). Echec (remote absent, get-url en echec) ->
+// []. URL jamais affichees telles quelles par cette fonction (l'appelant ne les journalise pas).
+export function urlsDePush(cwd, nom) {
+  const r = gitBorne(cwd, ['remote', 'get-url', '--push', '--all', nom], { timeoutMs: 5000 });
+  if (!r.ok) return [];
+  return r.out.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+}
+
+// Opt-in du projet : noms de remotes admissibles a la PUBLICATION (classe `vitrine`), lus dans
+// `<projet>/iakaframe.json` cle `pushOptInRemotes` (domicile canonique de la conf projet, § 3).
+// Valeur absente / non tableau / entrees non-chaines -> opt-in vide. Jamais de jet
+// (`parseJsonFile` est deja defensif). Le pointeur legacy `.iakaframe` n'est PAS lu ici.
+export function lireOptIn(root) {
+  const cfg = parseJsonFile(path.join(root, PROJECT_CONF));
+  const raw = cfg.pushOptInRemotes;
+  if (!Array.isArray(raw)) return [];
+  return raw.filter((v) => typeof v === 'string' && v !== '');
+}
+
+// Repartit les remotes CONFIGURES en trois classes (§ 2), selon `demandes` :
+//   - `demandes` null/absent = mode DEFAUT (fan-out `update`/`onboard`/`canaux`) :
+//       forge -> retenu ; hors-forge + optIn -> vitrine (jamais poussee ici) ;
+//       hors-forge sans optIn -> ecartee `hors-forge-sans-opt-in`.
+//   - `demandes` = tableau explicite (`--remotes a,b,c`, § 4), dans l'ordre demande, dedoublonne :
+//       non configure -> refusee `remote-non-configure` ; forge -> retenu ;
+//       vitrine -> refusee `vitrine-via-publier` ; hors-forge sans optIn -> refusee
+//       `hors-forge-sans-opt-in`.
+// `vitrines` est calculee dans les DEUX modes (utile a `canaux` et a la ligne § 6, meme en mode
+// explicite). `classes` = { [nom]: { classe: 'forge'|'hors-forge', hote } }. PURE.
+export function selectionnerCibles({ configures, classes, optIn, demandes }) {
+  const optInSet = new Set(optIn || []);
+  const infoDe = (nom) => classes[nom] || { classe: 'hors-forge', hote: '' };
+
+  const vitrines = configures
+    .filter((nom) => infoDe(nom).classe === 'hors-forge' && optInSet.has(nom))
+    .map((nom) => ({ nom, hote: infoDe(nom).hote || '' }));
+
+  const retenues = [];
+  const ecartees = [];
+  const refusees = [];
+
+  if (!demandes) {
+    for (const nom of configures) {
+      const info = infoDe(nom);
+      if (info.classe === 'forge') { retenues.push(nom); continue; }
+      if (optInSet.has(nom)) continue;   // deja compte dans `vitrines`, jamais ecarte
+      ecartees.push({ nom, hote: info.hote || '', motif: 'hors-forge-sans-opt-in' });
+    }
+  } else {
+    for (const nom of [...new Set(demandes)]) {
+      if (!configures.includes(nom)) { refusees.push({ nom, hote: '', motif: 'remote-non-configure' }); continue; }
+      const info = infoDe(nom);
+      if (info.classe === 'forge') { retenues.push(nom); continue; }
+      if (optInSet.has(nom)) { refusees.push({ nom, hote: info.hote || '', motif: 'vitrine-via-publier' }); continue; }
+      refusees.push({ nom, hote: info.hote || '', motif: 'hors-forge-sans-opt-in' });
+    }
+  }
+
+  return { retenues, vitrines, ecartees, refusees };
+}
+
+// Assemble les fonctions pures ci-dessus a partir d'un depot REEL : liste les remotes configures,
+// classe chacun sur ses URL de push effectives, lit l'opt-in projet, puis selectionne. IMPURE
+// (git + lecture disque), c'est le SEUL point d'entree impur de cette section.
+export function resoudreCibles(root, demandes) {
+  const configures = listerRemotes(root);
+  const hotes = hotesForge();
+  const optIn = lireOptIn(root);
+  const classes = {};
+  for (const nom of configures) {
+    const urls = urlsDePush(root, nom);
+    classes[nom] = { classe: classerRemote(urls, hotes), hote: hotePrincipalDe(urls) };
+  }
+  return selectionnerCibles({ configures, classes, optIn, demandes });
+}
+
+// Rendu humain des remotes NON retenus (ecartees + refusees) — une ligne par remote, AUCUNE URL,
+// AUCUN token. PURE.
+export function formaterEcarts({ ecartees, refusees }) {
+  const lignes = [];
+  for (const e of ecartees || []) lignes.push(`  i ${e.nom} ignore (hors forge self-hosted, hote ${e.hote || 'inconnu'})`);
+  for (const r of refusees || []) lignes.push(`  ! ${r.nom} REFUSE : ${r.motif} (hote ${r.hote || 'inconnu'})`);
+  return lignes;
 }
 
 // Classe l'echec d'un geste reseau git. On NOMME le motif au lieu de deverser une stack : c'est

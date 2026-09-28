@@ -12,7 +12,7 @@ import { HARDWIRED_DEFAULT_FRAME, PORTFOLIO_MARKER, frameVersionOf, parseKeyValu
 import { hasCmd } from '../lib/which.js';
 import { runInit, resolveNode } from './init.js';
 import { doSnapshot } from './snapshot.js';
-import { listerRemotes, pousserFanout, formaterFanout } from '../lib/canaux.js';
+import { resoudreCibles, formaterEcarts, pousserFanout, formaterFanout } from '../lib/canaux.js';
 import { peutDemander, askYesNo } from '../lib/interactif.js';
 
 const USAGE = `Usage : iakaframe onboard [options]
@@ -33,7 +33,9 @@ Options :
   --init-projects    (umbrella) Amorce les projets non onboardes du chapeau
   --home <dir>       Canon de cadence propage au snapshot
   --autoriser-creation-depot  Autorise la creation de depot a la bascule depuis update
-  (--target = alias deprecie de --node)`;
+  (--target = alias deprecie de --node)
+
+Le push ne vise que les remotes des forges self-hosted (GitHub/vitrine : jamais a l onboarding).`;
 
 // askYesNo : EXTRAIT dans lib/interactif.js (G3b, source unique du prompt de confirmation —
 // reutilisee par `install`, AR-4). Import ci-dessus, comportement inchange.
@@ -165,10 +167,15 @@ export async function runOnboard(argv) {
   console.log('\n[5/5] Push');
   if (values['no-push'] || values['skip-forgejo'] || refuseCreation) { console.log('  push ignore.'); }
   else {
-    const remotes = listerRemotes(root);
-    if (!remotes.length) console.log('  aucun remote configure : push ignore.');
+    // SELECTION (§ 5, update-remotes-github-opt-in.md) : `onboard` ne pousse QUE les remotes
+    // `forge` (self-hosted/locaux) ; il n'a pas de `--publier`. Une vitrine opt-in eventuelle est
+    // seulement SIGNALEE (jamais ecrite a l'onboarding, § 5 etape 5).
+    const selection = resoudreCibles(root, null);
+    for (const l of formaterEcarts(selection)) console.log(l);
+    for (const v of selection.vitrines) console.log(`  i ${v.nom} ignore (vitrine : publication via iakaframe update --publier)`);
+    if (!selection.retenues.length) console.log('  aucun remote eligible (forge self-hosted) : push ignore.');
     else {
-      const res = pousserFanout(root, 'main', remotes, { amont: 'origin' });
+      const res = pousserFanout(root, 'main', selection.retenues, { amont: 'origin' });
       for (const l of formaterFanout(res, 'main')) console.log(l);
     }
   }

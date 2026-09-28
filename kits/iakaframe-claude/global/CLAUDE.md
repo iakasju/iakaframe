@@ -89,6 +89,11 @@ SSH inutilisable) reste un **miroir secondaire** quand le LAN est joignable ; on
 réaligne par `git push iakabox main --tags`. Même statut pour le
 **Forgejo du NAS** (`http://192.168.1.139:3001`, remote `nas`) : `git push nas main --tags`. Détails et usage : `C:\work\iakaframe\iakabox-usage.html`.
 
+**GitHub est hors méthode** (self-hosted d'abord) : le CLI ne pousse jamais dessus par
+défaut, même configuré comme remote. Un dépôt peut en faire sa **vitrine** publique via un
+opt-in (`iakaframe.json` → `pushOptInRemotes`) ; la seule écriture possible reste alors
+`iakaframe update --publier <vX.Y.Z>`, publiée avec l'accord du décideur au terminal.
+
 ## Cycle de documentation (état des lieux)
 
 Régénérer l'état des lieux (MD + HTML) **à chaque changement de version** ET **à chaque
