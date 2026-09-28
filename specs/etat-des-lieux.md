@@ -1,6 +1,6 @@
 # Etat des lieux - iakaframe
 
-> Genere par iakaframe (CLI) le 2026-09-28 14:20 (motif: pause).
+> Genere par iakaframe (CLI) le 2026-09-28 21:54 (motif: pause).
 > A regenerer a chaque changement de version et a chaque pause/reprise.
 
 ## Etat courant
@@ -9,25 +9,25 @@
 |---|---|
 | Version | v0.41.0 |
 | Branche | main |
-| Dernier commit | b139230 docs(specs): synchro multi-depots revisee a 60d3347 (audit EOL GUI, lot E0, G1-1a, Q-S6) |
+| Dernier commit | d82364a chore(goldens): regenere manifeste skills et vitrine apres merge origin/main |
 | Arbre | MODIFICATIONS NON COMMITEES |
-| Fichiers (suivis + non ignores) | 1301 |
-| Note | Recit de reprise complete (Aragorn). |
+| Fichiers (suivis + non ignores) | 1305 |
+| Note | Synchro validee, Lot E0 PASS, merge origin/main + goldens, pousse. Suite : G1 dans iakaframegui puis deploiement ~/.claude. |
 
 ## Commits recents
 
 | Hash | Date | Sujet |
 |---|---|---|
+| `d82364a` | 2026-09-28 | chore(goldens): regenere manifeste skills et vitrine apres merge origin/main |
+| `df1971f` | 2026-09-28 | chore: merge origin/main (vitrine/forge opt-in, session parallele) avant push des chantiers |
+| `4c3e110` | 2026-09-28 | fix(vendor-check): comparaison insensible aux fins de ligne |
+| `711bac6` | 2026-09-28 | docs(specs): synchro multi-depots validee (Q-S1..Q-S6 = recommandations) + successeurs au BACKLOG |
+| `97dd9ca` | 2026-09-28 | chore(iakaframe): etat des lieux (pause) chantiers declaration-chantier-session + prise-de-parole bouclés cote code |
 | `b139230` | 2026-09-28 | docs(specs): synchro multi-depots revisee a 60d3347 (audit EOL GUI, lot E0, G1-1a, Q-S6) |
 | `60d3347` | 2026-09-28 | fix(tests): pin eol=lf sur les sources SKILL.md/personas embarquees verbatim dans la vitrine |
 | `6294105` | 2026-09-28 | chore(goldens): regenere odin, manifest skills et vitrine (correctifs gate Legolas) |
 | `2d45f56` | 2026-09-28 | docs(methode): corrige le badge de cloture dans l'exemple chaine de delegation visible |
 | `ffdd5af` | 2026-09-28 | docs(contracts): ligne Chantier: <repo> dans l'ordre de mission du lancement de session (odin) |
-| `c0ccf01` | 2026-09-28 | fix(tests): reproductibilite CRLF des goldens compares octet-pour-octet (gate Legolas Lot 6/P3) |
-| `ac3092b` | 2026-09-28 | docs(specs): releve d'impact synchro multi-depots (propose, Q-S1..Q-S5 ouvertes) |
-| `fa8685e` | 2026-09-28 | chore(goldens): regenere agents-golden, skills-golden et vitrine methode (Lot 6 + Lot P3) |
-| `52f25c0` | 2026-09-28 | docs(kit-claude): chantier declare et voix par lieu dans le kit global |
-| `a18a61b` | 2026-09-28 | docs(methode): qui parle - le lieu designe la voix, chaine de delegation visible, chantier declare |
 
 ## Reprise du travail (a completer par Cowork)
 
@@ -60,7 +60,15 @@
   `iaka-agents-publish.mjs` n'est pas dans l'exemple), reporter `kits/iakaframe-claude/global/CLAUDE.md`
   dans `~/.claude/CLAUDE.md`, `agents --action generate --global` + `skills deploy --global` (`--check`),
   puis recette dans naonedge (CA-29..33, CA-42, CA-P11..P15).
-- **Prochaine etape concrete** : selon les reponses Q-S* → Lot E0 (iakaframe) puis G1 dans `iakaframegui`
+- **Mise a jour 2026-09-28 (fin de session)** : synchro multi-depots **validee** (Q-S1..Q-S6 =
+  recommandations, `711bac6`, successeurs `SUCC-GUI-HOOKS-EMBARQUES` / `SUCC-INIT-SANS-GLOBAL` au
+  BACKLOG). **Lot E0 fait** (`4c3e110`, PASS Legolas) : `vendor-check` insensible aux fins de ligne ;
+  ecarts GUI mesures **42 → 10 `copy` + 1 `run`** (32 faux positifs EOL). Merge de `origin/main`
+  (session parallele vitrine/forge opt-in, `df1971f`) + goldens regeneres (`d82364a`), gate PASS, **pousse
+  sur Forgejo**. Reference clone frais : 1558 tests / 82 fail (tous preexistants). Ordre de mission G1
+  copie dans `C:\work\iakaframegui\.claude\missions\mission-aragorn-gui-g1.md` (**non suivi** dans la GUI :
+  a versionner ou ignorer par la session GUI).
+- **Prochaine etape concrete** : G1 dans `iakaframegui` (E0 fait)
   (session Aragorn **de ce depot** ; re-vendorisation atomique, 19 gestes `[copy]` dont 8 imputables aux
   chantiers ; G1 AVANT le deploiement, sinon le nouveau garde refusera la copie `CHANTIER_MISMATCH`). Apres
   deploiement : verifications C1 (Cockpit : filtre royaume en MAJUSCULE, `maincourante.rs:262-263`) et A1.
@@ -266,6 +274,7 @@ d'avant**, remede verifie.
 
 | Date | Motif | Version | Branche | Note |
 |---|---|---|---|---|
+| 2026-09-28 21:54 | pause | v0.41.0 | main | Synchro validee, Lot E0 PASS, merge origin/main + goldens, pousse. Suite : G1 dans iakaframegui puis deploiement ~/.claude. |
 | 2026-09-28 14:20 | pause | v0.41.0 | main | Chantiers declaration-chantier-session (Lots 0-6, 1bis, 1ter) et prise-de-parole-odin-aragorn (P0-P3, P-9) : code livre et gate PASS Legolas. Reste : Lot 7/P4 (deploiement humain ~/.claude + recette), synchro multi-depots (a valider, Q-S1..Q-S6). |
 | 2026-09-28 14:20 | pause | v0.41.0 | main | Recit de reprise complete (Aragorn). |
 | 2026-09-27 21:36 | pause | v0.41.0 | main | Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire). |

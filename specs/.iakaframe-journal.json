@@ -1128,5 +1128,15 @@
     "dirty": true,
     "files": 1301,
     "note": "Recit de reprise complete (Aragorn)."
+  },
+  {
+    "date": "2026-09-28 21:54",
+    "reason": "pause",
+    "version": "v0.41.0",
+    "branch": "main",
+    "commit": "d82364a chore(goldens): regenere manifeste skills et vitrine apres merge origin/main",
+    "dirty": true,
+    "files": 1305,
+    "note": "Synchro validee, Lot E0 PASS, merge origin/main + goldens, pousse. Suite : G1 dans iakaframegui puis deploiement ~/.claude."
   }
 ]

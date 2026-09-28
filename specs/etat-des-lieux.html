@@ -24,29 +24,30 @@ code{font-family:'SF Mono',Consolas,monospace;background:rgba(200,164,78,.1);col
 footer{margin-top:3rem;padding-top:1.2rem;border-top:1px solid #1f1f1f;color:#555;font-size:.78rem;}
 </style></head><body>
 <h1>Etat des lieux - <span class="accent">iakaframe</span></h1>
-<div class="sub">Genere le 2026-09-28 14:20 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
+<div class="sub">Genere le 2026-09-28 21:54 - motif : pause - a regenerer a chaque version et a chaque pause/reprise.</div>
 <h2>Etat courant</h2>
 <div class="kv">
   <div class="k">Version</div><div>v0.41.0</div>
   <div class="k">Branche</div><div>main</div>
-  <div class="k">Dernier commit</div><div><code>b139230 docs(specs): synchro multi-depots revisee a 60d3347 (audit EOL GUI, lot E0, G1-1a, Q-S6)</code></div>
+  <div class="k">Dernier commit</div><div><code>d82364a chore(goldens): regenere manifeste skills et vitrine apres merge origin/main</code></div>
   <div class="k">Arbre</div><div><span class='bad'>modifications non commitees</span></div>
-  <div class="k">Fichiers</div><div>1301 (suivis + non ignores)</div>
-  <div class='k'>Note</div><div>Recit de reprise complete (Aragorn).</div>
+  <div class="k">Fichiers</div><div>1305 (suivis + non ignores)</div>
+  <div class='k'>Note</div><div>Synchro validee, Lot E0 PASS, merge origin/main + goldens, pousse. Suite : G1 dans iakaframegui puis deploiement ~/.claude.</div>
 </div>
-<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>b139230</code></td><td>2026-09-28</td><td>docs(specs): synchro multi-depots revisee a 60d3347 (audit EOL GUI, lot E0, G1-1a, Q-S6)</td></tr>
+<h2>Commits recents</h2><table><tr><th>Hash</th><th>Date</th><th>Sujet</th></tr><tr><td><code>d82364a</code></td><td>2026-09-28</td><td>chore(goldens): regenere manifeste skills et vitrine apres merge origin/main</td></tr>
+<tr><td><code>df1971f</code></td><td>2026-09-28</td><td>chore: merge origin/main (vitrine/forge opt-in, session parallele) avant push des chantiers</td></tr>
+<tr><td><code>4c3e110</code></td><td>2026-09-28</td><td>fix(vendor-check): comparaison insensible aux fins de ligne</td></tr>
+<tr><td><code>711bac6</code></td><td>2026-09-28</td><td>docs(specs): synchro multi-depots validee (Q-S1..Q-S6 = recommandations) + successeurs au BACKLOG</td></tr>
+<tr><td><code>97dd9ca</code></td><td>2026-09-28</td><td>chore(iakaframe): etat des lieux (pause) chantiers declaration-chantier-session + prise-de-parole bouclés cote code</td></tr>
+<tr><td><code>b139230</code></td><td>2026-09-28</td><td>docs(specs): synchro multi-depots revisee a 60d3347 (audit EOL GUI, lot E0, G1-1a, Q-S6)</td></tr>
 <tr><td><code>60d3347</code></td><td>2026-09-28</td><td>fix(tests): pin eol=lf sur les sources SKILL.md/personas embarquees verbatim dans la vitrine</td></tr>
 <tr><td><code>6294105</code></td><td>2026-09-28</td><td>chore(goldens): regenere odin, manifest skills et vitrine (correctifs gate Legolas)</td></tr>
 <tr><td><code>2d45f56</code></td><td>2026-09-28</td><td>docs(methode): corrige le badge de cloture dans l'exemple chaine de delegation visible</td></tr>
 <tr><td><code>ffdd5af</code></td><td>2026-09-28</td><td>docs(contracts): ligne Chantier: &lt;repo&gt; dans l'ordre de mission du lancement de session (odin)</td></tr>
-<tr><td><code>c0ccf01</code></td><td>2026-09-28</td><td>fix(tests): reproductibilite CRLF des goldens compares octet-pour-octet (gate Legolas Lot 6/P3)</td></tr>
-<tr><td><code>ac3092b</code></td><td>2026-09-28</td><td>docs(specs): releve d'impact synchro multi-depots (propose, Q-S1..Q-S5 ouvertes)</td></tr>
-<tr><td><code>fa8685e</code></td><td>2026-09-28</td><td>chore(goldens): regenere agents-golden, skills-golden et vitrine methode (Lot 6 + Lot P3)</td></tr>
-<tr><td><code>52f25c0</code></td><td>2026-09-28</td><td>docs(kit-claude): chantier declare et voix par lieu dans le kit global</td></tr>
-<tr><td><code>a18a61b</code></td><td>2026-09-28</td><td>docs(methode): qui parle - le lieu designe la voix, chaine de delegation visible, chantier declare</td></tr>
 </table>
 <h2>Journal (versions &amp; pauses)</h2>
 <table><tr><th>Date</th><th>Motif</th><th>Version</th><th>Branche</th><th>Note</th></tr>
+<tr><td>2026-09-28 21:54</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>Synchro validee, Lot E0 PASS, merge origin/main + goldens, pousse. Suite : G1 dans iakaframegui puis deploiement ~/.claude.</td></tr>
 <tr><td>2026-09-28 14:20</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>Chantiers declaration-chantier-session (Lots 0-6, 1bis, 1ter) et prise-de-parole-odin-aragorn (P0-P3, P-9) : code livre et gate PASS Legolas. Reste : Lot 7/P4 (deploiement humain ~/.claude + recette), synchro multi-depots (a valider, Q-S1..Q-S6).</td></tr>
 <tr><td>2026-09-28 14:20</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>Recit de reprise complete (Aragorn).</td></tr>
 <tr><td>2026-09-27 21:36</td><td><span class='r r-pause'>pause</span></td><td>v0.41.0</td><td>main</td><td>Pause : Lot 1bis commite (28c4723), gate Legolas PASS (129 fail vs baseline 130, 0 regression). Prochaine etape : Lot 2 (chantier-state) par Gimli a la reprise. Fichiers herites non suivis conserves (chantier-bind a ecarter, guard-chantier.test a refaire).</td></tr>
