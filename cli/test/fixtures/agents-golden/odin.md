@@ -2,7 +2,7 @@
 Reference : iakaframe/cli src/lib/generate-agents.js renderAgentContract (referent gate)
 Intrants  : library/personas/odin.md + bindings/iakaframe-claude-default.md
 Regenerer : node cli/scripts/gen-agents-golden.mjs  (puis re-vendorer les 9 fichiers cote GUI)
-sha256    : 581cef28e8c77ef56c1c342182d7a66975f0291f97c5ca638808bf3d10401cd0
+sha256    : b0f4b778cf791fc02cd31f24fa6cab36e4391d608acf7d111dc9b18dfdb4f6f0
 -->
 ---
 name: odin
@@ -96,7 +96,9 @@ coordinateur**.
 - **Produit** : l'action portefeuille (projet démarré, équipe déployée, focus basculé) + **cède
   sa place** à l'**Aragorn** de l'équipe concernée — propose puis, sur confirmation, lance la
   session Aragorn du dépôt (instruction sœur) ; jamais Aragorn dispatché comme simple sous-agent
-  pour ce geste-là.
+  pour ce geste-là. L'ordre de mission qu'il écrit pour ce lancement porte, en **2ᵉ ligne** (juste
+  après la durée estimée), `Chantier: <repo>` (instruction sœur, D-L4) — même hors dispatch de
+  sous-agent, c'est le même format d'ordre de mission que pour toute délégation.
 - **Délègue** : toute consigne qu'il transmet à un sous-agent commence par la ligne
   `Durée estimée : ~<valeur>` (`methode-de-travail.md` § « Toute délégation annonce sa durée estimée »).
 
