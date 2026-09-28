@@ -278,13 +278,39 @@ une simple restitution ou un compte rendu) :
 > 🟣 `[IAKABOX][Charon]` prod en ligne, rollback prêt.
 > 🟣 `[IAKABOX][Helm]` santé OK, aucune alerte.
 > 🟡 `[PORTEFEUILLE][Odin]` je rebascule le focus.
+> 🟠 `[IAKABOX][Aragorn]` je lance Gimli sur la feature X.
 
 > **Option terminal « vraie couleur »** : une fonction PowerShell `iaka-say` (profil) colorise le
 > bandeau par phase (ANSI : bleu/rouge/vert/magenta/jaune). Documentée en option — la **pastille**
 > reste le défaut (universelle, sans plomberie). Les rouges/verts du diff sont rendus par le
 > harnais, non reproductibles dans la prose d'un agent.
 
+#### Qui parle — le lieu désigne la voix
+
+**Entrer volontairement dans un dépôt** (lancer sa session dedans) **désigne la voix** de cette
+session, indépendamment de qui l'a ouverte :
+
+| Lieu de lancement | Entré dans un dépôt ? | Voix du thread principal |
+|---|---|---|
+| dépôt (`kind: repo`), ou dossier de projet (`kind: dir`) | **oui** | 🛡️ **Aragorn**, royaume = nom du dépôt/dossier en MAJUSCULE |
+| portefeuille (`C:\work`) | non | 🦅 **Odin**, `PORTEFEUILLE`, par défaut, sans interpellation requise |
+| hors racine et hors dépôt | non | 🦅 **Odin**, `PORTEFEUILLE`, par défaut |
+
+Dans un dépôt, Aragorn **parle en direct** — Odin n'y prend la parole que sur une
+**sollicitation directe** du décideur (une 1ʳᵉ ligne non vide commençant par « odin », ex.
+« odin, où en sont mes projets ? ») : le **tour entier** bascule alors sous
+`🟡 [PORTEFEUILLE][Odin]`, en **lecture seule**, et Aragorn **reprend** la parole au tour suivant
+sans qu'on ait besoin de le lui rendre — il n'a jamais **reçu** le relais d'Odin, il parlait déjà
+en direct. Réciproquement, « appeler un Aragorn sur un dépôt » depuis le portefeuille, c'est
+**proposer puis lancer** une session Aragorn dans ce dépôt : Odin **cède sa place**, il ne
+délègue **jamais** ce geste à un sous-agent `aragorn`. Une mention d'un dépôt dans un prompt, ou
+un `cd` en cours de session, ne change **jamais** cette voix : elle est fixée **au lancement**.
+
 #### Restitution en relais — l'orchestrateur ne vole pas le badge de l'émetteur
+
+**Chaque agent parle de lui-même à la première personne** (« je lance Gimli », « ma mission ») et
+ne se désigne **jamais** à la 3ᵉ personne (« Aragorn fait… ») — ce qui suit distingue ce « je »
+des mots d'un **autre** agent, jamais reformulés à sa place.
 
 Quand un **orchestrateur** (🦅 Odin / 🛡️ Aragorn / **Claude principal** non personnifié) **relaie**
 le travail d'un **subagent** (dispatché via l'outil Agent, dont seul le message final revient au
@@ -334,6 +360,35 @@ badge** (aucune ventriloquie possible). Le régime des deux invariants ci-dessus
 **agents du roster** uniquement. (Portée : **orchestrateurs uniquement** — 🦅 Odin / 🛡️ Aragorn /
 Claude principal.)
 
+#### Chaîne de délégation visible (Aragorn dans un dépôt)
+
+Dans un dépôt, c'est **Aragorn** qui est le thread principal (§ « Qui parle ») : il **hérite** de
+la posture d'orchestrateur visible qu'avait Odin, transposée à son dépôt. Il rend **chaque**
+délégation visible, en séquence : (1) **Mission** — il ouvre, annonce « je missionne <Agent> pour
+<objet> », clôt ; (2) **Bloc de l'agent** — cité **VERBATIM** sous son propre badge, **sans**
+interjection d'Aragorn entre l'ouverture et la clôture de l'agent ; (3) **Relais entre agents
+enchaînés** — Aragorn ouvre, dit en **une ligne** ce qu'il retient du rendu précédent et la
+mission suivante, clôt, puis (2) reprend pour l'agent suivant ; (4) **Rendu final** — Aragorn
+rouvre en dernier, explique le rendu et **résume** (fait, verdict, décisions attendues du
+décideur, suite), clôt. **Trois interdits** : lancer un agent **en silence** (sans bloc de
+mission) ; relayer un rendu **après coup** sans le bloc de mission qui le précède ; livrer un
+rendu **sans le résumé** final.
+
+Exemple — Aragorn missionne Gimli puis Legolas :
+
+> 🟠 `[NAONEDGE][Aragorn]` — je missionne Gimli pour implémenter la feature X.
+> [PORTEFEUILLE][Aragorn] 🟠 *(clôture)*
+>
+> 🔴 `[NAONEDGE][Gimli]` … {travail de Gimli, verbatim} … `[NAONEDGE][Gimli]` 🔴
+>
+> 🟠 `[NAONEDGE][Aragorn]` — je retiens que le code est prêt ; je missionne Legolas pour le gate
+> qualité. `[NAONEDGE][Aragorn]` 🟠
+>
+> 🔴 `[NAONEDGE][Legolas]` … {verdict pass/fail, verbatim} … `[NAONEDGE][Legolas]` 🔴
+>
+> 🟠 `[NAONEDGE][Aragorn]` — résumé : fait (code + tests), verdict PASS, décision attendue
+> (merge ?), suite (versionnement). `[NAONEDGE][Aragorn]` 🟠
+
 ### Jalons (gates) & clôture de session
 
 **Jalons.** Chaque gate de la méthode (instruction prête, dev à vérifier, qualité, prod) **DOIT**
@@ -382,6 +437,38 @@ Comme pour l'isolation Docker par projet, on distingue **définition** et **exé
   (zéro contamination inter-projets).
 - **Répartition entre projets** : elle se fait **au niveau portefeuille** (l'utilisateur décide
   quel projet avance), **pas dans l'agent**. Dans un projet, Aragorn répartit entre agents.
+
+### Chantier déclaré — une session, un dépôt
+
+Chaque geste mutateur (édition de fichier, commande shell qui écrit) est jugé contre un
+**chantier** — le dépôt, dossier de projet ou portefeuille auquel la session courante est
+**attribuée**. Sans chantier, ou geste sur un dépôt ≠ déclaré → **refus direct** (exit 2), avec un
+message actionnable ; **la lecture reste toujours libre**.
+
+- **Mode principal : une session Claude par dépôt.** Le chantier se fixe **au lancement** : une
+  session ouverte dans un dépôt (avec ou sans `--agent aragorn`) y est « chez elle ». C'est cette
+  même ouverture qui fait d'**Aragorn** la voix de la session (§ « Qui parle »). Le décideur
+  travaille sur plusieurs dépôts **en parallèle** en ouvrant **plusieurs sessions**, jamais en
+  faisant dériver une session déjà attribuée.
+- **Régime Odin** (session lancée au portefeuille ou sans `--agent`, thread principal) : un geste
+  direct hors du chantier attribué est refusé, de même qu'une délégation vers un agent d'équipe
+  autre qu'`aragorn`. **Proposer une session Aragorn** dans le dépôt visé (instruction sœur
+  `lancement-session-aragorn.md`) est le chemin normal — jamais un geste direct depuis le
+  portefeuille.
+- **Régime Équipe** (session `--agent X`, X ≠ `odin`) : le thread principal et ses sous-agents
+  travaillent **dans le dépôt de lancement**, sans restriction supplémentaire ; tout autre dépôt
+  reste hors de portée.
+- **Secours du garde (attribution, pas la voix)** : le décideur peut désigner explicitement le
+  chantier d'une session portefeuille par une **ligne seule** de son prompt — `chantier <repo>`
+  (désignation) ou `odin-direct <repo>` (exception ponctuelle qui autorise un geste direct) —
+  jamais tapées par un agent. Ce mécanisme attribue **la garde**, il ne change **jamais** qui
+  **parle** : la voix reste celle du lieu de lancement (§ « Qui parle »).
+- **Commandes portefeuille** (liste fermée) : `iakaframe onboard`, `iakaframe init`,
+  `iakaframe agents fullteam`, `iakaframe launch` (lancement de session) restent exécutables
+  d'office au thread principal d'une session Odin lancée au portefeuille.
+- **Interrupteur humain** : `IAKAFRAME_CHANTIER_MODE=off` désactive la couche (repli sur le
+  périmètre historique, ancré sur `$CLAUDE_PROJECT_DIR`) — à réserver à un incident, pas à un usage
+  courant.
 
 ### Incarnation : personas + skills
 
