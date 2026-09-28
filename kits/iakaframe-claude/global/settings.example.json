@@ -20,6 +20,11 @@
         "hooks": [
           { "type": "command", "command": "node ~/.claude/hooks/identity-remind.mjs" }
         ]
+      },
+      {
+        "hooks": [
+          { "type": "command", "command": "node ~/.claude/hooks/chantier-remind.mjs" }
+        ]
       }
     ],
     "PreToolUse": [
@@ -30,7 +35,7 @@
         ]
       },
       {
-        "matcher": "Edit|Write|Bash|NotebookEdit",
+        "matcher": "Edit|Write|Bash|NotebookEdit|PowerShell",
         "hooks": [
           { "type": "command", "command": "node ~/.claude/hooks/perimeter-guard.mjs" }
         ]
