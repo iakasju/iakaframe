@@ -1,9 +1,12 @@
 # Synchronisation multi-dépôts après les chantiers `declaration-chantier-session` et `prise-de-parole-odin-aragorn`
 
-> **Statut : proposé, à valider par Stéphane.** Cadrage 🔵 Gandalf du 2026-09-28, depuis
-> `C:\work\iakaframe`. Relevé initial à HEAD `fa8685e` (commit `ac3092b`), **révisé à HEAD `60d3347`**
-> après les correctifs du gate Legolas Lot 6 + P3 (`c0ccf01..60d3347`) : § 1.1 bis (fichiers
-> vendorisés retouchés), § 1.8 (fins de ligne), Lot E0, étape G1-1a, Q-S6, estimation.
+> **Statut : validé le 2026-09-28 par Stéphane (toutes recommandations Q-S1..Q-S6).** Cadrage
+> 🔵 Gandalf du 2026-09-28, depuis `C:\work\iakaframe`. Relevé initial à HEAD `fa8685e` (commit
+> `ac3092b`), **révisé à HEAD `60d3347`** (commit `b139230`) après les correctifs du gate Legolas
+> Lot 6 + P3 (`c0ccf01..60d3347`) : § 1.1 bis (fichiers vendorisés retouchés), § 1.8 (fins de ligne),
+> Lot E0, étape G1-1a, Q-S6, estimation. **Arbitrages fermés** en § Décisions d'arbitrage (D-Q1 à
+> D-Q6) ; successeurs nommés en § Successeurs. Accord explicite du décideur donné pour le Lot E0
+> (changement de code iakaframe hors du périmètre initial).
 > Relevé fait **en lecture seule** sur les autres dépôts :
 > rien n'y a été écrit. Chaque lot par dépôt s'exécute **dans une session Aragorn de ce dépôt**
 > (règle « une session = un dépôt »). Le Lot 7 / Lot P4 reste un **geste humain**.
@@ -247,48 +250,53 @@ de ligne** (§ 1.8). Sans cela, G1 ne peut pas atteindre un verdict propre qui a
 
 Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de travail inutile.
 
-## Décision retenue (proposée, à arbitrer)
+## Décision retenue (validée le 2026-09-28)
 
 - **D-S1** — Un lot **par dépôt**, exécuté par la session Aragorn **de ce dépôt**. Aucun lot n'écrit
   dans un autre dépôt que le sien. Tout besoin de modifier le canon (golden périmé, générateur) **remonte**
   à une session iakaframe.
-- **D-S2** — Ordre recommandé (justifié en § Risques et Q-S3) :
+- **D-S2** — Ordre retenu (D-Q3, D-Q6) :
   **(0)** gate Legolas iakaframe PASS et commit (fait : `60d3347`) → **(0 bis)** Lot **E0** iakaframe
-  (EOL, selon l'arbitrage Q-S6) → **(1)** `iakaframegui` G1 (re-vendorisation) →
+  (EOL, D-Q6) → **(1)** `iakaframegui` G1 (EOL G1-1a puis re-vendorisation) →
   **(2)** Lot 7 / P4 humain, hooks et contrats **dans la même séance**, sans session active → **(3)**
   recette (dans `naonedge`) → **(4)** `iakacockpit` C1 et `iakaagentsmonitor` A1 (vérifications
-  runtime) → **(5)** successeurs cadrés à part (Q-S1, Q-S2).
+  runtime) → **(5)** successeurs cadrés à part (`SUCC-GUI-HOOKS-EMBARQUES`, `SUCC-INIT-SANS-GLOBAL`,
+  § Successeurs).
 - **D-S3** — La re-vendorisation GUI est **atomique** (un seul commit) : personas, goldens et skills
   vont ensemble (couplage de `parite-generateurs.test.ts`).
-- **D-S4** — Les copies `global/` des projets **ne sont pas** rafraîchies dans ce lot (Q-S2). Les
-  hooks embarqués de la GUI **ne sont pas** re-vendorés dans ce lot (Q-S1).
+- **D-S4** — Les copies `global/` des projets **ne sont pas** touchées dans ce lot (D-Q2). Les
+  hooks embarqués de la GUI **ne sont pas** re-vendorés dans ce lot : la dette est déclarée (D-Q1).
 - **D-S5** — Aucune ré-exécution d'`iakaframe init --force` dans un projet existant : elle écraserait
   le `CLAUDE.md` projet (`init.js:54-60`).
-- **D-S6** (proposée, Q-S6) — Les fins de ligne se traitent **des deux côtés** : (1) dans iakaframe, un
-  lot **E0** qui rend `checkVendor` et `stripHeader` insensibles au CRLF, **avant** G1 ; (2) dans la GUI,
+- **D-S6** (D-Q6) — Les fins de ligne se traitent **des deux côtés** : (1) dans iakaframe, un
+  lot **E0** qui rend `checkVendor` insensible au CRLF (lecture normalisée ; `stripHeader` reçoit
+  alors du LF, sans être modifié), **avant** G1 ; (2) dans la GUI,
   un `.gitattributes` qui épingle `eol=lf` sur les fixtures vendorisées, posé **dans G1** (étape 1a).
 
 ## Périmètre
 
 - **Inclus** :
-  - E0 (iakaframe, **sous réserve de l'arbitrage Q-S6**) : normalisation EOL dans
+  - E0 (iakaframe, **retenu par D-Q6**, accord explicite du décideur) : normalisation EOL dans
     `cli/src/lib/vendor.js` et test CRLF ; ré-extraction des 3 fichiers épinglés restés en CRLF (§ 1.8) ;
   - G1 : `.gitattributes` GUI (`eol=lf` sur les fixtures) et ré-extraction des fixtures ;
   - G1 : re-vendorisation des fixtures de `iakaframegui` jusqu'à `vendor-check` propre, plus une
-    entrée de backlog GUI qui déclare la dette « hooks embarqués » ;
+    entrée de backlog GUI qui déclare la dette « hooks embarqués » (D-Q1) ;
   - Lot 7 / P4 : liste de gestes humains ordonnée et vérifiable (§ Étapes) ;
   - C1 et A1 : vérifications (tests existants et recette runtime), **sans modification de code**
-    sauf arbitrage contraire (Q-S4) ;
+    (D-Q4) ;
   - dans iakaframe, un renvoi vers la présente instruction en tête de
-    `declaration-chantier-session.md` et `prise-de-parole-odin-aragorn.md`, **à la validation**
-    (Gandalf).
+    `declaration-chantier-session.md` et `prise-de-parole-odin-aragorn.md` (Gandalf, étape 0) ;
+  - l'inscription des deux successeurs au `BACKLOG.md` d'iakaframe (texte fourni en § Successeurs,
+    écrit par l'orchestrateur).
 - **Exclu** :
   - re-vendorisation des hooks embarqués de la GUI (`global/hooks`, `guardScripts.generated.ts`) :
-    successeur (Q-S1) ;
+    successeur `SUCC-GUI-HOOKS-EMBARQUES` (D-Q1) ;
   - nettoyage ou rafraîchissement des copies `global/` des projets, et changement de `copyKit` :
-    successeur iakaframe (Q-S2) ;
+    successeur `SUCC-INIT-SANS-GLOBAL` (D-Q2) ;
   - toute modification des gardes, contrats ou générateurs d'iakaframe (seule exception : E0, borné
-    à `vendor.js` et à son test, si Q-S6 le retient) ;
+    à `vendor.js` et à son test, D-Q6) ;
+  - tout alignement Cockpit (attribution « Odin », obligation du chef-runner, casse du `royaume`)
+    avant la mesure C1 (D-Q4) ;
   - le correctif de `verbatimBody` dans `gen-fixtures.mjs` (code GUI) : l'épinglage `eol=lf` de G1-1a
     suffit à le rendre sans objet sur les fixtures ;
   - l'épinglage `eol=lf` des 42 autres sources vendorisées d'iakaframe (principles, rituals…) : rendu
@@ -296,7 +304,7 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
   - le correctif « générateurs no-op sous Windows » (préexistant, iakaframe) ;
   - iakaTokenCounter (Q-E, lot ultérieur) ; `naonedge`, `robotimmo`, `iakavod`, `naonedge-clients` :
     rien à écrire ;
-  - rafraîchissement des pointeurs `.iakaframe` (Q-S5) ;
+  - rafraîchissement des pointeurs `.iakaframe` (D-Q5) ;
   - `iakaos` (absent du disque).
 
 ## Étapes d'implémentation
@@ -307,8 +315,10 @@ Il faut aussi identifier ce qui **ne se synchronise pas**, pour ne pas ouvrir de
    modification ultérieure du canon relance G1.
 2. Gandalf, à la validation : note de renvoi vers `synchro-multi-depots.md` en tête des deux
    instructions mères (commit `docs(specs)` par l'orchestrateur).
+3. Orchestrateur : inscrire au `BACKLOG.md` d'iakaframe les deux successeurs (§ Successeurs), dans le
+   même commit `docs(specs)` ou un commit `docs(backlog)` dédié.
 
-### Lot E0 — iakaframe, mesure `vendor-check` insensible aux fins de ligne (session Aragorn iakaframe, **avant G1**, si Q-S6 = (b) ou (c))
+### Lot E0 — iakaframe, mesure `vendor-check` insensible aux fins de ligne (session Aragorn iakaframe, **avant G1**, D-Q6)
 E0-a. Baseline : `node --test cli/test/vendor-check.test.js` sur ce poste. Consigner les tests rouges
       (attendu : `A12`, `A14`, selon le constat Legolas).
 E0-b. `cli/src/lib/vendor.js` : une seule fonction de lecture texte qui convertit `\r\n` en `\n`, et
@@ -331,7 +341,7 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
 1. `git pull` (branche suivie : `vps/main`, `.git/config`). Mesurer la baseline :
    `npm run lint:all`, `npm run test:all`, puis tableau de verdict au format du dépôt
    (`CLAUDE.md:330-353`).
-1a. **Fins de ligne (avant toute mesure de vendorage ; si Q-S6 = (a) ou (c)).**
+1a. **Fins de ligne (avant toute mesure de vendorage ; D-Q6).**
     - Arbre propre (`git status`). Mesurer `git ls-files --eol -- packages/core/__tests__/fixtures`
       et consigner le couple `i/…` `w/…` (attendu : `i/lf w/crlf`).
     - Créer `.gitattributes` à la racine de la GUI, avec une seule règle :
@@ -364,9 +374,9 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
    `derived:4`, `drift:0`.
 6. `npm run test:vendor` ; `npm run lint:all` ; `npm run test:all`. `npm run test:rust` est
    **non concerné** si `git diff --stat -- '*.rs'` est vide : le déclarer tel quel sur sa ligne.
-7. Backlog GUI (`CLAUDE.md` § Backlog) : une entrée **« Ouvert »** qui déclare la dette « hooks
-   embarqués d'ancienne génération » (`guardScripts.generated.ts`, `global/`), en renvoyant à Q-S1.
-   Aucun changement de code.
+7. Backlog GUI (`CLAUDE.md` § Backlog, `:408`) : une entrée **« Ouvert »** qui déclare la dette
+   « hooks embarqués d'ancienne génération » (`guardScripts.generated.ts`, `global/`), au texte fourni
+   en § Successeurs (`SUCC-GUI-HOOKS-EMBARQUES`, D-Q1). Aucun changement de code.
 8. Trois commits, dans l'ordre : `chore(eol)` (étape 1a), `chore(vendor): resync fixtures sur
    iakaframe <sha>` (fixtures seules, `<sha>` = HEAD iakaframe après E0), `docs(backlog)` ; gate
    Legolas GUI ; push.
@@ -395,7 +405,7 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
     délégation (ex. Gandalf) n'est **pas** refusée par `[chantier-guard]`.
 17. Mesurer la main courante : les documents de délégation portent-ils `royaume = "IAKACOCKPIT"` ?
     Un filtre royaume de l'UI les retrouve-t-il ? Consigner le résultat. Si écart, **ne pas corriger
-    ici** : ouvrir une instruction Cockpit (Q-S4).
+    ici** : ouvrir une instruction Cockpit (D-Q4).
 
 ### Lot A1 — `iakaagentsmonitor` (session Aragorn dans `C:\work\iakaagentsmonitor`, après Lot 7)
 18. `npm run test:publisher` ; vérifier que `~/.claude/settings.json` porte toujours les entrées
@@ -406,7 +416,7 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
 - `C:\work\iakaframegui\packages\core\__tests__\fixtures\**` : re-vendorisation (G1).
 - `C:\work\iakaframegui\CLAUDE.md` : une entrée de backlog (G1, étape 7).
 - `C:\work\iakaframegui\.gitattributes` : **création**, une règle `eol=lf` sur les fixtures (G1, étape 1a).
-- `C:\work\iakaframe\cli\src\lib\vendor.js` : lecture texte normalisée CRLF→LF (E0-b, si Q-S6 le retient).
+- `C:\work\iakaframe\cli\src\lib\vendor.js` : lecture texte normalisée CRLF→LF (E0-b, D-Q6).
 - `C:\work\iakaframe\cli\test\vendor-check.test.js` : tests miroir CRLF (E0-c).
 - `C:\work\iakaframe\{cli\test\fixtures\kit.iakaframe-claude.golden.md,kits\iakaframe-claude.md,methode-de-travail.html}` :
   ré-extraction seule, aucun blob changé (E0-d).
@@ -414,6 +424,7 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
   `~/.claude/skills/**` : Lot 7 humain.
 - `C:\work\iakaframe\specs\instructions\{declaration-chantier-session,prise-de-parole-odin-aragorn}.md` :
   note de renvoi (étape 0).
+- `C:\work\iakaframe\BACKLOG.md` : deux items successeurs (étape 0.3, texte en § Successeurs).
 - **Non touchés** : `iakacockpit`, `iakaagentsmonitor` (vérification seule), `iakatokencounter`,
   `naonedge`, `robotimmo`, `iakavod`, `naonedge-clients`, toute copie `global/`,
   `guardScripts.generated.ts`.
@@ -443,13 +454,17 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
   **relatif** exploiterait la limite acceptée LS : **interdit**.
 - **Filtre royaume de la main courante Cockpit** (casse). → mesure C1, correction hors lot.
 - **Hooks d'ancienne génération déployés par la Forge** dans les projets qu'elle génère : ils
-  s'**ajoutent** aux hooks globaux, sans chantier. → dette déclarée (G1 étape 7), Q-S1.
+  s'**ajoutent** aux hooks globaux, sans chantier. → dette déclarée (G1 étape 7), successeur
+  `SUCC-GUI-HOOKS-EMBARQUES` (D-Q1).
 - **Copies `global/CLAUDE.md` périmées** : Claude Code charge les `CLAUDE.md` des sous-dossiers qu'il
-  consulte, donc un agent qui ouvre `global/` peut lire « Claude principal (Odin) ». → faible, Q-S2.
+  consulte, donc un agent qui ouvre `global/` peut lire « Claude principal (Odin) ». → faible, accepté
+  (D-Q2) ; successeur `SUCC-INIT-SANS-GLOBAL`.
+- **Exécution concurrente d'E0** : ⚒️ Gimli réalise E0 pendant la présente mise à jour du relevé. →
+  aucune incidence : le relevé ne change ni le contenu technique d'E0 ni ses critères.
 
 ## Critères d'acceptation
 
-**E0 — iakaframe (si Q-S6 = (b) ou (c))**
+**E0 — iakaframe (D-Q6)**
 - [ ] `node --test cli/test/vendor-check.test.js` exit 0 sur ce poste (`core.autocrlf=true`), `A12` et
       `A14` compris.
 - [ ] Un miroir propre converti en CRLF → `ok:true`, `status:"clean"` ; le même miroir avec un mot
@@ -459,7 +474,7 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
 - [ ] Suite CLI complète verte ; gate Legolas PASS.
 
 **G1 — iakaframegui**
-- [ ] (si Q-S6 = (a) ou (c)) `C:\work\iakaframegui\.gitattributes` existe et porte `packages/core/__tests__/fixtures/**/*.md text eol=lf`.
+- [ ] `C:\work\iakaframegui\.gitattributes` existe et porte `packages/core/__tests__/fixtures/**/*.md text eol=lf`.
 - [ ] `git ls-files --eol -- packages/core/__tests__/fixtures` → `w/lf` (et `i/lf`) sur les 86 `.md` ;
       `Grep \r$` sur `fixtures/**/*.md` → 0 fichier.
 - [ ] Le commit `chore(eol)` ne touche que `.gitattributes` (et, le cas échéant, des blobs de fixtures
@@ -475,7 +490,9 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
 - [ ] `grep -c "Voix dans le dépôt" packages/core/__tests__/fixtures/personas/aragorn.md` ≥ 1 ;
       l'empreinte d'en-tête des goldens `aragorn`/`odin` est égale à celle d'iakaframe.
 - [ ] Depuis iakaframe, `node --test cli/test/frontmatter-schema-parity.test.js` passe (non SKIP).
-- [ ] Le backlog GUI porte l'entrée « hooks embarqués » renvoyant à Q-S1.
+- [ ] Le backlog GUI porte l'entrée `SUCC-GUI-HOOKS-EMBARQUES` (« hooks embarqués », D-Q1).
+- [ ] L'E0 est commité dans iakaframe **avant** le premier commit de G1 : le `<sha>` iakaframe cité
+      dans le message `chore(vendor)` a le commit `fix(vendor-check)` pour ancêtre (ou l'est).
 
 **Lot 7 / P4 — humain**
 - [ ] `~/.claude/hooks/` contient les 8 `.mjs`, chacun à la même empreinte (`Get-FileHash`) que sa
@@ -500,12 +517,18 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
 **Non-synchronisation**
 - [ ] Aucun commit issu de ce lot dans `iakatokencounter`, `naonedge`, `robotimmo`, `iakavod`,
       `naonedge-clients`.
+- [ ] Aucune copie `global/` modifiée ni supprimée, aucun pointeur `.iakaframe` réécrit, aucun code
+      Cockpit modifié (D-Q2, D-Q4, D-Q5).
+
+**Successeurs**
+- [ ] `BACKLOG.md` d'iakaframe porte les deux items `SUCC-GUI-HOOKS-EMBARQUES` et
+      `SUCC-INIT-SANS-GLOBAL` (§ Successeurs).
 
 ## Estimation (jalon P1→P2)
 
 | Lot | Équivalent j-h | Complexité / risque |
 |---|---|---|
-| Étape 0 — renvois | 0,02 | faible |
+| Étape 0 — renvois + items BACKLOG | 0,03 | faible |
 | E0 — iakaframe, EOL `vendor-check` | 0,2 (code + 2 tests + ré-extraction + gate) | faible : changement localisé, mais sur une garde |
 | G1 — iakaframegui | 0,4 (0,6 avec les 11 dérives préexistantes à comprendre), dont 0,1 pour l'étape 1a | faible-moyenne : copie atomique, dérives préexistantes inconnues, état des blobs non mesuré |
 | Lot 7 / P4 — humain | 0,1 + 0,15 de recette | faible, sensible à l'ordre |
@@ -524,24 +547,26 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
    jusqu'à 86 blobs, avec une revue plus lourde (**+0,1 j-h**).
 4. **Une partie des « 19 gestes » était peut-être de l'EOL** : après E0 et G1-1a, le nombre réel de
    dérives peut **baisser**. Il peut aussi révéler des écarts de contenu jusqu'ici noyés.
-5. **Successeurs Q-S1 et Q-S2**, hors total : hooks embarqués de la Forge ≈ 1 à 1,5 j-h (à cadrer
-   dans la GUI) ; `copyKit` sans `global/` ≈ 0,25 j-h (iakaframe).
+5. **Successeurs**, hors total (§ Successeurs) : `SUCC-GUI-HOOKS-EMBARQUES` ≈ 1 à 1,5 j-h (GUI) ;
+   `SUCC-INIT-SANS-GLOBAL` ≈ 0,25 j-h (iakaframe).
 
-## Questions ouvertes à Stéphane (avec recommandation)
+## Décisions d'arbitrage (Stéphane, 2026-09-28)
 
-- **Q-S1 — Hooks embarqués de la GUI** (`guardScripts.generated.ts`, 4 hooks sans chantier, déployés
-  par la Forge dans les projets générés). (a) Déclarer la dette maintenant et cadrer un successeur
-  dans la GUI. (b) Re-vendorer tout le nouveau jeu dans ce lot : 8 fichiers liés par imports, et un
-  générateur qui écrit plusieurs fichiers plus un nouveau câblage `settings`. (c) Ne plus déployer
-  de hooks au niveau projet et s'en remettre aux hooks globaux.
-  **Recommandation : (a) maintenant**, avec un successeur qui **évalue (c)**. Les hooks globaux
-  portent déjà la garde, et un doublon de génération différente est source de refus incohérents.
-- **Q-S2 — Copies `global/` des projets** (`iakacockpit`, `iakaagentsmonitor` inertes ; `iakaframegui`
-  source de Q-S1). (a) Les laisser, et un successeur iakaframe fait que `copyKit` ne dépose plus
-  `global/` dans un projet. (b) Les supprimer dépôt par dépôt. (c) Les rafraîchir.
-  **Recommandation : (a)**. Rafraîchir recrée la même dette au prochain chantier ; supprimer sans
-  corriger `copyKit` la recrée au prochain `init`.
-- **Q-S3 — Ordre G1 / Lot 7.** Recommandation : **G1 avant le Lot 7**, pour trois raisons :
+Toutes les recommandations du relevé ont été retenues. Les variantes écartées ne sont plus
+exécutables.
+
+- **D-Q1 (ex-Q-S1) — Hooks embarqués de la GUI** (`guardScripts.generated.ts`, 4 hooks sans chantier,
+  déployés par la Forge dans les projets générés) : la dette est **déclarée maintenant** (G1 étape 7),
+  sans re-vendorisation dans ce lot. Le successeur `SUCC-GUI-HOOKS-EMBARQUES` **évalue** l'option
+  « ne plus déployer de hooks au niveau projet et s'en remettre aux hooks globaux ». Motif : les hooks
+  globaux portent déjà la garde, et un doublon de génération différente est source de refus
+  incohérents.
+- **D-Q2 (ex-Q-S2) — Copies `global/` des projets** (`iakacockpit`, `iakaagentsmonitor` inertes ;
+  `iakaframegui` relève de D-Q1) : **laissées en place**. Le successeur iakaframe
+  `SUCC-INIT-SANS-GLOBAL` fait que `copyKit` ne dépose plus `global/` dans un projet. Motif :
+  rafraîchir recrée la dette au prochain chantier ; supprimer sans corriger `copyKit` la recrée au
+  prochain `init`.
+- **D-Q3 (ex-Q-S3) — Ordre G1 / Lot 7** : **G1 avant le Lot 7**, pour trois raisons :
   1. les copies de `vendor-check` sont des `cp` inter-dépôts, que le garde actuel laisse passer avec
      un avertissement et que le nouveau refuse (§ 1.7) ;
   2. vendorer des fixtures ne change **aucun** comportement runtime, donc c'est sans risque ;
@@ -550,29 +575,51 @@ E0-e. Suite complète CLI, gate Legolas, commit `fix(vendor-check): comparaison 
   Dans le Lot 7, hooks et contrats vont **dans la même séance**. Des hooks sans contrats refusent
   des gestes que les contrats n'expliquent pas encore. Des contrats sans hooks promettent une garde
   absente.
-- **Q-S4 — Alignements Cockpit facultatifs** : attribution « Odin » d'un projet non lié
-  (`App.tsx:670-679`), obligation du chef-runner (`terminal.rs:324-327`) face à la « chaîne de
-  délégation visible », casse du `royaume`.
-  **Recommandation : rien avant la mesure C1**. N'ouvrir une instruction Cockpit que sur un écart
-  mesuré.
-- **Q-S5 — Pointeurs `.iakaframe` périmés** (`v0.1.0`, `v0.6.1`). Aucun consommateur fonctionnel ne lit
-  `iakaframe=` ; le moniteur lit `frame=` et se replie sur `iakaframe`. Le seul geste qui les réécrit
-  (`init --force`) écrase `CLAUDE.md`.
-  **Recommandation : ne rien faire.**
-- **Q-S6 — Fins de ligne de `vendor-check`** (§ 1.8). Les fixtures GUI sont en CRLF, alors que 40
-  sources iakaframe sont désormais en LF et 42 en CRLF. Le verdict dépend donc du poste.
-  - (a) **Épingler seulement** : `eol=lf` côté GUI (G1-1a) **et** côté iakaframe sur **toutes** les
-    sources vendorisées (les 42 restantes, plus binding, méthode, team). Aucun code, mais ~10 chemins
-    de plus dans `.gitattributes` d'iakaframe et une ré-extraction. La garde reste fragile sur tout
-    clone qui n'a pas ré-extrait (c'est le cas aujourd'hui des 3 fichiers de E0-d).
-  - (b) **Normaliser seulement** dans `checkVendor` (Lot E0). La garde devient indépendante du poste,
-    mais `gen-fixtures` reste exposé au double frontmatter sur une GUI en CRLF (§ 1.8 point 4).
-  - (c) **Les deux** : E0 dans iakaframe (garde robuste) et G1-1a dans la GUI (fixtures en LF, ce qui
-    protège `gen-fixtures` et rend les copies conformes aux sources épinglées).
-  **Recommandation : (c)**, avec **E0 avant G1**. La garde juge le contenu, et elle ne doit pas
-  dépendre d'un `core.autocrlf` que personne ne choisit. L'épinglage GUI coûte une ligne et désamorce
-  `gen-fixtures` sans toucher à son code. E0 est un changement de **code iakaframe** : il sort du
-  périmètre initial (« aucune modification des gardes ») et demande donc ton accord explicite.
+- **D-Q4 (ex-Q-S4) — Alignements Cockpit** (attribution « Odin » d'un projet non lié,
+  `App.tsx:670-679` ; obligation du chef-runner, `terminal.rs:324-327` ; casse du `royaume`) :
+  **rien avant la mesure C1**. Une instruction Cockpit ne s'ouvre que sur un écart mesuré.
+- **D-Q5 (ex-Q-S5) — Pointeurs `.iakaframe` périmés** (`v0.1.0`, `v0.6.1`) : **ne rien faire**. Aucun
+  consommateur fonctionnel ne lit `iakaframe=` ; le moniteur lit `frame=` et se replie sur
+  `iakaframe` ; le seul geste qui les réécrit (`init --force`) écrase `CLAUDE.md`.
+- **D-Q6 (ex-Q-S6) — Fins de ligne de `vendor-check`** (§ 1.8) : **les deux côtés, E0 avant G1**.
+  E0 dans iakaframe (normalisation `\r\n`→`\n` dans `checkVendor`, garde indépendante du poste) ;
+  G1-1a dans la GUI (`eol=lf` sur les fixtures, qui protège `gen-fixtures` sans toucher à son code).
+  E0 sort du périmètre initial (« aucune modification des gardes ») : **accord explicite du décideur
+  donné** le 2026-09-28.
+
+## Successeurs (à reporter au BACKLOG)
+
+Deux items, à inscrire par l'orchestrateur dans `C:\work\iakaframe\BACKLOG.md` § « Ouverts » (hors du
+périmètre d'écriture du cadrage). Le premier est aussi déclaré dans le backlog de la GUI (G1 étape 7).
+
+Texte à ajouter au `BACKLOG.md` d'iakaframe :
+
+```markdown
+### Successeurs nommés de la synchronisation multi-dépôts (décideur, 2026-09-28)
+
+Origine : `specs/instructions/synchro-multi-depots.md` § Décisions d'arbitrage (D-Q1, D-Q2).
+
+- [ ] **`SUCC-GUI-HOOKS-EMBARQUES` — la Forge déploie des hooks d'ancienne génération.**
+  *(~1 à 1,5 j-h, dépôt `C:\work\iakaframegui`, à cadrer dans la GUI.)*
+  `packages/core/src/adapters/guardScripts.generated.ts` embarque 4 hooks (`identity-guard`,
+  `identity-remind`, `perimeter-guard`, `delegation-guard`) sans `guard-core`, `chantier-state`,
+  `chantier-remind` ni `plan-courante` ; `claudeCode.ts:247-250` les dépose dans chaque projet
+  généré, où ils s'ajoutent aux hooks globaux. `vendor-check` ne les couvre pas. Le cadrage
+  **évalue d'abord** l'option « ne plus déployer de hooks au niveau projet, s'en remettre aux hooks
+  globaux », avant toute re-vendorisation du jeu complet (8 fichiers liés par imports + câblage
+  `settings`). Convertir en instruction avant tout dev.
+- [ ] **`SUCC-INIT-SANS-GLOBAL` — `iakaframe init` dépose une copie figée de `global/` dans chaque
+  projet.** *(~0,25 j-h, iakaframe.)* `copyKit` (`cli/src/lib/kit.js:96-112`, appelé par
+  `cli/src/commands/init.js:60`) copie tout le kit, `global/` compris (hooks + `CLAUDE.md` global).
+  Les copies deviennent périmées au premier chantier (constat : `iakacockpit`, `iakaagentsmonitor`,
+  « Claude principal (Odin) »). Faire que `copyKit` ne dépose plus `global/` dans un projet. Les
+  copies existantes restent en place (D-Q2) ; leur retrait éventuel est une décision distincte.
+  Convertir en instruction avant tout dev.
+```
+
+Texte à ajouter au backlog de la GUI (`C:\work\iakaframegui\CLAUDE.md` § Backlog, G1 étape 7, écrit
+par la session Aragorn de la GUI) : le premier item ci-dessus, statut **« Ouvert »**, avec renvoi
+vers `C:\work\iakaframe\specs\instructions\synchro-multi-depots.md` D-Q1.
 
 ## Sources
 

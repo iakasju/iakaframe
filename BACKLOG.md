@@ -10,6 +10,27 @@ Items de backlog du projet (tenus au fil de l'eau ; convertis en instruction cad
 
 ## Ouverts
 
+### Successeurs nommés de la synchronisation multi-dépôts (décideur, 2026-09-28)
+
+Origine : `specs/instructions/synchro-multi-depots.md` § Décisions d'arbitrage (D-Q1, D-Q2).
+
+- [ ] **`SUCC-GUI-HOOKS-EMBARQUES` — la Forge déploie des hooks d'ancienne génération.**
+  *(~1 à 1,5 j-h, dépôt `C:\work\iakaframegui`, à cadrer dans la GUI.)*
+  `packages/core/src/adapters/guardScripts.generated.ts` embarque 4 hooks (`identity-guard`,
+  `identity-remind`, `perimeter-guard`, `delegation-guard`) sans `guard-core`, `chantier-state`,
+  `chantier-remind` ni `plan-courante` ; `claudeCode.ts:247-250` les dépose dans chaque projet
+  généré, où ils s'ajoutent aux hooks globaux. `vendor-check` ne les couvre pas. Le cadrage
+  **évalue d'abord** l'option « ne plus déployer de hooks au niveau projet, s'en remettre aux hooks
+  globaux », avant toute re-vendorisation du jeu complet (8 fichiers liés par imports + câblage
+  `settings`). Convertir en instruction avant tout dev.
+- [ ] **`SUCC-INIT-SANS-GLOBAL` — `iakaframe init` dépose une copie figée de `global/` dans chaque
+  projet.** *(~0,25 j-h, iakaframe.)* `copyKit` (`cli/src/lib/kit.js:96-112`, appelé par
+  `cli/src/commands/init.js:60`) copie tout le kit, `global/` compris (hooks + `CLAUDE.md` global).
+  Les copies deviennent périmées au premier chantier (constat : `iakacockpit`, `iakaagentsmonitor`,
+  « Claude principal (Odin) »). Faire que `copyKit` ne dépose plus `global/` dans un projet. Les
+  copies existantes restent en place (D-Q2) ; leur retrait éventuel est une décision distincte.
+  Convertir en instruction avant tout dev.
+
 ### TELEMETRIE-AGENTS-MQTT — la méthode publie les événements d'agents sur MQTT, un topic par projet (décideur, 2026-09-21)
 
 - **Besoin** : un **dashboard temps réel de pilotage des dev par agents IA**. Pour l'alimenter,
