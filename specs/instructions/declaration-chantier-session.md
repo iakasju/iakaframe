@@ -478,7 +478,8 @@ Un lot = un commit atomique (conventional commits), tests verts avant chaque com
 **Lot 2 — Adaptateur d'état** (`feat(hooks)`)
 5. Créer `chantier-state.mjs` : `registryPath(sid)`, `loadState(sid)` (lecture + fold ; `ENOENT`
    → `null`), `appendEvent(sid, ev)`, `ensureLaunch(payload)` (avec `main_role`/`main_agent_type`,
-   D-1), `normalize(abs)` (M-12), `keyOf(absPath)` (D-4), `knownRepos(state)`
+   D-1), `normalize(abs)` (M-12), `keyOf(absPath, opts)` (D-4 ; `opts.fileTarget` ajouté au Lot 4,
+   cf. note de réalisation Lot 4), `knownRepos(state)`
    (`state` facultatif : union des dépôts scannés et des clés de l'état replié, D-4 §3),
    `resolveRepoArg(token, opts)` (nom ou chemin → clé, pour `Chantier:` et `iakaframe launch` ;
    `opts.requireExisting` exige un dossier existant — `odin-direct`, D-3 ; `opts.state` = état replié
@@ -509,6 +510,34 @@ Un lot = un commit atomique (conventional commits), tests verts avant chaque com
    le registre) ; sinon chemin historique **inchangé**. `tool_name` `PowerShell`
    (`tool_input.command`, dialecte `powershell`). Journal enrichi (D-12). Messages de refus
    actionnables (modèle au § « Messages »). En-tête : divergence Codex assumée (D-11).
+
+> **Note de réalisation (2026-09-28, Lot 4, `f414d2f`)** — Écarts déclarés par ⚒️ Gimli, vérifiés
+> sur le code livré :
+> 1. **`chantier-state.mjs` retouché au Lot 4** (hors fichier du lot) : `keyOf(absPath)` devient
+>    `keyOf(absPath, opts)` (`kits/iakaframe-claude/global/hooks/chantier-state.mjs:155-221`).
+>    `opts.fileTarget` (facultatif) signale que le chemin est la cible d'un `Edit`/`Write`/
+>    `NotebookEdit`, donc **un fichier**, jamais un dossier : un chemin **inexistant** à un seul
+>    segment sous la racine est alors classé `portefeuille` au lieu de `dir` (`:207-215`). Sans ce
+>    hint, `Write <racine>/notes.md` (fichier neuf) était attribué à un dossier de projet `notes.md`
+>    et CA-10 échouait. Sans le hint (appelants du Lot 2/3 : `chantier-remind.mjs`,
+>    `resolveRepoArg`, chemins `--path`/`--project` du shell), comportement **inchangé** (création de
+>    projet, D-3). Seul appelant du hint : `perimeter-guard.mjs:287`. Le récapitulatif du Lot 2
+>    (étape 5) est aligné.
+> 2. **Nom du fichier de test** : `cli/test/guard-chantier-perimeter.test.js` au lieu de
+>    `guard-chantier.test.js`, par cohérence avec la convention `guard-chantier-<composant>` des
+>    Lots 2 (`guard-chantier-state.test.js`) et 3 (`guard-chantier-remind.test.js`). Les mentions
+>    de `guard-chantier.test.js` (§ Fichiers concernés, § Critères « Bout-en-bout ») sont alignées ;
+>    le Lot 5 suit la même convention.
+> 3. **Messages de refus** : modèle du § « Messages » appliqué **avec la lecture L-5** de
+>    `specs/instructions/prise-de-parole-odin-aragorn.md` (§ 4) — l'option 2 « faire designer le
+>    depot… puis deleguer a aragorn » est absente ; seule reste la proposition d'une session Aragorn
+>    (`perimeter-guard.mjs:37-40`, `:159-183`). Aucun verdict n'est modifié par cette lecture.
+> 4. **CA-17, dernier cas — NON tranché ici, en attente d'arbitrage du décideur.** Le livré rend
+>    `CHANTIER_MISMATCH` (`cli/test/guard-chantier-perimeter.test.js:341-349`) là où CA-17 attend
+>    `NO_CHANTIER`. Le libellé de CA-17 est **conservé** : D-3 (« Hors racine et hors dépôt →
+>    `kind:"hors"` → **aucun chantier** ») et la décision 3 (« sans chantier → DENY ») fondent
+>    `NO_CHANTIER` ; l'écart vient de `foldChantier`, qui ouvre un segment actif pour un `launch`
+>    `@hors` (`guard-core.mjs:228-237`). Constat remis à Aragorn pour décision de Stéphane.
 
 **Lot 5 — Délégation et plan** (`feat(hooks)`)
 9. `delegation-guard.mjs` PreToolUse : après le roster, `verdictDispatch` (aucune écriture au
@@ -613,7 +642,10 @@ Un lot = un commit atomique (conventional commits), tests verts avant chaque com
   (`gen-methode-vitrine.mjs`) — **régénérés**, jamais édités à la main (étape 18).
 - contrats générés par `iakaframe agents --action generate` — régénérés.
 - `cli/test/guard-core.test.js`, `cli/test/fixtures/chantier/` — adaptés (Lot 1bis) puis complétés.
-- `cli/test/guard-chantier.test.js` — **créé** (bout-en-bout `spawnSync`).
+- `cli/test/guard-chantier-<composant>.test.js` — **créés** (bout-en-bout `spawnSync`, un fichier par
+  composant, convention fixée au Lot 4) : `guard-chantier-state.test.js` (Lot 2),
+  `guard-chantier-remind.test.js` (Lot 3), `guard-chantier-perimeter.test.js` (Lot 4),
+  `guard-chantier-delegation.test.js` et `guard-chantier-plan.test.js` (Lot 5).
 - `cli/test/guard-perimeter-regression.test.js`, `cli/test/guard-core-parity.test.js`,
   `cli/test/guard-codex-complet.test.js`, `cli/test/guard-identity-regression.test.js`,
   `cli/baselines/guard/*` — **inchangés** (doivent passer tels quels).
@@ -702,7 +734,7 @@ leur comportement actuel).
 - [ ] **CA-9** `mainRoleOf` : `undefined`/`null`/`""` → `odin` ; `"odin"`, `"Odin"` → `odin` ;
       `"aragorn"`, `"gimli"`, `"Explore"` → `team`.
 
-**Bout-en-bout (`guard-chantier.test.js`, hooks lancés par `spawnSync`)**
+**Bout-en-bout (`guard-chantier-<composant>.test.js`, hooks lancés par `spawnSync`)**
 - [ ] **CA-10** Session lancée au portefeuille (`CLAUDE_PROJECT_DIR` = racine fixture, payloads sans
       `agent_type`) : le 1ᵉʳ hook crée `<sid>.jsonl` avec `launch` `@portefeuille`, `main_role:"odin"` ;
       `Write` sur `<racine>/notes.md` → exit 0.
