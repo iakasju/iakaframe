@@ -20,6 +20,22 @@ import { homedir, tmpdir } from "node:os";
 import { basename, dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { foldChantier, isUnder, mainRoleOf } from "./guard-core.mjs";
 
+// ---------------------------------------------------------------------------
+// 3e amendement (A3-9, Q-H1) — ancre hors TROP LARGE : racine de volume, ou dossier personnel.
+// Verifie au moment de POSER une ancre (ensureLaunch, resolveRepoArg) ; `keyOf` lui-meme ne la
+// pose jamais (elle ne sait pas si le chemin qu'elle resout EST une ancre en cours de creation).
+// ---------------------------------------------------------------------------
+
+// isAnchorTooLarge(root) -> bool : `root` (deja normalise, ou non) est la racine d'un volume
+// (`dirname(root) === root`, ex. `C:\`, `/`) ou le dossier personnel (`normalize(homedir())`).
+function isAnchorTooLarge(root) {
+  if (!root) return false;
+  const norm = normalize(root);
+  if (dirname(norm) === norm) return true;
+  if (norm === normalize(homedir())) return true;
+  return false;
+}
+
 const SID_RE = /^[A-Za-z0-9-]+$/;
 
 const claudeDir = () => join(homedir(), ".claude");
@@ -84,7 +100,12 @@ export function ensureLaunch(payload) {
   if (!p) return null;
   if (existsSync(p)) return { created: false, state: loadState(sid) };
   const cwd = resolve((payload && payload.cwd) || process.cwd());
-  const key = keyOf(cwd);
+  let key = keyOf(cwd);
+  // 3e amendement (A3-9, Q-H1) : une ancre hors trop large (racine de volume, `~`) n'est PAS
+  // posee -> repli sur la forme NON ANCREE (A3-3), comme un registre herite (`NO_CHANTIER`).
+  if (key.kind === "hors" && key.root && isAnchorTooLarge(key.root)) {
+    key = { kind: "hors", root: null, name: "@hors" };
+  }
   const isSub = !!(payload && payload.agent_id);
   const mainRole = isSub ? "odin" : mainRoleOf(payload && payload.agent_type);
   const mainAgentType = isSub ? null : ((payload && payload.agent_type) ?? null);
@@ -162,6 +183,11 @@ function worktreeMainRoot(gitPath) {
 // (`fileTarget` absent/false, comportement du Lot 2 INCHANGE pour tout appelant existant —
 // `chantier-remind.mjs`/`resolveRepoArg` ne passent jamais ce hint) : un chemin inexistant a un
 // segment reste suppose etre un DOSSIER de projet (cas de creation de projet, D-3).
+// `opts.state` (3e amendement, A3-2) : etat replie de la session (sortie de `foldChantier`),
+// utilise UNIQUEMENT par la branche 3 (hors racine, hors depot) pour retrouver les ANCRES de la
+// session en cours (`state.launch.key`/`state.active.key`, `kind:"hors"` a `root` non nul) — un
+// chemin hors dont la resolution ordinaire (branche 1/2) echoue mais qui tombe SOUS une ancre
+// EST cette ancre (meme chantier), jamais une cle propre distincte.
 export function keyOf(absPath, opts) {
   const fileTarget = !!(opts && opts.fileTarget);
   const norm = normalize(resolve(String(absPath)));
@@ -216,8 +242,40 @@ export function keyOf(absPath, opts) {
     return { kind: "dir", root: join(root, first), name: first };
   }
 
-  // 3. Hors racine, hors depot.
-  return { kind: "hors", root: null, name: "@hors" };
+  // 3. Hors racine, hors depot (3e amendement, A3-2).
+  // (a) Ancres de la session (`kind:"hors"` a `root` NON NUL parmi `state.launch.key` et
+  // `state.active.key`) : `norm` sous une ancre (egalite comprise) -> la cle rendue EST cette
+  // ancre (meme chantier) ; plusieurs ancres contiennent `norm` -> celle au `root` le plus long
+  // (la plus specifique, cf. ancres imbriquees launch/active).
+  const state = opts && opts.state;
+  if (state) {
+    let best = null;
+    const candidates = [
+      state.launch && state.launch.key,
+      state.active && state.active.key,
+    ];
+    for (const k of candidates) {
+      if (!k || k.kind !== "hors" || !k.root) continue;
+      const aRoot = normalize(k.root);
+      if (!isUnder(aRoot, norm, relative, isAbsolute)) continue;
+      if (!best || aRoot.length > normalize(best.root).length) best = k;
+    }
+    if (best) return { kind: "hors", root: best.root, name: best.name };
+  }
+  // (b) sinon, cle hors PROPRE : `root` = `norm` s'il est un dossier EXISTANT, sinon son parent ;
+  // `name` = "@hors:" + (basename(root) || root) (ex. "@hors:scripts" ; racine de volume ->
+  // "@hors:C:\"). Invariant de surete : ici `norm` n'est sous AUCUNE ancre (le bloc (a) ci-dessus
+  // aurait deja rendu la main) ; son `root` (norm ou son parent) ne peut donc JAMAIS etre egal au
+  // `root` d'une ancre — une cle propre ne porte jamais la signature du chantier effectif.
+  let isDir = false;
+  try {
+    isDir = statSync(norm).isDirectory();
+  } catch {
+    isDir = false;
+  }
+  const horsRoot = isDir ? norm : dirname(norm);
+  const horsName = `@hors:${basename(horsRoot) || horsRoot}`;
+  return { kind: "hors", root: horsRoot, name: horsName };
 }
 
 // ---------------------------------------------------------------------------
@@ -276,8 +334,24 @@ export function resolveRepoArg(token, opts) {
   if (token === "@portefeuille") return { key: { kind: "portefeuille", root, name: "@portefeuille" } };
 
   if (isAbsolute(String(token))) {
+    const key = keyOf(token, { state: o.state });
+    // A3-8 (3e amendement, Q-H2) : un chemin HORS exige TOUJOURS un dossier EXISTANT et une
+    // ancre non trop large (A3-9) — que la directive soit `chantier` (requireExisting=false,
+    // souplesse ordinairement reservee a la creation de projet SOUS la racine) ou `odin-direct`
+    // (requireExisting=true). Chemin inexistant, fichier, ou ancre trop large -> refus.
+    if (key.kind === "hors") {
+      let isDir = false;
+      try {
+        isDir = statSync(token).isDirectory();
+      } catch {
+        isDir = false;
+      }
+      if (!isDir) return { unknown: true };
+      if (!key.root || isAnchorTooLarge(key.root)) return { unknown: true };
+      return { key };
+    }
     if (requireExisting && !existsSync(token)) return { unknown: true };
-    return { key: keyOf(token) };
+    return { key };
   }
 
   const name = String(token);
@@ -388,14 +462,20 @@ export function failOpen(sid, hook, err) {
   return { systemMessage: `[chantier-guard] FAIL-OPEN : ${hook} — ${msg}` };
 }
 
-// sessionShellHint(root, role) -> texte a proposer en tete de message de refus/rappel pour
+// sessionShellHint(root, role, kind?) -> texte a proposer en tete de message de refus/rappel pour
 // travailler DANS le bon depot (D-12, modele au § "Messages" de l'instruction) :
-//   - role "odin" : le thread principal ne lance pas lui-meme de session -> il propose de
-//     demander a Odin de lancer une session Aragorn dans `root` ;
+//   - `kind === "hors"` (3e amendement, A3-7) : Odin ne lance JAMAIS de session hors (`iakaframe
+//     launch` exige un depot, D-14) -> commande shell DIRECTE, SANS `--agent` (une session
+//     d'equipe hors depot serait `TEAM_NEEDS_REPO`), QUEL QUE SOIT le role ;
+//   - role "odin" (autres `kind`) : le thread principal ne lance pas lui-meme de session -> il
+//     propose de demander a Odin de lancer une session Aragorn dans `root` ;
 //   - toute autre valeur (role "team", ou absent) : commande shell directe, adaptee a l'OS
 //     courant, TOUJOURS avec `--agent aragorn` (une session lancee par ce hint est une session
 //     d'equipe, jamais une session `odin`).
-export function sessionShellHint(root, role) {
+export function sessionShellHint(root, role, kind) {
+  if (kind === "hors") {
+    return process.platform === "win32" ? `Set-Location ${root} ; claude` : `cd ${root} && claude`;
+  }
   if (role === "odin") return `demande a Odin de lancer une session Aragorn dans ${root}`;
   return process.platform === "win32"
     ? `Set-Location ${root} ; claude --agent aragorn`

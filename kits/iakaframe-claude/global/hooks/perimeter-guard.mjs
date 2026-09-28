@@ -148,12 +148,16 @@ function toAbsWide(pth, cwd) {
 // ODIN_DIRECT/TEAM_NEEDS_REPO) : le(s) chemin(s) EN CAUSE plutot que payload.cwd seul quand
 // plusieurs cles sont touchees (parite avec l'ancien style "offenders" du chemin historique).
 function targetOf(keys, state) {
-  if (!keys || keys.length === 0) return { name: "@hors", root: null };
+  if (!keys || keys.length === 0) return { name: "@hors", root: null, kind: null };
   const activeSig = state && state.active ? keySig(state.active.key) : null;
   const offenders = activeSig != null ? keys.filter((k) => keySig(k) !== activeSig) : keys;
   const pick = offenders.length ? offenders : keys;
   const first = pick[0];
-  return { name: pick.length > 1 ? `${first.name} (+${pick.length - 1})` : first.name, root: first.root };
+  return {
+    name: pick.length > 1 ? `${first.name} (+${pick.length - 1})` : first.name,
+    root: first.root,
+    kind: first.kind,
+  };
 }
 
 // Message "famille chantier" (modele au § "Messages" de l'instruction, AMENDE par la lecture L-5 :
@@ -173,7 +177,7 @@ function chantierDenyMessage(code, { tool, keys, state, sid }) {
     );
   } else {
     const root = t.root;
-    const hint = root ? sessionShellHint(root, role) : null;
+    const hint = root ? sessionShellHint(root, role, t.kind) : null;
     lines.push(`  Pour continuer : ${hint || "declare un chantier (session Aragorn dans le bon depot)"}.`);
   }
   lines.push(
@@ -283,8 +287,10 @@ function runChantierLayer(p, tool, ti, payloadCwd) {
       // fileTarget:true (chantier-state.mjs, affine au Lot 4) : Edit/Write/NotebookEdit visent
       // TOUJOURS un fichier — un chemin inexistant a un seul segment sous la racine n'est donc
       // jamais suppose etre un dossier de projet ici (contrairement a un `--path`/`--project` de
-      // commande portefeuille, D-3/D-7).
-      const keys = isExcluded(abs, p) ? [] : [keyOf(abs, { fileTarget: true })];
+      // commande portefeuille, D-3/D-7). `state` (3e amendement, A3-2, Lot 1ter) : sans lui,
+      // `keyOf` ignore les ancres hors de la session (une ecriture dans son PROPRE dossier hors
+      // serait refusee a tort).
+      const keys = isExcluded(abs, p) ? [] : [keyOf(abs, { fileTarget: true, state })];
       const verdict = verdictChantier({ gesture: "EDIT", actor, sessionRole, launch: launchKey, state, keys });
       if (verdict.decision === "ALLOW") finishAllow(verdict.code, keys);
       finishDenyChantier(verdict.code, keys);
@@ -325,7 +331,7 @@ function runChantierLayer(p, tool, ti, payloadCwd) {
           }
           const abs = toAbs(t);
           if (isExcluded(abs, p)) continue;
-          keys.push(keyOf(abs));
+          keys.push(keyOf(abs, { state })); // 3e amendement (A3-2) : ancres hors de la session
         }
       }
 

@@ -19,6 +19,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { execFileSync } from 'node:child_process';
 
 import {
   appendEvent, countFailOpens, ensureLaunch, failOpen, hardDeny, isExcluded, keyOf, knownRepos,
@@ -223,11 +224,14 @@ test('keyOf : depot (racine .git), fichier niche dans le depot, hors racine', ()
     assert.equal(k2.kind, 'repo');
     assert.equal(normalize(k2.root), normalize(repoA));
 
+    // 3e amendement (A3-2, Lot 1ter) : hors racine/depot et SANS ancre de session -> cle hors
+    // PROPRE, ancree sur ce dossier (plus de `name:"@hors"` litteral inconditionnel).
     const outside = path.join(os.tmpdir(), 'clairement-hors-racine-' + Date.now());
     fs.mkdirSync(outside, { recursive: true });
     const k3 = keyOf(outside);
     assert.equal(k3.kind, 'hors');
-    assert.equal(k3.name, '@hors');
+    assert.equal(normalize(k3.root), normalize(outside));
+    assert.equal(k3.name, `@hors:${path.basename(normalize(outside))}`);
   });
 });
 
@@ -274,6 +278,203 @@ test('keyOf : worktree (`.git` fichier `gitdir: .../worktrees/<n>`) attribuee au
     assert.equal(k.kind, 'repo');
     assert.equal(k.name, 'repoA');
     assert.equal(normalize(k.root), normalize(repoA));
+  });
+});
+
+// ===========================================================================
+// 3e amendement (A3-2, Lot 1ter) — CA-36 : ancrage des dossiers hors depot (`opts.state`).
+// ===========================================================================
+
+test('CA-36 : sous-dossier existant ou fichier neuf SOUS une ancre de session -> deepEqual a l\'ancre', () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsA = tmpDir('iaka-chantier-horsA-');
+    const kA = keyOf(horsA);
+    assert.equal(kA.kind, 'hors');
+    assert.ok(kA.root, 'kA doit etre ancree (root non nul)');
+    const state = { launch: { key: kA }, active: { key: kA } };
+
+    const sub = path.join(horsA, 'sub');
+    fs.mkdirSync(sub, { recursive: true });
+    assert.deepEqual(keyOf(path.join(sub, 'f.txt'), { state }), kA);
+
+    // Parent inexistant + fileTarget:true : reste sous l'ancre (fileTarget ne joue QUE dans la
+    // branche "sous la racine du portefeuille", jamais dans la branche hors).
+    assert.deepEqual(keyOf(path.join(horsA, 'neuf', 'g.txt'), { state, fileTarget: true }), kA);
+  });
+});
+
+test('CA-36 : un dossier hors DIFFERENT de l\'ancre -> cle propre distincte (root different)', () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsA = tmpDir('iaka-chantier-horsA-');
+    const horsB = tmpDir('iaka-chantier-horsB-');
+    const kA = keyOf(horsA);
+    const state = { launch: { key: kA }, active: { key: kA } };
+
+    const kB = keyOf(path.join(horsB, 'f.txt'), { state });
+    assert.equal(kB.kind, 'hors');
+    assert.notEqual(normalize(kB.root), normalize(kA.root));
+    assert.equal(normalize(kB.root), normalize(horsB));
+  });
+});
+
+test('CA-36 : un depot niche SOUS une ancre hors (.git) reste `kind:"repo"` (D-4 §1 prime)', () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsA = tmpDir('iaka-chantier-horsA-');
+    const kA = keyOf(horsA);
+    const state = { launch: { key: kA }, active: { key: kA } };
+    const proj = makeRepo(horsA, 'proj');
+    const k = keyOf(proj, { state });
+    assert.equal(k.kind, 'repo');
+    assert.equal(normalize(k.root), normalize(proj));
+  });
+});
+
+test('CA-36 : ancres imbriquees (launch=horsA, active=horsA/sub) -> la plus SPECIFIQUE gagne', () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsA = tmpDir('iaka-chantier-horsA-');
+    const kA = keyOf(horsA);
+    const subDir = path.join(horsA, 'sub');
+    fs.mkdirSync(subDir, { recursive: true });
+    const kSub = keyOf(subDir);
+    const state = { launch: { key: kA }, active: { key: kSub } };
+
+    assert.deepEqual(keyOf(path.join(subDir, 'x.txt'), { state }), kSub);
+    assert.deepEqual(keyOf(path.join(horsA, 'y.txt'), { state }), kA);
+  });
+});
+
+test('CA-36 (win32) : casse differente de l\'ancre -> deepEqual a l\'ancre', { skip: process.platform !== 'win32' }, () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsA = tmpDir('iaka-chantier-horsA-');
+    const kA = keyOf(horsA);
+    const state = { launch: { key: kA }, active: { key: kA } };
+    assert.deepEqual(keyOf(path.join(horsA.toUpperCase(), 'f.txt'), { state }), kA);
+  });
+});
+
+test('CA-36 (win32) : forme courte 8.3 de l\'ancre -> deepEqual a l\'ancre (best-effort, saute si indisponible)', { skip: process.platform !== 'win32' }, (t) => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsA = tmpDir('iaka-chantier-horsA-nom-suffisamment-long-');
+    const kA = keyOf(horsA);
+    const state = { launch: { key: kA }, active: { key: kA } };
+
+    const scriptDir = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-chantier-ps83-'));
+    const scriptPath = path.join(scriptDir, 'short.ps1');
+    fs.writeFileSync(scriptPath, 'param([string]$p)\n(New-Object -ComObject Scripting.FileSystemObject).GetFolder($p).ShortPath\n', 'utf8');
+    let shortForm;
+    try {
+      shortForm = execFileSync(
+        'powershell.exe',
+        ['-NoProfile', '-ExecutionPolicy', 'Bypass', '-File', scriptPath, horsA],
+        { encoding: 'utf8' },
+      ).trim();
+    } catch (e) {
+      t.skip(`GetShortPathName indisponible sur cette machine (${e.message.split('\n')[0]})`);
+      return;
+    }
+    if (!shortForm || shortForm.toLowerCase() === horsA.toLowerCase()) {
+      t.skip('aucune forme 8.3 distincte generee par ce volume (8dot3 desactive)');
+      return;
+    }
+    assert.deepEqual(keyOf(path.join(shortForm, 'f.txt'), { state }), kA);
+  });
+});
+
+test('CA-36 : ensureLaunch d\'un cwd = dossier hors -> launch.key.root non nul et normalise', () => {
+  const { home, root } = makeSandbox();
+  withEnv({ HOME: home, USERPROFILE: home, IAKAFRAME_ROOT: root }, () => {
+    const horsA = tmpDir('iaka-chantier-horsA-');
+    const sid = nextSid();
+    const r = ensureLaunch({ session_id: sid, cwd: horsA });
+    assert.equal(r.state.launch.key.kind, 'hors');
+    assert.ok(r.state.launch.key.root, 'root doit etre non nul (ancre posee)');
+    assert.equal(normalize(r.state.launch.key.root), normalize(horsA));
+  });
+});
+
+// ===========================================================================
+// 3e amendement (A3-9, Q-H1) — CA-38 (unite) : ancre TROP LARGE (racine de volume, `~`).
+// ===========================================================================
+
+test('CA-38 (unite) : ensureLaunch d\'un cwd = racine de volume -> ancre refusee, launch.key = {hors,null,"@hors"}', () => {
+  const { home, root } = makeSandbox();
+  withEnv({ HOME: home, USERPROFILE: home, IAKAFRAME_ROOT: root }, () => {
+    const volumeRoot = path.parse(root).root; // ex. "C:\\" (win32) ou "/" (POSIX)
+    const sid = nextSid();
+    const r = ensureLaunch({ session_id: sid, cwd: volumeRoot });
+    assert.deepEqual(r.state.launch.key, { kind: 'hors', root: null, name: '@hors' });
+  });
+});
+
+test('CA-38 (unite) : ensureLaunch d\'un cwd = dossier personnel (~) -> ancre refusee', () => {
+  const { home, root } = makeSandbox();
+  withEnv({ HOME: home, USERPROFILE: home, IAKAFRAME_ROOT: root }, () => {
+    const sid = nextSid();
+    const r = ensureLaunch({ session_id: sid, cwd: home });
+    assert.deepEqual(r.state.launch.key, { kind: 'hors', root: null, name: '@hors' });
+  });
+});
+
+// ===========================================================================
+// 3e amendement (A3-8, Q-H2) — resolveRepoArg, branche chemin absolu HORS.
+// ===========================================================================
+
+test('resolveRepoArg (A3-8) : chemin absolu HORS existant -> accepte, ancre sur ce dossier (chantier ET odin-direct)', () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsB = tmpDir('iaka-chantier-horsB-');
+    const res = resolveRepoArg(horsB, { requireExisting: false });
+    assert.equal(res.key.kind, 'hors');
+    assert.equal(normalize(res.key.root), normalize(horsB));
+    const res2 = resolveRepoArg(horsB, { requireExisting: true }); // odin-direct
+    assert.equal(res2.key.kind, 'hors');
+    assert.equal(normalize(res2.key.root), normalize(horsB));
+  });
+});
+
+test('resolveRepoArg (A3-8) : chemin absolu HORS inexistant -> refuse, MEME pour `chantier` (requireExisting:false)', () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsAbsent = path.join(tmpDir('iaka-chantier-horsC-'), 'absent');
+    assert.deepEqual(resolveRepoArg(horsAbsent, { requireExisting: false }), { unknown: true });
+  });
+});
+
+test('resolveRepoArg (A3-8) : chemin absolu HORS = fichier -> refuse (exige un DOSSIER)', () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsD = tmpDir('iaka-chantier-horsD-');
+    const f = path.join(horsD, 'x.txt');
+    fs.writeFileSync(f, 'x', 'utf8');
+    assert.deepEqual(resolveRepoArg(f, { requireExisting: false }), { unknown: true });
+  });
+});
+
+test('resolveRepoArg (A3-9) : chemin absolu HORS = racine de volume -> refuse (ancre trop large)', () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const volumeRoot = path.parse(root).root;
+    assert.deepEqual(resolveRepoArg(volumeRoot, { requireExisting: false }), { unknown: true });
+  });
+});
+
+test('resolveRepoArg (A3-8) : chemin deja SOUS une ancre de session -> l\'ancre si existant, refuse si inexistant', () => {
+  const { root } = makeSandbox();
+  withEnv({ IAKAFRAME_ROOT: root }, () => {
+    const horsA = tmpDir('iaka-chantier-horsA-');
+    const kA = keyOf(horsA);
+    const state = { launch: { key: kA }, active: { key: kA } };
+    fs.mkdirSync(path.join(horsA, 'sub'), { recursive: true });
+    const ok = resolveRepoArg(path.join(horsA, 'sub'), { requireExisting: false, state });
+    assert.deepEqual(ok.key, kA);
+    const absent = resolveRepoArg(path.join(horsA, 'sub-absent'), { requireExisting: false, state });
+    assert.deepEqual(absent, { unknown: true });
   });
 });
 
@@ -475,4 +676,17 @@ test('sessionShellHint : role "team" (ou absent) -> commande shell directe AVEC 
 test('sessionShellHint : role "team" (ou absent) -> commande shell directe AVEC --agent aragorn, adaptee a l\'OS (POSIX)', { skip: process.platform === 'win32' }, () => {
   assert.match(sessionShellHint('/work/repoA', 'team'), /^cd \/work\/repoA && claude --agent aragorn$/);
   assert.match(sessionShellHint('/work/repoA'), /^cd \/work\/repoA && claude --agent aragorn$/);
+});
+
+// --- A3-7 : sessionShellHint(root, role, kind:"hors") — SANS --agent, QUEL QUE SOIT le role -----
+
+test('sessionShellHint (A3-7) : kind "hors" -> commande claude SANS --agent, quel que soit le role', { skip: process.platform !== 'win32' }, () => {
+  assert.match(sessionShellHint('C:\\horsA', 'odin', 'hors'), /^Set-Location C:\\horsA ; claude$/);
+  assert.match(sessionShellHint('C:\\horsA', 'team', 'hors'), /^Set-Location C:\\horsA ; claude$/);
+  assert.ok(!sessionShellHint('C:\\horsA', 'odin', 'hors').includes('--agent'));
+});
+
+test('sessionShellHint (A3-7) : kind "hors" -> commande claude SANS --agent (POSIX)', { skip: process.platform === 'win32' }, () => {
+  assert.match(sessionShellHint('/horsA', 'odin', 'hors'), /^cd \/horsA && claude$/);
+  assert.match(sessionShellHint('/horsA', 'team', 'hors'), /^cd \/horsA && claude$/);
 });

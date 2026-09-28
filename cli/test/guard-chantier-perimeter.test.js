@@ -9,15 +9,11 @@
 // (`chantier-state.mjs`) par guard-chantier-state.test.js (Lot 2) ; le prompt (`chantier-remind.mjs`)
 // par guard-chantier-remind.test.js (Lot 3). Ce fichier ne couvre QUE l'adaptateur perimeter-guard.mjs.
 //
-// ECART DECLARE (CA-17, dernier cas) : l'instruction libelle "Bash npm test (cwd repoB) -> exit 2
-// NO_CHANTIER" pour une session lancee dans un dossier @hors. Par la regle D-5 deja verrouillee
-// (guard-core.mjs, Lot 1bis, "regle 6 ... @hors compris") un `active` de `kind:"hors"` N'EST PAS
-// `null` (le premier `launch` ouvre TOUJOURS le segment 1, y compris hors racine/depot) : une cle
-// touchee (`repoB`, un vrai depot) differente de `@hors` releve donc de la regle 6
-// (CHANTIER_MISMATCH), jamais de la regle 5 (NO_CHANTIER, qui exige `state.active` LITTERALEMENT
-// absent). Le coeur pur n'est pas modifie par ce lot : ce test verrouille le comportement REEL et
-// deja verifie (CA-5 regle 6, guard-core.test.js) plutot que le libelle imprecis de l'instruction.
-// Aucun autre verdict n'est affecte ; declare a Legolas/Gandalf, pas tranche silencieusement.
+// 3e amendement (declaration-chantier-session.md § 2, Lot 1ter) : CA-17 est REECRIT — un dossier
+// hors racine/depot est desormais un chantier ANCRE sur son propre chemin (A3-1), plus "aucun
+// chantier". Le dernier cas de CA-17 ("npm test", cwd=repoB, sous un chantier "@hors:<nom>") attend
+// donc `CHANTIER_MISMATCH` (une cle touchee differente de l'ancre effective, regle 6, D-5) — ce
+// n'est PLUS un ecart au libelle de l'instruction (l'ancien "ECART DECLARE" est leve).
 //
 // ECART DECLARE (CA-19, sous-cas POSIX) : le lien symbolique `~/.claude/hooks/x.mjs -> <repoA>/kit/
 // x.mjs` n'est testable de facon fiable que sous POSIX (`fs.symlinkSync` sur Windows exige des
@@ -106,6 +102,14 @@ function readRegistry(env, sid) {
 
 function runHook(payload, env) {
   return spawnSync(process.execPath, [PERIM], { input: JSON.stringify(payload), env, encoding: 'utf8' });
+}
+
+// CA-41 (chantier-remind.mjs, canal PROMPT) : reutilise dans CE fichier (perimetre "bout-en-bout"
+// des dossiers hors, 3e amendement) plutot que guard-chantier-remind.test.js — cf. § "Fichiers
+// concernes" de l'instruction (CA-37 a CA-39 et CA-41 ici ; CA-40 seul dans l'autre fichier).
+const REMIND = path.join(HOOKS_DIR, 'chantier-remind.mjs');
+function runRemind(payload, env) {
+  return spawnSync(process.execPath, [REMIND], { input: JSON.stringify(payload), env, encoding: 'utf8' });
 }
 
 const pre = (sid, cwd, tool, tool_input, extra) => ({
@@ -315,13 +319,17 @@ test('CA-16 : Bash "git commit -am x" avec cwd=repoB -> exit 2 ; meme commande c
 });
 
 // ===========================================================================
-// CA-17 : lecture libre (session lancee HORS racine/depot, kind "hors") ; MUTATE -> DENY.
+// CA-17 (reecrit au 3e amendement, A3-1) : session lancee dans un dossier HORS racine/depot ->
+// chantier ANCRE sur ce dossier (jamais "aucun chantier"). Lecture libre malgre le chantier ;
+// MUTATE hors de l'ancre -> DENY. Dossier hors cree HORS de `os.tmpdir()` (nonTmpDir, M-20) : un
+// chemin sous le tmpdir de l'OS serait exclu par D-8 AVANT meme d'atteindre `keyOf`/`verdictChantier`
+// et masquerait la faille M-18 (cf. commentaire `nonTmpDir` plus haut).
 // ===========================================================================
 
-test('CA-17 : lecture libre malgre un chantier "@hors" : git -C/cd&&git status/PowerShell Get-Content/forme CLI par chemin -> exit 0', () => {
+test('CA-17 : lecture libre malgre un chantier "@hors:<nom>" : git -C/cd&&git status/PowerShell Get-Content/forme CLI par chemin -> exit 0', () => {
   const { env, root } = makeSandbox();
   const repoB = makeRepo(root, 'repoB');
-  const horsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-perim-hors-'));
+  const horsDir = nonTmpDir('iaka-perim-hors-');
   const sid = nextSid();
 
   const r1 = runHook(pre(sid, horsDir, 'Bash', { command: `git -C ${repoB} log` }), env);
@@ -338,12 +346,12 @@ test('CA-17 : lecture libre malgre un chantier "@hors" : git -C/cd&&git status/P
   assert.equal(r4.status, 0);
 });
 
-test('CA-17 (ecart declare) : "npm test" (MUTATE, cwd=repoB) sous un chantier "@hors" -> exit 2 CHANTIER_MISMATCH (regle 6, "@hors compris" — pas NO_CHANTIER, cf. en-tete du fichier)', () => {
+test('CA-17 : "npm test" (MUTATE, cwd=repoB) sous un chantier "@hors:<nom>" -> exit 2 CHANTIER_MISMATCH (plus NO_CHANTIER : un lancement hors ouvre un chantier ancre, A3-1)', () => {
   const { env, root } = makeSandbox();
   const repoB = makeRepo(root, 'repoB');
-  const horsDir = fs.mkdtempSync(path.join(os.tmpdir(), 'iaka-perim-hors2-'));
+  const horsDir = nonTmpDir('iaka-perim-hors2-');
   const sid = nextSid();
-  runHook(pre(sid, horsDir, 'Bash', { command: 'echo init' }), env); // launch @hors (segment 1)
+  runHook(pre(sid, horsDir, 'Bash', { command: 'echo init' }), env); // launch @hors:<nom>, ancre sur horsDir
   const res = runHook(pre(sid, repoB, 'Bash', { command: 'npm test' }), env);
   assert.equal(res.status, 2);
   assert.match(res.stderr, /CHANTIER_MISMATCH/);
@@ -531,13 +539,172 @@ test('CA-26 : depuis un SOUS-AGENT (agent_id) -> exit 2 (portfolioVerb exige act
   assert.equal(res.status, 2);
 });
 
-test('CA-26 : "iakaframe onboard --path C:\\Windows\\x" (@hors) -> exit 2', () => {
+test('CA-26 : "iakaframe onboard --path C:\\Windows\\x" (cle hors ancree sur C:\\Windows, A3-2 b) -> exit 2 CHANTIER_MISMATCH', () => {
   const { env, root } = makeSandbox();
   const sid = nextSid();
-  runHook(pre(sid, root, 'Bash', { command: 'echo init' }), env);
+  runHook(pre(sid, root, 'Bash', { command: 'echo init' }), env); // launch @portefeuille
   const horsCible = process.platform === 'win32' ? 'C:\\Windows\\x' : '/etc/x';
   const res = runHook(pre(sid, root, 'Bash', { command: `iakaframe onboard --path ${horsCible}` }), env);
   assert.equal(res.status, 2);
+  assert.match(res.stderr, /CHANTIER_MISMATCH/);
+});
+
+// ===========================================================================
+// 3e amendement (declaration-chantier-session.md § 2, Lot 1ter) — CA-37 a CA-39, CA-41.
+// Fixtures HORS de `os.tmpdir()` (nonTmpDir, M-20) : sinon D-8 les exclurait AVANT `keyOf`,
+// masquant la faille M-18 (horsA -> horsB ALLOW) que ce lot ferme.
+// ===========================================================================
+
+test('CA-37 (faille M-18 fermee) : session odin lancee dans horsA — gestes DANS l\'ancre -> ALLOW', () => {
+  const { env, root } = makeSandbox();
+  const horsA = nonTmpDir('iaka-perim-horsA-');
+  const sid = nextSid();
+
+  const r1 = runHook(pre(sid, horsA, 'Write', { file_path: path.join(horsA, 'f.txt') }), env);
+  assert.equal(r1.status, 0);
+
+  const deep = path.join(horsA, 'sub', 'deep');
+  fs.mkdirSync(deep, { recursive: true });
+  const r2 = runHook(pre(sid, horsA, 'Edit', { file_path: path.join(deep, 'g.txt') }), env);
+  assert.equal(r2.status, 0);
+
+  const r3 = runHook(pre(sid, path.join(horsA, 'sub'), 'Bash', { command: 'npm test' }), env);
+  assert.equal(r3.status, 0);
+});
+
+test('CA-37 (faille M-18 fermee) : session odin lancee dans horsA — gestes VERS horsB (ou ailleurs) -> DENY CHANTIER_MISMATCH', () => {
+  const { env, root } = makeSandbox();
+  const repoA = makeRepo(root, 'repoA');
+  const horsA = nonTmpDir('iaka-perim-horsA-');
+  const horsB = nonTmpDir('iaka-perim-horsB-');
+  const sid = nextSid();
+  runHook(pre(sid, horsA, 'Bash', { command: 'echo init' }), env); // launch, ancre horsA
+
+  const wWrite = runHook(pre(sid, horsA, 'Write', { file_path: path.join(horsB, 'f.txt') }), env);
+  assert.equal(wWrite.status, 2);
+  assert.match(wWrite.stderr, /CHANTIER_MISMATCH/);
+  assert.match(wWrite.stderr, /horsB/);
+  assert.match(wWrite.stderr, /claude/);
+  assert.doesNotMatch(wWrite.stderr, /--agent aragorn/);
+
+  const wEdit = runHook(pre(sid, horsA, 'Edit', { file_path: path.join(horsB, 'f.txt') }), env);
+  assert.equal(wEdit.status, 2);
+  assert.match(wEdit.stderr, /CHANTIER_MISMATCH/);
+
+  const bashRedir = runHook(pre(sid, horsA, 'Bash', { command: `echo x > ${path.join(horsB, 'f.txt')}` }), env);
+  assert.equal(bashRedir.status, 2);
+  assert.match(bashRedir.stderr, /CHANTIER_MISMATCH/);
+
+  const psSetContent = runHook(pre(sid, horsA, 'PowerShell', { command: `Set-Content ${path.join(horsB, 'f.txt')} x` }), env);
+  assert.equal(psSetContent.status, 2);
+  assert.match(psSetContent.stderr, /CHANTIER_MISMATCH/);
+
+  const npmHorsB = runHook(pre(sid, horsB, 'Bash', { command: 'npm test' }), env);
+  assert.equal(npmHorsB.status, 2);
+  assert.match(npmHorsB.stderr, /CHANTIER_MISMATCH/);
+
+  const notes = runHook(pre(sid, horsA, 'Write', { file_path: path.join(root, 'notes.md') }), env);
+  assert.equal(notes.status, 2);
+  assert.match(notes.stderr, /CHANTIER_MISMATCH/);
+
+  const versRepoA = runHook(pre(sid, horsA, 'Write', { file_path: path.join(repoA, 'x.js') }), env);
+  assert.equal(versRepoA.status, 2);
+  assert.match(versRepoA.stderr, /CHANTIER_MISMATCH/);
+});
+
+test('CA-37 (faille M-18 fermee) : sous-agent — horsA ALLOW, horsB DENY (meme ancre que le thread principal)', () => {
+  const { env, root } = makeSandbox();
+  const horsA = nonTmpDir('iaka-perim-horsA-');
+  const horsB = nonTmpDir('iaka-perim-horsB-');
+  const sid = nextSid();
+  runHook(pre(sid, horsA, 'Bash', { command: 'echo init' }), env);
+
+  const subOk = runHook(pre(sid, horsA, 'Write', { file_path: path.join(horsA, 'f2.txt') }, { agent_id: 's1', agent_type: 'gimli' }), env);
+  assert.equal(subOk.status, 0);
+
+  const subKo = runHook(pre(sid, horsA, 'Write', { file_path: path.join(horsB, 'f.txt') }, { agent_id: 's1', agent_type: 'gimli' }), env);
+  assert.equal(subKo.status, 2);
+  assert.match(subKo.stderr, /CHANTIER_MISMATCH/);
+});
+
+test('CA-37 : registre HERITE (launch hors NON ANCRE, forme pre-Lot-1ter) -> repli ferme NO_CHANTIER ; lecture libre ; exclusions D-8 inchangees', () => {
+  const { env, root } = makeSandbox();
+  const horsA = nonTmpDir('iaka-perim-horsA-herite-');
+  const sid = nextSid();
+  const regPath = registryFile(env, sid);
+  fs.mkdirSync(path.dirname(regPath), { recursive: true });
+  fs.writeFileSync(
+    regPath,
+    JSON.stringify({ v: 1, at: new Date().toISOString(), type: 'launch', key: { kind: 'hors', root: null, name: '@hors' }, main_role: 'odin', main_agent_type: null }) + '\n',
+    'utf8',
+  );
+
+  const wr = runHook(pre(sid, horsA, 'Write', { file_path: path.join(horsA, 'f.txt') }), env);
+  assert.equal(wr.status, 2);
+  assert.match(wr.stderr, /NO_CHANTIER/);
+
+  const rd = runHook(pre(sid, horsA, 'Bash', { command: 'git status' }), env);
+  assert.equal(rd.status, 0);
+
+  const tmp = runHook(pre(sid, horsA, 'Write', { file_path: path.join(os.tmpdir(), 'iaka-perim-herite-out.txt') }), env);
+  assert.equal(tmp.status, 0);
+});
+
+// ===========================================================================
+// CA-38 (sous reserve Q-H1, tranche "non" — recommandation retenue) : ancre TROP LARGE.
+// ===========================================================================
+
+test('CA-38 : session lancee dans le HOME du bac a sable (hors tmp, M-20) -> ancre refusee, NO_CHANTIER', () => {
+  const { root } = makeSandbox();
+  const home = nonTmpDir('iaka-perim-home-anchor-');
+  const env = {
+    ...process.env, HOME: home, USERPROFILE: home, IAKAFRAME_ROOT: root, IAKAFRAME_CHANTIER_MODE: 'deny',
+  };
+  delete env.CLAUDE_PROJECT_DIR;
+  const sid = nextSid();
+  runHook(pre(sid, home, 'Bash', { command: 'echo init' }), env);
+  const launch = readRegistry(env, sid).find((e) => e.type === 'launch');
+  assert.equal(launch.key.kind, 'hors');
+  assert.equal(launch.key.root, null);
+
+  const res = runHook(pre(sid, home, 'Write', { file_path: path.join(home, 'x.txt') }), env);
+  assert.equal(res.status, 2);
+  assert.match(res.stderr, /NO_CHANTIER/);
+});
+
+// ===========================================================================
+// CA-39 : session d'EQUIPE lancee dans un dossier hors -> TEAM_NEEDS_REPO (inchange, A3-1).
+// ===========================================================================
+
+test('CA-39 : session d\'equipe (agent_type aragorn, sans agent_id) lancee dans un dossier hors -> exit 2 TEAM_NEEDS_REPO', () => {
+  const { env } = makeSandbox();
+  const horsA = nonTmpDir('iaka-perim-horsA-team-');
+  const sid = nextSid();
+  const res = runHook(pre(sid, horsA, 'Write', { file_path: path.join(horsA, 'f.txt') }, { agent_type: 'aragorn' }), env);
+  assert.equal(res.status, 2);
+  assert.match(res.stderr, /TEAM_NEEDS_REPO/);
+});
+
+// ===========================================================================
+// CA-41 : chantier-remind (stdout) + journal de perimetre, session lancee dans un dossier hors.
+// ===========================================================================
+
+test('CA-41 : chantier-remind stdout "Chantier actif : @hors:<nom> (<root>)" ; journal de perimetre chantier.root non nul', () => {
+  const { env } = makeSandbox();
+  const horsA = nonTmpDir('iaka-perim-horsA-remind-');
+  const sid = nextSid();
+  runHook(pre(sid, horsA, 'Bash', { command: 'echo init' }), env); // 1er hook : cree le registre, ancre horsA
+
+  const res = runRemind({ hook_event_name: 'UserPromptSubmit', session_id: sid, cwd: horsA, prompt: 'bonjour' }, env);
+  assert.equal(res.status, 0);
+  const nom = path.basename(horsA);
+  assert.match(res.stdout, new RegExp(`Chantier actif : @hors:${nom} \\(`));
+
+  const journal = fs.readFileSync(path.join(env.HOME, '.claude', 'iakaframe-perimeter.log'), 'utf8')
+    .trim().split(/\r?\n/).map((l) => JSON.parse(l));
+  const rec = journal.find((r) => r.session === sid);
+  assert.ok(rec, 'ligne de journal attendue pour cette session');
+  assert.ok(rec.chantier && rec.chantier.root, 'chantier.root doit etre non nul');
 });
 
 // ===========================================================================

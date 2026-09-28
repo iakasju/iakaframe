@@ -11,7 +11,7 @@
 // AUCUN test ici n'ecrit dans le vrai `~/.claude` : chaque test redirige HOME/USERPROFILE et
 // IAKAFRAME_ROOT vers un tmpdir dedie (sandbox), et le hook est lance bout-en-bout via `spawnSync`.
 
-import { test } from 'node:test';
+import { test, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -22,10 +22,27 @@ import { fileURLToPath } from 'node:url';
 const here = path.dirname(fileURLToPath(import.meta.url));
 const HOOKS_DIR = path.resolve(here, '..', '..', 'kits', 'iakaframe-claude', 'global', 'hooks');
 const REMIND = path.join(HOOKS_DIR, 'chantier-remind.mjs');
+const PERIM = path.join(HOOKS_DIR, 'perimeter-guard.mjs');
 
 // ---------------------------------------------------------------------------
 // Sandbox : HOME/USERPROFILE + IAKAFRAME_ROOT rediriges vers un tmpdir. JAMAIS le vrai ~/.claude.
+//
+// `nonTmpDir` (3e amendement, CA-40) : un dossier HORS de `os.tmpdir()` (cf. meme constat que
+// guard-chantier-perimeter.test.js, M-20) — un dossier hors DE TEST cree sous le tmp de l'OS serait
+// exclu par D-8 AVANT `keyOf` cote `perimeter-guard.mjs`, masquant les verdicts ODIN_DIRECT/
+// CHANTIER_MISMATCH que CA-40 verifie.
 // ---------------------------------------------------------------------------
+
+const REAL_HOME = os.homedir();
+const FIXTURE_BASE = path.join(REAL_HOME, '.iaka-remind-test-fixtures');
+after(() => {
+  try { fs.rmSync(FIXTURE_BASE, { recursive: true, force: true }); } catch { /* best-effort */ }
+});
+
+function nonTmpDir(prefix) {
+  fs.mkdirSync(FIXTURE_BASE, { recursive: true });
+  return fs.realpathSync.native(fs.mkdtempSync(path.join(FIXTURE_BASE, prefix)));
+}
 
 let seq = 0;
 function nextSid() {
@@ -73,6 +90,15 @@ function runHook(payload, env) {
 
 function prompt(sid, root, text, extra) {
   return { hook_event_name: 'UserPromptSubmit', session_id: sid, cwd: root, prompt: text, ...extra };
+}
+
+// CA-40 : verifie AUSSI le geste direct via perimeter-guard.mjs (la declaration seule ne suffit
+// pas a demontrer l'ancrage — il faut l'ecriture qui la teste).
+function pre(sid, cwd, tool, tool_input, extra) {
+  return { hook_event_name: 'PreToolUse', session_id: sid, cwd, tool_name: tool, tool_input, ...extra };
+}
+function runPerim(payload, env) {
+  return spawnSync(process.execPath, [PERIM], { input: JSON.stringify(payload), env, encoding: 'utf8' });
 }
 
 // ===========================================================================
@@ -330,6 +356,59 @@ test('session d\'equipe : mention d\'un autre depot -> `named` ECRIT quand meme 
   assert.match(res.stdout, /Depot mentionne \(repoB\) different de l'actif : chantier fixe au lancement \(repoA\)/);
   assert.match(res.stdout, /demande a Odin de lancer une session dans ce depot/);
   assert.doesNotMatch(res.stdout.toLowerCase(), /deleguer a aragorn/);
+});
+
+// ===========================================================================
+// 3e amendement (A3-8, Q-H2 = oui) — CA-40 : `chantier`/`odin-direct` vers un dossier HORS.
+// ===========================================================================
+
+test('CA-40 : session odin au portefeuille — `chantier <horsB>` ancre une cle hors ; verifie via perimeter-guard', () => {
+  const { env, root } = makeSandbox();
+  const horsB = nonTmpDir('iaka-remind-horsB-');
+  const horsC = nonTmpDir('iaka-remind-horsC-');
+  const sid = nextSid();
+
+  // 1er prompt (portefeuille) : cree le registre (launch @portefeuille, role odin).
+  runHook(prompt(sid, root, 'salut'), env);
+
+  // `chantier <horsB>` (dossier EXISTANT) -> declare d'une cle hors ANCREE sur horsB (A3-8).
+  const decl = runHook(prompt(sid, root, `chantier ${horsB}`), env);
+  assert.equal(decl.status, 0);
+  const declEv = readRegistry(env, sid).filter((e) => e.type === 'declare').pop();
+  assert.ok(declEv, 'evenement declare attendu');
+  assert.equal(declEv.key.kind, 'hors');
+  assert.equal(fs.realpathSync.native(declEv.key.root), fs.realpathSync.native(horsB));
+  assert.match(decl.stdout, new RegExp(`Chantier actif : @hors:${path.basename(horsB)}`));
+
+  // Write horsB\sub\f.txt PAR LE THREAD PRINCIPAL -> exit 2 ODIN_DIRECT (regime Odin : la session
+  // reste "chez elle" au portefeuille, la designation ne l'y transporte pas).
+  fs.mkdirSync(path.join(horsB, 'sub'), { recursive: true });
+  const wMain = runPerim(pre(sid, root, 'Write', { file_path: path.join(horsB, 'sub', 'f.txt') }), env);
+  assert.equal(wMain.status, 2);
+  assert.match(wMain.stderr, /ODIN_DIRECT/);
+
+  // ... PAR UN SOUS-AGENT -> exit 0 (pas de regime Odin pour un sous-agent).
+  const wSub = runPerim(pre(sid, root, 'Write', { file_path: path.join(horsB, 'sub', 'f.txt') }, { agent_id: 's1', agent_type: 'gimli' }), env);
+  assert.equal(wSub.status, 0);
+
+  // Write horsC\f.txt PAR LE SOUS-AGENT -> exit 2 (cle differente de l'ancre horsB).
+  const wSubC = runPerim(pre(sid, root, 'Write', { file_path: path.join(horsC, 'f.txt') }, { agent_id: 's1', agent_type: 'gimli' }), env);
+  assert.equal(wSubC.status, 2);
+  assert.match(wSubC.stderr, /CHANTIER_MISMATCH/);
+
+  // `chantier <horsB>\absent` (INEXISTANT) -> aucun declare, rappel de refus (A3-8).
+  const beforeCount = readRegistry(env, sid).length;
+  const declAbsent = runHook(prompt(sid, root, `chantier ${path.join(horsB, 'absent')}`), env);
+  assert.equal(declAbsent.status, 0);
+  assert.equal(readRegistry(env, sid).length, beforeCount);
+  assert.match(declAbsent.stdout, /refuse/);
+
+  // `odin-direct <horsB>` -> grant ; Write horsB\f.txt PAR LE THREAD PRINCIPAL -> exit 0.
+  const grantRes = runHook(prompt(sid, root, `odin-direct ${horsB}`), env);
+  assert.equal(grantRes.status, 0);
+  assert.ok(readRegistry(env, sid).some((e) => e.type === 'grant'));
+  const wGranted = runPerim(pre(sid, root, 'Write', { file_path: path.join(horsB, 'f.txt') }), env);
+  assert.equal(wGranted.status, 0);
 });
 
 // ===========================================================================
