@@ -922,6 +922,18 @@ puis **`bw lock` systématique** et suppression du fichier env temporaire (cré�
 `umask 077` dans le scratchpad de session, jamais dans le dépôt). Aucune valeur n'est
 jamais imprimée : on n'affiche que `cree | inchange | conflit` et l'état `locked` final.
 
+**Besoin d'un accès : le coffre d'abord** (consigne du décideur, 2026-09-30). Quand l'agent a
+besoin d'un accès quelque part (jeton GitHub ou forge, registre npm, API, compte de service),
+il **regarde d'abord si le coffre le possède**, sans attendre « ouvre le bw » et **avant** de
+solliciter le décideur. Le geste : déverrouiller comme ci-dessus, lire l'item par son nom
+(`bw get password "<item>"`, ou `bw list items --search <mot>` pour ne lister que des
+**noms**), injecter la valeur **directement** dans la commande qui en a besoin — variable
+d'environnement ou credential helper en ligne (`git -c credential.helper='!f(){ … }; f'`) —
+dans la **même commande shell**, puis `unset` et **`bw lock`**. La valeur n'est **jamais**
+affichée, écrite dans un fichier, une URL de remote ni un `.git/config`. Le décideur n'est
+sollicité que si l'item est absent du coffre, ou si l'environnement refuse l'accès (ex. mode
+auto de Claude Code) — l'agent s'arrête alors et le dit, sans contourner.
+
 **Modification d'un secret existant** : le script refuse d'écraser (`conflit`). Rotation =
 nouvel item **ou** édition explicite par le décideur dans l'interface web, puis mise à
 jour de la copie locale (`.env`) et révocation de l'ancienne valeur côté service. Un

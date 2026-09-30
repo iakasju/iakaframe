@@ -113,6 +113,14 @@ avant toute création de compte et remet les commandes que le décideur joue lui
 passé par une session d'agent est réputé exposé : rotation à prévoir. Procédure complète :
 `methode-de-travail.md` § « Secrets par défaut ».
 
+**Besoin d'un accès : le coffre d'abord.** Quand l'agent a besoin d'un accès (jeton GitHub ou
+forge, registre, API, compte de service), il **regarde d'abord si le coffre le possède** — sans
+attendre « ouvre le bw » et avant de solliciter le décideur. Il lit l'item par son nom, injecte
+la valeur directement dans la commande (variable d'env ou credential helper en ligne) dans la
+même commande shell, puis `unset` et `bw lock` : valeur **jamais** affichée, ni écrite dans un
+fichier, une URL de remote ou un `.git/config`. Le décideur n'est sollicité que si l'item manque
+ou si l'environnement refuse l'accès — l'agent s'arrête alors et le dit, sans contourner.
+
 Le CLI `bw` est **épinglé à une version compatible avec le Vaultwarden déployé** (binaire
 officiel vérifié par SHA-256, jamais le paquet npm) : une version trop récente du CLI peut
 exiger un endpoint absent du serveur et faire échouer le `unlock` (`KeyIdBackfillError`) sans
