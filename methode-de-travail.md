@@ -928,6 +928,36 @@ jour de la copie locale (`.env`) et révocation de l'ancienne valeur côté serv
 secret ayant **transité par une session d'agent est réputé exposé** : à faire tourner
 dès que le service le permet.
 
+## Démarrage de session : la méthode locale suit `origin`
+
+La source officielle de la méthode est le dépôt `iakaframe` de **`origin`**
+(`git.naonedge.com`, le Forgejo du VPS naonedge — décision du 2026-09-30). **Au démarrage
+de chaque session**, l'agent vérifie que la copie locale (`C:\work\iakaframe`) n'est pas
+en retard sur `origin`, et la met à jour si elle l'est.
+
+**Le geste** (silencieux s'il n'y a rien à faire) :
+
+```bash
+cd C:/work/iakaframe
+git fetch origin
+git rev-list --left-right --count main...origin/main   # <avance> <retard>
+```
+
+- **Retard seul** (`retard > 0`, `avance = 0`) et arbre propre → `git pull --ff-only`, puis
+  une ligne à l'utilisateur : « méthode mise à jour : `<ancien>` → `<nouveau>` ».
+- **À jour** → rien à dire.
+- **Avance seule** (commits locaux non poussés) → ne rien faire d'autre que le signaler ;
+  le push se **propose**, il ne se fait jamais seul.
+- **Divergence** (avance **et** retard) ou **arbre sale** → **ne rien modifier**, signaler
+  l'écart à l'utilisateur et attendre sa décision. Jamais `reset --hard`, jamais `--force`.
+- **`origin` injoignable** (réseau, jeton) → le dire en une ligne et continuer avec la
+  copie locale ; ne pas bloquer la session.
+
+Le jeton du VPS est celui intégré à l'URL de `origin` dans `.git/config` (local, non
+commité) ; il n'est jamais affiché. Le contrôle ne couvre que la **méthode**
+(`C:\work\iakaframe`) : les dépôts de projet suivent la règle « update = comparer
+remote/local ».
+
 ## Cycle de documentation — version & reprise
 
 La doc d'état n'est pas écrite « quand on y pense » : elle est régénérée **à deux
