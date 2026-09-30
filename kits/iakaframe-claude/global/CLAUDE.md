@@ -68,9 +68,14 @@ Odin au portefeuille), et **rend les agents prêts à dispatch — sans en spawn
 > (**sur ordre**, feu vert humain) ; **🌉 Helm** veille sur la production (**sans ordre**). Les
 > deux portent la pastille `🟣` — elle marque la **phase**, le nom désambiguïse.
 
-- **Sans hook** : le déclenchement repose uniquement sur (a) le champ `description` de la
-  skill (mécanisme natif de découverte/invocation de skill) et (b) la présente règle du
-  `CLAUDE.md` global. **Aucun hook, watcher, daemon ni commande slash custom.**
+- **Déclenchement sans hook** : le déclenchement *d'`iakastart`* repose uniquement sur (a) le
+  champ `description` de la skill (mécanisme natif de découverte/invocation de skill) et (b) la
+  présente règle du `CLAUDE.md` global. **Aucun hook, watcher, daemon ni commande slash custom
+  pour DÉCLENCHER iakastart.** ⚠️ Portée limitée au seul déclenchement d'iakastart : ce n'est
+  **pas** une interdiction globale des hooks. Les **garde-fous par hooks sont autorisés** ailleurs
+  (ex. garde d'identité des agents sur `Stop`/`SubagentStop`/`UserPromptSubmit`, et garde du canal
+  des gestes sur `PreToolUse`/`PostToolUse` de l'outil de délégation `Task`). Cf. instruction
+  `iakaframe/specs/instructions/gardes-fous-canal-gestes-hooks.md`.
 - L'alias `iakaframe` mène à la **même** skill `iakastart`, **partout** ; `odin` y mène **au
   portefeuille** et conserve **en plus** sa posture portefeuille via la skill `iakaframe-odin`
   (inchangée).
@@ -93,6 +98,26 @@ réaligne par `git push iakabox main --tags`. Même statut pour le
 défaut, même configuré comme remote. Un dépôt peut en faire sa **vitrine** publique via un
 opt-in (`iakaframe.json` → `pushOptInRemotes`) ; la seule écriture possible reste alors
 `iakaframe update --publier <vX.Y.Z>`, publiée avec l'accord du décideur au terminal.
+
+## Secrets par défaut : coffre auto-hébergé (Vaultwarden)
+
+Tout secret créé ou manipulé en session (mot de passe, jeton, clé) est **versé dans le coffre
+dans la même séance** : dossier `work/<projet>`, item login `<projet>/<usage>`, via un script de
+versement qui lit la valeur **depuis un fichier env** (jamais en argument, jamais affiché,
+idempotent, refuse d'écraser). Le coffre CLI est verrouillé par défaut ; quand le décideur dit
+**« ouvre le bw »**, l'agent déverrouille avec `bw unlock --passwordenv <VARIABLE> --raw`
+(variable d'un `.env` local non commité) **en une seule commande shell**, verse, puis
+**`bw lock`** et efface le fichier temporaire. Le mot de passe maître n'est **jamais demandé
+dans un message** : si le déverrouillage n'est pas possible dans la session, l'agent s'arrête
+avant toute création de compte et remet les commandes que le décideur joue lui-même. Un secret
+passé par une session d'agent est réputé exposé : rotation à prévoir. Procédure complète :
+`methode-de-travail.md` § « Secrets par défaut ».
+
+Le CLI `bw` est **épinglé à une version compatible avec le Vaultwarden déployé** (binaire
+officiel vérifié par SHA-256, jamais le paquet npm) : une version trop récente du CLI peut
+exiger un endpoint absent du serveur et faire échouer le `unlock` (`KeyIdBackfillError`) sans
+rendre de session. Ne pas mettre `bw` à jour sans vérifier la compatibilité serveur (épinglage
+et procédure de repli : documentation du dépôt d'infrastructure).
 
 ## Cycle de documentation (état des lieux)
 
