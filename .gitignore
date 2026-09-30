@@ -12,6 +12,7 @@ target/
 # C'est exactement ce qui s'est produit (un FORGEJO_TOKEN a atterri dans l'historique).
 .env
 .env.*
+*.env
 !.env.example
 *.token
 
