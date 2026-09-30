@@ -914,8 +914,9 @@ bw lock
 
 **Déverrouillage par l'agent** : le coffre CLI est **verrouillé par défaut**. Quand le
 décideur autorise l'agent à l'ouvrir (« ouvre le bw »), l'agent lit le mot de passe maître
-depuis `VAULTWARDEN_PASSWORD` du `.env` **local et non commité** du projet
-`naonedge-vps`, le passe à `bw unlock --passwordenv --raw` **dans une seule commande
+depuis `VAULTWARDEN_PASSWORD` du **`.env` à la racine de `C:\work`** (local, non commité,
+partagé par tous les projets ; décision du 2026-09-30, il remplace le `.env` du projet
+`naonedge-vps`), le passe à `bw unlock --passwordenv --raw` **dans une seule commande
 shell** (les variables ne survivent pas d'un appel à l'autre), `unset` aussitôt, verse,
 puis **`bw lock` systématique** et suppression du fichier env temporaire (créé en
 `umask 077` dans le scratchpad de session, jamais dans le dépôt). Aucune valeur n'est
